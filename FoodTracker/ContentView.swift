@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-// MARK: - DATA MODELS & MANAGER
+// MARK: - DATA MODELS & MANAGER525252
 struct Beverage: Equatable, Hashable {
     let name: String; let icon: String; let color: Color; let caloriesPerGlass: Int
 }
