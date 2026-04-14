@@ -26,7 +26,7 @@ struct MacroBatteryView: View {
                     
                     RoundedRectangle(cornerRadius: 4)
                         .fill(color)
-                        .frame(width: geometry.size.width * CGFloat(current) / CGFloat(total))
+                        .frame(width: geometry.size.width * CGFloat(current) / CGFloat(max(total, 1)))
                 }
             }
             .frame(height: 8)
@@ -97,12 +97,15 @@ struct MacroSummaryView: View {
     let protein: Double
     let fats: Double
     let carbs: Double
+    let targetProtein: Double
+    let targetFats: Double
+    let targetCarbs: Double
     
     var body: some View {
         HStack(spacing: 15) {
-            MacroBatteryView(title: "Protein", current: Int(protein), total: 150, color: .themePeach)
-            MacroBatteryView(title: "Fats", current: Int(fats), total: 70, color: .themeYellow)
-            MacroBatteryView(title: "Carbs", current: Int(carbs), total: 250, color: .themeOrange)
+            MacroBatteryView(title: "Protein", current: Int(protein), total: Int(targetProtein), color: .themePeach)
+            MacroBatteryView(title: "Fats", current: Int(fats), total: Int(targetFats), color: .themeYellow)
+            MacroBatteryView(title: "Carbs", current: Int(carbs), total: Int(targetCarbs), color: .themeOrange)
         }
         .premiumCardStyle()
     }
@@ -255,5 +258,45 @@ struct EmptyStateView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.themeBg)
+    }
+}
+
+// MARK: - Haptic Manager
+class HapticManager {
+    static let shared = HapticManager()
+    
+    func impact(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+        UIImpactFeedbackGenerator(style: style).impactOccurred()
+    }
+}
+
+// MARK: - Liquid Wave Shape
+struct WaveShape: Shape {
+    var phase: Double
+    var waveAmplitude: Double
+
+    var animatableData: Double {
+        get { phase }
+        set { phase = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+
+        path.move(to: CGPoint(x: 0, y: height))
+        path.addLine(to: CGPoint(x: 0, y: waveAmplitude))
+
+        // Draw the sine wave on the top edge
+        for x in stride(from: 0, through: width, by: 2) {
+            let relativeX = x / 40.0 // frequency width
+            let y = sin(relativeX * .pi * 2 + phase) * waveAmplitude + waveAmplitude
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+
+        path.addLine(to: CGPoint(x: width, y: height))
+        path.closeSubpath()
+        return path
     }
 }

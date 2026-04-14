@@ -5,9 +5,9 @@
 //
 
 import SwiftUI
+import SwiftData
 
-// MARK: - ОДНОВЛЕННЫЕ МОДЕЛИ ДАННЫХ (Расширенный DietPlan)
-
+// MARK: - МОДЕЛИ ДАННЫХ
 struct FoodItemDetail: Identifiable, Hashable {
     let id = UUID()
     let name: String
@@ -21,7 +21,6 @@ struct FoodCategory: Identifiable, Hashable {
     let items: [FoodItemDetail]
 }
 
-
 struct SuperFoodsView: View {
     @State private var selectedDiet: DietPlan = DietPlan.allDiets[0]
     
@@ -30,7 +29,7 @@ struct SuperFoodsView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
                     
-                    // 1. DIET SELECTOR (Horizontal Scroll)
+                    // 1. DIET SELECTOR
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(DietPlan.allDiets) { diet in
@@ -55,7 +54,7 @@ struct SuperFoodsView: View {
                         .padding(.top, 8)
                     }
                     
-                    // 2. DYNAMIC DASHBOARD (Navigation Link Card)
+                    // 2. DYNAMIC DASHBOARD
                     NavigationLink(destination: DietDetailView(diet: selectedDiet)) {
                         VStack(alignment: .leading, spacing: 16) {
                             HStack(alignment: .top) {
@@ -91,7 +90,7 @@ struct SuperFoodsView: View {
                     .padding(.horizontal)
                     .buttonStyle(PlainButtonStyle())
                     
-                    // 3. FOOD CATEGORIES (Accordion Style)
+                    // 3. FOOD CATEGORIES
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Top Foods")
                             .font(.title2)
@@ -106,7 +105,6 @@ struct SuperFoodsView: View {
                     .padding(.bottom, 30)
                     
                 }
-                // Анимация при смене диеты срабатывает для всего блока
                 .animation(.spring(response: 0.5, dampingFraction: 0.8), value: selectedDiet)
             }
             .background(Color.themeBg.edgesIgnoringSafeArea(.bottom))
@@ -186,11 +184,13 @@ struct FoodCategorySection: View {
 }
 
 
-// MARK: - DIET DETAIL VIEW (Оставлен для совместимости роутинга)
+// MARK: - DIET DETAIL VIEW
 
 struct DietDetailView: View {
     let diet: DietPlan
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context
+    @Query private var users: [User]
     
     var body: some View {
         ScrollView {
@@ -248,8 +248,46 @@ struct DietDetailView: View {
                 }
                 .padding().frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.red.opacity(0.05)).cornerRadius(12)
+                
+                // КНОПКА АКТИВАЦИИ ДИЕТЫ
+                if let user = users.first {
+                    let isCurrentDiet = user.activeDietName == diet.name
+                    
+                    Button(action: {
+                        if !isCurrentDiet {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                user.applyDietBreakdown(
+                                    fatPercent: diet.macroBreakdown.fat,
+                                    proteinPercent: diet.macroBreakdown.protein,
+                                    carbsPercent: diet.macroBreakdown.carbs,
+                                    dietName: diet.name
+                                )
+                                try? context.save()
+                            }
+                        }
+                    }) {
+                        HStack(spacing: 8) {
+                            if isCurrentDiet {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("Current Diet")
+                            } else {
+                                Text("Start \(diet.name) Diet")
+                            }
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(isCurrentDiet ? Color.gray.opacity(0.6) : diet.color)
+                        .cornerRadius(12)
+                        .shadow(color: isCurrentDiet ? .clear : diet.color.opacity(0.4), radius: 5, y: 2)
+                    }
+                    .disabled(isCurrentDiet)
+                    .padding(.top, 10)
+                }
             }
             .padding()
+            .padding(.bottom, 20)
         }
         .background(Color.themeBg)
         .navigationTitle(diet.name)
@@ -275,4 +313,3 @@ struct MacroBreakdownCircle: View {
         }
     }
 }
-

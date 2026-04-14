@@ -9,6 +9,22 @@ import SwiftUI
 import SwiftData
 import Observation
 
+// MARK: - ACHIEVEMENTS (Геймификация)
+struct Achievement: Identifiable {
+    let id: String
+    let title: String
+    let description: String
+    let icon: String
+    let color: Color
+    
+    static let all: [Achievement] = [
+        Achievement(id: "first_log", title: "First Step", description: "Log your first meal", icon: "flag.fill", color: .themePink),
+        Achievement(id: "streak_3", title: "On Fire", description: "Reach a 3-day streak", icon: "flame.fill", color: .themeOrange),
+        Achievement(id: "streak_7", title: "Unstoppable", description: "Reach a 7-day streak", icon: "bolt.fill", color: .themeYellow),
+        Achievement(id: "water_pro", title: "Hydro Homie", description: "Drink 2.5L in a day", icon: "drop.fill", color: .blue)
+    ]
+}
+
 // MARK: - USER MODEL
 @Model final class User {
     var name: String
@@ -18,6 +34,16 @@ import Observation
     var gender: String
     var dailyCaloriesGoal: Int
     var createdDate: Date
+    var isHealthKitEnabled: Bool = false
+    
+    // НОВЫЕ ПОЛЯ ДЛЯ ДИЕТ И МАКРОСОВ
+    var activeDietName: String = "Balanced"
+    var targetProtein: Double = 150.0
+    var targetFats: Double = 70.0
+    var targetCarbs: Double = 250.0
+    
+    // НОВОЕ ПОЛЕ ДЛЯ ДОСТИЖЕНИЙ
+    var unlockedAchievements: [String] = []
     
     init(name: String, weight: Double, height: Double, age: Int, gender: String = "Male") {
         self.name = name
@@ -26,8 +52,19 @@ import Observation
         self.age = age
         self.gender = gender
         self.createdDate = Date()
+        
         self.dailyCaloriesGoal = 0
+        self.isHealthKitEnabled = false
+        self.activeDietName = "Balanced"
+        self.targetProtein = 150.0
+        self.targetFats = 70.0
+        self.targetCarbs = 250.0
+        
+        self.unlockedAchievements = [] // Дефолтное значение для избежания крэшей
+        
         self.calculateGoals()
+        // Устанавливаем дефолтное соотношение при создании пользователя (30% жиры / 30% белки / 40% углеводы)
+        self.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietName: "Balanced")
     }
     
     func calculateGoals() {
@@ -38,6 +75,17 @@ import Observation
             bmr = (10 * weight) + (6.25 * height) - (Double(age) * 5) - 161
         }
         self.dailyCaloriesGoal = Int(bmr * 1.3)
+    }
+    
+    // НОВЫЙ МЕТОД ДЛЯ ПРИМЕНЕНИЯ ДИЕТЫ
+    func applyDietBreakdown(fatPercent: Int, proteinPercent: Int, carbsPercent: Int, dietName: String) {
+        self.activeDietName = dietName
+        let targetCalories = Double(dailyCaloriesGoal)
+        
+        // 1 грамм белка = 4 ккал, 1 грамм углеводов = 4 ккал, 1 грамм жира = 9 ккал
+        self.targetProtein = (targetCalories * Double(proteinPercent) / 100.0) / 4.0
+        self.targetCarbs   = (targetCalories * Double(carbsPercent) / 100.0) / 4.0
+        self.targetFats    = (targetCalories * Double(fatPercent) / 100.0) / 9.0
     }
 }
 
@@ -135,6 +183,7 @@ import Observation
     @Relationship(deleteRule: .cascade) var meals: [Meal] = []
     @Relationship(deleteRule: .cascade) var beverages: [Beverage] = []
     var weight: Double?
+    var activeCaloriesBurned: Int = 0
 
     var totalFoodCalories: Int { meals.reduce(0) { $0 + $1.totalCalories } }
     var totalDrinkCalories: Int { beverages.reduce(0) { $0 + $1.caloriesPerGlass } }
@@ -146,8 +195,32 @@ import Observation
     var totalFats: Double { meals.reduce(0) { $0 + $1.totalFats } }
     var totalCarbs: Double { meals.reduce(0) { $0 + $1.totalCarbs } }
     
+    func remainingCalories(userGoal: Int) -> Int {
+        return (userGoal + activeCaloriesBurned) - totalCalories
+    }
+    
     init(date: Date, meals: [Meal] = [], beverages: [Beverage] = []) {
-        self.date = Calendar.current.startOfDay(for: date) // Строго начало дня
+        self.date = Calendar.current.startOfDay(for: date)
         self.meals = meals; self.beverages = beverages
+        self.activeCaloriesBurned = 0
+    }
+}
+
+// MARK: - EXTENSIONS
+extension CustomRecipe {
+    func toFoodItem() -> FoodItem {
+        let totalWeight = foodItems.reduce(0) { $0 + $1.weight }
+        let totalProtein = foodItems.reduce(0) { $0 + $1.protein }
+        let totalFats = foodItems.reduce(0) { $0 + $1.fats }
+        let totalCarbs = foodItems.reduce(0) { $0 + $1.carbs }
+        
+        return FoodItem(
+            name: self.name,
+            weight: totalWeight,
+            calories: self.totalCalories,
+            protein: totalProtein,
+            fats: totalFats,
+            carbs: totalCarbs
+        )
     }
 }

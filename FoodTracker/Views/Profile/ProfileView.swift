@@ -133,14 +133,19 @@ struct ProfileWrapperView: View {
     }
 }
 
+// MARK: - MAIN PROFILE VIEW
 struct ProfileView: View {
     @Environment(\.modelContext) private var context
     @Bindable var user: User
+    @Query private var dailySummaries: [DailySummary]
+    
+    @State private var currentStreak: Int = 0
     
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
+                    // USER CARD
                     VStack(spacing: 16) {
                         Image(systemName: "person.crop.circle.fill")
                             .resizable().frame(width: 80, height: 80).foregroundColor(.gray.opacity(0.3))
@@ -160,8 +165,16 @@ struct ProfileView: View {
                         .padding(.vertical, 12).frame(maxWidth: .infinity)
                     }.premiumCardStyle()
                     
+                    // STREAK CARD
+                    StreakCardView(streak: currentStreak)
+                    
+                    // ANALYTICS
                     AnalyticsView()
                     
+                    // ACHIEVEMENTS
+                    AchievementsSectionView(user: user)
+                    
+                    // SETTINGS
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Calibration Settings").font(.headline)
                         
@@ -191,6 +204,76 @@ struct ProfileView: View {
             }
             .background(Color.themeBg)
             .navigationTitle("Profile")
+            .onAppear {
+                currentStreak = calculateStreak()
+                checkAchievements(streak: currentStreak)
+            }
+        }
+    }
+    
+    // MARK: - GAMIFICATION LOGIC
+    private func calculateStreak() -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date.now)
+        
+        // Получаем все дни, когда были записаны калории (сортировка от новых к старым)
+        let activeDates = dailySummaries
+            .filter { $0.totalCalories > 0 }
+            .map { calendar.startOfDay(for: $0.date) }
+            .sorted(by: >)
+        
+        guard let mostRecent = activeDates.first else { return 0 }
+        
+        // Стрик считается живым, если последний лог был сегодня или вчера
+        let daysFromToday = calendar.dateComponents([.day], from: mostRecent, to: today).day ?? 0
+        if daysFromToday > 1 { return 0 }
+        
+        var streak = 1
+        var previousDate = mostRecent
+        
+        for i in 1..<activeDates.count {
+            let currentDate = activeDates[i]
+            let diff = calendar.dateComponents([.day], from: currentDate, to: previousDate).day ?? 0
+            
+            if diff == 1 {
+                streak += 1
+                previousDate = currentDate
+            } else if diff == 0 {
+                // Тот же день (вдруг дубль из-за часовых поясов), пропускаем
+                continue
+            } else {
+                break // Стрик прервался
+            }
+        }
+        return streak
+    }
+    
+    private func checkAchievements(streak: Int) {
+        var hasNewAchievements = false
+        
+        func unlock(achievementID: String) {
+            if !user.unlockedAchievements.contains(achievementID) {
+                user.unlockedAchievements.append(achievementID)
+                hasNewAchievements = true
+            }
+        }
+        
+        // 1. First Log
+        if dailySummaries.contains(where: { $0.totalCalories > 0 }) {
+            unlock(achievementID: "first_log")
+        }
+        
+        // 2. Streaks
+        if streak >= 3 { unlock(achievementID: "streak_3") }
+        if streak >= 7 { unlock(achievementID: "streak_7") }
+        
+        // 3. Water Goal
+        if dailySummaries.contains(where: { $0.totalHydrationLiters >= 2.5 }) {
+            unlock(achievementID: "water_pro")
+        }
+        
+        if hasNewAchievements {
+            try? context.save()
         }
     }
     
@@ -200,8 +283,91 @@ struct ProfileView: View {
     }
 }
 
+// MARK: - STREAK CARD VIEW
+struct StreakCardView: View {
+    let streak: Int
+    
+    var body: some View {
+        HStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(Color.themeOrange.opacity(0.1))
+                    .frame(width: 60, height: 60)
+                
+                Image(systemName: "flame.fill")
+                    .font(.system(size: 32))
+                    .foregroundStyle(
+                        streak > 0
+                            ? LinearGradient(colors: [.themeOrange, .red], startPoint: .top, endPoint: .bottom)
+                            : LinearGradient(colors: [.gray.opacity(0.5), .gray], startPoint: .top, endPoint: .bottom)
+                    )
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(streak) Day Streak!")
+                    .font(.title3)
+                    .bold()
+                
+                Text(streak > 0 ? "Keep it up! You're doing great." : "Start logging meals to build your streak.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            Spacer()
+        }
+        .premiumCardStyle()
+    }
+}
+// MARK: - ACHIEVEMENTS SECTION VIEW
+struct AchievementsSectionView: View {
+    let user: User
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Achievements")
+                .font(.title2)
+                .bold()
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Получаем ширину экрана/контейнера для расчета 3D эффекта
+            GeometryReader { mainGeo in
+                let screenWidth = mainGeo.size.width
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 20) {
+                        ForEach(Achievement.all) { achievement in
+                            let isUnlocked = user.unlockedAchievements.contains(achievement.id)
+                            
+                            // Получаем глобальную координату X для каждой карточки
+                            GeometryReader { geo in
+                                let minX = geo.frame(in: .global).minX
+                                
+                                HoloAchievementCard(
+                                    achievement: achievement,
+                                    isUnlocked: isUnlocked,
+                                    minX: minX,
+                                    screenWidth: screenWidth
+                                )
+                            }
+                            // Фиксируем размеры GeometryReader, чтобы ScrollView не схлопнулся
+                            .frame(width: 120, height: 160)
+                        }
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 20) // Запас для тени свечения (.shadow radius: 10)
+                }
+                .scrollClipDisabled() // Позволяет свечению от карточек выходить за рамки ScrollView
+            }
+            .frame(height: 200) // 160 (карточка) + 40 (вертикальный padding)
+        }
+        .premiumCardStyle()
+    }
+}
+
+// MARK: - PROFILE METRIC VIEW
 struct ProfileMetric: View {
-    let title: String; let value: String
+    let title: String
+    let value: String
+    
     var body: some View {
         VStack {
             Text(title).font(.caption).foregroundColor(.gray)
