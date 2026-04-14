@@ -1,3 +1,4 @@
+
 import SwiftUI
 import Charts
 import SwiftData
@@ -46,7 +47,6 @@ struct AnalyticsView: View {
                 .bold()
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Calories Chart
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("Calories")
@@ -82,7 +82,6 @@ struct AnalyticsView: View {
             }
             .premiumCardStyle()
             
-            // Weight Chart
             if !weeklyWeight.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
@@ -140,12 +139,12 @@ struct ProfileView: View {
     @Query private var dailySummaries: [DailySummary]
     
     @State private var currentStreak: Int = 0
+    @State private var showSettings = false // ИНТЕГРИРОВАННАЯ КНОПКА
     
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
-                    // USER CARD
                     VStack(spacing: 16) {
                         Image(systemName: "person.crop.circle.fill")
                             .resizable().frame(width: 80, height: 80).foregroundColor(.gray.opacity(0.3))
@@ -165,16 +164,10 @@ struct ProfileView: View {
                         .padding(.vertical, 12).frame(maxWidth: .infinity)
                     }.premiumCardStyle()
                     
-                    // STREAK CARD
                     StreakCardView(streak: currentStreak)
-                    
-                    // ANALYTICS
                     AnalyticsView()
-                    
-                    // ACHIEVEMENTS
                     AchievementsSectionView(user: user)
                     
-                    // SETTINGS
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Calibration Settings").font(.headline)
                         
@@ -204,6 +197,16 @@ struct ProfileView: View {
             }
             .background(Color.themeBg)
             .navigationTitle("Profile")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showSettings = true }) {
+                        Image(systemName: "gearshape.fill").foregroundColor(.themePink)
+                    }
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView(user: user)
+            }
             .onAppear {
                 currentStreak = calculateStreak()
                 checkAchievements(streak: currentStreak)
@@ -211,12 +214,10 @@ struct ProfileView: View {
         }
     }
     
-    // MARK: - GAMIFICATION LOGIC
     private func calculateStreak() -> Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date.now)
         
-        // Получаем все дни, когда были записаны калории (сортировка от новых к старым)
         let activeDates = dailySummaries
             .filter { $0.totalCalories > 0 }
             .map { calendar.startOfDay(for: $0.date) }
@@ -224,7 +225,6 @@ struct ProfileView: View {
         
         guard let mostRecent = activeDates.first else { return 0 }
         
-        // Стрик считается живым, если последний лог был сегодня или вчера
         let daysFromToday = calendar.dateComponents([.day], from: mostRecent, to: today).day ?? 0
         if daysFromToday > 1 { return 0 }
         
@@ -239,10 +239,9 @@ struct ProfileView: View {
                 streak += 1
                 previousDate = currentDate
             } else if diff == 0 {
-                // Тот же день (вдруг дубль из-за часовых поясов), пропускаем
                 continue
             } else {
-                break // Стрик прервался
+                break
             }
         }
         return streak
@@ -258,28 +257,73 @@ struct ProfileView: View {
             }
         }
         
-        // 1. First Log
-        if dailySummaries.contains(where: { $0.totalCalories > 0 }) {
-            unlock(achievementID: "first_log")
-        }
-        
-        // 2. Streaks
+        if dailySummaries.contains(where: { $0.totalCalories > 0 }) { unlock(achievementID: "first_log") }
         if streak >= 3 { unlock(achievementID: "streak_3") }
         if streak >= 7 { unlock(achievementID: "streak_7") }
+        if dailySummaries.contains(where: { $0.totalHydrationLiters >= 2.5 }) { unlock(achievementID: "water_pro") }
         
-        // 3. Water Goal
-        if dailySummaries.contains(where: { $0.totalHydrationLiters >= 2.5 }) {
-            unlock(achievementID: "water_pro")
-        }
-        
-        if hasNewAchievements {
-            try? context.save()
-        }
+        if hasNewAchievements { try? context.save() }
     }
     
     private func updateGoals() {
         user.calculateGoals()
         try? context.save()
+    }
+}
+
+// MARK: - SETTINGS VIEW
+struct SettingsView: View {
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context
+    @Bindable var user: User
+    
+    @State private var soundEnabled = true
+    @State private var notificationsEnabled = true
+    @State private var waterReminderInterval = 60
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Apple Health") {
+                    Toggle("Enable HealthKit", isOn: $user.isHealthKitEnabled)
+                        .onChange(of: user.isHealthKitEnabled) { oldValue, newValue in
+                            if newValue {
+                                Task {
+                                    do {
+                                        try await HealthKitManager.shared.requestAuthorization()
+                                        try? context.save()
+                                    } catch {
+                                        user.isHealthKitEnabled = false
+                                        print("HealthKit Error: \(error.localizedDescription)")
+                                    }
+                                }
+                            } else {
+                                try? context.save()
+                            }
+                        }
+                }
+                
+                Section("Notifications") {
+                    Toggle("Sound", isOn: $soundEnabled)
+                    Toggle("Notifications", isOn: $notificationsEnabled)
+                    
+                    Stepper(value: $waterReminderInterval, in: 30...240, step: 15) {
+                        Text("Water Reminder Every \(waterReminderInterval)m")
+                    }
+                }
+                
+                Section("About") {
+                    HStack { Text("Version"); Spacer(); Text("1.0.0").foregroundColor(.gray) }
+                }
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }.foregroundColor(.themePink)
+                }
+            }
+        }
     }
 }
 
@@ -317,6 +361,7 @@ struct StreakCardView: View {
         .premiumCardStyle()
     }
 }
+
 // MARK: - ACHIEVEMENTS SECTION VIEW
 struct AchievementsSectionView: View {
     let user: User
@@ -328,7 +373,6 @@ struct AchievementsSectionView: View {
                 .bold()
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Получаем ширину экрана/контейнера для расчета 3D эффекта
             GeometryReader { mainGeo in
                 let screenWidth = mainGeo.size.width
                 
@@ -337,7 +381,6 @@ struct AchievementsSectionView: View {
                         ForEach(Achievement.all) { achievement in
                             let isUnlocked = user.unlockedAchievements.contains(achievement.id)
                             
-                            // Получаем глобальную координату X для каждой карточки
                             GeometryReader { geo in
                                 let minX = geo.frame(in: .global).minX
                                 
@@ -348,16 +391,15 @@ struct AchievementsSectionView: View {
                                     screenWidth: screenWidth
                                 )
                             }
-                            // Фиксируем размеры GeometryReader, чтобы ScrollView не схлопнулся
                             .frame(width: 120, height: 160)
                         }
                     }
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 20) // Запас для тени свечения (.shadow radius: 10)
+                    .padding(.vertical, 20)
                 }
-                .scrollClipDisabled() // Позволяет свечению от карточек выходить за рамки ScrollView
+                .scrollClipDisabled()
             }
-            .frame(height: 200) // 160 (карточка) + 40 (вертикальный padding)
+            .frame(height: 200)
         }
         .premiumCardStyle()
     }

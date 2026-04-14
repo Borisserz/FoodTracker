@@ -8,13 +8,16 @@ extension Color {
     }
     
     static let themePink   = Color(hex: 0xF25C78)
-    static let themeYellow = Color(hex: 0xF2CF66)
-    static let themeOrange = Color(hex: 0xF2C36B)
-    static let themeBg     = Color(hex: 0xF2EDE4)
-    static let themePeach  = Color(hex: 0xF2B6A0)
+    static let themeYellow = Color(hex: 0xE5A93B)
+    static let themeDarkYellow = Color(hex: 0xC48000) // NEW: Darker gold for better readability on white
+    static let themeOrange = Color(hex: 0xF28B66)
+    static let themeBg     = Color(hex: 0xF5F2EB) // UPDATED: Slightly warmer and darker to make white cards pop
+    static let themePeach  = Color(hex: 0xE06C53)
+    
+    static let textGray    = Color(hex: 0x595959)
     
     // Drink colors
-    static let drinkWater  = Color(hex: 0x6BB8F2)
+    static let drinkWater  = Color(hex: 0x4CA3E6)
     static let drinkCoffee = Color(hex: 0x8D6E63)
     static let drinkWine   = Color(hex: 0x9C27B0).opacity(0.8)
     static let drinkMilk   = Color(hex: 0xCFD8DC)
@@ -45,8 +48,8 @@ struct PremiumCardModifier: ViewModifier {
         content
             .padding(16)
             .background(Color.white)
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4) // Softer, more elegant shadow
     }
 }
 

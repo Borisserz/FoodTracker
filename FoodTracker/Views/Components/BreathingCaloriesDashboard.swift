@@ -1,15 +1,3 @@
-//
-//  BreathingCaloriesDashboard.swift
-//  FoodTracker
-//
-//  Created by Boris Serzhanovich on 14.04.26.
-//
-
-//
-//  BreathingCaloriesDashboard.swift
-//  FoodTracker
-//
-
 import SwiftUI
 
 struct BreathingCaloriesDashboard: View {
@@ -17,91 +5,82 @@ struct BreathingCaloriesDashboard: View {
     let target: Int
     let activeBurned: Int
     
-    @State private var isBreathing = false
+    let protein: Double
+    let fats: Double
+    let carbs: Double
+    
     @State private var showRemaining = false
     
-    // Стейт для плавной стартовой анимации заполнения кольца
-    @State private var animatedProgress: Double = 0.0
+    @State private var animC: Double = 0
+    @State private var animF: Double = 0
+    @State private var animP: Double = 0
     
-    private var progress: Double {
-        // Ограничиваем прогресс единицей, чтобы кольцо не ломалось при переедании
-        min(Double(consumed) / Double(max(target, 1)), 1.0)
+    private var macroTotal: Double {
+        max(protein * 4.0 + fats * 9.0 + carbs * 4.0, 0)
     }
     
-    private var remaining: Int {
-        target - consumed
+    private var displayTotal: Double {
+        max(Double(target), max(macroTotal, 1.0))
     }
     
-    private var isOver: Bool {
-        consumed > target
-    }
+    private var cFrac: Double { (carbs * 4.0) / displayTotal }
+    private var fFrac: Double { (fats * 9.0) / displayTotal }
+    private var pFrac: Double { (protein * 4.0) / displayTotal }
     
-    // Бесшовный круговой градиент в стиле Apple Fitness
-    private let ringGradient = AngularGradient(
-        gradient: Gradient(colors: [.themeYellow, .themeOrange, .themePink, .themeYellow]),
-        center: .center,
-        startAngle: .degrees(-90),
-        endAngle: .degrees(270)
-    )
-    
-    // Градиент при превышении лимита калорий
-    private let overeatingGradient = AngularGradient(
-        gradient: Gradient(colors: [.red, .themePink, .red]),
-        center: .center,
-        startAngle: .degrees(-90),
-        endAngle: .degrees(270)
-    )
+    private var remaining: Int { target - consumed }
+    private var isOver: Bool { consumed > target }
     
     var body: some View {
         VStack(spacing: 24) {
             ZStack {
-                // 1. Фоновое кольцо
+                // UI Polish: Глубокая внутренняя тень базового круга
                 Circle()
-                    .stroke(Color.gray.opacity(0.12), lineWidth: 22)
-                
-                // 2. Кольцо прогресса
-                Circle()
-                    .trim(from: 0, to: animatedProgress)
                     .stroke(
-                        isOver ? overeatingGradient : ringGradient,
-                        style: StrokeStyle(lineWidth: 22, lineCap: .round)
+                        Color.gray.opacity(0.15)
+                            .shadow(.inner(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)),
+                        lineWidth: 24
                     )
-                    .rotationEffect(.degrees(-90))
-                    // Анимация "Дыхания" через тень
-                    .shadow(
-                        color: (isOver ? Color.red : Color.themePink).opacity(0.4),
-                        radius: isBreathing ? 15 : 5,
-                        x: 0,
-                        y: isBreathing ? 8 : 2
-                    )
-                    // Пружинная анимация при изменении значения калорий
-                    .animation(.spring(response: 0.8, dampingFraction: 0.7), value: animatedProgress)
                 
-                // 3. Внутренний контент (Интерактивный)
-                VStack(spacing: 4) {
+                // Сегмент углеводов + Неоновое свечение
+                Circle()
+                    .trim(from: 0, to: min(animC, 1.0))
+                    .stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: Color.drinkWater.opacity(0.4), radius: 8, x: 0, y: 0)
+                
+                // Сегмент жиров
+                Circle()
+                    .trim(from: min(animC, 1.0), to: min(animC + animF, 1.0))
+                    .stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: Color.themeYellow.opacity(0.4), radius: 8, x: 0, y: 0)
+                
+                // Сегмент белков
+                Circle()
+                    .trim(from: min(animC + animF, 1.0), to: min(animC + animF + animP, 1.0))
+                    .stroke(Color.themePeach, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: Color.themePeach.opacity(0.4), radius: 8, x: 0, y: 0)
+                
+                VStack(spacing: 6) {
                     Text(showRemaining ? "\(abs(remaining))" : "\(consumed)")
-                        .font(.system(size: 48, weight: .heavy, design: .rounded))
+                        .font(.system(size: 52, weight: .heavy, design: .rounded))
                         .foregroundColor(isOver && showRemaining ? .red : .primary)
                         .contentTransition(.numericText())
+                        .animation(.spring(response: 0.5, dampingFraction: 0.7), value: consumed)
                     
                     Text(showRemaining ? (isOver ? "kcal over" : "kcal left") : "kcal eaten")
-                        .font(.headline)
-                        .foregroundColor(.gray)
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundColor(.textGray)
                     
-                    if showRemaining && !isOver {
-                        Text("of \(target)")
-                            .font(.caption)
-                            .foregroundColor(.gray.opacity(0.6))
-                    } else if !showRemaining {
-                        Text("Goal: \(target)")
-                            .font(.caption)
-                            .foregroundColor(.gray.opacity(0.6))
-                    }
+                    // Увеличено и усилено по контрасту
+                    Text(showRemaining && !isOver ? "Goal: \(target)" : "Goal: \(target)")
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .foregroundColor(.textGray)
                 }
             }
-            .frame(width: 220, height: 220)
+            .frame(width: 240, height: 240)
             .padding(.top, 10)
-            // Интерактив по тапу
             .onTapGesture {
                 HapticManager.shared.impact(style: .rigid)
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
@@ -109,15 +88,10 @@ struct BreathingCaloriesDashboard: View {
                 }
             }
             
-            // 4. Плашка сожженных калорий (Интеграция Apple Health)
             if activeBurned > 0 {
                 HStack(spacing: 6) {
-                    Image(systemName: "flame.fill")
-                        .foregroundColor(.themeOrange)
-                    Text("+\(activeBurned) kcal burned")
-                        .font(.subheadline)
-                        .bold()
-                        .foregroundColor(.themeOrange)
+                    Image(systemName: "flame.fill").foregroundColor(.themeOrange)
+                    Text("+\(activeBurned) kcal burned").font(.subheadline).bold().foregroundColor(.themeOrange)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
@@ -127,17 +101,14 @@ struct BreathingCaloriesDashboard: View {
             }
         }
         .onAppear {
-            // Запуск "дыхания" при появлении экрана
-            withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true)) {
-                isBreathing = true
-            }
-            // Задержка запуска прогресса для красивого эффекта заполнения (Fill-up Animation)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                animatedProgress = progress
+                animC = cFrac
+                animF = fFrac
+                animP = pFrac
             }
         }
-        .onChange(of: progress) { _, newValue in
-            animatedProgress = newValue
-        }
+        .onChange(of: cFrac) { _, nv in animC = nv }
+        .onChange(of: fFrac) { _, nv in animF = nv }
+        .onChange(of: pFrac) { _, nv in animP = nv }
     }
 }

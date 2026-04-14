@@ -1,25 +1,57 @@
+//============================================================
+// FILE: FoodTracker/Views/Home/HomeDashboardView.swift
+//============================================================
+
 import SwiftUI
 import SwiftData
 
+// MARK: - 🎨 Глобальные стили и UX-модификаторы
+// (Помещены здесь для самодостаточности файла, но лучше вынести в отдельный файл)
+
+struct BounceButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
+    }
+}
+
+struct UltraPremiumCardModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(20)
+            .background(Color.white)
+            .cornerRadius(24)
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
+    }
+}
+
+extension View {
+    func ultraPremiumCardStyle() -> some View {
+        self.modifier(UltraPremiumCardModifier())
+    }
+}
+
+// MARK: - 🏠 Главный Экран (HomeDashboardView)
 struct HomeDashboardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
     
-    @State private var showSettings = false
-    
-    // Стейты для Morphing Quick-Add
-    @State private var showQuickAddSheet = false
-    @State private var quickAddSelectedMeal = "Breakfast"
+    @State private var selectedDate: Date = .now
     
     private var currentUser: User? { users.first }
     
-    private var todaySummary: DailySummary {
-        let today = Calendar.current.startOfDay(for: Date.now)
-        if let existing = summaries.first(where: { $0.date == today }) {
+    private var currentSummary: DailySummary {
+        let startOfDay = Calendar.current.startOfDay(for: selectedDate)
+        if let existing = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
             return existing
         } else {
-            let newSummary = DailySummary(date: today)
+            let newSummary = DailySummary(date: startOfDay)
             context.insert(newSummary)
             return newSummary
         }
@@ -27,177 +59,194 @@ struct HomeDashboardView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
+            ZStack {
+                Color.themeBg.ignoresSafeArea()
+                
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 24) {
+                        HeaderView(selectedDate: selectedDate)
                         
-                        CalendarCarouselView()
+                        CalendarCarouselView(selectedDate: $selectedDate)
                         
-                        // БЛОК КАЛОРИЙ
-                        let baseGoal = currentUser?.dailyCaloriesGoal ?? 2400
-                        let activeCals = todaySummary.activeCaloriesBurned
-                        let targetCals = baseGoal + activeCals
-
-                        VStack(spacing: 20) {
-                            
-                            // Внедрение нового дышащего дашборда
-                            BreathingCaloriesDashboard(
-                                consumed: todaySummary.totalCalories,
-                                target: targetCals,
-                                activeBurned: activeCals
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal, 10)
-                            
-                            // Оставляем разделение Food/Drinks, аккуратно вписав их под кольцом
-                            HStack {
-                                Text("Food: **\(todaySummary.totalFoodCalories)** kcal")
-                                Spacer()
-                                Text("Drinks: **\(todaySummary.totalDrinkCalories)** kcal")
-                            }
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal, 16)
-                        }
-                        .padding(.vertical, 16)
-                        .frame(maxWidth: .infinity)
-                        .premiumCardStyle()
+                        InsightsWidget(summary: currentSummary, user: currentUser)
                         
-              
-                        MacroSummaryView(
-                            protein: todaySummary.totalProtein,
-                            fats: todaySummary.totalFats,
-                            carbs: todaySummary.totalCarbs,
-                            targetProtein: currentUser?.targetProtein ?? 150.0,
-                            targetFats: currentUser?.targetFats ?? 70.0,
-                            targetCarbs: currentUser?.targetCarbs ?? 250.0
-                        )
+                        UnifiedProgressCard(summary: currentSummary, user: currentUser)
                         
-                        // БЛОК ПРИЕМОВ ПИЩИ
+                        // Список приемов пищи
                         VStack(spacing: 16) {
+                            let baseGoal = currentUser?.dailyCaloriesGoal ?? 2400
                             ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
-                                let meal = todaySummary.meals.first(where: { $0.title == mealType })
+                                let meal = currentSummary.meals.first(where: { $0.title == mealType })
+                                let ingredientsStr = meal?.foodItems.prefix(3).map { $0.name }.joined(separator: ", ")
+                                
+                                let recRatio: Double = {
+                                    switch mealType {
+                                    case "Breakfast": return 0.25
+                                    case "Lunch": return 0.35
+                                    case "Dinner": return 0.30
+                                    case "Snack": return 0.10
+                                    default: return 0.0
+                                    }
+                                }()
+                                let recommended = Int(Double(baseGoal) * recRatio)
+                                
                                 MealCardView(
                                     title: mealType,
                                     calories: meal?.totalCalories,
-                                    isBalanced: false,
-                                    destination: MealDetailView(title: mealType, date: todaySummary.date)
+                                    recommendedCalories: recommended,
+                                    ingredients: ingredientsStr,
+                                    destination: MealDetailView(title: mealType, date: currentSummary.date)
                                 )
                             }
                         }
+                        .padding(.horizontal)
                         
-                        // БЛОК НАПИТКОВ
-                        AdvancedBeverageTrackerView(summary: todaySummary)
+                        AdvancedBeverageTrackerView(summary: currentSummary)
+                            .padding(.horizontal)
                     }
-                    .padding()
-                    // Дополнительный отступ снизу, чтобы скролл не перекрывался кнопкой FAB
-                    .padding(.bottom, 80)
-                }
-                
-                // Внедрение Morphing Glass Quick-Add FAB
-                MorphingQuickAddView { selectedMeal in
-                    quickAddSelectedMeal = selectedMeal
-                    showQuickAddSheet = true
-                }
-                .padding(.trailing, 16)
-                .padding(.bottom, 16)
-            }
-            .background(Color.themeBg)
-            .navigationTitle("Today")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showSettings = true }) {
-                        Image(systemName: "gearshape.fill").foregroundColor(.themePink)
-                    }
+                    .padding(.bottom, 120)
                 }
             }
-            .sheet(isPresented: $showSettings) {
-                if let user = currentUser {
-                    SettingsView(user: user)
-                }
+            .navigationBarHidden(true)
+            .task(id: selectedDate) {
+                 await fetchHealthData(for: currentSummary)
             }
-            // Шторка для быстрого добавления приема пищи
-            .sheet(isPresented: $showQuickAddSheet) {
-                NavigationStack {
-                    MealDetailView(title: quickAddSelectedMeal, date: todaySummary.date)
-                }
+        }
+    }
+
+    private func fetchHealthData(for summary: DailySummary) async {
+        guard currentUser?.isHealthKitEnabled == true else { return }
+        HealthKitManager.shared.isAuthorized = true
+        do {
+            let burned = try await HealthKitManager.shared.fetchActiveEnergy(for: summary.date)
+            if summary.activeCaloriesBurned != burned {
+                summary.activeCaloriesBurned = burned
+                try? context.save()
             }
-            .task(id: currentUser?.isHealthKitEnabled) {
-                if currentUser?.isHealthKitEnabled == true {
-                    HealthKitManager.shared.isAuthorized = true
-                    do {
-                        let burned = try await HealthKitManager.shared.fetchActiveEnergy(for: todaySummary.date)
-                        if todaySummary.activeCaloriesBurned != burned {
-                            todaySummary.activeCaloriesBurned = burned
-                            try? context.save()
-                        }
-                    } catch {
-                        print("Failed to fetch active energy: \(error.localizedDescription)")
-                    }
-                }
-            }
+        } catch {
+            print("Failed to fetch health data: \(error.localizedDescription)")
         }
     }
 }
 
-// MARK: - 2. SETTINGS
-struct SettingsView: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) private var context
-    @Bindable var user: User
+// MARK: - Вложенные Подкомпоненты
+// Это решает все проблемы с "not found in scope" и "Type '()' cannot conform to View"
+
+struct HeaderView: View {
+    let selectedDate: Date
     
-    @State private var soundEnabled = true
-    @State private var notificationsEnabled = true
-    @State private var waterReminderInterval = 60
+    // ИСПРАВЛЕНО: Используем DateFormatter для надежности
+    private var monthYearString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: selectedDate)
+    }
+    
+    private var relativeDateString: String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(selectedDate) { return "Today" }
+        if calendar.isDateInYesterday(selectedDate) { return "Yesterday" }
+        
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: selectedDate)
+    }
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(monthYearString).font(.title2.bold())
+                Text(relativeDateString).foregroundColor(.textGray)
+            }
+            Spacer()
+            NavigationLink(destination: ProfileWrapperView()) {
+                Image(systemName: "person.crop.circle.fill").font(.system(size: 32)).foregroundColor(.themePink)
+            }
+        }
+        .padding(.horizontal).padding(.top, 10)
+    }
+}
+
+struct UnifiedProgressCard: View {
+    let summary: DailySummary
+    let user: User?
     
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Apple Health") {
-                    Toggle("Enable HealthKit", isOn: $user.isHealthKitEnabled)
-                        .onChange(of: user.isHealthKitEnabled) { oldValue, newValue in
-                            if newValue {
-                                Task {
-                                    do {
-                                        try await HealthKitManager.shared.requestAuthorization()
-                                        try? context.save()
-                                    } catch {
-                                        user.isHealthKitEnabled = false
-                                        print("HealthKit Error: \(error.localizedDescription)")
-                                    }
-                                }
-                            } else {
-                                try? context.save()
-                            }
-                        }
-                }
-                
-                Section("Notifications") {
-                    Toggle("Sound", isOn: $soundEnabled)
-                    Toggle("Notifications", isOn: $notificationsEnabled)
-                    
-                    Stepper(value: $waterReminderInterval, in: 30...240, step: 15) {
-                        Text("Water Reminder Every \(waterReminderInterval)m")
-                    }
-                }
-                
-                Section("About") {
-                    HStack { Text("Version"); Spacer(); Text("1.0.0").foregroundColor(.gray) }
-                }
-            }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }.foregroundColor(.themePink)
-                }
-            }
+        let target = (user?.dailyCaloriesGoal ?? 2400) + summary.activeCaloriesBurned
+        
+        VStack(spacing: 24) {
+            BreathingCaloriesDashboard(
+                consumed: summary.totalCalories,
+                target: target,
+                activeBurned: summary.activeCaloriesBurned,
+                protein: summary.totalProtein,
+                fats: summary.totalFats,
+                carbs: summary.totalCarbs
+            )
+            
+            MacroSummaryView(
+                protein: summary.totalProtein,
+                fats: summary.totalFats,
+                carbs: summary.totalCarbs,
+                targetProtein: user?.targetProtein ?? 150,
+                targetFats: user?.targetFats ?? 70,
+                targetCarbs: user?.targetCarbs ?? 250
+            )
         }
+        .ultraPremiumCardStyle()
+        .padding(.horizontal)
     }
 }
 
-// MARK: - 3. MEAL DETAILS
+struct InsightsWidget: View {
+    let summary: DailySummary
+    let user: User?
+    
+    // ИСПРАВЛЕНО: Логика вынесена из ViewBuilder в вычислимое свойство.
+    private var insightData: (message: String, icon: String, color: Color) {
+        let baseGoal = user?.dailyCaloriesGoal ?? 2400
+        let remaining = (baseGoal + summary.activeCaloriesBurned) - summary.totalCalories
+        
+        if summary.totalCalories == 0 {
+            return ("Good morning! Ready to crush your goals?", "sun.max.fill", .themeDarkYellow)
+        } else if remaining < 0 {
+            return ("Slightly over limit, but tomorrow is a new day!", "exclamationmark.circle.fill", .red)
+        } else if summary.totalProtein < (user?.targetProtein ?? 150) * 0.3 && summary.totalCalories > 600 {
+            return ("Great start! Try adding more protein to your next meal.", "bolt.fill", .themePeach)
+        } else if summary.totalHydrationLiters < 1.0 && summary.totalCalories > 1000 {
+            return ("Don't forget to drink water to stay hydrated!", "drop.fill", .drinkWater)
+        } else {
+            return ("You're on track! Keep up the great work.", "star.fill", .themePink)
+        }
+    }
+    
+    var body: some View {
+        let data = insightData
+        
+        HStack(spacing: 16) {
+            Image(systemName: data.icon)
+                .font(.title2)
+                .foregroundColor(data.color)
+            
+            Text(data.message)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.primary)
+                .lineLimit(2)
+            
+            Spacer()
+        }
+        .padding(16)
+        .background(Color.white)
+        .cornerRadius(20)
+        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+        .padding(.horizontal)
+    }
+}
+
+
+// MARK: - 🍱 Детализация приема пищи (MealDetailView)
 struct MealDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -211,60 +260,69 @@ struct MealDetailView: View {
     
     private var meal: Meal? {
         let startOfDay = Calendar.current.startOfDay(for: date)
-        return summaries.first { $0.date == startOfDay }?
+        return summaries.first { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }?
                         .meals.first { $0.title == title }
     }
     
     var body: some View {
         ZStack(alignment: .bottom) {
+            Color.themeBg.ignoresSafeArea()
+            
             ScrollView {
                 VStack(spacing: 20) {
                     if let meal = meal, !meal.foodItems.isEmpty {
-                        VStack {
-                            Text("\(meal.totalCalories) kcal").font(.system(size: 32, weight: .bold, design: .rounded))
+                        VStack(spacing: 16) {
+                            Text("\(meal.totalCalories) kcal").font(.system(size: 36, weight: .bold, design: .rounded))
                             HStack(spacing: 20) {
                                 let user = users.first
                                 let targetP = user?.targetProtein ?? 150.0
                                 let targetF = user?.targetFats ?? 70.0
                                 let targetC = user?.targetCarbs ?? 250.0
                                 
-                                MiniProgressView(title: "P", progress: meal.totalProtein / max(targetP, 1), color: .themePeach)
-                                MiniProgressView(title: "F", progress: meal.totalFats / max(targetF, 1), color: .themeYellow)
-                                MiniProgressView(title: "C", progress: meal.totalCarbs / max(targetC, 1), color: .themeOrange)
+                                MiniProgressView(title: "Protein", progress: meal.totalProtein / max(targetP, 1), color: Color.themePeach)
+                                MiniProgressView(title: "Fats", progress: meal.totalFats / max(targetF, 1), color: Color.themeYellow)
+                                MiniProgressView(title: "Carbs", progress: meal.totalCarbs / max(targetC, 1), color: Color.drinkWater)
                             }
-                        }.premiumCardStyle()
+                        }
+                        .ultraPremiumCardStyle()
                         
                         VStack(spacing: 0) {
                             ForEach(meal.foodItems) { food in
                                 FoodItemRow(name: food.name, weight: "\(Int(food.weight))g", calories: food.calories)
-                                Divider().padding(.leading)
+                                if food.id != meal.foodItems.last?.id {
+                                    Divider().padding(.leading, 20)
+                                }
                             }
                         }
-                        .background(Color.white).cornerRadius(12)
+                        .background(Color.white)
+                        .cornerRadius(20)
                         
                     } else {
                         EmptyStateView(
                             imageName: "fork.knife.circle",
                             title: "No Food Logged",
                             description: "Tap 'Add Food' to log your \(title)."
-                        ).frame(height: 300).premiumCardStyle()
+                        )
+                        .frame(height: 300)
+                        .ultraPremiumCardStyle()
                     }
                 }
                 .padding()
-                .padding(.bottom, 80)
+                .padding(.bottom, 100)
             }
-            .background(Color.themeBg)
             
             Button(action: { showingAddFood.toggle() }) {
                 HStack { Image(systemName: "plus"); Text("Add Food") }
                     .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
-                    .padding().background(Color.themePink).cornerRadius(12).padding()
+                    .padding().background(Color.themePink).cornerRadius(16).padding()
             }
+            .buttonStyle(BounceButtonStyle())
         }
         .navigationTitle(title)
         .toolbar {
-            if let meal = meal, !meal.foodItems.isEmpty {
-                ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                // ИСПРАВЛЕНО: Безопасное использование `if let` внутри ToolbarItem
+                if let meal = meal, !meal.foodItems.isEmpty {
                     NavigationLink(destination: MicronutrientsView(meal: meal)) {
                         Image(systemName: "chart.pie.fill").foregroundColor(.themePink)
                     }
@@ -286,7 +344,7 @@ struct MealDetailView: View {
         let startOfDay = Calendar.current.startOfDay(for: date)
         let summary: DailySummary
         
-        if let existingSummary = summaries.first(where: { $0.date == startOfDay }) {
+        if let existingSummary = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
             summary = existingSummary
         } else {
             summary = DailySummary(date: startOfDay)
@@ -305,7 +363,7 @@ struct MealDetailView: View {
     }
 }
 
-// MARK: - 4. ADD FOOD SELECTION
+// MARK: - ➕ Экран добавления еды (AddFoodSelectionView)
 struct AddFoodSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -321,40 +379,22 @@ struct AddFoodSelectionView: View {
     
     var recentFoods: [FoodItem] {
         var uniqueItems: [String: FoodItem] = [:]
-        
-        for meal in pastMeals.prefix(20) {
-            for item in meal.foodItems {
-                if uniqueItems[item.name] == nil {
-                    uniqueItems[item.name] = item
-                }
-            }
-        }
-        
+        for meal in pastMeals.prefix(20) { for item in meal.foodItems { if uniqueItems[item.name] == nil { uniqueItems[item.name] = item } } }
         var results = Array(uniqueItems.values)
-        
         if results.isEmpty {
             results = [
                 FoodItem(name: "Grilled Chicken", weight: 150, calories: 240, protein: 31, fats: 3.6, carbs: 0),
                 FoodItem(name: "Avocado", weight: 100, calories: 160, protein: 2, fats: 15, carbs: 9),
-                FoodItem(name: "Salmon", weight: 120, calories: 208, protein: 22, fats: 13, carbs: 0),
-                FoodItem(name: "Eggs", weight: 50, calories: 78, protein: 6, fats: 5, carbs: 0.6),
-                FoodItem(name: "Almonds", weight: 30, calories: 173, protein: 6, fats: 15, carbs: 6)
+                FoodItem(name: "Salmon", weight: 120, calories: 208, protein: 22, fats: 13, carbs: 0)
             ]
         }
-        
-        if !searchText.isEmpty {
-            results = results.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-        
+        if !searchText.isEmpty { results = results.filter { $0.name.localizedCaseInsensitiveContains(searchText) } }
         return results.sorted { $0.name < $1.name }
     }
     
     var filteredRecipes: [CustomRecipe] {
-        if searchText.isEmpty {
-            return customRecipes
-        } else {
-            return customRecipes.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
+        if searchText.isEmpty { return customRecipes }
+        else { return customRecipes.filter { $0.name.localizedCaseInsensitiveContains(searchText) } }
     }
     
     var body: some View {
@@ -362,145 +402,72 @@ struct AddFoodSelectionView: View {
             VStack(spacing: 0) {
                 VStack(spacing: 16) {
                     HStack {
-                        Text("Add Food")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                        Text("Add Food").font(.system(size: 28, weight: .bold, design: .rounded))
                         Spacer()
-                        Button(action: { dismiss() }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(.gray.opacity(0.6))
-                        }
+                        Button(action: { dismiss() }) { Image(systemName: "xmark.circle.fill").font(.title2).foregroundColor(.gray.opacity(0.6)) }
                     }
-                    
                     HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
+                        Image(systemName: "magnifyingglass").foregroundColor(.gray)
                         TextField("Search foods...", text: $searchText)
                     }
-                    .padding(12)
-                    .background(Color.black.opacity(0.05))
-                    .cornerRadius(12)
-                    
-                    Picker("Source", selection: $selectedTab) {
-                        Text("Recents").tag("Recents")
-                        Text("My Recipes").tag("My Recipes")
-                    }
-                    .pickerStyle(.segmented)
+                    .padding(12).background(Color.black.opacity(0.05)).cornerRadius(12)
+                    Picker("Source", selection: $selectedTab) { Text("Recents").tag("Recents"); Text("My Recipes").tag("My Recipes") }.pickerStyle(.segmented)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 24)
-                .padding(.bottom, 12)
+                .padding(.horizontal, 20).padding(.top, 24).padding(.bottom, 12)
                 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 12) {
-                        if selectedTab == "Recents" {
-                            ForEach(recentFoods, id: \.name) { food in
-                                foodRowView(for: food, isRecipe: false)
-                            }
-                        } else {
+                        if selectedTab == "Recents" { ForEach(recentFoods, id: \.name) { food in foodRowView(for: food, isRecipe: false) } }
+                        else {
                             if filteredRecipes.isEmpty && searchText.isEmpty {
-                                Text("No custom recipes yet.\nGo to 'Chefs' tab to create one!")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.top, 40)
-                            } else {
-                                ForEach(filteredRecipes, id: \.name) { recipe in
-                                    foodRowView(for: recipe.toFoodItem(), isRecipe: true)
-                                }
-                            }
+                                Text("No custom recipes yet.\nGo to 'Chefs' tab to create one!").font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center).padding(.top, 40)
+                            } else { ForEach(filteredRecipes, id: \.name) { recipe in foodRowView(for: recipe.toFoodItem(), isRecipe: true) } }
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
-                    .padding(.bottom, temporarilySelectedFoods.isEmpty ? 20 : 100)
+                    .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, temporarilySelectedFoods.isEmpty ? 20 : 100)
                 }
             }
-            
             if !temporarilySelectedFoods.isEmpty {
-                Button(action: {
-                    HapticManager.shared.impact(style: .heavy)
-                    onSave(temporarilySelectedFoods)
-                    dismiss()
-                }) {
-                    HStack {
-                        Text("Add \(temporarilySelectedFoods.count) Items")
-                            .font(.headline)
-                        Image(systemName: "arrow.right.circle.fill")
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(
-                        LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing)
-                    )
-                    .cornerRadius(16)
-                    .shadow(color: .themePink.opacity(0.4), radius: 10, y: 5)
+                Button(action: { HapticManager.shared.impact(style: .heavy); onSave(temporarilySelectedFoods); dismiss() }) {
+                    HStack { Text("Add \(temporarilySelectedFoods.count) Items").font(.headline); Image(systemName: "arrow.right.circle.fill") }
+                    .foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 16)
+                    .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
+                    .cornerRadius(16).shadow(color: Color.themePink.opacity(0.4), radius: 10, y: 5)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 10)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .padding(.horizontal, 20).padding(.bottom, 10).transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: temporarilySelectedFoods.isEmpty)
     }
     
-    @ViewBuilder
-    private func foodRowView(for food: FoodItem, isRecipe: Bool) -> some View {
+    @ViewBuilder private func foodRowView(for food: FoodItem, isRecipe: Bool) -> some View {
         let isSelected = temporarilySelectedFoods.contains { $0.name == food.name }
-        
         HStack(spacing: 16) {
             ZStack {
-                Circle()
-                    .fill(isRecipe ? Color.themeYellow.opacity(0.15) : Color.green.opacity(0.15))
-                    .frame(width: 44, height: 44)
-                
-                Image(systemName: isRecipe ? "star.fill" : "leaf.fill")
-                    .foregroundColor(isRecipe ? .themeYellow : .green)
-                    .font(.system(size: 18))
+                Circle().fill(isRecipe ? Color.themeYellow.opacity(0.15) : Color.green.opacity(0.15)).frame(width: 44, height: 44)
+                Image(systemName: isRecipe ? "star.fill" : "leaf.fill").foregroundColor(isRecipe ? Color.themeYellow : .green).font(.system(size: 18))
             }
-            
             VStack(alignment: .leading, spacing: 4) {
-                Text(food.name)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                
+                Text(food.name).font(.system(size: 16, weight: .semibold, design: .rounded))
                 HStack(spacing: 6) {
-                    Text("\(food.calories) kcal")
-                        .font(.caption).bold()
-                        .foregroundColor(.themePink)
-                    Text("•")
-                        .foregroundColor(.gray.opacity(0.5))
-                    Text("\(Int(food.weight))g")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                    Text("\(food.calories) kcal").font(.caption).bold().foregroundColor(Color.themePink)
+                    Text("•").foregroundColor(.gray.opacity(0.5))
+                    Text("\(Int(food.weight))g").font(.caption).foregroundColor(.gray)
                 }
             }
-            
             Spacer()
-            
-            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .font(.title2)
-                .foregroundColor(isSelected ? .themePink : .gray.opacity(0.2))
-                .symbolEffect(.bounce, value: isSelected)
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle").font(.title2).foregroundColor(isSelected ? Color.themePink : .gray.opacity(0.2)).symbolEffect(.bounce, value: isSelected)
         }
-        .padding(16)
-        .background(Color.white)
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(isSelected ? Color.themePink : Color.clear, lineWidth: 2)
-        )
+        .padding(16).background(Color.white).cornerRadius(16)
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(isSelected ? Color.themePink : Color.clear, lineWidth: 2))
         .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
         .scaleEffect(isSelected ? 0.98 : 1.0)
         .contentShape(Rectangle())
         .onTapGesture {
             HapticManager.shared.impact(style: .medium)
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                if isSelected {
-                    temporarilySelectedFoods.removeAll { $0.name == food.name }
-                } else {
-                    temporarilySelectedFoods.append(food)
-                }
+                if isSelected { temporarilySelectedFoods.removeAll { $0.name == food.name } }
+                else { temporarilySelectedFoods.append(food) }
             }
         }
     }
