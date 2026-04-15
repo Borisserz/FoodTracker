@@ -1,9 +1,5 @@
-//
-//  ChefRecipesView.swift
-//  FoodTracker
-//
-
 import SwiftUI
+import SwiftData
 
 // MARK: - 1. Data Model & Mock Data
 struct ChefRecipe: Identifiable, Equatable {
@@ -24,38 +20,26 @@ let mockChefRecipes: [ChefRecipe] = [
     ChefRecipe(
         chef: "Gordon Ramsay", name: "Fit Beef Wellington", calories: "550 kcal", time: "45m", isPro: true,
         color1: .themePink, color2: .themeOrange, icon: "flame.fill",
-        description: "A lean and protein-packed take on the classic Wellington. We substitute the heavy pastry for a lighter whole-grain wrap and use extra lean beef cut to keep your macros perfectly balanced."
+        description: "A lean and protein-packed take on the classic Wellington."
     ),
     ChefRecipe(
         chef: "Gordon Ramsay", name: "Mediterranean Salmon", calories: "420 kcal", time: "30m", isPro: true,
         color1: .blue, color2: .cyan, icon: "fish.fill",
-        description: "Fresh Atlantic salmon pan-seared with a drizzle of olive oil, served over a bed of quinoa and roasted cherry tomatoes. Heart-healthy and rich in Omega-3s."
+        description: "Fresh Atlantic salmon pan-seared with a drizzle of olive oil."
     ),
-    ChefRecipe(
-        chef: "Gordon Ramsay", name: "Scrambled Eggs", calories: "320 kcal", time: "10m", isPro: false,
-        color1: .themeYellow, color2: .themeOrange, icon: "fork.knife",
-        description: "The perfect scrambled eggs. Cooked low and slow for a creamy texture without the need for heavy cream. A staple for any healthy morning routine."
-    ),
-    
     // Jamie Oliver
     ChefRecipe(
         chef: "Jamie Oliver", name: "15-Min Healthy Pasta", calories: "480 kcal", time: "15m", isPro: true,
         color1: .green, color2: .mint, icon: "leaf.fill",
-        description: "Quick, simple, and packed with hidden veggies. This whole wheat pasta dish uses a vibrant spinach and basil pesto that comes together in minutes."
+        description: "Quick, simple, and packed with hidden veggies."
     ),
     ChefRecipe(
         chef: "Jamie Oliver", name: "Veggie Salad Supreme", calories: "290 kcal", time: "20m", isPro: false,
         color1: .green, color2: .themeYellow, icon: "carrot.fill",
-        description: "A beautiful, colorful bowl of goodness. Crunchy bell peppers, cucumber, chickpeas, and a light lemon-tahini dressing make this the perfect lunch."
-    ),
-    ChefRecipe(
-        chef: "Jamie Oliver", name: "Green Smoothie Bowl", calories: "350 kcal", time: "10m", isPro: true,
-        color1: .mint, color2: .teal, icon: "cup.and.saucer.fill",
-        description: "Start your day right with this refreshing smoothie bowl. Blended with avocado, spinach, and a scoop of your favorite plant protein."
+        description: "A beautiful, colorful bowl of goodness."
     )
 ]
 
-// MARK: - Custom Button Style
 struct RecipeCardButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -64,52 +48,63 @@ struct RecipeCardButtonStyle: ButtonStyle {
     }
 }
 
-// MARK: - 2. Chef Recipes View (Hero Animation Core)
-struct ChefRecipesView: View {
+// MARK: - КОНТЕЙНЕР ВСЕХ РЕЦЕПТОВ (ПОЛЬЗОВАТЕЛЬ + ШЕФЫ)
+struct RecipesContainerView: View {
+    @Binding var path: NavigationPath
+    @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
+    
     @Namespace private var animation
     @State private var selectedRecipe: ChefRecipe? = nil
     @State private var showDetail: Bool = false
     
     var body: some View {
         ZStack {
-            // BASE STATE (List / Grid)
-            NavigationStack {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        // Pro Badge
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 30) {
+                    
+                    // 1. МОИ КАСОМНЫЕ РЕЦЕПТЫ
+                    VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Premium Feature")
-                                    .font(.caption)
-                                    .bold()
-                                    .padding(4)
-                                    .background(Color.white.opacity(0.3))
-                                    .cornerRadius(8)
-                                
-                                Text("Unlock Chef Recipes")
-                                    .font(.title3)
-                                    .bold()
-                            }
-                            .foregroundColor(.white)
-                            
+                            Text("My Recipes").font(.title2).bold()
                             Spacer()
-                            
-                            Image(systemName: "lock.open.fill")
-                                .font(.title)
-                                .foregroundColor(.white)
+                            Button(action: { path.append(FoodsRoute.createRecipe) }) {
+                                Image(systemName: "plus.circle.fill").foregroundColor(.themePink).font(.title)
+                            }
                         }
-                        .padding()
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [.themePink, .themeOrange]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .cornerRadius(16)
-                        .padding()
+                        .padding(.horizontal)
                         
-                        // Chef Sections
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                if customRecipes.isEmpty {
+                                    Text("No custom recipes yet. Tap + to create one!")
+                                        .font(.subheadline).foregroundColor(.gray).padding(.vertical, 20)
+                                } else {
+                                    ForEach(customRecipes) { recipe in
+                                        Button(action: { path.append(FoodsRoute.recipeDetail(recipe)) }) {
+                                            CustomRecipeCard(
+                                                title: recipe.name,
+                                                calories: "\(recipe.totalCalories) kcal",
+                                                items: recipe.info,
+                                                cookingTime: recipe.cookingTime,
+                                                difficulty: recipe.difficulty
+                                            )
+                                            .foregroundColor(.primary)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    .padding(.top)
+                    
+                    Divider().padding(.horizontal)
+                    
+                    // 2. РЕЦЕПТЫ ОТ ШЕФОВ (ОРИГИНАЛЬНЫЙ КОД)
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Chef Specials").font(.title2).bold()
+                            .padding(.horizontal)
+                        
                         ChefSectionView(
                             chefName: "Gordon Ramsay",
                             sectionIcon: "flame.fill",
@@ -130,11 +125,12 @@ struct ChefRecipesView: View {
                         )
                         .padding(.horizontal)
                     }
-                    .padding(.vertical)
                 }
-                .background(Color.themeBg)
-                .navigationTitle("Chef's Specials")
+                .padding(.bottom, 40)
             }
+            .background(Color.themeBg.ignoresSafeArea())
+            .navigationTitle("Recipes")
+            .navigationBarTitleDisplayMode(.inline)
             
             // FULLSCREEN DETAIL STATE (Overlay)
             if showDetail, let recipe = selectedRecipe {
@@ -143,25 +139,70 @@ struct ChefRecipesView: View {
                     animation: animation,
                     onDismiss: dismissDetail
                 )
-                .transition(.identity) // Keeps structural matching seamless
+                .transition(.identity)
                 .zIndex(1)
             }
         }
     }
     
     private func dismissDetail() {
-        // Транзиция закрытия с требуемыми параметрами
         withAnimation(.spring(response: 0.55, dampingFraction: 0.75, blendDuration: 0)) {
             showDetail = false
         }
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
             selectedRecipe = nil
         }
     }
 }
 
-// MARK: - 3. Chef Section View
+// MARK: - Карточка для кастомного рецепта
+struct CustomRecipeCard: View {
+    let title: String
+    let calories: String
+    let items: String
+    let cookingTime: Int?
+    let difficulty: String?
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .lineLimit(1)
+            
+            Text(items)
+                .font(.caption)
+                .foregroundColor(.gray)
+                .lineLimit(2)
+            
+            HStack(spacing: 12) {
+                if let cookingTime = cookingTime {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock.fill").font(.caption)
+                        Text("\(cookingTime)m").font(.caption)
+                    }
+                    .foregroundColor(.gray)
+                }
+                if let difficulty = difficulty {
+                    Text(difficulty)
+                        .font(.caption2.bold())
+                        .foregroundColor(.themeOrange)
+                }
+                Spacer()
+            }
+            Spacer()
+            Text(calories)
+                .font(.headline)
+                .foregroundColor(.themePink)
+        }
+        .padding()
+        .frame(width: 160, height: 140)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
+    }
+}
+
+// MARK: - Вспомогательные компоненты Шефов (Оригинальные)
 struct ChefSectionView: View {
     let chefName: String
     let sectionIcon: String
@@ -174,23 +215,14 @@ struct ChefSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Image(systemName: sectionIcon)
-                    .foregroundColor(.themeOrange)
-                Text(chefName)
-                    .font(.title3)
-                    .bold()
+                Image(systemName: sectionIcon).foregroundColor(.themeOrange)
+                Text(chefName).font(.title3).bold()
                 Spacer()
             }
-            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(recipes) { recipe in
-                        RecipeCard(
-                            recipe: recipe,
-                            animation: animation,
-                            selectedRecipe: $selectedRecipe,
-                            showDetail: $showDetail
-                        )
+                        RecipeCard(recipe: recipe, animation: animation, selectedRecipe: $selectedRecipe, showDetail: $showDetail)
                     }
                 }
             }
@@ -201,7 +233,6 @@ struct ChefSectionView: View {
     }
 }
 
-// MARK: - 4. Expanding Recipe Card (Base Model)
 struct RecipeCard: View {
     let recipe: ChefRecipe
     var animation: Namespace.ID
@@ -212,19 +243,15 @@ struct RecipeCard: View {
         Button {
             HapticManager.shared.impact(style: .medium)
             selectedRecipe = recipe
-            // Вызов транзиции по заданным Apple Design параметрам
             withAnimation(.spring(response: 0.55, dampingFraction: 0.75, blendDuration: 0)) {
                 showDetail = true
             }
         } label: {
             VStack(alignment: .leading, spacing: 10) {
-                
-                // Hero Image Gradient
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(LinearGradient(colors: [recipe.color1, recipe.color2], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .matchedGeometryEffect(id: "bg_\(recipe.id)", in: animation)
-                    
                     Image(systemName: recipe.icon)
                         .font(.system(size: 30))
                         .foregroundColor(.white)
@@ -233,182 +260,77 @@ struct RecipeCard: View {
                 }
                 .frame(height: 100)
                 
-                // Title (БЕЗ matchedGeometryEffect, чтобы текст не прыгал)
                 Text(recipe.name)
-                    .font(.subheadline)
-                    .bold()
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
+                    .font(.subheadline).bold().foregroundColor(.primary).lineLimit(1)
                 
-                // Metadata
                 HStack(spacing: 8) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .font(.caption)
-                            .foregroundColor(.themeOrange)
-                        Text(recipe.calories)
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock.fill")
-                            .font(.caption)
-                            .foregroundColor(.themeYellow)
-                        Text(recipe.time)
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                    }
-                    
+                    HStack(spacing: 4) { Image(systemName: "flame.fill").font(.caption).foregroundColor(.themeOrange); Text(recipe.calories).font(.caption2).foregroundColor(.gray) }
+                    HStack(spacing: 4) { Image(systemName: "clock.fill").font(.caption).foregroundColor(.themeYellow); Text(recipe.time).font(.caption2).foregroundColor(.gray) }
                     Spacer()
-                    
-                    if recipe.isPro {
-                        Text("PRO")
-                            .font(.caption2.bold())
-                            .foregroundColor(.white)
-                            .padding(4)
-                            .background(Color.themeOrange)
-                            .cornerRadius(4)
-                    }
                 }
             }
-            .padding(10)
-            .frame(width: 180)
-            .background(Color.white)
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.05), radius: 2)
+            .padding(10).frame(width: 180).background(Color.white).cornerRadius(12).shadow(color: Color.black.opacity(0.05), radius: 2)
         }
-        .buttonStyle(RecipeCardButtonStyle()) // Кастомная анимация уменьшения при нажатии
+        .buttonStyle(RecipeCardButtonStyle())
         .opacity(selectedRecipe?.id == recipe.id && showDetail ? 0 : 1)
     }
 }
 
-// MARK: - 5. Fullscreen Overlay (Detail View)
 struct ChefRecipeDetailView: View {
     let recipe: ChefRecipe
     var animation: Namespace.ID
     var onDismiss: () -> Void
-    
-    // Стейт для каскадного появления текста и кнопки "назад"
     @State private var showContent = false
     
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
-                
-                // Hero Header Area (Parallax)
                 GeometryReader { geo in
                     let minY = geo.frame(in: .global).minY
                     let isScrollingDown = minY > 0
-                    
                     ZStack {
                         RoundedRectangle(cornerRadius: 0)
                             .fill(LinearGradient(colors: [recipe.color1, recipe.color2], startPoint: .topLeading, endPoint: .bottomTrailing))
                             .matchedGeometryEffect(id: "bg_\(recipe.id)", in: animation)
-                        
-                        Image(systemName: recipe.icon)
-                            .font(.system(size: 80))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
-                            .scaleEffect(1.0 + (isScrollingDown ? minY / 500 : 0)) // Parallax увеличение иконки
+                        Image(systemName: recipe.icon).font(.system(size: 80)).foregroundColor(.white).shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+                            .scaleEffect(1.0 + (isScrollingDown ? minY / 500 : 0))
                             .matchedGeometryEffect(id: "icon_\(recipe.id)", in: animation)
                     }
-                    // Увеличиваем высоту и смещаем вверх при pull down (Rubber-banding)
                     .frame(height: 380 + (isScrollingDown ? minY : 0))
                     .offset(y: isScrollingDown ? -minY : 0)
                 }
                 .frame(height: 380)
                 .zIndex(1)
                 
-                // Content Information (Cascaded Animation)
                 VStack(alignment: .leading, spacing: 20) {
-                    
-                    Text(recipe.name)
-                        .font(.title)
-                        .bold()
-                        .foregroundColor(.primary)
-                    
+                    Text(recipe.name).font(.title).bold().foregroundColor(.primary)
                     HStack(spacing: 16) {
-                        Label(recipe.calories, systemImage: "flame.fill")
-                            .foregroundColor(.themeOrange)
-                        Label(recipe.time, systemImage: "clock.fill")
-                            .foregroundColor(.themeYellow)
-                        if recipe.isPro {
-                            Label("Pro Feature", systemImage: "star.fill")
-                                .foregroundColor(.themePink)
-                        }
-                    }
-                    .font(.subheadline.bold())
-                    
+                        Label(recipe.calories, systemImage: "flame.fill").foregroundColor(.themeOrange)
+                        Label(recipe.time, systemImage: "clock.fill").foregroundColor(.themeYellow)
+                    }.font(.subheadline.bold())
                     Divider()
-                    
-                    // Recipe Description
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("About this recipe")
-                            .font(.title3)
-                            .bold()
-                        
-                        Text(recipe.description)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .lineSpacing(6)
-                    }
-                    .premiumCardStyle()
+                        Text("About this recipe").font(.title3).bold()
+                        Text(recipe.description).font(.body).foregroundColor(.secondary).lineSpacing(6)
+                    }.premiumCardStyle()
                     
-                    // Call to Action
-                    Button {
-                        HapticManager.shared.impact(style: .medium)
-                    } label: {
-                        HStack {
-                            Text(recipe.isPro ? "Unlock Pro to Cook" : "Start Cooking")
-                            Image(systemName: "chevron.right")
-                        }
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(recipe.isPro ? Color.themeOrange : Color.themePink)
-                        .cornerRadius(12)
-                        .shadow(color: recipe.isPro ? Color.themeOrange.opacity(0.4) : Color.themePink.opacity(0.4), radius: 6, y: 3)
-                    }
-                    .padding(.top, 10)
+                    Button { HapticManager.shared.impact(style: .medium) } label: {
+                        HStack { Text("Start Cooking"); Image(systemName: "chevron.right") }
+                            .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding().background(Color.themePink).cornerRadius(12)
+                    }.padding(.top, 10)
                 }
-                .padding(24)
-                .opacity(showContent ? 1 : 0)
-                .offset(y: showContent ? 0 : 20)
+                .padding(24).opacity(showContent ? 1 : 0).offset(y: showContent ? 0 : 20)
             }
         }
-        .background(Color.themeBg.ignoresSafeArea())
-        .ignoresSafeArea(edges: .top)
-        .onAppear {
-            // Каскадное появление контента после транзиции Hero-шапки
-            withAnimation(.easeOut(duration: 0.3).delay(0.2)) {
-                showContent = true
-            }
-        }
+        .background(Color.themeBg.ignoresSafeArea()).ignoresSafeArea(edges: .top)
+        .onAppear { withAnimation(.easeOut(duration: 0.3).delay(0.2)) { showContent = true } }
         .overlay(alignment: .topTrailing) {
-            // App Store-style Blur Dismiss Button
             Button {
-                HapticManager.shared.impact(style: .rigid) // Rigid haptic on close
-                
-                // Скрываем текст мгновенно, чтобы он не мелькал при возвращении карточки
-                withAnimation(.easeOut(duration: 0.15)) {
-                    showContent = false
-                }
+                HapticManager.shared.impact(style: .rigid)
+                withAnimation(.easeOut(duration: 0.15)) { showContent = false }
                 onDismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(10)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-            }
-            .padding(.trailing, 20)
-            .padding(.top, 50)
-            // Появляется плавно вместе с контентом
-            .opacity(showContent ? 1 : 0)
-            .scaleEffect(showContent ? 1 : 0.8)
+            } label: { Image(systemName: "xmark").font(.system(size: 16, weight: .bold)).foregroundColor(.white).padding(10).background(.ultraThinMaterial).clipShape(Circle()) }
+            .padding(.trailing, 20).padding(.top, 50).opacity(showContent ? 1 : 0).scaleEffect(showContent ? 1 : 0.8)
         }
     }
 }

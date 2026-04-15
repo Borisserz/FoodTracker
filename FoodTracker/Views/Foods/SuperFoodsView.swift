@@ -2,12 +2,11 @@
 //  SuperFoodsView.swift
 //  FoodTracker
 //
-//
 
 import SwiftUI
 import SwiftData
 
-// MARK: - МОДЕЛИ ДАННЫХ
+// MARK: - МОДЕЛИ ДАННЫХ ДЛЯ КАТЕГОРИЙ
 struct FoodItemDetail: Identifiable, Hashable {
     let id = UUID()
     let name: String
@@ -21,99 +20,98 @@ struct FoodCategory: Identifiable, Hashable {
     let items: [FoodItemDetail]
 }
 
-struct SuperFoodsView: View {
+// MARK: - ГЛАВНЫЙ ЭКРАН ДИЕТ (Вызывается из Foods Hub)
+struct DietsListView: View {
     @State private var selectedDiet: DietPlan = DietPlan.allDiets[0]
     
     var body: some View {
-        NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-                    
-                    // 1. DIET SELECTOR
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(DietPlan.allDiets) { diet in
-                                Button(action: {
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                        selectedDiet = diet
-                                    }
-                                }) {
-                                    Text(diet.name)
-                                        .font(.subheadline)
-                                        .bold()
-                                        .padding(.horizontal, 18)
-                                        .padding(.vertical, 10)
-                                        .background(selectedDiet.id == diet.id ? diet.color : Color.gray.opacity(0.1))
-                                        .foregroundColor(selectedDiet.id == diet.id ? .white : .primary)
-                                        .cornerRadius(20)
-                                        .shadow(color: selectedDiet.id == diet.id ? diet.color.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
+                // 1. DIET SELECTOR
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(DietPlan.allDiets) { diet in
+                            Button(action: {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    selectedDiet = diet
                                 }
+                            }) {
+                                Text(diet.name)
+                                    .font(.subheadline)
+                                    .bold()
+                                    .padding(.horizontal, 18)
+                                    .padding(.vertical, 10)
+                                    .background(selectedDiet.id == diet.id ? diet.color : Color.gray.opacity(0.1))
+                                    .foregroundColor(selectedDiet.id == diet.id ? .white : .primary)
+                                    .cornerRadius(20)
+                                    .shadow(color: selectedDiet.id == diet.id ? diet.color.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
                             }
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 8)
-                    }
-                    
-                    // 2. DYNAMIC DASHBOARD
-                    NavigationLink(destination: DietDetailView(diet: selectedDiet)) {
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack(alignment: .top) {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(selectedDiet.name)
-                                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                                        .foregroundColor(.primary)
-                                    
-                                    Text(selectedDiet.tagline)
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
-                                        .multilineTextAlignment(.leading)
-                                        .lineLimit(2)
-                                }
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right.circle.fill")
-                                    .font(.system(size: 28))
-                                    .foregroundColor(selectedDiet.color)
-                            }
-                            
-                            Divider()
-                            
-                            HStack(spacing: 24) {
-                                DietMacroMiniView(title: "Fat", value: selectedDiet.macroBreakdown.fat, color: .themeYellow)
-                                DietMacroMiniView(title: "Protein", value: selectedDiet.macroBreakdown.protein, color: .themePeach)
-                                DietMacroMiniView(title: "Carbs", value: selectedDiet.macroBreakdown.carbs, color: .themeOrange)
-                                Spacer()
-                            }
-                        }
-                        .premiumCardStyle()
                     }
                     .padding(.horizontal)
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    // 3. FOOD CATEGORIES
+                    .padding(.top, 8)
+                }
+                
+                // 2. DYNAMIC DASHBOARD
+                NavigationLink(destination: DietDetailView(diet: selectedDiet)) {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Top Foods")
-                            .font(.title2)
-                            .bold()
-                            .padding(.horizontal)
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(selectedDiet.name)
+                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                
+                                Text(selectedDiet.tagline)
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.leading)
+                                    .lineLimit(2)
+                            }
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right.circle.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(selectedDiet.color)
+                        }
                         
-                        ForEach(selectedDiet.categories) { category in
-                            FoodCategorySection(category: category)
-                                .padding(.horizontal)
+                        Divider()
+                        
+                        HStack(spacing: 24) {
+                            DietMacroMiniView(title: "Fat", value: selectedDiet.macroBreakdown.fat, color: .themeYellow)
+                            DietMacroMiniView(title: "Protein", value: selectedDiet.macroBreakdown.protein, color: .themePeach)
+                            DietMacroMiniView(title: "Carbs", value: selectedDiet.macroBreakdown.carbs, color: .themeOrange)
+                            Spacer()
                         }
                     }
-                    .padding(.bottom, 30)
-                    
+                    .premiumCardStyle()
                 }
-                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: selectedDiet)
+                .padding(.horizontal)
+                .buttonStyle(PlainButtonStyle())
+                
+                // 3. FOOD CATEGORIES
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Top Foods")
+                        .font(.title2)
+                        .bold()
+                        .padding(.horizontal)
+                    
+                    ForEach(selectedDiet.categories) { category in
+                        FoodCategorySection(category: category)
+                            .padding(.horizontal)
+                    }
+                }
+                .padding(.bottom, 30)
+                
             }
-            .background(Color.themeBg.edgesIgnoringSafeArea(.bottom))
-            .navigationTitle("Super Foods")
+            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: selectedDiet)
         }
+        .background(Color.themeBg.edgesIgnoringSafeArea(.bottom))
+        .navigationTitle("Diet Plans")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-// MARK: - UI КОМПОНЕНТЫ ДЛЯ SUPERFOODS
+// MARK: - UI КОМПОНЕНТЫ ДЛЯ ДИЕТ
 
 struct DietMacroMiniView: View {
     let title: String

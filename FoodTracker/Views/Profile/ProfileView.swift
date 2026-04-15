@@ -3,122 +3,7 @@ import SwiftUI
 import Charts
 import SwiftData
 
-// MARK: - Analytics View
-struct AnalyticsView: View {
-    @Query var dailySummaries: [DailySummary]
-    
-    var weeklyCalories: [(day: String, calories: Int)] {
-        let calendar = Calendar.current
-        let last7Days = (0..<7).compactMap { offset -> (day: String, calories: Int)? in
-            guard let date = calendar.date(byAdding: .day, value: -offset, to: Date.now) else { return nil }
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEE"
-            
-            let calories = dailySummaries
-                .filter { calendar.isDate($0.date, inSameDayAs: date) }
-                .reduce(0) { $0 + $1.totalCalories }
-            
-            return (day: formatter.string(from: date), calories: calories)
-        }
-        return last7Days.reversed()
-    }
-    
-    var weeklyWeight: [(day: String, weight: Double)] {
-        let calendar = Calendar.current
-        let last7Days = (0..<7).compactMap { offset -> (day: String, weight: Double)? in
-            guard let date = calendar.date(byAdding: .day, value: -offset, to: Date.now) else { return nil }
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEE"
-            
-            let weight = dailySummaries
-                .filter { calendar.isDate($0.date, inSameDayAs: date) }
-                .compactMap { $0.weight }
-                .first ?? 0
-            
-            return weight > 0 ? (day: formatter.string(from: date), weight: weight) : nil
-        }
-        return last7Days.reversed()
-    }
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Weekly Analytics")
-                .font(.title2)
-                .bold()
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text("Calories")
-                        .font(.headline)
-                    Spacer()
-                    Text("Avg: \(Int(weeklyCalories.map { $0.calories }.reduce(0, +) / max(1, weeklyCalories.count)))")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-                
-                if !weeklyCalories.isEmpty {
-                    Chart {
-                        ForEach(weeklyCalories, id: \.day) { item in
-                            BarMark(
-                                x: .value("Day", item.day),
-                                y: .value("Calories", item.calories)
-                            )
-                            .foregroundStyle(Color.themePink)
-                        }
-                    }
-                    .frame(height: 150)
-                    .chartYAxis {
-                        AxisMarks(position: .leading)
-                    }
-                } else {
-                    EmptyStateView(
-                        imageName: "chart.bar.fill",
-                        title: "No Data Yet",
-                        description: "Start logging meals to see your calorie trends"
-                    )
-                    .frame(height: 150)
-                }
-            }
-            .premiumCardStyle()
-            
-            if !weeklyWeight.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("Weight Trend")
-                            .font(.headline)
-                        Spacer()
-                        Text("Avg: \(String(format: "%.1f", weeklyWeight.map { $0.weight }.reduce(0, +) / Double(max(1, weeklyWeight.count)))) kg")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Chart {
-                        ForEach(weeklyWeight, id: \.day) { item in
-                            LineMark(
-                                x: .value("Day", item.day),
-                                y: .value("Weight", item.weight)
-                            )
-                            .foregroundStyle(Color.themeOrange)
-                            .lineStyle(StrokeStyle(lineWidth: 2))
-                            
-                            PointMark(
-                                x: .value("Day", item.day),
-                                y: .value("Weight", item.weight)
-                            )
-                            .foregroundStyle(Color.themeOrange)
-                        }
-                    }
-                    .frame(height: 150)
-                    .chartYAxis {
-                        AxisMarks(position: .leading)
-                    }
-                }
-                .premiumCardStyle()
-            }
-        }
-    }
-}
+
 
 struct ProfileWrapperView: View {
     @Query private var users: [User]
@@ -165,7 +50,7 @@ struct ProfileView: View {
                     }.premiumCardStyle()
                     
                     StreakCardView(streak: currentStreak)
-                    AnalyticsView()
+
                     AchievementsSectionView(user: user)
                     
                     VStack(alignment: .leading, spacing: 12) {
@@ -394,7 +279,7 @@ struct AchievementsSectionView: View {
                             .frame(width: 120, height: 160)
                         }
                     }
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, 20) // <-- ИЗМЕНИТЕ С 8 НА 20
                     .padding(.vertical, 20)
                 }
                 .scrollClipDisabled()

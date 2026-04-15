@@ -224,3 +224,51 @@ extension CustomRecipe {
         )
     }
 }
+enum HealthGrade {
+    case clean, balanced, treat
+    
+    var color: Color {
+        switch self {
+        case .clean: return Color.green
+        case .balanced: return Color.themeYellow
+        case .treat: return Color.themePink
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .clean: return "leaf.fill"
+        case .balanced: return "scale.3d"
+        case .treat: return "flame.fill"
+        }
+    }
+    
+    var title: String {
+        switch self {
+        case .clean: return "Clean"
+        case .balanced: return "Balanced"
+        case .treat: return "Treat"
+        }
+    }
+}
+
+extension FoodItem {
+    // Вычисляем грейд на основе плотности калорий и процента белка
+    var healthGrade: HealthGrade {
+        let proteinCals = protein * 4.0
+        let proteinPercentage = calories > 0 ? (proteinCals / Double(calories)) : 0
+        
+        // Если белка больше 20% от калорий ИЛИ это низкокалорийный продукт (овощи)
+        if proteinPercentage > 0.20 || (calories < 100 && carbs < 15) {
+            return .clean
+        }
+        // Если калорий много, а белка мало (сладости, фастфуд)
+        else if calories > 350 && proteinPercentage < 0.10 {
+            return .treat
+        }
+        // Все остальное - сбалансированная еда (рис, обычное мясо, хлеб)
+        else {
+            return .balanced
+        }
+    }
+}

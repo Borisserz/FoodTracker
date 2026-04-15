@@ -1,13 +1,8 @@
-//
-//  MicronutrientsView.swift
-//  FoodTracker
-//
-//  Created by Boris Serzhanovich on 12.04.26.
-//
 
 import SwiftUI
 
 // MARK: - MICRONUTRIENTS VIEW
+
 struct MicronutrientsView: View {
     let meal: Meal
     
@@ -62,6 +57,19 @@ struct MicronutrientsView: View {
 }
 
 // MARK: - Вспомогательные компоненты
+private struct NutrientRow: View {
+    let icon: String; let title: String; let value: Double; let unit: String; let color: Color
+    var body: some View {
+        HStack {
+            Image(systemName: icon).foregroundColor(color).font(.headline).frame(width: 30)
+            Text(title).font(.subheadline)
+            Spacer()
+            Text("\(value, specifier: "%.1f") \(unit)").font(.subheadline.bold()).foregroundColor(.primary.opacity(0.8))
+        }
+    }
+}
+
+// MARK: - Вспомогательные компоненты
 private struct ActivityRing: View {
     let progress: Double; let color: Color; let radius: CGFloat; let thickness: CGFloat
     
@@ -89,14 +97,4 @@ private struct RingLegend: View {
     }
 }
 
-private struct NutrientRow: View {
-    let icon: String; let title: String; let value: Double; let unit: String; let color: Color
-    var body: some View {
-        HStack {
-            Image(systemName: icon).foregroundColor(color).font(.headline).frame(width: 30)
-            Text(title).font(.subheadline)
-            Spacer()
-            Text("\(value, specifier: "%.1f") \(unit)").font(.subheadline.bold()).foregroundColor(.primary.opacity(0.8))
-        }
-    }
-}
+

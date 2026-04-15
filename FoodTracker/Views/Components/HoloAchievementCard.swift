@@ -2,13 +2,6 @@
 //  HoloAchievementCard.swift
 //  FoodTracker
 //
-//  Created by Boris Serzhanovich on 14.04.26.
-//
-
-//
-//  HoloAchievementCard.swift
-//  FoodTracker
-//
 
 import SwiftUI
 
@@ -28,9 +21,16 @@ struct HoloAchievementCard: View {
     }
     
     private var rotationAngle: Double {
-        // Рассчитываем угол наклона (максимум 20 градусов)
-        let angle = (offset / (screenWidth / 2)) * 20
-        return max(-20, min(20, angle))
+        // Рассчитываем угол наклона (уменьшили максимум до 15 градусов для аккуратности)
+        let angle = (offset / (screenWidth / 2)) * 15
+        return max(-15, min(15, angle))
+    }
+    
+    // НОВОЕ: Легкое уменьшение карточек, когда они уходят к краям экрана
+    private var cardScale: CGFloat {
+        let maxOffset = screenWidth / 2
+        let fraction = min(1.0, abs(offset) / maxOffset)
+        return 1.0 - (fraction * 0.1) // Карточка будет уменьшаться до 0.9 по краям
     }
     
     var body: some View {
@@ -68,19 +68,19 @@ struct HoloAchievementCard: View {
                     }
                     .padding(12)
                     
-                    // Голографический блик (смещается в зависимости от скролла)
+                    // Голографический блик
                     LinearGradient(
                         colors: [.clear, .white.opacity(0.6), .clear],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                     .frame(width: 250)
-                    .offset(x: -offset * 0.8) // Блик движется в противовес наклону
+                    .offset(x: -offset * 0.8)
                     .blendMode(.plusLighter)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 // Эффект свечения (Outer Glow)
-                .shadow(color: achievement.color.opacity(0.5), radius: 10, y: 5)
+                .shadow(color: achievement.color.opacity(0.4), radius: 8, y: 4)
                 
             } else {
                 // MARK: - LOCKED STATE (Frosted Glass)
@@ -116,24 +116,21 @@ struct HoloAchievementCard: View {
             }
         }
         .frame(width: 120, height: 160)
-        // Применение 3D трансформации
+        // ИСПРАВЛЕНИЕ 3D ТРАНСФОРМАЦИИ
         .rotation3DEffect(
             .degrees(rotationAngle),
             axis: (x: 0, y: 1, z: 0),
-            perspective: 0.5 // Придает глубину
+            perspective: 0.15 // Уменьшили с 0.5 до 0.15, чтобы убрать искажение "рыбьего глаза"
         )
-        .scaleEffect(isPressed ? 0.95 : 1.0)
-        // Микроинтеракция при нажатии
+        // Добавили плавное уменьшение масштаба по краям + эффект нажатия
+        .scaleEffect(isPressed ? 0.95 : cardScale)
         .onTapGesture {
-            // Разный тактильный отклик в зависимости от статуса
             HapticManager.shared.impact(style: isUnlocked ? .heavy : .rigid)
             
-            // Пружинная анимация сжатия
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                 isPressed = true
             }
             
-            // Возврат в исходное состояние
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                     isPressed = false

@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - ADD MEAL VIEW (Refactored for new AddFoodSelectionView)
+// MARK: - ADD MEAL VIEW (Updated to use SmartAddFoodView)
 struct AddMealView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) var dismiss
@@ -54,13 +54,13 @@ struct AddMealView: View {
                 }
             }
             .tint(.themePink)
-            // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
-            // Теперь мы передаем замыкание `onSave`, а не `Binding`.
+            // ИСПРАВЛЕНИЕ: Используем новое имя SmartAddFoodView и передаем тип приема пищи
             .sheet(isPresented: $showingAddFood) {
-                AddFoodSelectionView { newItems in
-                    // Этот код выполнится, когда пользователь нажмет "Add" в модальном окне.
+                SmartAddFoodView(mealTitle: selectedMealType) { newItems in
                     self.selectedFoods.append(contentsOf: newItems)
                 }
+                .presentationDetents([.fraction(0.85), .large])
+                .presentationCornerRadius(32)
             }
         }
     }
@@ -73,7 +73,6 @@ struct AddMealView: View {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
         
-        // 1. Найти или создать DailySummary для выбранной даты
         let summaryToUse: DailySummary
         if let existingSummary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: startOfDay) }) {
             summaryToUse = existingSummary
@@ -82,8 +81,6 @@ struct AddMealView: View {
             modelContext.insert(summaryToUse)
         }
         
-        // 2. Создать Meal и добавить в него FoodItems
-        // Важно: если такой прием пищи уже есть, добавляем еду к нему, а не создаем дубликат
         if let existingMeal = summaryToUse.meals.first(where: { $0.title == selectedMealType }) {
             existingMeal.foodItems.append(contentsOf: selectedFoods)
         } else {
@@ -91,7 +88,6 @@ struct AddMealView: View {
             summaryToUse.meals.append(newMeal)
         }
         
-        // 3. Сохранить изменения
         do {
             try modelContext.save()
             dismiss()

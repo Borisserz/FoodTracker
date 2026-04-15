@@ -173,27 +173,25 @@ struct CreateRecipeView: View {
     
     // MARK: - Save Logic
     private func saveAndNavigate() {
-          let newRecipe = CustomRecipe(
-              name: recipeName,
-              info: recipeInfo,
-              foodItems: ingredients,
-              cookingTime: cookingTime,
-              difficulty: difficulty
-          )
-          
-          modelContext.insert(newRecipe)
-          
-          do {
-              try modelContext.save()
-              // ВОТ ЗДЕСЬ ИСПРАВЛЕНИЕ:
-              // Оборачиваем newRecipe в наш enum RecipeRoute
-              path.append(RecipeRoute.detail(newRecipe))
-          } catch {
-              print("Failed to save recipe: \(error.localizedDescription)")
-          }
-      }
+        let newRecipe = CustomRecipe(
+            name: recipeName,
+            info: recipeInfo,
+            foodItems: ingredients,
+            cookingTime: cookingTime,
+            difficulty: difficulty
+        )
+        
+        modelContext.insert(newRecipe)
+        
+        do {
+            try modelContext.save()
+            // ИСПРАВЛЕНИЕ: Используем FoodsRoute для навигации
+            path.append(FoodsRoute.recipeDetail(newRecipe))
+        } catch {
+            print("Failed to save recipe: \(error.localizedDescription)")
+        }
+    }
 }
-
 // MARK: - 2. ADD INGREDIENT MODAL
 struct AddIngredientModalView: View {
     @Environment(\.modelContext) private var modelContext

@@ -25,39 +25,72 @@ struct FoodTrackerApp: App {
         }
     }
 }
+struct IdentifiableString: Identifiable {
+    let id = UUID()
+    let value: String
+}
 
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
+    @Query private var summaries: [DailySummary]
     
     @State private var selectedTab = 0
-    @State private var showQuickAddSheet = false
     
-    init() {
-        // Скрываем нативный TabBar, чтобы использовать свой кастомный
-        UITabBar.appearance().isHidden = true
-    }
+    // Стейты для новой логики добавления
+    @State private var showQuickAddSheet = false
+    @State private var mealToOpenInSmartAdd: IdentifiableString? = nil
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            TabView(selection: $selectedTab) {
-                HomeDashboardView().tag(0)
-                HistoryView().tag(1)
-                Color.clear.tag(2) // Пустое место для FAB
-                SuperFoodsView().tag(3)
-                ChefRecipesView().tag(4)
+        TabView(selection: Binding(
+            get: { selectedTab },
+            set: { newValue in
+                if newValue == 2 {
+                    // Нажатие на центральную кнопку "+"
+                    HapticManager.shared.impact(style: .medium)
+                    showQuickAddSheet = true
+                } else {
+                    selectedTab = newValue
+                }
             }
-            .tint(.themePink)
+        )) {
+            HomeDashboardView()
+                .tabItem { Label("Home", systemImage: "house.fill") }
+                .tag(0)
             
-            // Кастомный TabBar с вырезом
-            CustomTabBar(selectedTab: $selectedTab, showQuickAdd: $showQuickAddSheet)
+            FoodsDashboardView() // БЫВШИЙ HISTORY
+                .tabItem { Label("Foods", systemImage: "leaf.arrow.circlepath") }
+                .tag(1)
+            
+            // Заглушка для центральной кнопки
+            Color.clear
+                .tabItem { Label("Add", systemImage: "plus.circle.fill") }
+                .tag(2)
+            
+            AnalyticsTabView() // НОВАЯ ВКЛАДКА С ГРАФИКАМИ
+                .tabItem { Label("Analytics", systemImage: "chart.bar.fill") }
+                .tag(3)
+            
+            ProfileWrapperView() // ПРОФИЛЬ ТЕПЕРЬ ОТДЕЛЬНЫЙ ТАБ
+                .tabItem { Label("Profile", systemImage: "person.crop.circle.fill") }
+                .tag(4)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .tint(.themePink)
         .onAppear {
             initializeUserIfNeeded()
         }
         .sheet(isPresented: $showQuickAddSheet) {
-            AddMealView(selectedDate: .now)
+            PremiumQuickAddSheet(selectedDate: .now) { selectedMeal in
+                self.mealToOpenInSmartAdd = IdentifiableString(value: selectedMeal)
+            }
+            .presentationDetents([.height(550)])
+            .presentationCornerRadius(32)
+            .presentationDragIndicator(.visible)
+        }
+        .fullScreenCover(item: $mealToOpenInSmartAdd) { mealInfo in
+            SmartAddFoodView(mealTitle: mealInfo.value) { selectedItems in
+                addFoodsToMeal(title: mealInfo.value, items: selectedItems)
+            }
         }
     }
     
@@ -68,94 +101,44 @@ struct ContentView: View {
             try? context.save()
         }
     }
-}
-
-// MARK: - Custom Tab Bar UI
-struct CustomTabBar: View {
-    @Binding var selectedTab: Int
-    @Binding var showQuickAdd: Bool
     
-    var body: some View {
-        ZStack(alignment: .top) {
-            // Подложка с вырезом
-            TabBarShape()
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.06), radius: 15, x: 0, y: -4)
-                .frame(height: 90)
-            
-            HStack(spacing: 0) {
-                TabBarItem(icon: "house.fill", title: "Home", tab: 0, selectedTab: $selectedTab)
-                TabBarItem(icon: "clock.fill", title: "History", tab: 1, selectedTab: $selectedTab)
-                
-                Spacer().frame(width: 80) // Место под центральную кнопку
-                
-                TabBarItem(icon: "leaf.arrow.circlepath", title: "Foods", tab: 3, selectedTab: $selectedTab)
-                TabBarItem(icon: "star.circle.fill", title: "Chefs", tab: 4, selectedTab: $selectedTab)
-            }
-            .padding(.top, 16)
-            
-            // Центральная кнопка (FAB)
-            Button(action: {
-                HapticManager.shared.impact(style: .medium)
-                showQuickAdd = true
-            }) {
-                Image(systemName: "plus")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 64, height: 64)
-                    .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .clipShape(Circle())
-                    .shadow(color: Color.themePink.opacity(0.4), radius: 12, x: 0, y: 6)
-            }
-            .offset(y: -28) // Поднимаем над баром
+    private func addFoodsToMeal(title: String, items: [FoodItem]) {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        
+        let summary: DailySummary
+        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
+            summary = existing
+        } else {
+            summary = DailySummary(date: today)
+            context.insert(summary)
         }
+        
+        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
+            existingMeal.foodItems.append(contentsOf: items)
+        } else {
+            let newMeal = Meal(title: title, date: .now, foodItems: items)
+            context.insert(newMeal)
+            summary.meals.append(newMeal)
+        }
+        try? context.save()
     }
 }
 
-struct TabBarItem: View {
-    let icon: String
-    let title: String
-    let tab: Int
-    @Binding var selectedTab: Int
+struct QuickButton: View {
+    let label: String
+    var isPrimary: Bool = false
+    let action: () -> Void
     
     var body: some View {
-        Button {
-            HapticManager.shared.impact(style: .light)
-            selectedTab = tab
-        } label: {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 22, weight: selectedTab == tab ? .bold : .regular))
-                Text(title)
-                    .font(.system(size: 10, weight: selectedTab == tab ? .bold : .medium))
-            }
-            .foregroundColor(selectedTab == tab ? .themePink : .gray.opacity(0.5))
-            .frame(maxWidth: .infinity)
+        Button(action: action) {
+            Text(label)
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundColor(isPrimary ? .themePink : .gray)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(isPrimary ? Color.themePink.opacity(0.1) : Color.gray.opacity(0.05))
+                .cornerRadius(12)
         }
-    }
-}
-
-struct TabBarShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let width = rect.width
-        let height = rect.height
-        let center = width / 2
-        let curveWidth: CGFloat = 85
-        let curveHeight: CGFloat = 40
-        
-        path.move(to: CGPoint(x: 0, y: 0))
-        path.addLine(to: CGPoint(x: center - curveWidth/2, y: 0))
-        
-        // Плавный вырез
-        path.addCurve(to: CGPoint(x: center + curveWidth/2, y: 0),
-                      control1: CGPoint(x: center - curveWidth/4, y: curveHeight),
-                      control2: CGPoint(x: center + curveWidth/4, y: curveHeight))
-        
-        path.addLine(to: CGPoint(x: width, y: 0))
-        path.addLine(to: CGPoint(x: width, y: height))
-        path.addLine(to: CGPoint(x: 0, y: height))
-        path.closeSubpath()
-        return path
     }
 }

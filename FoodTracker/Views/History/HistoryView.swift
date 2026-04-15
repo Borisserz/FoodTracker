@@ -1,18 +1,19 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - РОУТИНГ ДЛЯ РЕЦЕПТОВ
-enum RecipeRoute: Hashable {
-    case create
-    case detail(CustomRecipe)
+// MARK: - РОУТИНГ ДЛЯ НОВОГО ЭКРАНА FOODS
+enum FoodsRoute: Hashable {
+    case recipes
+    case diets
+    case createRecipe
+    case recipeDetail(CustomRecipe)
 }
 
-// MARK: - ГЛАВНЫЙ VIEW ИСТОРИИ
-struct HistoryView: View {
+// MARK: - ГЛАВНЫЙ VIEW FOODS (БЫВШИЙ HISTORY)
+struct FoodsDashboardView: View {
     @Environment(\.modelContext) private var context
     @State private var path = NavigationPath()
     
-    @Query(sort: \CustomRecipe.name) private var recipes: [CustomRecipe]
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
     
     @State private var selectedFilter: String = "All"
@@ -29,46 +30,23 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
+                VStack(spacing: 32) {
                     
-                    // БЛОК РЕЦЕПТОВ
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("My Custom Recipes").font(.title3).bold()
-                            Spacer()
-                            Button(action: { path.append(RecipeRoute.create) }) {
-                                Image(systemName: "plus.circle.fill").foregroundColor(.themePink).font(.title2)
-                            }
+                    // 1. ДВЕ БОЛЬШИЕ КНОПКИ: РЕЦЕПТЫ И ДИЕТЫ
+                    HStack(spacing: 16) {
+                        FoodsFeatureCard(title: "Recipes", subtitle: "Custom & Chefs", icon: "book.pages.fill", color: .themePink) {
+                            path.append(FoodsRoute.recipes)
                         }
                         
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                if recipes.isEmpty {
-                                    Text("No custom recipes yet. Tap + to create one!")
-                                        .font(.subheadline).foregroundColor(.gray).padding(.vertical, 20)
-                                } else {
-                                    ForEach(recipes) { recipe in
-                                        Button(action: { path.append(RecipeRoute.detail(recipe)) }) {
-                                            // ИСПРАВЛЕНО: CustomRecipeCard теперь определена ниже
-                                            CustomRecipeCard(
-                                                title: recipe.name,
-                                                calories: "\(recipe.totalCalories) kcal",
-                                                items: recipe.info,
-                                                cookingTime: recipe.cookingTime,
-                                                difficulty: recipe.difficulty
-                                            )
-                                            // ИСПРАВЛЕНО: Этот модификатор теперь работает
-                                            .foregroundColor(.primary)
-                                        }
-                                    }
-                                }
-                            }
+                        FoodsFeatureCard(title: "Diet Plans", subtitle: "Keto, Vegan...", icon: "leaf.fill", color: .green) {
+                            path.append(FoodsRoute.diets)
                         }
-                    }.padding(.top)
+                    }
+                    .padding(.top, 10)
                     
-                    // БЛОК ИСТОРИИ ПРИЕМОВ ПИЩИ
+                    // 2. БЛОК ИСТОРИИ ПРИЕМОВ ПИЩИ
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Meals Logged").font(.title3).bold()
+                        Text("Meals Logged").font(.title2).bold()
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
@@ -91,7 +69,6 @@ struct HistoryView: View {
                         
                         if filteredMeals.isEmpty {
                             let message = selectedFilter == "All" ? "Your logged meals will appear here." : "No meals logged for \(selectedFilter)."
-                            // ИСПРАВЛЕНО: EmptyStateView теперь определена ниже
                             EmptyStateView(imageName: "fork.knife", title: "No History", description: message)
                                 .frame(height: 200).premiumCardStyle()
                         } else {
@@ -109,14 +86,22 @@ struct HistoryView: View {
                             }
                         }
                     }
-                }.padding(.horizontal)
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 40)
             }
             .background(Color.themeBg)
-            .navigationTitle("History")
-            .navigationDestination(for: RecipeRoute.self) { route in
+            .navigationTitle("Foods Hub")
+            .navigationDestination(for: FoodsRoute.self) { route in
                 switch route {
-                case .create: CreateRecipeView(path: $path)
-                case .detail(let recipe): RecipeDetailView(recipe: recipe, path: $path)
+                case .recipes:
+                    RecipesContainerView(path: $path)
+                case .diets:
+                    DietsListView()
+                case .createRecipe:
+                    CreateRecipeView(path: $path)
+                case .recipeDetail(let recipe):
+                    RecipeDetailView(recipe: recipe, path: $path)
                 }
             }
         }
@@ -140,8 +125,47 @@ struct HistoryView: View {
     }
 }
 
-// MARK: - Вспомогательные View (добавлены для решения ошибок)
+// MARK: - Плашка для Рецептов и Диет
+struct FoodsFeatureCard: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(color)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.white)
+            .cornerRadius(24)
+            .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+        }
+        .buttonStyle(BounceButtonStyle())
+    }
+}
 
+// MARK: - Строка истории
 struct FrequentMealRow: View {
     let timeTag: String; let title: String; let ingredients: String; let calories: String; let color: Color
     var onDelete: () -> Void
@@ -149,70 +173,17 @@ struct FrequentMealRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                Text(timeTag).font(.system(size: 10, weight: .bold)).foregroundColor(.white).padding(4).background(color).cornerRadius(4)
+                Text(timeTag).font(.system(size: 10, weight: .bold)).foregroundColor(.white).padding(.horizontal, 6).padding(.vertical, 4).background(color).cornerRadius(6)
                 Text(title).font(.headline)
                 Text(ingredients).font(.caption).foregroundColor(.gray).lineLimit(1)
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 8) {
                 Button(action: onDelete) {
-                    Image(systemName: "trash").foregroundColor(.red).font(.caption)
+                    Image(systemName: "trash").foregroundColor(.red.opacity(0.8)).font(.caption)
                 }
                 Text("\(calories) kcal").font(.headline).foregroundColor(.themePink)
             }
         }.premiumCardStyle()
     }
 }
-
-struct CustomRecipeCard: View {
-    let title: String
-    let calories: String
-    let items: String
-    let cookingTime: Int?
-    let difficulty: String?
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.headline)
-                .lineLimit(1)
-            
-            Text(items)
-                .font(.caption)
-                .foregroundColor(.gray)
-                .lineLimit(2)
-            
-            HStack(spacing: 12) {
-                if let cookingTime = cookingTime {
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock.fill")
-                            .font(.caption)
-                        Text("\(cookingTime)m")
-                            .font(.caption)
-                    }
-                    .foregroundColor(.gray)
-                }
-                
-                if let difficulty = difficulty {
-                    Text(difficulty)
-                        .font(.caption2.bold())
-                        .foregroundColor(.themeOrange)
-                }
-                
-                Spacer()
-            }
-            
-            Spacer()
-            
-            Text(calories)
-                .font(.headline)
-                .foregroundColor(.themePink)
-        }
-        .padding()
-        .frame(width: 160, height: 140) // Задаем фиксированный размер для консистентности
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
-    }
-}
-
