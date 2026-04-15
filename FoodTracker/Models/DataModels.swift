@@ -8,7 +8,21 @@
 import SwiftUI
 import SwiftData
 import Observation
-
+enum MacroType: String, Identifiable {
+    case protein = "Protein"
+    case fat = "Fat"
+    case carbs = "Carbs"
+    
+    var id: String { self.rawValue }
+    
+    var color: Color {
+        switch self {
+        case .protein: return .themePink
+        case .fat: return .orange
+        case .carbs: return .blue
+        }
+    }
+}
 // MARK: - ACHIEVEMENTS (Геймификация)
 struct Achievement: Identifiable {
     let id: String
@@ -161,7 +175,6 @@ struct Achievement: Identifiable {
     }
 }
 
-// MARK: - CUSTOM RECIPE MODEL
 @Model final class CustomRecipe {
     var name: String
     var info: String
@@ -169,11 +182,17 @@ struct Achievement: Identifiable {
     var cookingTime: Int
     var difficulty: String
     
+    // НОВЫЕ ПОЛЯ
+    var servings: Int = 1
+    var directions: [String] = []
+    
     var totalCalories: Int { foodItems.reduce(0) { $0 + $1.calories } }
 
-    init(name: String, info: String, foodItems: [FoodItem] = [], cookingTime: Int, difficulty: String) {
+    init(name: String, info: String, foodItems: [FoodItem] = [], cookingTime: Int, difficulty: String, servings: Int = 1, directions: [String] = []) {
         self.name = name; self.info = info; self.foodItems = foodItems
         self.cookingTime = cookingTime; self.difficulty = difficulty
+        self.servings = servings
+        self.directions = directions
     }
 }
 

@@ -38,9 +38,10 @@ struct HomeDashboardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
+    @State private var showingProfileSheet = false
     
     @State private var selectedDate: Date = .now
-    
+    @State private var navigateToProfile = false
     // Стейты для умного добавления еды (Шторка)
     @State private var showingQuickAddSheet = false
     @State private var quickAddMealType: String = "Breakfast"
@@ -84,7 +85,10 @@ struct HomeDashboardView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        HeaderView(selectedDate: selectedDate)
+                        HeaderView(selectedDate: selectedDate) {
+                            navigateToProfile = true // Меняем вызов
+                          }
+
                         
                         CalendarCarouselView(selectedDate: $selectedDate)
                         
@@ -135,6 +139,9 @@ struct HomeDashboardView: View {
             .task(id: selectedDate) {
                  await fetchHealthData(for: currentSummary)
             }
+            .navigationDestination(isPresented: $navigateToProfile) {
+                ProfileWrapperView()
+            }
             // Вызов премиальной шторки для добавления еды
             .sheet(isPresented: $showingQuickAddSheet) {
                 SmartAddFoodView(mealTitle: quickAddMealType) { selectedItems in
@@ -143,7 +150,7 @@ struct HomeDashboardView: View {
                 .presentationDetents([.fraction(0.85), .large])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.hidden) // Скрываем стандартный, у нас свой красивый
-            }
+            } 
             // Шторка детального просмотра приема пищи (Менюшка)
             .sheet(item: Binding(
                 get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
@@ -187,9 +194,9 @@ struct HomeDashboardView: View {
     }
 }
 
-// MARK: - Вложенные Подкомпоненты Главного Экрана
 struct HeaderView: View {
     let selectedDate: Date
+    var onProfileTap: () -> Void // НОВОЕ ДЕЙСТВИЕ
     
     private var monthYearString: String {
         let formatter = DateFormatter()
@@ -215,10 +222,20 @@ struct HeaderView: View {
                 Text(relativeDateString).foregroundColor(.textGray)
             }
             Spacer()
-            // Просто иконка аватара для красоты (переход в профиль теперь через нижний Таб-бар)
-            Image(systemName: "person.crop.circle.fill")
-                .font(.system(size: 36))
-                .foregroundColor(.themePink)
+            
+            // КНОПКА ПРОФИЛЯ С ТАКТИЛЬНЫМ ОТКЛИКОМ
+            Button(action: {
+                HapticManager.shared.impact(style: .medium)
+                onProfileTap()
+            }) {
+                Image(systemName: "person.crop.circle.fill")
+                    .font(.system(size: 36))
+                    .foregroundStyle(
+                        LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
+            }
+            .buttonStyle(BounceButtonStyle())
         }
         .padding(.horizontal)
         .padding(.top, 10)

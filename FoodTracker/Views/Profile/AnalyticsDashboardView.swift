@@ -213,6 +213,9 @@ struct NutrientDistributionCard: View {
     let summary: DailySummary?
     let user: User
     
+    // Стейт для вызова попапа
+    @State private var selectedMacro: MacroType? = nil
+    
     var body: some View {
         let p = summary?.totalProtein ?? 0
         let f = summary?.totalFats ?? 0
@@ -221,8 +224,13 @@ struct NutrientDistributionCard: View {
         let totalCals = summary?.totalFoodCalories ?? 0
         
         VStack(alignment: .leading, spacing: 20) {
-            Text("Distribution of nutrients")
-                .font(.headline)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Distribution of nutrients")
+                    .font(.headline)
+                Text("Tap a nutrient to see its top food sources.")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
             
             if total == 0 {
                 EmptyStateView(imageName: "chart.pie", title: "No Data", description: "Log food to see distribution").frame(height: 150)
@@ -231,11 +239,9 @@ struct NutrientDistributionCard: View {
                     
                     // УЛУЧШЕННЫЙ ГРАФИК
                     ZStack {
-                        // 1. Фоновое кольцо (трек)
                         Circle()
                             .stroke(Color.gray.opacity(0.1), lineWidth: 18)
                         
-                        // 2. Сам график с сочными градиентами
                         Chart {
                             SectorMark(angle: .value("Carbs", c), innerRadius: .ratio(0.75), angularInset: 2.5)
                                 .foregroundStyle(LinearGradient(colors: [.cyan, .blue], startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -250,7 +256,6 @@ struct NutrientDistributionCard: View {
                                 .cornerRadius(5)
                         }
                         
-                        // 3. Данные внутри кольца
                         VStack(spacing: 2) {
                             Text("\(totalCals)")
                                 .font(.system(size: 22, weight: .heavy, design: .rounded))
@@ -261,29 +266,45 @@ struct NutrientDistributionCard: View {
                         }
                     }
                     .frame(width: 140, height: 140)
-                    // Легкая тень для эффекта объема
                     .shadow(color: Color.black.opacity(0.08), radius: 8, y: 4)
                     
-                    // УЛУЧШЕННАЯ ЛЕГЕНДА
+                    // ИНТЕРАКТИВНАЯ ЛЕГЕНДА
                     VStack(alignment: .leading, spacing: 16) {
-                        DonutLegendRow(title: "Protein", percent: p/total, grams: p, color: .themePink)
-                        DonutLegendRow(title: "Fat", percent: f/total, grams: f, color: .orange)
-                        DonutLegendRow(title: "Carbs", percent: c/total, grams: c, color: .blue)
+                        Button(action: { triggerPopup(for: .protein) }) {
+                            DonutLegendRow(title: "Protein", percent: p/total, grams: p, color: .themePink)
+                        }
+                        Button(action: { triggerPopup(for: .fat) }) {
+                            DonutLegendRow(title: "Fat", percent: f/total, grams: f, color: .orange)
+                        }
+                        Button(action: { triggerPopup(for: .carbs) }) {
+                            DonutLegendRow(title: "Carbs", percent: c/total, grams: c, color: .blue)
+                        }
                     }
                 }
                 .padding(.vertical, 10)
             }
         }
         .ultraPremiumCardStyle()
+        // ВЫЗОВ ШТОРКИ С ТОП ПРОДУКТАМИ
+        .sheet(item: $selectedMacro) { macro in
+            TopSourcesSheetView(macro: macro, summary: summary)
+                .presentationDetents([.height(380)]) // Фиксированная высота как на скрине
+                .presentationCornerRadius(32)
+                .presentationDragIndicator(.visible)
+        }
+    }
+    
+    private func triggerPopup(for macro: MacroType) {
+        HapticManager.shared.impact(style: .medium)
+        selectedMacro = macro
     }
 }
 
-// УЛУЧШЕННАЯ СТРОКА ЛЕГЕНДЫ
+// ИНТЕРАКТИВНАЯ СТРОКА ЛЕГЕНДЫ
 struct DonutLegendRow: View {
     let title: String; let percent: Double; let grams: Double; let color: Color
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            // Цветная точка-маркер
             Circle()
                 .fill(color)
                 .frame(width: 10, height: 10)
@@ -291,14 +312,19 @@ struct DonutLegendRow: View {
                 .shadow(color: color.opacity(0.4), radius: 3, y: 1)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline.bold())
-                    .foregroundColor(.primary)
+                HStack(spacing: 4) {
+                    Text(title)
+                        .font(.subheadline.bold())
+                        .foregroundColor(color)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(color.opacity(0.5))
+                }
                 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(Int(percent * 100))%")
                         .font(.system(size: 16, weight: .heavy, design: .rounded))
-                        .foregroundColor(color)
+                        .foregroundColor(.primary)
                     
                     Text("/ \(Int(grams)) g")
                         .font(.caption.weight(.medium))
@@ -308,7 +334,6 @@ struct DonutLegendRow: View {
         }
     }
 }
-
 // MARK: Карточка: Распределение по приемам пищи
 struct MealDistributionCard: View {
     let summary: DailySummary?
@@ -606,6 +631,110 @@ struct ChartLegendItem: View {
         HStack(spacing: 6) {
             Circle().fill(color).frame(width: 8, height: 8)
             Text(text).font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundColor(.gray)
+        }
+    }
+}
+struct TopSourcesSheetView: View {
+    @Environment(\.dismiss) private var dismiss
+    let macro: MacroType
+    let summary: DailySummary?
+    
+    // Вычисляем топ 3 продукта
+    private var topFoods: [FoodItem] {
+        guard let summary = summary else { return [] }
+        
+        // Собираем всю еду за день
+        let allFoods = summary.meals.flatMap { $0.foodItems }
+        
+        // Сортируем в зависимости от выбранного макроса
+        switch macro {
+        case .protein:
+            return allFoods.filter { $0.protein > 0 }.sorted { $0.protein > $1.protein }.prefix(3).map { $0 }
+        case .fat:
+            return allFoods.filter { $0.fats > 0 }.sorted { $0.fats > $1.fats }.prefix(3).map { $0 }
+        case .carbs:
+            return allFoods.filter { $0.carbs > 0 }.sorted { $0.carbs > $1.carbs }.prefix(3).map { $0 }
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            // Заголовок
+            Text("Top \(macro.rawValue.lowercased()) sources")
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .padding(.top, 16)
+            
+            // Список или Empty State
+            if topFoods.isEmpty {
+                Spacer()
+                Text("No foods logged yet. Start adding meals to see your top sources here.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+                Spacer()
+            } else {
+                VStack(spacing: 16) {
+                    ForEach(topFoods.indices, id: \.self) { index in
+                        let food = topFoods[index]
+                        let value = getValue(for: food)
+                        
+                        HStack {
+                            // Медалька (1, 2, 3 место)
+                            Text("\(index + 1)")
+                                .font(.caption.bold())
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(macro.color.opacity(index == 0 ? 1.0 : (index == 1 ? 0.6 : 0.3)))
+                                .clipShape(Circle())
+                            
+                            Text(food.name)
+                                .font(.subheadline.bold())
+                                .lineLimit(1)
+                            
+                            Spacer()
+                            
+                            Text("\(value, specifier: "%.1f") g")
+                                .font(.subheadline.bold())
+                                .foregroundColor(macro.color)
+                        }
+                        
+                        if index < topFoods.count - 1 {
+                            Divider()
+                        }
+                    }
+                }
+                .padding(20)
+                .background(Color.gray.opacity(0.05))
+                .cornerRadius(20)
+                Spacer(minLength: 0)
+            }
+            
+            // Кнопка закрытия (в цвете макроса)
+            Button(action: {
+                HapticManager.shared.impact(style: .light)
+                dismiss()
+            }) {
+                Text("Close")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(macro.color) // Цвет кнопки = цвет нутриента
+                    .cornerRadius(20)
+            }
+            .buttonStyle(BounceButtonStyle())
+        }
+        .padding(24)
+        .background(Color.themeBg.ignoresSafeArea())
+    }
+    
+    // Вспомогательная функция для получения нужного значения
+    private func getValue(for food: FoodItem) -> Double {
+        switch macro {
+        case .protein: return food.protein
+        case .fat: return food.fats
+        case .carbs: return food.carbs
         }
     }
 }

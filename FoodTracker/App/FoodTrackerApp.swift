@@ -67,13 +67,25 @@ struct ContentView: View {
                 .tabItem { Label("Add", systemImage: "plus.circle.fill") }
                 .tag(2)
             
-            AnalyticsTabView() // НОВАЯ ВКЛАДКА С ГРАФИКАМИ
-                .tabItem { Label("Analytics", systemImage: "chart.bar.fill") }
-                .tag(3)
-            
-            ProfileWrapperView() // ПРОФИЛЬ ТЕПЕРЬ ОТДЕЛЬНЫЙ ТАБ
-                .tabItem { Label("Profile", systemImage: "person.crop.circle.fill") }
-                .tag(4)
+            AnalyticsTabView()
+                            .tabItem { Label("Analytics", systemImage: "chart.bar.fill") }
+                            .tag(3)
+                        
+                        // ЗАГЛУШКА ДЛЯ БУДУЩЕГО AI АГЕНТА
+                        VStack(spacing: 16) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 60))
+                                .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
+                            Text("AI Coach")
+                                .font(.title2.bold())
+                            Text("Your personal AI assistant is coming soon.")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.themeBg)
+                        .tabItem { Label("Coach", systemImage: "sparkles") }
+                        .tag(4)
         }
         .tint(.themePink)
         .onAppear {
