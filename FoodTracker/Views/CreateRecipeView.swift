@@ -681,56 +681,62 @@ struct RecipeDetailView: View {
                 .presentationDetents([.fraction(0.4)])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
+                .toolbar(.hidden, for: .tabBar) // Скрывает нижний TabBar при переходе сюда
+                .sheet(isPresented: $showMealSheet) {
+                    CustomChooseMealSheet(recipe: recipe)
+                        .presentationDetents([.fraction(0.4)])
+                        .presentationCornerRadius(32)
+                        .presentationDragIndicator(.visible)
+                }
         }
     }
-}
-
-// Шторка добавления личного рецепта в дневник
-struct CustomChooseMealSheet: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) private var context
-    @Query private var summaries: [DailySummary]
-    
-    let recipe: CustomRecipe
-    @State private var selectedMeal = "Breakfast"
-    let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
-    
-    var body: some View {
-        VStack(spacing: 24) {
-            Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
-            Picker("Meal", selection: $selectedMeal) {
-                ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) }
+    // Шторка добавления личного рецепта в дневник
+    struct CustomChooseMealSheet: View {
+        @Environment(\.dismiss) var dismiss
+        @Environment(\.modelContext) private var context
+        @Query private var summaries: [DailySummary]
+        
+        let recipe: CustomRecipe
+        @State private var selectedMeal = "Breakfast"
+        let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
+        
+        var body: some View {
+            VStack(spacing: 24) {
+                Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
+                Picker("Meal", selection: $selectedMeal) {
+                    ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) }
+                }
+                .pickerStyle(.wheel).frame(height: 120)
+                
+                Button(action: {
+                    HapticManager.shared.impact(style: .heavy)
+                    saveToDiary()
+                    dismiss()
+                }) {
+                    Text("Select")
+                        .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
+                        .padding(.vertical, 18).background(Color.themePink)
+                        .cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                }
+                .buttonStyle(BounceButtonStyle())
+                .padding(.horizontal, 24).padding(.bottom, 20)
             }
-            .pickerStyle(.wheel).frame(height: 120)
-            
-            Button(action: {
-                HapticManager.shared.impact(style: .heavy)
-                saveToDiary()
-                dismiss()
-            }) {
-                Text("Select")
-                    .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
-                    .padding(.vertical, 18).background(Color.themePink)
-                    .cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+            .background(Color.themeBg.ignoresSafeArea())
+        }
+        
+        private func saveToDiary() {
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: .now)
+            let summary: DailySummary
+            if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) { summary = existing } else {
+                summary = DailySummary(date: today); context.insert(summary)
             }
-            .buttonStyle(BounceButtonStyle())
-            .padding(.horizontal, 24).padding(.bottom, 20)
+            let newFood = recipe.toFoodItem()
+            if let meal = summary.meals.first(where: { $0.title == selectedMeal }) { meal.foodItems.append(newFood) } else {
+                let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
+                context.insert(newMeal); summary.meals.append(newMeal)
+            }
+            try? context.save()
         }
-        .background(Color.themeBg.ignoresSafeArea())
-    }
-    
-    private func saveToDiary() {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: .now)
-        let summary: DailySummary
-        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) { summary = existing } else {
-            summary = DailySummary(date: today); context.insert(summary)
-        }
-        let newFood = recipe.toFoodItem()
-        if let meal = summary.meals.first(where: { $0.title == selectedMeal }) { meal.foodItems.append(newFood) } else {
-            let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
-            context.insert(newMeal); summary.meals.append(newMeal)
-        }
-        try? context.save()
     }
 }

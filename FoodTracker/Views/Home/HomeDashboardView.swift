@@ -152,15 +152,12 @@ struct HomeDashboardView: View {
                 .presentationDragIndicator(.hidden) // Скрываем стандартный, у нас свой красивый
             } 
             // Шторка детального просмотра приема пищи (Менюшка)
-            .sheet(item: Binding(
-                get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
-                set: { selectedMealForDetail = $0?.value }
-            )) { mealItem in
-                MealDetailView(title: mealItem.value, date: selectedDate)
-                    .presentationDetents([.fraction(0.95), .large])
-                    .presentationCornerRadius(32)
-                    .presentationDragIndicator(.visible)
-            }
+            .navigationDestination(item: Binding(
+                         get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
+                         set: { selectedMealForDetail = $0?.value }
+                     )) { mealItem in
+                         MealDetailView(title: mealItem.value, date: selectedDate)
+                     }
         }
     }
 
@@ -316,8 +313,7 @@ struct InsightsWidget: View {
         .padding(.horizontal)
     }
 }
-
-// MARK: - 🍱 Детализация приема пищи (MealDetailView как Шторка)
+// MARK: - 🍱 Детализация приема пищи (Full Page)
 struct MealDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -341,34 +337,41 @@ struct MealDetailView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
-                    // НАВБАР ДЛЯ ШТОРКИ
+                    // НАВБАР ДЛЯ ПОЛНОЦЕННОГО ЭКРАНА
                     HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(title)
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
-                            if let mealDate = meal?.date {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "clock.fill")
-                                    Text("Logged at \(mealDate.formatted(date: .omitted, time: .shortened))")
-                                }
-                                .font(.subheadline)
-                                .foregroundColor(.themeOrange)
-                            } else {
-                                Text("No foods logged yet")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
+                        Button(action: { dismiss() }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.primary)
+                                .frame(width: 44, height: 44)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .shadow(color: .black.opacity(0.04), radius: 5, y: 2)
                         }
                         Spacer()
-                        
-                        Button(action: { dismiss() }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.gray.opacity(0.3))
-                        }
                     }
                     .padding(.horizontal)
-                    .padding(.top, 24)
+                    .padding(.top, 16)
+                    
+                    // ЗАГОЛОВОК
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title)
+                            .font(.system(size: 38, weight: .heavy, design: .rounded))
+                        if let mealDate = meal?.date {
+                            HStack(spacing: 4) {
+                                Image(systemName: "clock.fill")
+                                Text("Logged at \(mealDate.formatted(date: .omitted, time: .shortened))")
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.themeOrange)
+                        } else {
+                            Text("No foods logged yet")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
                     
                     if let meal = meal, !meal.foodItems.isEmpty {
                         
@@ -380,7 +383,7 @@ struct MealDetailView: View {
                             
                             HStack(spacing: 20) {
                                 let user = users.first
-                                let targetP = (user?.targetProtein ?? 150.0) / 3 // Примерная цель на 1 прием пищи
+                                let targetP = (user?.targetProtein ?? 150.0) / 3
                                 let targetF = (user?.targetFats ?? 70.0) / 3
                                 let targetC = (user?.targetCarbs ?? 250.0) / 3
                                 
@@ -392,12 +395,12 @@ struct MealDetailView: View {
                         .ultraPremiumCardStyle()
                         .padding(.horizontal)
                         
-                        // 2. СПИСОК ПРОДУКТОВ С МАКРОСАМИ
+                        // 2. СПИСОК ПРОДУКТОВ
                         VStack(alignment: .leading, spacing: 0) {
                             Text("What you ate")
-                                .font(.headline)
+                                .font(.title3.bold())
                                 .padding(.horizontal)
-                                .padding(.bottom, 8)
+                                .padding(.bottom, 12)
                             
                             VStack(spacing: 0) {
                                 ForEach(meal.foodItems) { food in
@@ -409,13 +412,14 @@ struct MealDetailView: View {
                             }
                             .background(Color.white)
                             .cornerRadius(20)
+                            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                         }
                         .padding(.horizontal)
                         
                         // 3. БЛОК МИКРОНУТРИЕНТОВ
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Key Micronutrients")
-                                .font(.headline)
+                                .font(.title3.bold())
                                 .padding(.horizontal)
                             
                             MicronutrientRingsView(meal: meal)
@@ -447,13 +451,14 @@ struct MealDetailView: View {
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(Color.themePink)
-                .cornerRadius(16)
+                .cornerRadius(20)
                 .shadow(color: Color.themePink.opacity(0.3), radius: 8, y: 4)
-                .padding(.horizontal)
+                .padding(.horizontal, 24)
                 .padding(.bottom, 30)
             }
             .buttonStyle(BounceButtonStyle())
         }
+        .navigationBarHidden(true) // Скрываем стандартный бар, так как у нас свой красивый
         .sheet(isPresented: $showingAddFood) {
             SmartAddFoodView(mealTitle: title) { selectedItems in
                 addFoodsToMeal(items: selectedItems)
@@ -476,7 +481,7 @@ struct MealDetailView: View {
         
         if let existingMeal = summary.meals.first(where: { $0.title == title }) {
             existingMeal.foodItems.append(contentsOf: items)
-            existingMeal.date = .now // Фиксируем время логгирования
+            existingMeal.date = .now
         } else {
             let newMeal = Meal(title: title, date: .now, foodItems: items)
             context.insert(newMeal)
@@ -486,7 +491,6 @@ struct MealDetailView: View {
         try? context.save()
     }
 }
-
 // MARK: - Детальная строка для списка продуктов
 struct FoodItemDetailedRow: View {
     let food: FoodItem
@@ -527,45 +531,79 @@ struct FoodItemDetailedRow: View {
         .background(Color.white)
     }
 }
-
-// MARK: - Новый встроенный виджет с кольцами
+// MARK: - Новый встроенный виджет с кольцами (Full Width Horizontal Layout)
 struct MicronutrientRingsView: View {
     let meal: Meal
     
-    // Рекомендуемые дневные нормы (можно вынести в User модель)
-    private let targetOmega3: Double = 1.6
-    private let targetPotassium: Double = 3500
-    private let targetMagnesium: Double = 400
+    // Рекомендуемые дневные нормы (делим на 3 приема пищи)
+    private let targetOmega3: Double = 1.6 / 3
+    private let targetPotassium: Double = 3500 / 3
+    private let targetMagnesium: Double = 400 / 3
     
     var body: some View {
-        VStack(spacing: 20) {
+        HStack(spacing: 24) {
+            // КОЛЬЦА СЛЕВА
             ZStack {
-                ActivityRing(progress: meal.totalOmega3 / (targetOmega3 / 3), color: .themePink, radius: 80, thickness: 14)
-                ActivityRing(progress: meal.totalPotassium / (targetPotassium / 3), color: .themeYellow, radius: 60, thickness: 14)
-                ActivityRing(progress: meal.totalMagnesium / (targetMagnesium / 3), color: .themeOrange, radius: 40, thickness: 14)
+                ActivityRing(progress: meal.totalOmega3 / targetOmega3, color: .themePink, radius: 56, thickness: 12)
+                ActivityRing(progress: meal.totalPotassium / targetPotassium, color: .themeYellow, radius: 40, thickness: 12)
+                ActivityRing(progress: meal.totalMagnesium / targetMagnesium, color: .themeOrange, radius: 24, thickness: 12)
                 
                 Image(systemName: "sparkles")
-                    .font(.largeTitle)
+                    .font(.title3)
                     .foregroundStyle(.linearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
             }
+            .frame(width: 112, height: 112)
             
-            HStack(spacing: 20) {
-                RingLegend(color: .themePink, title: "Omega-3", value: meal.totalOmega3, unit: "g")
-                RingLegend(color: .themeYellow, title: "Potassium", value: meal.totalPotassium, unit: "mg")
-                RingLegend(color: .themeOrange, title: "Magnesium", value: meal.totalMagnesium, unit: "mg")
+            // ПОДРОБНАЯ ЛЕГЕНДА СПРАВА
+            VStack(alignment: .leading, spacing: 16) {
+                RingLegendRow(color: .themePink, title: "Omega-3", value: meal.totalOmega3, unit: "g", target: targetOmega3)
+                RingLegendRow(color: .themeYellow, title: "Potassium", value: meal.totalPotassium, unit: "mg", target: targetPotassium)
+                RingLegendRow(color: .themeOrange, title: "Magnesium", value: meal.totalMagnesium, unit: "mg", target: targetMagnesium)
             }
+            
+            Spacer(minLength: 0)
         }
-        .ultraPremiumCardStyle()
+        .padding(20)
+        .background(Color.white)
+        .cornerRadius(24)
+        .shadow(color: Color.black.opacity(0.04), radius: 15, x: 0, y: 6)
     }
 }
 
-// MARK: - Вспомогательные компоненты для колец (перенесены из MicronutrientsView)
+// Вспомогательная структура для легенды с целями
+private struct RingLegendRow: View {
+    let color: Color
+    let title: String
+    let value: Double
+    let unit: String
+    let target: Double
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(color)
+                .frame(width: 10, height: 10)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Text("\(value, specifier: "%.1f") / \(Int(target)) \(unit)")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.gray)
+            }
+        }
+    }
+}
+
+// Вспомогательный компонент для отрисовки кольца (Остается без изменений)
 private struct ActivityRing: View {
     let progress: Double; let color: Color; let radius: CGFloat; let thickness: CGFloat
     
     var body: some View {
         ZStack {
-            Circle().stroke(color.opacity(0.2), lineWidth: thickness)
+            Circle().stroke(color.opacity(0.15), lineWidth: thickness)
             Circle()
                 .trim(from: 0, to: min(progress, 1.0))
                 .stroke(color, style: StrokeStyle(lineWidth: thickness, lineCap: .round))
@@ -575,6 +613,7 @@ private struct ActivityRing: View {
         .animation(.spring(response: 0.8), value: progress)
     }
 }
+
 
 private struct RingLegend: View {
     let color: Color; let title: String; let value: Double; let unit: String

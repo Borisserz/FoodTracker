@@ -175,18 +175,16 @@ struct TabButton: View {
         .frame(maxWidth: .infinity)
     }
 }
-
 // MARK: - 3. DISCOVER TAB (КРУТЫЕ КАТЕГОРИИ И ПЛИТКИ)
 struct DiscoverTabView: View {
     @Binding var path: NavigationPath
     
+    // Обновили данные: убрали эмодзи, сделали более логичные диапазоны
     let calorieRanges = [
-        ("50-100 Cal", "🍉", Color.red),
-        ("100-200 Cal", "🥪", Color.orange),
-        ("200-300 Cal", "🥯", Color.themeYellow),
-        ("300-400 Cal", "🥞", Color.themePink),
-        ("400-500 Cal", "🍛", Color.blue),
-        ("500-600 Cal", "🍱", Color.purple)
+        ("Under 200", Color.green),
+        ("200 - 400", Color.themeYellow),
+        ("400 - 600", Color.themeOrange),
+        ("600+ kcal", Color.themePink)
     ]
     
     var body: some View {
@@ -211,21 +209,24 @@ struct DiscoverTabView: View {
                 }
                 .padding(.top, 10)
                 
-                // --- 2. RECIPES BY CALORIE RANGE (Grid) ---
+                // --- 2. RECIPES BY CALORIE RANGE (Compact Horizontal Scroll) ---
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Recipes by Calorie Range")
+                    Text("Browse by Calories")
                         .font(.title2).bold()
                         .padding(.horizontal, 20)
                     
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        ForEach(calorieRanges, id: \.0) { range in
-                            Button(action: { HapticManager.shared.impact(style: .medium) }) {
-                                CalorieRangeCard(title: range.0, emoji: range.1, color: range.2)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(calorieRanges, id: \.0) { range in
+                                Button(action: { HapticManager.shared.impact(style: .light) }) {
+                                    CalorieRangeCard(title: range.0, color: range.1)
+                                }
+                                .buttonStyle(BounceButtonStyle())
                             }
-                            .buttonStyle(BounceButtonStyle())
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 10)
                     }
-                    .padding(.horizontal, 20)
                 }
                 
                 // --- 3. TRENDING NOW ---
@@ -237,40 +238,32 @@ struct DiscoverTabView: View {
     }
 }
 
-// Карточка для Calorie Range (с эффектом цветного пятна)
+// Новая компактная и премиальная карточка калорий
 struct CalorieRangeCard: View {
     let title: String
-    let emoji: String
     let color: Color
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            // Мягкое цветное пятно на фоне (Soft Glassmorphism effect)
-            Circle()
-                .fill(color.opacity(0.15))
-                .frame(width: 80, height: 80)
-                .offset(x: 20, y: -20)
-                .blur(radius: 10)
+        HStack(spacing: 8) {
+            Image(systemName: "flame.fill")
+                .font(.system(size: 14))
+                .foregroundColor(color)
             
-            VStack(spacing: 12) {
-                Text(emoji)
-                    .font(.system(size: 40))
-                    .shadow(color: .black.opacity(0.1), radius: 5, y: 5)
-                
-                Text(title)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
+            Text(title)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundColor(.primary)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
-        .clipped()
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(color.opacity(0.3), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.02), radius: 5, y: 2)
     }
 }
-
 // Карточка для Pick Your Meal
 struct MealTypeCard: View {
     let title: String
