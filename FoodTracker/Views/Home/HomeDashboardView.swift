@@ -704,7 +704,7 @@ struct SmartAddFoodView: View {
     @State private var selectedFoodForDetail: FoodItem? = nil
     let mealTitle: String
     var onSave: ([FoodItem]) -> Void
-    
+    @State private var showingScanner = false
     @State private var selectedFoods: [FoodItem] = []
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
@@ -778,8 +778,10 @@ struct SmartAddFoodView: View {
                     .padding(.horizontal, 20)
                     
                     // MARK: ОПТИМИЗИРОВАННЫЙ БЛОК ПОИСКА И КАМЕРЫ
-                    ActionSearchBar(text: $searchText)
-                        .padding(.horizontal, 20)
+                    ActionSearchBar(text: $searchText, onBarcodeTap: {
+                        showingScanner = true
+                    })
+                    .padding(.horizontal, 20)
                     
                     // MARK: КАТЕГОРИИ (PILL TABS)
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -853,6 +855,15 @@ struct SmartAddFoodView: View {
                 .zIndex(3)
             }
         }
+        // ДОБАВЛЯЕМ ОТКРЫТИЕ СКАНЕРА:
+        .fullScreenCover(isPresented: $showingScanner) {
+                    SmartScannerView { foundFood in
+                        // Как только сканер нашел продукт, мы кладем его в эту переменную.
+                        // А так как на эту переменную у тебя уже завязан другой .fullScreenCover,
+                        // карточка продукта откроется АВТОМАТИЧЕСКИ! Магия SwiftUI ✨
+                        selectedFoodForDetail = foundFood
+                    }
+                }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
         // В конце body внутри SmartAddFoodView:
@@ -876,11 +887,10 @@ struct SmartAddFoodView: View {
             }
         }
     }
-}
-
-// MARK: - НОВЫЙ БЛОК ПОИСКА С КНОПКАМИ (SearchBar + AI/Barcode)
+}// MARK: - НОВЫЙ БЛОК ПОИСКА С КНОПКАМИ (SearchBar + AI/Barcode)
 struct ActionSearchBar: View {
     @Binding var text: String
+    var onBarcodeTap: () -> Void // <--- ДОБАВИЛИ ЭТО
     
     var body: some View {
         HStack(spacing: 12) {
@@ -918,7 +928,7 @@ struct ActionSearchBar: View {
             // Кнопка Штрихкода
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
-                // TODO: Barcode scanner logic
+                onBarcodeTap() // <--- ВЫЗЫВАЕМ ОТКРЫТИЕ СКАНЕРА ЗДЕСЬ
             }) {
                 Image(systemName: "barcode.viewfinder")
                     .font(.system(size: 20))
