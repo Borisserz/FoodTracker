@@ -2,11 +2,10 @@
 //  SmartScannerView.swift
 //  FoodTracker
 //
-
 import SwiftUI
 import AVFoundation
 import VisionKit
-import Combine // Обязательно для @StateObject и ObservableObject
+import Combine
 
 struct SmartScannerView: View {
     @Environment(\.dismiss) private var dismiss
@@ -34,7 +33,7 @@ struct SmartScannerView: View {
     @State private var notFoundError: Bool = false
     
     var onProductFound: (FoodItem) -> Void
-    enum ScannerMode { case barcode, mealAI, menuAI } // 3 режима
+    enum ScannerMode { case barcode, mealAI, menuAI }
     
     var body: some View {
         ZStack {
@@ -43,7 +42,6 @@ struct SmartScannerView: View {
                 DataScannerRepresentable(recognizedBarcode: $recognizedBarcode, isScanning: $isScanning)
                     .ignoresSafeArea()
             } else if selectedMode == .mealAI || selectedMode == .menuAI {
-                // Наша собственная живая камера! Никаких системных окон.
                 LiveCameraPreviewView(session: cameraManager.session)
                     .ignoresSafeArea()
                     .onAppear { cameraManager.checkPermissionAndStart() }
@@ -122,7 +120,7 @@ struct SmartScannerView: View {
                         
                         Spacer()
                         
-                        // КНОПКА КАМЕРЫ ДЛЯ AI (Меняет цвет в зависимости от режима)
+                        // КНОПКА КАМЕРЫ ДЛЯ AI
                         if selectedMode == .mealAI || selectedMode == .menuAI {
                             Button(action: takePhoto) {
                                 ZStack {
@@ -138,11 +136,12 @@ struct SmartScannerView: View {
                             .offset(y: -20)
                             .transition(.scale.combined(with: .opacity))
                         } else {
-                            Color.clear.frame(width: 76, height: 76) // Пустое место для центровки
+                            Color.clear.frame(width: 76, height: 76)
                         }
                         
                         Spacer()
                         
+                        // ✅ Кнопка фонарика
                         FloatingActionButton(icon: isFlashlightOn ? "bolt.fill" : "bolt.slash.fill") {
                             toggleFlashlight()
                         }
@@ -197,18 +196,21 @@ struct SmartScannerView: View {
         }
         .onDisappear {
             isScanning = false
+            // Выключаем фонарик, если вышли с экрана
             if isFlashlightOn { toggleFlashlight() }
             cameraManager.stop()
         }
         .onChange(of: selectedMode) { _, newMode in
+            // Выключаем фонарик при переключении между системной камерой и нашей
+            if isFlashlightOn { toggleFlashlight() }
+            
             isScanning = (newMode == .barcode)
             if newMode == .barcode {
-                cameraManager.stop() // Выключаем нашу камеру
+                cameraManager.stop()
             } else {
-                cameraManager.checkPermissionAndStart() // Включаем нашу камеру
+                cameraManager.checkPermissionAndStart()
             }
         }
-        // Когда наша камера отдаст фото — отправляем его в AI
         .onChange(of: cameraManager.capturedImage) { _, newImage in
             if let image = newImage {
                 if selectedMode == .mealAI {
@@ -221,15 +223,12 @@ struct SmartScannerView: View {
     }
     
     // MARK: - Вспомогательные методы UI
-    
     private func takePhoto() {
         HapticManager.shared.impact(style: .heavy)
-        // Эффект вспышки
         withAnimation(.linear(duration: 0.1)) { showShutterFlash = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation { showShutterFlash = false }
         }
-        // Делаем снимок через наш менеджер
         cameraManager.takePhoto()
     }
     
@@ -250,7 +249,6 @@ struct SmartScannerView: View {
     }
 
     // MARK: - Логика AI
-    
     private func analyzeMealWithAI(_ image: UIImage) {
             withAnimation { isAnalyzingAI = true }
             
@@ -259,8 +257,6 @@ struct SmartScannerView: View {
                     await MainActor.run {
                         withAnimation { isAnalyzingAI = false }
                         HapticManager.shared.impact(style: .heavy)
-                        
-                        // Сначала передаем продукт, ПОТОМ закрываем!
                         onProductFound(foodItem)
                         dismiss()
                     }
@@ -275,7 +271,6 @@ struct SmartScannerView: View {
     
     private func analyzeMenuWithAI(_ image: UIImage) {
         withAnimation { isAnalyzingAI = true }
-        
         Task {
             if let response = await VertexAIManager.shared.analyzeMenuImage(image, remainingCalories: remainingCalories, targetProtein: remainingProtein) {
                 await MainActor.run {
@@ -294,9 +289,30 @@ struct SmartScannerView: View {
         }
     }
     
-    private func toggleFlashlight() { /* Логика фонарика */ }
+    // ✅ ДОБАВЛЕНА ЛОГИКА ФОНАРИКА (Работает на всех девайсах, где есть вспышка)
+    private func toggleFlashlight() {
+        guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }
+        
+        do {
+            try device.lockForConfiguration()
+            
+            if isFlashlightOn {
+                device.torchMode = .off
+            } else {
+                // Включаем на максимальную доступную яркость (обычно 1.0)
+                try device.setTorchModeOn(level: 1.0)
+            }
+            
+            device.unlockForConfiguration()
+            isFlashlightOn.toggle()
+            HapticManager.shared.impact(style: .light)
+        } catch {
+            print("❌ Ошибка при включении фонарика: \(error.localizedDescription)")
+        }
+    }
 }
 
+// MARK: - 📸 ВСТРОЕННАЯ КАМЕРА (БЕЗ СИСТЕМНОГО UI)
 // MARK: - 📸 ВСТРОЕННАЯ КАМЕРА (БЕЗ СИСТЕМНОГО UI)
 
 class LiveFoodCameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {

@@ -4,8 +4,9 @@
 //
 //  Created by Boris Serzhanovich on 16.04.26.
 //
+
 import SwiftUI
-import _SwiftData_SwiftUI
+import SwiftData
 
 // MARK: - 🛒 ПРЕМИАЛЬНЫЙ СПИСОК ПОКУПОК
 
@@ -75,10 +76,8 @@ struct ShoppingListView: View {
                                     
                                     VStack(spacing: 0) {
                                         ForEach(activeItems) { item in
-                                            ShoppingRowView(item: item) { toggleCheck(for: item) }
-                                                .swipeActions(edge: .trailing) {
-                                                    Button(role: .destructive) { deleteItem(item) } label: { Label("Delete", systemImage: "trash") }
-                                                }
+                                            // ✅ ИСПРАВЛЕНО: Передаем функцию onDelete в строку
+                                            ShoppingRowView(item: item, onToggle: { toggleCheck(for: item) }, onDelete: { deleteItem(item) })
                                         }
                                     }
                                     .background(Color.white)
@@ -104,10 +103,8 @@ struct ShoppingListView: View {
                                     
                                     VStack(spacing: 0) {
                                         ForEach(completedItems) { item in
-                                            ShoppingRowView(item: item) { toggleCheck(for: item) }
-                                                .swipeActions(edge: .trailing) {
-                                                    Button(role: .destructive) { deleteItem(item) } label: { Label("Delete", systemImage: "trash") }
-                                                }
+                                            // ✅ ИСПРАВЛЕНО: Передаем функцию onDelete в строку
+                                            ShoppingRowView(item: item, onToggle: { toggleCheck(for: item) }, onDelete: { deleteItem(item) })
                                         }
                                     }
                                     .background(Color.white)
@@ -165,62 +162,86 @@ struct ShoppingListView: View {
     }
 }
 
-// MARK: - СТРОКА ПРОДУКТА
+// MARK: - СТРОКА ПРОДУКТА (С УДАЛЕНИЕМ)
 struct ShoppingRowView: View {
     @Bindable var item: ShoppingItem
     var onToggle: () -> Void
+    var onDelete: (() -> Void)? = nil // ✅ ДОБАВЛЕНО
     
     var body: some View {
-        Button(action: onToggle) {
-            HStack(spacing: 16) {
-                // Кружок с галочкой
-                ZStack {
-                    Circle()
-                        .stroke(item.isChecked ? Color.themePink : Color.gray.opacity(0.3), lineWidth: 2)
-                        .frame(width: 24, height: 24)
-                    
-                    if item.isChecked {
+        HStack(spacing: 16) {
+            Button(action: onToggle) {
+                HStack(spacing: 16) {
+                    // Кружок с галочкой
+                    ZStack {
                         Circle()
-                            .fill(Color.themePink)
+                            .stroke(item.isChecked ? Color.themePink : Color.gray.opacity(0.3), lineWidth: 2)
                             .frame(width: 24, height: 24)
-                            .transition(.scale)
                         
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
+                        if item.isChecked {
+                            Circle()
+                                .fill(Color.themePink)
+                                .frame(width: 24, height: 24)
+                                .transition(.scale)
+                            
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.white)
+                        }
                     }
-                }
-                
-                // Текст и теги
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.name)
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                        .foregroundColor(item.isChecked ? .gray : .primary)
-                        .strikethrough(item.isChecked, color: .gray)
                     
-                    HStack {
-                        if !item.amount.isEmpty {
-                            Text(item.amount)
-                                .font(.caption.bold())
-                                .foregroundColor(.themeOrange)
-                        }
+                    // Текст и теги
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.name)
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .foregroundColor(item.isChecked ? .gray : .primary)
+                            .strikethrough(item.isChecked, color: .gray)
                         
-                        if let recipeName = item.addedFromRecipe {
-                            Text("from \(recipeName)")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                                .lineLimit(1)
+                        HStack {
+                            if !item.amount.isEmpty {
+                                Text(item.amount)
+                                    .font(.caption.bold())
+                                    .foregroundColor(.themeOrange)
+                            }
+                            
+                            if let recipeName = item.addedFromRecipe {
+                                Text("from \(recipeName)")
+                                    .font(.caption2)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                            }
                         }
                     }
                 }
-                
-                Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            .contentShape(Rectangle()) // Чтобы нажималась вся строка
+            .buttonStyle(PlainButtonStyle())
+            
+            Spacer()
+            
+            // ✅ КНОПКА УДАЛЕНИЯ СПРАВА
+            if let onDelete = onDelete {
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    onDelete()
+                }) {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red.opacity(0.8))
+                        .padding(8) // Увеличиваем область тапа
+                }
+            }
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .contentShape(Rectangle()) // Чтобы нажималась вся строка (для контекстного меню)
+        .contextMenu {
+            if let onDelete = onDelete {
+                Button(role: .destructive) {
+                    onDelete()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        }
         
         Divider().padding(.leading, 56)
     }

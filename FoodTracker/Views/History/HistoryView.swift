@@ -13,6 +13,8 @@ enum FoodsRoute: Hashable {
     case filteredList(String, [PremiumRecipe])
     case mealDetail(title: String, date: Date)
     case shoppingList
+    case fasting
+    case fastingDetail(FastingPlan)
 }
 
 // MARK: - ГЛАВНЫЙ VIEW FOODS (БЫВШИЙ HISTORY)
@@ -34,13 +36,22 @@ struct FoodsDashboardView: View {
     }
     
     var body: some View {
-        NavigationStack(path: $path) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 32) {
+            NavigationStack(path: $path) {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 32) {
+                        
+                        // ✅ ЕСЛИ ИДЕТ ГОЛОДАНИЕ - ПОКАЗЫВАЕМ ВИДЖЕТ
+                        if FastingManager.shared.isFasting {
+                            ActiveFastingCard()
+                                .padding(.horizontal)
+                                .padding(.top, 10)
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+                        
                     
                     // 1. БЛОК ГЛАВНЫХ КНОПОК НАВИГАЦИИ
                     VStack(spacing: 16) {
-                        // Верхний ряд (2 кнопки)
+                        // Верхний ряд (Рецепты и Диеты)
                         HStack(spacing: 16) {
                             FoodsFeatureCard(title: "Recipes", subtitle: "Custom & Chefs", icon: "book.pages.fill", color: .themePink) {
                                 path.append(FoodsRoute.recipes)
@@ -51,14 +62,19 @@ struct FoodsDashboardView: View {
                             }
                         }
                         
-                        // Нижний ряд (1 широкая кнопка Академии)
-                        FoodsFeatureCard(title: "Academy", subtitle: "Tips, Guides & Habits", icon: "graduationcap.fill", color: .blue) {
-                            path.append(FoodsRoute.learn)
+                        // Нижний ряд (Академия и Интервальное голодание)
+                        HStack(spacing: 16) {
+                            FoodsFeatureCard(title: "Academy", subtitle: "Tips & Guides", icon: "graduationcap.fill", color: .blue) {
+                                path.append(FoodsRoute.learn)
+                            }
+                            
+                            FoodsFeatureCard(title: "Fasting", subtitle: "16:8, OMAD...", icon: "timer", color: .themeOrange) {
+                                path.append(FoodsRoute.fasting)
+                            }
                         }
                     }
                     .padding(.horizontal)
                     .padding(.top, 10)
-                    
                     
                     // 2. БЛОК ИСТОРИИ ПРИЕМОВ ПИЩИ
                     VStack(alignment: .leading, spacing: 16) {
@@ -102,7 +118,6 @@ struct FoodsDashboardView: View {
                                         color: colorForMeal(meal.title),
                                         onDelete: { deleteMeal(meal) }
                                     )
-                                    // Делаем всю карточку кликабельной
                                     .contentShape(Rectangle())
                                     .onTapGesture {
                                         HapticManager.shared.impact(style: .light)
@@ -113,56 +128,47 @@ struct FoodsDashboardView: View {
                             }
                         }
                     }
-                }
-                .padding(.bottom, 120) // Отступ под TabBar
-            }
+                } // Закрытие главного VStack
+                .padding(.bottom, 120)
+            } // Закрытие ScrollView
             .background(Color.themeBg.ignoresSafeArea())
-                    .navigationTitle("Explore")
-                    // ✅ ДОБАВЛЯЕМ КНОПКУ КОРЗИНЫ ВПРАВО НАВЕРХ
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button(action: {
-                                HapticManager.shared.impact(style: .medium)
-                                path.append(FoodsRoute.shoppingList)
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.themePink.opacity(0.1))
-                                        .frame(width: 36, height: 36)
-                                    Image(systemName: "cart.fill")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.themePink)
-                                }
-                            }
+            .navigationTitle("Explore")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        HapticManager.shared.impact(style: .medium)
+                        path.append(FoodsRoute.shoppingList)
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.themePink.opacity(0.1))
+                                .frame(width: 36, height: 36)
+                            Image(systemName: "cart.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.themePink)
                         }
                     }
-            .navigationDestination(for: FoodsRoute.self) { route in
-                switch route {
-                case .recipes:
-                    RecipesContainerView(path: $path)
-                case .diets:
-                    DietsListView()
-                case .learn:
-                    LearnDashboardView(path: $path)
-                case .createRecipe:
-                    CreateRecipeView(path: $path)
-                case .recipeDetail(let recipe):
-                    RecipeDetailView(recipe: recipe, path: $path)
-                case .premiumRecipeDetail(let recipe):
-                    PremiumRecipeDetailView(recipe: recipe)
-                case .filteredList(let title, let recipes):
-                    FilteredRecipesListView(title: title, recipes: recipes, path: $path)
-                case .articleDetail(let article):
-                    ArticleDetailView(article: article)
-                case .mealDetail(let title, let date):
-                    MealDetailView(title: title, date: date)
-                case .shoppingList: // ✅ ОБРАБОТЧИК ПЕРЕХОДА
-                           ShoppingListView()
                 }
             }
-        }
+            .navigationDestination(for: FoodsRoute.self) { route in
+                switch route {
+                case .recipes: RecipesContainerView(path: $path)
+                case .diets: DietsListView()
+                case .learn: LearnDashboardView(path: $path)
+                case .createRecipe: CreateRecipeView(path: $path)
+                case .recipeDetail(let recipe): RecipeDetailView(recipe: recipe, path: $path)
+                case .premiumRecipeDetail(let recipe): PremiumRecipeDetailView(recipe: recipe)
+                case .filteredList(let title, let recipes): FilteredRecipesListView(title: title, recipes: recipes, path: $path)
+                case .articleDetail(let article): ArticleDetailView(article: article)
+                case .mealDetail(let title, let date): MealDetailView(title: title, date: date)
+                case .shoppingList: ShoppingListView()
+                case .fasting: FastingDashboardView()
+                case .fastingDetail(let plan): PremiumFastingDetailView(plan: plan)
+                }
+            }
+        } // Закрытие NavigationStack
         .environment(dataLoader)
-    }
+    } // Закрытие body
     
     private func deleteMeal(_ meal: Meal) {
         withAnimation {

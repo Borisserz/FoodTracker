@@ -364,9 +364,15 @@ struct MyRecipesTabView: View {
     @Binding var path: NavigationPath
     let customRecipes: [CustomRecipe]
     let allRecipes: [PremiumRecipe]
-    
+    @Environment(\.modelContext) private var context
     var favoriteRecipes: [PremiumRecipe] { allRecipes.filter { $0.isFavorite } }
-    
+    private func deleteCustomRecipe(_ recipe: CustomRecipe) {
+          withAnimation {
+              context.delete(recipe)
+              try? context.save()
+          }
+      }
+      
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
@@ -395,14 +401,21 @@ struct MyRecipesTabView: View {
                                             items: recipe.info,
                                             cookingTime: recipe.cookingTime,
                                             difficulty: recipe.difficulty
-                                        )
-                                        .foregroundColor(.primary)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                        
+                                                                                  )
+                                                                                  .foregroundColor(.primary)
+                                                                              }
+                                                                              // ✅ УДАЛЕНИЕ ДОЛГИМ ТАПОМ
+                                                                              .contextMenu {
+                                                                                  Button(role: .destructive) {
+                                                                                      deleteCustomRecipe(recipe)
+                                                                                  } label: {
+                                                                                      Label("Delete Recipe", systemImage: "trash")
+                                                                                  }
+                                                                              }
+                                                                          }
+                                                                      }
+                                                                      .padding(.horizontal, 20)
+                                                                  }
                         Button(action: { path.append(FoodsRoute.createRecipe) }) {
                             HStack {
                                 Image(systemName: "plus.circle.fill")

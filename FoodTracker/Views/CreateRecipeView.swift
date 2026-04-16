@@ -554,12 +554,17 @@ struct MacroStatColumn: View {
 struct RecipeDetailView: View {
     let recipe: CustomRecipe
     @Binding var path: NavigationPath
-    
+    @Environment(\.modelContext) private var context
     // <--- ДОБАВЛЕНО: Для кнопки "Назад"
     @Environment(\.dismiss) private var dismiss
     
     @State private var showMealSheet = false
-    
+    // ✅ Функция удаления рецепта
+       private func deleteRecipe() {
+           context.delete(recipe)
+           try? context.save()
+           dismiss()
+       }
     var totalProtein: Double { recipe.foodItems.reduce(0) { $0 + $1.protein } }
     var totalFat: Double { recipe.foodItems.reduce(0) { $0 + $1.fats } }
     var totalCarbs: Double { recipe.foodItems.reduce(0) { $0 + $1.carbs } }
@@ -665,12 +670,28 @@ struct RecipeDetailView: View {
                             .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
                     }
                     Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.top, 50) // Отступ от челки
-                
-                Spacer()
-            }
+                    
+                    
+                    // ✅ КНОПКА УДАЛЕНИЯ РЕЦЕПТА
+                                      Button(action: {
+                                          HapticManager.shared.impact(style: .heavy)
+                                          deleteRecipe()
+                                      }) {
+                                          Image(systemName: "trash")
+                                              .font(.title3.bold())
+                                              .foregroundColor(.white)
+                                              .frame(width: 44, height: 44)
+                                              .background(Color.red.opacity(0.8))
+                                              .clipShape(Circle())
+                                              .shadow(color: .red.opacity(0.3), radius: 5, y: 2)
+                                      }
+                                  }
+                                  .padding(.horizontal)
+                                  .padding(.top, 50) // Отступ от челки
+                                  
+                                  Spacer()
+                              }
+                              
             
             // ПЛАВАЮЩАЯ КНОПКА "ADD TO MEAL"
             VStack {

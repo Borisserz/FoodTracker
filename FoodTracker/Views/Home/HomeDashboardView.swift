@@ -354,6 +354,17 @@ struct MealDetailView: View {
             .meals.first { $0.title == title }
     }
     
+    // ✅ ДОБАВЛЕН МЕТОД УДАЛЕНИЯ ЕДЫ
+    private func deleteFoodItem(_ food: FoodItem) {
+        if let meal = meal, let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
+            withAnimation {
+                meal.foodItems.remove(at: index)
+                context.delete(food)
+                try? context.save()
+            }
+        }
+    }
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
@@ -421,14 +432,23 @@ struct MealDetailView: View {
                                 .padding(.bottom, 12)
                             
                             VStack(spacing: 0) {
+                                // ✅ ИСПРАВЛЕНА ОБРАБОТКА ЭЛЕМЕНТОВ (ДОБАВЛЕНО УДАЛЕНИЕ И КОНТЕКСТНОЕ МЕНЮ)
                                 ForEach(meal.foodItems) { food in
-                                    Button(action: {
+                                    FoodItemDetailedRow(food: food, onDelete: {
+                                        deleteFoodItem(food)
+                                    })
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
                                         HapticManager.shared.impact(style: .light)
                                         selectedFoodForDetail = food
-                                    }) {
-                                        FoodItemDetailedRow(food: food)
                                     }
-                                    .buttonStyle(PlainButtonStyle())
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            deleteFoodItem(food)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
                                     
                                     if food.id != meal.foodItems.last?.id {
                                         Divider().padding(.leading, 20)
@@ -495,7 +515,6 @@ struct MealDetailView: View {
             }
         }
     }
-    
     private func addFoodsToMeal(items: [FoodItem]) {
         let startOfDay = Calendar.current.startOfDay(for: date)
         let summary: DailySummary
@@ -539,6 +558,7 @@ struct MealDetailView: View {
 // MARK: - Детальная строка для списка продуктов
 struct FoodItemDetailedRow: View {
     let food: FoodItem
+    var onDelete: (() -> Void)? = nil // ✅ Опциональный коллбек для кнопки удаления
     
     var body: some View {
         HStack(spacing: 16) {
@@ -560,15 +580,34 @@ struct FoodItemDetailedRow: View {
                 }
             }
             Spacer()
+            
             Text("\(food.calories) kcal").font(.headline).foregroundColor(.themePink)
-            Image(systemName: "chevron.right").font(.system(size: 14, weight: .bold)).foregroundColor(.gray.opacity(0.3))
+            
+            // ✅ ЕСЛИ ПЕРЕДАН МЕТОД УДАЛЕНИЯ – ПОКАЗЫВАЕМ КОРЗИНУ
+            if let onDelete = onDelete {
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    onDelete()
+                }) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.red.opacity(0.8))
+                        .padding(.leading, 4)
+                        .padding(.vertical, 8) // Увеличиваем хитбокс
+                }
+            } else {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.gray.opacity(0.3))
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.white)
-        .contentShape(Rectangle())
     }
 }
+
+
 
 struct MicronutrientRingsView: View {
     let meal: Meal
@@ -1328,8 +1367,19 @@ struct DailyNoteSheet: View {
 
 struct DailyLogDetailView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context // ✅ ДОБАВЛЕН КОНТЕКСТ
     let summary: DailySummary
     
+    // ✅ МЕТОД ДЛЯ УДАЛЕНИЯ ИЗ ОБЩЕГО ЛОГА
+    private func deleteFoodItem(_ food: FoodItem, from meal: Meal) {
+        if let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
+            withAnimation {
+                meal.foodItems.remove(at: index)
+                context.delete(food)
+                try? context.save()
+            }
+        }
+    }
     var body: some View {
         ZStack {
             Color.themeBg.ignoresSafeArea()
@@ -1395,9 +1445,19 @@ struct DailyLogDetailView: View {
                                             Spacer()
                                             
                                             Text("\(food.calories)")
-                                                .font(.headline)
-                                                .foregroundColor(.primary)
-                                        }
+                                                                                           .font(.headline)
+                                                                                           .foregroundColor(.primary)
+                                                                                       
+                                                                                       // ✅ КНОПКА УДАЛЕНИЯ В ПОЛНОМ ЛОГЕ
+                                                                                       Button(action: {
+                                                                                           HapticManager.shared.impact(style: .medium)
+                                                                                           deleteFoodItem(food, from: meal)
+                                                                                       }) {
+                                                                                           Image(systemName: "trash")
+                                                                                               .foregroundColor(.red.opacity(0.8))
+                                                                                               .padding(.leading, 8)
+                                                                                       }
+                                                                                   }
                                         .padding(.horizontal, 20)
                                         .padding(.vertical, 12)
                                         
