@@ -78,9 +78,11 @@ struct FoodDetailNutritionView: View {
                             NutritionRow(title: "Potassium", value: food.potassium * multiplier, unit: "mg", isPro: true)
                             NutritionRow(title: "Omega-3", value: food.omega3 * multiplier, unit: "g", isPro: true)
                         }
+                        .padding(.horizontal, 20) // ✅ ДОБАВИЛИ: Внутренний отступ по бокам
+                        .padding(.vertical, 8)    // ✅ ДОБАВИЛИ: Внутренний отступ сверху и снизу
                         .background(Color.white)
                         .cornerRadius(24)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 20) // Это внешний отступ карточки от экрана (оставляем)
                         .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                     }
                     
@@ -419,7 +421,7 @@ private struct NutritionRow: View {
                     .contentTransition(.numericText())
             }
         }
-        .padding(.vertical, 14)
+        .padding(.vertical, 18) 
         .overlay(
             Divider(), alignment: .bottom
         )

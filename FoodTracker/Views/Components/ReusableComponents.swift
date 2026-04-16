@@ -65,11 +65,11 @@ struct MiniProgressView: View {
     var body: some View {
         VStack(spacing: 6) {
             Text(title).font(.caption).bold().foregroundColor(.textGray)
-            ProgressView(value: progress).tint(color)
+            // Добавлено min() и max(), чтобы значение никогда не выходило за рамки 0...1
+            ProgressView(value: min(max(progress, 0.0), 1.0)).tint(color)
         }
     }
 }
-
 struct FoodItemRow: View {
     let name: String
     let weight: String
@@ -208,10 +208,28 @@ struct EnergyOverviewCard: View {
     }
 }
 
-// MARK: - Слайд 2: Детальные макросы (3 кольца)
 struct DetailedMacroRingsCard: View {
     let summary: DailySummary
     let user: User?
+    
+    // Генерируем умный совет на основе макросов
+    private var smartInsight: (title: String, text: String, icon: String, color: Color) {
+        let p = summary.totalProtein; let targetP = user?.targetProtein ?? 150
+        let f = summary.totalFats; let targetF = user?.targetFats ?? 70
+        let c = summary.totalCarbs; let targetC = user?.targetCarbs ?? 250
+        
+        if summary.totalFoodCalories == 0 {
+            return ("Fresh Start", "Log your first meal to see your macro balance.", "leaf.fill", .green)
+        } else if p < targetP * 0.4 && summary.totalFoodCalories > 800 {
+            return ("Protein Alert", "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal.", "dumbbell.fill", .themePeach)
+        } else if f > targetF {
+            return ("High Fat", "You've exceeded your daily fat limit. Focus on lean proteins and veggies.", "exclamationmark.triangle.fill", .themeYellow)
+        } else if c < targetC * 0.3 {
+            return ("Low Energy?", "Your carbs are quite low. Complex carbs like oats or rice can boost your energy.", "bolt.fill", .drinkWater)
+        } else {
+            return ("Perfect Balance", "Your macros are looking great today! Keep it up.", "checkmark.seal.fill", .themePink)
+        }
+    }
     
     var body: some View {
         let targetP = user?.targetProtein ?? 150
@@ -228,18 +246,35 @@ struct DetailedMacroRingsCard: View {
                 IndividualMacroRing(title: "Fat", current: summary.totalFats, target: targetF, color: .themeYellow)
                 IndividualMacroRing(title: "Protein", current: summary.totalProtein, target: targetP, color: .themePeach)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 4)
             
-            // Краткая сводка снизу
-            HStack {
-                Text("Balanced Diet")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+            // НОВАЯ КАРТОЧКА: AI INSIGHT (Заполняет пустое место)
+            let insight = smartInsight
+            HStack(alignment: .top, spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(insight.color.opacity(0.15))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: insight.icon)
+                        .foregroundColor(insight.color)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(insight.title)
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                    Text(insight.text)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 Spacer()
-                Image(systemName: "checkmark.seal.fill")
-                    .foregroundColor(.green)
             }
-            .padding(.top, 10)
+            .padding(16)
+            .background(Color.gray.opacity(0.04))
+            .cornerRadius(16)
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(insight.color.opacity(0.3), lineWidth: 1))
             
             Spacer(minLength: 0)
         }
@@ -247,7 +282,6 @@ struct DetailedMacroRingsCard: View {
         .padding(.horizontal)
     }
 }
-
 struct IndividualMacroRing: View {
     let title: String
     let current: Double
@@ -295,14 +329,14 @@ struct IndividualMacroRing: View {
         }
     }
 }
-
-// MARK: - Слайд 3: Витамины и Минералы (Горизонтальные бары)
 struct MicronutrientsFocusCard: View {
     let summary: DailySummary
     
+    // Берем данные из твоей модели (Meal)
     private var totalOmega3: Double { summary.meals.reduce(0) { $0 + $1.totalOmega3 } }
     private var totalMagnesium: Double { summary.meals.reduce(0) { $0 + $1.totalMagnesium } }
-    private var totalPotassium: Double { summary.meals.reduce(0) { $0 + $1.totalPotassium } }
+    private var totalCalcium: Double { summary.meals.reduce(0) { $0 + $1.totalCalcium } }
+    private var totalIron: Double { summary.meals.reduce(0) { $0 + $1.totalIron } }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -311,20 +345,38 @@ struct MicronutrientsFocusCard: View {
                     .font(.headline)
                 Spacer()
                 Image(systemName: "heart.text.square.fill")
-                    .foregroundColor(.red)
+                    .foregroundColor(.themePink)
             }
             
-            VStack(spacing: 16) {
-                MicroProgressBar(title: "Omega-3", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
-                MicroProgressBar(title: "Potassium", current: totalPotassium, target: 3500, unit: "mg", color: .themeOrange)
-                MicroProgressBar(title: "Magnesium", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
+            // СЕТКА НУТРИЕНТОВ (Выглядит гораздо плотнее и премиальнее)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                CompactMicroCard(title: "Omega-3", icon: "fish.fill", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
+                CompactMicroCard(title: "Magnesium", icon: "bolt.heart.fill", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
+                CompactMicroCard(title: "Calcium", icon: "bone.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
+                CompactMicroCard(title: "Iron", icon: "drop.fill", current: totalIron, target: 18, unit: "mg", color: .red.opacity(0.8))
             }
-            .padding(.vertical, 10)
             
-            Text("Keep tracking to ensure your heart and brain get the nutrients they need.")
-                .font(.caption)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.leading)
+            // БАННЕР С СОВЕТОМ (Заполняет низ карточки)
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Boost your minerals")
+                        .font(.caption.bold())
+                        .foregroundColor(.white)
+                    Text("Add spinach, nuts, or salmon to your next meal to easily hit these goals.")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.9))
+                }
+                Spacer()
+                Image(systemName: "sparkles")
+                    .font(.title2)
+                    .foregroundColor(.white)
+            }
+            .padding(16)
+            .background(
+                LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .cornerRadius(16)
+            .shadow(color: Color.themePink.opacity(0.3), radius: 8, y: 4)
             
             Spacer(minLength: 0)
         }
@@ -333,6 +385,60 @@ struct MicronutrientsFocusCard: View {
     }
 }
 
+// НОВЫЙ КОМПОНЕНТ ДЛЯ СЕТКИ
+struct CompactMicroCard: View {
+    let title: String
+    let icon: String
+    let current: Double
+    let target: Double
+    let unit: String
+    let color: Color
+    
+    @State private var progress: Double = 0
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption2)
+                    .foregroundColor(color)
+                Text(title)
+                    .font(.caption.bold())
+                    .foregroundColor(.gray)
+                Spacer()
+            }
+            
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text("\(current, specifier: "%.1f")")
+                    .font(.system(size: 16, weight: .heavy, design: .rounded))
+                Text("/ \(Int(target)) \(unit)")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.gray)
+            }
+            
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(color.opacity(0.15))
+                    Capsule()
+                        .fill(color)
+                        .frame(width: min(geo.size.width * CGFloat(progress), geo.size.width))
+                }
+            }
+            .frame(height: 6)
+        }
+        .padding(12)
+        .background(Color.white)
+        .cornerRadius(16)
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+                    progress = current / max(target, 1.0)
+                }
+            }
+        }
+    }
+}
 struct MicroProgressBar: View {
     let title: String
     let current: Double
@@ -379,7 +485,6 @@ struct MicroProgressBar: View {
     }
 }
 
-// MARK: - Слайд 4: Детализация по приемам пищи (Новый по 4 скрину)
 struct MealBreakdownCard: View {
     let summary: DailySummary
     
@@ -392,35 +497,25 @@ struct MealBreakdownCard: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Кастомный переключатель приемов пищи (как на скрине)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(mealsList, id: \.self) { meal in
-                        Button(action: {
-                            HapticManager.shared.impact(style: .light)
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                selectedMeal = meal
-                            }
-                        }) {
-                            HStack(spacing: 6) {
-                                Text(iconFor(meal))
-                                    .font(.system(size: 14))
-                                Text(meal)
-                                    .font(.system(size: 14, weight: selectedMeal == meal ? .bold : .medium))
-                            }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
-                            .background(selectedMeal == meal ? Color.themePink.opacity(0.1) : Color.gray.opacity(0.05))
-                            .foregroundColor(selectedMeal == meal ? .themePink : .gray)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(selectedMeal == meal ? Color.themePink : Color.clear, lineWidth: 1.5)
-                            )
+            // Чистый Apple-style переключатель
+            HStack(spacing: 8) {
+                ForEach(mealsList, id: \.self) { meal in
+                    Button(action: {
+                        HapticManager.shared.impact(style: .light)
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            selectedMeal = meal
                         }
+                    }) {
+                        Text(meal)
+                            .font(.system(size: 13, weight: selectedMeal == meal ? .bold : .medium))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(selectedMeal == meal ? Color.themePink : Color.gray.opacity(0.08))
+                            .foregroundColor(selectedMeal == meal ? .white : .gray)
+                            .clipShape(Capsule())
+                            .shadow(color: selectedMeal == meal ? Color.themePink.opacity(0.3) : .clear, radius: 4, y: 2)
                     }
                 }
-                .padding(.horizontal, 2)
             }
             
             // Выбор текущего приема пищи из базы
@@ -436,14 +531,14 @@ struct MealBreakdownCard: View {
                 Divider()
                 MealMacroRow(title: "Fat", value: currentMealData?.totalFats ?? 0, unit: "g", color: .themeYellow)
             }
-            .padding(16)
+            .padding(20)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    // Рисуем красивый фон в полоску, как на скриншоте
-                    .fill(Color.gray.opacity(0.03))
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white)
+                    .shadow(color: Color.black.opacity(0.02), radius: 10, y: 4)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.gray.opacity(0.08), lineWidth: 1)
                     )
             )
             
@@ -451,17 +546,6 @@ struct MealBreakdownCard: View {
         }
         .ultraPremiumCardStyle()
         .padding(.horizontal)
-    }
-    
-    // Эмодзи для вкладок
-    private func iconFor(_ meal: String) -> String {
-        switch meal {
-        case "Breakfast": return "☕️"
-        case "Lunch": return "🥗"
-        case "Dinner": return "🍲"
-        case "Snack": return "🍎"
-        default: return "🍽️"
-        }
     }
 }
 

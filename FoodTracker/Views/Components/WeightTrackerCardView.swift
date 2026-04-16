@@ -151,16 +151,19 @@ struct WeightTrackerCardView: View {
             showingWeightInputSheet = true
         }
         .sheet(isPresented: $showingWeightInputSheet) {
-            WeightInputSheet(
-                currentWeight: $summary.weight,
-                onSave: {
-                    // Сохраняем контекст после закрытия шторки
-                    try? context.save()
+                    WeightInputSheet(
+                        currentWeight: $summary.weight,
+                        onSave: {
+                            // ✅ ИСПРАВЛЕНО: Безопасное сохранение веса
+                            if summary.modelContext == nil {
+                                context.insert(summary)
+                            }
+                            try? context.save()
+                        }
+                    )
+                    .presentationDetents([.fraction(0.4), .medium])
+                    .presentationCornerRadius(32)
                 }
-            )
-            .presentationDetents([.fraction(0.4), .medium])
-            .presentationCornerRadius(32)
-        }
     }
 }
 

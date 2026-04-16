@@ -1,5 +1,4 @@
 import SwiftUI
-
 struct BreathingCaloriesDashboard: View {
     let consumed: Int
     let target: Int
@@ -14,18 +13,28 @@ struct BreathingCaloriesDashboard: View {
     @State private var animC: Double = 0
     @State private var animF: Double = 0
     @State private var animP: Double = 0
+    @State private var animOther: Double = 0 // ✅ НОВОЕ: Анимация для быстрых калорий
     
+    // 1. Считаем калории, которые пришли строго из БЖУ
     private var macroTotal: Double {
         max(protein * 4.0 + fats * 9.0 + carbs * 4.0, 0)
     }
     
-    private var displayTotal: Double {
-        max(Double(target), max(macroTotal, 1.0))
+    // 2. Вычисляем "пустые" (быстрые) калории: Общие калории минус калории из БЖУ
+    private var otherTotal: Double {
+        max(Double(consumed) - macroTotal, 0)
     }
     
+    // 3. База для расчета процентов кольца (Цель ИЛИ сколько съели, если перебор)
+    private var displayTotal: Double {
+        max(Double(target), max(Double(consumed), 1.0))
+    }
+    
+    // 4. Считаем доли (проценты) для каждого куска пирога
     private var cFrac: Double { (carbs * 4.0) / displayTotal }
     private var fFrac: Double { (fats * 9.0) / displayTotal }
     private var pFrac: Double { (protein * 4.0) / displayTotal }
+    private var otherFrac: Double { otherTotal / displayTotal } // ✅ НОВОЕ: Доля быстрых калорий
     
     private var remaining: Int { target - consumed }
     private var isOver: Bool { consumed > target }
@@ -41,26 +50,34 @@ struct BreathingCaloriesDashboard: View {
                         lineWidth: 24
                     )
                 
-                // Сегмент углеводов + Неоновое свечение
+                // Сегмент 1: Углеводы + Неоновое свечение
                 Circle()
                     .trim(from: 0, to: min(animC, 1.0))
                     .stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 24, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .shadow(color: Color.drinkWater.opacity(0.4), radius: 8, x: 0, y: 0)
                 
-                // Сегмент жиров
+                // Сегмент 2: Жиры
                 Circle()
                     .trim(from: min(animC, 1.0), to: min(animC + animF, 1.0))
                     .stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 24, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .shadow(color: Color.themeYellow.opacity(0.4), radius: 8, x: 0, y: 0)
                 
-                // Сегмент белков
+                // Сегмент 3: Белки
                 Circle()
                     .trim(from: min(animC + animF, 1.0), to: min(animC + animF + animP, 1.0))
                     .stroke(Color.themePeach, style: StrokeStyle(lineWidth: 24, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .shadow(color: Color.themePeach.opacity(0.4), radius: 8, x: 0, y: 0)
+                
+                // ✅ НОВОЕ: Сегмент 4: Быстрые калории (Без БЖУ)
+                // Рисуется нейтральным серым цветом после всех макросов
+                Circle()
+                    .trim(from: min(animC + animF + animP, 1.0), to: min(animC + animF + animP + animOther, 1.0))
+                    .stroke(Color.gray.opacity(0.4), style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: Color.gray.opacity(0.2), radius: 5, x: 0, y: 0)
                 
                 VStack(spacing: 6) {
                     Text(showRemaining ? "\(abs(remaining))" : "\(consumed)")
@@ -73,7 +90,6 @@ struct BreathingCaloriesDashboard: View {
                         .font(.system(.headline, design: .rounded))
                         .foregroundColor(.textGray)
                     
-                    // Увеличено и усилено по контрасту
                     Text(showRemaining && !isOver ? "Goal: \(target)" : "Goal: \(target)")
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(.textGray)
@@ -105,10 +121,12 @@ struct BreathingCaloriesDashboard: View {
                 animC = cFrac
                 animF = fFrac
                 animP = pFrac
+                animOther = otherFrac // ✅ Анимация при старте
             }
         }
         .onChange(of: cFrac) { _, nv in animC = nv }
         .onChange(of: fFrac) { _, nv in animF = nv }
         .onChange(of: pFrac) { _, nv in animP = nv }
+        .onChange(of: otherFrac) { _, nv in animOther = nv } // ✅ Анимация при обновлении
     }
 }

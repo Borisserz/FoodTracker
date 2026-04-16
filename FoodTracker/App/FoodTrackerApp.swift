@@ -1,6 +1,34 @@
+// FILE: FoodTracker/App/FoodTrackerApp.swift
+
 import SwiftUI
 import SwiftData
 
+// MARK: - AI Chat Models
+@Model final class AIChatSession {
+    var id: UUID = UUID()
+    var title: String = ""
+    var date: Date = Date()
+    var messages: [AIChatMessage] = []
+    
+    init(title: String = "New Chat", date: Date = Date(), messages: [AIChatMessage] = []) {
+        self.title = title
+        self.date = date
+        self.messages = messages
+    }
+}
+
+struct AIChatMessage: Identifiable, Codable, Equatable {
+    var id = UUID()
+    let isUser: Bool
+    var text: String
+    var isAnimating: Bool = false
+    
+    static func == (lhs: AIChatMessage, rhs: AIChatMessage) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+// MARK: - App Entry Point
 @main
 struct FoodTrackerApp: App {
     let modelContainer: ModelContainer
@@ -17,7 +45,8 @@ struct FoodTrackerApp: App {
         do {
             let config = ModelConfiguration(isStoredInMemoryOnly: false)
             modelContainer = try ModelContainer(
-                for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self,
+                // ✅ ДОБАВЛЕНО: AIChatSession.self
+                for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self,
                 configurations: config
             )
         } catch {
@@ -25,7 +54,8 @@ struct FoodTrackerApp: App {
         }
     }
 }
-struct IdentifiableString: Identifiable {
+
+struct IdentifiableString: Identifiable, Hashable {
     let id = UUID()
     let value: String
 }
@@ -36,8 +66,6 @@ struct ContentView: View {
     @Query private var summaries: [DailySummary]
     
     @State private var selectedTab = 0
-    
-    // Стейты для новой логики добавления
     @State private var showQuickAddSheet = false
     @State private var mealToOpenInSmartAdd: IdentifiableString? = nil
     
@@ -46,7 +74,6 @@ struct ContentView: View {
             get: { selectedTab },
             set: { newValue in
                 if newValue == 2 {
-                    // Нажатие на центральную кнопку "+"
                     HapticManager.shared.impact(style: .medium)
                     showQuickAddSheet = true
                 } else {
@@ -58,41 +85,28 @@ struct ContentView: View {
                 .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(0)
             
-            FoodsDashboardView() // БЫВШИЙ HISTORY
+            FoodsDashboardView()
                 .tabItem { Label("Foods", systemImage: "leaf.arrow.circlepath") }
                 .tag(1)
             
-            // Заглушка для центральной кнопки
             Color.clear
                 .tabItem { Label("Add", systemImage: "plus.circle.fill") }
                 .tag(2)
             
             AnalyticsTabView()
-                            .tabItem { Label("Analytics", systemImage: "chart.bar.fill") }
-                            .tag(3)
-                        
-                        // ЗАГЛУШКА ДЛЯ БУДУЩЕГО AI АГЕНТА
-                        VStack(spacing: 16) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 60))
-                                .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
-                            Text("AI Coach")
-                                .font(.title2.bold())
-                            Text("Your personal AI assistant is coming soon.")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.themeBg)
-                        .tabItem { Label("Coach", systemImage: "sparkles") }
-                        .tag(4)
+                .tabItem { Label("Analytics", systemImage: "chart.bar.fill") }
+                .tag(3)
+            
+            AICoachDashboardView(selectedDate: Date())
+                .tabItem { Label("Coach", systemImage: "sparkles") }
+                .tag(4)
         }
         .tint(.themePink)
         .onAppear {
             initializeUserIfNeeded()
         }
         .sheet(isPresented: $showQuickAddSheet) {
-            PremiumQuickAddSheet(selectedDate: .now) { selectedMeal in
+            PremiumQuickAddSheet(selectedDate: Date()) { selectedMeal in
                 self.mealToOpenInSmartAdd = IdentifiableString(value: selectedMeal)
             }
             .presentationDetents([.height(550)])
@@ -115,42 +129,36 @@ struct ContentView: View {
     }
     
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: .now)
-        
-        let summary: DailySummary
-        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
-            summary = existing
-        } else {
-            summary = DailySummary(date: today)
-            context.insert(summary)
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            
+            let summary: DailySummary
+            if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
+                summary = existing
+            } else {
+                summary = DailySummary(date: today)
+                context.insert(summary)
+            }
+            
+            var newFoodItems: [FoodItem] = []
+            for item in items {
+                let copiedItem = FoodItem(
+                    name: item.name, weight: item.weight, calories: item.calories,
+                    protein: item.protein, fats: item.fats, carbs: item.carbs,
+                    omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
+                    magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
+                )
+                context.insert(copiedItem)
+                newFoodItems.append(copiedItem)
+            }
+            
+            if let existingMeal = summary.meals.first(where: { $0.title == title }) {
+                existingMeal.foodItems.append(contentsOf: newFoodItems)
+            } else {
+                let newMeal = Meal(title: title, date: Date(), foodItems: newFoodItems)
+                context.insert(newMeal)
+                summary.meals.append(newMeal)
+            }
+            try? context.save()
         }
-        
-        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
-            existingMeal.foodItems.append(contentsOf: items)
-        } else {
-            let newMeal = Meal(title: title, date: .now, foodItems: items)
-            context.insert(newMeal)
-            summary.meals.append(newMeal)
-        }
-        try? context.save()
-    }
-}
-
-struct QuickButton: View {
-    let label: String
-    var isPrimary: Bool = false
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text(label)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
-                .foregroundColor(isPrimary ? .themePink : .gray)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(isPrimary ? Color.themePink.opacity(0.1) : Color.gray.opacity(0.05))
-                .cornerRadius(12)
-        }
-    }
-}
+    } 

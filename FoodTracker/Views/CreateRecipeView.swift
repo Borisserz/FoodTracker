@@ -554,6 +554,8 @@ struct MacroStatColumn: View {
 struct RecipeDetailView: View {
     let recipe: CustomRecipe
     @Binding var path: NavigationPath
+    
+    // <--- ДОБАВЛЕНО: Для кнопки "Назад"
     @Environment(\.dismiss) private var dismiss
     
     @State private var showMealSheet = false
@@ -573,7 +575,7 @@ struct RecipeDetailView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(recipe.name)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .padding(.top, 20)
+                            .padding(.top, 60) // <--- УВЕЛИЧЕН ОТСТУП СВЕРХУ под кнопку
                         
                         HStack(spacing: 16) {
                             Label("\(recipe.cookingTime) min", systemImage: "clock.fill")
@@ -585,7 +587,7 @@ struct RecipeDetailView: View {
                     }
                     .padding(.horizontal, 20)
                     
-                    // КРУТАЯ ДИАГРАММА МАКРОСОВ
+                    // ДИАГРАММА МАКРОСОВ
                     RecipeMacroDonutView(
                         calories: recipe.totalCalories,
                         protein: totalProtein,
@@ -608,7 +610,9 @@ struct RecipeDetailView: View {
                                         }
                                         Spacer()
                                     }
-                                    Divider()
+                                    if item.id != recipe.foodItems.last?.id {
+                                        Divider()
+                                    }
                                 }
                             }
                         }
@@ -645,7 +649,30 @@ struct RecipeDetailView: View {
                 }
             }
             
-            // ПЛАВАЮЩАЯ КНОПКА
+            // <--- ДОБАВЛЕНО: Плавающая кнопка "Назад"
+            VStack {
+                HStack {
+                    Button(action: {
+                        HapticManager.shared.impact(style: .light)
+                        dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title3.bold())
+                            .foregroundColor(.primary)
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top, 50) // Отступ от челки
+                
+                Spacer()
+            }
+            
+            // ПЛАВАЮЩАЯ КНОПКА "ADD TO MEAL"
             VStack {
                 Spacer()
                 ZStack {
@@ -674,63 +701,69 @@ struct RecipeDetailView: View {
             }
             .ignoresSafeArea(edges: .bottom)
         }
-        .navigationTitle("Custom Recipe")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true) // <--- ДОБАВЛЕНО: Прячем стандартный бар
         .sheet(isPresented: $showMealSheet) {
             CustomChooseMealSheet(recipe: recipe)
                 .presentationDetents([.fraction(0.4)])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
+                .toolbar(.hidden, for: .tabBar)
+                .sheet(isPresented: $showMealSheet) {
+                    CustomChooseMealSheet(recipe: recipe)
+                        .presentationDetents([.fraction(0.4)])
+                        .presentationCornerRadius(32)
+                        .presentationDragIndicator(.visible)
+                }
         }
     }
 }
+    // Шторка добавления личного рецепта в дневник
+    struct CustomChooseMealSheet: View {
+        @Environment(\.dismiss) var dismiss
+        @Environment(\.modelContext) private var context
+        @Query private var summaries: [DailySummary]
+        
+        let recipe: CustomRecipe
+        @State private var selectedMeal = "Breakfast"
+        let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
+        
+        var body: some View {
+            VStack(spacing: 24) {
+                Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
+                Picker("Meal", selection: $selectedMeal) {
+                    ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) }
+                }
+                .pickerStyle(.wheel).frame(height: 120)
+                
+                Button(action: {
+                    HapticManager.shared.impact(style: .heavy)
+                    saveToDiary()
+                    dismiss()
+                }) {
+                    Text("Select")
+                        .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
+                        .padding(.vertical, 18).background(Color.themePink)
+                        .cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                }
+                .buttonStyle(BounceButtonStyle())
+                .padding(.horizontal, 24).padding(.bottom, 20)
+            }
+            .background(Color.themeBg.ignoresSafeArea())
+        }
+        
+        private func saveToDiary() {
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: .now)
+            let summary: DailySummary
+            if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) { summary = existing } else {
+                summary = DailySummary(date: today); context.insert(summary)
+            }
+            let newFood = recipe.toFoodItem()
+            if let meal = summary.meals.first(where: { $0.title == selectedMeal }) { meal.foodItems.append(newFood) } else {
+                let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
+                context.insert(newMeal); summary.meals.append(newMeal)
+            }
+            try? context.save()
+        }
+    }
 
-// Шторка добавления личного рецепта в дневник
-struct CustomChooseMealSheet: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) private var context
-    @Query private var summaries: [DailySummary]
-    
-    let recipe: CustomRecipe
-    @State private var selectedMeal = "Breakfast"
-    let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
-    
-    var body: some View {
-        VStack(spacing: 24) {
-            Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
-            Picker("Meal", selection: $selectedMeal) {
-                ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) }
-            }
-            .pickerStyle(.wheel).frame(height: 120)
-            
-            Button(action: {
-                HapticManager.shared.impact(style: .heavy)
-                saveToDiary()
-                dismiss()
-            }) {
-                Text("Select")
-                    .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
-                    .padding(.vertical, 18).background(Color.themePink)
-                    .cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
-            }
-            .buttonStyle(BounceButtonStyle())
-            .padding(.horizontal, 24).padding(.bottom, 20)
-        }
-        .background(Color.themeBg.ignoresSafeArea())
-    }
-    
-    private func saveToDiary() {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: .now)
-        let summary: DailySummary
-        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) { summary = existing } else {
-            summary = DailySummary(date: today); context.insert(summary)
-        }
-        let newFood = recipe.toFoodItem()
-        if let meal = summary.meals.first(where: { $0.title == selectedMeal }) { meal.foodItems.append(newFood) } else {
-            let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
-            context.insert(newMeal); summary.meals.append(newMeal)
-        }
-        try? context.save()
-    }
-}
