@@ -35,7 +35,7 @@ struct HomeDashboardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
-    
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selectedDate: Date = .now
     @State private var navigateToProfile = false
     @State private var showDailyLog = false
@@ -80,7 +80,10 @@ struct HomeDashboardView: View {
                             HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
                             CalendarCarouselView(selectedDate: $selectedDate)
                             InsightsWidget(summary: currentSummary, user: currentUser)
-                            NutritionCarouselView(summary: currentSummary, user: currentUser)
+
+                            // ✅ НОВЫЙ ДИНАМИЧЕСКИЙ ДАШБОРД ВМЕСТО СТАРОЙ КАРУСЕЛИ И ШТОРКИ
+                            DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
+                                .padding(.bottom, 8)
                             
                             // 🟢 БЛОК ПРИЕМОВ ПИЩИ + КНОПКА DAILY LOG
                             VStack(spacing: 16) {
@@ -132,9 +135,26 @@ struct HomeDashboardView: View {
                     }
                 }
                 .navigationBarHidden(true)
-                .task(id: selectedDate) {
-                    await fetchHealthData(for: currentSummary)
-                }
+                                .task(id: selectedDate) {
+                                    await fetchHealthData(for: currentSummary)
+                                }
+                                // ✅ ДОБАВЛЕНЫ ЭТИ ДВА МОДИФИКАТОРА:
+                                .onChange(of: scenePhase) { _, newPhase in
+                                    // Обновляем данные каждый раз, когда возвращаемся в приложение
+                                    if newPhase == .active {
+                                        Task {
+                                            await fetchHealthData(for: currentSummary)
+                                        }
+                                    }
+                                }
+                                .onChange(of: HealthKitManager.shared.isAuthorized) { _, isAuth in
+                                    // Моментально обновляем данные после выдачи прав HealthKit
+                                    if isAuth {
+                                        Task {
+                                            await fetchHealthData(for: currentSummary)
+                                        }
+                                    }
+                                }
                 // MARK: - РОУТИНГ ЭКРАНОВ
                 .navigationDestination(isPresented: $navigateToProfile) {
                     ProfileWrapperView()
@@ -167,20 +187,55 @@ struct HomeDashboardView: View {
         }
     
     private func fetchHealthData(for summary: DailySummary) async {
-        guard currentUser?.isHealthKitEnabled == true else { return }
-        HealthKitManager.shared.isAuthorized = true
-        do {
-            let burned = try await HealthKitManager.shared.fetchActiveEnergy(for: summary.date)
-            if summary.activeCaloriesBurned != burned {
-                summary.activeCaloriesBurned = burned
-                if summary.modelContext == nil { context.insert(summary) }
-                try? context.save()
+            // 1. Берем калории из Workout Tracker (App Group)
+            let workoutCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: summary.date)
+            
+            var fetchedSteps = summary.stepsCount
+            var fetchedActiveCals = summary.activeCaloriesBurned
+
+            // 2. Запрашиваем Apple Health асинхронно
+            if currentUser?.isHealthKitEnabled == true {
+                do {
+                    fetchedSteps = try await HealthKitManager.shared.fetchSteps(for: summary.date)
+                } catch { print("Steps error: \(error)") }
+                
+                do {
+                    let totalHealthCals = try await HealthKitManager.shared.fetchTotalActiveCalories(for: summary.date)
+                    // Берем максимум, чтобы учесть и тренировки, и просто ходьбу
+                    fetchedActiveCals = max(totalHealthCals, workoutCals)
+                } catch { print("Health cals error: \(error)") }
+            } else {
+                fetchedActiveCals = workoutCals
             }
-        } catch {
-            print("Failed to fetch health data: \(error.localizedDescription)")
+
+            // ✅ 3. Строго обновляем SwiftData и интерфейс в Главном Потоке (MainActor)
+            await MainActor.run {
+                var needsSave = false
+                
+                if summary.workoutCalories != workoutCals {
+                    summary.workoutCalories = workoutCals
+                    needsSave = true
+                }
+                
+                if summary.stepsCount != fetchedSteps {
+                    summary.stepsCount = fetchedSteps
+                    needsSave = true
+                }
+                
+                if summary.activeCaloriesBurned != fetchedActiveCals {
+                    summary.activeCaloriesBurned = fetchedActiveCals
+                    needsSave = true
+                }
+                
+                // Если данные изменились — сохраняем. Интерфейс (SwiftUI) перерисуется мгновенно!
+                if needsSave {
+                    if summary.modelContext == nil {
+                        context.insert(summary)
+                    }
+                    try? context.save()
+                }
+            }
         }
-    }
-    
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
         let summary = currentSummary
         var newFoodItems: [FoodItem] = []
@@ -257,37 +312,6 @@ struct HeaderView: View {
         }
         .padding(.horizontal)
         .padding(.top, 10)
-    }
-}
-
-struct UnifiedProgressCard: View {
-    let summary: DailySummary
-    let user: User?
-    
-    var body: some View {
-        let target = (user?.dailyCaloriesGoal ?? 2400) + summary.activeCaloriesBurned
-        
-        VStack(spacing: 24) {
-            BreathingCaloriesDashboard(
-                consumed: summary.totalCalories,
-                target: target,
-                activeBurned: summary.activeCaloriesBurned,
-                protein: summary.totalProtein,
-                fats: summary.totalFats,
-                carbs: summary.totalCarbs
-            )
-            
-            MacroSummaryView(
-                protein: summary.totalProtein,
-                fats: summary.totalFats,
-                carbs: summary.totalCarbs,
-                targetProtein: user?.targetProtein ?? 150,
-                targetFats: user?.targetFats ?? 70,
-                targetCarbs: user?.targetCarbs ?? 250
-            )
-        }
-        .ultraPremiumCardStyle()
-        .padding(.horizontal)
     }
 }
 

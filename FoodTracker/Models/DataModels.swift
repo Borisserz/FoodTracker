@@ -208,16 +208,24 @@ struct Achievement: Identifiable {
     var weight: Double?
     var activeCaloriesBurned: Int = 0
     var dayNote: String = ""
-       var dayMoodEmoji: String = ""
+    var dayMoodEmoji: String = ""
+    var stepsCount: Int = 0
+    
+    var workoutCalories: Int = 0
+    
     var totalFoodCalories: Int { meals.reduce(0) { $0 + $1.totalCalories } }
     var totalDrinkCalories: Int { beverages.reduce(0) { $0 + $1.caloriesPerGlass } }
     var totalCalories: Int { totalFoodCalories + totalDrinkCalories }
     
     var totalHydrationLiters: Double { beverages.reduce(0) { $0 + $1.volumeMl } / 1000.0 }
-    
     var totalProtein: Double { meals.reduce(0) { $0 + $1.totalProtein } }
     var totalFats: Double { meals.reduce(0) { $0 + $1.totalFats } }
     var totalCarbs: Double { meals.reduce(0) { $0 + $1.totalCarbs } }
+    
+    // ✅ НОВОЕ: Чистый баланс (Съедено - Сожжено)
+    var netCalories: Int {
+        totalCalories - activeCaloriesBurned
+    }
     
     func remainingCalories(userGoal: Int) -> Int {
         return (userGoal + activeCaloriesBurned) - totalCalories
@@ -227,9 +235,10 @@ struct Achievement: Identifiable {
         self.date = Calendar.current.startOfDay(for: date)
         self.meals = meals; self.beverages = beverages
         self.activeCaloriesBurned = 0
+        self.stepsCount = 0
+        self.workoutCalories = 0
     }
 }
-
 // MARK: - EXTENSIONS
 extension CustomRecipe {
     func toFoodItem() -> FoodItem {
