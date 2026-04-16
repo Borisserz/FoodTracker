@@ -38,7 +38,8 @@ struct HomeDashboardView: View {
     
     @State private var selectedDate: Date = .now
     @State private var navigateToProfile = false
-    
+    @State private var showDailyLog = false
+       @State private var showNoteSheet = false
     @State private var showingQuickAddSheet = false
     @State private var quickAddMealType: String = "Breakfast"
     @State private var selectedMealForDetail: String? = nil
@@ -70,63 +71,100 @@ struct HomeDashboardView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.themeBg.ignoresSafeArea()
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
-                        CalendarCarouselView(selectedDate: $selectedDate)
-                        InsightsWidget(summary: currentSummary, user: currentUser)
-                        NutritionCarouselView(summary: currentSummary, user: currentUser)
-                        
-                        VStack(spacing: 16) {
-                            ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
-                                let meal = currentSummary.meals.first(where: { $0.title == mealType })
+            NavigationStack {
+                ZStack {
+                    Color.themeBg.ignoresSafeArea()
+                    
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 24) {
+                            HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
+                            CalendarCarouselView(selectedDate: $selectedDate)
+                            InsightsWidget(summary: currentSummary, user: currentUser)
+                            NutritionCarouselView(summary: currentSummary, user: currentUser)
+                            
+                            // 🟢 БЛОК ПРИЕМОВ ПИЩИ + КНОПКА DAILY LOG
+                            VStack(spacing: 16) {
+                                HStack {
+                                    Text("Nutrition")
+                                        .font(.title2).bold()
+                                    Spacer()
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .medium)
+                                        showDailyLog = true
+                                    }) {
+                                        HStack(spacing: 4) {
+                                            Text("Daily Log")
+                                            Image(systemName: "list.bullet.clipboard")
+                                        }
+                                        .font(.subheadline.bold())
+                                        .foregroundColor(.themePink)
+                                    }
+                                }
+                                .padding(.horizontal, 20)
                                 
-                                MealCardView(
-                                    title: mealType,
-                                    calories: meal?.totalCalories,
-                                    recommendedCalories: getRecommendedCalories(for: mealType),
-                                    time: meal?.date,
-                                    onCardTap: { self.selectedMealForDetail = mealType },
-                                    onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
-                                )
+                                ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
+                                    let meal = currentSummary.meals.first(where: { $0.title == mealType })
+                                    
+                                    MealCardView(
+                                        title: mealType,
+                                        calories: meal?.totalCalories,
+                                        recommendedCalories: getRecommendedCalories(for: mealType),
+                                        time: meal?.date,
+                                        onCardTap: { self.selectedMealForDetail = mealType },
+                                        onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
+                                    )
+                                }
+                                .padding(.horizontal)
                             }
+                            
+                            WaterGridTrackerView(summary: currentSummary).padding(.horizontal)
+                            WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
+                            
+                            // 🟢 БЛОК ЗАМЕТОК ВНИЗУ
+                            DailyNoteCard(summary: currentSummary) {
+                                showNoteSheet = true
+                            }
+                            .padding(.horizontal)
+                            
+                            AllTimeStatsCardView(totalCalories: allTimeCalories)
                         }
-                        .padding(.horizontal)
-                        
-                        WaterGridTrackerView(summary: currentSummary).padding(.horizontal)
-                        WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
-                        AllTimeStatsCardView(totalCalories: allTimeCalories)
+                        .padding(.bottom, 120)
                     }
-                    .padding(.bottom, 120)
                 }
-            }
-            .navigationBarHidden(true)
-            .task(id: selectedDate) {
-                await fetchHealthData(for: currentSummary)
-            }
-            .navigationDestination(isPresented: $navigateToProfile) {
-                ProfileWrapperView()
-            }
-            .sheet(isPresented: $showingQuickAddSheet) {
-                SmartAddFoodView(mealTitle: quickAddMealType) { selectedItems in
-                    addFoodsToMeal(title: quickAddMealType, items: selectedItems)
+                .navigationBarHidden(true)
+                .task(id: selectedDate) {
+                    await fetchHealthData(for: currentSummary)
                 }
-                .presentationDetents([.fraction(0.85), .large])
-                .presentationCornerRadius(32)
-                .presentationDragIndicator(.hidden)
-            }
-            .navigationDestination(item: Binding(
-                get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
-                set: { selectedMealForDetail = $0?.value }
-            )) { mealItem in
-                MealDetailView(title: mealItem.value, date: selectedDate)
+                // MARK: - РОУТИНГ ЭКРАНОВ
+                .navigationDestination(isPresented: $navigateToProfile) {
+                    ProfileWrapperView()
+                }
+                .navigationDestination(isPresented: $showDailyLog) {
+                    DailyLogDetailView(summary: currentSummary)
+                }
+                .navigationDestination(item: Binding(
+                    get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
+                    set: { selectedMealForDetail = $0?.value }
+                )) { mealItem in
+                    MealDetailView(title: mealItem.value, date: selectedDate)
+                }
+                // MARK: - ВСПЛЫВАЮЩИЕ ШТОРКИ
+                .sheet(isPresented: $showNoteSheet) {
+                    DailyNoteSheet(summary: currentSummary)
+                        .presentationDetents([.height(450)])
+                        .presentationCornerRadius(32)
+                        .presentationDragIndicator(.visible)
+                }
+                .sheet(isPresented: $showingQuickAddSheet) {
+                    SmartAddFoodView(mealTitle: quickAddMealType) { selectedItems in
+                        addFoodsToMeal(title: quickAddMealType, items: selectedItems)
+                    }
+                    .presentationDetents([.fraction(0.85), .large])
+                    .presentationCornerRadius(32)
+                    .presentationDragIndicator(.hidden)
+                }
             }
         }
-    }
     
     private func fetchHealthData(for summary: DailySummary) async {
         guard currentUser?.isHealthKitEnabled == true else { return }
@@ -807,14 +845,18 @@ struct SmartAddFoodView: View {
                             } else {
                                 if !filteredLocalFoods.isEmpty {
                                     Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
-                                    ForEach(filteredLocalFoods, id: \.name) { food in
+                                    
+                                    // 🔥 ИСПРАВЛЕНИЕ: id: \.self
+                                    ForEach(filteredLocalFoods, id: \.self) { food in
                                         FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
                                     }
                                 }
                                 
                                 if !apiSearchResults.isEmpty {
                                     Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
-                                    ForEach(apiSearchResults, id: \.name) { food in
+                                    
+                                    // 🔥 ИСПРАВЛЕНИЕ: id: \.self
+                                    ForEach(apiSearchResults, id: \.self) { food in
                                         FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
                                     }
                                 } else if filteredLocalFoods.isEmpty {
@@ -827,7 +869,8 @@ struct SmartAddFoodView: View {
                                 EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
                                     .padding(.top, 60)
                             } else {
-                                ForEach(filteredLocalFoods, id: \.name) { food in
+                                // 🔥 ИСПРАВЛЕНИЕ: id: \.self
+                                ForEach(filteredLocalFoods, id: \.self) { food in
                                     FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
                                 }
                             }
@@ -845,7 +888,6 @@ struct SmartAddFoodView: View {
                 }.transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
             }
         }
-        // ✅ ВАЖНО: ОТСЛЕЖИВАЕМ ВВОД ТЕКСТА
         .onChange(of: searchText) { _, newValue in
             performSearch(query: newValue)
         }
@@ -863,26 +905,44 @@ struct SmartAddFoodView: View {
     
     // MARK: - ЛОГИКА DEBOUNCE ПОИСКА
     private func performSearch(query: String) {
-        searchTask?.cancel()
-        guard query.count > 2 else {
-            apiSearchResults = []
-            isSearchingAPI = false
-            return
-        }
-        isSearchingAPI = true
-        searchTask = Task {
-            do { try await Task.sleep(nanoseconds: 500_000_000) } catch { return }
-            let results = await NetworkManager.shared.searchFoodByText(query: query)
-            await MainActor.run {
-                if !Task.isCancelled {
-                    self.apiSearchResults = results
-                    self.isSearchingAPI = false
-                }
-            }
-        }
-    }
+         // 1. Отменяем предыдущий поиск, если юзер ввел новую букву
+         searchTask?.cancel()
+         
+         guard query.count > 2 else {
+             apiSearchResults = []
+             isSearchingAPI = false
+             return
+         }
+         
+         isSearchingAPI = true
+         
+         searchTask = Task {
+             do {
+                 // 2. Ждем полсекунды (чтобы юзер успел допечатать слово)
+                 try await Task.sleep(nanoseconds: 500_000_000)
+                 
+                 // 3. Если за эти полсекунды юзер ввел еще букву - прерываемся ДО похода в сеть!
+                 guard !Task.isCancelled else { return }
+                 
+                 let results = await NetworkManager.shared.searchFoodByText(query: query)
+                 
+                 await MainActor.run {
+                     if !Task.isCancelled {
+                         self.apiSearchResults = results
+                         self.isSearchingAPI = false
+                     }
+                 }
+             } catch {
+                 // Если Task.sleep был отменен, падаем сюда. Лоадер не выключаем,
+                 // так как уже запустился новый поиск для нового слова.
+                 if !Task.isCancelled {
+                     await MainActor.run { self.isSearchingAPI = false }
+                 }
+             }
+         }
+     }
 }
-
+    
 // MARK: - Search Bar & Action Buttons
 struct ActionSearchBar: View {
     @Binding var text: String
@@ -1022,18 +1082,63 @@ struct MacroDot: View {
 struct FoodSearchResultRow: View {
     let food: FoodItem
     let action: () -> Void
+    
+    @Query private var users: [User]
+    
     var body: some View {
+        let user = users.first
+        let compatibility = food.compatibility(with: user?.activeDietPlan)
+        
         Button(action: action) {
             HStack(spacing: 16) {
-                Text("🍲").font(.system(size: 24)).frame(width: 44, height: 44).background(Color.gray.opacity(0.05)).clipShape(RoundedRectangle(cornerRadius: 12))
+                // Иконка
+                ZStack {
+                    Circle().fill(Color.gray.opacity(0.05)).frame(width: 48, height: 48)
+                    Text("🍲").font(.system(size: 24))
+                    
+                    // БЕЙДЖ СОВМЕСТИМОСТИ С ДИЕТОЙ
+                    if compatibility != .neutral {
+                        Image(systemName: compatibility.icon)
+                            .font(.system(size: 14))
+                            .foregroundColor(compatibility.color)
+                            .background(Color.white.clipShape(Circle()))
+                            .offset(x: 16, y: 16)
+                    }
+                }
+                
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(food.name).font(.system(size: 17, weight: .semibold, design: .rounded)).foregroundColor(.primary)
-                    Text("\(food.calories) kcal • 100g").font(.system(size: 14, weight: .medium, design: .rounded)).foregroundColor(.gray)
+                    Text(food.name)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(compatibility == .avoid ? .gray : .primary)
+                        .strikethrough(compatibility == .avoid, color: .red.opacity(0.5)) // Зачеркиваем плохие продукты
+                    
+                    HStack {
+                        Text("\(food.calories) kcal • 100g")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(.gray)
+                        
+                        if compatibility == .perfect {
+                            Text("• Great for \(user?.activeDietName ?? "")")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.green)
+                        } else if compatibility == .avoid {
+                            Text("• Avoid on \(user?.activeDietName ?? "")")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.red)
+                        }
+                    }
                 }
                 Spacer()
-                Image(systemName: "chevron.right").font(.system(size: 14, weight: .bold)).foregroundColor(.gray.opacity(0.5))
-            }.padding(16).background(Color.white).cornerRadius(20).shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
-        }.buttonStyle(BounceButtonStyle())
+                Image(systemName: "plus.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(compatibility == .avoid ? .gray.opacity(0.3) : .themePink)
+            }
+            .padding(16)
+            .background(compatibility == .avoid ? Color.red.opacity(0.03) : (compatibility == .perfect ? Color.green.opacity(0.03) : Color.white))
+            .cornerRadius(20)
+            .shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
+        }
+        .buttonStyle(BounceButtonStyle())
     }
 }
 
@@ -1054,5 +1159,265 @@ struct AllTimeStatsCardView: View {
                 Text("kcal").font(.title2.bold()).foregroundColor(.white.opacity(0.9))
             }.foregroundColor(.white)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(24).background(LinearGradient(colors: [Color.themePink.opacity(0.9), Color.themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)).cornerRadius(28).shadow(color: .themePink.opacity(0.3), radius: 15, x: 0, y: 8).padding(.horizontal)
+    }
+}
+struct DailyNoteCard: View {
+    let summary: DailySummary
+    var onEdit: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            HapticManager.shared.impact(style: .medium)
+            onEdit()
+        }) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Text("Daily Notes")
+                        .font(.title3.bold())
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Image(systemName: "square.and.pencil")
+                        .foregroundColor(.themePink)
+                }
+                
+                if summary.dayNote.isEmpty && summary.dayMoodEmoji.isEmpty {
+                    // Пустое состояние (как на скрине, но красивее)
+                    HStack(spacing: 20) {
+                        Text("☀️").font(.system(size: 40))
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("How was your day?")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            Text("Track your feelings & habits")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        Spacer()
+                        Text("🌧️").font(.system(size: 30)).opacity(0.5)
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.05))
+                    .cornerRadius(20)
+                } else {
+                    // Заполненное состояние
+                    HStack(alignment: .top, spacing: 16) {
+                        if !summary.dayMoodEmoji.isEmpty {
+                            Text(summary.dayMoodEmoji)
+                                .font(.system(size: 40))
+                                .padding(12)
+                                .background(Color.themePink.opacity(0.1))
+                                .clipShape(Circle())
+                        }
+                        
+                        Text(summary.dayNote.isEmpty ? "No text added, just a mood!" : summary.dayNote)
+                            .font(.body)
+                            .foregroundColor(.primary.opacity(0.9))
+                            .lineLimit(4)
+                            .multilineTextAlignment(.leading)
+                            .padding(.top, 8)
+                        
+                        Spacer()
+                    }
+                }
+            }
+            .ultraPremiumCardStyle()
+        }
+        .buttonStyle(BounceButtonStyle())
+    }
+}
+
+struct DailyNoteSheet: View {
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context
+    @Bindable var summary: DailySummary
+    
+    // Пресеты настроений/дней
+    let moods = [
+        ("☀️", "Great Day"),
+        ("🍩", "Cheat Day"),
+        ("🍔", "Binge Eating"),
+        ("🥲", "Bad Mood"),
+        ("🏋️", "Active"),
+        ("🧘‍♀️", "Relaxed"),
+        ("🤢", "Felt Sick")
+    ]
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Capsule()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 40, height: 5)
+                .padding(.top, 10)
+            
+            HStack {
+                Text("Your Day")
+                    .font(.title2.bold())
+                Spacer()
+                Button("Save") {
+                    HapticManager.shared.impact(style: .heavy)
+                    try? context.save()
+                    dismiss()
+                }
+                .font(.headline)
+                .foregroundColor(.themePink)
+            }
+            .padding(.horizontal, 24)
+            
+            // Текстовое поле
+            TextField("Write about your meals, feelings, or workouts...", text: $summary.dayNote, axis: .vertical)
+                .lineLimit(4...8)
+                .padding(16)
+                .background(Color.gray.opacity(0.05))
+                .cornerRadius(20)
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+                .padding(.horizontal, 24)
+            
+            // Выбор настроения (Горизонтальный скролл как на скрине конкурента)
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Tags & Mood")
+                    .font(.headline)
+                    .padding(.horizontal, 24)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(moods, id: \.1) { mood in
+                            Button(action: {
+                                HapticManager.shared.impact(style: .light)
+                                withAnimation {
+                                    if summary.dayMoodEmoji == mood.0 {
+                                        summary.dayMoodEmoji = "" // Отмена выбора
+                                    } else {
+                                        summary.dayMoodEmoji = mood.0
+                                    }
+                                }
+                            }) {
+                                VStack(spacing: 8) {
+                                    Text(mood.0)
+                                        .font(.system(size: 30))
+                                        .padding(16)
+                                        .background(summary.dayMoodEmoji == mood.0 ? Color.themePink.opacity(0.2) : Color.white)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(summary.dayMoodEmoji == mood.0 ? Color.themePink : Color.gray.opacity(0.2), lineWidth: 2)
+                                        )
+                                        .cornerRadius(20)
+                                    
+                                    Text(mood.1)
+                                        .font(.caption)
+                                        .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
+                                        .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 10)
+                }
+            }
+            
+            Spacer()
+        }
+        .background(Color.themeBg.ignoresSafeArea())
+    }
+}
+
+// MARK: - 📋 ПОЛНЫЙ ЛОГ ЗА ДЕНЬ (Daily Nutrition Log)
+
+struct DailyLogDetailView: View {
+    @Environment(\.dismiss) var dismiss
+    let summary: DailySummary
+    
+    var body: some View {
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
+                    
+                    // Шапка с итогами дня
+                    VStack(spacing: 8) {
+                        Text("\(summary.totalFoodCalories) kcal")
+                            .font(.system(size: 48, weight: .heavy, design: .rounded))
+                            .foregroundColor(.themePink)
+                        Text("Total Food Logged Today")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.vertical, 20)
+                    
+                    // Итерируемся по приемам пищи
+                    let activeMeals = summary.meals.filter { !$0.foodItems.isEmpty }
+                    
+                    if activeMeals.isEmpty {
+                        EmptyStateView(imageName: "doc.text.magnifyingglass", title: "No Food Logged", description: "You haven't logged any food for this day yet.")
+                            .padding(.top, 40)
+                    } else {
+                        ForEach(activeMeals) { meal in
+                            VStack(alignment: .leading, spacing: 0) {
+                                // Заголовок приема пищи
+                                HStack {
+                                    Text(meal.title)
+                                        .font(.title3.bold())
+                                    Spacer()
+                                    Text("\(meal.totalCalories) kcal")
+                                        .font(.headline)
+                                        .foregroundColor(.themePink)
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.top, 20)
+                                .padding(.bottom, 12)
+                                
+                                // Продукты внутри приема пищи
+                                VStack(spacing: 0) {
+                                    ForEach(meal.foodItems) { food in
+                                        HStack(spacing: 16) {
+                                            ZStack {
+                                                Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
+                                                Text(String(food.name.first ?? "🥘")).font(.headline)
+                                            }
+                                            
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(food.name)
+                                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                                    .foregroundColor(.primary)
+                                                
+                                                HStack {
+                                                    Text("\(Int(food.weight))g")
+                                                    Text("•")
+                                                    Text("P:\(Int(food.protein)) F:\(Int(food.fats)) C:\(Int(food.carbs))")
+                                                }
+                                                .font(.caption2)
+                                                .foregroundColor(.gray)
+                                            }
+                                            Spacer()
+                                            
+                                            Text("\(food.calories)")
+                                                .font(.headline)
+                                                .foregroundColor(.primary)
+                                        }
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 12)
+                                        
+                                        if food.id != meal.foodItems.last?.id {
+                                            Divider().padding(.leading, 70)
+                                        }
+                                    }
+                                }
+                            }
+                            .background(Color.white)
+                            .cornerRadius(24)
+                            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                }
+                .padding(.bottom, 60)
+            }
+        }
+        .navigationTitle("Daily Log")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

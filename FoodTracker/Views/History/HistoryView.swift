@@ -11,14 +11,15 @@ enum FoodsRoute: Hashable {
     case premiumRecipeDetail(PremiumRecipe)
     case articleDetail(Article)
     case filteredList(String, [PremiumRecipe])
-    case mealDetail(title: String, date: Date)// Добавлено для поддержки фильтров
+    case mealDetail(title: String, date: Date)
+    case shoppingList
 }
 
 // MARK: - ГЛАВНЫЙ VIEW FOODS (БЫВШИЙ HISTORY)
 struct FoodsDashboardView: View {
     @Environment(\.modelContext) private var context
     @State private var path = NavigationPath()
-    
+    @State private var dataLoader = RecipeDataLoader()
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
     
     @State private var selectedFilter: String = "All"
@@ -116,7 +117,25 @@ struct FoodsDashboardView: View {
                 .padding(.bottom, 120) // Отступ под TabBar
             }
             .background(Color.themeBg.ignoresSafeArea())
-            .navigationTitle("Explore")
+                    .navigationTitle("Explore")
+                    // ✅ ДОБАВЛЯЕМ КНОПКУ КОРЗИНЫ ВПРАВО НАВЕРХ
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(action: {
+                                HapticManager.shared.impact(style: .medium)
+                                path.append(FoodsRoute.shoppingList)
+                            }) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.themePink.opacity(0.1))
+                                        .frame(width: 36, height: 36)
+                                    Image(systemName: "cart.fill")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.themePink)
+                                }
+                            }
+                        }
+                    }
             .navigationDestination(for: FoodsRoute.self) { route in
                 switch route {
                 case .recipes:
@@ -137,9 +156,12 @@ struct FoodsDashboardView: View {
                     ArticleDetailView(article: article)
                 case .mealDetail(let title, let date):
                     MealDetailView(title: title, date: date)
+                case .shoppingList: // ✅ ОБРАБОТЧИК ПЕРЕХОДА
+                           ShoppingListView()
                 }
             }
         }
+        .environment(dataLoader)
     }
     
     private func deleteMeal(_ meal: Meal) {

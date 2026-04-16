@@ -42,17 +42,17 @@ struct FoodTrackerApp: App {
     }
     
     init() {
-        do {
-            let config = ModelConfiguration(isStoredInMemoryOnly: false)
-            modelContainer = try ModelContainer(
-                // ✅ ДОБАВЛЕНО: AIChatSession.self
-                for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self,
-                configurations: config
-            )
-        } catch {
-            fatalError("Could not initialize ModelContainer: \(error)")
+            do {
+                let config = ModelConfiguration(isStoredInMemoryOnly: false)
+                modelContainer = try ModelContainer(
+                    // ✅ ДОБАВЛЕН ShoppingItem.self
+                    for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
+                    configurations: config
+                )
+            } catch {
+                fatalError("Could not initialize ModelContainer: \(error)")
+            }
         }
-    }
 }
 
 struct IdentifiableString: Identifiable, Hashable {

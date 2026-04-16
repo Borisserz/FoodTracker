@@ -80,8 +80,11 @@ var mockRecipesData: [PremiumRecipe] = [
 struct RecipesContainerView: View {
     @Binding var path: NavigationPath
     @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
-    @State private var dataLoader = RecipeDataLoader()
-    @State private var selectedTab: Int = 0 // 0 - Discover, 1 - My Recipes
+    
+    // ✅ ИСПРАВЛЕНИЕ: Теперь мы получаем его из среды, а не создаем заново!
+    @Environment(RecipeDataLoader.self) private var dataLoader
+    
+    @State private var selectedTab: Int = 0
     @State private var searchText = ""
     @State private var showFilters = false
     
@@ -140,7 +143,6 @@ struct RecipesContainerView: View {
         .background(Color.themeBg.ignoresSafeArea())
         .navigationTitle("Recipes")
         .navigationBarTitleDisplayMode(.inline)
-        .environment(dataLoader)
         .sheet(isPresented: $showFilters) {
             AdvancedRecipeFilterSheet(allRecipes: dataLoader.recipes) { title, filtered in
                 // Когда фильтр закрывается, мы пушим новый экран
@@ -789,19 +791,48 @@ struct PremiumRecipeDetailView: View {
                         }.padding(.horizontal, 20)
                         
                         if !recipe.ingredients.isEmpty {
-                            VStack(alignment: .leading, spacing: 16) {
-                                Text("Ingredients").font(.title2).bold()
-                                VStack(spacing: 16) {
-                                    ForEach(recipe.ingredients, id: \.name) { ingredient in
-                                        HStack(alignment: .top) {
-                                            VStack(alignment: .leading, spacing: 4) { Text(ingredient.name).font(.headline); Text("\(Int(Double(ingredient.calories) * multiplier)) Cal — \(ingredient.amount)").font(.caption).foregroundColor(.gray) }
-                                            Spacer()
-                                        }
-                                        Divider()
-                                    }
-                                }
-                            }.padding(.horizontal, 20)
-                        }
+                                                    VStack(alignment: .leading, spacing: 16) {
+                                                        // ✅ КРАСИВЫЙ ЗАГОЛОВОК С КНОПКОЙ ДОБАВЛЕНИЯ В СПИСОК
+                                                        HStack {
+                                                            Text("Ingredients").font(.title2).bold()
+                                                            Spacer()
+                                                            Button(action: {
+                                                                HapticManager.shared.impact(style: .heavy)
+                                                                // Логика добавления в список
+                                                                for ingredient in recipe.ingredients {
+                                                                    let item = ShoppingItem(name: ingredient.name, amount: ingredient.amount, addedFromRecipe: recipe.title)
+                                                                    context.insert(item)
+                                                                }
+                                                                try? context.save()
+                                                                // TODO: Можно показать всплывающее уведомление (Toast)
+                                                            }) {
+                                                                HStack(spacing: 4) {
+                                                                    Image(systemName: "cart.badge.plus")
+                                                                    Text("Add to List")
+                                                                }
+                                                                .font(.caption.bold())
+                                                                .foregroundColor(.themePink)
+                                                                .padding(.horizontal, 12)
+                                                                .padding(.vertical, 8)
+                                                                .background(Color.themePink.opacity(0.1))
+                                                                .clipShape(Capsule())
+                                                            }
+                                                        }
+                                                        
+                                                        VStack(spacing: 16) {
+                                                            ForEach(recipe.ingredients, id: \.name) { ingredient in
+                                                                HStack(alignment: .top) {
+                                                                    VStack(alignment: .leading, spacing: 4) {
+                                                                        Text(ingredient.name).font(.headline)
+                                                                        Text("\(Int(Double(ingredient.calories) * multiplier)) Cal — \(ingredient.amount)").font(.caption).foregroundColor(.gray)
+                                                                    }
+                                                                    Spacer()
+                                                                }
+                                                                Divider()
+                                                            }
+                                                        }
+                                                    }.padding(.horizontal, 20)
+                                                }
                         
                         // БЛОК ШАГОВ
                         if !recipe.directions.isEmpty {

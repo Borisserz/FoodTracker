@@ -80,17 +80,20 @@ class AINutritionService {
     }
     
     // MARK: 3. Chat Messages
-    func sendChatMessage(prompt: String, userContext: String) async -> String? {
-        let systemPrompt = """
-        You are a friendly, elite AI Nutritionist.
-        Context about the user today: \(userContext)
-        USER SAYS: "\(prompt)"
-        
-        Respond conversationally, warmly, and concisely. Keep answers under 4 sentences. 
-        If they ask if they can eat something, check their remaining calories from the context and give advice.
-        """
-        return await fetchRawTextFromGemini(prompt: systemPrompt)
-    }
+    func sendChatMessage(prompt: String, userContext: String, activeDiet: String) async -> String? {
+          let systemPrompt = """
+          You are a friendly, elite AI Nutritionist.
+          Context about the user today: \(userContext)
+          CRITICAL: The user is currently strictly following the "\(activeDiet)" diet. 
+          Tailor all your advice, food suggestions, and judgments based on the rules of the \(activeDiet) diet.
+          
+          USER SAYS: "\(prompt)"
+          
+          Respond conversationally, warmly, and concisely. Keep answers under 4 sentences. 
+          If they ask if they can eat something, check their remaining calories from the context and give advice based on their \(activeDiet) diet.
+          """
+          return await fetchRawTextFromGemini(prompt: systemPrompt)
+      }
     
     // MARK: 4. Chat Titles
     func generateChatTitle(for userMessage: String) async -> String {

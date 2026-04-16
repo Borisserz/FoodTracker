@@ -6,308 +6,425 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - МОДЕЛИ ДАННЫХ ДЛЯ КАТЕГОРИЙ
-struct FoodItemDetail: Identifiable, Hashable {
-    let id = UUID()
-    let name: String
-    let calories: Int
-    let icon: String
-}
-
-struct FoodCategory: Identifiable, Hashable {
-    let id = UUID()
-    let title: String
-    let items: [FoodItemDetail]
-}
-
-// MARK: - ГЛАВНЫЙ ЭКРАН ДИЕТ (Вызывается из Foods Hub)
+// MARK: - ГЛАВНЫЙ ЭКРАН ДИЕТ (КАРУСЕЛЬ В СТИЛЕ APP STORE)
 struct DietsListView: View {
-    @State private var selectedDiet: DietPlan = DietPlan.allDiets[0]
+    @Environment(\.modelContext) private var context
+    @Query private var users: [User]
+    
+    @State private var selectedIndex: Int = 0
+    @Namespace private var animation
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 24) {
-                // 1. DIET SELECTOR
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(DietPlan.allDiets) { diet in
-                            Button(action: {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                    selectedDiet = diet
-                                }
-                            }) {
-                                Text(diet.name)
-                                    .font(.subheadline)
-                                    .bold()
-                                    .padding(.horizontal, 18)
-                                    .padding(.vertical, 10)
-                                    .background(selectedDiet.id == diet.id ? diet.color : Color.gray.opacity(0.1))
-                                    .foregroundColor(selectedDiet.id == diet.id ? .white : .primary)
-                                    .cornerRadius(20)
-                                    .shadow(color: selectedDiet.id == diet.id ? diet.color.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 8)
+        ZStack {
+            // Динамический фон в зависимости от выбранной диеты
+            let currentDietColor = DietPlan.allDiets[selectedIndex].color
+            currentDietColor.opacity(0.15)
+                .ignoresSafeArea()
+                .animation(.easeInOut(duration: 0.8), value: selectedIndex)
+            
+            VStack(spacing: 0) {
+                // Заголовок
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Diet Plans")
+                        .font(.system(size: 34, weight: .heavy, design: .rounded))
+                    Text("Choose your path to success")
+                        .foregroundColor(.gray)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
                 
-                // 2. DYNAMIC DASHBOARD
-                NavigationLink(destination: DietDetailView(diet: selectedDiet)) {
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack(alignment: .top) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(selectedDiet.name)
-                                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
-                                
-                                Text(selectedDiet.tagline)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.leading)
-                                    .lineLimit(2)
-                            }
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right.circle.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(selectedDiet.color)
-                        }
+                // КАРУСЕЛЬ ДИЕТ (Paging TabView)
+                TabView(selection: $selectedIndex) {
+                    ForEach(DietPlan.allDiets.indices, id: \.self) { index in
+                        let diet = DietPlan.allDiets[index]
+                        let isUserActiveDiet = users.first?.activeDietName == diet.name
                         
-                        Divider()
-                        
-                        HStack(spacing: 24) {
-                            DietMacroMiniView(title: "Fat", value: selectedDiet.macroBreakdown.fat, color: .themeYellow)
-                            DietMacroMiniView(title: "Protein", value: selectedDiet.macroBreakdown.protein, color: .themePeach)
-                            DietMacroMiniView(title: "Carbs", value: selectedDiet.macroBreakdown.carbs, color: .themeOrange)
-                            Spacer()
+                        NavigationLink(destination: PremiumDietDetailView(diet: diet)) {
+                            DietHeroCard(diet: diet, isActive: isUserActiveDiet)
                         }
-                    }
-                    .premiumCardStyle()
-                }
-                .padding(.horizontal)
-                .buttonStyle(PlainButtonStyle())
-                
-                // 3. FOOD CATEGORIES
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Top Foods")
-                        .font(.title2)
-                        .bold()
-                        .padding(.horizontal)
-                    
-                    ForEach(selectedDiet.categories) { category in
-                        FoodCategorySection(category: category)
-                            .padding(.horizontal)
+                        .buttonStyle(PlainButtonStyle())
+                        .tag(index)
                     }
                 }
-                .padding(.bottom, 30)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .padding(.vertical, 20)
                 
+                // Индикаторы страниц (Точки)
+                HStack(spacing: 8) {
+                    ForEach(DietPlan.allDiets.indices, id: \.self) { index in
+                        Circle()
+                            .fill(selectedIndex == index ? DietPlan.allDiets[index].color : Color.gray.opacity(0.3))
+                            .frame(width: selectedIndex == index ? 24 : 8, height: 8)
+                            .animation(.spring(response: 0.3), value: selectedIndex)
+                    }
+                }
+                .padding(.bottom, 40)
             }
-            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: selectedDiet)
         }
-        .background(Color.themeBg.edgesIgnoringSafeArea(.bottom))
-        .navigationTitle("Diet Plans")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-// MARK: - UI КОМПОНЕНТЫ ДЛЯ ДИЕТ
-
-struct DietMacroMiniView: View {
-    let title: String
-    let value: Int
-    let color: Color
+// УЛЬТРА КАРТОЧКА ДИЕТЫ
+struct DietHeroCard: View {
+    let diet: DietPlan
+    let isActive: Bool
     
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Верхняя часть (Цветная)
+            ZStack(alignment: .topLeading) {
+                LinearGradient(
+                    colors: [diet.color.opacity(0.8), diet.color],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+                Image(systemName: "leaf.fill")
+                    .font(.system(size: 150))
+                    .foregroundColor(.white.opacity(0.2))
+                    .offset(x: 180, y: 50)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    if isActive {
+                        HStack {
+                            Image(systemName: "checkmark.seal.fill")
+                            Text("ACTIVE PLAN")
+                        }
+                        .font(.system(size: 12, weight: .black, design: .rounded))
+                        .foregroundColor(diet.color)
+                        .padding(.horizontal, 12).padding(.vertical, 6)
+                        .background(Color.white)
+                        .clipShape(Capsule())
+                        .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+                    }
+                    
+                    Spacer()
+                    
+                    Text(diet.name)
+                        .font(.system(size: 42, weight: .heavy, design: .rounded))
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.2), radius: 2, y: 2)
+                    
+                    Text(diet.tagline)
+                        .font(.headline)
+                        .foregroundColor(.white.opacity(0.9))
+                }
+                .padding(24)
+            }
+            .frame(height: 300)
+            
+            // Нижняя часть (Информация)
+            VStack(spacing: 20) {
+                HStack(spacing: 24) {
+                    MacroMiniStat(title: "Fat", value: diet.macroBreakdown.fat, color: .themeYellow)
+                    MacroMiniStat(title: "Protein", value: diet.macroBreakdown.protein, color: .themePeach)
+                    MacroMiniStat(title: "Carbs", value: diet.macroBreakdown.carbs, color: .drinkWater)
+                }
+                
+                HStack {
+                    Text("Learn more")
+                        .font(.headline)
+                    Spacer()
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.title)
+                }
+                .foregroundColor(diet.color)
+            }
+            .padding(24)
+            .background(Color.white)
+        }
+        .cornerRadius(32)
+        .shadow(color: diet.color.opacity(0.3), radius: 20, y: 10)
+        .padding(.horizontal, 24)
+    }
+}
+
+struct MacroMiniStat: View {
+    let title: String; let value: Int; let color: Color
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("\(value)%")
-                .font(.system(size: 18, weight: .heavy, design: .rounded))
+                .font(.system(size: 24, weight: .heavy, design: .rounded))
                 .foregroundColor(color)
             Text(title)
-                .font(.caption)
+                .font(.subheadline)
                 .foregroundColor(.gray)
                 .bold()
         }
     }
 }
-
-struct FoodCategorySection: View {
-    let category: FoodCategory
-    @State private var isExpanded: Bool = true
-    
-    var body: some View {
-        DisclosureGroup(
-            isExpanded: $isExpanded,
-            content: {
-                VStack(spacing: 0) {
-                    ForEach(category.items.indices, id: \.self) { index in
-                        let item = category.items[index]
-                        
-                        HStack(spacing: 16) {
-                            Text(item.icon)
-                                .font(.system(size: 24))
-                                .frame(width: 40, height: 40)
-                                .background(Color.gray.opacity(0.1))
-                                .clipShape(Circle())
-                            
-                            Text(item.name)
-                                .font(.system(size: 16, weight: .semibold, design: .rounded))
-                            
-                            Spacer()
-                            
-                            Text("\(item.calories) kcal")
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundColor(.themePink)
-                        }
-                        .padding(.vertical, 12)
-                        
-                        if index < category.items.count - 1 {
-                            Divider()
-                        }
-                    }
-                }
-                .padding(.top, 8)
-            },
-            label: {
-                Text(category.title)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-            }
-        )
-        .padding(16)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
-    }
-}
-
-
-// MARK: - DIET DETAIL VIEW
-
-struct DietDetailView: View {
+struct PremiumDietDetailView: View {
     let diet: DietPlan
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(diet.name).font(.title).bold()
-                    Text(diet.tagline).font(.subheadline).foregroundColor(.gray)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Text(diet.description)
-                    .font(.body)
-                    .lineSpacing(4)
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Target Macros").font(.headline)
-                    HStack(spacing: 16) {
-                        MacroBreakdownCircle(percentage: diet.macroBreakdown.fat, label: "Fat", color: .themeYellow)
-                        MacroBreakdownCircle(percentage: diet.macroBreakdown.protein, label: "Protein", color: .themePeach)
-                        MacroBreakdownCircle(percentage: diet.macroBreakdown.carbs, label: "Carbs", color: .themeOrange)
-                        Spacer()
-                    }
-                }
-                .premiumCardStyle()
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-                        Text("Best Foods").font(.headline)
-                    }
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 8)], spacing: 8) {
-                        ForEach(diet.bestFoods, id: \.self) { food in
-                            Text(food)
-                                .font(.caption).bold().padding(8).frame(maxWidth: .infinity)
-                                .background(diet.color.opacity(0.1)).foregroundColor(diet.color).cornerRadius(8)
-                        }
-                    }
-                }
-                .padding().frame(maxWidth: .infinity, alignment: .leading)
-                .background(diet.color.opacity(0.05)).cornerRadius(12)
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.red)
-                        Text("Contraindications").font(.headline)
-                    }
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(diet.contraindications, id: \.self) { warning in
-                            HStack(spacing: 8) {
-                                Image(systemName: "xmark.circle.fill").font(.caption).foregroundColor(.red)
-                                Text(warning).font(.subheadline).foregroundColor(.gray)
+        let isCurrentDiet = users.first?.activeDietName == diet.name
+        
+        ZStack(alignment: .bottom) {
+            Color.themeBg.ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // 1. STRETCHY HEADER (С улучшенной читаемостью текста)
+                    GeometryReader { geo in
+                        let minY = geo.frame(in: .global).minY
+                        let isScrollingDown = minY > 0
+                        
+                        ZStack(alignment: .bottomLeading) {
+                            // Основной цвет
+                            LinearGradient(
+                                colors: [diet.color.opacity(0.7), diet.color],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            .frame(height: isScrollingDown ? 350 + minY : 350)
+                            .offset(y: isScrollingDown ? -minY : 0)
+                            
+                            // ✅ ИСПРАВЛЕНО: Подняли иконку выше, чтобы ее было лучше видно
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 150))
+                                .foregroundColor(.white.opacity(0.15))
+                                .offset(x: 150, y: -40) // БЫЛО 20, СТАЛО -40
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(diet.name)
+                                    .font(.system(size: 48, weight: .heavy, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .shadow(color: .black.opacity(0.3), radius: 4, y: 2)
+                                    .lineLimit(2)
+                                    .minimumScaleFactor(0.8)
+
+                                Text(diet.tagline)
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white.opacity(0.95))
+                                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                             }
+                            .padding(24)
+                            .padding(.bottom, 40) // ✅ ИСПРАВЛЕНО: Добавили отступ снизу, чтобы карточка макросов не перекрывала текст
+                            .offset(y: isScrollingDown ? -minY * 0.5 : 0)
                         }
                     }
-                }
-                .padding().frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.red.opacity(0.05)).cornerRadius(12)
-                
-                // КНОПКА АКТИВАЦИИ ДИЕТЫ
-                if let user = users.first {
-                    let isCurrentDiet = user.activeDietName == diet.name
+                    .frame(height: 350)
                     
-                    Button(action: {
-                        if !isCurrentDiet {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                user.applyDietBreakdown(
-                                    fatPercent: diet.macroBreakdown.fat,
-                                    proteinPercent: diet.macroBreakdown.protein,
-                                    carbsPercent: diet.macroBreakdown.carbs,
-                                    dietName: diet.name
-                                )
-                                try? context.save()
+                    // 2. КОНТЕНТ (С наездом на шапку)
+                    VStack(spacing: 24) {
+                        // Карточка макросов
+                        HStack(spacing: 0) {
+                            MacroDonutStat(title: "Fat", percent: diet.macroBreakdown.fat, color: .themeYellow)
+                            Divider().frame(height: 50)
+                            MacroDonutStat(title: "Protein", percent: diet.macroBreakdown.protein, color: .themePeach)
+                            Divider().frame(height: 50)
+                            MacroDonutStat(title: "Carbs", percent: diet.macroBreakdown.carbs, color: .drinkWater)
+                        }
+                        .padding(20)
+                        .background(Color.white)
+                        .cornerRadius(24)
+                        .shadow(color: Color.black.opacity(0.05), radius: 15, y: 5)
+                        .offset(y: -40)
+                        .padding(.bottom, -40) // Компенсация отступа
+                        
+                        // Описание
+                        Text(diet.description)
+                            .font(.body)
+                            .lineSpacing(6)
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding(.horizontal, 24)
+                        
+                        // БЛОК "ЧТО ДАЕТ ДИЕТА"
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("What happens when you activate?")
+                                .font(.title3.bold())
+                                .padding(.horizontal, 24)
+                            
+                            VStack(spacing: 12) {
+                                DietFeatureRow(icon: "chart.pie.fill", color: .themePink, text: "Auto-adjusts your daily Protein, Fat, and Carbs targets.")
+                                DietFeatureRow(icon: "magnifyingglass", color: .green, text: "Highlights compatible & forbidden foods while searching.")
+                                DietFeatureRow(icon: "sparkles", color: .blue, text: "AI Coach adapts its advice strictly to the \(diet.name) rules.")
+                            }
+                            .padding(.horizontal, 24)
+                        }
+                        .padding(.vertical, 8)
+                        
+                        // Топ продукты
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Approved Foods").font(.title2).bold().padding(.horizontal, 24)
+                            ForEach(diet.categories) { category in
+                                PremiumFoodCategorySection(category: category, dietColor: diet.color)
+                                    .padding(.horizontal, 24)
                             }
                         }
-                    }) {
-                        HStack(spacing: 8) {
-                            if isCurrentDiet {
-                                Image(systemName: "checkmark.circle.fill")
-                                Text("Current Diet")
-                            } else {
-                                Text("Start \(diet.name) Diet")
-                            }
-                        }
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(isCurrentDiet ? Color.gray.opacity(0.6) : diet.color)
-                        .cornerRadius(12)
-                        .shadow(color: isCurrentDiet ? .clear : diet.color.opacity(0.4), radius: 5, y: 2)
+                        
+                        Spacer().frame(height: 120) // Отступ под плавающую кнопку
                     }
-                    .disabled(isCurrentDiet)
-                    .padding(.top, 10)
+                    .background(Color.themeBg)
                 }
             }
-            .padding()
-            .padding(.bottom, 20)
+            .ignoresSafeArea(edges: .top)
+            
+            // 3. ПЛАВАЮЩАЯ КНОПКА (Sticky Bottom Button)
+            if let user = users.first {
+                VStack {
+                    Spacer()
+                    ZStack {
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .frame(height: 110)
+                            .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
+                        
+                        Button(action: {
+                            HapticManager.shared.impact(style: .heavy)
+                            withAnimation(.spring()) {
+                                // ✅ ИСПРАВЛЕНО: Логика переключения диеты
+                                if isCurrentDiet {
+                                    // Если диета уже активна -> Отключаем и возвращаем стандартную "Balanced"
+                                    user.applyDietBreakdown(
+                                        fatPercent: 30,
+                                        proteinPercent: 30,
+                                        carbsPercent: 40,
+                                        dietName: "Balanced"
+                                    )
+                                } else {
+                                    // Если не активна -> Включаем эту диету
+                                    user.applyDietBreakdown(
+                                        fatPercent: diet.macroBreakdown.fat,
+                                        proteinPercent: diet.macroBreakdown.protein,
+                                        carbsPercent: diet.macroBreakdown.carbs,
+                                        dietName: diet.name
+                                    )
+                                }
+                                try? context.save()
+                            }
+                        }) {
+                            HStack {
+                                // ✅ ИСПРАВЛЕНО: Внешний вид кнопки в зависимости от статуса
+                                if isCurrentDiet {
+                                    Image(systemName: "xmark.circle.fill")
+                                    Text("Deactivate Plan")
+                                } else {
+                                    Text("Set as My Diet Plan")
+                                }
+                            }
+                            .font(.headline)
+                            .foregroundColor(isCurrentDiet ? .red : .white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 18)
+                            .background(isCurrentDiet ? Color.red.opacity(0.15) : diet.color)
+                            .cornerRadius(24)
+                            .shadow(color: isCurrentDiet ? .clear : diet.color.opacity(0.4), radius: 10, y: 5)
+                        }
+                        // .disabled(isCurrentDiet) // <--- Удалили это, теперь кнопка всегда кликабельна!
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 30)
+                    }
+                }
+                .ignoresSafeArea(edges: .bottom)
+            }
         }
-        .background(Color.themeBg)
-        .navigationTitle(diet.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .navigationBarHidden(true)
+        .overlay(
+            // Кастомная кнопка "Назад"
+            Button(action: { dismiss() }) {
+                Image(systemName: "chevron.left")
+                    .font(.title3.bold())
+                    .foregroundColor(.primary)
+                    .frame(width: 44, height: 44)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+            }
+            .padding(.leading, 20)
+            .padding(.top, 50),
+            alignment: .topLeading
+        )
+    }
+}
+// ✅ НОВЫЙ КОМПОНЕНТ ДЛЯ ОБЪЯСНЕНИЯ ФИЧ ДИЕТЫ
+struct DietFeatureRow: View {
+    let icon: String
+    let color: Color
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle().fill(color.opacity(0.15)).frame(width: 36, height: 36)
+                Image(systemName: icon).font(.system(size: 14, weight: .bold)).foregroundColor(color)
+            }
+            
+            Text(text)
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .foregroundColor(.primary.opacity(0.9))
+                .fixedSize(horizontal: false, vertical: true) // Чтобы текст не обрезался
+            
+            Spacer()
+        }
+        .padding(16)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.03), radius: 5, y: 2)
     }
 }
 
-struct MacroBreakdownCircle: View {
-    let percentage: Int
-    let label: String
-    let color: Color
+// Мини-донат график для макросов в деталях
+struct MacroDonutStat: View {
+    let title: String; let percent: Int; let color: Color
+    @State private var anim: Double = 0
     
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
-                Circle().fill(color.opacity(0.1))
-                VStack(spacing: 2) {
-                    Text("\(percentage)%").font(.headline).foregroundColor(color)
-                    Text(label).font(.caption2).foregroundColor(.gray)
-                }
-            }
-            .frame(width: 60, height: 60)
+                Circle().stroke(Color.gray.opacity(0.15), lineWidth: 6)
+                Circle().trim(from: 0, to: anim).stroke(color, style: StrokeStyle(lineWidth: 6, lineCap: .round)).rotationEffect(.degrees(-90))
+                Text("\(percent)%").font(.system(size: 14, weight: .bold, design: .rounded))
+            }.frame(width: 50, height: 50)
+            Text(title).font(.caption).foregroundColor(.gray)
         }
+        .frame(maxWidth: .infinity)
+        .onAppear { withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) { anim = Double(percent) / 100.0 } }
+    }
+}
+
+// Премиальный аккордеон продуктов
+struct PremiumFoodCategorySection: View {
+    let category: FoodCategory
+    let dietColor: Color
+    @State private var isExpanded = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
+                HStack {
+                    Text(category.title).font(.headline).foregroundColor(.primary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                        .foregroundColor(.gray)
+                }
+                .padding(20)
+                .background(Color.white)
+            }
+            
+            if isExpanded {
+                VStack(spacing: 0) {
+                    Divider().padding(.leading, 20)
+                    ForEach(category.items) { item in
+                        HStack(spacing: 16) {
+                            Text(item.icon).font(.title2).frame(width: 40, height: 40).background(dietColor.opacity(0.1)).clipShape(Circle())
+                            Text(item.name).font(.system(size: 16, weight: .medium, design: .rounded))
+                            Spacer()
+                            Text("\(item.calories) kcal").font(.subheadline.bold()).foregroundColor(dietColor)
+                        }
+                        .padding(.horizontal, 20).padding(.vertical, 12)
+                    }
+                }
+                .background(Color.white)
+            }
+        }
+        .cornerRadius(24)
+        .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
     }
 }
