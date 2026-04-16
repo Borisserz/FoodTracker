@@ -129,24 +129,36 @@ struct ContentView: View {
     }
     
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        
-        let summary: DailySummary
-        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
-            summary = existing
-        } else {
-            summary = DailySummary(date: today)
-            context.insert(summary)
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            
+            let summary: DailySummary
+            if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
+                summary = existing
+            } else {
+                summary = DailySummary(date: today)
+                context.insert(summary)
+            }
+            
+            var newFoodItems: [FoodItem] = []
+            for item in items {
+                let copiedItem = FoodItem(
+                    name: item.name, weight: item.weight, calories: item.calories,
+                    protein: item.protein, fats: item.fats, carbs: item.carbs,
+                    omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
+                    magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
+                )
+                context.insert(copiedItem)
+                newFoodItems.append(copiedItem)
+            }
+            
+            if let existingMeal = summary.meals.first(where: { $0.title == title }) {
+                existingMeal.foodItems.append(contentsOf: newFoodItems)
+            } else {
+                let newMeal = Meal(title: title, date: Date(), foodItems: newFoodItems)
+                context.insert(newMeal)
+                summary.meals.append(newMeal)
+            }
+            try? context.save()
         }
-        
-        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
-            existingMeal.foodItems.append(contentsOf: items)
-        } else {
-            let newMeal = Meal(title: title, date: Date(), foodItems: items)
-            context.insert(newMeal)
-            summary.meals.append(newMeal)
-        }
-        try? context.save()
-    }
-}
+    } 

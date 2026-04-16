@@ -222,6 +222,18 @@ struct FoodTypewriterTextView: View {
                 else { displayedText = fullText }
             }
             .onDisappear { timer?.invalidate() }
+            // ✅ ИСПРАВЛЕНИЕ: Следим за обновлениями текста от ИИ
+            .onChange(of: fullText) { _, newValue in
+                timer?.invalidate()
+                displayedText = ""
+                hasAnimated = false
+                if isAnimating {
+                    startAnimating()
+                    hasAnimated = true
+                } else {
+                    displayedText = newValue
+                }
+            }
     }
     
     private func startAnimating() {

@@ -3,19 +3,29 @@
 import SwiftUI
 import SwiftData
 
+
 // MARK: - 1. ГЛАВНЫЙ ЭКРАН (Bento Box + Кнопка чата)
 struct AICoachDashboardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
     
+    // Стейты агентов
+    @State private var isFixingMacros = false
+    @State private var isFixingHydration = false
+    @State private var macroAdvice: MacroFixAdviceDTO? = nil
+    @State private var hydrationAdvice: HydrationAdviceDTO? = nil
+
     let selectedDate: Date
     
+    // Стейты основного анализа (✅ ТУТ БЫЛА ОШИБКА, ДОБАВЛЕН @)
     @State private var isAnalyzing = false
-    @State private var verdictTitle: String = "Analyzing your day..."
-    @State private var verdictMessage: String = "The AI Coach is reviewing your macros and calculating recommendations."
-    @State private var verdictMood: String = "perfect"
+    @State private var hasAnalyzedToday = false
+    @State private var verdictTitle: String = "AI Daily Review"
+    @State private var verdictMessage: String = "Tap the button below to analyze your calories, macros, and get a personalized summary for today."
+    @State private var verdictMood: String = "neutral"
     
+    // Стейты рецептов из холодильника
     @State private var fridgeInput: String = ""
     @State private var isGeneratingRecipe = false
     @State private var generatedRecipe: AIRecipeDTO? = nil
@@ -26,11 +36,7 @@ struct AICoachDashboardView: View {
         if let existing = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
             return existing
         } else {
-            // Если для текущего дня нет записи, создаем ее
-            let newSummary = DailySummary(date: startOfDay)
-            // Важно: в SwiftUI view нельзя напрямую изменять базу, но @Query это делает за нас.
-            DispatchQueue.main.async { context.insert(newSummary) }
-            return newSummary
+            return DailySummary(date: startOfDay)
         }
     }
     
@@ -100,14 +106,30 @@ struct AICoachDashboardView: View {
                             title: verdictTitle,
                             message: verdictMessage,
                             moodColor: moodColors[0],
-                            isLoading: isAnalyzing
+                            isLoading: isAnalyzing,
+                            hasAnalyzed: hasAnalyzedToday, // ✅ ПЕРЕДАЕМ НОВЫЙ ПАРАМЕТР
+                            onAnalyze: { runDailyAnalysis() } // ✅ ДЕЙСТВИЕ ДЛЯ КНОПКИ
                         )
                         
                         HStack(spacing: 16) {
-                            AIFixCard(title: "Fix Macros", icon: "chart.pie.fill", color: moodColors[1], action: { runDailyAnalysis(forceRefresh: true) })
-                            AIFixCard(title: "Hydration", icon: "drop.fill", color: .cyan, action: { })
+                            AIFixCard(
+                                title: "Fix Macros",
+                                icon: "chart.pie.fill",
+                                color: .themeYellow,
+                                isLoading: isFixingMacros,
+                                action: { analyzeMacros() }
+                            )
+                            
+                            AIFixCard(
+                                title: "Hydration",
+                                icon: "drop.fill",
+                                color: .cyan,
+                                isLoading: isFixingHydration,
+                                action: { analyzeHydration() }
+                            )
                         }
                         .padding(.horizontal)
+
                         
                         fridgeToRecipeSection
                         
@@ -115,9 +137,19 @@ struct AICoachDashboardView: View {
                     .padding(.bottom, 120)
                 }
             }
-            .onAppear {
-                if verdictTitle == "Analyzing your day..." { runDailyAnalysis() }
+            .sheet(item: $macroAdvice) { advice in
+                MacroFixResultSheet(advice: advice, color: .themeYellow)
+                    .presentationDetents([.medium, .large])
+                    .presentationCornerRadius(32)
+                    .presentationDragIndicator(.visible)
             }
+            .sheet(item: $hydrationAdvice) { advice in
+                HydrationFixResultSheet(advice: advice, color: .cyan)
+                    .presentationDetents([.height(300)])
+                    .presentationCornerRadius(32)
+                    .presentationDragIndicator(.visible)
+            }
+
         }
     }
     
@@ -179,25 +211,34 @@ struct AICoachDashboardView: View {
     }
     
     private func runDailyAnalysis(forceRefresh: Bool = false) {
-        guard let user = currentUser else { return }
-        let cals = currentSummary.totalCalories; let goal = user.dailyCaloriesGoal
-        let protein = currentSummary.totalProtein; let targetP = user.targetProtein
-        
-        withAnimation { isAnalyzing = true }
-        
-        Task {
-            if let verdict = await AINutritionService.shared.generateDailyVerdict(consumed: cals, goal: goal, protein: protein, targetProtein: targetP) {
-                await MainActor.run { withAnimation(.spring()) {
-                    self.verdictTitle = verdict.title; self.verdictMessage = verdict.message; self.verdictMood = verdict.mood; self.isAnalyzing = false
-                }}
-            } else {
-                await MainActor.run { withAnimation(.spring()) {
-                    if cals > goal { self.verdictMood = "danger" } else if cals < goal / 2 { self.verdictMood = "warning" } else { self.verdictMood = "perfect" }
-                    self.verdictTitle = "Data Collected"; self.verdictMessage = "You've eaten \(cals) kcal out of \(goal). Keep tracking to stay on top of your goals!"; self.isAnalyzing = false
-                }}
+            guard let user = currentUser else { return }
+            let cals = currentSummary.totalCalories; let goal = user.dailyCaloriesGoal
+            let protein = currentSummary.totalProtein; let targetP = user.targetProtein
+            
+            HapticManager.shared.impact(style: .medium)
+            withAnimation { isAnalyzing = true }
+            
+            Task {
+                if let verdict = await AINutritionService.shared.generateDailyVerdict(consumed: cals, goal: goal, protein: protein, targetProtein: targetP) {
+                    await MainActor.run { withAnimation(.spring()) {
+                        self.verdictTitle = verdict.title
+                        self.verdictMessage = verdict.message
+                        self.verdictMood = verdict.mood
+                        self.hasAnalyzedToday = true // ✅ Помечаем, что анализ прошел
+                        self.isAnalyzing = false
+                        HapticManager.shared.impact(style: .heavy)
+                    }}
+                } else {
+                    await MainActor.run { withAnimation(.spring()) {
+                        if cals > goal { self.verdictMood = "danger" } else if cals < goal / 2 { self.verdictMood = "warning" } else { self.verdictMood = "perfect" }
+                        self.verdictTitle = "Data Collected"
+                        self.verdictMessage = "You've eaten \(cals) kcal out of \(goal)."
+                        self.hasAnalyzedToday = true // ✅ Помечаем, что анализ прошел (даже при ошибке)
+                        self.isAnalyzing = false
+                    }}
+                }
             }
         }
-    }
     
     private func generateSmartRecipe() {
         guard let user = currentUser else { return }
@@ -211,7 +252,49 @@ struct AICoachDashboardView: View {
             } else { await MainActor.run { self.isGeneratingRecipe = false } }
         }
     }
-    
+    private func analyzeMacros() {
+            guard let user = currentUser else { return }
+            HapticManager.shared.impact(style: .medium)
+            isFixingMacros = true
+            
+            let missingCals = user.dailyCaloriesGoal - currentSummary.totalCalories
+            let missingP = Int(user.targetProtein - currentSummary.totalProtein)
+            let missingF = Int(user.targetFats - currentSummary.totalFats)
+            let missingC = Int(user.targetCarbs - currentSummary.totalCarbs)
+            
+            Task {
+                if let advice = await AINutritionService.shared.getMacroFixAdvice(missingCals: missingCals, missingProtein: missingP, missingFats: missingF, missingCarbs: missingC) {
+                    await MainActor.run {
+                        self.macroAdvice = advice
+                        self.isFixingMacros = false // Останавливаем крутилку
+                        HapticManager.shared.impact(style: .heavy)
+                    }
+                } else {
+                    await MainActor.run {
+                        print("❌ Не удалось получить совет по макросам от ИИ")
+                        self.isFixingMacros = false // Останавливаем крутилку даже при ошибке
+                    }
+                }
+            }
+        }
+    private func analyzeHydration() {
+        HapticManager.shared.impact(style: .medium)
+        isFixingHydration = true
+        
+        let drank = currentSummary.totalHydrationLiters
+        
+        Task {
+            if let advice = await AINutritionService.shared.getHydrationAdvice(drankLiters: drank, goalLiters: 2.5) {
+                await MainActor.run {
+                    self.isFixingHydration = false
+                    self.hydrationAdvice = advice
+                    HapticManager.shared.impact(style: .heavy)
+                }
+            } else {
+                await MainActor.run { self.isFixingHydration = false }
+            }
+        }
+    }
     private func saveGeneratedRecipe(_ recipeDTO: AIRecipeDTO) {
         let newRecipe = CustomRecipe(
             name: recipeDTO.name, info: recipeDTO.info,
@@ -228,50 +311,263 @@ struct DailyVerdictGlassCard: View {
     let message: String
     let moodColor: Color
     let isLoading: Bool
+    let hasAnalyzed: Bool // ✅
+    let onAnalyze: () -> Void // ✅
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Daily Verdict").font(.caption.bold()).textCase(.uppercase).foregroundColor(moodColor)
+                Text("Daily Verdict")
+                    .font(.caption.bold())
+                    .textCase(.uppercase)
+                    .foregroundColor(hasAnalyzed ? moodColor : .gray)
                 Spacer()
                 if isLoading { ProgressView().tint(moodColor) }
             }
-            Text(title).font(.title2.bold()).foregroundColor(.primary).contentTransition(.interpolate)
             
-            // FoodTypewriterTextView берется из AICoachChatView.swift, он доступен глобально
-            FoodTypewriterTextView(fullText: message, isAnimating: !isLoading)
+            Text(title)
+                .font(.title2.bold())
+                .foregroundColor(.primary)
+                .contentTransition(.interpolate)
+            
+            FoodTypewriterTextView(fullText: message, isAnimating: !isLoading && hasAnalyzed)
                 .font(.body)
                 .foregroundColor(.textGray)
                 .lineSpacing(4)
+            
+            // ✅ КНОПКА ПОЯВЛЯЕТСЯ, ТОЛЬКО ЕСЛИ АНАЛИЗ ЕЩЕ НЕ ДЕЛАЛИ
+            if !hasAnalyzed && !isLoading {
+                Button(action: onAnalyze) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                        Text("Analyze My Day")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
+                    .cornerRadius(16)
+                    .shadow(color: Color.themePink.opacity(0.3), radius: 8, y: 4)
+                }
+                .buttonStyle(BounceButtonStyle())
+                .padding(.top, 8)
+            }
         }
         .padding(20)
         .background(.ultraThinMaterial)
         .cornerRadius(24)
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(moodColor.opacity(0.3), lineWidth: 1.5))
-        .shadow(color: moodColor.opacity(0.15), radius: 15, y: 5)
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(hasAnalyzed ? moodColor.opacity(0.3) : Color.gray.opacity(0.2), lineWidth: 1.5))
+        .shadow(color: hasAnalyzed ? moodColor.opacity(0.15) : .black.opacity(0.05), radius: 15, y: 5)
         .padding(.horizontal)
     }
 }
 
 struct AIFixCard: View {
-    let title: String; let icon: String; let color: Color; let action: () -> Void
+    let title: String
+    let icon: String
+    let color: Color
+    let isLoading: Bool // НОВОЕ: Состояние загрузки
+    let action: () -> Void
+    
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            if !isLoading { action() }
+        }) {
             VStack(alignment: .leading, spacing: 16) {
                 ZStack {
-                    Circle().fill(color.opacity(0.2)).frame(width: 40, height: 40)
-                    Image(systemName: icon).foregroundColor(color).font(.title3)
+                    Circle()
+                        .fill(color.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: icon)
+                        .foregroundColor(color)
+                        .font(.system(size: 20, weight: .semibold))
                 }
-                Text(title).font(.headline).foregroundColor(.primary)
-                HStack {
-                    Text("Auto-analyze").font(.caption).foregroundColor(.gray)
-                    Spacer()
-                    Image(systemName: "chevron.right").font(.caption).foregroundColor(color)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                    
+                    HStack {
+                        Text(isLoading ? "Analyzing..." : "Auto-analyze")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.gray)
+                        Spacer()
+                        
+                        // АНИМАЦИЯ ЗАГРУЗКИ ИЛИ СТРЕЛОЧКА
+                        if isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: color))
+                                .scaleEffect(0.8)
+                        } else {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(color)
+                        }
+                    }
                 }
             }
-            .frame(maxWidth: .infinity)
-            .premiumCardStyle()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(Color.white)
+            .cornerRadius(24)
+            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+            // Плавное свечение при загрузке
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(isLoading ? color.opacity(0.3) : Color.clear, lineWidth: 2)
+                    .animation(.easeInOut(duration: 1).repeatForever(), value: isLoading)
+            )
         }
         .buttonStyle(BounceButtonStyle())
+    }
+}
+struct MacroFixResultSheet: View {
+    @Environment(\.dismiss) var dismiss
+    let advice: MacroFixAdviceDTO
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Capsule()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 40, height: 5)
+                .padding(.top, 10)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: "sparkles")
+                        .foregroundColor(color)
+                    Text("AI Coach Recommendation")
+                        .font(.caption.bold())
+                        .foregroundColor(color)
+                        .textCase(.uppercase)
+                }
+                
+                Text(advice.title)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                
+                Text(advice.explanation)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
+            
+            if !advice.suggestedSnacks.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Perfect Matches for You:")
+                        .font(.headline)
+                        .padding(.horizontal, 24)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(advice.suggestedSnacks, id: \.self) { snack in
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(snack.name)
+                                        .font(.headline)
+                                        .lineLimit(2)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    
+                                    Spacer()
+                                    
+                                    HStack {
+                                        Label("\(snack.calories) kcal", systemImage: "flame.fill")
+                                            .foregroundColor(.themeOrange)
+                                        Spacer()
+                                        Text("\(snack.protein)g P")
+                                            .bold()
+                                            .foregroundColor(.themePeach)
+                                    }
+                                    .font(.caption)
+                                }
+                                .padding(16)
+                                .frame(width: 200, height: 120)
+                                .background(Color.themeBg)
+                                .cornerRadius(20)
+                                .overlay(RoundedRectangle(cornerRadius: 20).stroke(color.opacity(0.3), lineWidth: 1))
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            Button(action: { dismiss() }) {
+                Text("Got it")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(color)
+                    .cornerRadius(20)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
+        }
+        .background(Color.white)
+    }
+}
+
+struct HydrationFixResultSheet: View {
+    @Environment(\.dismiss) var dismiss
+    let advice: HydrationAdviceDTO
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Capsule()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 40, height: 5)
+                .padding(.top, 10)
+            
+            ZStack {
+                Circle().fill(color.opacity(0.15)).frame(width: 80, height: 80)
+                Image(systemName: "drop.fill").font(.system(size: 40)).foregroundColor(color)
+            }
+            
+            VStack(spacing: 8) {
+                Text(advice.title)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                
+                Text(advice.message)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+            
+            Spacer()
+            
+            HStack(spacing: 16) {
+                Button(action: { dismiss() }) {
+                    Text("Close")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(20)
+                }
+                
+                // В будущем сюда можно привязать добавление стакана воды
+                Button(action: { dismiss() }) {
+                    Text("Drink Now")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(color)
+                        .cornerRadius(20)
+                        .shadow(color: color.opacity(0.4), radius: 8, y: 4)
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
+        }
+        .background(Color.white)
     }
 }

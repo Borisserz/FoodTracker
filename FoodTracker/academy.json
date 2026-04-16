@@ -1,0 +1,319 @@
+[
+  {
+    "id": "course-1",
+    "title": "Course 1: Nutrition Fundamentals",
+    "completedCount": 1,
+    "articles": [
+      {
+        "id": "art-1",
+        "title": "The Golden Rule of Weight Loss",
+        "subtitle": "Calories in vs. Calories out explained simply.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#4CAF50",
+        "colorHex2": "#009688",
+        "iconName": "scale.3d",
+        "content": "## The Science of Weight Loss\n\nAt its core, changing your body weight comes down to one fundamental law of thermodynamics: **Energy Balance**.\n\nEverything you eat and drink contains energy, measured in calories. Your body uses this energy to keep you alive (breathing, pumping blood) and to move.\n\n### The 3 States of Energy Balance:\n\n1. **Maintenance**: You consume exactly the same amount of calories as you burn. Your weight stays the same.\n2. **Caloric Surplus**: You consume MORE calories than you burn. Your body stores the extra energy, usually as fat. You gain weight.\n3. **Caloric Deficit**: You consume FEWER calories than you burn. Your body is forced to use stored fat for energy. **You lose weight.**\n\n### Why does this matter?\nBecause it means there are **no inherently 'fattening' foods**. You can gain weight eating perfectly clean, healthy food if you eat too much of it. And you can lose weight eating pizza, as long as you remain in a caloric deficit.\n\n*Tip: Focus on hitting your daily calorie goal first. It's the foundation of everything else.*"
+      },
+      {
+        "id": "art-2",
+        "title": "Mastering Macronutrients",
+        "subtitle": "Why protein, fats, and carbs all matter.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#FF9800",
+        "colorHex2": "#FFC107",
+        "iconName": "chart.pie.fill",
+        "content": "## Meet the Macros\n\nIf calories determine **how much** weight you lose, macronutrients determine **what kind** of weight you lose (fat vs. muscle) and how you feel during the process.\n\n### 🥩 Protein (4 kcal/g)\nProtein is the building block of your body. \n* **Why you need it:** It preserves your muscle mass while you lose fat. It is also the most highly satiating nutrient, meaning it keeps you full for longer.\n* **Sources:** Chicken, eggs, tofu, greek yogurt, fish.\n\n### 🥑 Fats (9 kcal/g)\nFats have a bad reputation, but they are essential.\n* **Why you need it:** Hormone regulation (including testosterone and estrogen), brain health, and vitamin absorption.\n* **Sources:** Avocados, nuts, olive oil, salmon.\n\n### 🍚 Carbohydrates (4 kcal/g)\nCarbs are your body's preferred energy source.\n* **Why you need it:** They fuel your brain and your workouts. When you feel tired and sluggish on a diet, it's often due to extremely low carbs.\n* **Sources:** Rice, potatoes, fruits, oats.\n\n**Takeaway:** Don't cut out any macronutrient. Balance is the key to a sustainable diet."
+      },
+      {
+        "id": "art-3",
+        "title": "The Hidden Power of Fiber",
+        "subtitle": "The secret to staying full and healthy digestion.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#9C27B0",
+        "iconName": "leaf.fill",
+        "content": "## What is Fiber?\n\nFiber is a type of carbohydrate that your body cannot digest. Instead of breaking it down for energy, it passes through your system, providing incredible health benefits along the way.\n\n### Why Fiber is a Dieters Best Friend:\n1. **Massive Satiety:** Fiber absorbs water and expands in your stomach, sending strong 'I am full' signals to your brain.\n2. **Blood Sugar Control:** It slows down the absorption of sugar, preventing energy crashes and sugar cravings.\n3. **Gut Health:** It feeds the good bacteria in your microbiome.\n\n### How much do you need?\nAim for **25-30 grams** per day. \n*Top sources include:* Beans, lentils, oats, raspberries, and chia seeds."
+      },
+      {
+        "id": "art-4",
+        "title": "Hydration: The Unsung Hero",
+        "subtitle": "Why water is crucial for fat loss.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#03A9F4",
+        "colorHex2": "#00BCD4",
+        "iconName": "drop.fill",
+        "content": "## Water & Weight Loss\n\nWater is involved in almost every biological process, including lipolysis (the burning of fat). If you are dehydrated, your body cannot efficiently metabolize fat or carbohydrates.\n\n### The 'False Hunger' Trap\nOften, when you feel hungry, your body is actually just thirsty. The signals for thirst and hunger come from the same part of the brain (the hypothalamus). \n\n**Action Step:** Next time you feel a random craving, drink a large glass of water and wait 15 minutes. The craving will often disappear.\n\nAim for at least 2.5 to 3 liters of water a day, especially if you are working out."
+      },
+      {
+        "id": "art-5",
+        "title": "How to Track Food Accurately",
+        "subtitle": "Stop guessing and start measuring.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#607D8B",
+        "colorHex2": "#455A64",
+        "iconName": "scalemass.fill",
+        "content": "## The Kitchen Scale is Your Friend\n\nMost people vastly underestimate how much they eat. A 'tablespoon' of peanut butter can easily be 3 tablespoons if you just use a normal spoon, turning a 90-calorie snack into a 300-calorie bomb.\n\n### Rules of Tracking:\n1. **Weigh raw/uncooked:** Meat shrinks when cooked (loses water), rice expands (absorbs water). Always weigh food in its raw state for accuracy, unless the app specifically says 'cooked'.\n2. **Don't forget liquid calories and oils:** A splash of olive oil in the pan is 120 calories. A splash of cream in your coffee is 50 calories. Track it all.\n3. **Volume vs. Weight:** Measuring cups (cups, spoons) measure volume, not weight. For absolute accuracy, always use grams on a digital scale."
+      }
+    ]
+  },
+  {
+    "id": "course-2",
+    "title": "Course 2: Mindset & Psychology",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-6",
+        "title": "Why You Binge & How to Stop",
+        "subtitle": "Breaking the restrict-binge cycle forever.",
+        "readTime": 6,
+        "isLocked": false,
+        "colorHex1": "#2196F3",
+        "colorHex2": "#3F51B5",
+        "iconName": "brain.head.profile",
+        "content": "## The Restrict-Binge Cycle\n\nMost people think they binge eat because they lack willpower. In reality, bingeing is often a biological and psychological response to **over-restriction**.\n\nWhen you cut your calories too low, or ban your favorite foods entirely, your brain enters survival mode. It will obsess over the restricted food until you finally give in—and because you feel guilty, you eat as much of it as possible. \n\n### How to break the cycle:\n\n1. **Stop labeling foods as 'Good' or 'Bad'**\nFood is just data. An apple has different data than a donut, but eating a donut doesn't make you a bad person.\n2. **The 80/20 Rule**\nGet 80% of your calories from whole, nutritious foods, and save 20% for treats you genuinely love. \n3. **Eat enough protein and fiber**\nYou are much less likely to binge when you are physically full.\n\nRemember: A diet you can stick to for 5 years is better than a diet you can stick to for 5 days."
+      },
+      {
+        "id": "art-7",
+        "title": "Dealing with the Scale",
+        "subtitle": "Why your weight fluctuates daily and why it's normal.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#00BCD4",
+        "colorHex2": "#2196F3",
+        "iconName": "arrow.up.arrow.down",
+        "content": "## The Scale Lies\n\nStepped on the scale and saw you gained 2 lbs overnight? **Don't panic. You didn't gain 2 lbs of fat.**\n\nTo gain 2 lbs of actual body fat, you would need to eat an extra 7,000 calories over your maintenance level. Unless you drank a gallon of heavy cream yesterday, that didn't happen.\n\n### What causes daily fluctuations?\n\n1. **Carbohydrates and Water:** For every 1 gram of carbs you eat, your body stores about 3 grams of water. Ate sushi or pasta last night? Your weight will spike due to water retention.\n2. **Sodium (Salt):** High salt intake causes your body to hold onto water.\n3. **Digestion:** Food physically has weight. If you haven't gone to the bathroom, that weight is still inside you.\n4. **Stress & Sleep:** High cortisol levels lead to water retention.\n\n**Pro Tip:** Weigh yourself daily, but look at the **weekly average**. The trend is what matters, not the daily number."
+      },
+      {
+        "id": "art-8",
+        "title": "The 'All or Nothing' Trap",
+        "subtitle": "Ate a cookie? Why the day isn't ruined.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#F44336",
+        "colorHex2": "#FF9800",
+        "iconName": "exclamationmark.triangle.fill",
+        "content": "## The Flat Tire Analogy\n\nImagine you are driving and you get a flat tire. Do you get out of the car and slash the other three tires? Of course not. You fix the flat and keep driving.\n\nSo why do we do this with our diets?\n\nYou eat a cookie at the office. You think: *'Well, I ruined my diet for today. I might as well order a large pizza for dinner and start again on Monday.'*\n\n### The Math of a Slip-up\nOne cookie is 200 calories. That is a tiny blip in your weekly calorie allowance. But the pizza you ordered because you 'gave up' is 2,000 calories. The cookie didn't ruin your progress—the reaction to it did.\n\n**Action Step:** If you overeat, don't compensate. Don't starve yourself the next day. Just return to your normal meals at the very next opportunity."
+      },
+      {
+        "id": "art-9",
+        "title": "Motivation vs. Discipline",
+        "subtitle": "Why motivation will always fail you.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#673AB7",
+        "colorHex2": "#3F51B5",
+        "iconName": "bolt.fill",
+        "content": "## The Motivation Myth\n\nMotivation is an emotion. And like all emotions (happiness, sadness, anger), it is temporary and fleeting.\n\nYou cannot rely on motivation to go to the gym or prep your meals, because there will be days when you are tired, stressed, or just don't feel like it.\n\n### Enter Discipline\nDiscipline is doing what needs to be done, even when you don't want to do it. Discipline is a muscle that must be trained.\n\n**How to build discipline:**\n* **Reduce friction:** Pack your gym bag the night before. Pre-cook your meals. Make the right choice the easiest choice.\n* **The 5-Minute Rule:** Don't want to workout? Tell yourself you'll just do a 5-minute warmup. Usually, once you start, momentum takes over and you finish the workout."
+      }
+    ]
+  },
+  {
+    "id": "course-3",
+    "title": "Course 3: Real-World Lifestyle",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-10",
+        "title": "How to Eat Out and Stay on Track",
+        "subtitle": "Restaurant survival guide for calorie counters.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#FF5722",
+        "colorHex2": "#E91E63",
+        "iconName": "fork.knife",
+        "content": "## Dining Out Without Freaking Out\n\nRestaurants want food to taste incredible, which usually means cooking with massive amounts of butter and oil. But you don't have to be a hermit to lose weight.\n\n### Survival Tactics:\n1. **Pre-log your meal:** Look at the menu online before you go. Decide what you are going to eat, log it in the app, and build the rest of your day's calories around it.\n2. **Protein and Veggies:** Look for meals centered around a lean protein (grilled chicken, steak, fish) and vegetables. Avoid words like *crispy, fried, creamy, or glazed*.\n3. **Dressings on the side:** Ask for salads with dressing on the side. Dip your fork in the dressing before taking a bite of salad. You'll use 80% less dressing.\n4. **Don't drink your calories:** Stick to Diet Coke, water, or zero-calorie drinks."
+      },
+      {
+        "id": "art-11",
+        "title": "Alcohol and Weight Loss",
+        "subtitle": "Can you drink wine and still lose fat?",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#9C27B0",
+        "colorHex2": "#673AB7",
+        "iconName": "wineglass.fill",
+        "content": "## Liquid Calories\n\nYes, you can absolutely enjoy alcohol and lose weight. However, alcohol is often the 'silent killer' of diets. Here is why:\n\n1. **It has calories (7 kcal/g)**\nAlcohol is the 4th macronutrient. A standard glass of wine has ~120 calories. A cocktail like a Margarita can have over 300 calories because of the added sugars.\n\n2. **It stops fat burning**\nYour body views alcohol as a toxin. When you drink, your liver stops burning fat and focuses entirely on processing the alcohol out of your system.\n\n3. **The 'Munchies'**\nAlcohol lowers your inhibitions. You might perfectly track your calories all day, but after 3 beers, that late-night pizza suddenly sounds like a great idea.\n\n### Smart Drinking Tips:\n* Stick to clear spirits with zero-calorie mixers (Vodka Soda is ~90 kcal).\n* Alternate every alcoholic drink with a large glass of water.\n* Pre-log your drinks in the app before you go out."
+      },
+      {
+        "id": "art-12",
+        "title": "Sleep: The Ultimate Fat Burner",
+        "subtitle": "How bad sleep sabotages your diet.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#3F51B5",
+        "colorHex2": "#212121",
+        "iconName": "moon.zzz.fill",
+        "content": "## The Secret Weapon\n\nYou can have the perfect diet and the perfect workout routine, but if your sleep is terrible, you are fighting an uphill battle.\n\n### What happens when you are sleep deprived?\n1. **Hormonal Chaos:** Leptin (the hormone that makes you feel full) drops. Ghrelin (the hormone that makes you hungry) spikes. You wake up ravenously hungry.\n2. **Cravings:** Your brain looks for quick energy to combat fatigue, leading to intense cravings for sugar and carbs.\n3. **Muscle Loss:** In a study comparing two groups on the exact same caloric deficit, the group that slept 8.5 hours lost mostly fat. The group that slept 5.5 hours lost exactly the same amount of weight, but *half of it was muscle mass*.\n\nAim for 7-9 hours of quality sleep every night."
+      },
+      {
+        "id": "art-13",
+        "title": "Surviving Holidays & Vacations",
+        "subtitle": "Enjoy your time off without undoing progress.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#009688",
+        "colorHex2": "#4CAF50",
+        "iconName": "airplane",
+        "content": "## Vacation Mode\n\nVacations and holidays are meant to be enjoyed. The goal isn't necessarily to lose weight during a vacation, but rather to **minimize the damage** while maximizing the fun.\n\n### 1. Intermittent Fasting\nIf you know you are going to have a massive dinner with drinks, skip breakfast. Have a light, high-protein lunch. This saves thousands of calories for the evening.\n\n### 2. Prioritize Protein\nMake sure every meal has a solid source of protein. It will keep you full and prevent you from endlessly snacking on junk.\n\n### 3. Stay Active\nWalk everywhere. Explore the city on foot, swim in the ocean, or do a quick 15-minute bodyweight workout in your hotel room. \n\nRemember, a 1-week vacation won't ruin your body, just like 1 week of dieting won't give you a six-pack."
+      }
+    ]
+  },
+  {
+    "id": "course-4",
+    "title": "Course 4: Busted Fitness Myths",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-14",
+        "title": "Do Carbs at Night Make You Fat?",
+        "subtitle": "Spoiler: Your body doesn't have a clock.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#795548",
+        "colorHex2": "#212121",
+        "iconName": "clock.badge.exclamationmark",
+        "content": "## The 6 PM Myth\n\nOne of the most persistent myths in fitness is that eating carbohydrates after 6 PM will magically turn into fat because your metabolism 'slows down' at night.\n\n**This is 100% false.**\n\nYour body does not have a clock that redirects food to your fat cells after sunset. Weight loss is dictated by total daily caloric intake.\n\nIf your maintenance calories are 2,000, and you eat 1,500 calories of pure pasta at 11:00 PM right before bed... **you will still lose weight.**\n\nEat your carbs whenever it fits your lifestyle and helps you perform best!"
+      },
+      {
+        "id": "art-15",
+        "title": "The Truth About 'Detox' Diets",
+        "subtitle": "Why you already have the best detox system.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#8BC34A",
+        "colorHex2": "#009688",
+        "iconName": "drop.triangle.fill",
+        "content": "## Detox Teas and Juice Cleanses\n\nCompanies make billions of dollars selling 'detox' teas, juices, and pills promising to flush toxins from your body and melt fat.\n\n### The Reality:\nYou already have the most advanced, high-tech detox system in the known universe. It's called your **liver and your kidneys**.\n\nIf your liver and kidneys stopped detoxing your body, you wouldn't need a juice cleanse—you would need an emergency room.\n\n### Why do people lose weight on cleanses?\nBecause a juice cleanse puts you in a massive caloric deficit (often under 800 calories a day). You lose water weight and glycogen rapidly. The moment you eat solid food again, the weight comes right back. Save your money."
+      },
+      {
+        "id": "art-16",
+        "title": "Does Breakfast Boost Metabolism?",
+        "subtitle": "Is breakfast really the most important meal?",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#FFC107",
+        "colorHex2": "#FF5722",
+        "iconName": "sunrise.fill",
+        "content": "## The Cereal Industry Lie\n\nThe phrase \"Breakfast is the most important meal of the day\" was actually coined in a marketing campaign by a cereal company in the 19th century.\n\nSkipping breakfast **does not** slow down your metabolism. In fact, many people use Intermittent Fasting (skipping breakfast) as a highly effective tool to control their daily calories.\n\n* **If you wake up hungry:** Eat a high-protein breakfast to start your day strong.\n* **If you aren't hungry:** Don't force yourself to eat. Have a coffee or water and wait for lunch. You just saved yourself 400+ calories."
+      },
+      {
+        "id": "art-17",
+        "title": "'Fat-Burning' Foods: Fact or Fiction?",
+        "subtitle": "Can grapefruit and celery burn fat?",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#F44336",
+        "iconName": "flame.fill",
+        "content": "## The Negative Calorie Myth\n\nArticles often claim that foods like celery, grapefruit, or chili peppers have 'negative calories' or actively burn fat.\n\nWhile the Thermic Effect of Food (TEF) means your body burns calories digesting food (especially protein), **no food burns more calories than it contains.**\n\nCelery is great for weight loss because it is extremely low in calories and high in water/fiber, making you full. But eating a stick of celery does not magically melt fat off your stomach. Only a caloric deficit does."
+      }
+    ]
+  },
+  {
+    "id": "course-5",
+    "title": "Course 5: Fueling Your Workouts",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-18",
+        "title": "Pre-Workout Nutrition 101",
+        "subtitle": "What to eat before hitting the gym.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#3F51B5",
+        "colorHex2": "#00BCD4",
+        "iconName": "figure.run",
+        "content": "## Fueling the Machine\n\nWhat you eat before a workout dictates your energy levels, strength, and endurance.\n\n### The Perfect Pre-Workout Meal\nYou want a combination of **Carbohydrates** (for fast energy) and **Protein** (to protect muscle).\n\n* **Timing:** Eat 1 to 2 hours before training.\n* **Avoid:** High-fat meals right before training. Fat slows down digestion and can make you feel sluggish and nauseous during intense exercise.\n\n**Great Pre-Workout Snacks:**\n* A banana and a scoop of whey protein.\n* Oatmeal with a handful of berries.\n* Greek yogurt with honey."
+      },
+      {
+        "id": "art-19",
+        "title": "Post-Workout Recovery",
+        "subtitle": "Is the 'Anabolic Window' real?",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#4CAF50",
+        "colorHex2": "#8BC34A",
+        "iconName": "dumbbell.fill",
+        "content": "## The Anabolic Window Myth\n\nFor decades, bodybuilders believed that if you didn't drink a protein shake within exactly 30 minutes of finishing your workout, your muscles would fall off and the workout was wasted.\n\nScience has proven this false. The 'anabolic window' actually lasts for **24 to 48 hours** after a workout.\n\n### What really matters:\nAs long as you hit your **total daily protein goal** by the end of the day, meal timing is largely irrelevant for the average gym-goer. Eat a solid meal with protein and carbs when you get home, but there is no need to sprint to your locker room for a shake."
+      },
+      {
+        "id": "art-20",
+        "title": "Do You Need Protein Powder?",
+        "subtitle": "The truth about supplements.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#FF9800",
+        "colorHex2": "#FF5722",
+        "iconName": "cup.and.saucer.fill",
+        "content": "## The Magic Powder?\n\nProtein powder is not steroids. It is not a magic muscle-building substance. **It is literally just food.**\n\nWhey protein is derived from milk (it's a byproduct of cheese production). It is exactly the same as getting protein from a chicken breast or a carton of eggs.\n\n### Why use it?\n1. **Convenience:** It's fast, easy, and requires no cooking.\n2. **Cost-Effective:** Per gram of protein, whey is often cheaper than meat.\n3. **Digestion:** It digests quickly, making it great around workout times.\n\nIf you can hit your daily protein goal eating real food, you do not need protein powder. But it is a fantastic, convenient tool."
+      },
+      {
+        "id": "art-21",
+        "title": "Cardio vs. Weights for Fat Loss",
+        "subtitle": "Which is actually better?",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#9C27B0",
+        "iconName": "figure.strengthtraining.traditional",
+        "content": "## The Ultimate Showdown\n\nWhen people want to lose weight, they usually jump on a treadmill. But is that the best way?\n\n### Cardio (Running, Cycling)\nCardio burns more calories *during* the actual activity than lifting weights. It is great for heart health and cardiovascular endurance.\n\n### Weightlifting (Resistance Training)\nLifting weights builds muscle. Muscle is metabolically active tissue, meaning **it burns calories even while you are resting**. The more muscle you have, the higher your BMR (Basal Metabolic Rate).\n\nFurthermore, lifting weights ensures that the weight you lose comes from fat, not muscle, giving you a 'toned' look rather than just becoming a smaller version of your current self.\n\n**The Verdict:** The absolute best approach for fat loss is a Caloric Deficit + Weightlifting (to build/keep muscle) + Light Cardio (for heart health and extra calorie burn)."
+      }
+    ]
+  },
+  {
+    "id": "course-6",
+    "title": "Course 6: Advanced Dietary Strategies",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-22",
+        "title": "Intermittent Fasting Explained",
+        "subtitle": "Is skipping breakfast the secret to fat loss?",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#212121",
+        "colorHex2": "#607D8B",
+        "iconName": "timer",
+        "content": "## What is IF?\n\nIntermittent Fasting (IF) is an eating pattern that cycles between periods of fasting and eating. The most popular method is **16:8** (fast for 16 hours, eat all meals within an 8-hour window).\n\n### Does it work magic?\nNo. IF does not magically burn fat. It works because it is a brilliantly simple way to **restrict calories**.\n\nBy skipping breakfast and eliminating late-night snacking, you simply have less time to eat, which usually results in eating fewer calories overall.\n\nIf you eat 3,000 calories during your 8-hour window, you will still gain weight. Use IF if it fits your lifestyle and helps you control your hunger, but don't expect magic."
+      },
+      {
+        "id": "art-23",
+        "title": "Understanding the Keto Diet",
+        "subtitle": "High fat, no carbs. Does it work?",
+        "readTime": 6,
+        "isLocked": false,
+        "colorHex1": "#FFC107",
+        "colorHex2": "#FF9800",
+        "iconName": "avocado.fill",
+        "content": "## The Ketogenic Diet\n\nKeto is an extremely low-carb, high-fat diet. By depriving your body of carbs, it enters a metabolic state called **ketosis**, where it burns fat for fuel instead of glucose.\n\n### The Pros:\n* Highly satiating (fat and protein keep you very full).\n* Rapid initial weight loss (mostly water weight from depleting glycogen).\n* Stable blood sugar levels.\n\n### The Cons:\n* Very restrictive and hard to sustain long-term.\n* Loss of explosive energy for high-intensity workouts.\n* \"Keto Flu\" during the initial adaptation phase.\n\nKeto is just another way to achieve a caloric deficit. If you love bacon, avocado, and cheese, and don't care about bread or pasta, it might be perfect for you."
+      },
+      {
+        "id": "art-24",
+        "title": "What is Carb Cycling?",
+        "subtitle": "Manipulating carbs for maximum performance.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#00BCD4",
+        "colorHex2": "#3F51B5",
+        "iconName": "chart.xyaxis.line",
+        "content": "## Next-Level Nutrition\n\nCarb cycling is an advanced dietary strategy where you alternate between high-carb and low-carb days depending on your activity level.\n\n### How it works:\n* **High-Carb Days:** Placed on your heaviest training days (like Leg Day). The carbs fuel intense performance and replenish muscle glycogen.\n* **Low-Carb Days:** Placed on rest days or light cardio days. Without carbs to burn, the body is forced to rely more on fat for fuel.\n\nThis method allows you to get the fat-burning benefits of a low-carb diet while maintaining the high performance and muscle-building benefits of a high-carb diet."
+      },
+      {
+        "id": "art-25",
+        "title": "Supplements That Actually Work",
+        "subtitle": "Stop wasting money on marketing hype.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#9C27B0",
+        "colorHex2": "#E91E63",
+        "iconName": "pills.fill",
+        "content": "## The Science-Backed Stack\n\n95% of supplements on the market are completely useless. However, there are a few that have decades of scientific research proving their effectiveness.\n\n1. **Creatine Monohydrate:** The most researched sports supplement in history. It increases strength, power output, and muscle mass by helping your body produce ATP (energy) faster.\n2. **Whey Protein:** A highly bioavailable, fast-digesting protein source to help hit your daily macro goals.\n3. **Caffeine:** The only legal, proven pre-workout performance enhancer. It increases endurance, reduces perceived exertion, and slightly boosts metabolism.\n4. **Omega-3 (Fish Oil):** Excellent for heart health, brain function, and reducing joint inflammation.\n5. **Vitamin D3:** Most of the population is deficient in Vitamin D, which is crucial for immune function, bone health, and hormone regulation."
+      }
+    ]
+  }
+]

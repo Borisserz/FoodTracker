@@ -1,9 +1,14 @@
+//
+//  ChefRecipesView.swift
+//  FoodTracker
+//
+
 import SwiftUI
 import SwiftData
 
 // MARK: - 1. MOCK DATA MODELS
-struct PremiumRecipe: Identifiable, Hashable {
-    let id = UUID()
+struct PremiumRecipe: Identifiable, Hashable, Codable {
+    var id: UUID = UUID() // Генерируется автоматически
     let title: String
     let description: String
     let time: String
@@ -20,10 +25,14 @@ struct PremiumRecipe: Identifiable, Hashable {
     
     let ingredients: [RecipeIngredient]
     let directions: [String]
-    let nutritionFacts: [NutritionFact]
+    
+    // Исключаем id из JSON, чтобы не писать его вручную каждый раз
+    enum CodingKeys: String, CodingKey {
+        case title, description, time, caloriesPerServing, imageUrl, isFavorite, tags, baseServings, protein, fat, carbs, ingredients, directions
+    }
 }
 
-struct RecipeIngredient: Hashable {
+struct RecipeIngredient: Hashable, Codable {
     let name: String
     let amount: String
     let weightGrams: Int
@@ -36,7 +45,7 @@ struct NutritionFact: Hashable {
     let isSubItem: Bool
 }
 
-var mockRecipesData = [
+var mockRecipesData: [PremiumRecipe] = [
     PremiumRecipe(
         title: "Baked Apples with Honey & Walnuts",
         description: "Simple to make, comforting to enjoy, and perfect for cozy evenings. 🍂",
@@ -45,7 +54,7 @@ var mockRecipesData = [
         isFavorite: true, tags: ["Breakfast", "Snack", "Vegetarian"], baseServings: 4,
         protein: 3.0, fat: 11.0, carbs: 40.5,
         ingredients: [RecipeIngredient(name: "Walnuts", amount: "65 g", weightGrams: 65, calories: 425)],
-        directions: ["Core apples.", "Bake at 180°C."], nutritionFacts: []
+        directions: ["Core apples.", "Bake at 180°C."]
     ),
     PremiumRecipe(
         title: "Creamy Pumpkin Risotto with Gorgonzola",
@@ -54,7 +63,7 @@ var mockRecipesData = [
         imageUrl: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?q=80&w=800&auto=format&fit=crop",
         isFavorite: false, tags: ["Dinner", "Vegetarian"], baseServings: 2,
         protein: 14.0, fat: 18.0, carbs: 55.0,
-        ingredients: [], directions: [], nutritionFacts: []
+        ingredients: [], directions: []
     ),
     PremiumRecipe(
         title: "Chicken and Wild Rice Bowl",
@@ -63,7 +72,7 @@ var mockRecipesData = [
         imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
         isFavorite: true, tags: ["Lunch", "High Protein"], baseServings: 2,
         protein: 38.8, fat: 8.6, carbs: 66.5,
-        ingredients: [], directions: [], nutritionFacts: []
+        ingredients: [], directions: []
     )
 ]
 
@@ -71,7 +80,7 @@ var mockRecipesData = [
 struct RecipesContainerView: View {
     @Binding var path: NavigationPath
     @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
-    
+    @State private var dataLoader = RecipeDataLoader()
     @State private var selectedTab: Int = 0 // 0 - Discover, 1 - My Recipes
     @State private var searchText = ""
     @State private var showFilters = false
@@ -117,23 +126,27 @@ struct RecipesContainerView: View {
             .padding(.bottom, 16)
             .background(Color.themeBg)
             
-            // --- CONTENT VIEWS ---
             TabView(selection: $selectedTab) {
-                DiscoverTabView(path: $path)
-                    .tag(0)
-                
-                MyRecipesTabView(path: $path, customRecipes: customRecipes)
-                    .tag(1)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.easeInOut, value: selectedTab)
-        }
+                 // ПЕРЕДАЕМ ЗАГРУЖЕННЫЕ РЕЦЕПТЫ
+                 DiscoverTabView(path: $path, allRecipes: dataLoader.recipes)
+                     .tag(0)
+                 
+                 MyRecipesTabView(path: $path, customRecipes: customRecipes, allRecipes: dataLoader.recipes)
+                     .tag(1)
+             }
+             .tabViewStyle(.page(indexDisplayMode: .never))
+             .animation(.easeInOut, value: selectedTab)
+         }
         .background(Color.themeBg.ignoresSafeArea())
         .navigationTitle("Recipes")
         .navigationBarTitleDisplayMode(.inline)
+        .environment(dataLoader)
         .sheet(isPresented: $showFilters) {
-            AdvancedRecipeFilterSheet()
-                .presentationDragIndicator(.visible)
+            AdvancedRecipeFilterSheet(allRecipes: dataLoader.recipes) { title, filtered in
+                // Когда фильтр закрывается, мы пушим новый экран
+                path.append(FoodsRoute.filteredList(title, filtered))
+            }
+            .presentationDragIndicator(.visible)
         }
         .navigationDestination(for: PremiumRecipe.self) { recipe in
             PremiumRecipeDetailView(recipe: recipe)
@@ -175,23 +188,42 @@ struct TabButton: View {
         .frame(maxWidth: .infinity)
     }
 }
+
 // MARK: - 3. DISCOVER TAB (КРУТЫЕ КАТЕГОРИИ И ПЛИТКИ)
 struct DiscoverTabView: View {
     @Binding var path: NavigationPath
+    let allRecipes: [PremiumRecipe]
     
-    // Обновили данные: убрали эмодзи, сделали более логичные диапазоны
     let calorieRanges = [
-        ("Under 200", Color.green),
-        ("200 - 400", Color.themeYellow),
-        ("400 - 600", Color.themeOrange),
-        ("600+ kcal", Color.themePink)
+        ("Under 300", Color.green, 0, 300),
+        ("300 - 450", Color.themeYellow, 300, 450),
+        ("450 - 600", Color.themeOrange, 450, 600),
+        ("600+ kcal", Color.themePink, 600, 5000)
     ]
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        // 👇 УМНАЯ СОРТИРОВКА (Один рецепт = одна группа)
+        var pool = allRecipes
+        
+        let highProtein = pool.filter { $0.tags.contains("High Protein") }
+        pool.removeAll { r in highProtein.contains(where: { $0.id == r.id }) }
+        
+        let ketoLowCarb = pool.filter { $0.tags.contains("Low Carb") || $0.tags.contains("Ketogenic") }
+        pool.removeAll { r in ketoLowCarb.contains(where: { $0.id == r.id }) }
+        
+        let quickEasy = pool.filter { $0.tags.contains("Quickly Prepared") || $0.tags.contains("Easy") }
+        pool.removeAll { r in quickEasy.contains(where: { $0.id == r.id }) }
+        
+        let plantBased = pool.filter { $0.tags.contains("Vegan") || $0.tags.contains("Vegetarian") }
+        pool.removeAll { r in plantBased.contains(where: { $0.id == r.id }) }
+        
+        // Все, что не попало в категории выше, идет в "Спецпредложения от шефа"
+        let chefsSpecials = Array(pool.prefix(6))
+        
+        return ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
                 
-                // --- 1. PICK YOUR MEAL (Large Horizontal Cards) ---
+                // --- 1. PICK YOUR MEAL (Рабочие кнопки) ---
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Pick Your Meal")
                         .font(.title2).bold()
@@ -199,9 +231,18 @@ struct DiscoverTabView: View {
                     
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            MealTypeCard(title: "Breakfast", subtitle: "Start your day right", emoji: "🥣", color: .themeYellow)
-                            MealTypeCard(title: "Lunch", subtitle: "Healthy & filling", emoji: "🥗", color: .green)
-                            MealTypeCard(title: "Dinner", subtitle: "Cozy evenings", emoji: "🍲", color: .themePink)
+                            MealTypeCard(title: "Breakfast", subtitle: "Start your day right", emoji: "🥣", color: .themeYellow) {
+                                openFiltered(title: "Breakfast", tags: ["Breakfast"])
+                            }
+                            MealTypeCard(title: "Lunch", subtitle: "Healthy & filling", emoji: "🥗", color: .green) {
+                                openFiltered(title: "Lunch", tags: ["Lunch"])
+                            }
+                            MealTypeCard(title: "Dinner", subtitle: "Cozy evenings", emoji: "🍲", color: .themePink) {
+                                openFiltered(title: "Dinner", tags: ["Dinner"])
+                            }
+                            MealTypeCard(title: "Snack", subtitle: "Quick bites", emoji: "🍎", color: .themeOrange) {
+                                openFiltered(title: "Snack", tags: ["Snack"])
+                            }
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 10)
@@ -209,7 +250,7 @@ struct DiscoverTabView: View {
                 }
                 .padding(.top, 10)
                 
-                // --- 2. RECIPES BY CALORIE RANGE (Compact Horizontal Scroll) ---
+                // --- 2. BROWSE BY CALORIES (Рабочие фильтры) ---
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Browse by Calories")
                         .font(.title2).bold()
@@ -218,7 +259,11 @@ struct DiscoverTabView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(calorieRanges, id: \.0) { range in
-                                Button(action: { HapticManager.shared.impact(style: .light) }) {
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .light)
+                                    let filtered = allRecipes.filter { $0.caloriesPerServing >= range.2 && $0.caloriesPerServing <= range.3 }
+                                    path.append(FoodsRoute.filteredList(range.0, filtered))
+                                }) {
                                     CalorieRangeCard(title: range.0, color: range.1)
                                 }
                                 .buttonStyle(BounceButtonStyle())
@@ -229,12 +274,60 @@ struct DiscoverTabView: View {
                     }
                 }
                 
-                // --- 3. TRENDING NOW ---
-                RecipeHorizontalSection(title: "Trending Now", recipes: mockRecipesData, path: $path)
+                // --- 3. РАЗБИВКА НА ТЕМАТИЧЕСКИЕ КАТЕГОРИИ (Без дубликатов) ---
+                if !highProtein.isEmpty {
+                    RecipeHorizontalSection(title: "High Protein Power", recipes: highProtein, path: $path)
+                }
+                if !ketoLowCarb.isEmpty {
+                    RecipeHorizontalSection(title: "Low Carb & Keto", recipes: ketoLowCarb, path: $path)
+                }
+                if !quickEasy.isEmpty {
+                    RecipeHorizontalSection(title: "Quick & Easy", recipes: quickEasy, path: $path)
+                }
+                if !plantBased.isEmpty {
+                    RecipeHorizontalSection(title: "Plant-Based", recipes: plantBased, path: $path)
+                }
+                if !chefsSpecials.isEmpty {
+                    RecipeHorizontalSection(title: "Chef's Specials", recipes: chefsSpecials, path: $path)
+                }
                 
             }
-            .padding(.bottom, 120)
+            .padding(.bottom, 120) // Отступ под TabBar
         }
+    }
+    
+    private func openFiltered(title: String, tags: [String]) {
+        HapticManager.shared.impact(style: .medium)
+        let filtered = allRecipes.filter { recipe in
+            !Set(recipe.tags).isDisjoint(with: Set(tags))
+        }
+        path.append(FoodsRoute.filteredList(title, filtered))
+    }
+}
+
+// Карточка для Pick Your Meal
+struct MealTypeCard: View {
+    let title: String
+    let subtitle: String
+    let emoji: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(title).font(.title3.bold()).foregroundColor(.white)
+                    Text(subtitle).font(.caption).foregroundColor(.white.opacity(0.8))
+                }
+                Spacer()
+                Text(emoji).font(.system(size: 50)).shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+            }
+            .padding(20).frame(width: 260, height: 110)
+            .background(LinearGradient(colors: [color.opacity(0.8), color], startPoint: .topLeading, endPoint: .bottomTrailing))
+            .cornerRadius(24).shadow(color: color.opacity(0.3), radius: 10, y: 5)
+        }
+        .buttonStyle(BounceButtonStyle())
     }
 }
 
@@ -264,78 +357,19 @@ struct CalorieRangeCard: View {
         .shadow(color: Color.black.opacity(0.02), radius: 5, y: 2)
     }
 }
-// Карточка для Pick Your Meal
-struct MealTypeCard: View {
-    let title: String
-    let subtitle: String
-    let emoji: String
-    let color: Color
-    
-    var body: some View {
-        Button(action: { HapticManager.shared.impact(style: .medium) }) {
-            HStack {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(title)
-                        .font(.title3.bold())
-                        .foregroundColor(.white)
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
-                }
-                Spacer()
-                Text(emoji)
-                    .font(.system(size: 50))
-                    .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
-            }
-            .padding(20)
-            .frame(width: 260, height: 110)
-            .background(
-                LinearGradient(colors: [color.opacity(0.8), color], startPoint: .topLeading, endPoint: .bottomTrailing)
-            )
-            .cornerRadius(24)
-            .shadow(color: color.opacity(0.3), radius: 10, y: 5)
-        }
-        .buttonStyle(BounceButtonStyle())
-    }
-}
 
-
-// MARK: - 4. MY RECIPES TAB (Избранное + Свои рецепты)
 struct MyRecipesTabView: View {
     @Binding var path: NavigationPath
     let customRecipes: [CustomRecipe]
+    let allRecipes: [PremiumRecipe]
     
-    var favoriteRecipes: [PremiumRecipe] { mockRecipesData.filter { $0.isFavorite } }
+    var favoriteRecipes: [PremiumRecipe] { allRecipes.filter { $0.isFavorite } }
     
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
                 
-                // --- FAVORITES ---
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("My Favorites")
-                        .font(.title2).bold()
-                        .padding(.horizontal, 20)
-                    
-                    if favoriteRecipes.isEmpty {
-                        Text("No favorites yet. Tap the star icon on any recipe to save it here.")
-                            .font(.subheadline).foregroundColor(.gray)
-                            .padding(.horizontal, 20)
-                    } else {
-                        LazyVStack(spacing: 20) {
-                            ForEach(favoriteRecipes) { recipe in
-                                Button(action: { path.append(FoodsRoute.premiumRecipeDetail(recipe)) }) {
-                                    PremiumRecipeCard(recipe: recipe)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                .padding(.horizontal, 20)
-                            }
-                        }
-                    }
-                }
-                .padding(.top, 10)
-                
-                // --- CUSTOM RECIPES ---
+                // --- 1. CUSTOM RECIPES (ТЕПЕРЬ ПЕРВЫЕ) ---
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Custom Recipes")
                         .font(.title2).bold()
@@ -367,7 +401,6 @@ struct MyRecipesTabView: View {
                             .padding(.horizontal, 20)
                         }
                         
-                        // Кнопка на всю ширину внизу
                         Button(action: { path.append(FoodsRoute.createRecipe) }) {
                             HStack {
                                 Image(systemName: "plus.circle.fill")
@@ -378,6 +411,30 @@ struct MyRecipesTabView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
+                    }
+                }
+                .padding(.top, 10)
+                
+                // --- 2. FAVORITES (ТЕПЕРЬ ВТОРЫЕ) ---
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("My Favorites")
+                        .font(.title2).bold()
+                        .padding(.horizontal, 20)
+                    
+                    if favoriteRecipes.isEmpty {
+                        Text("No favorites yet. Tap the star icon on any recipe to save it here.")
+                            .font(.subheadline).foregroundColor(.gray)
+                            .padding(.horizontal, 20)
+                    } else {
+                        LazyVStack(spacing: 20) {
+                            ForEach(favoriteRecipes) { recipe in
+                                Button(action: { path.append(FoodsRoute.premiumRecipeDetail(recipe)) }) {
+                                    PremiumRecipeCard(recipe: recipe)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .padding(.horizontal, 20)
+                            }
+                        }
                     }
                 }
             }
@@ -391,12 +448,22 @@ struct MyRecipesTabView: View {
 struct AdvancedRecipeFilterSheet: View {
     @Environment(\.dismiss) var dismiss
     
+    let allRecipes: [PremiumRecipe]
+    var onApply: (String, [PremiumRecipe]) -> Void
+    
     @State private var selectedTags: Set<String> = []
     
-    // Структуры с иконками для красивого отображения
     let meals = [("Breakfast", "cup.and.saucer.fill"), ("Lunch", "takeoutbag.and.cup.and.straw.fill"), ("Dinner", "fork.knife"), ("Snack", "apple.logo"), ("Smoothie", "drop.fill")]
     let prep = [("Quickly Prepared", "timer"), ("On the Go", "figure.walk"), ("Few Ingredients", "cart.fill"), ("Baking", "oven.fill"), ("Easy", "hand.thumbsup.fill")]
     let diets = [("Vegetarian", "leaf.fill", Color.green), ("Vegan", "leaf.arrow.circlepath", Color.mint), ("Low Carb", "meatcases.fill", Color.orange), ("High Protein", "dumbbell.fill", Color.blue), ("Ketogenic", "flame.fill", Color.red)]
+    
+    var filteredRecipes: [PremiumRecipe] {
+          if selectedTags.isEmpty { return allRecipes }
+          return allRecipes.filter { recipe in
+              // Рецепт должен содержать ВСЕ выбранные теги
+              selectedTags.isSubset(of: Set(recipe.tags))
+          }
+      }
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -420,14 +487,12 @@ struct AdvancedRecipeFilterSheet: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 32) {
-                        
                         FilterIconSection(title: "Meals", items: meals, selection: $selectedTags)
                         FilterIconSection(title: "Preparation Method", items: prep, selection: $selectedTags)
                         FilterColoredSection(title: "Diets", items: diets, selection: $selectedTags)
-                        
                     }
                     .padding(20)
-                    .padding(.bottom, 100) // Место под кнопку
+                    .padding(.bottom, 100)
                 }
             }
             
@@ -442,19 +507,21 @@ struct AdvancedRecipeFilterSheet: View {
                     
                     Button(action: {
                         HapticManager.shared.impact(style: .heavy)
+                        onApply("Filtered Recipes", filteredRecipes)
                         dismiss()
                     }) {
-                        Text("See 2137 Recipes") // Мок-цифра
+                        Text(filteredRecipes.isEmpty ? "No Recipes Found" : "See \(filteredRecipes.count) Recipes")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.themePink)
+                            .background(filteredRecipes.isEmpty ? Color.gray : Color.themePink)
                             .cornerRadius(24)
-                            .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                            .shadow(color: filteredRecipes.isEmpty ? .clear : Color.themePink.opacity(0.4), radius: 8, y: 4)
                             .padding(.horizontal, 24)
                             .padding(.bottom, 20)
                     }
+                    .disabled(filteredRecipes.isEmpty)
                     .buttonStyle(BounceButtonStyle())
                 }
             }
@@ -543,29 +610,51 @@ struct RecipeHorizontalSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(title).font(.title2).bold().foregroundColor(.primary)
-                Image(systemName: "chevron.right").foregroundColor(.gray.opacity(0.6)).font(.system(size: 14, weight: .bold))
-                Spacer()
+            
+            // 👇 ИСПРАВЛЕНИЕ: Обернули заголовок в кнопку
+            Button(action: {
+                HapticManager.shared.impact(style: .light)
+                // Открываем экран со списком всех рецептов этой категории
+                path.append(FoodsRoute.filteredList(title, recipes))
+            }) {
+                HStack {
+                    Text(title)
+                        .font(.title2)
+                        .bold()
+                        .foregroundColor(.primary)
+                    
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.gray.opacity(0.6))
+                        .font(.system(size: 14, weight: .bold))
+                    
+                    Spacer()
+                }
+                .contentShape(Rectangle()) // Делает кликабельной всю строку, а не только текст
             }
+            .buttonStyle(PlainButtonStyle()) // Чтобы текст не стал стандартным синим цветом кнопки
             .padding(.horizontal, 20)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    ForEach(recipes) { recipe in
-                        Button(action: { path.append(FoodsRoute.premiumRecipeDetail(recipe)) }) {
-                            PremiumRecipeCard(recipe: recipe, width: 280)
+            if recipes.isEmpty {
+                Text("More recipes coming soon.")
+                    .font(.subheadline).foregroundColor(.gray)
+                    .padding(.horizontal, 20)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        ForEach(recipes) { recipe in
+                            Button(action: { path.append(FoodsRoute.premiumRecipeDetail(recipe)) }) {
+                                PremiumRecipeCard(recipe: recipe, width: 280)
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 10)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 10)
             }
         }
     }
 }
-
 
 // MARK: - 7. ПЕРЕИСПОЛЬЗУЕМЫЕ КОМПОНЕНТЫ ИЗ ПРОШЛОГО ШАГА (Карточки, Детали, Диаграмма)
 
@@ -621,15 +710,13 @@ struct CustomRecipeCard: View {
     }
 }
 
-
-// MARK: - ЭКРАНЫ ДЕТАЛИЗАЦИИ
 struct PremiumRecipeDetailView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @State var recipe: PremiumRecipe
     @State private var servings: Int
     @State private var showMealSheet = false
-    
+    @Environment(RecipeDataLoader.self) private var dataLoader
     init(recipe: PremiumRecipe) { self._recipe = State(initialValue: recipe); self._servings = State(initialValue: recipe.baseServings) }
     
     private var multiplier: Double { Double(servings) / Double(max(recipe.baseServings, 1)) }
@@ -644,15 +731,38 @@ struct PremiumRecipeDetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     ZStack(alignment: .bottomLeading) {
+                        
+                        // 👇 ИСПРАВЛЕНИЕ ЗДЕСЬ: Добавлено .frame(maxWidth: .infinity)
                         AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
-                            if let image = phase.image { image.resizable().aspectRatio(contentMode: .fill) } else { Rectangle().fill(Color.gray.opacity(0.2)) }
-                        }.frame(height: 320).clipped()
+                            if let image = phase.image {
+                                image.resizable().aspectRatio(contentMode: .fill)
+                            } else {
+                                Rectangle().fill(Color.gray.opacity(0.2))
+                            }
+                        }
+                        .frame(maxWidth: .infinity) // <--- ВОТ ЭТА СТРОКА РЕШАЕТ ПРОБЛЕМУ С ЗУМОМ
+                        .frame(height: 320)
+                        .clipped()
+                        
                         LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
+                        
                         VStack(alignment: .leading, spacing: 12) {
-                            Text(recipe.title).font(.system(size: 28, weight: .bold, design: .rounded)).foregroundColor(.white).lineLimit(3)
-                            HStack(spacing: 16) { Label(recipe.time, systemImage: "clock"); Label("\(recipe.caloriesPerServing) Cal", systemImage: "flame") }.font(.subheadline.bold()).foregroundColor(.white.opacity(0.9))
-                        }.padding(20)
-                    }.recipeCustomCornerRadius(32, corners: [.bottomLeft, .bottomRight]).ignoresSafeArea(edges: .top)
+                            Text(recipe.title)
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .lineLimit(3)
+                            
+                            HStack(spacing: 16) {
+                                Label(recipe.time, systemImage: "clock")
+                                Label("\(recipe.caloriesPerServing) Cal", systemImage: "flame")
+                            }
+                            .font(.subheadline.bold())
+                            .foregroundColor(.white.opacity(0.9))
+                        }
+                        .padding(20)
+                    }
+                    .recipeCustomCornerRadius(32, corners: [.bottomLeft, .bottomRight])
+                    .ignoresSafeArea(edges: .top)
                     
                     VStack(alignment: .leading, spacing: 32) {
                         VStack(alignment: .leading, spacing: 16) {
@@ -693,23 +803,84 @@ struct PremiumRecipeDetailView: View {
                             }.padding(.horizontal, 20)
                         }
                         
+                        // БЛОК ШАГОВ
+                        if !recipe.directions.isEmpty {
+                            VStack(alignment: .leading, spacing: 20) {
+                                Text("Directions").font(.title2).bold()
+                                VStack(alignment: .leading, spacing: 24) {
+                                    ForEach(Array(recipe.directions.enumerated()), id: \.offset) { index, step in
+                                        HStack(alignment: .top, spacing: 16) {
+                                            Text("\(index + 1)")
+                                                .font(.headline)
+                                                .foregroundColor(.themePink)
+                                                .frame(width: 32, height: 32)
+                                                .background(Color.white)
+                                                .overlay(Circle().stroke(Color.themePink, lineWidth: 2))
+                                                .clipShape(Circle())
+                                            Text(step)
+                                                .font(.body)
+                                                .foregroundColor(.primary.opacity(0.9))
+                                                .lineSpacing(4)
+                                                .padding(.top, 4)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        } else {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Directions").font(.title2).bold()
+                                Text("Cooking instructions are not available for this recipe yet.")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .italic()
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                        
                         Spacer().frame(height: 120)
                     }.offset(y: -20)
                 }
             }.ignoresSafeArea(edges: .top)
             
+            // Навигационный бар с кнопками (Назад, Поделиться, Избранное)
             VStack {
                 HStack {
                     Button(action: { dismiss() }) { Image(systemName: "chevron.left").font(.title3.bold()).foregroundColor(.primary).frame(width: 40, height: 40).background(.ultraThinMaterial).clipShape(Circle()) }
                     Spacer(); Text("Recipe Info").font(.headline).foregroundColor(.white).shadow(radius: 2); Spacer()
                     HStack(spacing: 12) {
-                        Button(action: { /* Share */ }) { Image(systemName: "square.and.arrow.up").font(.title3).foregroundColor(.white).shadow(radius: 2) }
-                        Button(action: { HapticManager.shared.impact(style: .medium); withAnimation(.spring()) { recipe.isFavorite.toggle() }; if let idx = mockRecipesData.firstIndex(where: { $0.id == recipe.id }) { mockRecipesData[idx].isFavorite = recipe.isFavorite } }) { Image(systemName: recipe.isFavorite ? "star.fill" : "star").font(.title3).foregroundColor(recipe.isFavorite ? .themeYellow : .white).shadow(radius: 2) }
+                        // Кнопка Share
+                        Button(action: { /* Share */ }) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.title3)
+                                .foregroundColor(.white)
+                                .shadow(radius: 2)
+                        }
+                        
+                        // ✅ ИСПРАВЛЕННАЯ КНОПКА ИЗБРАННОГО
+                        Button(action: {
+                            HapticManager.shared.impact(style: .medium)
+                            
+                            // 1. Локально меняем состояние для мгновенной анимации
+                            withAnimation(.spring()) {
+                                recipe.isFavorite.toggle()
+                            }
+                            
+                            // 2. Отправляем сигнал в наш глобальный загрузчик данных
+                            dataLoader.toggleFavorite(for: recipe.id)
+                            
+                        }) {
+                            Image(systemName: recipe.isFavorite ? "star.fill" : "star")
+                                .font(.title3)
+                                .foregroundColor(recipe.isFavorite ? .themeYellow : .white)
+                                .shadow(radius: 2)
+                        }
                     }.frame(width: 70, alignment: .trailing)
                 }.padding(.horizontal, 20).padding(.top, 50)
                 Spacer()
             }
             
+            // Нижняя кнопка Add to Meal
             VStack {
                 Spacer()
                 ZStack {
@@ -721,6 +892,7 @@ struct PremiumRecipeDetailView: View {
             }.ignoresSafeArea(edges: .bottom)
         }
         .navigationBarHidden(true)
+        .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showMealSheet) {
             ChooseMealSheet(recipe: recipe, calories: dynamicCalories, p: Double(dynamicProtein), f: Double(dynamicFat), c: Double(dynamicCarbs))
                 .presentationDetents([.fraction(0.4)]).presentationCornerRadius(32).presentationDragIndicator(.visible)
@@ -728,6 +900,80 @@ struct PremiumRecipeDetailView: View {
     }
 }
 
+// Экран для вывода отфильтрованного списка
+struct FilteredRecipesListView: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    let title: String
+    let recipes: [PremiumRecipe]
+    @Binding var path: NavigationPath
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // 1. Кастомный навигационный бар
+            HStack {
+                Button(action: {
+                    HapticManager.shared.impact(style: .light)
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(Color.white)
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.04), radius: 5, y: 2)
+                }
+                
+                Spacer()
+                
+                Text(title)
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                // Пустая вьюшка для симметрии (чтобы заголовок был ровно по центру)
+                Color.clear.frame(width: 44, height: 44)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+            .padding(.bottom, 16)
+            .background(Color.themeBg)
+            .zIndex(1)
+            
+            // 2. Список рецептов
+            ScrollView(showsIndicators: false) {
+                if recipes.isEmpty {
+                    // Красивая заглушка, если по фильтрам ничего не найдено
+                    EmptyStateView(
+                        imageName: "magnifyingglass",
+                        title: "No Recipes Found",
+                        description: "Try adjusting your filters to see more results."
+                    )
+                    .padding(.top, 80)
+                } else {
+                    LazyVStack(spacing: 20) {
+                        ForEach(recipes) { recipe in
+                            Button(action: {
+                                HapticManager.shared.impact(style: .light)
+                                path.append(FoodsRoute.premiumRecipeDetail(recipe))
+                            }) {
+                                // Карточка рецепта
+                                PremiumRecipeCard(recipe: recipe)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding(20)
+                    .padding(.bottom, 120) // Отступ, чтобы карточки не прятались за нижний TabBar
+                }
+            }
+        }
+        .background(Color.themeBg.ignoresSafeArea())
+        .navigationBarHidden(true) // Убираем стандартный бар, так как у нас свой кастомный
+    }
+}
 // Остальные вспомогательные структуры из прошлого шага свернуты для экономии места:
 struct ChooseMealSheet: View {
     @Environment(\.dismiss) var dismiss; @Environment(\.modelContext) private var context; @Query private var summaries: [DailySummary]

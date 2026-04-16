@@ -1,7 +1,3 @@
-//============================================================
-// FILE: FoodTracker/Views/Home/HomeDashboardView.swift
-//============================================================
-
 import SwiftUI
 import SwiftData
 
@@ -33,20 +29,18 @@ extension View {
         self.modifier(UltraPremiumCardModifier())
     }
 }
+
 // MARK: - 🏠 Главный Экран (HomeDashboardView)
 struct HomeDashboardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
-    @State private var showingProfileSheet = false
     
     @State private var selectedDate: Date = .now
     @State private var navigateToProfile = false
-    // Стейты для умного добавления еды (Шторка)
+    
     @State private var showingQuickAddSheet = false
     @State private var quickAddMealType: String = "Breakfast"
-    
-    // Стейт для детального просмотра приема пищи (Менюшка)
     @State private var selectedMealForDetail: String? = nil
     
     private var currentUser: User? { users.first }
@@ -56,24 +50,21 @@ struct HomeDashboardView: View {
         if let existing = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
             return existing
         } else {
-            let newSummary = DailySummary(date: startOfDay)
-            context.insert(newSummary)
-            return newSummary
+            return DailySummary(date: startOfDay)
         }
     }
     
     private func getRecommendedCalories(for mealType: String) -> Int {
-            let goal = Double(currentUser?.dailyCaloriesGoal ?? 2000)
-            switch mealType {
-            case "Breakfast": return Int(goal * 0.25) // 25%
-            case "Lunch":     return Int(goal * 0.35) // 35%
-            case "Dinner":    return Int(goal * 0.30) // 30%
-            case "Snack":     return Int(goal * 0.10) // 10%
-            default:          return 0
-            }
+        let goal = Double(currentUser?.dailyCaloriesGoal ?? 2000)
+        switch mealType {
+        case "Breakfast": return Int(goal * 0.25)
+        case "Lunch":     return Int(goal * 0.35)
+        case "Dinner":    return Int(goal * 0.30)
+        case "Snack":     return Int(goal * 0.10)
+        default:          return 0
         }
+    }
     
-    // НОВОЕ: Вычисляемое свойство для подсчета всех калорий
     private var allTimeCalories: Int {
         summaries.reduce(0) { $0 + $1.totalCalories }
     }
@@ -85,82 +76,58 @@ struct HomeDashboardView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        HeaderView(selectedDate: selectedDate) {
-                            navigateToProfile = true // Меняем вызов
-                          }
-
-                        
+                        HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
                         CalendarCarouselView(selectedDate: $selectedDate)
-                        
-                      
-                        
                         InsightsWidget(summary: currentSummary, user: currentUser)
-                                                
-                        // НОВАЯ СВАЙПАЮЩАЯСЯ КАРУСЕЛЬ ВМЕСТО СТАТИЧНОЙ КАРТОЧКИ
                         NutritionCarouselView(summary: currentSummary, user: currentUser)
-                                                
                         
-                        // Список приемов пищи с НОВЫМ ДИЗАЙНОМ И ОБНОВЛЕННЫМИ ДЕЙСТВИЯМИ
                         VStack(spacing: 16) {
                             ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
                                 let meal = currentSummary.meals.first(where: { $0.title == mealType })
                                 
                                 MealCardView(
-                                           title: mealType,
-                                           calories: meal?.totalCalories,
-                                           recommendedCalories: getRecommendedCalories(for: mealType), // ПЕРЕДАЕМ РАСЧЕТ
-                                           time: meal?.date,
-                                           onCardTap: {
-                                               self.selectedMealForDetail = mealType
-                                           },
-                                           onQuickAdd: {
-                                               self.quickAddMealType = mealType
-                                               self.showingQuickAddSheet = true
-                                           }
-                                       )
-                                   }
-                               }
+                                    title: mealType,
+                                    calories: meal?.totalCalories,
+                                    recommendedCalories: getRecommendedCalories(for: mealType),
+                                    time: meal?.date,
+                                    onCardTap: { self.selectedMealForDetail = mealType },
+                                    onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
+                                )
+                            }
+                        }
                         .padding(.horizontal)
                         
-                        WaterGridTrackerView(summary: currentSummary)
-                            .padding(.horizontal)
-                        
-                        WeightTrackerCardView(summary: currentSummary)
-                                                   .padding(.horizontal)
-                        
-                        // НОВЫЙ БЛОК С ОБЩЕЙ СТАТИСТИКОЙ
+                        WaterGridTrackerView(summary: currentSummary).padding(.horizontal)
+                        WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
                         AllTimeStatsCardView(totalCalories: allTimeCalories)
-                        
                     }
                     .padding(.bottom, 120)
                 }
             }
             .navigationBarHidden(true)
             .task(id: selectedDate) {
-                 await fetchHealthData(for: currentSummary)
+                await fetchHealthData(for: currentSummary)
             }
             .navigationDestination(isPresented: $navigateToProfile) {
                 ProfileWrapperView()
             }
-            // Вызов премиальной шторки для добавления еды
             .sheet(isPresented: $showingQuickAddSheet) {
                 SmartAddFoodView(mealTitle: quickAddMealType) { selectedItems in
                     addFoodsToMeal(title: quickAddMealType, items: selectedItems)
                 }
                 .presentationDetents([.fraction(0.85), .large])
                 .presentationCornerRadius(32)
-                .presentationDragIndicator(.hidden) // Скрываем стандартный, у нас свой красивый
-            } 
-            // Шторка детального просмотра приема пищи (Менюшка)
+                .presentationDragIndicator(.hidden)
+            }
             .navigationDestination(item: Binding(
-                         get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
-                         set: { selectedMealForDetail = $0?.value }
-                     )) { mealItem in
-                         MealDetailView(title: mealItem.value, date: selectedDate)
-                     }
+                get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
+                set: { selectedMealForDetail = $0?.value }
+            )) { mealItem in
+                MealDetailView(title: mealItem.value, date: selectedDate)
+            }
         }
     }
-
+    
     private func fetchHealthData(for summary: DailySummary) async {
         guard currentUser?.isHealthKitEnabled == true else { return }
         HealthKitManager.shared.isAuthorized = true
@@ -168,6 +135,7 @@ struct HomeDashboardView: View {
             let burned = try await HealthKitManager.shared.fetchActiveEnergy(for: summary.date)
             if summary.activeCaloriesBurned != burned {
                 summary.activeCaloriesBurned = burned
+                if summary.modelContext == nil { context.insert(summary) }
                 try? context.save()
             }
         } catch {
@@ -176,24 +144,41 @@ struct HomeDashboardView: View {
     }
     
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
-        let summary = currentSummary // Уже вычисляется корректно
+        let summary = currentSummary
+        var newFoodItems: [FoodItem] = []
+        
+        for item in items {
+            let copiedItem = FoodItem(
+                name: item.name, weight: item.weight, calories: item.calories,
+                protein: item.protein, fats: item.fats, carbs: item.carbs,
+                omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
+                magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
+            )
+            context.insert(copiedItem)
+            newFoodItems.append(copiedItem)
+        }
         
         if let existingMeal = summary.meals.first(where: { $0.title == title }) {
-            existingMeal.foodItems.append(contentsOf: items)
-            existingMeal.date = .now // ОБНОВЛЕНИЕ ВРЕМЕНИ при добавлении новой еды
+            existingMeal.foodItems.append(contentsOf: newFoodItems)
+            existingMeal.date = .now
         } else {
-            let newMeal = Meal(title: title, date: .now, foodItems: items)
+            let newMeal = Meal(title: title, date: .now, foodItems: newFoodItems)
             context.insert(newMeal)
             summary.meals.append(newMeal)
+        }
+        
+        if summary.modelContext == nil {
+            context.insert(summary)
         }
         
         try? context.save()
     }
 }
 
+// MARK: - Header
 struct HeaderView: View {
     let selectedDate: Date
-    var onProfileTap: () -> Void // НОВОЕ ДЕЙСТВИЕ
+    var onProfileTap: () -> Void
     
     private var monthYearString: String {
         let formatter = DateFormatter()
@@ -205,13 +190,12 @@ struct HeaderView: View {
         let calendar = Calendar.current
         if calendar.isDateInToday(selectedDate) { return "Today" }
         if calendar.isDateInYesterday(selectedDate) { return "Yesterday" }
-        
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter.string(from: selectedDate)
     }
-
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
@@ -220,7 +204,6 @@ struct HeaderView: View {
             }
             Spacer()
             
-            // КНОПКА ПРОФИЛЯ С ТАКТИЛЬНЫМ ОТКЛИКОМ
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onProfileTap()
@@ -238,6 +221,7 @@ struct HeaderView: View {
         .padding(.top, 10)
     }
 }
+
 struct UnifiedProgressCard: View {
     let summary: DailySummary
     let user: User?
@@ -292,7 +276,6 @@ struct InsightsWidget: View {
     
     var body: some View {
         let data = insightData
-        
         HStack(spacing: 16) {
             Image(systemName: data.icon)
                 .font(.title2)
@@ -313,6 +296,7 @@ struct InsightsWidget: View {
         .padding(.horizontal)
     }
 }
+
 // MARK: - 🍱 Детализация приема пищи (Full Page)
 struct MealDetailView: View {
     @Environment(\.modelContext) private var context
@@ -323,12 +307,13 @@ struct MealDetailView: View {
     let title: String
     let date: Date
     
+    @State private var selectedFoodForDetail: FoodItem? = nil
     @State private var showingAddFood = false
     
     private var meal: Meal? {
         let startOfDay = Calendar.current.startOfDay(for: date)
         return summaries.first { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }?
-                        .meals.first { $0.title == title }
+            .meals.first { $0.title == title }
     }
     
     var body: some View {
@@ -337,7 +322,6 @@ struct MealDetailView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
-                    // НАВБАР ДЛЯ ПОЛНОЦЕННОГО ЭКРАНА
                     HStack {
                         Button(action: { dismiss() }) {
                             Image(systemName: "chevron.left")
@@ -353,7 +337,6 @@ struct MealDetailView: View {
                     .padding(.horizontal)
                     .padding(.top, 16)
                     
-                    // ЗАГОЛОВОК
                     VStack(alignment: .leading, spacing: 4) {
                         Text(title)
                             .font(.system(size: 38, weight: .heavy, design: .rounded))
@@ -374,8 +357,6 @@ struct MealDetailView: View {
                     .padding(.horizontal)
                     
                     if let meal = meal, !meal.foodItems.isEmpty {
-                        
-                        // 1. HERO CARD С ОСНОВНЫМИ ДАННЫМИ
                         VStack(spacing: 16) {
                             Text("\(meal.totalCalories) kcal")
                                 .font(.system(size: 48, weight: .heavy, design: .rounded))
@@ -395,7 +376,6 @@ struct MealDetailView: View {
                         .ultraPremiumCardStyle()
                         .padding(.horizontal)
                         
-                        // 2. СПИСОК ПРОДУКТОВ
                         VStack(alignment: .leading, spacing: 0) {
                             Text("What you ate")
                                 .font(.title3.bold())
@@ -404,7 +384,14 @@ struct MealDetailView: View {
                             
                             VStack(spacing: 0) {
                                 ForEach(meal.foodItems) { food in
-                                    FoodItemDetailedRow(food: food)
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .light)
+                                        selectedFoodForDetail = food
+                                    }) {
+                                        FoodItemDetailedRow(food: food)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    
                                     if food.id != meal.foodItems.last?.id {
                                         Divider().padding(.leading, 20)
                                     }
@@ -416,7 +403,6 @@ struct MealDetailView: View {
                         }
                         .padding(.horizontal)
                         
-                        // 3. БЛОК МИКРОНУТРИЕНТОВ
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Key Micronutrients")
                                 .font(.title3.bold())
@@ -425,7 +411,6 @@ struct MealDetailView: View {
                             MicronutrientRingsView(meal: meal)
                                 .padding(.horizontal)
                         }
-
                     } else {
                         EmptyStateView(
                             imageName: "fork.knife.circle",
@@ -437,10 +422,9 @@ struct MealDetailView: View {
                         .padding(.horizontal)
                     }
                 }
-                .padding(.bottom, 120) // Отступ под плавающую кнопку
+                .padding(.bottom, 120)
             }
             
-            // ПЛАВАЮЩАЯ КНОПКА ДОБАВЛЕНИЯ
             Button(action: { showingAddFood.toggle() }) {
                 HStack {
                     Image(systemName: "plus.circle.fill")
@@ -458,13 +442,19 @@ struct MealDetailView: View {
             }
             .buttonStyle(BounceButtonStyle())
         }
-        .navigationBarHidden(true) // Скрываем стандартный бар, так как у нас свой красивый
+        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showingAddFood) {
             SmartAddFoodView(mealTitle: title) { selectedItems in
                 addFoodsToMeal(items: selectedItems)
             }
             .presentationDetents([.fraction(0.85), .large])
             .presentationCornerRadius(32)
+        }
+        .fullScreenCover(item: $selectedFoodForDetail) { food in
+            FoodDetailNutritionView(food: food, mealTitle: title) { addedFood in
+                addFoodsToMeal(items: [addedFood])
+            }
         }
     }
     
@@ -479,18 +469,35 @@ struct MealDetailView: View {
             context.insert(summary)
         }
         
+        var newFoodItems: [FoodItem] = []
+        for item in items {
+            let copiedItem = FoodItem(
+                name: item.name, weight: item.weight, calories: item.calories,
+                protein: item.protein, fats: item.fats, carbs: item.carbs,
+                omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
+                magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
+            )
+            context.insert(copiedItem)
+            newFoodItems.append(copiedItem)
+        }
+        
         if let existingMeal = summary.meals.first(where: { $0.title == title }) {
-            existingMeal.foodItems.append(contentsOf: items)
+            existingMeal.foodItems.append(contentsOf: newFoodItems)
             existingMeal.date = .now
         } else {
-            let newMeal = Meal(title: title, date: .now, foodItems: items)
+            let newMeal = Meal(title: title, date: .now, foodItems: newFoodItems)
             context.insert(newMeal)
             summary.meals.append(newMeal)
+        }
+        
+        if summary.modelContext == nil {
+            context.insert(summary)
         }
         
         try? context.save()
     }
 }
+
 // MARK: - Детальная строка для списка продуктов
 struct FoodItemDetailedRow: View {
     let food: FoodItem
@@ -499,68 +506,55 @@ struct FoodItemDetailedRow: View {
         HStack(spacing: 16) {
             ZStack {
                 Circle().fill(Color.themePink.opacity(0.05)).frame(width: 44, height: 44)
-                Text(String(food.name.first ?? "🍲"))
-                    .font(.headline)
-                    .foregroundColor(.themePink)
+                Text(String(food.name.first ?? "🍲")).font(.headline).foregroundColor(.themePink)
             }
-            
             VStack(alignment: .leading, spacing: 4) {
                 Text(food.name).font(.subheadline).bold()
-                
                 HStack(spacing: 8) {
                     Text("\(Int(food.weight))g")
                         .font(.caption2).bold()
                         .padding(.horizontal, 6).padding(.vertical, 2)
                         .background(Color.gray.opacity(0.1))
                         .cornerRadius(4)
-                    
                     Text("P:\(Int(food.protein)) F:\(Int(food.fats)) C:\(Int(food.carbs))")
                         .font(.caption2)
                         .foregroundColor(.gray)
                 }
             }
-            
             Spacer()
-            
-            Text("\(food.calories) kcal")
-                .font(.headline)
-                .foregroundColor(.themePink)
+            Text("\(food.calories) kcal").font(.headline).foregroundColor(.themePink)
+            Image(systemName: "chevron.right").font(.system(size: 14, weight: .bold)).foregroundColor(.gray.opacity(0.3))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.white)
+        .contentShape(Rectangle())
     }
 }
-// MARK: - Новый встроенный виджет с кольцами (Full Width Horizontal Layout)
+
 struct MicronutrientRingsView: View {
     let meal: Meal
-    
-    // Рекомендуемые дневные нормы (делим на 3 приема пищи)
     private let targetOmega3: Double = 1.6 / 3
     private let targetPotassium: Double = 3500 / 3
     private let targetMagnesium: Double = 400 / 3
     
     var body: some View {
         HStack(spacing: 24) {
-            // КОЛЬЦА СЛЕВА
             ZStack {
                 ActivityRing(progress: meal.totalOmega3 / targetOmega3, color: .themePink, radius: 56, thickness: 12)
                 ActivityRing(progress: meal.totalPotassium / targetPotassium, color: .themeYellow, radius: 40, thickness: 12)
                 ActivityRing(progress: meal.totalMagnesium / targetMagnesium, color: .themeOrange, radius: 24, thickness: 12)
-                
                 Image(systemName: "sparkles")
                     .font(.title3)
                     .foregroundStyle(.linearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
             }
             .frame(width: 112, height: 112)
             
-            // ПОДРОБНАЯ ЛЕГЕНДА СПРАВА
             VStack(alignment: .leading, spacing: 16) {
                 RingLegendRow(color: .themePink, title: "Omega-3", value: meal.totalOmega3, unit: "g", target: targetOmega3)
                 RingLegendRow(color: .themeYellow, title: "Potassium", value: meal.totalPotassium, unit: "mg", target: targetPotassium)
                 RingLegendRow(color: .themeOrange, title: "Magnesium", value: meal.totalMagnesium, unit: "mg", target: targetMagnesium)
             }
-            
             Spacer(minLength: 0)
         }
         .padding(20)
@@ -570,7 +564,6 @@ struct MicronutrientRingsView: View {
     }
 }
 
-// Вспомогательная структура для легенды с целями
 private struct RingLegendRow: View {
     let color: Color
     let title: String
@@ -580,26 +573,20 @@ private struct RingLegendRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Circle()
-                .fill(color)
-                .frame(width: 10, height: 10)
-            
+            Circle().fill(color).frame(width: 10, height: 10)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                
-                Text("\(value, specifier: "%.1f") / \(Int(target)) \(unit)")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.gray)
+                Text(title).font(.system(size: 15, weight: .bold, design: .rounded)).foregroundColor(.primary)
+                Text("\(value, specifier: "%.1f") / \(Int(target)) \(unit)").font(.system(size: 13, weight: .medium)).foregroundColor(.gray)
             }
         }
     }
 }
 
-// Вспомогательный компонент для отрисовки кольца (Остается без изменений)
 private struct ActivityRing: View {
-    let progress: Double; let color: Color; let radius: CGFloat; let thickness: CGFloat
+    let progress: Double
+    let color: Color
+    let radius: CGFloat
+    let thickness: CGFloat
     
     var body: some View {
         ZStack {
@@ -614,7 +601,6 @@ private struct ActivityRing: View {
     }
 }
 
-
 private struct RingLegend: View {
     let color: Color; let title: String; let value: Double; let unit: String
     var body: some View {
@@ -626,14 +612,12 @@ private struct RingLegend: View {
     }
 }
 
-
-// MARK: - 🍱 REDESIGNED Meal Card (Apple Style)
+// MARK: - 🍱 Meal Card
 struct MealCardView: View {
     let title: String
     let calories: Int?
-    let recommendedCalories: Int // НОВОЕ ПОЛЕ
+    let recommendedCalories: Int
     let time: Date?
-    
     var onCardTap: () -> Void
     var onQuickAdd: () -> Void
     
@@ -650,75 +634,40 @@ struct MealCardView: View {
     var body: some View {
         HStack(spacing: 16) {
             let meta = iconAndColor
-            
-            // Иконка
             ZStack {
-                Circle()
-                    .fill(meta.1.opacity(0.15))
-                    .frame(width: 50, height: 50)
-                
-                Image(systemName: meta.0)
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(meta.1)
+                Circle().fill(meta.1.opacity(0.15)).frame(width: 50, height: 50)
+                Image(systemName: meta.0).font(.system(size: 22, weight: .semibold)).foregroundColor(meta.1)
             }
             
-            // Текстовый блок
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                
+                Text(title).font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.primary)
                 HStack(spacing: 6) {
                     if let cals = calories, cals > 0 {
-                        Text("\(cals) kcal")
-                            .font(.subheadline)
-                            .foregroundColor(meta.1)
-                            .bold()
-                        
+                        Text("\(cals) kcal").font(.subheadline).foregroundColor(meta.1).bold()
                         if let logTime = time {
-                            Text("• \(logTime.formatted(date: .omitted, time: .shortened))")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
+                            Text("• \(logTime.formatted(date: .omitted, time: .shortened))").font(.caption2).foregroundColor(.gray)
                         }
                     } else {
-                        Text("Log Meal")
-                            .font(.subheadline)
-                            .foregroundColor(.gray.opacity(0.7))
+                        Text("Log Meal").font(.subheadline).foregroundColor(.gray.opacity(0.7))
                     }
                 }
             }
-            
             Spacer()
             
-            // БЛОК РЕКОМЕНДАЦИИ (Справа перед кнопкой +)
             VStack(alignment: .trailing, spacing: 2) {
-                Text("Target")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.gray.opacity(0.6))
-                
-                Text("\(recommendedCalories)")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(.gray.opacity(0.8))
-                
-                Text("kcal")
-                    .font(.system(size: 8))
-                    .foregroundColor(.gray.opacity(0.5))
+                Text("Target").font(.system(size: 10, weight: .bold)).foregroundColor(.gray.opacity(0.6))
+                Text("\(recommendedCalories)").font(.system(size: 14, weight: .bold, design: .rounded)).foregroundColor(.gray.opacity(0.8))
+                Text("kcal").font(.system(size: 8)).foregroundColor(.gray.opacity(0.5))
             }
             .padding(.trailing, 8)
             
-            // Кнопка "+"
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onQuickAdd()
             }) {
                 ZStack {
-                    Circle()
-                        .fill(Color.gray.opacity(0.12))
-                        .frame(width: 36, height: 36)
-                    
-                    Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color.gray.opacity(0.8))
+                    Circle().fill(Color.gray.opacity(0.12)).frame(width: 36, height: 36)
+                    Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundColor(Color.gray.opacity(0.8))
                 }
             }
         }
@@ -734,29 +683,39 @@ struct MealCardView: View {
     }
 }
 
+// MARK: - 🔥 Smart Add Food View (С РЕАЛИЗОВАННЫМ ПОИСКОМ СЕТИ И DEBOUNCE)
 struct SmartAddFoodView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     
     @Query private var customRecipes: [CustomRecipe]
     @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
+    
     @State private var selectedFoodForDetail: FoodItem? = nil
     let mealTitle: String
     var onSave: ([FoodItem]) -> Void
+    
     @State private var showingScanner = false
     @State private var selectedFoods: [FoodItem] = []
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
     
-    // Новые расширенные категории
+    // --- СТЕЙТЫ ДЛЯ СЕТЕВОГО ПОИСКА ---
+    @State private var apiSearchResults: [FoodItem] = []
+    @State private var isSearchingAPI = false
+    @State private var searchTask: Task<Void, Never>? = nil
+    
     let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
     
     var allAvailableFoods: [FoodItem] {
         var uniqueItems: [String: FoodItem] = [:]
-        for meal in pastMeals { for item in meal.foodItems { if uniqueItems[item.name] == nil { uniqueItems[item.name] = item } } }
+        for meal in pastMeals {
+            for item in meal.foodItems {
+                if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
+            }
+        }
         var results = Array(uniqueItems.values)
         if results.isEmpty {
-            // Mock data if empty
             results = [
                 FoodItem(name: "Grilled Chicken Breast", weight: 150, calories: 240, protein: 31, fats: 3.6, carbs: 0),
                 FoodItem(name: "Avocado Toast", weight: 120, calories: 220, protein: 5, fats: 12, carbs: 20),
@@ -767,182 +726,176 @@ struct SmartAddFoodView: View {
         return results
     }
     
-    var filteredFoods: [FoodItem] {
+    var filteredLocalFoods: [FoodItem] {
         var items: [FoodItem] = []
-        if selectedCategory == "My Recipes" {
-            items = customRecipes.map { $0.toFoodItem() }
-        } else {
-            items = allAvailableFoods
+        var foodCounts: [String: Int] = [:]
+        
+        for meal in pastMeals {
+            for food in meal.foodItems { foodCounts[food.name, default: 0] += 1 }
+        }
+        
+        switch selectedCategory {
+        case "Recent": items = allAvailableFoods
+        case "Frequent": items = allAvailableFoods.sorted { (foodCounts[$0.name] ?? 0) > (foodCounts[$1.name] ?? 0) }
+        case "Favorites": items = allAvailableFoods.filter { (foodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
+        case "My Recipes": items = customRecipes.map { $0.toFoodItem() }
+        default: items = allAvailableFoods
         }
         
         if !searchText.isEmpty {
             items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
-        return items.sorted { $0.name < $1.name }
+        
+        if selectedCategory == "Recent" || selectedCategory == "My Recipes" {
+            items.sort { $0.name < $1.name }
+        }
+        return items
     }
     
-    var cartCalories: Int {
-        selectedFoods.reduce(0) { $0 + $1.calories }
-    }
+    var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
     
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // MARK: - STICKY HEADER
+                // ШАПКА
                 VStack(spacing: 16) {
-                    Capsule()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 40, height: 5)
-                        .padding(.top, 10)
-                    
-                    // Заголовок
+                    Capsule().fill(Color.gray.opacity(0.3)).frame(width: 40, height: 5).padding(.top, 10)
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(mealTitle)
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
-                            Text("What did you eat?")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                            Text(mealTitle).font(.system(size: 28, weight: .bold, design: .rounded))
+                            Text("What did you eat?").font(.subheadline).foregroundColor(.gray)
                         }
                         Spacer()
-                        
-                        Button(action: { dismiss() }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(Color.gray.opacity(0.3))
-                        }
-                    }
-                    .padding(.horizontal, 20)
+                        Button(action: { dismiss() }) { Image(systemName: "xmark.circle.fill").font(.system(size: 28)).foregroundColor(Color.gray.opacity(0.3)) }
+                    }.padding(.horizontal, 20)
                     
-                    // MARK: ОПТИМИЗИРОВАННЫЙ БЛОК ПОИСКА И КАМЕРЫ
-                    ActionSearchBar(text: $searchText, onBarcodeTap: {
-                        showingScanner = true
-                    })
-                    .padding(.horizontal, 20)
+                    ActionSearchBar(text: $searchText, onBarcodeTap: { showingScanner = true })
+                        .padding(.horizontal, 20)
                     
-                    // MARK: КАТЕГОРИИ (PILL TABS)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) {
-                            ForEach(categories, id: \.self) { category in
-                                Button(action: {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        selectedCategory = category
+                    if searchText.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(categories, id: \.self) { category in
+                                    Button(action: {
+                                        withAnimation(.spring()) { selectedCategory = category }
+                                        HapticManager.shared.impact(style: .light)
+                                    }) {
+                                        Text(category).font(.subheadline).bold().padding(.horizontal, 18).padding(.vertical, 10)
+                                            .background(selectedCategory == category ? Color.themePink : Color.white)
+                                            .foregroundColor(selectedCategory == category ? .white : .primary)
+                                            .cornerRadius(20).shadow(color: selectedCategory == category ? Color.themePink.opacity(0.3) : Color.black.opacity(0.03), radius: 4, y: 2)
                                     }
-                                    HapticManager.shared.impact(style: .light)
-                                }) {
-                                    Text(category)
-                                        .font(.subheadline).bold()
-                                        .padding(.horizontal, 18)
-                                        .padding(.vertical, 10)
-                                        .background(selectedCategory == category ? Color.themePink : Color.white)
-                                        .foregroundColor(selectedCategory == category ? .white : .primary)
-                                        .cornerRadius(20)
-                                        .shadow(color: selectedCategory == category ? Color.themePink.opacity(0.3) : Color.black.opacity(0.03), radius: 4, y: 2)
                                 }
                             }
+                            .padding(.horizontal, 20).padding(.vertical, 4)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 4)
                     }
                 }
                 .padding(.bottom, 10)
-                .background(
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .ignoresSafeArea()
-                        .shadow(color: .black.opacity(0.03), radius: 8, y: 4)
-                )
+                .background(Rectangle().fill(.ultraThinMaterial).ignoresSafeArea().shadow(color: .black.opacity(0.03), radius: 8, y: 4))
                 .zIndex(2)
                 
-                // MARK: - СПИСОК ПРОДУКТОВ
+                // СПИСОК РЕЗУЛЬТАТОВ
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 12) {
-                        if filteredFoods.isEmpty {
-                            EmptyStateView(
-                                imageName: "magnifyingglass",
-                                title: "No foods found",
-                                description: "Try scanning a barcode or using our AI camera."
-                            )
-                            .padding(.top, 60)
+                        if !searchText.isEmpty {
+                            if isSearchingAPI {
+                                ProgressView("Searching global database...")
+                                    .padding(.top, 40)
+                            } else {
+                                if !filteredLocalFoods.isEmpty {
+                                    Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
+                                    ForEach(filteredLocalFoods, id: \.name) { food in
+                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                    }
+                                }
+                                
+                                if !apiSearchResults.isEmpty {
+                                    Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                                    ForEach(apiSearchResults, id: \.name) { food in
+                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                    }
+                                } else if filteredLocalFoods.isEmpty {
+                                    EmptyStateView(imageName: "magnifyingglass", title: "No foods found", description: "Try searching for something else.")
+                                        .padding(.top, 40)
+                                }
+                            }
                         } else {
-                            // Внутри ScrollView -> LazyVStack:
-                            ForEach(filteredFoods, id: \.name) { food in
-                                // Обычная строка еды, без инлайн-редактирования
-                                FoodSearchResultRow(food: food) {
-                                    // По тапу открываем детальный экран
-                                    selectedFoodForDetail = food
+                            if filteredLocalFoods.isEmpty {
+                                EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
+                                    .padding(.top, 60)
+                            } else {
+                                ForEach(filteredLocalFoods, id: \.name) { food in
+                                    FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
                                 }
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    .padding(.bottom, selectedFoods.isEmpty ? 40 : 120) // Отступ под корзину
+                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
                 }
             }
             
-            // MARK: - ПЛАВАЮЩАЯ КОРЗИНА (FAB)
             if !selectedFoods.isEmpty {
                 FloatingCartButton(count: selectedFoods.count, calories: cartCalories) {
                     HapticManager.shared.impact(style: .heavy)
                     onSave(selectedFoods)
                     dismiss()
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .zIndex(3)
+                }.transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
             }
         }
-        // ДОБАВЛЯЕМ ОТКРЫТИЕ СКАНЕРА:
+        // ✅ ВАЖНО: ОТСЛЕЖИВАЕМ ВВОД ТЕКСТА
+        .onChange(of: searchText) { _, newValue in
+            performSearch(query: newValue)
+        }
         .fullScreenCover(isPresented: $showingScanner) {
-                    SmartScannerView { foundFood in
-                        // Как только сканер нашел продукт, мы кладем его в эту переменную.
-                        // А так как на эту переменную у тебя уже завязан другой .fullScreenCover,
-                        // карточка продукта откроется АВТОМАТИЧЕСКИ! Магия SwiftUI ✨
-                        selectedFoodForDetail = foundFood
-                    }
-                }
+            SmartScannerView { foundFood in selectedFoodForDetail = foundFood }
+        }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
-        // В конце body внутри SmartAddFoodView:
         .fullScreenCover(item: $selectedFoodForDetail) { food in
             FoodDetailNutritionView(food: food, mealTitle: mealTitle) { addedFood in
-                // Когда пользователь нажал "Add" на экране деталей
-                withAnimation(.spring()) {
-                    selectedFoods.append(addedFood)
-                }
+                withAnimation(.spring()) { selectedFoods.append(addedFood) }
             }
         }
     }
     
-    private func toggleFoodSelection(_ food: FoodItem) {
-        HapticManager.shared.impact(style: .medium)
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-            if let index = selectedFoods.firstIndex(where: { $0.name == food.name }) {
-                selectedFoods.remove(at: index)
-            } else {
-                selectedFoods.append(food)
+    // MARK: - ЛОГИКА DEBOUNCE ПОИСКА
+    private func performSearch(query: String) {
+        searchTask?.cancel()
+        guard query.count > 2 else {
+            apiSearchResults = []
+            isSearchingAPI = false
+            return
+        }
+        isSearchingAPI = true
+        searchTask = Task {
+            do { try await Task.sleep(nanoseconds: 500_000_000) } catch { return }
+            let results = await NetworkManager.shared.searchFoodByText(query: query)
+            await MainActor.run {
+                if !Task.isCancelled {
+                    self.apiSearchResults = results
+                    self.isSearchingAPI = false
+                }
             }
         }
     }
-}// MARK: - НОВЫЙ БЛОК ПОИСКА С КНОПКАМИ (SearchBar + AI/Barcode)
+}
+
+// MARK: - Search Bar & Action Buttons
 struct ActionSearchBar: View {
     @Binding var text: String
-    var onBarcodeTap: () -> Void // <--- ДОБАВИЛИ ЭТО
+    var onBarcodeTap: () -> Void
     
     var body: some View {
         HStack(spacing: 12) {
-            // Текстовое поле
             HStack {
                 Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                TextField("Search foods...", text: $text)
-                    .font(.body)
-                
+                TextField("Search foods...", text: $text).font(.body)
                 if !text.isEmpty {
                     Button(action: { text = "" }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray.opacity(0.5))
+                        Image(systemName: "xmark.circle.fill").foregroundColor(.gray.opacity(0.5))
                     }
                 }
             }
@@ -951,11 +904,7 @@ struct ActionSearchBar: View {
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
             
-            // Кнопка AI Камеры
-            Button(action: {
-                HapticManager.shared.impact(style: .medium)
-                // TODO: Camera logic
-            }) {
+            Button(action: { HapticManager.shared.impact(style: .medium) }) {
                 Image(systemName: "camera.viewfinder")
                     .font(.system(size: 20))
                     .foregroundColor(.themePink)
@@ -964,10 +913,9 @@ struct ActionSearchBar: View {
                     .cornerRadius(14)
             }
             
-            // Кнопка Штрихкода
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
-                onBarcodeTap() // <--- ВЫЗЫВАЕМ ОТКРЫТИЕ СКАНЕРА ЗДЕСЬ
+                onBarcodeTap()
             }) {
                 Image(systemName: "barcode.viewfinder")
                     .font(.system(size: 20))
@@ -980,7 +928,6 @@ struct ActionSearchBar: View {
     }
 }
 
-// MARK: - РЕДИЗАЙН СТРОКИ ПРОДУКТА
 struct InteractiveFoodRow: View {
     let food: FoodItem
     let isSelected: Bool
@@ -996,106 +943,50 @@ struct InteractiveFoodRow: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Button(action: {
-                action()
-            }) {
+            Button(action: action) {
                 HStack(spacing: 16) {
-                    // Красивая иконка или эмодзи (если есть в базе)
-                    Text("🥘") // Можно заменить на логику иконок
+                    Text("🥘")
                         .font(.system(size: 24))
                         .frame(width: 44, height: 44)
                         .background(isSelected ? Color.white : Color.gray.opacity(0.05))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(food.name)
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
-                            .foregroundColor(.primary)
-                        
-                        // Динамический расчет калорий в зависимости от выбранного веса
+                        Text(food.name).font(.system(size: 17, weight: .semibold, design: .rounded)).foregroundColor(.primary)
                         let currentCals = Int((Double(food.calories) / food.weight) * weight)
-                        
-                        Text("\(currentCals) kcal • \(Int(weight))g")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .foregroundColor(isSelected ? .themePink : .gray)
+                        Text("\(currentCals) kcal • \(Int(weight))g").font(.system(size: 14, weight: .medium, design: .rounded)).foregroundColor(isSelected ? .themePink : .gray)
                     }
-                    
                     Spacer()
-                    
-                    // Кнопка добавления с крутым эффектом
                     ZStack {
-                        Circle()
-                            .fill(isSelected ? Color.themePink : Color.gray.opacity(0.1))
-                            .frame(width: 32, height: 32)
-                        
-                        Image(systemName: isSelected ? "checkmark" : "plus")
-                            .font(.system(size: 14, weight: .black))
-                            .foregroundColor(isSelected ? .white : .themePink)
+                        Circle().fill(isSelected ? Color.themePink : Color.gray.opacity(0.1)).frame(width: 32, height: 32)
+                        Image(systemName: isSelected ? "checkmark" : "plus").font(.system(size: 14, weight: .black)).foregroundColor(isSelected ? .white : .themePink)
                     }
-                }
-                .padding(16)
-            }
-            .buttonStyle(PlainButtonStyle())
-
-            // MARK: ИНЛАЙН РЕДАКТОР ВЕСА (Раскрывается только при выборе)
+                }.padding(16)
+            }.buttonStyle(PlainButtonStyle())
+            
             if isSelected {
                 HStack(spacing: 20) {
-                    // Слайдер или Степпер для веса
                     HStack {
-                        Button(action: { weight = max(10, weight - 10); HapticManager.shared.impact(style: .light) }) {
-                            Image(systemName: "minus.circle.fill").foregroundColor(.gray.opacity(0.3))
-                        }
-                        
-                        Text("\(Int(weight)) g")
-                            .font(.system(size: 15, weight: .bold, design: .monospaced))
-                            .frame(width: 70)
-                        
-                        Button(action: { weight += 10; HapticManager.shared.impact(style: .light) }) {
-                            Image(systemName: "plus.circle.fill").foregroundColor(.gray.opacity(0.3))
-                        }
+                        Button(action: { weight = max(10, weight - 10); HapticManager.shared.impact(style: .light) }) { Image(systemName: "minus.circle.fill").foregroundColor(.gray.opacity(0.3)) }
+                        Text("\(Int(weight)) g").font(.system(size: 15, weight: .bold, design: .monospaced)).frame(width: 70)
+                        Button(action: { weight += 10; HapticManager.shared.impact(style: .light) }) { Image(systemName: "plus.circle.fill").foregroundColor(.gray.opacity(0.3)) }
                     }
-                    
                     Spacer()
-                    
-                    // Быстрые пресеты веса
                     HStack(spacing: 8) {
                         ForEach([100, 200, 300], id: \.self) { val in
-                            Button(action: {
-                                withAnimation(.spring()) { weight = Double(val) }
-                                HapticManager.shared.impact(style: .medium)
-                            }) {
-                                Text("\(val)")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(weight == Double(val) ? Color.themePink.opacity(0.2) : Color.gray.opacity(0.1))
-                                    .cornerRadius(8)
+                            Button(action: { withAnimation(.spring()) { weight = Double(val) }; HapticManager.shared.impact(style: .medium) }) {
+                                Text("\(val)").font(.system(size: 12, weight: .bold)).padding(.horizontal, 8).padding(.vertical, 4).background(weight == Double(val) ? Color.themePink.opacity(0.2) : Color.gray.opacity(0.1)).cornerRadius(8)
                             }
                         }
                     }
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
-                .transition(.move(edge: .top).combined(with: .opacity))
+                }.padding(.horizontal, 16).padding(.bottom, 16).transition(.move(edge: .top).combined(with: .opacity))
             }
-        }
-        .background(Color.white)
-        .cornerRadius(24)
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(isSelected ? Color.themePink.opacity(0.3) : Color.clear, lineWidth: 2)
-        )
-        .shadow(color: isSelected ? Color.themePink.opacity(0.1) : Color.black.opacity(0.03), radius: 10, y: 5)
-        .padding(.horizontal, 4) // Чтобы тень не обрезалась
+        }.background(Color.white).cornerRadius(24).overlay(RoundedRectangle(cornerRadius: 24).stroke(isSelected ? Color.themePink.opacity(0.3) : Color.clear, lineWidth: 2)).shadow(color: isSelected ? Color.themePink.opacity(0.1) : Color.black.opacity(0.03), radius: 10, y: 5).padding(.horizontal, 4)
     }
 }
 
-// Вспомогательный UI элемент для макросов
 struct MacroText: View {
-    let title: String
-    let value: Double
-    let color: Color
-    
+    let title: String; let value: Double; let color: Color
     var body: some View {
         HStack(spacing: 2) {
             Text(title).font(.system(size: 10, weight: .bold)).foregroundColor(color)
@@ -1104,140 +995,64 @@ struct MacroText: View {
     }
 }
 
-// MARK: - ПЛАВАЮЩАЯ КНОПКА (Корзина)
 struct FloatingCartButton: View {
-    let count: Int
-    let calories: Int
-    let action: () -> Void
-    
+    let count: Int; let calories: Int; let action: () -> Void
     var body: some View {
         VStack {
             Spacer()
             Button(action: action) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(count) items selected")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.8))
-                        Text("Add • \(calories) kcal")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+                        Text("\(count) items selected").font(.caption).foregroundColor(.white.opacity(0.8))
+                        Text("Add • \(calories) kcal").font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
                     }
                     Spacer()
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title)
-                        .foregroundColor(.white)
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 16)
-                .background(
-                    LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing)
-                )
-                .cornerRadius(24)
-                .shadow(color: Color.themePink.opacity(0.4), radius: 15, y: 8)
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 30)
+                    Image(systemName: "checkmark.circle.fill").font(.title).foregroundColor(.white)
+                }.padding(.horizontal, 24).padding(.vertical, 16).background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing)).cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 15, y: 8)
+            }.padding(.horizontal, 20).padding(.bottom, 30)
         }
     }
 }
-
 
 struct MacroDot: View {
-    let color: Color
-    let val: Double
-    var body: some View {
-        VStack(spacing: 2) {
-            Circle().fill(color).frame(width: 6, height: 6)
-            Text("\(Int(val))").font(.system(size: 10, weight: .bold)).foregroundColor(.gray)
-        }
-    }
+    let color: Color; let val: Double
+    var body: some View { VStack(spacing: 2) { Circle().fill(color).frame(width: 6, height: 6); Text("\(Int(val))").font(.system(size: 10, weight: .bold)).foregroundColor(.gray) } }
 }
+
 struct FoodSearchResultRow: View {
     let food: FoodItem
     let action: () -> Void
-    
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
-                Text("🍲")
-                    .font(.system(size: 24))
-                    .frame(width: 44, height: 44)
-                    .background(Color.gray.opacity(0.05))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                
+                Text("🍲").font(.system(size: 24)).frame(width: 44, height: 44).background(Color.gray.opacity(0.05)).clipShape(RoundedRectangle(cornerRadius: 12))
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(food.name)
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(.primary)
-                    
-                    Text("\(food.calories) kcal • 100g")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.gray)
+                    Text(food.name).font(.system(size: 17, weight: .semibold, design: .rounded)).foregroundColor(.primary)
+                    Text("\(food.calories) kcal • 100g").font(.system(size: 14, weight: .medium, design: .rounded)).foregroundColor(.gray)
                 }
-                
                 Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.gray.opacity(0.5))
-            }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(20)
-            .shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
-        }
-        .buttonStyle(BounceButtonStyle())
+                Image(systemName: "chevron.right").font(.system(size: 14, weight: .bold)).foregroundColor(.gray.opacity(0.5))
+            }.padding(16).background(Color.white).cornerRadius(20).shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
+        }.buttonStyle(BounceButtonStyle())
     }
 }
 
-// MARK: - НОВЫЙ КОМПОНЕНТ СТАТИСТИКИ
 struct AllTimeStatsCardView: View {
     let totalCalories: Int
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
-                Image(systemName: "flame.circle.fill")
-                    .font(.largeTitle)
-                    .foregroundStyle(
-                        LinearGradient(colors: [.white, .white.opacity(0.7)], startPoint: .top, endPoint: .bottom)
-                    )
-                
+                Image(systemName: "flame.circle.fill").font(.largeTitle).foregroundStyle(LinearGradient(colors: [.white, .white.opacity(0.7)], startPoint: .top, endPoint: .bottom))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("All-Time Total")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text("Since your first entry")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+                    Text("All-Time Total").font(.headline).foregroundColor(.white)
+                    Text("Since your first entry").font(.caption).foregroundColor(.white.opacity(0.8))
                 }
             }
-            
             Spacer(minLength: 20)
-            
             HStack(alignment: .firstTextBaseline) {
-                Text(totalCalories, format: .number)
-                    .font(.system(size: 44, weight: .heavy, design: .rounded))
-                    .contentTransition(.numericText())
-                Text("kcal")
-                    .font(.title2.bold())
-                    .foregroundColor(.white.opacity(0.9))
-            }
-            .foregroundColor(.white)
-            
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(24)
-        .background(
-            LinearGradient(
-                colors: [Color.themePink.opacity(0.9), Color.themeOrange],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .cornerRadius(28)
-        .shadow(color: .themePink.opacity(0.3), radius: 15, x: 0, y: 8)
-        .padding(.horizontal)
+                Text(totalCalories, format: .number).font(.system(size: 44, weight: .heavy, design: .rounded)).contentTransition(.numericText())
+                Text("kcal").font(.title2.bold()).foregroundColor(.white.opacity(0.9))
+            }.foregroundColor(.white)
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(24).background(LinearGradient(colors: [Color.themePink.opacity(0.9), Color.themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)).cornerRadius(28).shadow(color: .themePink.opacity(0.3), radius: 15, x: 0, y: 8).padding(.horizontal)
     }
 }

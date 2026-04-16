@@ -554,6 +554,8 @@ struct MacroStatColumn: View {
 struct RecipeDetailView: View {
     let recipe: CustomRecipe
     @Binding var path: NavigationPath
+    
+    // <--- ДОБАВЛЕНО: Для кнопки "Назад"
     @Environment(\.dismiss) private var dismiss
     
     @State private var showMealSheet = false
@@ -573,7 +575,7 @@ struct RecipeDetailView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(recipe.name)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .padding(.top, 20)
+                            .padding(.top, 60) // <--- УВЕЛИЧЕН ОТСТУП СВЕРХУ под кнопку
                         
                         HStack(spacing: 16) {
                             Label("\(recipe.cookingTime) min", systemImage: "clock.fill")
@@ -585,7 +587,7 @@ struct RecipeDetailView: View {
                     }
                     .padding(.horizontal, 20)
                     
-                    // КРУТАЯ ДИАГРАММА МАКРОСОВ
+                    // ДИАГРАММА МАКРОСОВ
                     RecipeMacroDonutView(
                         calories: recipe.totalCalories,
                         protein: totalProtein,
@@ -608,7 +610,9 @@ struct RecipeDetailView: View {
                                         }
                                         Spacer()
                                     }
-                                    Divider()
+                                    if item.id != recipe.foodItems.last?.id {
+                                        Divider()
+                                    }
                                 }
                             }
                         }
@@ -645,7 +649,30 @@ struct RecipeDetailView: View {
                 }
             }
             
-            // ПЛАВАЮЩАЯ КНОПКА
+            // <--- ДОБАВЛЕНО: Плавающая кнопка "Назад"
+            VStack {
+                HStack {
+                    Button(action: {
+                        HapticManager.shared.impact(style: .light)
+                        dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title3.bold())
+                            .foregroundColor(.primary)
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top, 50) // Отступ от челки
+                
+                Spacer()
+            }
+            
+            // ПЛАВАЮЩАЯ КНОПКА "ADD TO MEAL"
             VStack {
                 Spacer()
                 ZStack {
@@ -674,14 +701,13 @@ struct RecipeDetailView: View {
             }
             .ignoresSafeArea(edges: .bottom)
         }
-        .navigationTitle("Custom Recipe")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true) // <--- ДОБАВЛЕНО: Прячем стандартный бар
         .sheet(isPresented: $showMealSheet) {
             CustomChooseMealSheet(recipe: recipe)
                 .presentationDetents([.fraction(0.4)])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
-                .toolbar(.hidden, for: .tabBar) // Скрывает нижний TabBar при переходе сюда
+                .toolbar(.hidden, for: .tabBar)
                 .sheet(isPresented: $showMealSheet) {
                     CustomChooseMealSheet(recipe: recipe)
                         .presentationDetents([.fraction(0.4)])
@@ -690,6 +716,7 @@ struct RecipeDetailView: View {
                 }
         }
     }
+}
     // Шторка добавления личного рецепта в дневник
     struct CustomChooseMealSheet: View {
         @Environment(\.dismiss) var dismiss
@@ -739,4 +766,4 @@ struct RecipeDetailView: View {
             try? context.save()
         }
     }
-}
+
