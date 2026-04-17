@@ -32,8 +32,39 @@ struct Article: Identifiable, Codable, Hashable {
 class AcademyDataLoader {
     var categories: [ArticleCategory] = []
     
+    // ✅ ДОБАВЛЕНО: Храним ID прочитанных статей
+    var completedArticleIDs: Set<String> = []
+    
     init() {
+        loadCompletedArticles()
         loadData()
+    }
+    
+    // Загружаем сохраненный прогресс
+    private func loadCompletedArticles() {
+        if let saved = UserDefaults.standard.array(forKey: "CompletedAcademyArticles") as? [String] {
+            completedArticleIDs = Set(saved)
+        }
+    }
+    
+    // Сохраняем прогресс в память телефона
+    private func saveCompletedArticles() {
+        UserDefaults.standard.set(Array(completedArticleIDs), forKey: "CompletedAcademyArticles")
+    }
+    
+    // Метод, который вызывается при нажатии кнопки "Mark as Completed"
+    func markAsCompleted(articleID: String) {
+        completedArticleIDs.insert(articleID)
+        saveCompletedArticles()
+        recalculateProgress()
+    }
+    
+    // Пересчет полоски прогресса для каждой категории
+    private func recalculateProgress() {
+        for i in 0..<categories.count {
+            let completedInCat = categories[i].articles.filter { completedArticleIDs.contains($0.id) }.count
+            categories[i].completedCount = completedInCat
+        }
     }
     
     func loadData() {
@@ -48,6 +79,7 @@ class AcademyDataLoader {
             
             DispatchQueue.main.async {
                 self.categories = decoded
+                self.recalculateProgress() // ✅ ДОБАВЛЕНО: Считаем прогресс сразу после загрузки
             }
         } catch {
             print("❌ Ошибка парсинга academy.json: \(error)")

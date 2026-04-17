@@ -784,232 +784,11 @@ struct MealCardView: View {
     }
 }
 
-// MARK: - 🔥 Smart Add Food View (С РЕАЛИЗОВАННЫМ ПОИСКОМ СЕТИ И DEBOUNCE)
-struct SmartAddFoodView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context
-    
-    @Query private var customRecipes: [CustomRecipe]
-    @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
-    
-    @State private var selectedFoodForDetail: FoodItem? = nil
-    let mealTitle: String
-    var onSave: ([FoodItem]) -> Void
-    
-    @State private var showingScanner = false
-    @State private var selectedFoods: [FoodItem] = []
-    @State private var searchText = ""
-    @State private var selectedCategory = "Recent"
-    
-    // --- СТЕЙТЫ ДЛЯ СЕТЕВОГО ПОИСКА ---
-    @State private var apiSearchResults: [FoodItem] = []
-    @State private var isSearchingAPI = false
-    @State private var searchTask: Task<Void, Never>? = nil
-    
-    let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
-    
-    var allAvailableFoods: [FoodItem] {
-        var uniqueItems: [String: FoodItem] = [:]
-        for meal in pastMeals {
-            for item in meal.foodItems {
-                if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
-            }
-        }
-        var results = Array(uniqueItems.values)
-        if results.isEmpty {
-            results = [
-                FoodItem(name: "Grilled Chicken Breast", weight: 150, calories: 240, protein: 31, fats: 3.6, carbs: 0),
-                FoodItem(name: "Avocado Toast", weight: 120, calories: 220, protein: 5, fats: 12, carbs: 20),
-                FoodItem(name: "Scrambled Eggs", weight: 100, calories: 155, protein: 13, fats: 11, carbs: 1),
-                FoodItem(name: "Black Coffee", weight: 250, calories: 2, protein: 0, fats: 0, carbs: 0)
-            ]
-        }
-        return results
-    }
-    
-    var filteredLocalFoods: [FoodItem] {
-        var items: [FoodItem] = []
-        var foodCounts: [String: Int] = [:]
-        
-        for meal in pastMeals {
-            for food in meal.foodItems { foodCounts[food.name, default: 0] += 1 }
-        }
-        
-        switch selectedCategory {
-        case "Recent": items = allAvailableFoods
-        case "Frequent": items = allAvailableFoods.sorted { (foodCounts[$0.name] ?? 0) > (foodCounts[$1.name] ?? 0) }
-        case "Favorites": items = allAvailableFoods.filter { (foodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
-        case "My Recipes": items = customRecipes.map { $0.toFoodItem() }
-        default: items = allAvailableFoods
-        }
-        
-        if !searchText.isEmpty {
-            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-        
-        if selectedCategory == "Recent" || selectedCategory == "My Recipes" {
-            items.sort { $0.name < $1.name }
-        }
-        return items
-    }
-    
-    var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
-    
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            Color.themeBg.ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // ШАПКА
-                VStack(spacing: 16) {
-                    Capsule().fill(Color.gray.opacity(0.3)).frame(width: 40, height: 5).padding(.top, 10)
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(mealTitle).font(.system(size: 28, weight: .bold, design: .rounded))
-                            Text("What did you eat?").font(.subheadline).foregroundColor(.gray)
-                        }
-                        Spacer()
-                        Button(action: { dismiss() }) { Image(systemName: "xmark.circle.fill").font(.system(size: 28)).foregroundColor(Color.gray.opacity(0.3)) }
-                    }.padding(.horizontal, 20)
-                    
-                    ActionSearchBar(text: $searchText, onBarcodeTap: { showingScanner = true })
-                        .padding(.horizontal, 20)
-                    
-                    if searchText.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                ForEach(categories, id: \.self) { category in
-                                    Button(action: {
-                                        withAnimation(.spring()) { selectedCategory = category }
-                                        HapticManager.shared.impact(style: .light)
-                                    }) {
-                                        Text(category).font(.subheadline).bold().padding(.horizontal, 18).padding(.vertical, 10)
-                                            .background(selectedCategory == category ? Color.themePink : Color.white)
-                                            .foregroundColor(selectedCategory == category ? .white : .primary)
-                                            .cornerRadius(20).shadow(color: selectedCategory == category ? Color.themePink.opacity(0.3) : Color.black.opacity(0.03), radius: 4, y: 2)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 20).padding(.vertical, 4)
-                        }
-                    }
-                }
-                .padding(.bottom, 10)
-                .background(Rectangle().fill(.ultraThinMaterial).ignoresSafeArea().shadow(color: .black.opacity(0.03), radius: 8, y: 4))
-                .zIndex(2)
-                
-                // СПИСОК РЕЗУЛЬТАТОВ
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: 12) {
-                        if !searchText.isEmpty {
-                            if isSearchingAPI {
-                                ProgressView("Searching global database...")
-                                    .padding(.top, 40)
-                            } else {
-                                if !filteredLocalFoods.isEmpty {
-                                    Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
-                                    
-                                    // 🔥 ИСПРАВЛЕНИЕ: id: \.self
-                                    ForEach(filteredLocalFoods, id: \.self) { food in
-                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
-                                    }
-                                }
-                                
-                                if !apiSearchResults.isEmpty {
-                                    Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
-                                    
-                                    // 🔥 ИСПРАВЛЕНИЕ: id: \.self
-                                    ForEach(apiSearchResults, id: \.self) { food in
-                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
-                                    }
-                                } else if filteredLocalFoods.isEmpty {
-                                    EmptyStateView(imageName: "magnifyingglass", title: "No foods found", description: "Try searching for something else.")
-                                        .padding(.top, 40)
-                                }
-                            }
-                        } else {
-                            if filteredLocalFoods.isEmpty {
-                                EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
-                                    .padding(.top, 60)
-                            } else {
-                                // 🔥 ИСПРАВЛЕНИЕ: id: \.self
-                                ForEach(filteredLocalFoods, id: \.self) { food in
-                                    FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
-                }
-            }
-            
-            if !selectedFoods.isEmpty {
-                FloatingCartButton(count: selectedFoods.count, calories: cartCalories) {
-                    HapticManager.shared.impact(style: .heavy)
-                    onSave(selectedFoods)
-                    dismiss()
-                }.transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
-            }
-        }
-        .onChange(of: searchText) { _, newValue in
-            performSearch(query: newValue)
-        }
-        .fullScreenCover(isPresented: $showingScanner) {
-            SmartScannerView { foundFood in selectedFoodForDetail = foundFood }
-        }
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
-        .fullScreenCover(item: $selectedFoodForDetail) { food in
-            FoodDetailNutritionView(food: food, mealTitle: mealTitle) { addedFood in
-                withAnimation(.spring()) { selectedFoods.append(addedFood) }
-            }
-        }
-    }
-    
-    // MARK: - ЛОГИКА DEBOUNCE ПОИСКА
-    private func performSearch(query: String) {
-         // 1. Отменяем предыдущий поиск, если юзер ввел новую букву
-         searchTask?.cancel()
-         
-         guard query.count > 2 else {
-             apiSearchResults = []
-             isSearchingAPI = false
-             return
-         }
-         
-         isSearchingAPI = true
-         
-         searchTask = Task {
-             do {
-                 // 2. Ждем полсекунды (чтобы юзер успел допечатать слово)
-                 try await Task.sleep(nanoseconds: 500_000_000)
-                 
-                 // 3. Если за эти полсекунды юзер ввел еще букву - прерываемся ДО похода в сеть!
-                 guard !Task.isCancelled else { return }
-                 
-                 let results = await NetworkManager.shared.searchFoodByText(query: query)
-                 
-                 await MainActor.run {
-                     if !Task.isCancelled {
-                         self.apiSearchResults = results
-                         self.isSearchingAPI = false
-                     }
-                 }
-             } catch {
-                 // Если Task.sleep был отменен, падаем сюда. Лоадер не выключаем,
-                 // так как уже запустился новый поиск для нового слова.
-                 if !Task.isCancelled {
-                     await MainActor.run { self.isSearchingAPI = false }
-                 }
-             }
-         }
-     }
-}
-    
 // MARK: - Search Bar & Action Buttons
 struct ActionSearchBar: View {
     @Binding var text: String
     var onBarcodeTap: () -> Void
+    var onManualAddTap: () -> Void // ✅ ДОБАВЛЕНО: Обработчик для ручного добавления
     
     var body: some View {
         HStack(spacing: 12) {
@@ -1027,15 +806,17 @@ struct ActionSearchBar: View {
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
             
+            // Кнопка ИИ Камеры
             Button(action: { HapticManager.shared.impact(style: .medium) }) {
                 Image(systemName: "camera.viewfinder")
                     .font(.system(size: 20))
                     .foregroundColor(.themePink)
-                    .frame(width: 46, height: 46)
+                    .frame(width: 44, height: 44)
                     .background(Color.themePink.opacity(0.1))
                     .cornerRadius(14)
             }
             
+            // Кнопка Штрихкода
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onBarcodeTap()
@@ -1043,14 +824,26 @@ struct ActionSearchBar: View {
                 Image(systemName: "barcode.viewfinder")
                     .font(.system(size: 20))
                     .foregroundColor(.themeOrange)
-                    .frame(width: 46, height: 46)
+                    .frame(width: 44, height: 44)
                     .background(Color.themeOrange.opacity(0.1))
+                    .cornerRadius(14)
+            }
+            
+            // ✅ НОВАЯ КНОПКА: Ручное создание продукта
+            Button(action: {
+                HapticManager.shared.impact(style: .light)
+                onManualAddTap()
+            }) {
+                Image(systemName: "plus.app.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.green)
+                    .frame(width: 44, height: 44)
+                    .background(Color.green.opacity(0.1))
                     .cornerRadius(14)
             }
         }
     }
 }
-
 struct InteractiveFoodRow: View {
     let food: FoodItem
     let isSelected: Bool
@@ -1503,5 +1296,284 @@ struct DailyLogDetailView: View {
         }
         .navigationTitle("Daily Log")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+struct ActivitySourceRow: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let subtitle: String
+    let calories: Int
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(iconColor.opacity(0.15))
+                    .frame(width: 48, height: 48)
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(iconColor)
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(iconColor)
+                    .bold()
+            }
+            
+            Spacer()
+            
+            Text("\(calories) kcal")
+                .font(.system(size: 18, weight: .heavy, design: .rounded))
+                .foregroundColor(calories > 0 ? .primary : .gray.opacity(0.5))
+        }
+        .padding(16)
+        .contentShape(Rectangle())
+    }
+}
+struct SmartAddFoodView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
+    @Query private var allDatabaseFoods: [FoodItem]
+    @Query private var customRecipes: [CustomRecipe]
+    @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
+    
+    @State private var selectedFoodForDetail: FoodItem? = nil
+    let mealTitle: String
+    var onSave: ([FoodItem]) -> Void
+    
+    @State private var showingScanner = false
+    @State private var showingManualAdd = false // ✅
+    @State private var selectedFoods: [FoodItem] = []
+    @State private var searchText = ""
+    @State private var selectedCategory = "Recent"
+    
+    @State private var apiSearchResults: [FoodItem] = []
+    @State private var isSearchingAPI = false
+    @State private var searchTask: Task<Void, Never>? = nil
+    
+    let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
+    
+    var allAvailableFoods: [FoodItem] {
+        var uniqueItems: [String: FoodItem] = [:]
+        for meal in pastMeals {
+            for item in meal.foodItems {
+                if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
+            }
+        }
+        for item in allDatabaseFoods {
+            if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
+        }
+        var results = Array(uniqueItems.values)
+        if results.isEmpty {
+            results = [
+                FoodItem(name: "Grilled Chicken Breast", weight: 150, calories: 240, protein: 31, fats: 3.6, carbs: 0),
+                FoodItem(name: "Avocado Toast", weight: 120, calories: 220, protein: 5, fats: 12, carbs: 20)
+            ]
+        }
+        return results
+    }
+    
+    var filteredLocalFoods: [FoodItem] {
+        var items: [FoodItem] = []
+        var foodCounts: [String: Int] = [:]
+        
+        for meal in pastMeals {
+            for food in meal.foodItems { foodCounts[food.name, default: 0] += 1 }
+        }
+        
+        switch selectedCategory {
+        case "Recent": items = allAvailableFoods
+        case "Frequent": items = allAvailableFoods.sorted { (foodCounts[$0.name] ?? 0) > (foodCounts[$1.name] ?? 0) }
+        case "Favorites": items = allAvailableFoods.filter { (foodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
+        case "My Recipes": items = customRecipes.map { $0.toFoodItem() }
+        default: items = allAvailableFoods
+        }
+        
+        if !searchText.isEmpty {
+            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+        if selectedCategory == "Recent" || selectedCategory == "My Recipes" {
+            items.sort { $0.name < $1.name }
+        }
+        return items
+    }
+    
+    var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
+    
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            Color.themeBg.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // ШАПКА
+                VStack(spacing: 16) {
+                    Capsule().fill(Color.gray.opacity(0.3)).frame(width: 40, height: 5).padding(.top, 10)
+                    
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(mealTitle).font(.system(size: 28, weight: .bold, design: .rounded))
+                            Text("What did you eat?").font(.subheadline).foregroundColor(.gray)
+                        }
+                        Spacer()
+                        Button(action: { dismiss() }) {
+                            Image(systemName: "xmark.circle.fill").font(.system(size: 28)).foregroundColor(Color.gray.opacity(0.3))
+                        }
+                    }.padding(.horizontal, 20)
+                    
+                    ActionSearchBar(
+                        text: $searchText,
+                        onBarcodeTap: { showingScanner = true },
+                        onManualAddTap: { showingManualAdd = true }
+                    )
+                    .padding(.horizontal, 20)
+                    
+                    if searchText.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(categories, id: \.self) { category in
+                                    Button(action: {
+                                        withAnimation(.spring()) { selectedCategory = category }
+                                        HapticManager.shared.impact(style: .light)
+                                    }) {
+                                        Text(category)
+                                            .font(.subheadline).bold()
+                                            .padding(.horizontal, 18).padding(.vertical, 10)
+                                            .background(selectedCategory == category ? Color.themePink : Color.white)
+                                            .foregroundColor(selectedCategory == category ? .white : .primary)
+                                            .cornerRadius(20)
+                                            .shadow(color: selectedCategory == category ? Color.themePink.opacity(0.3) : Color.black.opacity(0.03), radius: 4, y: 2)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20).padding(.vertical, 4)
+                        }
+                    }
+                }
+                .padding(.bottom, 10)
+                .background(Rectangle().fill(.ultraThinMaterial).ignoresSafeArea().shadow(color: .black.opacity(0.03), radius: 8, y: 4))
+                .zIndex(2)
+                
+                // СПИСОК РЕЗУЛЬТАТОВ
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 12) {
+                        if !searchText.isEmpty {
+                            if isSearchingAPI {
+                                ProgressView("Searching global database...")
+                                    .padding(.top, 40)
+                            } else {
+                                if !filteredLocalFoods.isEmpty {
+                                    Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
+                                    ForEach(filteredLocalFoods, id: \.self) { food in
+                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                    }
+                                }
+                                
+                                if !apiSearchResults.isEmpty {
+                                    Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                                    ForEach(apiSearchResults, id: \.self) { food in
+                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                    }
+                                } else if filteredLocalFoods.isEmpty {
+                                    // 🟢 КРАСИВЫЙ БЛОК РУЧНОГО ВВОДА
+                                    VStack(spacing: 16) {
+                                        Image(systemName: "questionmark.folder.fill").font(.system(size: 48)).foregroundColor(.themeOrange.opacity(0.5))
+                                        Text("Can't find '\(searchText)'?").font(.headline)
+                                        Text("No worries! You can quickly add it to your personal database and use it forever.")
+                                            .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center).padding(.horizontal, 20)
+                                        
+                                        Button(action: {
+                                            HapticManager.shared.impact(style: .medium)
+                                            showingManualAdd = true
+                                        }) {
+                                            HStack {
+                                                Image(systemName: "plus.circle.fill")
+                                                Text("Create Custom Food")
+                                            }
+                                            .font(.headline).foregroundColor(.white).padding(.vertical, 14).padding(.horizontal, 24)
+                                            .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .cornerRadius(20).shadow(color: Color.green.opacity(0.3), radius: 8, y: 4)
+                                        }
+                                        .buttonStyle(BounceButtonStyle())
+                                    }
+                                    .padding(.top, 40)
+                                }
+                            }
+                        } else {
+                            if filteredLocalFoods.isEmpty {
+                                EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
+                                    .padding(.top, 60)
+                            } else {
+                                ForEach(filteredLocalFoods, id: \.self) { food in
+                                    FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
+                }
+            }
+            
+            if !selectedFoods.isEmpty {
+                FloatingCartButton(count: selectedFoods.count, calories: cartCalories) {
+                    HapticManager.shared.impact(style: .heavy)
+                    onSave(selectedFoods)
+                    dismiss()
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
+            }
+        }
+        .onChange(of: searchText) { _, newValue in performSearch(query: newValue) }
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
+        .fullScreenCover(item: $selectedFoodForDetail) { food in
+            FoodDetailNutritionView(food: food, mealTitle: mealTitle) { addedFood in
+                withAnimation(.spring()) { selectedFoods.append(addedFood) }
+            }
+        }
+        .fullScreenCover(isPresented: $showingScanner) {
+            SmartScannerView(
+                onProductFound: { foundFood in selectedFoodForDetail = foundFood },
+                onManualEntryRequest: { showingManualAdd = true }
+            )
+        }
+        .sheet(isPresented: $showingManualAdd) {
+            AddIngredientModalView { newCustomItem in
+                withAnimation(.spring()) { selectedFoods.append(newCustomItem) }
+            }
+            .presentationDetents([.fraction(0.85), .large])
+            .presentationCornerRadius(32)
+            .presentationDragIndicator(.visible)
+        }
+    }
+    
+    private func performSearch(query: String) {
+        searchTask?.cancel()
+        guard query.count > 2 else {
+            apiSearchResults = []
+            isSearchingAPI = false
+            return
+        }
+        isSearchingAPI = true
+        searchTask = Task {
+            do {
+                try await Task.sleep(nanoseconds: 500_000_000)
+                guard !Task.isCancelled else { return }
+                let results = await NetworkManager.shared.searchFoodByText(query: query)
+                await MainActor.run {
+                    if !Task.isCancelled {
+                        self.apiSearchResults = results
+                        self.isSearchingAPI = false
+                    }
+                }
+            } catch {
+                if !Task.isCancelled { await MainActor.run { self.isSearchingAPI = false } }
+            }
+        }
     }
 }

@@ -436,6 +436,14 @@ struct ArticleDetailView: View {
     let article: Article
     @Environment(\.dismiss) var dismiss
     
+    // ✅ ДОБАВЛЕНО: Получаем доступ к загрузчику, чтобы сохранить прогресс
+    @Environment(AcademyDataLoader.self) private var dataLoader
+    
+    // ✅ Проверяем, прочитана ли уже эта статья
+    private var isCompleted: Bool {
+        dataLoader.completedArticleIDs.contains(article.id)
+    }
+    
     // Парсим Markdown из JSON в красивый AttributedString
     private var markdownText: AttributedString {
         do {
@@ -504,22 +512,38 @@ struct ArticleDetailView: View {
                         
                         Divider().padding(.vertical, 16)
                         
+                        // ✅ ИСПРАВЛЕНА КНОПКА ЗАВЕРШЕНИЯ КУРСА
                         Button(action: {
                             HapticManager.shared.impact(style: .heavy)
+                            
+                            if !isCompleted {
+                                // Помечаем как прочитанное и пересчитываем счетчик
+                                dataLoader.markAsCompleted(articleID: article.id)
+                            }
+                            
                             dismiss()
                         }) {
                             HStack(spacing: 12) {
-                                Image(systemName: "checkmark.seal.fill")
+                                Image(systemName: isCompleted ? "checkmark.circle.fill" : "checkmark.seal.fill")
                                     .font(.title2)
-                                Text("Mark as Completed")
+                                Text(isCompleted ? "Completed" : "Mark as Completed")
                                     .font(.headline)
                             }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 18)
-                            .background(LinearGradient(colors: [article.color1, article.color2], startPoint: .leading, endPoint: .trailing))
+                            // Если выполнено - серая кнопка, если нет - красивая градиентная
+                            .background(
+                                Group {
+                                    if isCompleted {
+                                        Color.gray
+                                    } else {
+                                        LinearGradient(colors: [article.color1, article.color2], startPoint: .leading, endPoint: .trailing)
+                                    }
+                                }
+                            )
                             .cornerRadius(20)
-                            .shadow(color: article.color1.opacity(0.4), radius: 10, y: 5)
+                            .shadow(color: isCompleted ? .clear : article.color1.opacity(0.4), radius: 10, y: 5)
                         }
                         .buttonStyle(BounceButtonStyle())
                         

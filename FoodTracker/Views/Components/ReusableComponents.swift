@@ -247,8 +247,21 @@ struct CustomPaginator: View {
 struct BurnedDetailsCard: View {
     let summary: DailySummary
     
-    var dailyActivityCalories: Int {
-        max(0, summary.activeCaloriesBurned - summary.workoutCalories)
+    // 1. Калории из твоего приложения
+    var appWorkoutCalories: Int {
+        summary.workoutCalories
+    }
+    
+    // 2. Примерные калории от шагов (в среднем 0.04 ккал за 1 шаг)
+    var stepCalories: Int {
+        Int(Double(summary.stepsCount) * 0.04)
+    }
+    
+    // 3. Системные калории (Apple Health, Apple Watch и т.д.)
+    // Отнимаем от всех сожженных калорий твои тренировки и шаги.
+    var appleFitnessCalories: Int {
+        let remainder = summary.activeCaloriesBurned - appWorkoutCalories - stepCalories
+        return max(0, remainder) // Защита от отрицательных чисел
     }
     
     var body: some View {
@@ -262,42 +275,39 @@ struct BurnedDetailsCard: View {
                     .font(.title2)
             }
             
-            // Список источников
+            // Список источников активности
             VStack(spacing: 0) {
-                // ТРЕНИРОВКИ
-                HStack(spacing: 16) {
-                    ZStack {
-                        Circle().fill(Color.themeOrange.opacity(0.15)).frame(width: 48, height: 48)
-                        Image(systemName: "dumbbell.fill").font(.title3).foregroundColor(.themeOrange)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Workouts").font(.system(size: 16, weight: .bold, design: .rounded))
-                        Text("Workout Tracker").font(.caption).foregroundColor(.themeOrange).bold()
-                    }
-                    Spacer()
-                    Text("\(summary.workoutCalories) kcal")
-                        .font(.system(size: 18, weight: .heavy, design: .rounded))
-                }
-                .padding(16)
+                
+                // 1. Твои Тренировки
+                ActivitySourceRow(
+                    icon: "dumbbell.fill",
+                    iconColor: .themeOrange,
+                    title: "Workouts",
+                    subtitle: "Workout Tracker",
+                    calories: appWorkoutCalories
+                )
                 
                 Divider().padding(.leading, 80)
                 
-                // ШАГИ
-                HStack(spacing: 16) {
-                    ZStack {
-                        Circle().fill(Color.green.opacity(0.15)).frame(width: 48, height: 48)
-                        Image(systemName: "figure.walk").font(.title3).foregroundColor(.green)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Daily Activity").font(.system(size: 16, weight: .bold, design: .rounded))
-                        Text("\(summary.stepsCount) steps").font(.caption).foregroundColor(.gray)
-                    }
-                    Spacer()
-                    Text("\(dailyActivityCalories) kcal")
-                        .font(.system(size: 18, weight: .heavy, design: .rounded))
-                        .foregroundColor(.green)
-                }
-                .padding(16)
+                // 2. Apple Fitness / Системные тренировки
+                ActivitySourceRow(
+                    icon: "applewatch", // Иконка Apple Watch идеально подходит сюда
+                    iconColor: .themePink,
+                    title: "Apple Fitness",
+                    subtitle: "System & Other Apps",
+                    calories: appleFitnessCalories
+                )
+                
+                Divider().padding(.leading, 80)
+                
+                // 3. Шаги
+                ActivitySourceRow(
+                    icon: "figure.walk",
+                    iconColor: .green,
+                    title: "Daily Activity",
+                    subtitle: "\(summary.stepsCount) steps",
+                    calories: stepCalories
+                )
             }
             .background(Color.white)
             .cornerRadius(20)
@@ -306,17 +316,17 @@ struct BurnedDetailsCard: View {
             
             Spacer(minLength: 0)
             
-            // 🔥 НОВЫЙ БЛОК: ИНСАЙТ (Заполняет пустоту внизу)
+            // ИНСАЙТ (Мотивация)
             HStack(alignment: .top, spacing: 16) {
                 ZStack {
                     Circle().fill(Color.white.opacity(0.2)).frame(width: 36, height: 36)
                     Image(systemName: "flame.fill").foregroundColor(.white)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Keep Moving!")
+                    Text("Every Movement Counts!")
                         .font(.subheadline.bold())
                         .foregroundColor(.white)
-                    Text("Daily non-exercise activity (NEAT) can burn up to 500 extra calories a day.")
+                    Text("All your steps, gym sessions, and Apple Watch workouts are synced here perfectly.")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.9))
                         .lineLimit(2)
@@ -1190,16 +1200,20 @@ struct WeeklyEnergyBankCard: View {
 struct ActivityIntensityCard: View {
     let summary: DailySummary
     
+    var stepCals: Double { Double(summary.stepsCount) * 0.04 }
+    var workoutCals: Double { Double(summary.workoutCalories) }
+    var appleCals: Double {
+        max(0, Double(summary.activeCaloriesBurned) - workoutCals - stepCals)
+    }
+    var totalActive: Double { Double(max(summary.activeCaloriesBurned, 1)) }
+    
     var body: some View {
-        let workoutCals = Double(summary.workoutCalories)
-        let totalActive = Double(summary.activeCaloriesBurned)
-        let stepCals = max(0, totalActive - workoutCals)
-        
         VStack(alignment: .leading, spacing: 20) {
             Text("Burn Intensity").font(.headline)
             
             HStack(alignment: .bottom, spacing: 20) {
                 IntensityBar(title: "Steps", value: stepCals, total: totalActive, color: .green)
+                IntensityBar(title: "Apple", value: appleCals, total: totalActive, color: .themePink)
                 IntensityBar(title: "Workout", value: workoutCals, total: totalActive, color: .themeOrange)
             }
             .frame(height: 150)
@@ -1209,13 +1223,20 @@ struct ActivityIntensityCard: View {
             
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Effort Ratio").font(.caption).foregroundColor(.gray)
-                    Text(workoutCals > stepCals ? "High Intensity" : "Steady Activity")
+                    Text("Main Source").font(.caption).foregroundColor(.gray)
+                    
+                    let maxVal = max(stepCals, max(appleCals, workoutCals))
+                    let sourceName = maxVal == workoutCals ? "Custom Workouts" : (maxVal == appleCals ? "Apple Fitness" : "Daily Walking")
+                    
+                    Text(sourceName)
                         .font(.headline).foregroundColor(.primary)
                 }
                 Spacer()
-                Text("\(Int((workoutCals/max(totalActive, 1))*100))% Dedicated")
-                    .font(.caption.bold()).padding(8).background(Color.themeOrange.opacity(0.1)).cornerRadius(8)
+                Text("\(Int((max(stepCals, max(appleCals, workoutCals))/totalActive)*100))% of Total")
+                    .font(.caption.bold())
+                    .padding(8)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
             }
             Spacer(minLength: 0)
         }

@@ -3,10 +3,9 @@ import SwiftData
 
 // MARK: - CREATE RECIPE WIZARD
 struct CreateRecipeView: View {
-    // 1. ИСПРАВЛЕНИЕ: Переменная называется modelContext
     @Environment(\.modelContext) private var modelContext
     @Binding var path: NavigationPath
-    
+    @State private var showingManualAdd = false
     // Управление шагами
     @State private var currentStep: Int = 0
     private let totalSteps = 4
@@ -20,7 +19,7 @@ struct CreateRecipeView: View {
     
     // Ингредиенты (Step 2)
     @State private var ingredients: [FoodItem] = []
-    @State private var showingAddIngredient = false
+    @State private var showingSmartAdd = false // Открываем глобальный поиск
     
     // Шаги приготовления (Step 3)
     @State private var directions: [String] = [""]
@@ -28,7 +27,7 @@ struct CreateRecipeView: View {
     var isCurrentStepValid: Bool {
         switch currentStep {
         case 0: return recipeName.trimmingCharacters(in: .whitespaces).count >= 3
-        case 1: return ingredients.count >= 2
+        case 1: return ingredients.count >= 1 // Достаточно хотя бы 1 ингредиента
         case 2: return !directions.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.isEmpty
         default: return true
         }
@@ -56,7 +55,7 @@ struct CreateRecipeView: View {
                     Step1BasicsView(name: $recipeName, category: $category, servings: $servings, time: $cookingTime, categories: categories)
                         .tag(0)
                     
-                    Step2IngredientsView(ingredients: $ingredients, showingAdd: $showingAddIngredient)
+                    Step2IngredientsView(ingredients: $ingredients, showingAdd: $showingSmartAdd, showingManualAdd: $showingManualAdd)
                         .tag(1)
                     
                     Step3DirectionsView(directions: $directions)
@@ -100,12 +99,29 @@ struct CreateRecipeView: View {
         }
         .navigationTitle(navTitle)
         .navigationBarTitleDisplayMode(.inline)
+        // ✅ УБИРАЕМ НИЖНИЙ ТАБ-БАР
+        .toolbar(.hidden, for: .tabBar)
         .onTapGesture { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) }
-        .sheet(isPresented: $showingAddIngredient) {
-            AddIngredientModalView { newIngredient in
-                ingredients.append(newIngredient)
+        
+        // ✅ ВЫЗЫВАЕМ ГЛОБАЛЬНЫЙ ПОИСК ЕДЫ
+        .sheet(isPresented: $showingSmartAdd) {
+            SmartAddFoodView(mealTitle: "Recipe Ingredient") { selectedItems in
+                // Добавляем найденную еду в наш рецепт
+                withAnimation(.spring()) {
+                    ingredients.append(contentsOf: selectedItems)
+                }
             }
-            .presentationDragIndicator(.visible)
+            .presentationDetents([.fraction(0.85), .large])
+            .presentationCornerRadius(32)
+        }
+        .sheet(isPresented: $showingManualAdd) {
+            AddIngredientModalView { newCustomItem in
+                withAnimation(.spring()) {
+                    ingredients.append(newCustomItem)
+                }
+            }
+            .presentationDetents([.fraction(0.85), .large])
+            .presentationCornerRadius(32)
         }
     }
     
@@ -144,7 +160,6 @@ struct CreateRecipeView: View {
             directions: cleanDirections
         )
         
-        // 2. ИСПРАВЛЕНИЕ: Используем modelContext
         modelContext.insert(newRecipe)
         
         do {
@@ -232,56 +247,98 @@ struct Step1BasicsView: View {
 struct Step2IngredientsView: View {
     @Binding var ingredients: [FoodItem]
     @Binding var showingAdd: Bool
+    @Binding var showingManualAdd: Bool // ✅ Добавлено
     
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
                 
-                Text("Add ingredients that are contained in the recipe. Minimum amount is two ingredients.")
+                Text("Search our global database or create your own custom ingredients.")
                     .font(.body)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 24)
                 
-                Button(action: {
-                    HapticManager.shared.impact(style: .medium)
-                    showingAdd = true
-                }) {
-                    HStack {
-                        Image(systemName: "plus.circle")
-                        Text("Add ingredients")
+                // КНОПКИ ДОБАВЛЕНИЯ
+                HStack(spacing: 12) {
+                    Button(action: {
+                        HapticManager.shared.impact(style: .medium)
+                        showingAdd = true
+                    }) {
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                            Text("Search")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.themePink)
+                        .cornerRadius(20)
+                        .shadow(color: Color.themePink.opacity(0.3), radius: 8, y: 4)
                     }
-                    .font(.headline)
-                    .foregroundColor(.green)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.green.opacity(0.15))
-                    .cornerRadius(24)
+                    
+                    Button(action: {
+                        HapticManager.shared.impact(style: .light)
+                        showingManualAdd = true
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle")
+                            Text("Custom")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.themePink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.themePink.opacity(0.1))
+                        .cornerRadius(20)
+                    }
                 }
+                .buttonStyle(BounceButtonStyle())
                 .padding(.horizontal, 20)
                 
+                // СПИСОК ИНГРЕДИЕНТОВ
                 if !ingredients.isEmpty {
                     VStack(spacing: 0) {
-                        // Безопасное удаление из массива для предотвращения крэшей
                         ForEach(0..<ingredients.count, id: \.self) { index in
                             if index < ingredients.count {
                                 let item = ingredients[index]
                                 HStack {
+                                    ZStack {
+                                        Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
+                                        Text(String(item.name.first ?? "🥗")).font(.headline)
+                                    }
+                                    
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(item.name).font(.headline)
-                                        Text("\(item.calories) Cal — \(Int(item.weight))g").font(.caption).foregroundColor(.gray)
+                                        Text(item.name)
+                                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        
+                                        // ✅ Добавили вывод макросов (если юзер их ввел)
+                                        HStack {
+                                            Text("\(item.calories) kcal — \(Int(item.weight))g")
+                                                .foregroundColor(.gray)
+                                            if item.protein > 0 || item.fats > 0 || item.carbs > 0 {
+                                                Text("• P:\(Int(item.protein)) F:\(Int(item.fats)) C:\(Int(item.carbs))")
+                                                    .foregroundColor(.themePink.opacity(0.8))
+                                            }
+                                        }
+                                        .font(.caption)
                                     }
                                     Spacer()
+                                    
                                     Button(action: {
+                                        HapticManager.shared.impact(style: .light)
                                         withAnimation {
                                             if index < ingredients.count { ingredients.remove(at: index) }
                                         }
                                     }) {
-                                        Image(systemName: "trash.circle.fill").foregroundColor(.red.opacity(0.7)).font(.title2)
+                                        Image(systemName: "minus.circle.fill")
+                                            .foregroundColor(.red.opacity(0.7))
+                                            .font(.title2)
                                     }
                                 }
-                                .padding(.vertical, 16).padding(.horizontal, 20)
+                                .padding(.vertical, 12).padding(.horizontal, 20)
                                 
-                                if index < ingredients.count - 1 { Divider().padding(.leading, 20) }
+                                if index < ingredients.count - 1 { Divider().padding(.leading, 70) }
                             }
                         }
                     }
@@ -289,6 +346,9 @@ struct Step2IngredientsView: View {
                     .cornerRadius(24)
                     .padding(.horizontal, 20)
                     .shadow(color: Color.black.opacity(0.03), radius: 10, y: 4)
+                } else {
+                    EmptyStateView(imageName: "cart.badge.plus", title: "No ingredients", description: "Tap the buttons above to add food.")
+                        .frame(height: 200)
                 }
             }
             .padding(.top, 10)
@@ -296,7 +356,7 @@ struct Step2IngredientsView: View {
     }
 }
 
-// MARK: - STEP 3: DIRECTIONS (ИСПРАВЛЕНО ДЛЯ КОМПИЛЯТОРА)
+// MARK: - STEP 3: DIRECTIONS
 struct Step3DirectionsView: View {
     @Binding var directions: [String]
     
@@ -304,14 +364,13 @@ struct Step3DirectionsView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
                 
-                Text("If you wish, you can add step-by-step directions for the cooking process.")
+                Text("Add step-by-step directions for the cooking process.")
                     .font(.body)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 24)
                 
                 VStack(spacing: 16) {
                     ForEach(0..<directions.count, id: \.self) { index in
-                        // Выносим в отдельную структуру для безопасности компилятора
                         DirectionRowView(
                             index: index,
                             text: Binding(
@@ -336,7 +395,7 @@ struct Step3DirectionsView: View {
                 }) {
                     HStack {
                         Image(systemName: "plus")
-                        Text("Add direction")
+                        Text("Add step")
                     }
                     .font(.headline)
                     .foregroundColor(.green)
@@ -352,7 +411,6 @@ struct Step3DirectionsView: View {
     }
 }
 
-// 3. ИСПРАВЛЕНИЕ: Изолированная строка для безопасного ввода текста
 struct DirectionRowView: View {
     let index: Int
     @Binding var text: String
@@ -369,17 +427,18 @@ struct DirectionRowView: View {
                 .clipShape(Circle())
             
             TextField("Describe step \(index + 1)...", text: $text, axis: .vertical)
-                .lineLimit(1...4)
-                .padding(12)
+                .lineLimit(2...5)
+                .padding(16)
                 .background(Color.white)
-                .cornerRadius(16)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+                .cornerRadius(20)
+                .shadow(color: Color.black.opacity(0.02), radius: 5, y: 2)
             
             if canDelete {
                 Button(action: onDelete) {
                     Image(systemName: "minus.circle.fill")
+                        .font(.title3)
                         .foregroundColor(.red.opacity(0.5))
-                        .padding(.top, 6)
+                        .padding(.top, 4)
                 }
             }
         }
@@ -402,7 +461,7 @@ struct Step4VerificationView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 32) {
                 
-                Text("The final step. Please check the previously entered data.")
+                Text("Final review. Check your recipe details before saving.")
                     .font(.body)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 24)
@@ -416,7 +475,7 @@ struct Step4VerificationView: View {
                             .lineLimit(2)
                         
                         HStack(spacing: 12) {
-                            Label("\(totalCalories) Cal", systemImage: "flame.fill")
+                            Label("\(totalCalories) kcal", systemImage: "flame.fill")
                             Label("\(time) min", systemImage: "clock.fill")
                         }
                         .font(.subheadline.bold())
@@ -433,78 +492,206 @@ struct Step4VerificationView: View {
                 .padding(.horizontal, 20)
                 
                 // Servings Info
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Servings information").font(.title2).bold()
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("Standard serving: 1 Portion").font(.caption).foregroundColor(.gray)
-                            Text("\(Int(totalWeight / Double(max(servings, 1)))) g").font(.headline)
-                        }
-                        Spacer()
-                        VStack(alignment: .trailing) {
-                            Text("Total weight").font(.caption).foregroundColor(.gray)
-                            Text("\(Int(totalWeight)) g").font(.headline)
-                        }
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Standard Serving").font(.caption).foregroundColor(.gray)
+                        Text("\(Int(totalWeight / Double(max(servings, 1)))) g").font(.system(size: 20, weight: .bold, design: .rounded))
+                    }
+                    Spacer()
+                    VStack(alignment: .trailing) {
+                        Text("Total Weight").font(.caption).foregroundColor(.gray)
+                        Text("\(Int(totalWeight)) g").font(.system(size: 20, weight: .bold, design: .rounded))
                     }
                 }
-                .padding(.horizontal, 24)
+                .padding(20)
+                .background(Color.white)
+                .cornerRadius(20)
+                .shadow(color: Color.black.opacity(0.02), radius: 5, y: 2)
+                .padding(.horizontal, 20)
                 
                 // Ingredients List
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Ingredients").font(.title2).bold()
-                    VStack(alignment: .leading, spacing: 16) {
+                    Text("Ingredients").font(.title2).bold().padding(.horizontal, 20)
+                    VStack(spacing: 0) {
                         ForEach(ingredients) { item in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(item.name).font(.headline)
-                                Text("\(item.calories) Cal — \(Int(item.weight)) g")
-                                    .font(.caption).foregroundColor(.gray)
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.name).font(.system(size: 16, weight: .semibold, design: .rounded))
+                                    Text("\(item.calories) kcal — \(Int(item.weight))g")
+                                        .font(.caption).foregroundColor(.gray)
+                                }
+                                Spacer()
                             }
-                            if item.id != ingredients.last?.id { Divider() }
+                            .padding(.vertical, 12).padding(.horizontal, 20)
+                            if item.id != ingredients.last?.id { Divider().padding(.leading, 20) }
                         }
                     }
+                    .background(Color.white)
+                    .cornerRadius(24)
+                    .shadow(color: Color.black.opacity(0.02), radius: 5, y: 2)
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 24)
             }
             .padding(.top, 10)
         }
     }
 }
-
 // MARK: - Вспомогательное окно для добавления ингредиента
 struct AddIngredientModalView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context // ✅ Добавили контекст для сохранения в базу
+    
     var onSave: (FoodItem) -> Void
     
     @State private var name: String = ""
-    @State private var weight: Double?
-    @State private var calsPer100: Int?
+    @State private var weight: String = "100"
     
-    var isFormValid: Bool { !name.isEmpty && (weight ?? 0) > 0 && (calsPer100 != nil) }
+    // КБЖУ (Сделали String, чтобы можно было оставить пустыми)
+    @State private var calories: String = ""
+    @State private var protein: String = ""
+    @State private var fats: String = ""
+    @State private var carbs: String = ""
+    
+    // Валидация: имя обязательно, вес должен быть > 0
+    var isFormValid: Bool {
+        !name.trimmingCharacters(in: .whitespaces).isEmpty && (Double(weight) ?? 0) > 0
+    }
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Ingredient Details") {
-                    TextField("Name (e.g. Chicken Breast)", text: $name)
-                    TextField("Weight added to recipe (g)", value: $weight, format: .number).keyboardType(.decimalPad)
-                    TextField("Calories per 100g", value: $calsPer100, format: .number).keyboardType(.numberPad)
+            ZStack(alignment: .bottom) {
+                Color.themeBg.ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 24) {
+                        // БЛОК 1: Основное (Обязательно)
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Basic Info").font(.headline).foregroundColor(.gray)
+                            
+                            VStack(spacing: 0) {
+                                CustomTextFieldRow(title: "Name", placeholder: "e.g. Oat Milk", text: $name, isNumber: false)
+                                Divider().padding(.leading, 20)
+                                CustomTextFieldRow(title: "Weight (g)", placeholder: "100", text: $weight, isNumber: true)
+                            }
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+                        }
+                        
+                        // БЛОК 2: Макросы (Опционально)
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Text("Nutrition Facts").font(.headline).foregroundColor(.gray)
+                                Spacer()
+                                Text("Optional").font(.caption).foregroundColor(.gray.opacity(0.6))
+                            }
+                            
+                            VStack(spacing: 0) {
+                                CustomTextFieldRow(title: "Calories (kcal)", placeholder: "0", text: $calories, isNumber: true)
+                                Divider().padding(.leading, 20)
+                                CustomTextFieldRow(title: "Protein (g)", placeholder: "0", text: $protein, isNumber: true)
+                                Divider().padding(.leading, 20)
+                                CustomTextFieldRow(title: "Fats (g)", placeholder: "0", text: $fats, isNumber: true)
+                                Divider().padding(.leading, 20)
+                                CustomTextFieldRow(title: "Carbs (g)", placeholder: "0", text: $carbs, isNumber: true)
+                            }
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+                        }
+                        
+                        Text("Items created here are permanently saved to your database and can be used in your daily logs.")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                        
+                        Spacer().frame(height: 100)
+                    }
+                    .padding(20)
                 }
+                
+                // ПЛАВАЮЩАЯ КНОПКА
+                VStack {
+                    Spacer()
+                    ZStack {
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .frame(height: 100)
+                            .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
+                        
+                        Button(action: saveIngredient) {
+                            Text("Save & Add")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(isFormValid ? Color.themePink : Color.gray.opacity(0.5))
+                                .cornerRadius(20)
+                                .shadow(color: isFormValid ? Color.themePink.opacity(0.4) : .clear, radius: 8, y: 4)
+                                .padding(.horizontal, 24)
+                                .padding(.bottom, 20)
+                        }
+                        .disabled(!isFormValid)
+                        .buttonStyle(BounceButtonStyle())
+                    }
+                }
+                .ignoresSafeArea(edges: .bottom)
             }
-            .navigationTitle("New Ingredient")
+            .navigationTitle("Custom Ingredient")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        if let w = weight, let c100 = calsPer100 {
-                            let actualCals = Int(Double(c100) * (w / 100.0))
-                            onSave(FoodItem(name: name, weight: w, calories: actualCals, protein: 0, fats: 0, carbs: 0))
-                            dismiss()
-                        }
-                    }.disabled(!isFormValid).foregroundColor(isFormValid ? .themePink : .gray)
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                        .foregroundColor(.gray)
                 }
             }
         }
+    }
+    
+    private func saveIngredient() {
+        HapticManager.shared.impact(style: .heavy)
+        
+        // Парсим значения (если пусто - будет 0)
+        let w = Double(weight) ?? 100.0
+        let cals = Int(calories) ?? 0
+        let p = Double(protein) ?? 0.0
+        let f = Double(fats) ?? 0.0
+        let c = Double(carbs) ?? 0.0
+        
+        let newFood = FoodItem(name: name, weight: w, calories: cals, protein: p, fats: f, carbs: c)
+        
+        // ✅ 1. Сохраняем в глобальную базу (теперь он будет доступен в поиске)
+        context.insert(newFood)
+        try? context.save()
+        
+        // ✅ 2. Передаем в рецепт
+        onSave(newFood)
+        dismiss()
+    }
+}
+
+// Вспомогательная строка для текстовых полей
+struct CustomTextFieldRow: View {
+    let title: String
+    let placeholder: String
+    @Binding var text: String
+    let isNumber: Bool
+    
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .foregroundColor(.primary)
+            Spacer()
+            TextField(placeholder, text: $text)
+                .multilineTextAlignment(.trailing)
+                .keyboardType(isNumber ? .decimalPad : .default)
+                .foregroundColor(.themePink)
+                .font(.headline)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
     }
 }
 // 🍩 КРУГОВАЯ ДИАГРАММА МАКРОСОВ

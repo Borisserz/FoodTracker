@@ -365,74 +365,94 @@ struct MyRecipesTabView: View {
     let customRecipes: [CustomRecipe]
     let allRecipes: [PremiumRecipe]
     @Environment(\.modelContext) private var context
+    
     var favoriteRecipes: [PremiumRecipe] { allRecipes.filter { $0.isFavorite } }
+    
     private func deleteCustomRecipe(_ recipe: CustomRecipe) {
-          withAnimation {
-              context.delete(recipe)
-              try? context.save()
-          }
-      }
+        HapticManager.shared.impact(style: .medium)
+        withAnimation {
+            context.delete(recipe)
+            try? context.save()
+        }
+    }
       
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
                 
-                // --- 1. CUSTOM RECIPES (ТЕПЕРЬ ПЕРВЫЕ) ---
+                // --- 1. КНОПКА СОЗДАНИЯ (Hero Button) ---
+                Button(action: {
+                    HapticManager.shared.impact(style: .light)
+                    path.append(FoodsRoute.createRecipe)
+                }) {
+                    HStack(spacing: 16) {
+                        ZStack {
+                            Circle().fill(Color.white.opacity(0.2)).frame(width: 48, height: 48)
+                            Image(systemName: "plus")
+                                .font(.title2.bold())
+                                .foregroundColor(.white)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Create Custom Recipe")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Text("Combine ingredients & calculate macros")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        Spacer()
+                    }
+                    .padding(20)
+                    .background(
+                        LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .cornerRadius(24)
+                    .shadow(color: Color.themePink.opacity(0.3), radius: 15, y: 8)
+                }
+                .buttonStyle(BounceButtonStyle())
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                
+                // --- 2. МОИ РЕЦЕПТЫ (Вертикальный список с крутыми карточками) ---
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Custom Recipes")
+                    Text("My Creations")
                         .font(.title2).bold()
                         .padding(.horizontal, 20)
                     
                     if customRecipes.isEmpty {
-                        Button(action: { path.append(FoodsRoute.createRecipe) }) {
-                            Text("Create custom recipe")
-                                .font(.headline).foregroundColor(.themePink).frame(maxWidth: .infinity)
-                                .padding(.vertical, 16).background(Color.themePink.opacity(0.15)).cornerRadius(24)
-                        }
-                        .padding(.horizontal, 20)
+                        EmptyStateView(
+                            imageName: "frying.pan",
+                            title: "No custom recipes yet",
+                            description: "Your culinary masterpieces will appear here."
+                        )
+                        .frame(height: 150)
                     } else {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(customRecipes) { recipe in
-                                    Button(action: { path.append(FoodsRoute.recipeDetail(recipe)) }) {
-                                        CustomRecipeCard(
-                                            title: recipe.name,
-                                            calories: "\(recipe.totalCalories) kcal",
-                                            items: recipe.info,
-                                            cookingTime: recipe.cookingTime,
-                                            difficulty: recipe.difficulty
-                                                                                  )
-                                                                                  .foregroundColor(.primary)
-                                                                              }
-                                                                              // ✅ УДАЛЕНИЕ ДОЛГИМ ТАПОМ
-                                                                              .contextMenu {
-                                                                                  Button(role: .destructive) {
-                                                                                      deleteCustomRecipe(recipe)
-                                                                                  } label: {
-                                                                                      Label("Delete Recipe", systemImage: "trash")
-                                                                                  }
-                                                                              }
-                                                                          }
-                                                                      }
-                                                                      .padding(.horizontal, 20)
-                                                                  }
-                        Button(action: { path.append(FoodsRoute.createRecipe) }) {
-                            HStack {
-                                Image(systemName: "plus.circle.fill")
-                                Text("Create custom recipe")
+                        LazyVStack(spacing: 16) {
+                            ForEach(customRecipes) { recipe in
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .light)
+                                    path.append(FoodsRoute.recipeDetail(recipe))
+                                }) {
+                                    CustomRecipePremiumCard(recipe: recipe)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        deleteCustomRecipe(recipe)
+                                    } label: {
+                                        Label("Delete Recipe", systemImage: "trash")
+                                    }
+                                }
                             }
-                            .font(.headline).foregroundColor(.themePink).frame(maxWidth: .infinity)
-                            .padding(.vertical, 16).background(Color.themePink.opacity(0.1)).cornerRadius(20)
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 8)
                     }
                 }
-                .padding(.top, 10)
                 
-                // --- 2. FAVORITES (ТЕПЕРЬ ВТОРЫЕ) ---
+                // --- 3. ИЗБРАННОЕ ---
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("My Favorites")
+                    Text("Saved Favorites")
                         .font(.title2).bold()
                         .padding(.horizontal, 20)
                     
@@ -458,7 +478,98 @@ struct MyRecipesTabView: View {
     }
 }
 
+// MARK: - ПРЕМИУМ КАРТОЧКА КАСТОМНОГО РЕЦЕПТА (Без картинки, но красивая)
+struct CustomRecipePremiumCard: View {
+    let recipe: CustomRecipe
+    
+    var body: some View {
+        // Конвертируем в FoodItem чтобы получить общие макросы
+        let macros = recipe.toFoodItem()
+        
+        VStack(spacing: 0) {
+            // Верхняя часть с градиентом и названием
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(recipe.info.uppercased())
+                        .font(.system(size: 10, weight: .black, design: .rounded))
+                        .foregroundColor(.themePink)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.themePink.opacity(0.15))
+                        .clipShape(Capsule())
+                    
+                    Text(recipe.name)
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                    
+                    HStack(spacing: 12) {
+                        Label("\(recipe.cookingTime) min", systemImage: "clock.fill")
+                        Label("\(recipe.servings) servings", systemImage: "person.2.fill")
+                    }
+                    .font(.caption.bold())
+                    .foregroundColor(.gray)
+                }
+                Spacer()
+                
+                // Круг с калориями
+                ZStack {
+                    Circle()
+                        .stroke(Color.gray.opacity(0.1), lineWidth: 4)
+                    Circle()
+                        .trim(from: 0, to: 0.8)
+                        .stroke(Color.themePink, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                    
+                    VStack(spacing: 0) {
+                        Text("\(recipe.totalCalories)")
+                            .font(.system(size: 16, weight: .heavy, design: .rounded))
+                        Text("kcal")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.gray)
+                    }
+                }
+                .frame(width: 60, height: 60)
+            }
+            .padding(20)
+            
+            Divider().padding(.horizontal, 20)
+            
+            // Нижняя часть с макросами
+            HStack(spacing: 20) {
+                MacroPill(title: "Carbs", value: macros.carbs, color: .drinkWater)
+                MacroPill(title: "Fat", value: macros.fats, color: .themeYellow)
+                MacroPill(title: "Protein", value: macros.protein, color: .themePeach)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(Color.gray.opacity(0.03))
+        }
+        .background(Color.white)
+        .cornerRadius(24)
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
+    }
+}
 
+struct MacroPill: View {
+    let title: String
+    let value: Double
+    let color: Color
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle().fill(color).frame(width: 8, height: 8)
+            Text("\(Int(value))g")
+                .font(.subheadline.bold())
+                .foregroundColor(.primary)
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+    }
+}
 // MARK: - 5. УЛЬТИМАТИВНЫЙ ФИЛЬТР (ADVANCED RECIPE FILTER SHEET)
 struct AdvancedRecipeFilterSheet: View {
     @Environment(\.dismiss) var dismiss
