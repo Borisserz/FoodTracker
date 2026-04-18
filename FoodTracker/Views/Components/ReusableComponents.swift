@@ -180,7 +180,7 @@ struct DynamicEnergyDashboard: View {
                         }
                         .tabViewStyle(.page(indexDisplayMode: .never))
                         // ✅ ИСПРАВЛЕНИЕ: Даем кольцу достаточно места (было 320, стало 390)
-                        .frame(height: 390)
+                        .frame(height: 440)
                         
                         CustomPaginator(pageCount: 4, currentPage: eatenPage, color: .themePink)
                     }
@@ -195,7 +195,7 @@ struct DynamicEnergyDashboard: View {
                                           BurnedWeeklyTrendCard(summaries: summaries).tag(3)
                                       }
                                       .tabViewStyle(.page(indexDisplayMode: .never))
-                                      .frame(height: 390)
+                                      .frame(height: 440)
                                       
                                       // 🔥 Обновляем количество точек
                                       CustomPaginator(pageCount: 4, currentPage: burnedPage, color: .themeOrange)
@@ -211,7 +211,7 @@ struct DynamicEnergyDashboard: View {
                                           NetGoalImpactCard(summary: summary, user: user).tag(3)
                                       }
                                       .tabViewStyle(.page(indexDisplayMode: .never))
-                                      .frame(height: 390)
+                                      .frame(height: 440)
                                       
                                       // 🔥 Обновляем количество точек
                                       CustomPaginator(pageCount: 4, currentPage: netPage, color: .green)
@@ -265,7 +265,7 @@ struct BurnedDetailsCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Activity Sources")
                     .font(.headline)
@@ -338,7 +338,7 @@ struct BurnedDetailsCard: View {
             .shadow(color: Color.themeOrange.opacity(0.3), radius: 8, y: 4)
         }
         .ultraPremiumCardStyle()
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
     }
 }
 
