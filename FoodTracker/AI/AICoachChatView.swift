@@ -5,7 +5,7 @@
 //  Created by Boris Serzhanovich on 15.04.26.
 //
 
-// FILE: FoodTracker/Views/AICoach/AICoachChatView.swift
+// FILE: FoodTracker/Views/AICoach/AICoachChatView.swift123
 
 import SwiftUI
 import SwiftData
