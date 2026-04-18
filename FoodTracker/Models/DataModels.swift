@@ -124,6 +124,7 @@ struct Achievement: Identifiable {
 
 // MARK: - FOOD ITEM MODEL
 @Model final class FoodItem {
+    var id: UUID = UUID()
     var name: String
     var weight: Double
     var calories: Int
@@ -142,6 +143,9 @@ struct Achievement: Identifiable {
     init(name: String, weight: Double, calories: Int, protein: Double, fats: Double, carbs: Double,
          omega3: Double = 0, calcium: Double = 0, potassium: Double = 0,
          magnesium: Double = 0, iron: Double = 0, vitaminC: Double = 0, vitaminD: Double = 0) {
+        
+        self.id = UUID() // 🔥 ВОТ ЭТО ИСПРАВИТ ПУСТОЙ ЭКРАН! (Заставляем Swift генерировать уникальный ID)
+        
         self.name = name; self.weight = weight; self.calories = calories
         self.protein = protein; self.fats = fats; self.carbs = carbs
         self.omega3 = omega3; self.calcium = calcium; self.potassium = potassium
@@ -203,16 +207,25 @@ struct Achievement: Identifiable {
     @Relationship(deleteRule: .cascade) var beverages: [Beverage] = []
     var weight: Double?
     var activeCaloriesBurned: Int = 0
-
+    var dayNote: String = ""
+    var dayMoodEmoji: String = ""
+    var stepsCount: Int = 0
+    
+    var workoutCalories: Int = 0
+    
     var totalFoodCalories: Int { meals.reduce(0) { $0 + $1.totalCalories } }
     var totalDrinkCalories: Int { beverages.reduce(0) { $0 + $1.caloriesPerGlass } }
     var totalCalories: Int { totalFoodCalories + totalDrinkCalories }
     
     var totalHydrationLiters: Double { beverages.reduce(0) { $0 + $1.volumeMl } / 1000.0 }
-    
     var totalProtein: Double { meals.reduce(0) { $0 + $1.totalProtein } }
     var totalFats: Double { meals.reduce(0) { $0 + $1.totalFats } }
     var totalCarbs: Double { meals.reduce(0) { $0 + $1.totalCarbs } }
+    
+    // ✅ НОВОЕ: Чистый баланс (Съедено - Сожжено)
+    var netCalories: Int {
+        totalCalories - activeCaloriesBurned
+    }
     
     func remainingCalories(userGoal: Int) -> Int {
         return (userGoal + activeCaloriesBurned) - totalCalories
@@ -222,9 +235,10 @@ struct Achievement: Identifiable {
         self.date = Calendar.current.startOfDay(for: date)
         self.meals = meals; self.beverages = beverages
         self.activeCaloriesBurned = 0
+        self.stepsCount = 0
+        self.workoutCalories = 0
     }
 }
-
 // MARK: - EXTENSIONS
 extension CustomRecipe {
     func toFoodItem() -> FoodItem {
@@ -289,5 +303,21 @@ extension FoodItem {
         else {
             return .balanced
         }
+    }
+}
+@Model final class ShoppingItem {
+    var id: UUID = UUID()
+    var name: String
+    var amount: String
+    var isChecked: Bool
+    var addedFromRecipe: String?
+    var dateAdded: Date
+    
+    init(name: String, amount: String = "", isChecked: Bool = false, addedFromRecipe: String? = nil) {
+        self.name = name
+        self.amount = amount
+        self.isChecked = isChecked
+        self.addedFromRecipe = addedFromRecipe
+        self.dateAdded = Date()
     }
 }

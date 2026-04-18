@@ -1,16 +1,30 @@
 import SwiftUI
 
+// MARK: - МОДЕЛИ ДЛЯ КАТЕГОРИЙ (Теперь компилятор их видит!)
+struct FoodItemDetail: Identifiable, Hashable {
+    let id = UUID()
+    let name: String
+    let calories: Int
+    let icon: String
+}
 
+struct FoodCategory: Identifiable, Hashable {
+    let id = UUID()
+    let title: String
+    let items: [FoodItemDetail]
+}
+
+// MARK: - ОСНОВНАЯ МОДЕЛЬ ДИЕТЫ
 struct DietPlan: Identifiable, Hashable {
     let id = UUID()
     let name: String
     let tagline: String
     let description: String
-    let macroBreakdown: MacroBreakdown // Изменено на struct для корректного Hashable
-    let bestFoods: [String] // Оставлено для совместимости с DietDetailView
+    let macroBreakdown: MacroBreakdown
+    let bestFoods: [String]
     let contraindications: [String]
     let colorHex: UInt
-    let categories: [FoodCategory] // НОВОЕ ПОЛЕ
+    let categories: [FoodCategory]
     
     var color: Color {
         Color(hex: colorHex)
@@ -129,4 +143,61 @@ struct DietPlan: Identifiable, Hashable {
             ]
         )
     ]
+}
+
+// MARK: - РАСШИРЕНИЯ (Умная логика совместимости)
+
+extension User {
+    var activeDietPlan: DietPlan? {
+        DietPlan.allDiets.first(where: { $0.name == self.activeDietName })
+    }
+}
+
+extension FoodItem {
+    enum DietCompatibility {
+        case perfect, neutral, avoid
+        
+        var icon: String {
+            switch self {
+            case .perfect: return "checkmark.seal.fill"
+            case .neutral: return "minus.circle.fill"
+            case .avoid: return "xmark.octagon.fill"
+            }
+        }
+        
+        var color: Color {
+            switch self {
+            case .perfect: return .green
+            case .neutral: return .gray
+            case .avoid: return .red
+            }
+        }
+    }
+    
+    // Проверяем, подходит ли продукт под макросы текущей диеты
+    func compatibility(with diet: DietPlan?) -> DietCompatibility {
+        guard let diet = diet else { return .neutral }
+        
+        let totalCals = Double(calories > 0 ? calories : 1)
+        let cPct = (carbs * 4.0) / totalCals * 100
+        let fPct = (fats * 9.0) / totalCals * 100
+        let pPct = (protein * 4.0) / totalCals * 100
+        
+        switch diet.name {
+        case "Keto":
+            if cPct < 10 && fPct > 50 { return .perfect }
+            if cPct > 30 { return .avoid }
+        case "Vegan":
+            if name.lowercased().contains("meat") || name.lowercased().contains("chicken") || name.lowercased().contains("beef") { return .avoid }
+        case "High Protein":
+            if pPct > 30 { return .perfect }
+            if pPct < 10 && calories > 200 { return .avoid }
+        case "Mediterranean":
+            if fPct > 20 && pPct > 15 { return .perfect }
+        default:
+            return .neutral
+        }
+        
+        return .neutral
+    }
 }

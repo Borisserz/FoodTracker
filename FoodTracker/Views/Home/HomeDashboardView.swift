@@ -35,10 +35,11 @@ struct HomeDashboardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
-    
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selectedDate: Date = .now
     @State private var navigateToProfile = false
-    
+    @State private var showDailyLog = false
+       @State private var showNoteSheet = false
     @State private var showingQuickAddSheet = false
     @State private var quickAddMealType: String = "Breakfast"
     @State private var selectedMealForDetail: String? = nil
@@ -70,79 +71,171 @@ struct HomeDashboardView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.themeBg.ignoresSafeArea()
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
-                        CalendarCarouselView(selectedDate: $selectedDate)
-                        InsightsWidget(summary: currentSummary, user: currentUser)
-                        NutritionCarouselView(summary: currentSummary, user: currentUser)
-                        
-                        VStack(spacing: 16) {
-                            ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
-                                let meal = currentSummary.meals.first(where: { $0.title == mealType })
+            NavigationStack {
+                ZStack {
+                    Color.themeBg.ignoresSafeArea()
+                    
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 24) {
+                            HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
+                            CalendarCarouselView(selectedDate: $selectedDate)
+                            InsightsWidget(summary: currentSummary, user: currentUser)
+
+                            // ✅ НОВЫЙ ДИНАМИЧЕСКИЙ ДАШБОРД ВМЕСТО СТАРОЙ КАРУСЕЛИ И ШТОРКИ
+                            DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
+                                .padding(.bottom, 8)
+                            
+                            // 🟢 БЛОК ПРИЕМОВ ПИЩИ + КНОПКА DAILY LOG
+                            VStack(spacing: 16) {
+                                HStack {
+                                    Text("Nutrition")
+                                        .font(.title2).bold()
+                                    Spacer()
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .medium)
+                                        showDailyLog = true
+                                    }) {
+                                        HStack(spacing: 4) {
+                                            Text("Daily Log")
+                                            Image(systemName: "list.bullet.clipboard")
+                                        }
+                                        .font(.subheadline.bold())
+                                        .foregroundColor(.themePink)
+                                    }
+                                }
+                                .padding(.horizontal, 20)
                                 
-                                MealCardView(
-                                    title: mealType,
-                                    calories: meal?.totalCalories,
-                                    recommendedCalories: getRecommendedCalories(for: mealType),
-                                    time: meal?.date,
-                                    onCardTap: { self.selectedMealForDetail = mealType },
-                                    onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
-                                )
+                                ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
+                                    let meal = currentSummary.meals.first(where: { $0.title == mealType })
+                                    
+                                    MealCardView(
+                                        title: mealType,
+                                        calories: meal?.totalCalories,
+                                        recommendedCalories: getRecommendedCalories(for: mealType),
+                                        time: meal?.date,
+                                        onCardTap: { self.selectedMealForDetail = mealType },
+                                        onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
+                                    )
+                                }
+                                .padding(.horizontal)
                             }
+                            
+                            WaterGridTrackerView(summary: currentSummary).padding(.horizontal)
+                            WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
+                            
+                            // 🟢 БЛОК ЗАМЕТОК ВНИЗУ
+                            DailyNoteCard(summary: currentSummary) {
+                                showNoteSheet = true
+                            }
+                            .padding(.horizontal)
+                            
+                            AllTimeStatsCardView(totalCalories: allTimeCalories)
                         }
-                        .padding(.horizontal)
-                        
-                        WaterGridTrackerView(summary: currentSummary).padding(.horizontal)
-                        WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
-                        AllTimeStatsCardView(totalCalories: allTimeCalories)
+                        .padding(.bottom, 120)
                     }
-                    .padding(.bottom, 120)
                 }
-            }
-            .navigationBarHidden(true)
-            .task(id: selectedDate) {
-                await fetchHealthData(for: currentSummary)
-            }
-            .navigationDestination(isPresented: $navigateToProfile) {
-                ProfileWrapperView()
-            }
-            .sheet(isPresented: $showingQuickAddSheet) {
-                SmartAddFoodView(mealTitle: quickAddMealType) { selectedItems in
-                    addFoodsToMeal(title: quickAddMealType, items: selectedItems)
+                .navigationBarHidden(true)
+                                .task(id: selectedDate) {
+                                    await fetchHealthData(for: currentSummary)
+                                }
+                                // ✅ ДОБАВЛЕНЫ ЭТИ ДВА МОДИФИКАТОРА:
+                                .onChange(of: scenePhase) { _, newPhase in
+                                    // Обновляем данные каждый раз, когда возвращаемся в приложение
+                                    if newPhase == .active {
+                                        Task {
+                                            await fetchHealthData(for: currentSummary)
+                                        }
+                                    }
+                                }
+                                .onChange(of: HealthKitManager.shared.isAuthorized) { _, isAuth in
+                                    // Моментально обновляем данные после выдачи прав HealthKit
+                                    if isAuth {
+                                        Task {
+                                            await fetchHealthData(for: currentSummary)
+                                        }
+                                    }
+                                }
+                // MARK: - РОУТИНГ ЭКРАНОВ
+                .navigationDestination(isPresented: $navigateToProfile) {
+                    ProfileWrapperView()
                 }
-                .presentationDetents([.fraction(0.85), .large])
-                .presentationCornerRadius(32)
-                .presentationDragIndicator(.hidden)
-            }
-            .navigationDestination(item: Binding(
-                get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
-                set: { selectedMealForDetail = $0?.value }
-            )) { mealItem in
-                MealDetailView(title: mealItem.value, date: selectedDate)
+                .navigationDestination(isPresented: $showDailyLog) {
+                    DailyLogDetailView(summary: currentSummary)
+                }
+                .navigationDestination(item: Binding(
+                    get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
+                    set: { selectedMealForDetail = $0?.value }
+                )) { mealItem in
+                    MealDetailView(title: mealItem.value, date: selectedDate)
+                }
+                // MARK: - ВСПЛЫВАЮЩИЕ ШТОРКИ
+                .sheet(isPresented: $showNoteSheet) {
+                    DailyNoteSheet(summary: currentSummary)
+                        .presentationDetents([.height(450)])
+                        .presentationCornerRadius(32)
+                        .presentationDragIndicator(.visible)
+                }
+                .sheet(isPresented: $showingQuickAddSheet) {
+                    SmartAddFoodView(mealTitle: quickAddMealType) { selectedItems in
+                        addFoodsToMeal(title: quickAddMealType, items: selectedItems)
+                    }
+                    .presentationDetents([.fraction(0.85), .large])
+                    .presentationCornerRadius(32)
+                    .presentationDragIndicator(.hidden)
+                }
             }
         }
-    }
     
     private func fetchHealthData(for summary: DailySummary) async {
-        guard currentUser?.isHealthKitEnabled == true else { return }
-        HealthKitManager.shared.isAuthorized = true
-        do {
-            let burned = try await HealthKitManager.shared.fetchActiveEnergy(for: summary.date)
-            if summary.activeCaloriesBurned != burned {
-                summary.activeCaloriesBurned = burned
-                if summary.modelContext == nil { context.insert(summary) }
-                try? context.save()
+            // 1. Берем калории из Workout Tracker (App Group)
+            let workoutCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: summary.date)
+            
+            var fetchedSteps = summary.stepsCount
+            var fetchedActiveCals = summary.activeCaloriesBurned
+
+            // 2. Запрашиваем Apple Health асинхронно
+            if currentUser?.isHealthKitEnabled == true {
+                do {
+                    fetchedSteps = try await HealthKitManager.shared.fetchSteps(for: summary.date)
+                } catch { print("Steps error: \(error)") }
+                
+                do {
+                    let totalHealthCals = try await HealthKitManager.shared.fetchTotalActiveCalories(for: summary.date)
+                    // Берем максимум, чтобы учесть и тренировки, и просто ходьбу
+                    fetchedActiveCals = max(totalHealthCals, workoutCals)
+                } catch { print("Health cals error: \(error)") }
+            } else {
+                fetchedActiveCals = workoutCals
             }
-        } catch {
-            print("Failed to fetch health data: \(error.localizedDescription)")
+
+            // ✅ 3. Строго обновляем SwiftData и интерфейс в Главном Потоке (MainActor)
+            await MainActor.run {
+                var needsSave = false
+                
+                if summary.workoutCalories != workoutCals {
+                    summary.workoutCalories = workoutCals
+                    needsSave = true
+                }
+                
+                if summary.stepsCount != fetchedSteps {
+                    summary.stepsCount = fetchedSteps
+                    needsSave = true
+                }
+                
+                if summary.activeCaloriesBurned != fetchedActiveCals {
+                    summary.activeCaloriesBurned = fetchedActiveCals
+                    needsSave = true
+                }
+                
+                // Если данные изменились — сохраняем. Интерфейс (SwiftUI) перерисуется мгновенно!
+                if needsSave {
+                    if summary.modelContext == nil {
+                        context.insert(summary)
+                    }
+                    try? context.save()
+                }
+            }
         }
-    }
-    
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
         let summary = currentSummary
         var newFoodItems: [FoodItem] = []
@@ -222,37 +315,6 @@ struct HeaderView: View {
     }
 }
 
-struct UnifiedProgressCard: View {
-    let summary: DailySummary
-    let user: User?
-    
-    var body: some View {
-        let target = (user?.dailyCaloriesGoal ?? 2400) + summary.activeCaloriesBurned
-        
-        VStack(spacing: 24) {
-            BreathingCaloriesDashboard(
-                consumed: summary.totalCalories,
-                target: target,
-                activeBurned: summary.activeCaloriesBurned,
-                protein: summary.totalProtein,
-                fats: summary.totalFats,
-                carbs: summary.totalCarbs
-            )
-            
-            MacroSummaryView(
-                protein: summary.totalProtein,
-                fats: summary.totalFats,
-                carbs: summary.totalCarbs,
-                targetProtein: user?.targetProtein ?? 150,
-                targetFats: user?.targetFats ?? 70,
-                targetCarbs: user?.targetCarbs ?? 250
-            )
-        }
-        .ultraPremiumCardStyle()
-        .padding(.horizontal)
-    }
-}
-
 struct InsightsWidget: View {
     let summary: DailySummary
     let user: User?
@@ -314,6 +376,17 @@ struct MealDetailView: View {
         let startOfDay = Calendar.current.startOfDay(for: date)
         return summaries.first { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }?
             .meals.first { $0.title == title }
+    }
+    
+    // ✅ ДОБАВЛЕН МЕТОД УДАЛЕНИЯ ЕДЫ
+    private func deleteFoodItem(_ food: FoodItem) {
+        if let meal = meal, let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
+            withAnimation {
+                meal.foodItems.remove(at: index)
+                context.delete(food)
+                try? context.save()
+            }
+        }
     }
     
     var body: some View {
@@ -383,14 +456,23 @@ struct MealDetailView: View {
                                 .padding(.bottom, 12)
                             
                             VStack(spacing: 0) {
+                                // ✅ ИСПРАВЛЕНА ОБРАБОТКА ЭЛЕМЕНТОВ (ДОБАВЛЕНО УДАЛЕНИЕ И КОНТЕКСТНОЕ МЕНЮ)
                                 ForEach(meal.foodItems) { food in
-                                    Button(action: {
+                                    FoodItemDetailedRow(food: food, onDelete: {
+                                        deleteFoodItem(food)
+                                    })
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
                                         HapticManager.shared.impact(style: .light)
                                         selectedFoodForDetail = food
-                                    }) {
-                                        FoodItemDetailedRow(food: food)
                                     }
-                                    .buttonStyle(PlainButtonStyle())
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            deleteFoodItem(food)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
                                     
                                     if food.id != meal.foodItems.last?.id {
                                         Divider().padding(.leading, 20)
@@ -457,7 +539,6 @@ struct MealDetailView: View {
             }
         }
     }
-    
     private func addFoodsToMeal(items: [FoodItem]) {
         let startOfDay = Calendar.current.startOfDay(for: date)
         let summary: DailySummary
@@ -501,6 +582,7 @@ struct MealDetailView: View {
 // MARK: - Детальная строка для списка продуктов
 struct FoodItemDetailedRow: View {
     let food: FoodItem
+    var onDelete: (() -> Void)? = nil // ✅ Опциональный коллбек для кнопки удаления
     
     var body: some View {
         HStack(spacing: 16) {
@@ -522,15 +604,34 @@ struct FoodItemDetailedRow: View {
                 }
             }
             Spacer()
+            
             Text("\(food.calories) kcal").font(.headline).foregroundColor(.themePink)
-            Image(systemName: "chevron.right").font(.system(size: 14, weight: .bold)).foregroundColor(.gray.opacity(0.3))
+            
+            // ✅ ЕСЛИ ПЕРЕДАН МЕТОД УДАЛЕНИЯ – ПОКАЗЫВАЕМ КОРЗИНУ
+            if let onDelete = onDelete {
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    onDelete()
+                }) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.red.opacity(0.8))
+                        .padding(.leading, 4)
+                        .padding(.vertical, 8) // Увеличиваем хитбокс
+                }
+            } else {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.gray.opacity(0.3))
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.white)
-        .contentShape(Rectangle())
     }
 }
+
+
 
 struct MicronutrientRingsView: View {
     let meal: Meal
@@ -683,210 +784,11 @@ struct MealCardView: View {
     }
 }
 
-// MARK: - 🔥 Smart Add Food View (С РЕАЛИЗОВАННЫМ ПОИСКОМ СЕТИ И DEBOUNCE)
-struct SmartAddFoodView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context
-    
-    @Query private var customRecipes: [CustomRecipe]
-    @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
-    
-    @State private var selectedFoodForDetail: FoodItem? = nil
-    let mealTitle: String
-    var onSave: ([FoodItem]) -> Void
-    
-    @State private var showingScanner = false
-    @State private var selectedFoods: [FoodItem] = []
-    @State private var searchText = ""
-    @State private var selectedCategory = "Recent"
-    
-    // --- СТЕЙТЫ ДЛЯ СЕТЕВОГО ПОИСКА ---
-    @State private var apiSearchResults: [FoodItem] = []
-    @State private var isSearchingAPI = false
-    @State private var searchTask: Task<Void, Never>? = nil
-    
-    let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
-    
-    var allAvailableFoods: [FoodItem] {
-        var uniqueItems: [String: FoodItem] = [:]
-        for meal in pastMeals {
-            for item in meal.foodItems {
-                if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
-            }
-        }
-        var results = Array(uniqueItems.values)
-        if results.isEmpty {
-            results = [
-                FoodItem(name: "Grilled Chicken Breast", weight: 150, calories: 240, protein: 31, fats: 3.6, carbs: 0),
-                FoodItem(name: "Avocado Toast", weight: 120, calories: 220, protein: 5, fats: 12, carbs: 20),
-                FoodItem(name: "Scrambled Eggs", weight: 100, calories: 155, protein: 13, fats: 11, carbs: 1),
-                FoodItem(name: "Black Coffee", weight: 250, calories: 2, protein: 0, fats: 0, carbs: 0)
-            ]
-        }
-        return results
-    }
-    
-    var filteredLocalFoods: [FoodItem] {
-        var items: [FoodItem] = []
-        var foodCounts: [String: Int] = [:]
-        
-        for meal in pastMeals {
-            for food in meal.foodItems { foodCounts[food.name, default: 0] += 1 }
-        }
-        
-        switch selectedCategory {
-        case "Recent": items = allAvailableFoods
-        case "Frequent": items = allAvailableFoods.sorted { (foodCounts[$0.name] ?? 0) > (foodCounts[$1.name] ?? 0) }
-        case "Favorites": items = allAvailableFoods.filter { (foodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
-        case "My Recipes": items = customRecipes.map { $0.toFoodItem() }
-        default: items = allAvailableFoods
-        }
-        
-        if !searchText.isEmpty {
-            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-        
-        if selectedCategory == "Recent" || selectedCategory == "My Recipes" {
-            items.sort { $0.name < $1.name }
-        }
-        return items
-    }
-    
-    var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
-    
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            Color.themeBg.ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // ШАПКА
-                VStack(spacing: 16) {
-                    Capsule().fill(Color.gray.opacity(0.3)).frame(width: 40, height: 5).padding(.top, 10)
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(mealTitle).font(.system(size: 28, weight: .bold, design: .rounded))
-                            Text("What did you eat?").font(.subheadline).foregroundColor(.gray)
-                        }
-                        Spacer()
-                        Button(action: { dismiss() }) { Image(systemName: "xmark.circle.fill").font(.system(size: 28)).foregroundColor(Color.gray.opacity(0.3)) }
-                    }.padding(.horizontal, 20)
-                    
-                    ActionSearchBar(text: $searchText, onBarcodeTap: { showingScanner = true })
-                        .padding(.horizontal, 20)
-                    
-                    if searchText.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                ForEach(categories, id: \.self) { category in
-                                    Button(action: {
-                                        withAnimation(.spring()) { selectedCategory = category }
-                                        HapticManager.shared.impact(style: .light)
-                                    }) {
-                                        Text(category).font(.subheadline).bold().padding(.horizontal, 18).padding(.vertical, 10)
-                                            .background(selectedCategory == category ? Color.themePink : Color.white)
-                                            .foregroundColor(selectedCategory == category ? .white : .primary)
-                                            .cornerRadius(20).shadow(color: selectedCategory == category ? Color.themePink.opacity(0.3) : Color.black.opacity(0.03), radius: 4, y: 2)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 20).padding(.vertical, 4)
-                        }
-                    }
-                }
-                .padding(.bottom, 10)
-                .background(Rectangle().fill(.ultraThinMaterial).ignoresSafeArea().shadow(color: .black.opacity(0.03), radius: 8, y: 4))
-                .zIndex(2)
-                
-                // СПИСОК РЕЗУЛЬТАТОВ
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: 12) {
-                        if !searchText.isEmpty {
-                            if isSearchingAPI {
-                                ProgressView("Searching global database...")
-                                    .padding(.top, 40)
-                            } else {
-                                if !filteredLocalFoods.isEmpty {
-                                    Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
-                                    ForEach(filteredLocalFoods, id: \.name) { food in
-                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
-                                    }
-                                }
-                                
-                                if !apiSearchResults.isEmpty {
-                                    Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
-                                    ForEach(apiSearchResults, id: \.name) { food in
-                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
-                                    }
-                                } else if filteredLocalFoods.isEmpty {
-                                    EmptyStateView(imageName: "magnifyingglass", title: "No foods found", description: "Try searching for something else.")
-                                        .padding(.top, 40)
-                                }
-                            }
-                        } else {
-                            if filteredLocalFoods.isEmpty {
-                                EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
-                                    .padding(.top, 60)
-                            } else {
-                                ForEach(filteredLocalFoods, id: \.name) { food in
-                                    FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
-                }
-            }
-            
-            if !selectedFoods.isEmpty {
-                FloatingCartButton(count: selectedFoods.count, calories: cartCalories) {
-                    HapticManager.shared.impact(style: .heavy)
-                    onSave(selectedFoods)
-                    dismiss()
-                }.transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
-            }
-        }
-        // ✅ ВАЖНО: ОТСЛЕЖИВАЕМ ВВОД ТЕКСТА
-        .onChange(of: searchText) { _, newValue in
-            performSearch(query: newValue)
-        }
-        .fullScreenCover(isPresented: $showingScanner) {
-            SmartScannerView { foundFood in selectedFoodForDetail = foundFood }
-        }
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
-        .fullScreenCover(item: $selectedFoodForDetail) { food in
-            FoodDetailNutritionView(food: food, mealTitle: mealTitle) { addedFood in
-                withAnimation(.spring()) { selectedFoods.append(addedFood) }
-            }
-        }
-    }
-    
-    // MARK: - ЛОГИКА DEBOUNCE ПОИСКА
-    private func performSearch(query: String) {
-        searchTask?.cancel()
-        guard query.count > 2 else {
-            apiSearchResults = []
-            isSearchingAPI = false
-            return
-        }
-        isSearchingAPI = true
-        searchTask = Task {
-            do { try await Task.sleep(nanoseconds: 500_000_000) } catch { return }
-            let results = await NetworkManager.shared.searchFoodByText(query: query)
-            await MainActor.run {
-                if !Task.isCancelled {
-                    self.apiSearchResults = results
-                    self.isSearchingAPI = false
-                }
-            }
-        }
-    }
-}
-
 // MARK: - Search Bar & Action Buttons
 struct ActionSearchBar: View {
     @Binding var text: String
     var onBarcodeTap: () -> Void
+    var onManualAddTap: () -> Void // ✅ ДОБАВЛЕНО: Обработчик для ручного добавления
     
     var body: some View {
         HStack(spacing: 12) {
@@ -904,15 +806,17 @@ struct ActionSearchBar: View {
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
             
+            // Кнопка ИИ Камеры
             Button(action: { HapticManager.shared.impact(style: .medium) }) {
                 Image(systemName: "camera.viewfinder")
                     .font(.system(size: 20))
                     .foregroundColor(.themePink)
-                    .frame(width: 46, height: 46)
+                    .frame(width: 44, height: 44)
                     .background(Color.themePink.opacity(0.1))
                     .cornerRadius(14)
             }
             
+            // Кнопка Штрихкода
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onBarcodeTap()
@@ -920,14 +824,26 @@ struct ActionSearchBar: View {
                 Image(systemName: "barcode.viewfinder")
                     .font(.system(size: 20))
                     .foregroundColor(.themeOrange)
-                    .frame(width: 46, height: 46)
+                    .frame(width: 44, height: 44)
                     .background(Color.themeOrange.opacity(0.1))
+                    .cornerRadius(14)
+            }
+            
+            // ✅ НОВАЯ КНОПКА: Ручное создание продукта
+            Button(action: {
+                HapticManager.shared.impact(style: .light)
+                onManualAddTap()
+            }) {
+                Image(systemName: "plus.app.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.green)
+                    .frame(width: 44, height: 44)
+                    .background(Color.green.opacity(0.1))
                     .cornerRadius(14)
             }
         }
     }
 }
-
 struct InteractiveFoodRow: View {
     let food: FoodItem
     let isSelected: Bool
@@ -1022,18 +938,63 @@ struct MacroDot: View {
 struct FoodSearchResultRow: View {
     let food: FoodItem
     let action: () -> Void
+    
+    @Query private var users: [User]
+    
     var body: some View {
+        let user = users.first
+        let compatibility = food.compatibility(with: user?.activeDietPlan)
+        
         Button(action: action) {
             HStack(spacing: 16) {
-                Text("🍲").font(.system(size: 24)).frame(width: 44, height: 44).background(Color.gray.opacity(0.05)).clipShape(RoundedRectangle(cornerRadius: 12))
+                // Иконка
+                ZStack {
+                    Circle().fill(Color.gray.opacity(0.05)).frame(width: 48, height: 48)
+                    Text("🍲").font(.system(size: 24))
+                    
+                    // БЕЙДЖ СОВМЕСТИМОСТИ С ДИЕТОЙ
+                    if compatibility != .neutral {
+                        Image(systemName: compatibility.icon)
+                            .font(.system(size: 14))
+                            .foregroundColor(compatibility.color)
+                            .background(Color.white.clipShape(Circle()))
+                            .offset(x: 16, y: 16)
+                    }
+                }
+                
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(food.name).font(.system(size: 17, weight: .semibold, design: .rounded)).foregroundColor(.primary)
-                    Text("\(food.calories) kcal • 100g").font(.system(size: 14, weight: .medium, design: .rounded)).foregroundColor(.gray)
+                    Text(food.name)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(compatibility == .avoid ? .gray : .primary)
+                        .strikethrough(compatibility == .avoid, color: .red.opacity(0.5)) // Зачеркиваем плохие продукты
+                    
+                    HStack {
+                        Text("\(food.calories) kcal • 100g")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(.gray)
+                        
+                        if compatibility == .perfect {
+                            Text("• Great for \(user?.activeDietName ?? "")")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.green)
+                        } else if compatibility == .avoid {
+                            Text("• Avoid on \(user?.activeDietName ?? "")")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.red)
+                        }
+                    }
                 }
                 Spacer()
-                Image(systemName: "chevron.right").font(.system(size: 14, weight: .bold)).foregroundColor(.gray.opacity(0.5))
-            }.padding(16).background(Color.white).cornerRadius(20).shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
-        }.buttonStyle(BounceButtonStyle())
+                Image(systemName: "plus.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(compatibility == .avoid ? .gray.opacity(0.3) : .themePink)
+            }
+            .padding(16)
+            .background(compatibility == .avoid ? Color.red.opacity(0.03) : (compatibility == .perfect ? Color.green.opacity(0.03) : Color.white))
+            .cornerRadius(20)
+            .shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
+        }
+        .buttonStyle(BounceButtonStyle())
     }
 }
 
@@ -1054,5 +1015,565 @@ struct AllTimeStatsCardView: View {
                 Text("kcal").font(.title2.bold()).foregroundColor(.white.opacity(0.9))
             }.foregroundColor(.white)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(24).background(LinearGradient(colors: [Color.themePink.opacity(0.9), Color.themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)).cornerRadius(28).shadow(color: .themePink.opacity(0.3), radius: 15, x: 0, y: 8).padding(.horizontal)
+    }
+}
+struct DailyNoteCard: View {
+    let summary: DailySummary
+    var onEdit: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            HapticManager.shared.impact(style: .medium)
+            onEdit()
+        }) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Text("Daily Notes")
+                        .font(.title3.bold())
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Image(systemName: "square.and.pencil")
+                        .foregroundColor(.themePink)
+                }
+                
+                if summary.dayNote.isEmpty && summary.dayMoodEmoji.isEmpty {
+                    // Пустое состояние (как на скрине, но красивее)
+                    HStack(spacing: 20) {
+                        Text("☀️").font(.system(size: 40))
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("How was your day?")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            Text("Track your feelings & habits")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        Spacer()
+                        Text("🌧️").font(.system(size: 30)).opacity(0.5)
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.05))
+                    .cornerRadius(20)
+                } else {
+                    // Заполненное состояние
+                    HStack(alignment: .top, spacing: 16) {
+                        if !summary.dayMoodEmoji.isEmpty {
+                            Text(summary.dayMoodEmoji)
+                                .font(.system(size: 40))
+                                .padding(12)
+                                .background(Color.themePink.opacity(0.1))
+                                .clipShape(Circle())
+                        }
+                        
+                        Text(summary.dayNote.isEmpty ? "No text added, just a mood!" : summary.dayNote)
+                            .font(.body)
+                            .foregroundColor(.primary.opacity(0.9))
+                            .lineLimit(4)
+                            .multilineTextAlignment(.leading)
+                            .padding(.top, 8)
+                        
+                        Spacer()
+                    }
+                }
+            }
+            .ultraPremiumCardStyle()
+        }
+        .buttonStyle(BounceButtonStyle())
+    }
+}
+
+struct DailyNoteSheet: View {
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context
+    @Bindable var summary: DailySummary
+    
+    // Пресеты настроений/дней
+    let moods = [
+        ("☀️", "Great Day"),
+        ("🍩", "Cheat Day"),
+        ("🍔", "Binge Eating"),
+        ("🥲", "Bad Mood"),
+        ("🏋️", "Active"),
+        ("🧘‍♀️", "Relaxed"),
+        ("🤢", "Felt Sick")
+    ]
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Capsule()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 40, height: 5)
+                .padding(.top, 10)
+            
+            HStack {
+                Text("Your Day")
+                    .font(.title2.bold())
+                Spacer()
+                Button("Save") {
+                    HapticManager.shared.impact(style: .heavy)
+                    try? context.save()
+                    dismiss()
+                }
+                .font(.headline)
+                .foregroundColor(.themePink)
+            }
+            .padding(.horizontal, 24)
+            
+            // Текстовое поле
+            TextField("Write about your meals, feelings, or workouts...", text: $summary.dayNote, axis: .vertical)
+                .lineLimit(4...8)
+                .padding(16)
+                .background(Color.gray.opacity(0.05))
+                .cornerRadius(20)
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+                .padding(.horizontal, 24)
+            
+            // Выбор настроения (Горизонтальный скролл как на скрине конкурента)
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Tags & Mood")
+                    .font(.headline)
+                    .padding(.horizontal, 24)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(moods, id: \.1) { mood in
+                            Button(action: {
+                                HapticManager.shared.impact(style: .light)
+                                withAnimation {
+                                    if summary.dayMoodEmoji == mood.0 {
+                                        summary.dayMoodEmoji = "" // Отмена выбора
+                                    } else {
+                                        summary.dayMoodEmoji = mood.0
+                                    }
+                                }
+                            }) {
+                                VStack(spacing: 8) {
+                                    Text(mood.0)
+                                        .font(.system(size: 30))
+                                        .padding(16)
+                                        .background(summary.dayMoodEmoji == mood.0 ? Color.themePink.opacity(0.2) : Color.white)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(summary.dayMoodEmoji == mood.0 ? Color.themePink : Color.gray.opacity(0.2), lineWidth: 2)
+                                        )
+                                        .cornerRadius(20)
+                                    
+                                    Text(mood.1)
+                                        .font(.caption)
+                                        .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
+                                        .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 10)
+                }
+            }
+            
+            Spacer()
+        }
+        .background(Color.themeBg.ignoresSafeArea())
+    }
+}
+
+// MARK: - 📋 ПОЛНЫЙ ЛОГ ЗА ДЕНЬ (Daily Nutrition Log)
+
+struct DailyLogDetailView: View {
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context // ✅ ДОБАВЛЕН КОНТЕКСТ
+    let summary: DailySummary
+    
+    // ✅ МЕТОД ДЛЯ УДАЛЕНИЯ ИЗ ОБЩЕГО ЛОГА
+    private func deleteFoodItem(_ food: FoodItem, from meal: Meal) {
+        if let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
+            withAnimation {
+                meal.foodItems.remove(at: index)
+                context.delete(food)
+                try? context.save()
+            }
+        }
+    }
+    var body: some View {
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
+                    
+                    // Шапка с итогами дня
+                    VStack(spacing: 8) {
+                        Text("\(summary.totalFoodCalories) kcal")
+                            .font(.system(size: 48, weight: .heavy, design: .rounded))
+                            .foregroundColor(.themePink)
+                        Text("Total Food Logged Today")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.vertical, 20)
+                    
+                    // Итерируемся по приемам пищи
+                    let activeMeals = summary.meals.filter { !$0.foodItems.isEmpty }
+                    
+                    if activeMeals.isEmpty {
+                        EmptyStateView(imageName: "doc.text.magnifyingglass", title: "No Food Logged", description: "You haven't logged any food for this day yet.")
+                            .padding(.top, 40)
+                    } else {
+                        ForEach(activeMeals) { meal in
+                            VStack(alignment: .leading, spacing: 0) {
+                                // Заголовок приема пищи
+                                HStack {
+                                    Text(meal.title)
+                                        .font(.title3.bold())
+                                    Spacer()
+                                    Text("\(meal.totalCalories) kcal")
+                                        .font(.headline)
+                                        .foregroundColor(.themePink)
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.top, 20)
+                                .padding(.bottom, 12)
+                                
+                                // Продукты внутри приема пищи
+                                VStack(spacing: 0) {
+                                    ForEach(meal.foodItems) { food in
+                                        HStack(spacing: 16) {
+                                            ZStack {
+                                                Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
+                                                Text(String(food.name.first ?? "🥘")).font(.headline)
+                                            }
+                                            
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(food.name)
+                                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                                    .foregroundColor(.primary)
+                                                
+                                                HStack {
+                                                    Text("\(Int(food.weight))g")
+                                                    Text("•")
+                                                    Text("P:\(Int(food.protein)) F:\(Int(food.fats)) C:\(Int(food.carbs))")
+                                                }
+                                                .font(.caption2)
+                                                .foregroundColor(.gray)
+                                            }
+                                            Spacer()
+                                            
+                                            Text("\(food.calories)")
+                                                                                           .font(.headline)
+                                                                                           .foregroundColor(.primary)
+                                                                                       
+                                                                                       // ✅ КНОПКА УДАЛЕНИЯ В ПОЛНОМ ЛОГЕ
+                                                                                       Button(action: {
+                                                                                           HapticManager.shared.impact(style: .medium)
+                                                                                           deleteFoodItem(food, from: meal)
+                                                                                       }) {
+                                                                                           Image(systemName: "trash")
+                                                                                               .foregroundColor(.red.opacity(0.8))
+                                                                                               .padding(.leading, 8)
+                                                                                       }
+                                                                                   }
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 12)
+                                        
+                                        if food.id != meal.foodItems.last?.id {
+                                            Divider().padding(.leading, 70)
+                                        }
+                                    }
+                                }
+                            }
+                            .background(Color.white)
+                            .cornerRadius(24)
+                            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                }
+                .padding(.bottom, 60)
+            }
+        }
+        .navigationTitle("Daily Log")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+struct ActivitySourceRow: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let subtitle: String
+    let calories: Int
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(iconColor.opacity(0.15))
+                    .frame(width: 48, height: 48)
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(iconColor)
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(iconColor)
+                    .bold()
+            }
+            
+            Spacer()
+            
+            Text("\(calories) kcal")
+                .font(.system(size: 18, weight: .heavy, design: .rounded))
+                .foregroundColor(calories > 0 ? .primary : .gray.opacity(0.5))
+        }
+        .padding(16)
+        .contentShape(Rectangle())
+    }
+}
+struct SmartAddFoodView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
+    @Query private var allDatabaseFoods: [FoodItem]
+    @Query private var customRecipes: [CustomRecipe]
+    @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
+    
+    @State private var selectedFoodForDetail: FoodItem? = nil
+    let mealTitle: String
+    var onSave: ([FoodItem]) -> Void
+    
+    @State private var showingScanner = false
+    @State private var showingManualAdd = false // ✅
+    @State private var selectedFoods: [FoodItem] = []
+    @State private var searchText = ""
+    @State private var selectedCategory = "Recent"
+    
+    @State private var apiSearchResults: [FoodItem] = []
+    @State private var isSearchingAPI = false
+    @State private var searchTask: Task<Void, Never>? = nil
+    
+    let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
+    
+    var allAvailableFoods: [FoodItem] {
+        var uniqueItems: [String: FoodItem] = [:]
+        for meal in pastMeals {
+            for item in meal.foodItems {
+                if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
+            }
+        }
+        for item in allDatabaseFoods {
+            if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
+        }
+        var results = Array(uniqueItems.values)
+        if results.isEmpty {
+            results = [
+                FoodItem(name: "Grilled Chicken Breast", weight: 150, calories: 240, protein: 31, fats: 3.6, carbs: 0),
+                FoodItem(name: "Avocado Toast", weight: 120, calories: 220, protein: 5, fats: 12, carbs: 20)
+            ]
+        }
+        return results
+    }
+    
+    var filteredLocalFoods: [FoodItem] {
+        var items: [FoodItem] = []
+        var foodCounts: [String: Int] = [:]
+        
+        for meal in pastMeals {
+            for food in meal.foodItems { foodCounts[food.name, default: 0] += 1 }
+        }
+        
+        switch selectedCategory {
+        case "Recent": items = allAvailableFoods
+        case "Frequent": items = allAvailableFoods.sorted { (foodCounts[$0.name] ?? 0) > (foodCounts[$1.name] ?? 0) }
+        case "Favorites": items = allAvailableFoods.filter { (foodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
+        case "My Recipes": items = customRecipes.map { $0.toFoodItem() }
+        default: items = allAvailableFoods
+        }
+        
+        if !searchText.isEmpty {
+            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+        if selectedCategory == "Recent" || selectedCategory == "My Recipes" {
+            items.sort { $0.name < $1.name }
+        }
+        return items
+    }
+    
+    var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
+    
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            Color.themeBg.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // ШАПКА
+                VStack(spacing: 16) {
+                    Capsule().fill(Color.gray.opacity(0.3)).frame(width: 40, height: 5).padding(.top, 10)
+                    
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(mealTitle).font(.system(size: 28, weight: .bold, design: .rounded))
+                            Text("What did you eat?").font(.subheadline).foregroundColor(.gray)
+                        }
+                        Spacer()
+                        Button(action: { dismiss() }) {
+                            Image(systemName: "xmark.circle.fill").font(.system(size: 28)).foregroundColor(Color.gray.opacity(0.3))
+                        }
+                    }.padding(.horizontal, 20)
+                    
+                    ActionSearchBar(
+                        text: $searchText,
+                        onBarcodeTap: { showingScanner = true },
+                        onManualAddTap: { showingManualAdd = true }
+                    )
+                    .padding(.horizontal, 20)
+                    
+                    if searchText.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(categories, id: \.self) { category in
+                                    Button(action: {
+                                        withAnimation(.spring()) { selectedCategory = category }
+                                        HapticManager.shared.impact(style: .light)
+                                    }) {
+                                        Text(category)
+                                            .font(.subheadline).bold()
+                                            .padding(.horizontal, 18).padding(.vertical, 10)
+                                            .background(selectedCategory == category ? Color.themePink : Color.white)
+                                            .foregroundColor(selectedCategory == category ? .white : .primary)
+                                            .cornerRadius(20)
+                                            .shadow(color: selectedCategory == category ? Color.themePink.opacity(0.3) : Color.black.opacity(0.03), radius: 4, y: 2)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20).padding(.vertical, 4)
+                        }
+                    }
+                }
+                .padding(.bottom, 10)
+                .background(Rectangle().fill(.ultraThinMaterial).ignoresSafeArea().shadow(color: .black.opacity(0.03), radius: 8, y: 4))
+                .zIndex(2)
+                
+                // СПИСОК РЕЗУЛЬТАТОВ
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 12) {
+                        if !searchText.isEmpty {
+                            if isSearchingAPI {
+                                ProgressView("Searching global database...")
+                                    .padding(.top, 40)
+                            } else {
+                                if !filteredLocalFoods.isEmpty {
+                                    Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
+                                    ForEach(filteredLocalFoods, id: \.self) { food in
+                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                    }
+                                }
+                                
+                                if !apiSearchResults.isEmpty {
+                                    Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                                    ForEach(apiSearchResults, id: \.self) { food in
+                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                    }
+                                } else if filteredLocalFoods.isEmpty {
+                                    // 🟢 КРАСИВЫЙ БЛОК РУЧНОГО ВВОДА
+                                    VStack(spacing: 16) {
+                                        Image(systemName: "questionmark.folder.fill").font(.system(size: 48)).foregroundColor(.themeOrange.opacity(0.5))
+                                        Text("Can't find '\(searchText)'?").font(.headline)
+                                        Text("No worries! You can quickly add it to your personal database and use it forever.")
+                                            .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center).padding(.horizontal, 20)
+                                        
+                                        Button(action: {
+                                            HapticManager.shared.impact(style: .medium)
+                                            showingManualAdd = true
+                                        }) {
+                                            HStack {
+                                                Image(systemName: "plus.circle.fill")
+                                                Text("Create Custom Food")
+                                            }
+                                            .font(.headline).foregroundColor(.white).padding(.vertical, 14).padding(.horizontal, 24)
+                                            .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .cornerRadius(20).shadow(color: Color.green.opacity(0.3), radius: 8, y: 4)
+                                        }
+                                        .buttonStyle(BounceButtonStyle())
+                                    }
+                                    .padding(.top, 40)
+                                }
+                            }
+                        } else {
+                            if filteredLocalFoods.isEmpty {
+                                EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
+                                    .padding(.top, 60)
+                            } else {
+                                ForEach(filteredLocalFoods, id: \.self) { food in
+                                    FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
+                }
+            }
+            
+            if !selectedFoods.isEmpty {
+                FloatingCartButton(count: selectedFoods.count, calories: cartCalories) {
+                    HapticManager.shared.impact(style: .heavy)
+                    onSave(selectedFoods)
+                    dismiss()
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
+            }
+        }
+        .onChange(of: searchText) { _, newValue in performSearch(query: newValue) }
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
+        .fullScreenCover(item: $selectedFoodForDetail) { food in
+            FoodDetailNutritionView(food: food, mealTitle: mealTitle) { addedFood in
+                withAnimation(.spring()) { selectedFoods.append(addedFood) }
+            }
+        }
+        .fullScreenCover(isPresented: $showingScanner) {
+            SmartScannerView(
+                onProductFound: { foundFood in selectedFoodForDetail = foundFood },
+                onManualEntryRequest: { showingManualAdd = true }
+            )
+        }
+        .sheet(isPresented: $showingManualAdd) {
+            AddIngredientModalView { newCustomItem in
+                withAnimation(.spring()) { selectedFoods.append(newCustomItem) }
+            }
+            .presentationDetents([.fraction(0.85), .large])
+            .presentationCornerRadius(32)
+            .presentationDragIndicator(.visible)
+        }
+    }
+    
+    private func performSearch(query: String) {
+        searchTask?.cancel()
+        guard query.count > 2 else {
+            apiSearchResults = []
+            isSearchingAPI = false
+            return
+        }
+        isSearchingAPI = true
+        searchTask = Task {
+            do {
+                try await Task.sleep(nanoseconds: 500_000_000)
+                guard !Task.isCancelled else { return }
+                let results = await NetworkManager.shared.searchFoodByText(query: query)
+                await MainActor.run {
+                    if !Task.isCancelled {
+                        self.apiSearchResults = results
+                        self.isSearchingAPI = false
+                    }
+                }
+            } catch {
+                if !Task.isCancelled { await MainActor.run { self.isSearchingAPI = false } }
+            }
+        }
     }
 }

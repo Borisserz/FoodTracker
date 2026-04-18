@@ -16,6 +16,7 @@ struct AICoachChatView: View {
     
     let userGoal: Int
     let consumed: Int
+    let activeDiet: String // ✅ ДОБАВИЛИ ПЕРЕМЕННУЮ ДЛЯ ДИЕТЫ
     
     @State private var currentSession: AIChatSession?
     @State private var chatHistory: [AIChatMessage] = []
@@ -144,8 +145,13 @@ struct AICoachChatView: View {
             }
             
             let userContext = "User's goal is \(userGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(userGoal - consumed) kcal."
-            
-            let aiResponseText = await AINutritionService.shared.sendChatMessage(prompt: text, userContext: userContext) ?? "I couldn't process that right now."
+                       
+                       // ✅ ПЕРЕДАЕМ ДИЕТУ В СЕРВИС
+                       let aiResponseText = await AINutritionService.shared.sendChatMessage(
+                           prompt: text,
+                           userContext: userContext,
+                           activeDiet: activeDiet
+                       ) ?? "I couldn't process that right now."
             
             await MainActor.run {
                 let aiMsg = AIChatMessage(isUser: false, text: aiResponseText, isAnimating: true)

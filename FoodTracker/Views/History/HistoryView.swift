@@ -11,14 +11,17 @@ enum FoodsRoute: Hashable {
     case premiumRecipeDetail(PremiumRecipe)
     case articleDetail(Article)
     case filteredList(String, [PremiumRecipe])
-    case mealDetail(title: String, date: Date)// Добавлено для поддержки фильтров
+    case mealDetail(title: String, date: Date)
+    case shoppingList
+    case fasting
+    case fastingDetail(FastingPlan)
 }
 
 // MARK: - ГЛАВНЫЙ VIEW FOODS (БЫВШИЙ HISTORY)
 struct FoodsDashboardView: View {
     @Environment(\.modelContext) private var context
     @State private var path = NavigationPath()
-    
+    @State private var dataLoader = RecipeDataLoader()
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
     
     @State private var selectedFilter: String = "All"
@@ -33,13 +36,22 @@ struct FoodsDashboardView: View {
     }
     
     var body: some View {
-        NavigationStack(path: $path) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 32) {
+            NavigationStack(path: $path) {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 32) {
+                        
+                        // ✅ ЕСЛИ ИДЕТ ГОЛОДАНИЕ - ПОКАЗЫВАЕМ ВИДЖЕТ
+                        if FastingManager.shared.isFasting {
+                            ActiveFastingCard()
+                                .padding(.horizontal)
+                                .padding(.top, 10)
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+                        
                     
                     // 1. БЛОК ГЛАВНЫХ КНОПОК НАВИГАЦИИ
                     VStack(spacing: 16) {
-                        // Верхний ряд (2 кнопки)
+                        // Верхний ряд (Рецепты и Диеты)
                         HStack(spacing: 16) {
                             FoodsFeatureCard(title: "Recipes", subtitle: "Custom & Chefs", icon: "book.pages.fill", color: .themePink) {
                                 path.append(FoodsRoute.recipes)
@@ -50,14 +62,19 @@ struct FoodsDashboardView: View {
                             }
                         }
                         
-                        // Нижний ряд (1 широкая кнопка Академии)
-                        FoodsFeatureCard(title: "Academy", subtitle: "Tips, Guides & Habits", icon: "graduationcap.fill", color: .blue) {
-                            path.append(FoodsRoute.learn)
+                        // Нижний ряд (Академия и Интервальное голодание)
+                        HStack(spacing: 16) {
+                            FoodsFeatureCard(title: "Academy", subtitle: "Tips & Guides", icon: "graduationcap.fill", color: .blue) {
+                                path.append(FoodsRoute.learn)
+                            }
+                            
+                            FoodsFeatureCard(title: "Fasting", subtitle: "16:8, OMAD...", icon: "timer", color: .themeOrange) {
+                                path.append(FoodsRoute.fasting)
+                            }
                         }
                     }
                     .padding(.horizontal)
                     .padding(.top, 10)
-                    
                     
                     // 2. БЛОК ИСТОРИИ ПРИЕМОВ ПИЩИ
                     VStack(alignment: .leading, spacing: 16) {
@@ -101,7 +118,6 @@ struct FoodsDashboardView: View {
                                         color: colorForMeal(meal.title),
                                         onDelete: { deleteMeal(meal) }
                                     )
-                                    // Делаем всю карточку кликабельной
                                     .contentShape(Rectangle())
                                     .onTapGesture {
                                         HapticManager.shared.impact(style: .light)
@@ -112,35 +128,47 @@ struct FoodsDashboardView: View {
                             }
                         }
                     }
-                }
-                .padding(.bottom, 120) // Отступ под TabBar
-            }
+                } // Закрытие главного VStack
+                .padding(.bottom, 120)
+            } // Закрытие ScrollView
             .background(Color.themeBg.ignoresSafeArea())
             .navigationTitle("Explore")
-            .navigationDestination(for: FoodsRoute.self) { route in
-                switch route {
-                case .recipes:
-                    RecipesContainerView(path: $path)
-                case .diets:
-                    DietsListView()
-                case .learn:
-                    LearnDashboardView(path: $path)
-                case .createRecipe:
-                    CreateRecipeView(path: $path)
-                case .recipeDetail(let recipe):
-                    RecipeDetailView(recipe: recipe, path: $path)
-                case .premiumRecipeDetail(let recipe):
-                    PremiumRecipeDetailView(recipe: recipe)
-                case .filteredList(let title, let recipes):
-                    FilteredRecipesListView(title: title, recipes: recipes, path: $path)
-                case .articleDetail(let article):
-                    ArticleDetailView(article: article)
-                case .mealDetail(let title, let date):
-                    MealDetailView(title: title, date: date)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        HapticManager.shared.impact(style: .medium)
+                        path.append(FoodsRoute.shoppingList)
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.themePink.opacity(0.1))
+                                .frame(width: 36, height: 36)
+                            Image(systemName: "cart.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.themePink)
+                        }
+                    }
                 }
             }
-        }
-    }
+            .navigationDestination(for: FoodsRoute.self) { route in
+                switch route {
+                case .recipes: RecipesContainerView(path: $path)
+                case .diets: DietsListView()
+                case .learn: LearnDashboardView(path: $path)
+                case .createRecipe: CreateRecipeView(path: $path)
+                case .recipeDetail(let recipe): RecipeDetailView(recipe: recipe, path: $path)
+                case .premiumRecipeDetail(let recipe): PremiumRecipeDetailView(recipe: recipe)
+                case .filteredList(let title, let recipes): FilteredRecipesListView(title: title, recipes: recipes, path: $path)
+                case .articleDetail(let article): ArticleDetailView(article: article)
+                case .mealDetail(let title, let date): MealDetailView(title: title, date: date)
+                case .shoppingList: ShoppingListView()
+                case .fasting: FastingDashboardView()
+                case .fastingDetail(let plan): PremiumFastingDetailView(plan: plan)
+                }
+            }
+        } // Закрытие NavigationStack
+        .environment(dataLoader)
+    } // Закрытие body
     
     private func deleteMeal(_ meal: Meal) {
         withAnimation {
@@ -408,6 +436,14 @@ struct ArticleDetailView: View {
     let article: Article
     @Environment(\.dismiss) var dismiss
     
+    // ✅ ДОБАВЛЕНО: Получаем доступ к загрузчику, чтобы сохранить прогресс
+    @Environment(AcademyDataLoader.self) private var dataLoader
+    
+    // ✅ Проверяем, прочитана ли уже эта статья
+    private var isCompleted: Bool {
+        dataLoader.completedArticleIDs.contains(article.id)
+    }
+    
     // Парсим Markdown из JSON в красивый AttributedString
     private var markdownText: AttributedString {
         do {
@@ -476,22 +512,38 @@ struct ArticleDetailView: View {
                         
                         Divider().padding(.vertical, 16)
                         
+                        // ✅ ИСПРАВЛЕНА КНОПКА ЗАВЕРШЕНИЯ КУРСА
                         Button(action: {
                             HapticManager.shared.impact(style: .heavy)
+                            
+                            if !isCompleted {
+                                // Помечаем как прочитанное и пересчитываем счетчик
+                                dataLoader.markAsCompleted(articleID: article.id)
+                            }
+                            
                             dismiss()
                         }) {
                             HStack(spacing: 12) {
-                                Image(systemName: "checkmark.seal.fill")
+                                Image(systemName: isCompleted ? "checkmark.circle.fill" : "checkmark.seal.fill")
                                     .font(.title2)
-                                Text("Mark as Completed")
+                                Text(isCompleted ? "Completed" : "Mark as Completed")
                                     .font(.headline)
                             }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 18)
-                            .background(LinearGradient(colors: [article.color1, article.color2], startPoint: .leading, endPoint: .trailing))
+                            // Если выполнено - серая кнопка, если нет - красивая градиентная
+                            .background(
+                                Group {
+                                    if isCompleted {
+                                        Color.gray
+                                    } else {
+                                        LinearGradient(colors: [article.color1, article.color2], startPoint: .leading, endPoint: .trailing)
+                                    }
+                                }
+                            )
                             .cornerRadius(20)
-                            .shadow(color: article.color1.opacity(0.4), radius: 10, y: 5)
+                            .shadow(color: isCompleted ? .clear : article.color1.opacity(0.4), radius: 10, y: 5)
                         }
                         .buttonStyle(BounceButtonStyle())
                         

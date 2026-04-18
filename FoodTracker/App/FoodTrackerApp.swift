@@ -43,10 +43,14 @@ struct FoodTrackerApp: App {
     
     init() {
         do {
-            let config = ModelConfiguration(isStoredInMemoryOnly: false)
+            // 👇 ДОБАВЛЯЕМ ЭТИ СТРОКИ 👇
+            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker")!
+            let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite") // СВОЕ ИМЯ ФАЙЛА
+            
+            let config = ModelConfiguration(url: dbURL) // УКАЗЫВАЕМ ПУТЬ
+            
             modelContainer = try ModelContainer(
-                // ✅ ДОБАВЛЕНО: AIChatSession.self
-                for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self,
+                for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
                 configurations: config
             )
         } catch {
@@ -103,8 +107,15 @@ struct ContentView: View {
         }
         .tint(.themePink)
         .onAppear {
-            initializeUserIfNeeded()
-        }
+                    initializeUserIfNeeded()
+                    
+                    // ✅ ДОБАВЛЕНО: Активируем HealthKit при каждом запуске
+                    if let user = users.first, user.isHealthKitEnabled {
+                        Task {
+                            try? await HealthKitManager.shared.requestAuthorization()
+                        }
+                    }
+                }
         .sheet(isPresented: $showQuickAddSheet) {
             PremiumQuickAddSheet(selectedDate: Date()) { selectedMeal in
                 self.mealToOpenInSmartAdd = IdentifiableString(value: selectedMeal)

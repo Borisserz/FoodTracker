@@ -9,107 +9,75 @@ class NetworkManager {
     static let shared = NetworkManager()
     private init() {}
 
+    // Ключи от FatSecret
     private let fatSecretClientId = "b6be4805aa7e4b95bed4354d677d0b89"
     private let fatSecretClientSecret = "fa2b8559e5764541bde8594140ca29db"
     
     private var fatSecretAccessToken: String?
 
-    // MARK: - 1. ПОИСК ПО ШТРИХКОДУ (Двойной водопад)
+    // Безопасное получение языка телефона
+    private var currentLanguage: String {
+        return Locale.current.language.languageCode?.identifier ?? "en"
+    }
+
+    // 🔥 БЕЗОПАСНЫЙ ПАРСЕР ЧИСЕЛ
+    // Решает баги с "Optional(12.5)" и запятыми вместо точек
+    private func parseDouble(_ value: Any?) -> Double {
+        guard let value = value else { return 0.0 }
+        if let d = value as? Double { return d }
+        if let i = value as? Int { return Double(i) }
+        if let s = value as? String {
+            let cleanString = s.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
+            return Double(cleanString) ?? 0.0
+        }
+        return 0.0
+    }
+
+    // MARK: - 1. ТЕКСТОВЫЙ ПОИСК
+    func searchFoodByText(query: String) async -> [FoodItem] {
+        print("🔍 Ищем '\(query)' (Язык: \(currentLanguage))")
+        
+        // ШАГ 1: Open Food Facts (Бесплатная база)
+        var results = await searchFromOpenFoodFacts(query: query)
+        print("🍏 В Open Food Facts найдено: \(results.count)")
+        
+        // ШАГ 2: FatSecret (Если в первой базе мало результатов)
+        if results.count < 10 {
+            print("⚠️ В OFF мало результатов. Подключаем FatSecret...")
+            let fatSecretResults = await searchFromFatSecret(query: query)
+            print("🍔 В FatSecret найдено: \(fatSecretResults.count)")
+            
+            for fsItem in fatSecretResults {
+                if !results.contains(where: { $0.name.lowercased() == fsItem.name.lowercased() }) {
+                    results.append(fsItem)
+                }
+            }
+        }
+        
+        print("✅ Итого найдено: \(results.count) результатов.")
+        return Array(results.prefix(20))
+    }
+
+    // MARK: - 2. ПОИСК ПО ШТРИХКОДУ
     func fetchProduct(barcode: String) async -> FoodItem? {
-        print("🔍 Ищем штрихкод в Open Food Facts...")
-        if let offProduct = await fetchFromOpenFoodFacts(barcode: barcode) {
+        print("🔍 Ищем штрихкод \(barcode)...")
+        if let offProduct = await fetchBarcodeFromOFF(barcode: barcode) {
             print("✅ Нашли в Open Food Facts: \(offProduct.name)")
             return offProduct
         }
         
-        print("🔍 В OFF нет, ищем в FatSecret...")
-        if let fatSecretProduct = await fetchFromFatSecret(barcode: barcode) {
+        if let fatSecretProduct = await fetchBarcodeFromFatSecretBarcode(barcode: barcode) {
             print("✅ Нашли в FatSecret: \(fatSecretProduct.name)")
             return fatSecretProduct
         }
         
-        print("❌ Продукт не найден")
+        print("❌ Продукт по штрихкоду не найден.")
         return nil
     }
 
-    private func fetchFromOpenFoodFacts(barcode: String) async -> FoodItem? {
-        let urlString = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json"
-        guard let url = URL(string: urlString) else { return nil }
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let response = try JSONDecoder().decode(OFFResponse.self, from: data)
-            
-            guard response.status == 1, let p = response.product else { return nil }
-            
-            return FoodItem(
-                name: p.product_name ?? "Unknown OFF Product",
-                weight: 100.0,
-                calories: Int(p.nutriments?.energy_kcal_100g ?? 0),
-                protein: p.nutriments?.proteins_100g ?? 0.0,
-                fats: p.nutriments?.fat_100g ?? 0.0,
-                carbs: p.nutriments?.carbohydrates_100g ?? 0.0
-            )
-        } catch { return nil }
-    }
-
-    private func fetchFromFatSecret(barcode: String) async -> FoodItem? {
-        guard fatSecretClientId != "ВСТАВЬ_CLIENT_ID" else { return nil }
-        
-        if fatSecretAccessToken == nil {
-            fatSecretAccessToken = await getFatSecretToken()
-        }
-        guard let token = fatSecretAccessToken else { return nil }
-        
-        let urlString = "https://platform.fatsecret.com/rest/server.api?method=barcode.find&barcode=\(barcode)&format=json"
-        guard let url = URL(string: urlString) else { return nil }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let response = try JSONDecoder().decode(FSBarcodeResponse.self, from: data)
-            
-            guard let food = response.food else { return nil }
-            let s = food.servings.serving
-            let serving = s.first(where: { $0.metric_serving_amount == "100.000" }) ?? s.first
-            
-            guard let srv = serving else { return nil }
-            
-            return FoodItem(
-                name: food.food_name,
-                weight: Double(srv.metric_serving_amount ?? "100") ?? 100.0,
-                calories: Int(Double(srv.calories ?? "0") ?? 0),
-                protein: Double(srv.protein ?? "0") ?? 0.0,
-                fats: Double(srv.fat ?? "0") ?? 0.0,
-                carbs: Double(srv.carbohydrate ?? "0") ?? 0.0
-            )
-        } catch {
-            fatSecretAccessToken = nil
-            return nil
-        }
-    }
-
-    // MARK: - 2. ТЕКСТОВЫЙ ПОИСК (Умный водопад для API)
-    func searchFoodByText(query: String) async -> [FoodItem] {
-        print("🔍 Ищем текст '\(query)' в Open Food Facts...")
-        let offResults = await searchFromOpenFoodFacts(query: query)
-        
-        // Если бесплатный OFF нашел достаточно данных, отдаем их
-        if offResults.count >= 3 {
-            print("✅ OFF нашел \(offResults.count) результатов")
-            return offResults
-        }
-        
-        // Если пусто или мало, подключаем лимитированный FatSecret
-        print("⚠️ В OFF мало данных. Подключаем FatSecret...")
-        let fatSecretResults = await searchFromFatSecret(query: query)
-        
-        let combined = (offResults + fatSecretResults)
-        return Array(combined.prefix(15))
-    }
+    // =========================================================================
+    // MARK: - Реализация Open Food Facts
+    // =========================================================================
 
     private func searchFromOpenFoodFacts(query: String) async -> [FoodItem] {
         guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return [] }
@@ -117,126 +85,174 @@ class NetworkManager {
         let urlString = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=\(encodedQuery)&search_simple=1&action=process&json=1&page_size=15"
         guard let url = URL(string: urlString) else { return [] }
         
+        var request = URLRequest(url: url)
+        request.setValue("FoodTrackerApp - iOS - Version 1.0", forHTTPHeaderField: "User-Agent")
+        
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let response = try JSONDecoder().decode(OFFSearchResponse.self, from: data)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return [] }
             
-            guard let products = response.products else { return [] }
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let products = json["products"] as? [[String: Any]] else { return [] }
             
-            var results: [FoodItem] = []
+            var items: [FoodItem] = []
             for p in products {
-                guard let name = p.product_name, !name.isEmpty else { continue }
+                guard let name = p["product_name"] as? String ?? p["product_name_ru"] as? String ?? p["product_name_en"] as? String, !name.isEmpty else { continue }
                 
-                let item = FoodItem(
-                    name: name,
-                    weight: 100.0,
-                    calories: Int(p.nutriments?.energy_kcal_100g ?? 0),
-                    protein: p.nutriments?.proteins_100g ?? 0.0,
-                    fats: p.nutriments?.fat_100g ?? 0.0,
-                    carbs: p.nutriments?.carbohydrates_100g ?? 0.0
-                )
+                let nuts = p["nutriments"] as? [String: Any] ?? [:]
                 
-                if item.calories > 0 || name.lowercased().contains("water") {
-                    results.append(item)
+                var cals = parseDouble(nuts["energy-kcal_100g"])
+                if cals == 0 { cals = parseDouble(nuts["energy_100g"]) / 4.184 } // Конвертируем из кДж, если ккал нет
+                
+                let protein = parseDouble(nuts["proteins_100g"])
+                let fat = parseDouble(nuts["fat_100g"])
+                let carbs = parseDouble(nuts["carbohydrates_100g"])
+                
+                if cals > 0 || protein > 0 || fat > 0 || carbs > 0 {
+                    items.append(FoodItem(name: name, weight: 100.0, calories: Int(cals), protein: protein, fats: fat, carbs: carbs))
                 }
             }
-            return results
-        } catch {
-            print("❌ OFF Text Search Error: \(error)")
-            return []
-        }
+            return items
+        } catch { return [] }
     }
 
-    private func searchFromFatSecret(query: String) async -> [FoodItem] {
-        guard fatSecretClientId != "ВСТАВЬ_CLIENT_ID" else { return [] }
+    private func fetchBarcodeFromOFF(barcode: String) async -> FoodItem? {
+        let urlString = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json"
+        guard let url = URL(string: urlString) else { return nil }
         
-        if fatSecretAccessToken == nil {
-            fatSecretAccessToken = await getFatSecretToken()
-        }
-        guard let token = fatSecretAccessToken else { return [] }
+        var request = URLRequest(url: url)
+        request.setValue("FoodTrackerApp/1.0", forHTTPHeaderField: "User-Agent")
         
-        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return [] }
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let status = json["status"] as? Int, status == 1,
+                  let p = json["product"] as? [String: Any],
+                  let name = p["product_name"] as? String ?? p["product_name_ru"] as? String ?? p["product_name_en"] as? String, !name.isEmpty else { return nil }
+            
+            let nuts = p["nutriments"] as? [String: Any] ?? [:]
+            var cals = parseDouble(nuts["energy-kcal_100g"])
+            if cals == 0 { cals = parseDouble(nuts["energy_100g"]) / 4.184 }
+            
+            let protein = parseDouble(nuts["proteins_100g"])
+            let fat = parseDouble(nuts["fat_100g"])
+            let carbs = parseDouble(nuts["carbohydrates_100g"])
+            
+            return FoodItem(name: name, weight: 100.0, calories: Int(cals), protein: protein, fats: fat, carbs: carbs)
+        } catch { return nil }
+    }
+
+    // =========================================================================
+    // MARK: - Реализация FatSecret (V1 + V2 Endpoints)
+    // =========================================================================
+
+    private func ensureToken() async -> String? {
+        if let token = fatSecretAccessToken { return token }
         
-        let urlString = "https://platform.fatsecret.com/rest/server.api?method=foods.search&search_expression=\(encodedQuery)&format=json&max_results=10"
-        guard let url = URL(string: urlString) else { return [] }
+        let urlString = "https://oauth.fatsecret.com/connect/token"
+        guard let url = URL(string: urlString) else { return nil }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        let auth = "\(fatSecretClientId):\(fatSecretClientSecret)".data(using: .utf8)!.base64EncodedString()
+        request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        request.httpBody = "grant_type=client_credentials&scope=basic".data(using: .utf8)
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let http = response as? HTTPURLResponse, http.statusCode != 200 { return nil }
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let token = json["access_token"] as? String else { return nil }
+            
+            self.fatSecretAccessToken = token
+            return token
+        } catch { return nil }
+    }
+
+    private func searchFromFatSecret(query: String) async -> [FoodItem] {
+        guard let token = await ensureToken(),
+              let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return [] }
+        
+        // 🔥 ВОССТАНОВИЛИ: Мощный API V1, который отдает чистые макросы, а не строку текста
+        let urlString = "https://platform.fatsecret.com/rest/foods/search/v1?search_expression=\(encodedQuery)&format=json&max_results=15"
+        guard let url = URL(string: urlString) else { return [] }
+        
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let http = response as? HTTPURLResponse, http.statusCode != 200 { return [] }
+            
+            // 🔥 ВОССТАНОВИЛИ: Правильные ключи JSON (foods_search -> results -> food)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let foodsSearch = json["foods_search"] as? [String: Any],
+                  let results = foodsSearch["results"] as? [String: Any],
+                  let foodData = results["food"] else { return [] }
+            
+            var foodsArray: [[String: Any]] = []
+            if let arr = foodData as? [[String: Any]] { foodsArray = arr }
+            else if let dict = foodData as? [String: Any] { foodsArray = [dict] }
+            
+            var items: [FoodItem] = []
+            for f in foodsArray {
+                guard let name = f["food_name"] as? String,
+                      let servings = f["servings"] as? [String: Any],
+                      let servingData = servings["serving"] else { continue }
+                
+                var srv: [String: Any]? = nil
+                if let srvArr = servingData as? [[String: Any]] { srv = srvArr.first }
+                else if let srvDict = servingData as? [String: Any] { srv = srvDict }
+                
+                guard let s = srv else { continue }
+                
+                let weightRaw = parseDouble(s["metric_serving_amount"])
+                let weight = weightRaw > 0 ? weightRaw : 100.0 // Защита от деления на 0
+                
+                let cals = parseDouble(s["calories"])
+                let protein = parseDouble(s["protein"])
+                let fat = parseDouble(s["fat"])
+                let carbs = parseDouble(s["carbohydrate"])
+                
+                items.append(FoodItem(name: name, weight: weight, calories: Int(cals), protein: protein, fats: fat, carbs: carbs))
+            }
+            return items
+        } catch { return [] }
+    }
+
+    private func fetchBarcodeFromFatSecretBarcode(barcode: String) async -> FoodItem? {
+        guard let token = await ensureToken() else { return nil }
+        
+        let urlString = "https://platform.fatsecret.com/rest/food/barcode/find-by-id/v2?barcode=\(barcode)&format=json"
+        guard let url = URL(string: urlString) else { return nil }
+        
+        var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            let response = try JSONDecoder().decode(FSTextSearchResponse.self, from: data)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let food = json["food"] as? [String: Any],
+                  let name = food["food_name"] as? String,
+                  let servings = food["servings"] as? [String: Any],
+                  let servingData = servings["serving"] else { return nil }
             
-            guard let foodsArray = response.foods?.food else { return [] }
+            var srv: [String: Any]? = nil
+            if let srvArr = servingData as? [[String: Any]] { srv = srvArr.first }
+            else if let srvDict = servingData as? [String: Any] { srv = srvDict }
             
-            var results: [FoodItem] = []
-            for f in foodsArray {
-                let macros = parseFatSecretDescription(f.food_description)
-                let item = FoodItem(
-                    name: f.food_name,
-                    weight: 100.0,
-                    calories: macros.cals,
-                    protein: macros.p,
-                    fats: macros.f,
-                    carbs: macros.c
-                )
-                results.append(item)
-            }
-            return results
-        } catch { return [] }
-    }
-
-    // Парсим кривую строку от FatSecret
-    private func parseFatSecretDescription(_ desc: String) -> (cals: Int, f: Double, c: Double, p: Double) {
-        var cals = 0; var f = 0.0; var c = 0.0; var p = 0.0
-        let components = desc.components(separatedBy: "|")
-        for comp in components {
-            let clean = comp.trimmingCharacters(in: .whitespacesAndNewlines)
-            if clean.contains("Calories:") { cals = Int(clean.components(separatedBy: "Calories:").last?.replacingOccurrences(of: "kcal", with: "").trimmingCharacters(in: .whitespaces) ?? "0") ?? 0 }
-            else if clean.contains("Fat:") { f = Double(clean.components(separatedBy: "Fat:").last?.replacingOccurrences(of: "g", with: "").trimmingCharacters(in: .whitespaces) ?? "0") ?? 0.0 }
-            else if clean.contains("Carbs:") { c = Double(clean.components(separatedBy: "Carbs:").last?.replacingOccurrences(of: "g", with: "").trimmingCharacters(in: .whitespaces) ?? "0") ?? 0.0 }
-            else if clean.contains("Protein:") { p = Double(clean.components(separatedBy: "Protein:").last?.replacingOccurrences(of: "g", with: "").trimmingCharacters(in: .whitespaces) ?? "0") ?? 0.0 }
-        }
-        return (cals, f, c, p)
-    }
-
-    private func getFatSecretToken() async -> String? {
-        guard let url = URL(string: "https://oauth.fatsecret.com/connect/token") else { return nil }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        let auth = "\(fatSecretClientId):\(fatSecretClientSecret)".data(using: .utf8)!.base64EncodedString()
-        request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = "grant_type=client_credentials&scope=barcode.api".data(using: .utf8)
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let tokenResponse = try JSONDecoder().decode(FSTokenResponse.self, from: data)
-            return tokenResponse.access_token
+            guard let s = srv else { return nil }
+            
+            let weightRaw = parseDouble(s["metric_serving_amount"])
+            let weight = weightRaw > 0 ? weightRaw : 100.0
+            
+            let cals = parseDouble(s["calories"])
+            let protein = parseDouble(s["protein"])
+            let fat = parseDouble(s["fat"])
+            let carbs = parseDouble(s["carbohydrate"])
+            
+            return FoodItem(name: name, weight: weight, calories: Int(cals), protein: protein, fats: fat, carbs: carbs)
         } catch { return nil }
     }
 }
-
-// MARK: - DTOs
-struct OFFResponse: Codable { let status: Int; let product: OFFProduct? }
-struct OFFProduct: Codable { let product_name: String?; let nutriments: OFFNutriments? }
-struct OFFNutriments: Codable {
-    let energy_kcal_100g: Double?; let proteins_100g: Double?; let fat_100g: Double?; let carbohydrates_100g: Double?
-    enum CodingKeys: String, CodingKey { case energy_kcal_100g = "energy-kcal_100g"; case proteins_100g, fat_100g, carbohydrates_100g }
-}
-
-struct OFFSearchResponse: Codable { let products: [OFFProduct]? }
-
-struct FSTokenResponse: Codable { let access_token: String }
-struct FSBarcodeResponse: Codable { let food: FSFood? }
-struct FSFood: Codable { let food_name: String; let servings: FSServings }
-struct FSServings: Codable { let serving: [FSServing] }
-struct FSServing: Codable {
-    let metric_serving_amount: String?; let calories: String?; let carbohydrate: String?; let protein: String?; let fat: String?
-}
-
-struct FSTextSearchResponse: Codable { let foods: FSFoodsList? }
-struct FSFoodsList: Codable { let food: [FSSearchFoodItem] }
-struct FSSearchFoodItem: Codable { let food_name: String; let food_description: String }

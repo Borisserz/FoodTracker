@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - ADD MEAL VIEW (Updated to use SmartAddFoodView)
+// MARK: - ADD MEAL VIEW
 struct AddMealView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) var dismiss
@@ -28,7 +28,8 @@ struct AddMealView: View {
                         Text("No food items added yet.")
                             .foregroundColor(.gray)
                     } else {
-                        ForEach(selectedFoods, id: \.name) { food in
+                        // 🔥 ИСПРАВЛЕНИЕ: Используем id: \.self вместо id: \.id или id: \.name
+                        ForEach(selectedFoods, id: \.self) { food in
                             HStack {
                                 Text(food.name)
                                 Spacer()
@@ -54,7 +55,6 @@ struct AddMealView: View {
                 }
             }
             .tint(.themePink)
-            // ИСПРАВЛЕНИЕ: Используем новое имя SmartAddFoodView и передаем тип приема пищи
             .sheet(isPresented: $showingAddFood) {
                 SmartAddFoodView(mealTitle: selectedMealType) { newItems in
                     self.selectedFoods.append(contentsOf: newItems)
