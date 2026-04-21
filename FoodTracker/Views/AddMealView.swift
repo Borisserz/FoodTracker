@@ -14,12 +14,20 @@ struct AddMealView: View {
     let mealTypes = ["Breakfast", "Lunch", "Snack", "Dinner"]
     let selectedDate: Date
     
+    // ✅ ИСПРАВЛЕНО: Правильный тип для локализации строки через код
+    func localizedMealType(_ type: String) -> String {
+        String(localized: String.LocalizationValue(type))
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
                 Section("Meal Details") {
                     Picker("Meal Type", selection: $selectedMealType) {
-                        ForEach(mealTypes, id: \.self) { Text($0) }
+                        ForEach(mealTypes, id: \.self) { type in
+                            // ✅ ИСПРАВЛЕНО: добавили tag(type), чтобы выборка не ломалась из-за перевода
+                            Text(LocalizedStringKey(type)).tag(type)
+                        }
                     }
                 }
                 
@@ -28,7 +36,6 @@ struct AddMealView: View {
                         Text("No food items added yet.")
                             .foregroundColor(.gray)
                     } else {
-                        // 🔥 ИСПРАВЛЕНИЕ: Используем id: \.self вместо id: \.id или id: \.name
                         ForEach(selectedFoods, id: \.self) { food in
                             HStack {
                                 Text(food.name)
@@ -56,7 +63,7 @@ struct AddMealView: View {
             }
             .tint(.themePink)
             .sheet(isPresented: $showingAddFood) {
-                SmartAddFoodView(mealTitle: selectedMealType) { newItems in
+                SmartAddFoodView(mealTitle: localizedMealType(selectedMealType)) { newItems in
                     self.selectedFoods.append(contentsOf: newItems)
                 }
                 .presentationDetents([.fraction(0.85), .large])

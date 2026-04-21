@@ -85,7 +85,7 @@ struct AICoachDashboardView: View {
                             NavigationLink(destination: AICoachChatView(
                                 userGoal: currentUser?.dailyCaloriesGoal ?? 2000,
                                 consumed: currentSummary.totalCalories,
-                                activeDiet: currentUser?.activeDietName ?? "Balanced"
+                                activeDiet: currentUser?.activeDietPlan?.name ?? String(localized: "Balanced")
                             )) {
                                 ZStack {
                                     Circle()

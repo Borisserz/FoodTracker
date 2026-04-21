@@ -5,9 +5,17 @@
 
 import SwiftUI
 enum FastingCategory: String, CaseIterable {
-    case beginner = "Beginner"
-    case intermediate = "Intermediate"
-    case expert = "Expert"
+    case beginner = "beginner"
+    case intermediate = "intermediate"
+    case expert = "expert"
+    
+    var localizedName: String {
+        switch self {
+        case .beginner: return String(localized: "Beginner")
+        case .intermediate: return String(localized: "Intermediate")
+        case .expert: return String(localized: "Expert")
+        }
+    }
 }
 
 // ✅ НОВАЯ СТРУКТУРА ДЛЯ ПРЕИМУЩЕСТВ (Решает проблему с Hashable/Equatable)
@@ -35,52 +43,52 @@ struct FastingPlan: Identifiable, Hashable {
     
     static let allPlans: [FastingPlan] = [
         // --- BEGINNER ---
-        FastingPlan(category: .beginner, title: "12:12", description: "Circadian rhythm fast. Great for beginners.", icon: "sun.and.horizon.fill", color: .cyan, isPopular: false, fastingHours: 12, eatingHours: 12,
+        FastingPlan(category: .beginner, title: "12:12", description: String(localized: "Circadian rhythm fast. Great for beginners."), icon: "sun.and.horizon.fill", color: .cyan, isPopular: false, fastingHours: 12, eatingHours: 12,
                     difficultyRating: 1,
-                    benefits: [FastingBenefit(icon: "moon.zzz.fill", text: "Better Sleep"), FastingBenefit(icon: "brain.head.profile", text: "Mental Clarity")],
-                    breakFastTip: "A simple balanced breakfast like eggs and avocado is perfect."),
+                    benefits: [FastingBenefit(icon: "moon.zzz.fill", text: String(localized: "Better Sleep")), FastingBenefit(icon: "brain.head.profile", text: String(localized: "Mental Clarity"))],
+                    breakFastTip: String(localized: "A simple balanced breakfast like eggs and avocado is perfect.")),
         
-        FastingPlan(category: .beginner, title: "14:10", description: "Ease your way into fasting. Burns fat smoothly.", icon: "leaf.fill", color: .green, isPopular: false, fastingHours: 14, eatingHours: 10,
+        FastingPlan(category: .beginner, title: "14:10", description: String(localized: "Ease your way into fasting. Burns fat smoothly."), icon: "leaf.fill", color: .green, isPopular: false, fastingHours: 14, eatingHours: 10,
                     difficultyRating: 2,
-                    benefits: [FastingBenefit(icon: "flame.fill", text: "Light Fat Burn"), FastingBenefit(icon: "heart.fill", text: "Heart Health")],
-                    breakFastTip: "Oatmeal with berries or a protein smoothie will keep you energized."),
+                    benefits: [FastingBenefit(icon: "flame.fill", text: String(localized: "Light Fat Burn")), FastingBenefit(icon: "heart.fill", text: String(localized: "Heart Health"))],
+                    breakFastTip: String(localized: "Oatmeal with berries or a protein smoothie will keep you energized.")),
         
-        FastingPlan(category: .beginner, title: "16:8", description: "The golden standard of fasting. Perfect for fat loss.", icon: "flame.fill", color: .themePink, isPopular: true, fastingHours: 16, eatingHours: 8,
+        FastingPlan(category: .beginner, title: "16:8", description: String(localized: "The golden standard of fasting. Perfect for fat loss."), icon: "flame.fill", color: .themePink, isPopular: true, fastingHours: 16, eatingHours: 8,
                     difficultyRating: 3,
-                    benefits: [FastingBenefit(icon: "flame.fill", text: "Deep Fat Burn"), FastingBenefit(icon: "bolt.fill", text: "Energy Boost"), FastingBenefit(icon: "arrow.down.right.circle.fill", text: "Insulin Drop"), FastingBenefit(icon: "figure.walk", text: "Weight Loss")],
-                    breakFastTip: "Break it with lean protein (chicken/fish) and veggies. Avoid heavy carbs immediately."),
+                    benefits: [FastingBenefit(icon: "flame.fill", text: String(localized: "Deep Fat Burn")), FastingBenefit(icon: "bolt.fill", text: String(localized: "Energy Boost")), FastingBenefit(icon: "arrow.down.right.circle.fill", text: String(localized: "Insulin Drop")), FastingBenefit(icon: "figure.walk", text: String(localized: "Weight Loss"))],
+                    breakFastTip: String(localized: "Break it with lean protein (chicken/fish) and veggies. Avoid heavy carbs immediately.")),
 
         // --- INTERMEDIATE ---
-        FastingPlan(category: .intermediate, title: "18:6", description: "Less flexibility, for experienced users.", icon: "target", color: .themeOrange, isPopular: false, fastingHours: 18, eatingHours: 6,
+        FastingPlan(category: .intermediate, title: "18:6", description: String(localized: "Less flexibility, for experienced users."), icon: "target", color: .themeOrange, isPopular: false, fastingHours: 18, eatingHours: 6,
                     difficultyRating: 3,
-                    benefits: [FastingBenefit(icon: "flame.fill", text: "Max Fat Burn"), FastingBenefit(icon: "drop.fill", text: "Autophagy Starts")],
-                    breakFastTip: "Start with a small portion of easily digestible food, wait 30 mins, then eat a full meal."),
+                    benefits: [FastingBenefit(icon: "flame.fill", text: String(localized: "Max Fat Burn")), FastingBenefit(icon: "drop.fill", text: String(localized: "Autophagy Starts"))],
+                    breakFastTip: String(localized: "Start with a small portion of easily digestible food, wait 30 mins, then eat a full meal.")),
         
-        FastingPlan(category: .intermediate, title: "20:4", description: "The Warrior Diet. 1-2 meals in a tight window.", icon: "shield.fill", color: .red, isPopular: false, fastingHours: 20, eatingHours: 4,
+        FastingPlan(category: .intermediate, title: "20:4", description: String(localized: "The Warrior Diet. 1-2 meals in a tight window."), icon: "shield.fill", color: .red, isPopular: false, fastingHours: 20, eatingHours: 4,
                     difficultyRating: 4,
-                    benefits: [FastingBenefit(icon: "shield.fill", text: "Immunity Boost"), FastingBenefit(icon: "brain", text: "Laser Focus")],
-                    breakFastTip: "Bone broth or a light salad first. Your digestive system is asleep, wake it up gently."),
+                    benefits: [FastingBenefit(icon: "shield.fill", text: String(localized: "Immunity Boost")), FastingBenefit(icon: "brain", text: String(localized: "Laser Focus"))],
+                    breakFastTip: String(localized: "Bone broth or a light salad first. Your digestive system is asleep, wake it up gently.")),
         
-        FastingPlan(category: .intermediate, title: "Alternate Day", description: "One day on, one day off. Breaks plateaus.", icon: "arrow.triangle.2.circlepath", color: .indigo, isPopular: false, fastingHours: 24, eatingHours: 24,
+        FastingPlan(category: .intermediate, title: "Alternate Day", description: String(localized: "One day on, one day off. Breaks plateaus."), icon: "arrow.triangle.2.circlepath", color: .indigo, isPopular: false, fastingHours: 24, eatingHours: 24,
                     difficultyRating: 4,
-                    benefits: [FastingBenefit(icon: "chart.line.downtrend.xyaxis", text: "Breaks Plateaus"), FastingBenefit(icon: "clock.arrow.2.circlepath", text: "Anti-Aging")],
-                    breakFastTip: "Focus heavily on hydration and electrolytes on your fasting days."),
+                    benefits: [FastingBenefit(icon: "chart.line.downtrend.xyaxis", text: String(localized: "Breaks Plateaus")), FastingBenefit(icon: "clock.arrow.2.circlepath", text: String(localized: "Anti-Aging"))],
+                    breakFastTip: String(localized: "Focus heavily on hydration and electrolytes on your fasting days.")),
 
         // --- EXPERT ---
-        FastingPlan(category: .expert, title: "23:1 (OMAD)", description: "One Meal A Day. Extreme fat burn and repair.", icon: "crown.fill", color: .themeYellow, isPopular: false, fastingHours: 23, eatingHours: 1,
+        FastingPlan(category: .expert, title: "23:1 (OMAD)", description: String(localized: "One Meal A Day. Extreme fat burn and repair."), icon: "crown.fill", color: .themeYellow, isPopular: false, fastingHours: 23, eatingHours: 1,
                     difficultyRating: 5,
-                    benefits: [FastingBenefit(icon: "crown.fill", text: "Ultimate Discipline"), FastingBenefit(icon: "cell.cell", text: "Deep Autophagy"), FastingBenefit(icon: "flame.fill", text: "Rapid Fat Loss")],
-                    breakFastTip: "Eat a massive, nutrient-dense meal. Make sure to hit your daily protein and fat macros in this window!"),
+                    benefits: [FastingBenefit(icon: "crown.fill", text: String(localized: "Ultimate Discipline")), FastingBenefit(icon: "cell.cell", text: String(localized: "Deep Autophagy")), FastingBenefit(icon: "flame.fill", text: String(localized: "Rapid Fat Loss"))],
+                    breakFastTip: String(localized: "Eat a massive, nutrient-dense meal. Make sure to hit your daily protein and fat macros in this window!")),
         
-        FastingPlan(category: .expert, title: "36-Hour", description: "Monk Fast. Full day water fast for a reset.", icon: "drop.fill", color: .purple, isPopular: false, fastingHours: 36, eatingHours: 0,
+        FastingPlan(category: .expert, title: "36-Hour", description: String(localized: "Monk Fast. Full day water fast for a reset."), icon: "drop.fill", color: .purple, isPopular: false, fastingHours: 36, eatingHours: 0,
                     difficultyRating: 5,
-                    benefits: [FastingBenefit(icon: "arrow.triangle.2.circlepath", text: "Full Reset"), FastingBenefit(icon: "cross.case.fill", text: "Cellular Repair")],
-                    breakFastTip: "DANGER: Do not break with heavy carbs. Start with bone broth, wait an hour, eat steamed veggies and fish."),
+                    benefits: [FastingBenefit(icon: "arrow.triangle.2.circlepath", text: String(localized: "Full Reset")), FastingBenefit(icon: "cross.case.fill", text: String(localized: "Cellular Repair"))],
+                    breakFastTip: String(localized: "DANGER: Do not break with heavy carbs. Start with bone broth, wait an hour, eat steamed veggies and fish.")),
         
-        FastingPlan(category: .expert, title: "5:2 Diet", description: "5 normal days, 2 days under 500 kcal.", icon: "calendar.badge.minus", color: .mint, isPopular: false, fastingHours: 48, eatingHours: 0,
+        FastingPlan(category: .expert, title: "5:2 Diet", description: String(localized: "5 normal days, 2 days under 500 kcal."), icon: "calendar.badge.minus", color: .mint, isPopular: false, fastingHours: 48, eatingHours: 0,
                     difficultyRating: 4,
-                    benefits: [FastingBenefit(icon: "calendar", text: "Weekly Balance"), FastingBenefit(icon: "scale.3d", text: "Steady Loss")],
-                    breakFastTip: "On your 500 kcal days, focus entirely on lean protein and leafy greens to stay full.")
+                    benefits: [FastingBenefit(icon: "calendar", text: String(localized: "Weekly Balance")), FastingBenefit(icon: "scale.3d", text: String(localized: "Steady Loss"))],
+                    breakFastTip: String(localized: "On your 500 kcal days, focus entirely on lean protein and leafy greens to stay full."))
     ]
 }
 
@@ -131,7 +139,7 @@ struct FastingCategorySection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 8) {
-                Text(category.rawValue)
+                Text(category.localizedName)
                     .font(.title2).bold()
                 
                 Rectangle()

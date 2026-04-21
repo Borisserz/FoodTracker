@@ -66,6 +66,11 @@ struct HomeDashboardView: View {
         }
     }
     
+    // ✅ ИСПРАВЛЕНО: Правильный тип для локализации строки
+    private func localizedMealType(_ type: String) -> String {
+        String(localized: String.LocalizationValue(type))
+    }
+    
     private var allTimeCalories: Int {
         summaries.reduce(0) { $0 + $1.totalCalories }
     }
@@ -109,7 +114,7 @@ struct HomeDashboardView: View {
                                     let meal = currentSummary.meals.first(where: { $0.title == mealType })
                                     
                                     MealCardView(
-                                        title: mealType,
+                                        title: localizedMealType(mealType),
                                         calories: meal?.totalCalories,
                                         recommendedCalories: getRecommendedCalories(for: mealType),
                                         time: meal?.date,
@@ -176,7 +181,7 @@ struct HomeDashboardView: View {
                         .presentationDragIndicator(.visible)
                 }
                 .sheet(isPresented: $showingQuickAddSheet) {
-                    SmartAddFoodView(mealTitle: quickAddMealType) { selectedItems in
+                    SmartAddFoodView(mealTitle: localizedMealType(quickAddMealType)) { selectedItems in
                         addFoodsToMeal(title: quickAddMealType, items: selectedItems)
                     }
                     .presentationDetents([.fraction(0.85), .large])
@@ -974,11 +979,11 @@ struct FoodSearchResultRow: View {
                             .foregroundColor(.gray)
                         
                         if compatibility == .perfect {
-                            Text("• Great for \(user?.activeDietName ?? "")")
+                            Text("• Great for \(user?.activeDietPlan?.name ?? "")")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(.green)
                         } else if compatibility == .avoid {
-                            Text("• Avoid on \(user?.activeDietName ?? "")")
+                            Text("• Avoid on \(user?.activeDietPlan?.name ?? "")")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(.red)
                         }

@@ -15,6 +15,14 @@ enum MacroType: String, Identifiable {
     
     var id: String { self.rawValue }
     
+    var localizedName: String {
+        switch self {
+        case .protein: return String(localized: "Protein")
+        case .fat: return String(localized: "Fat")
+        case .carbs: return String(localized: "Carbs")
+        }
+    }
+    
     var color: Color {
         switch self {
         case .protein: return .themePink
@@ -32,10 +40,10 @@ struct Achievement: Identifiable {
     let color: Color
     
     static let all: [Achievement] = [
-        Achievement(id: "first_log", title: "First Step", description: "Log your first meal", icon: "flag.fill", color: .themePink),
-        Achievement(id: "streak_3", title: "On Fire", description: "Reach a 3-day streak", icon: "flame.fill", color: .themeOrange),
-        Achievement(id: "streak_7", title: "Unstoppable", description: "Reach a 7-day streak", icon: "bolt.fill", color: .themeYellow),
-        Achievement(id: "water_pro", title: "Hydro Homie", description: "Drink 2.5L in a day", icon: "drop.fill", color: .blue)
+        Achievement(id: "first_log", title: String(localized: "First Step"), description: String(localized: "Log your first meal"), icon: "flag.fill", color: .themePink),
+        Achievement(id: "streak_3", title: String(localized: "On Fire"), description: String(localized: "Reach a 3-day streak"), icon: "flame.fill", color: .themeOrange),
+        Achievement(id: "streak_7", title: String(localized: "Unstoppable"), description: String(localized: "Reach a 7-day streak"), icon: "bolt.fill", color: .themeYellow),
+        Achievement(id: "water_pro", title: String(localized: "Hydro Homie"), description: String(localized: "Drink 2.5L in a day"), icon: "drop.fill", color: .blue)
     ]
 }
 
@@ -51,7 +59,7 @@ struct Achievement: Identifiable {
     var isHealthKitEnabled: Bool = false
     
     // НОВЫЕ ПОЛЯ ДЛЯ ДИЕТ И МАКРОСОВ
-    var activeDietName: String = "Balanced"
+    var activeDietKey: String = "balanced"  // Internal diet identifier (not localized)
     var targetProtein: Double = 150.0
     var targetFats: Double = 70.0
     var targetCarbs: Double = 250.0
@@ -69,7 +77,7 @@ struct Achievement: Identifiable {
         
         self.dailyCaloriesGoal = 0
         self.isHealthKitEnabled = false
-        self.activeDietName = "Balanced"
+        self.activeDietKey = "balanced"
         self.targetProtein = 150.0
         self.targetFats = 70.0
         self.targetCarbs = 250.0
@@ -78,7 +86,7 @@ struct Achievement: Identifiable {
         
         self.calculateGoals()
         // Устанавливаем дефолтное соотношение при создании пользователя (30% жиры / 30% белки / 40% углеводы)
-        self.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietName: "Balanced")
+        self.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: "balanced")
     }
     
     func calculateGoals() {
@@ -92,8 +100,8 @@ struct Achievement: Identifiable {
     }
     
     // НОВЫЙ МЕТОД ДЛЯ ПРИМЕНЕНИЯ ДИЕТЫ
-    func applyDietBreakdown(fatPercent: Int, proteinPercent: Int, carbsPercent: Int, dietName: String) {
-        self.activeDietName = dietName
+    func applyDietBreakdown(fatPercent: Int, proteinPercent: Int, carbsPercent: Int, dietKey: String) {
+        self.activeDietKey = dietKey
         let targetCalories = Double(dailyCaloriesGoal)
         
         // 1 грамм белка = 4 ккал, 1 грамм углеводов = 4 ккал, 1 грамм жира = 9 ккал
@@ -278,9 +286,9 @@ enum HealthGrade {
     
     var title: String {
         switch self {
-        case .clean: return "Clean"
-        case .balanced: return "Balanced"
-        case .treat: return "Treat"
+        case .clean: return String(localized: "Clean")
+        case .balanced: return String(localized: "Balanced")
+        case .treat: return String(localized: "Treat")
         }
     }
 }

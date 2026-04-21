@@ -230,7 +230,8 @@ struct EditProfileSheet: View {
         let fRatio = (user.targetFats * 9.0) / totalCals
         let cRatio = 1.0 - pRatio - fRatio
         
-        user.applyDietBreakdown(fatPercent: Int(fRatio * 100), proteinPercent: Int(pRatio * 100), carbsPercent: Int(cRatio * 100), dietName: user.activeDietName)
+        // ✅ ИСПРАВЛЕНО: dietName -> dietKey
+        user.applyDietBreakdown(fatPercent: Int(fRatio * 100), proteinPercent: Int(pRatio * 100), carbsPercent: Int(cRatio * 100), dietKey: user.activeDietKey)
         
         try? context.save()
     }
@@ -324,7 +325,8 @@ struct NutritionSettingsEditor: View {
     
     private func saveSettings() {
         user.dailyCaloriesGoal = dailyCals
-        user.applyDietBreakdown(fatPercent: Int(fPct), proteinPercent: Int(pPct), carbsPercent: Int(cPct), dietName: "Custom")
+        // ✅ ИСПРАВЛЕНО: dietName -> dietKey ("custom" используем как ключ кастомной диеты)
+        user.applyDietBreakdown(fatPercent: Int(fPct), proteinPercent: Int(pPct), carbsPercent: Int(cPct), dietKey: "custom")
         try? context.save()
         dismiss()
     }
