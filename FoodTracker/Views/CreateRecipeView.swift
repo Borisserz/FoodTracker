@@ -1,44 +1,40 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - CREATE RECIPE WIZARD
 struct CreateRecipeView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var path: NavigationPath
     @State private var showingManualAdd = false
-    // Управление шагами
+
     @State private var currentStep: Int = 0
     private let totalSteps = 4
-    
-    // Данные рецепта (Step 1)
+
     @State private var recipeName: String = ""
     @State private var category: String = "Breakfast"
     @State private var servings: Int = 1
     @State private var cookingTime: Int = 15
     let categories = ["Breakfast", "Lunch", "Dinner", "Snack", "Dessert"]
-    
-    // Ингредиенты (Step 2)
+
     @State private var ingredients: [FoodItem] = []
-    @State private var showingSmartAdd = false // Открываем глобальный поиск
-    
-    // Шаги приготовления (Step 3)
+    @State private var showingSmartAdd = false
+
     @State private var directions: [String] = [""]
-    
+
     var isCurrentStepValid: Bool {
         switch currentStep {
         case 0: return recipeName.trimmingCharacters(in: .whitespaces).count >= 3
-        case 1: return ingredients.count >= 1 // Достаточно хотя бы 1 ингредиента
+        case 1: return ingredients.count >= 1
         case 2: return !directions.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.isEmpty
         default: return true
         }
     }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
-                // --- CUSTOM PROGRESS BAR ---
+
                 HStack(spacing: 8) {
                     ForEach(0..<totalSteps, id: \.self) { index in
                         Capsule()
@@ -49,28 +45,26 @@ struct CreateRecipeView: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
-                
-                // --- DYNAMIC CONTENT (TAB VIEW WIZARD) ---
+
                 TabView(selection: $currentStep) {
                     Step1BasicsView(name: $recipeName, category: $category, servings: $servings, time: $cookingTime, categories: categories)
                         .tag(0)
-                    
+
                     Step2IngredientsView(ingredients: $ingredients, showingAdd: $showingSmartAdd, showingManualAdd: $showingManualAdd)
                         .tag(1)
-                    
+
                     Step3DirectionsView(directions: $directions)
                         .tag(2)
-                    
+
                     Step4VerificationView(name: recipeName, servings: servings, time: cookingTime, ingredients: ingredients, directions: directions)
                         .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: currentStep)
-                
-                Spacer(minLength: 100) // Отступ под плавающую кнопку
+
+                Spacer(minLength: 100)
             }
-            
-            // --- FLOATING BOTTOM BUTTON ---
+
             VStack {
                 Spacer()
                 ZStack {
@@ -78,7 +72,7 @@ struct CreateRecipeView: View {
                         .fill(.ultraThinMaterial)
                         .frame(height: 110)
                         .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-                    
+
                     Button(action: handleNextOrSave) {
                         Text(currentStep == 3 ? "Save Recipe" : "Continue")
                             .font(.headline)
@@ -99,14 +93,13 @@ struct CreateRecipeView: View {
         }
         .navigationTitle(navTitle)
         .navigationBarTitleDisplayMode(.inline)
-        // ✅ УБИРАЕМ НИЖНИЙ ТАБ-БАР
+
         .toolbar(.hidden, for: .tabBar)
         .onTapGesture { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) }
-        
-        // ✅ ВЫЗЫВАЕМ ГЛОБАЛЬНЫЙ ПОИСК ЕДЫ
+
         .sheet(isPresented: $showingSmartAdd) {
             SmartAddFoodView(mealTitle: "Recipe Ingredient") { selectedItems in
-                // Добавляем найденную еду в наш рецепт
+
                 withAnimation(.spring()) {
                     ingredients.append(contentsOf: selectedItems)
                 }
@@ -124,7 +117,7 @@ struct CreateRecipeView: View {
             .presentationCornerRadius(32)
         }
     }
-    
+
     private var navTitle: String {
         switch currentStep {
         case 0: return "Description"
@@ -134,10 +127,10 @@ struct CreateRecipeView: View {
         default: return "Create Recipe"
         }
     }
-    
+
     private func handleNextOrSave() {
         HapticManager.shared.impact(style: .medium)
-        
+
         if currentStep < 3 {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 currentStep += 1
@@ -146,10 +139,10 @@ struct CreateRecipeView: View {
             saveAndNavigate()
         }
     }
-    
+
     private func saveAndNavigate() {
         let cleanDirections = directions.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-        
+
         let newRecipe = CustomRecipe(
             name: recipeName,
             info: category,
@@ -159,9 +152,9 @@ struct CreateRecipeView: View {
             servings: servings,
             directions: cleanDirections
         )
-        
+
         modelContext.insert(newRecipe)
-        
+
         do {
             try modelContext.save()
             path.removeLast()
@@ -174,18 +167,17 @@ struct CreateRecipeView: View {
     }
 }
 
-// MARK: - STEP 1: BASICS
 struct Step1BasicsView: View {
     @Binding var name: String
     @Binding var category: String
     @Binding var servings: Int
     @Binding var time: Int
     let categories: [String]
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
-                
+
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Add basic information about the recipe.")
                         .font(.body)
@@ -195,7 +187,7 @@ struct Step1BasicsView: View {
                         .foregroundColor(.themeOrange)
                 }
                 .padding(.horizontal, 24)
-                
+
                 VStack(spacing: 0) {
                     HStack {
                         TextField("Recipe name", text: $name)
@@ -204,7 +196,7 @@ struct Step1BasicsView: View {
                     }
                     .padding(.vertical, 16).padding(.horizontal, 20)
                     Divider().padding(.leading, 20)
-                    
+
                     HStack {
                         Text("Category").foregroundColor(category.isEmpty ? .gray : .primary)
                         Spacer()
@@ -215,7 +207,7 @@ struct Step1BasicsView: View {
                     }
                     .padding(.vertical, 10).padding(.horizontal, 20)
                     Divider().padding(.leading, 20)
-                    
+
                     HStack {
                         Text("Number of servings")
                         Spacer()
@@ -224,7 +216,7 @@ struct Step1BasicsView: View {
                     }
                     .padding(.vertical, 10).padding(.horizontal, 20)
                     Divider().padding(.leading, 20)
-                    
+
                     HStack {
                         Text("Cooking time")
                         Spacer()
@@ -243,22 +235,20 @@ struct Step1BasicsView: View {
     }
 }
 
-// MARK: - STEP 2: INGREDIENTS
 struct Step2IngredientsView: View {
     @Binding var ingredients: [FoodItem]
     @Binding var showingAdd: Bool
-    @Binding var showingManualAdd: Bool // ✅ Добавлено
-    
+    @Binding var showingManualAdd: Bool
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
-                
+
                 Text("Search our global database or create your own custom ingredients.")
                     .font(.body)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 24)
-                
-                // КНОПКИ ДОБАВЛЕНИЯ
+
                 HStack(spacing: 12) {
                     Button(action: {
                         HapticManager.shared.impact(style: .medium)
@@ -276,7 +266,7 @@ struct Step2IngredientsView: View {
                         .cornerRadius(20)
                         .shadow(color: Color.themePink.opacity(0.3), radius: 8, y: 4)
                     }
-                    
+
                     Button(action: {
                         HapticManager.shared.impact(style: .light)
                         showingManualAdd = true
@@ -295,8 +285,7 @@ struct Step2IngredientsView: View {
                 }
                 .buttonStyle(BounceButtonStyle())
                 .padding(.horizontal, 20)
-                
-                // СПИСОК ИНГРЕДИЕНТОВ
+
                 if !ingredients.isEmpty {
                     VStack(spacing: 0) {
                         ForEach(0..<ingredients.count, id: \.self) { index in
@@ -307,12 +296,11 @@ struct Step2IngredientsView: View {
                                         Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
                                         Text(String(item.name.first ?? "🥗")).font(.headline)
                                     }
-                                    
+
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(item.name)
                                             .font(.system(size: 16, weight: .bold, design: .rounded))
-                                        
-                                        // ✅ Добавили вывод макросов (если юзер их ввел)
+
                                         HStack {
                                             Text("\(item.calories) kcal — \(Int(item.weight))g")
                                                 .foregroundColor(.gray)
@@ -324,7 +312,7 @@ struct Step2IngredientsView: View {
                                         .font(.caption)
                                     }
                                     Spacer()
-                                    
+
                                     Button(action: {
                                         HapticManager.shared.impact(style: .light)
                                         withAnimation {
@@ -337,7 +325,7 @@ struct Step2IngredientsView: View {
                                     }
                                 }
                                 .padding(.vertical, 12).padding(.horizontal, 20)
-                                
+
                                 if index < ingredients.count - 1 { Divider().padding(.leading, 70) }
                             }
                         }
@@ -356,19 +344,18 @@ struct Step2IngredientsView: View {
     }
 }
 
-// MARK: - STEP 3: DIRECTIONS
 struct Step3DirectionsView: View {
     @Binding var directions: [String]
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
-                
+
                 Text("Add step-by-step directions for the cooking process.")
                     .font(.body)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 24)
-                
+
                 VStack(spacing: 16) {
                     ForEach(0..<directions.count, id: \.self) { index in
                         DirectionRowView(
@@ -388,7 +375,7 @@ struct Step3DirectionsView: View {
                         )
                     }
                 }
-                
+
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
                     withAnimation { directions.append("") }
@@ -416,7 +403,7 @@ struct DirectionRowView: View {
     @Binding var text: String
     let canDelete: Bool
     let onDelete: () -> Void
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Text("\(index + 1)")
@@ -425,14 +412,14 @@ struct DirectionRowView: View {
                 .frame(width: 28, height: 28)
                 .background(Color.themePink)
                 .clipShape(Circle())
-            
+
             TextField("Describe step \(index + 1)...", text: $text, axis: .vertical)
                 .lineLimit(2...5)
                 .padding(16)
                 .background(Color.white)
                 .cornerRadius(20)
                 .shadow(color: Color.black.opacity(0.02), radius: 5, y: 2)
-            
+
             if canDelete {
                 Button(action: onDelete) {
                     Image(systemName: "minus.circle.fill")
@@ -446,34 +433,32 @@ struct DirectionRowView: View {
     }
 }
 
-// MARK: - STEP 4: VERIFICATION
 struct Step4VerificationView: View {
     let name: String
     let servings: Int
     let time: Int
     let ingredients: [FoodItem]
     let directions: [String]
-    
+
     var totalCalories: Int { ingredients.reduce(0) { $0 + $1.calories } }
     var totalWeight: Double { ingredients.reduce(0) { $0 + $1.weight } }
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 32) {
-                
+
                 Text("Final review. Check your recipe details before saving.")
                     .font(.body)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 24)
-                
-                // Hero Summary Card
+
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(name.isEmpty ? "New Recipe" : name)
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .lineLimit(2)
-                        
+
                         HStack(spacing: 12) {
                             Label("\(totalCalories) kcal", systemImage: "flame.fill")
                             Label("\(time) min", systemImage: "clock.fill")
@@ -490,8 +475,7 @@ struct Step4VerificationView: View {
                 .cornerRadius(24)
                 .shadow(color: Color.green.opacity(0.3), radius: 10, y: 5)
                 .padding(.horizontal, 20)
-                
-                // Servings Info
+
                 HStack {
                     VStack(alignment: .leading) {
                         Text("Standard Serving").font(.caption).foregroundColor(.gray)
@@ -508,8 +492,7 @@ struct Step4VerificationView: View {
                 .cornerRadius(20)
                 .shadow(color: Color.black.opacity(0.02), radius: 5, y: 2)
                 .padding(.horizontal, 20)
-                
-                // Ingredients List
+
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Ingredients").font(.title2).bold().padding(.horizontal, 20)
                     VStack(spacing: 0) {
@@ -536,38 +519,36 @@ struct Step4VerificationView: View {
         }
     }
 }
-// MARK: - Вспомогательное окно для добавления ингредиента
+
 struct AddIngredientModalView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context // ✅ Добавили контекст для сохранения в базу
-    
+    @Environment(\.modelContext) private var context
+
     var onSave: (FoodItem) -> Void
-    
+
     @State private var name: String = ""
     @State private var weight: String = "100"
-    
-    // КБЖУ (Сделали String, чтобы можно было оставить пустыми)
+
     @State private var calories: String = ""
     @State private var protein: String = ""
     @State private var fats: String = ""
     @State private var carbs: String = ""
-    
-    // Валидация: имя обязательно, вес должен быть > 0
+
     var isFormValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty && (Double(weight) ?? 0) > 0
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 Color.themeBg.ignoresSafeArea()
-                
+
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        // БЛОК 1: Основное (Обязательно)
+
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Basic Info").font(.headline).foregroundColor(.gray)
-                            
+
                             VStack(spacing: 0) {
                                 CustomTextFieldRow(title: "Name", placeholder: "e.g. Oat Milk", text: $name, isNumber: false)
                                 Divider().padding(.leading, 20)
@@ -577,15 +558,14 @@ struct AddIngredientModalView: View {
                             .cornerRadius(20)
                             .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
                         }
-                        
-                        // БЛОК 2: Макросы (Опционально)
+
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 Text("Nutrition Facts").font(.headline).foregroundColor(.gray)
                                 Spacer()
                                 Text("Optional").font(.caption).foregroundColor(.gray.opacity(0.6))
                             }
-                            
+
                             VStack(spacing: 0) {
                                 CustomTextFieldRow(title: "Calories (kcal)", placeholder: "0", text: $calories, isNumber: true)
                                 Divider().padding(.leading, 20)
@@ -599,19 +579,18 @@ struct AddIngredientModalView: View {
                             .cornerRadius(20)
                             .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
                         }
-                        
+
                         Text("Items created here are permanently saved to your database and can be used in your daily logs.")
                             .font(.caption)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 20)
-                        
+
                         Spacer().frame(height: 100)
                     }
                     .padding(20)
                 }
-                
-                // ПЛАВАЮЩАЯ КНОПКА
+
                 VStack {
                     Spacer()
                     ZStack {
@@ -619,7 +598,7 @@ struct AddIngredientModalView: View {
                             .fill(.ultraThinMaterial)
                             .frame(height: 100)
                             .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-                        
+
                         Button(action: saveIngredient) {
                             Text("Save & Add")
                                 .font(.headline)
@@ -648,36 +627,32 @@ struct AddIngredientModalView: View {
             }
         }
     }
-    
+
     private func saveIngredient() {
         HapticManager.shared.impact(style: .heavy)
-        
-        // Парсим значения (если пусто - будет 0)
+
         let w = Double(weight) ?? 100.0
         let cals = Int(calories) ?? 0
         let p = Double(protein) ?? 0.0
         let f = Double(fats) ?? 0.0
         let c = Double(carbs) ?? 0.0
-        
+
         let newFood = FoodItem(name: name, weight: w, calories: cals, protein: p, fats: f, carbs: c)
-        
-        // ✅ 1. Сохраняем в глобальную базу (теперь он будет доступен в поиске)
+
         context.insert(newFood)
         try? context.save()
-        
-        // ✅ 2. Передаем в рецепт
+
         onSave(newFood)
         dismiss()
     }
 }
 
-// Вспомогательная строка для текстовых полей
 struct CustomTextFieldRow: View {
     let title: String
     let placeholder: String
     @Binding var text: String
     let isNumber: Bool
-    
+
     var body: some View {
         HStack {
             Text(title)
@@ -694,7 +669,7 @@ struct CustomTextFieldRow: View {
         .padding(.vertical, 16)
     }
 }
-// 🍩 КРУГОВАЯ ДИАГРАММА МАКРОСОВ
+
 struct RecipeMacroDonutView: View {
     let calories: Int; let protein: Double; let fat: Double; let carbs: Double
     @State private var anim = false
@@ -702,7 +677,7 @@ struct RecipeMacroDonutView: View {
     var cPct: Double { (carbs * 4) / totalCalsFromMacros }
     var fPct: Double { (fat * 9) / totalCalsFromMacros }
     var pPct: Double { (protein * 4) / totalCalsFromMacros }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Nutrition Per Serving").font(.title3.bold())
@@ -737,16 +712,15 @@ struct MacroStatColumn: View {
     }
 }
 
-// MARK: - 6. CUSTOM RECIPE DETAIL VIEW (Исправляет ошибку компиляции)
 struct RecipeDetailView: View {
     let recipe: CustomRecipe
     @Binding var path: NavigationPath
     @Environment(\.modelContext) private var context
-    // <--- ДОБАВЛЕНО: Для кнопки "Назад"
+
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var showMealSheet = false
-    // ✅ Функция удаления рецепта
+
        private func deleteRecipe() {
            context.delete(recipe)
            try? context.save()
@@ -755,20 +729,19 @@ struct RecipeDetailView: View {
     var totalProtein: Double { recipe.foodItems.reduce(0) { $0 + $1.protein } }
     var totalFat: Double { recipe.foodItems.reduce(0) { $0 + $1.fats } }
     var totalCarbs: Double { recipe.foodItems.reduce(0) { $0 + $1.carbs } }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
-            
+
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
-                    
-                    // Заголовок
+
                     VStack(alignment: .leading, spacing: 12) {
                         Text(recipe.name)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .padding(.top, 60) // <--- УВЕЛИЧЕН ОТСТУП СВЕРХУ под кнопку
-                        
+                            .padding(.top, 60)
+
                         HStack(spacing: 16) {
                             Label("\(recipe.cookingTime) min", systemImage: "clock.fill")
                             Label(recipe.difficulty, systemImage: "flame.fill")
@@ -778,8 +751,7 @@ struct RecipeDetailView: View {
                         .foregroundColor(.themeOrange)
                     }
                     .padding(.horizontal, 20)
-                    
-                    // ДИАГРАММА МАКРОСОВ
+
                     RecipeMacroDonutView(
                         calories: recipe.totalCalories,
                         protein: totalProtein,
@@ -787,8 +759,7 @@ struct RecipeDetailView: View {
                         carbs: totalCarbs
                     )
                     .padding(.horizontal, 20)
-                    
-                    // Ингредиенты
+
                     if !recipe.foodItems.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Ingredients").font(.title2).bold()
@@ -810,8 +781,7 @@ struct RecipeDetailView: View {
                         }
                         .padding(.horizontal, 20)
                     }
-                    
-                    // Шаги
+
                     if !recipe.directions.isEmpty {
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Directions").font(.title2).bold()
@@ -836,12 +806,11 @@ struct RecipeDetailView: View {
                         }
                         .padding(.horizontal, 20)
                     }
-                    
+
                     Spacer().frame(height: 120)
                 }
             }
-            
-            // <--- ДОБАВЛЕНО: Плавающая кнопка "Назад"
+
             VStack {
                 HStack {
                     Button(action: {
@@ -857,9 +826,7 @@ struct RecipeDetailView: View {
                             .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
                     }
                     Spacer()
-                    
-                    
-                    // ✅ КНОПКА УДАЛЕНИЯ РЕЦЕПТА
+
                                       Button(action: {
                                           HapticManager.shared.impact(style: .heavy)
                                           deleteRecipe()
@@ -874,13 +841,11 @@ struct RecipeDetailView: View {
                                       }
                                   }
                                   .padding(.horizontal)
-                                  .padding(.top, 50) // Отступ от челки
-                                  
+                                  .padding(.top, 50)
+
                                   Spacer()
                               }
-                              
-            
-            // ПЛАВАЮЩАЯ КНОПКА "ADD TO MEAL"
+
             VStack {
                 Spacer()
                 ZStack {
@@ -888,7 +853,7 @@ struct RecipeDetailView: View {
                         .fill(.ultraThinMaterial)
                         .frame(height: 110)
                         .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-                    
+
                     Button(action: {
                         HapticManager.shared.impact(style: .heavy)
                         showMealSheet = true
@@ -909,7 +874,7 @@ struct RecipeDetailView: View {
             }
             .ignoresSafeArea(edges: .bottom)
         }
-        .navigationBarHidden(true) // <--- ДОБАВЛЕНО: Прячем стандартный бар
+        .navigationBarHidden(true)
         .sheet(isPresented: $showMealSheet) {
             CustomChooseMealSheet(recipe: recipe)
                 .presentationDetents([.fraction(0.4)])
@@ -925,16 +890,16 @@ struct RecipeDetailView: View {
         }
     }
 }
-    // Шторка добавления личного рецепта в дневник
+
     struct CustomChooseMealSheet: View {
         @Environment(\.dismiss) var dismiss
         @Environment(\.modelContext) private var context
         @Query private var summaries: [DailySummary]
-        
+
         let recipe: CustomRecipe
         @State private var selectedMeal = "Breakfast"
         let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
-        
+
         var body: some View {
             VStack(spacing: 24) {
                 Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
@@ -942,7 +907,7 @@ struct RecipeDetailView: View {
                     ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) }
                 }
                 .pickerStyle(.wheel).frame(height: 120)
-                
+
                 Button(action: {
                     HapticManager.shared.impact(style: .heavy)
                     saveToDiary()
@@ -958,7 +923,7 @@ struct RecipeDetailView: View {
             }
             .background(Color.themeBg.ignoresSafeArea())
         }
-        
+
         private func saveToDiary() {
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: .now)

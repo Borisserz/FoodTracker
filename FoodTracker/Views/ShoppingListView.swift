@@ -1,33 +1,23 @@
-//
-//  ShoppingListView.swift
-//  FoodTracker
-//
-//  Created by Boris Serzhanovich on 16.04.26.
-//
-
 import SwiftUI
 import SwiftData
-
-// MARK: - 🛒 ПРЕМИАЛЬНЫЙ СПИСОК ПОКУПОК
 
 struct ShoppingListView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    
-    // Запрашиваем элементы, сортируя по дате добавления
+
     @Query(sort: \ShoppingItem.dateAdded, order: .reverse) private var allItems: [ShoppingItem]
-    
+
     @State private var newItemName: String = ""
-    
+
     var activeItems: [ShoppingItem] { allItems.filter { !$0.isChecked } }
     var completedItems: [ShoppingItem] { allItems.filter { $0.isChecked } }
-    
+
     var body: some View {
         ZStack {
             Color.themeBg.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
-                // 1. ПОЛЕ БЫСТРОГО ДОБАВЛЕНИЯ
+
                 HStack(spacing: 12) {
                     HStack {
                         Image(systemName: "plus.circle")
@@ -39,7 +29,7 @@ struct ShoppingListView: View {
                     .background(Color.white)
                     .cornerRadius(16)
                     .shadow(color: Color.black.opacity(0.03), radius: 5, y: 2)
-                    
+
                     Button(action: addManualItem) {
                         Image(systemName: "arrow.up")
                             .font(.system(size: 16, weight: .bold))
@@ -53,11 +43,10 @@ struct ShoppingListView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
                 .padding(.bottom, 20)
-                
-                // 2. СПИСКИ (Активные и Выполненные)
+
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        
+
                         if allItems.isEmpty {
                             EmptyStateView(
                                 imageName: "cart",
@@ -66,17 +55,17 @@ struct ShoppingListView: View {
                             )
                             .padding(.top, 60)
                         } else {
-                            // АКТИВНЫЕ ЭЛЕМЕНТЫ
+
                             if !activeItems.isEmpty {
                                 VStack(alignment: .leading, spacing: 12) {
                                     Text("To Buy (\(activeItems.count))")
                                         .font(.headline)
                                         .foregroundColor(.gray)
                                         .padding(.horizontal, 24)
-                                    
+
                                     VStack(spacing: 0) {
                                         ForEach(activeItems) { item in
-                                            // ✅ ИСПРАВЛЕНО: Передаем функцию onDelete в строку
+
                                             ShoppingRowView(item: item, onToggle: { toggleCheck(for: item) }, onDelete: { deleteItem(item) })
                                         }
                                     }
@@ -86,8 +75,7 @@ struct ShoppingListView: View {
                                     .shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
                                 }
                             }
-                            
-                            // ВЫПОЛНЕННЫЕ ЭЛЕМЕНТЫ
+
                             if !completedItems.isEmpty {
                                 VStack(alignment: .leading, spacing: 12) {
                                     HStack {
@@ -100,10 +88,10 @@ struct ShoppingListView: View {
                                             .foregroundColor(.red)
                                     }
                                     .padding(.horizontal, 24)
-                                    
+
                                     VStack(spacing: 0) {
                                         ForEach(completedItems) { item in
-                                            // ✅ ИСПРАВЛЕНО: Передаем функцию onDelete в строку
+
                                             ShoppingRowView(item: item, onToggle: { toggleCheck(for: item) }, onDelete: { deleteItem(item) })
                                         }
                                     }
@@ -111,7 +99,7 @@ struct ShoppingListView: View {
                                     .cornerRadius(24)
                                     .padding(.horizontal, 20)
                                     .shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
-                                    .opacity(0.7) // Слегка гасим выполненный блок
+                                    .opacity(0.7)
                                 }
                             }
                         }
@@ -123,19 +111,18 @@ struct ShoppingListView: View {
         .navigationTitle("Shopping List")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
-    // MARK: - Actions
+
     private func addManualItem() {
         let text = newItemName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        
+
         HapticManager.shared.impact(style: .light)
         let item = ShoppingItem(name: text)
         context.insert(item)
         try? context.save()
         newItemName = ""
     }
-    
+
     private func toggleCheck(for item: ShoppingItem) {
         HapticManager.shared.impact(style: .light)
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -143,14 +130,14 @@ struct ShoppingListView: View {
         }
         try? context.save()
     }
-    
+
     private func deleteItem(_ item: ShoppingItem) {
         withAnimation {
             context.delete(item)
             try? context.save()
         }
     }
-    
+
     private func clearCompleted() {
         HapticManager.shared.impact(style: .medium)
         withAnimation {
@@ -162,48 +149,46 @@ struct ShoppingListView: View {
     }
 }
 
-// MARK: - СТРОКА ПРОДУКТА (С УДАЛЕНИЕМ)
 struct ShoppingRowView: View {
     @Bindable var item: ShoppingItem
     var onToggle: () -> Void
-    var onDelete: (() -> Void)? = nil // ✅ ДОБАВЛЕНО
-    
+    var onDelete: (() -> Void)? = nil
+
     var body: some View {
         HStack(spacing: 16) {
             Button(action: onToggle) {
                 HStack(spacing: 16) {
-                    // Кружок с галочкой
+
                     ZStack {
                         Circle()
                             .stroke(item.isChecked ? Color.themePink : Color.gray.opacity(0.3), lineWidth: 2)
                             .frame(width: 24, height: 24)
-                        
+
                         if item.isChecked {
                             Circle()
                                 .fill(Color.themePink)
                                 .frame(width: 24, height: 24)
                                 .transition(.scale)
-                            
+
                             Image(systemName: "checkmark")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
-                    
-                    // Текст и теги
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text(item.name)
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .foregroundColor(item.isChecked ? .gray : .primary)
                             .strikethrough(item.isChecked, color: .gray)
-                        
+
                         HStack {
                             if !item.amount.isEmpty {
                                 Text(item.amount)
                                     .font(.caption.bold())
                                     .foregroundColor(.themeOrange)
                             }
-                            
+
                             if let recipeName = item.addedFromRecipe {
                                 Text("from \(recipeName)")
                                     .font(.caption2)
@@ -215,10 +200,9 @@ struct ShoppingRowView: View {
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            
+
             Spacer()
-            
-            // ✅ КНОПКА УДАЛЕНИЯ СПРАВА
+
             if let onDelete = onDelete {
                 Button(action: {
                     HapticManager.shared.impact(style: .medium)
@@ -226,13 +210,13 @@ struct ShoppingRowView: View {
                 }) {
                     Image(systemName: "trash")
                         .foregroundColor(.red.opacity(0.8))
-                        .padding(8) // Увеличиваем область тапа
+                        .padding(8)
                 }
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 16)
-        .contentShape(Rectangle()) // Чтобы нажималась вся строка (для контекстного меню)
+        .contentShape(Rectangle())
         .contextMenu {
             if let onDelete = onDelete {
                 Button(role: .destructive) {
@@ -242,7 +226,7 @@ struct ShoppingRowView: View {
                 }
             }
         }
-        
+
         Divider().padding(.leading, 56)
     }
 }

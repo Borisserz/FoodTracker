@@ -1,70 +1,61 @@
-//============================================================
-// FILE: FoodTracker/Views/Home/AdvancedBeverageTrackerView.swift
-//============================================================
-
 import SwiftUI
 import SwiftData
 
 struct WaterGridTrackerView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
-    
+
     @Bindable var summary: DailySummary
-    
-    // Базовые константы
+
     let dailyGoalLiters = 2.5
     let volumePerGridCupMl: Double = 250.0
-    let gridColumns = 6 // Количество колонок в сетке
-    
+    let gridColumns = 6
+
     var waterBeverages: [Beverage] {
         summary.beverages.filter { $0.name == "Water" }.sorted { $0.date < $1.date }
     }
-    
+
     var waterLiters: Double {
         waterBeverages.reduce(0) { $0 + $1.volumeMl } / 1000.0
     }
-    
-    // Сколько визуальных стаканов по 250мл заполнено
+
     var filledGlassesCount: Int {
         Int((waterLiters * 1000) / volumePerGridCupMl)
     }
-    
+
     var isGoalReached: Bool { waterLiters >= dailyGoalLiters }
     var progress: Double { min(waterLiters / dailyGoalLiters, 1.0) }
-    
-    // УМНАЯ МАТЕМАТИКА ДЛЯ БЕСКОНЕЧНОЙ СЕТКИ
+
     var totalCupsToDraw: Int {
-        let baseCups = Int((dailyGoalLiters * 1000) / volumePerGridCupMl) // Обычно 10
-        // Нам нужно как минимум базовое количество, ИЛИ на 1 пустой стакан больше, чем выпито
+        let baseCups = Int((dailyGoalLiters * 1000) / volumePerGridCupMl)
+
         let requiredCups = max(baseCups, filledGlassesCount + 1)
-        
-        // Округляем до полного ряда (чтобы сетка всегда была ровным прямоугольником)
+
         let remainder = requiredCups % gridColumns
         let cupsToCompleteRow = remainder == 0 ? 0 : (gridColumns - remainder)
-        
+
         return requiredCups + cupsToCompleteRow
     }
-    
+
     var body: some View {
         VStack(spacing: 24) {
-            
-            // 1. ПРЕМИАЛЬНАЯ ШАПКА С ПРОГРЕССОМ
+
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Water Balance")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
-                    
+
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(waterLiters, specifier: "%.2f")")
                             .font(.system(size: 38, weight: .heavy, design: .rounded))
                             .foregroundColor(isGoalReached ? .blue : .cyan)
                             .contentTransition(.numericText(value: waterLiters))
-                        
+
                         Text("L")
                             .font(.title2.bold())
                             .foregroundColor(isGoalReached ? .blue : .cyan)
-                        
+
                         Text("/ \(dailyGoalLiters, specifier: "%.2f") L")
                             .font(.subheadline)
                             .foregroundColor(.gray.opacity(0.8))
@@ -72,8 +63,7 @@ struct WaterGridTrackerView: View {
                     }
                 }
                 Spacer()
-                
-                // Анимированный индикатор
+
                 ZStack {
                     Circle().stroke(Color.cyan.opacity(0.15), lineWidth: 6)
                     Circle()
@@ -81,7 +71,7 @@ struct WaterGridTrackerView: View {
                         .stroke(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom), style: StrokeStyle(lineWidth: 6, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .animation(.spring(response: 0.8, dampingFraction: 0.7), value: progress)
-                    
+
                     Image(systemName: isGoalReached ? "checkmark" : "drop.fill")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(isGoalReached ? .blue : .cyan)
@@ -90,8 +80,7 @@ struct WaterGridTrackerView: View {
                 .frame(width: 56, height: 56)
                 .shadow(color: Color.cyan.opacity(isGoalReached ? 0.3 : 0.1), radius: 8, x: 0, y: 4)
             }
-            
-            // 2. ПАНЕЛЬ БЫСТРОГО ДОБАВЛЕНИЯ РАЗНЫХ ОБЪЕМОВ
+
             HStack(spacing: 12) {
                 WaterPresetButton(icon: "drop.fill", title: "Glass", volume: "+250 ml") {
                     addWater(ml: 250)
@@ -100,14 +89,13 @@ struct WaterGridTrackerView: View {
                     addWater(ml: 500)
                 }
             }
-            
-            // 3. УМНАЯ СЕТКА СТАКАНОВ
+
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: gridColumns), spacing: 16) {
                 ForEach(0..<totalCupsToDraw, id: \.self) { index in
                     let isFilled = index < filledGlassesCount
                     let isNext = index == filledGlassesCount
                     let isLastFilled = isFilled && index == filledGlassesCount - 1
-                    
+
                     WaterGlassItemView(
                         isFilled: isFilled,
                         isNext: isNext,
@@ -116,12 +104,12 @@ struct WaterGridTrackerView: View {
                         if isLastFilled {
                             removeLastWaterEntry()
                         } else if isNext {
-                            addWater(ml: 250) // По тапу на стакан в сетке добавляем стандартные 250
+                            addWater(ml: 250)
                         }
                     }
                 }
             }
-            // Анимация при добавлении новых рядов
+
             .animation(.spring(response: 0.5, dampingFraction: 0.8), value: totalCupsToDraw)
         }
         .padding(24)
@@ -134,14 +122,13 @@ struct WaterGridTrackerView: View {
                 .animation(.easeInOut, value: isGoalReached)
         )
     }
-    
-    // MARK: - Логика действий
+
     private func addWater(ml: Double) {
            HapticManager.shared.impact(style: .medium)
            let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
-           
+
            withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
-               // ✅ ИСПРАВЛЕНО: Добавляем день в базу ТОЛЬКО когда мы реально сохраняем воду
+
                if summary.modelContext == nil {
                    context.insert(summary)
                }
@@ -149,7 +136,7 @@ struct WaterGridTrackerView: View {
                summary.beverages.append(newBeverage)
                try? context.save()
            }
-           
+
            if let user = users.first, user.isHealthKitEnabled {
                HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: Date())
            }
@@ -157,7 +144,7 @@ struct WaterGridTrackerView: View {
     private func removeLastWaterEntry() {
         HapticManager.shared.impact(style: .light)
         guard let lastWater = waterBeverages.last else { return }
-        
+
         withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
             if let index = summary.beverages.firstIndex(of: lastWater) {
                 summary.beverages.remove(at: index)
@@ -168,20 +155,19 @@ struct WaterGridTrackerView: View {
     }
 }
 
-// MARK: - Кнопка быстрого добавления (Пресеты)
 struct WaterPresetButton: View {
     let icon: String
     let title: String
     let volume: String
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 18))
                     .foregroundColor(.cyan)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -191,7 +177,7 @@ struct WaterPresetButton: View {
                         .foregroundColor(.gray)
                 }
                 Spacer()
-                
+
                 Image(systemName: "plus.circle.fill")
                     .foregroundColor(.cyan.opacity(0.8))
                     .font(.system(size: 20))
@@ -205,18 +191,16 @@ struct WaterPresetButton: View {
                     .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
             )
         }
-        .buttonStyle(WaterGlassButtonStyle()) // Тот же пружинистый эффект
+        .buttonStyle(WaterGlassButtonStyle())
     }
 }
 
-
-// MARK: - View отдельного стакана (Кнопка)
 struct WaterGlassItemView: View {
     let isFilled: Bool
     let isNext: Bool
     let isLastFilled: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             PremiumGlassContentView(isFilled: isFilled, isNext: isNext, isLastFilled: isLastFilled)
@@ -226,18 +210,16 @@ struct WaterGlassItemView: View {
     }
 }
 
-// MARK: - Отрисовка стакана (Премиум-дизайн жидкости)
 struct PremiumGlassContentView: View {
     let isFilled: Bool
     let isNext: Bool
     let isLastFilled: Bool
-    
+
     @State private var isPulsing = false
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
-            
-            // 1. Фон стакана
+
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(Color.gray.opacity(0.06))
                 .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
@@ -245,8 +227,7 @@ struct PremiumGlassContentView: View {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(Color.gray.opacity(0.1), lineWidth: 1)
                 )
-            
-            // 2. Жидкость (Анимированная)
+
             GeometryReader { geo in
                 VStack {
                     Spacer(minLength: 0)
@@ -263,8 +244,7 @@ struct PremiumGlassContentView: View {
                 }
             }
             .padding(2)
-            
-            // 3. Состояния UI
+
             if isNext {
                 ZStack {
                     Circle()
@@ -272,7 +252,7 @@ struct PremiumGlassContentView: View {
                         .frame(width: 30, height: 30)
                         .scaleEffect(isPulsing ? 1.2 : 0.8)
                         .opacity(isPulsing ? 0 : 1)
-                    
+
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.cyan)
@@ -288,7 +268,7 @@ struct PremiumGlassContentView: View {
                     Circle()
                         .fill(.ultraThinMaterial)
                         .frame(width: 24, height: 24)
-                    
+
                     Image(systemName: "minus")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
@@ -303,7 +283,6 @@ struct PremiumGlassContentView: View {
     }
 }
 
-// MARK: - Пружинистый стиль нажатия
 struct WaterGlassButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

@@ -1,29 +1,23 @@
-//
-//  SuperFoodsView.swift
-//  FoodTracker
-//
-
 import SwiftUI
 import SwiftData
 
-// MARK: - ГЛАВНЫЙ ЭКРАН ДИЕТ (КАРУСЕЛЬ В СТИЛЕ APP STORE)
 struct DietsListView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
-    
+
     @State private var selectedIndex: Int = 0
     @Namespace private var animation
-    
+
     var body: some View {
         ZStack {
-            // Динамический фон в зависимости от выбранной диеты
+
             let currentDietColor = DietPlan.allDiets[selectedIndex].color
             currentDietColor.opacity(0.15)
                 .ignoresSafeArea()
                 .animation(.easeInOut(duration: 0.8), value: selectedIndex)
-            
+
             VStack(spacing: 0) {
-                // Заголовок
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Diet Plans")
                         .font(.system(size: 34, weight: .heavy, design: .rounded))
@@ -33,13 +27,12 @@ struct DietsListView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 24)
                 .padding(.top, 20)
-                
-                // КАРУСЕЛЬ ДИЕТ (Paging TabView)
+
                 TabView(selection: $selectedIndex) {
                     ForEach(DietPlan.allDiets.indices, id: \.self) { index in
                         let diet = DietPlan.allDiets[index]
-                        let isUserActiveDiet = users.first?.activeDietName == diet.name
-                        
+                        let isUserActiveDiet = users.first?.activeDietPlan?.key == diet.key
+
                         NavigationLink(destination: PremiumDietDetailView(diet: diet)) {
                             DietHeroCard(diet: diet, isActive: isUserActiveDiet)
                         }
@@ -49,8 +42,7 @@ struct DietsListView: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .padding(.vertical, 20)
-                
-                // Индикаторы страниц (Точки)
+
                 HStack(spacing: 8) {
                     ForEach(DietPlan.allDiets.indices, id: \.self) { index in
                         Circle()
@@ -65,26 +57,25 @@ struct DietsListView: View {
     }
 }
 
-// УЛЬТРА КАРТОЧКА ДИЕТЫ
 struct DietHeroCard: View {
     let diet: DietPlan
     let isActive: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Верхняя часть (Цветная)
+
             ZStack(alignment: .topLeading) {
                 LinearGradient(
                     colors: [diet.color.opacity(0.8), diet.color],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                
+
                 Image(systemName: "leaf.fill")
                     .font(.system(size: 150))
                     .foregroundColor(.white.opacity(0.2))
                     .offset(x: 180, y: 50)
-                
+
                 VStack(alignment: .leading, spacing: 8) {
                     if isActive {
                         HStack {
@@ -98,14 +89,14 @@ struct DietHeroCard: View {
                         .clipShape(Capsule())
                         .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
                     }
-                    
+
                     Spacer()
-                    
+
                     Text(diet.name)
                         .font(.system(size: 42, weight: .heavy, design: .rounded))
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(0.2), radius: 2, y: 2)
-                    
+
                     Text(diet.tagline)
                         .font(.headline)
                         .foregroundColor(.white.opacity(0.9))
@@ -113,15 +104,14 @@ struct DietHeroCard: View {
                 .padding(24)
             }
             .frame(height: 300)
-            
-            // Нижняя часть (Информация)
+
             VStack(spacing: 20) {
                 HStack(spacing: 24) {
                     MacroMiniStat(title: "Fat", value: diet.macroBreakdown.fat, color: .themeYellow)
                     MacroMiniStat(title: "Protein", value: diet.macroBreakdown.protein, color: .themePeach)
                     MacroMiniStat(title: "Carbs", value: diet.macroBreakdown.carbs, color: .drinkWater)
                 }
-                
+
                 HStack {
                     Text("Learn more")
                         .font(.headline)
@@ -154,27 +144,28 @@ struct MacroMiniStat: View {
         }
     }
 }
+
 struct PremiumDietDetailView: View {
     let diet: DietPlan
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
-    
+
     var body: some View {
-        let isCurrentDiet = users.first?.activeDietName == diet.name
-        
+        let isCurrentDiet = users.first?.activeDietPlan?.key == diet.key
+
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
-            
+
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
-                    // 1. STRETCHY HEADER (С улучшенной читаемостью текста)
+
                     GeometryReader { geo in
                         let minY = geo.frame(in: .global).minY
                         let isScrollingDown = minY > 0
-                        
+
                         ZStack(alignment: .bottomLeading) {
-                            // Основной цвет
+
                             LinearGradient(
                                 colors: [diet.color.opacity(0.7), diet.color],
                                 startPoint: .topLeading,
@@ -182,13 +173,12 @@ struct PremiumDietDetailView: View {
                             )
                             .frame(height: isScrollingDown ? 350 + minY : 350)
                             .offset(y: isScrollingDown ? -minY : 0)
-                            
-                            // ✅ ИСПРАВЛЕНО: Подняли иконку выше, чтобы ее было лучше видно
+
                             Image(systemName: "sparkles")
                                 .font(.system(size: 150))
                                 .foregroundColor(.white.opacity(0.15))
-                                .offset(x: 150, y: -40) // БЫЛО 20, СТАЛО -40
-                            
+                                .offset(x: 150, y: -40)
+
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(diet.name)
                                     .font(.system(size: 48, weight: .heavy, design: .rounded))
@@ -203,15 +193,14 @@ struct PremiumDietDetailView: View {
                                     .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                             }
                             .padding(24)
-                            .padding(.bottom, 40) // ✅ ИСПРАВЛЕНО: Добавили отступ снизу, чтобы карточка макросов не перекрывала текст
+                            .padding(.bottom, 40)
                             .offset(y: isScrollingDown ? -minY * 0.5 : 0)
                         }
                     }
                     .frame(height: 350)
-                    
-                    // 2. КОНТЕНТ (С наездом на шапку)
+
                     VStack(spacing: 24) {
-                        // Карточка макросов
+
                         HStack(spacing: 0) {
                             MacroDonutStat(title: "Fat", percent: diet.macroBreakdown.fat, color: .themeYellow)
                             Divider().frame(height: 50)
@@ -224,21 +213,19 @@ struct PremiumDietDetailView: View {
                         .cornerRadius(24)
                         .shadow(color: Color.black.opacity(0.05), radius: 15, y: 5)
                         .offset(y: -40)
-                        .padding(.bottom, -40) // Компенсация отступа
-                        
-                        // Описание
+                        .padding(.bottom, -40)
+
                         Text(diet.description)
                             .font(.body)
                             .lineSpacing(6)
                             .foregroundColor(.primary.opacity(0.8))
                             .padding(.horizontal, 24)
-                        
-                        // БЛОК "ЧТО ДАЕТ ДИЕТА"
+
                         VStack(alignment: .leading, spacing: 16) {
                             Text("What happens when you activate?")
                                 .font(.title3.bold())
                                 .padding(.horizontal, 24)
-                            
+
                             VStack(spacing: 12) {
                                 DietFeatureRow(icon: "chart.pie.fill", color: .themePink, text: "Auto-adjusts your daily Protein, Fat, and Carbs targets.")
                                 DietFeatureRow(icon: "magnifyingglass", color: .green, text: "Highlights compatible & forbidden foods while searching.")
@@ -247,8 +234,7 @@ struct PremiumDietDetailView: View {
                             .padding(.horizontal, 24)
                         }
                         .padding(.vertical, 8)
-                        
-                        // Топ продукты
+
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Approved Foods").font(.title2).bold().padding(.horizontal, 24)
                             ForEach(diet.categories) { category in
@@ -256,15 +242,14 @@ struct PremiumDietDetailView: View {
                                     .padding(.horizontal, 24)
                             }
                         }
-                        
-                        Spacer().frame(height: 120) // Отступ под плавающую кнопку
+
+                        Spacer().frame(height: 120)
                     }
                     .background(Color.themeBg)
                 }
             }
             .ignoresSafeArea(edges: .top)
-            
-            // 3. ПЛАВАЮЩАЯ КНОПКА (Sticky Bottom Button)
+
             if let user = users.first {
                 VStack {
                     Spacer()
@@ -273,33 +258,30 @@ struct PremiumDietDetailView: View {
                             .fill(.ultraThinMaterial)
                             .frame(height: 110)
                             .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-                        
+
                         Button(action: {
                             HapticManager.shared.impact(style: .heavy)
                             withAnimation(.spring()) {
-                                // ✅ ИСПРАВЛЕНО: Логика переключения диеты
+
                                 if isCurrentDiet {
-                                    // Если диета уже активна -> Отключаем и возвращаем стандартную "Balanced"
                                     user.applyDietBreakdown(
                                         fatPercent: 30,
                                         proteinPercent: 30,
                                         carbsPercent: 40,
-                                        dietName: "Balanced"
+                                        dietKey: "balanced"
                                     )
                                 } else {
-                                    // Если не активна -> Включаем эту диету
                                     user.applyDietBreakdown(
                                         fatPercent: diet.macroBreakdown.fat,
                                         proteinPercent: diet.macroBreakdown.protein,
                                         carbsPercent: diet.macroBreakdown.carbs,
-                                        dietName: diet.name
+                                        dietKey: diet.key
                                     )
                                 }
                                 try? context.save()
                             }
                         }) {
                             HStack {
-                                // ✅ ИСПРАВЛЕНО: Внешний вид кнопки в зависимости от статуса
                                 if isCurrentDiet {
                                     Image(systemName: "xmark.circle.fill")
                                     Text("Deactivate Plan")
@@ -315,7 +297,6 @@ struct PremiumDietDetailView: View {
                             .cornerRadius(24)
                             .shadow(color: isCurrentDiet ? .clear : diet.color.opacity(0.4), radius: 10, y: 5)
                         }
-                        // .disabled(isCurrentDiet) // <--- Удалили это, теперь кнопка всегда кликабельна!
                         .padding(.horizontal, 24)
                         .padding(.bottom, 30)
                     }
@@ -326,7 +307,6 @@ struct PremiumDietDetailView: View {
         .toolbar(.hidden, for: .tabBar)
         .navigationBarHidden(true)
         .overlay(
-            // Кастомная кнопка "Назад"
             Button(action: { dismiss() }) {
                 Image(systemName: "chevron.left")
                     .font(.title3.bold())
@@ -342,24 +322,24 @@ struct PremiumDietDetailView: View {
         )
     }
 }
-// ✅ НОВЫЙ КОМПОНЕНТ ДЛЯ ОБЪЯСНЕНИЯ ФИЧ ДИЕТЫ
+
 struct DietFeatureRow: View {
     let icon: String
     let color: Color
     let text: String
-    
+
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
                 Circle().fill(color.opacity(0.15)).frame(width: 36, height: 36)
                 Image(systemName: icon).font(.system(size: 14, weight: .bold)).foregroundColor(color)
             }
-            
+
             Text(text)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(.primary.opacity(0.9))
-                .fixedSize(horizontal: false, vertical: true) // Чтобы текст не обрезался
-            
+                .fixedSize(horizontal: false, vertical: true)
+
             Spacer()
         }
         .padding(16)
@@ -369,11 +349,10 @@ struct DietFeatureRow: View {
     }
 }
 
-// Мини-донат график для макросов в деталях
 struct MacroDonutStat: View {
     let title: String; let percent: Int; let color: Color
     @State private var anim: Double = 0
-    
+
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
@@ -388,12 +367,11 @@ struct MacroDonutStat: View {
     }
 }
 
-// Премиальный аккордеон продуктов
 struct PremiumFoodCategorySection: View {
     let category: FoodCategory
     let dietColor: Color
     @State private var isExpanded = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
@@ -407,7 +385,7 @@ struct PremiumFoodCategorySection: View {
                 .padding(20)
                 .background(Color.white)
             }
-            
+
             if isExpanded {
                 VStack(spacing: 0) {
                     Divider().padding(.leading, 20)

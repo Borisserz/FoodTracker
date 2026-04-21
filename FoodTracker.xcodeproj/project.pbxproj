@@ -8,9 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		AC6A96632F8FF42600905EA9 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = AC6A96622F8FF42600905EA9 /* SwiftJWT */; };
+		AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		ACD93EFF2F8AC7E200868265 /* FoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -50,6 +52,7 @@
 		ACD93EF62F8AC7E200868265 = {
 			isa = PBXGroup;
 			children = (
+				AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */,
 				ACD93F012F8AC7E200868265 /* FoodTracker */,
 				ACD93F002F8AC7E200868265 /* Products */,
 			);
@@ -110,6 +113,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = ACD93EF62F8AC7E200868265;
 			minimizedProjectReferenceProxies = 1;
@@ -131,6 +135,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,6 +212,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -264,6 +270,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

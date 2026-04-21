@@ -1,19 +1,13 @@
-//
-//  AnalyticsDashboardView.swift
-//  FoodTracker
-//
-
 import SwiftUI
 import SwiftData
 import Charts
 
-// MARK: - ПЕРИОДЫ АНАЛИТИКИ И ENUMS
 enum AnalyticsPeriod: String, CaseIterable, Identifiable {
     case day = "Day"
     case week = "Week"
     case month = "Month"
     var id: String { self.rawValue }
-    
+
     var daysCount: Int {
         switch self {
         case .day: return 1
@@ -26,10 +20,9 @@ enum AnalyticsMacro: String, Identifiable {
     case protein = "Protein"
     case fat = "Fat"
     case carbs = "Carbs"
-    
-    // Требование протокола Identifiable
+
     var id: String { self.rawValue }
-    
+
     var color: Color {
         switch self {
         case .protein: return .themePeach
@@ -39,7 +32,6 @@ enum AnalyticsMacro: String, Identifiable {
     }
 }
 
-// MARK: - ПРЕМИУМ СТИЛЬ КАРТОЧЕК (Glassmorphism)
 struct DivineCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -61,36 +53,34 @@ extension View {
     }
 }
 
-// MARK: - КОРНЕВОЙ VIEW
 struct AnalyticsTabView: View {
     @Query private var users: [User]
     @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
-    
+
     @State private var globalPeriod: AnalyticsPeriod = .day
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
-                // 1. АНИМИРОВАННЫЙ ФОН (Mesh Gradient Effect)
+
                 Color.themeBg.ignoresSafeArea()
-                
+
                 Circle()
                     .fill(Color.themePink.opacity(0.15))
                     .frame(width: 300, height: 300)
                     .blur(radius: 60)
                     .offset(x: -100, y: -200)
-                
+
                 Circle()
                     .fill(Color.themeOrange.opacity(0.15))
                     .frame(width: 300, height: 300)
                     .blur(radius: 60)
                     .offset(x: 150, y: 300)
-                
+
                 if let user = users.first {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 24) {
-                            
-                            // ЗАГОЛОВОК
+
                             HStack {
                                 Text("Analytics")
                                     .font(.system(size: 38, weight: .heavy, design: .rounded))
@@ -101,16 +91,13 @@ struct AnalyticsTabView: View {
                             }
                             .padding(.horizontal, 24)
                             .padding(.top, 10)
-                            
-                            // ПЕРЕКЛЮЧАТЕЛЬ ПЕРИОДА
+
                             GlobalPeriodPicker(selection: $globalPeriod)
                                 .padding(.horizontal, 20)
-                            
-                            // AI АНАЛИТИКА ТРЕНДА
+
                             AIWeeklyInsightCard(summaries: summaries, user: user, period: globalPeriod)
                                 .padding(.horizontal, 20)
-                            
-                            // РОУТИНГ ИНТЕРФЕЙСА
+
                             if globalPeriod == .day {
                                 DailyAnalyticsInsightView(summaries: summaries, user: user)
                                     .padding(.horizontal, 20)
@@ -118,13 +105,12 @@ struct AnalyticsTabView: View {
                                 TrendsAnalyticsInsightView(summaries: summaries, user: user, period: globalPeriod)
                                     .padding(.horizontal, 20)
                             }
-                            
-                            // КАЛЕНДАРЬ ПОСТОЯНСТВА (Глобальный для всех вкладок)
+
                             ConsistencyHeatmapCard(summaries: summaries, user: user)
                                 .padding(.horizontal, 20)
-                            
+
                         }
-                        .padding(.bottom, 120) // Отступ под TabBar
+                        .padding(.bottom, 120)
                     }
                 } else {
                     EmptyStateView(imageName: "chart.bar.xaxis", title: "No Data", description: "User data not found.")
@@ -135,11 +121,10 @@ struct AnalyticsTabView: View {
     }
 }
 
-// MARK: - ПЕРЕКЛЮЧАТЕЛЬ ПЕРИОДОВ
 struct GlobalPeriodPicker: View {
     @Binding var selection: AnalyticsPeriod
     @Namespace private var animation
-    
+
     var body: some View {
         HStack(spacing: 0) {
             ForEach(AnalyticsPeriod.allCases) { period in
@@ -174,21 +159,18 @@ struct GlobalPeriodPicker: View {
     }
 }
 
-// =========================================================================
-// MARK: - ИИ АНАЛИТИКА (СОВЕТЫ)
-// =========================================================================
 struct AIWeeklyInsightCard: View {
     let summaries: [DailySummary]
     let user: User
     let period: AnalyticsPeriod
-    
+
     private var insight: (title: String, text: String, color: Color) {
         if period == .day {
             return ("Daily Focus", "Keep an eye on your hydration today. You're doing great with proteins!", .themePink)
         } else {
             let validSummaries = summaries.prefix(period.daysCount).filter { $0.totalFoodCalories > 0 }
             let avg = validSummaries.isEmpty ? 0 : validSummaries.reduce(0) { $0 + $1.totalFoodCalories } / validSummaries.count
-            
+
             if avg == 0 {
                 return ("Start Tracking", "Log your meals to see advanced analytics and AI recommendations.", .gray)
             } else if avg > user.dailyCaloriesGoal {
@@ -198,7 +180,7 @@ struct AIWeeklyInsightCard: View {
             }
         }
     }
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
             ZStack {
@@ -208,7 +190,7 @@ struct AIWeeklyInsightCard: View {
                     .foregroundStyle(insight.color)
                     .symbolEffect(.pulse)
             }
-            
+
             VStack(alignment: .leading, spacing: 6) {
                 Text(insight.title)
                     .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -224,35 +206,30 @@ struct AIWeeklyInsightCard: View {
     }
 }
 
-// =========================================================================
-// MARK: - ДНЕВНАЯ АНАЛИТИКА
-// =========================================================================
 struct DailyAnalyticsInsightView: View {
     let summaries: [DailySummary]
     let user: User
-    
+
     @State private var selectedMacroForTop: AnalyticsMacro? = nil
-    
+
     private var todaySummary: DailySummary? {
         let calendar = Calendar.current
         return summaries.first(where: { calendar.isDateInToday($0.date) })
     }
-    
+
     var body: some View {
         VStack(spacing: 24) {
-            // КОЛЬЦА МАКРОСОВ (ИНТЕРАКТИВНЫЕ)
+
             FitnessRingsCard(summary: todaySummary, user: user) { macro in
                 selectedMacroForTop = macro
             }
-            
-            // РАСПРЕДЕЛЕНИЕ ПО ПРИЕМАМ ПИЩИ
+
             MealDistributionCard(summary: todaySummary)
-            
-            // ВОДА
+
             DailyWaterCard(summary: todaySummary)
         }
         .transition(.asymmetric(insertion: .move(edge: .leading).combined(with: .opacity), removal: .opacity))
-        // ПОПАП С ТОП ПРОДУКТАМИ
+
         .sheet(item: $selectedMacroForTop) { macro in
             TopSourcesSheetView(macro: macro, summary: todaySummary)
                 .presentationDetents([.height(400)])
@@ -262,17 +239,16 @@ struct DailyAnalyticsInsightView: View {
     }
 }
 
-// 🔥 КАРТОЧКА: 3D КОЛЬЦА МАКРОСОВ С КНОПКАМИ ЛЕГЕНДЫ
 struct FitnessRingsCard: View {
     let summary: DailySummary?
     let user: User
     var onMacroTap: (AnalyticsMacro) -> Void
-    
+
     var body: some View {
         let c = summary?.totalCarbs ?? 0; let tc = user.targetCarbs
         let f = summary?.totalFats ?? 0;  let tf = user.targetFats
         let p = summary?.totalProtein ?? 0; let tp = user.targetProtein
-        
+
         VStack(spacing: 24) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -282,26 +258,25 @@ struct FitnessRingsCard: View {
                 Spacer()
                 Image(systemName: "chart.pie.fill").foregroundColor(.gray.opacity(0.5))
             }
-            
+
             HStack(spacing: 30) {
-                // КОЛЬЦА
+
                 ZStack {
                     RingView(progress: p/tp, color: .themePeach, radius: 130, width: 14)
                     RingView(progress: f/tf, color: .themeYellow, radius: 98, width: 14)
                     RingView(progress: c/tc, color: .drinkWater, radius: 66, width: 14)
                 }
                 .frame(width: 130, height: 130)
-                
-                // КЛИКАБЕЛЬНАЯ ЛЕГЕНДА
+
                 VStack(alignment: .leading, spacing: 16) {
                     Button(action: { onMacroTap(.protein) }) {
                         LegendRow(title: "Protein", current: p, target: tp, color: .themePeach)
                     }.buttonStyle(PlainButtonStyle())
-                    
+
                     Button(action: { onMacroTap(.fat) }) {
                         LegendRow(title: "Fats", current: f, target: tf, color: .themeYellow)
                     }.buttonStyle(PlainButtonStyle())
-                    
+
                     Button(action: { onMacroTap(.carbs) }) {
                         LegendRow(title: "Carbs", current: c, target: tc, color: .drinkWater)
                     }.buttonStyle(PlainButtonStyle())
@@ -315,7 +290,7 @@ struct FitnessRingsCard: View {
 struct RingView: View {
     var progress: Double; var color: Color; var radius: CGFloat; var width: CGFloat
     @State private var show = false
-    
+
     var body: some View {
         ZStack {
             Circle().stroke(color.opacity(0.15), lineWidth: width)
@@ -352,7 +327,6 @@ struct LegendRow: View {
     }
 }
 
-// 🔥 КАРТОЧКА: РАСПРЕДЕЛЕНИЕ ПО ПРИЕМАМ ПИЩИ (Горизонтальный Stacked Bar)
 struct MealDistributionCard: View {
     let summary: DailySummary?
     let meals = [
@@ -361,19 +335,19 @@ struct MealDistributionCard: View {
         ("Dinner", Color.themePink),
         ("Snack", Color.themeOrange)
     ]
-    
+
     @State private var showAnim = false
-    
+
     var body: some View {
         let totalCals = summary?.totalFoodCalories ?? 0
-        
+
         VStack(alignment: .leading, spacing: 20) {
             Text("Meal Distribution").font(.title3.bold())
-            
+
             if totalCals == 0 {
                 Text("Log food to see distribution.").font(.subheadline).foregroundColor(.gray)
             } else {
-                // Горизонтальный бар
+
                 GeometryReader { geo in
                     HStack(spacing: 2) {
                         ForEach(meals, id: \.0) { meal in
@@ -390,8 +364,7 @@ struct MealDistributionCard: View {
                 }
                 .frame(height: 16)
                 .onAppear { withAnimation(.spring()) { showAnim = true } }
-                
-                // Легенда
+
                 VStack(spacing: 12) {
                     ForEach(meals, id: \.0) { meal in
                         let cals = summary?.meals.first(where: { $0.title == meal.0 })?.totalCalories ?? 0
@@ -414,23 +387,22 @@ struct MealDistributionCard: View {
     }
 }
 
-// 🔥 КАРТОЧКА: ВОДА
 struct DailyWaterCard: View {
     let summary: DailySummary?
     @State private var animProgress: Double = 0
-    
+
     var body: some View {
         let liters = summary?.totalHydrationLiters ?? 0
         let goal = 2.5
         let progress = min(liters / goal, 1.0)
-        
+
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Water Balance").font(.title3.bold())
                 Spacer()
                 Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title3)
             }
-            
+
             HStack(alignment: .firstTextBaseline) {
                 Text("\(String(format: "%.2f", liters)) L")
                     .font(.system(size: 32, weight: .heavy, design: .rounded))
@@ -440,7 +412,7 @@ struct DailyWaterCard: View {
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
-            
+
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.cyan.opacity(0.15))
@@ -458,14 +430,11 @@ struct DailyWaterCard: View {
     }
 }
 
-// =========================================================================
-// MARK: - АНАЛИТИКА ТРЕНДОВ (ГРАФИКИ)
-// =========================================================================
 struct TrendsAnalyticsInsightView: View {
     let summaries: [DailySummary]
     let user: User
     let period: AnalyticsPeriod
-    
+
     var body: some View {
         VStack(spacing: 24) {
             DivineCaloriesChart(summaries: summaries, user: user, period: period)
@@ -476,10 +445,9 @@ struct TrendsAnalyticsInsightView: View {
     }
 }
 
-// 🔥 ГРАФИК КАЛОРИЙ (Градиентные площади + Гладкие кривые)
 struct DivineCaloriesChart: View {
     let summaries: [DailySummary]; let user: User; let period: AnalyticsPeriod
-    
+
     private var chartData: [(date: Date, eaten: Double)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
@@ -489,7 +457,7 @@ struct DivineCaloriesChart: View {
             return (date: date, eaten: Double(summary?.totalFoodCalories ?? 0))
         }.reversed()
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
@@ -500,7 +468,7 @@ struct DivineCaloriesChart: View {
                 Spacer()
                 Image(systemName: "chart.xyaxis.line").font(.title2).foregroundColor(.themePink)
             }
-            
+
             Chart {
                 RuleMark(y: .value("Goal", user.dailyCaloriesGoal))
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
@@ -508,17 +476,17 @@ struct DivineCaloriesChart: View {
                     .annotation(position: .top, alignment: .leading) {
                         Text("GOAL").font(.system(size: 10, weight: .black)).foregroundColor(.themeOrange)
                     }
-                
+
                 ForEach(chartData, id: \.date) { point in
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Eaten", point.eaten)
                     )
-                    .interpolationMethod(.catmullRom) // Плавные изгибы
+                    .interpolationMethod(.catmullRom)
                     .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
                     .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
                     .symbol { Circle().fill(.white).overlay(Circle().stroke(Color.themePink, lineWidth: 2)).frame(width: 8, height: 8) }
-                    
+
                     AreaMark(
                         x: .value("Date", point.date),
                         y: .value("Eaten", point.eaten)
@@ -541,13 +509,12 @@ struct DivineCaloriesChart: View {
     }
 }
 
-// 🔥 ГРАФИК МАКРОСОВ (Stacked Bar Chart)
 struct DivineMacrosChart: View {
     let summaries: [DailySummary]
     let period: AnalyticsPeriod
-    
+
     struct MacroData: Identifiable { let id = UUID(); let date: Date; let type: String; let value: Double; let color: Color }
-    
+
     private var chartData: [MacroData] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
@@ -555,49 +522,47 @@ struct DivineMacrosChart: View {
         for i in (0..<period.daysCount).reversed() {
             let date = calendar.date(byAdding: .day, value: -i, to: today)!
             let s = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
-            
-            // Если данных нет, кладем нули, чтобы график не ломался
+
             let carbs = s?.totalCarbs ?? 0
             let fats = s?.totalFats ?? 0
             let protein = s?.totalProtein ?? 0
-            
+
             data.append(MacroData(date: date, type: "Carbs", value: carbs, color: .drinkWater))
             data.append(MacroData(date: date, type: "Fats", value: fats, color: .themeYellow))
             data.append(MacroData(date: date, type: "Protein", value: protein, color: .themePeach))
         }
         return data
     }
-    
-    // Умная шкала Y: если нет данных, предел 200g, иначе подстраивается под максимум
+
     private var maxGrams: Double {
         let maxData = chartData.map { $0.value }.max() ?? 0
         return max(200.0, maxData * 1.5)
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Macros Balance").font(.title3.bold())
-            
+
             Chart {
                 ForEach(chartData) { item in
                     BarMark(
-                        // 🔥 ГЛАВНЫЙ ФИКС: unit: .day
+
                         x: .value("Date", item.date, unit: .day),
                         y: .value("Grams", item.value),
-                        width: .fixed(16) // Жестко фиксируем толщину
+                        width: .fixed(16)
                     )
-                    // Правильное "склеивание" (Stacked)
+
                     .foregroundStyle(by: .value("Type", item.type))
                     .cornerRadius(4)
                 }
             }
-            // Назначаем наши кастомные цвета градиентов для каждого типа
+
             .chartForegroundStyleScale([
                 "Carbs": Color.drinkWater.gradient,
                 "Fats": Color.themeYellow.gradient,
                 "Protein": Color.themePeach.gradient
             ])
-            .chartYScale(domain: 0...maxGrams) // Убираем улет в 1000g
+            .chartYScale(domain: 0...maxGrams)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray) }
@@ -612,8 +577,7 @@ struct DivineMacrosChart: View {
                 }
             }
             .frame(height: 200)
-            
-            // Легенда (ручная, так как мы скрыли стандартную от графика)
+
             HStack(spacing: 20) {
                 ChartLegendItem(color: .themePeach, text: "Protein")
                 ChartLegendItem(color: .themeYellow, text: "Fats")
@@ -625,7 +589,7 @@ struct DivineMacrosChart: View {
 }
 struct TrendsWaterChart: View {
     let summaries: [DailySummary]; let period: AnalyticsPeriod
-    
+
     private var chartData: [(date: Date, liters: Double)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
@@ -635,12 +599,12 @@ struct TrendsWaterChart: View {
             return (date: date, liters: summary?.totalHydrationLiters ?? 0)
         }.reversed()
     }
-    
+
     private var maxLiters: Double {
         let maxData = chartData.map { $0.liters }.max() ?? 0
-        return max(3.0, maxData + 0.5) // Минимум 3 литра для оси Y
+        return max(3.0, maxData + 0.5)
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -648,7 +612,7 @@ struct TrendsWaterChart: View {
                 Spacer()
                 Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title2)
             }
-            
+
             Chart {
                 RuleMark(y: .value("Goal", 2.5))
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
@@ -656,19 +620,19 @@ struct TrendsWaterChart: View {
                     .annotation(position: .top, alignment: .leading) {
                         Text("GOAL").font(.system(size: 10, weight: .black)).foregroundColor(.cyan)
                     }
-                
+
                 ForEach(chartData, id: \.date) { point in
                     BarMark(
-                        // 🔥 ГЛАВНЫЙ ФИКС: unit: .day
+
                         x: .value("Date", point.date, unit: .day),
                         y: .value("Liters", point.liters),
-                        width: .fixed(16) // Толстые столбики!
+                        width: .fixed(16)
                     )
                     .foregroundStyle(Color.cyan.gradient)
                     .cornerRadius(6)
                 }
             }
-            .chartYScale(domain: 0...maxLiters) // Защита от "висящих" баров
+            .chartYScale(domain: 0...maxLiters)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray) }
@@ -687,19 +651,17 @@ struct TrendsWaterChart: View {
         .divineCardStyle()
     }
 }
-// =========================================================================
-// MARK: - ТЕПЛОВАЯ КАРТА АКТИВНОСТИ (GITHUB STYLE)
-// =========================================================================
+
 struct ConsistencyHeatmapCard: View {
     let summaries: [DailySummary]
     let user: User
-    
+
     private var days: [Date] {
         let cal = Calendar.current
         let today = cal.startOfDay(for: .now)
         return (0..<14).map { cal.date(byAdding: .day, value: -$0, to: today)! }.reversed()
     }
-    
+
     private func completionLevel(for date: Date) -> Int {
         let cal = Calendar.current
         guard let summary = summaries.first(where: { cal.isDate($0.date, inSameDayAs: date) }) else { return 0 }
@@ -709,7 +671,7 @@ struct ConsistencyHeatmapCard: View {
         if eaten > target { return 2 }
         return 1
     }
-    
+
     private func colorForLevel(_ level: Int) -> Color {
         switch level {
         case 3: return .green
@@ -718,7 +680,7 @@ struct ConsistencyHeatmapCard: View {
         default: return .gray.opacity(0.15)
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -726,12 +688,12 @@ struct ConsistencyHeatmapCard: View {
                 Spacer()
                 Text("Last 14 Days").font(.caption).foregroundColor(.gray)
             }
-            
+
             HStack(spacing: 8) {
                 ForEach(days, id: \.self) { date in
                     let level = completionLevel(for: date)
                     let color = colorForLevel(level)
-                    
+
                     VStack(spacing: 4) {
                         Text(Calendar.current.component(.day, from: date).description).font(.system(size: 10, weight: .bold)).foregroundColor(.gray)
                         RoundedRectangle(cornerRadius: 6).fill(color.gradient).frame(width: 18, height: 36).shadow(color: level == 3 ? .green.opacity(0.4) : .clear, radius: 4, y: 2)
@@ -739,7 +701,7 @@ struct ConsistencyHeatmapCard: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
-            
+
             HStack(spacing: 12) {
                 LegendDot(color: .green, text: "Perfect")
                 LegendDot(color: .themeOrange, text: "Over")
@@ -750,14 +712,11 @@ struct ConsistencyHeatmapCard: View {
     }
 }
 
-// =========================================================================
-// MARK: - ПОПАП ТОП ПРОДУКТОВ (GLASSMORPHISM)
-// =========================================================================
 struct TopSourcesSheetView: View {
     @Environment(\.dismiss) private var dismiss
     let macro: AnalyticsMacro
     let summary: DailySummary?
-    
+
     private var topFoods: [FoodItem] {
         guard let summary = summary else { return [] }
         let allFoods = summary.meals.flatMap { $0.foodItems }
@@ -767,13 +726,13 @@ struct TopSourcesSheetView: View {
         case .carbs: return Array(allFoods.filter { $0.carbs > 0 }.sorted { $0.carbs > $1.carbs }.prefix(3))
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 24) {
             Text("Top \(macro.rawValue) Sources")
                 .font(.system(size: 24, weight: .heavy, design: .rounded))
                 .padding(.top, 24)
-            
+
             if topFoods.isEmpty {
                 Spacer()
                 Text("No foods logged yet.").font(.subheadline).foregroundColor(.gray)
@@ -783,14 +742,14 @@ struct TopSourcesSheetView: View {
                     ForEach(topFoods.indices, id: \.self) { index in
                         let food = topFoods[index]
                         let value = getValue(for: food)
-                        
+
                         HStack(spacing: 16) {
                             Text("\(index + 1)")
                                 .font(.headline.bold()).foregroundColor(.white)
                                 .frame(width: 32, height: 32)
                                 .background(macro.color.opacity(index == 0 ? 1.0 : (index == 1 ? 0.7 : 0.4)))
                                 .clipShape(Circle())
-                            
+
                             Text(food.name).font(.system(size: 16, weight: .bold, design: .rounded)).lineLimit(1)
                             Spacer()
                             Text("\(value, specifier: "%.1f") g").font(.headline).foregroundColor(macro.color)
@@ -804,7 +763,7 @@ struct TopSourcesSheetView: View {
                 .padding(.horizontal, 24)
                 Spacer(minLength: 0)
             }
-            
+
             Button(action: { dismiss() }) {
                 Text("Close")
                     .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
@@ -816,7 +775,7 @@ struct TopSourcesSheetView: View {
         }
         .background(Color.themeBg.ignoresSafeArea())
     }
-    
+
     private func getValue(for food: FoodItem) -> Double {
         switch macro {
         case .protein: return food.protein
@@ -826,7 +785,6 @@ struct TopSourcesSheetView: View {
     }
 }
 
-// MARK: - ВСПОМОГАТЕЛЬНЫЕ UI КОМПОНЕНТЫ
 struct LegendDot: View {
     let color: Color; let text: String
     var body: some View {
