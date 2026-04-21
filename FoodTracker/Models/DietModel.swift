@@ -1,6 +1,5 @@
 import SwiftUI
 
-// MARK: - МОДЕЛИ ДЛЯ КАТЕГОРИЙ
 struct FoodItemDetail: Identifiable, Hashable {
     let id = UUID()
     let name: String
@@ -14,11 +13,10 @@ struct FoodCategory: Identifiable, Hashable {
     let items: [FoodItemDetail]
 }
 
-// MARK: - ОСНОВНАЯ МОДЕЛЬ ДИЕТЫ
 struct DietPlan: Identifiable, Hashable {
     let id: UUID = UUID()
-    let key: String  // Internal identifier (e.g., "keto", "vegan") - NOT localized
-    let name: String  // Display name - localized
+    let key: String
+    let name: String
     let tagline: String
     let description: String
     let macroBreakdown: MacroBreakdown
@@ -26,18 +24,17 @@ struct DietPlan: Identifiable, Hashable {
     let contraindications: [String]
     let colorHex: UInt
     let categories: [FoodCategory]
-    
+
     var color: Color {
         Color(hex: colorHex)
     }
-    
+
     struct MacroBreakdown: Hashable {
         let fat: Int
         let protein: Int
         let carbs: Int
     }
-    
-    // Статическая база данных
+
     static let allDiets: [DietPlan] = [
         DietPlan(
             key: "keto",
@@ -105,7 +102,7 @@ struct DietPlan: Identifiable, Hashable {
             categories: [
                 FoodCategory(title: String(localized: "Animal Protein"), items: [
                     FoodItemDetail(name: String(localized: "Chicken Breast"), calories: 165, icon: "🍗"),
-                    FoodItemDetail(name: String(localized: "Turkey"), calories: 135, icon: "🦃"), // ✅ ИСПРАВЛЕНО ЗДЕСЬ (Вернули кавычку)
+                    FoodItemDetail(name: String(localized: "Turkey"), calories: 135, icon: "🦃"),
                     FoodItemDetail(name: String(localized: "Lean Beef"), calories: 250, icon: "🥩")
                 ]),
                 FoodCategory(title: String(localized: "Dairy & Eggs"), items: [
@@ -150,8 +147,6 @@ struct DietPlan: Identifiable, Hashable {
     ]
 }
 
-// MARK: - РАСШИРЕНИЯ (Умная логика совместимости)
-
 extension User {
     var activeDietPlan: DietPlan? {
         DietPlan.allDiets.first(where: { $0.key == self.activeDietKey })
@@ -161,7 +156,7 @@ extension User {
 extension FoodItem {
     enum DietCompatibility {
         case perfect, neutral, avoid
-        
+
         var icon: String {
             switch self {
             case .perfect: return "checkmark.seal.fill"
@@ -169,7 +164,7 @@ extension FoodItem {
             case .avoid: return "xmark.octagon.fill"
             }
         }
-        
+
         var color: Color {
             switch self {
             case .perfect: return .green
@@ -178,16 +173,15 @@ extension FoodItem {
             }
         }
     }
-    
-    // Проверяем, подходит ли продукт под макросы текущей диеты
+
     func compatibility(with diet: DietPlan?) -> DietCompatibility {
         guard let diet = diet else { return .neutral }
-        
+
         let totalCals = Double(calories > 0 ? calories : 1)
         let cPct = (carbs * 4.0) / totalCals * 100
         let fPct = (fats * 9.0) / totalCals * 100
         let pPct = (protein * 4.0) / totalCals * 100
-        
+
         switch diet.key {
         case "keto":
             if cPct < 10 && fPct > 50 { return .perfect }
@@ -202,7 +196,7 @@ extension FoodItem {
         default:
             return .neutral
         }
-        
+
         return .neutral
     }
 }

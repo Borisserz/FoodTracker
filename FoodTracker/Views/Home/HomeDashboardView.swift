@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - 🎨 Глобальные стили и UX-модификаторы
 struct BounceButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -30,7 +29,6 @@ extension View {
     }
 }
 
-// MARK: - 🏠 Главный Экран (HomeDashboardView)
 struct HomeDashboardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
@@ -43,9 +41,9 @@ struct HomeDashboardView: View {
     @State private var showingQuickAddSheet = false
     @State private var quickAddMealType: String = "Breakfast"
     @State private var selectedMealForDetail: String? = nil
-    
+
     private var currentUser: User? { users.first }
-    
+
     private var currentSummary: DailySummary {
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
         if let existing = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
@@ -54,7 +52,7 @@ struct HomeDashboardView: View {
             return DailySummary(date: startOfDay)
         }
     }
-    
+
     private func getRecommendedCalories(for mealType: String) -> Int {
         let goal = Double(currentUser?.dailyCaloriesGoal ?? 2000)
         switch mealType {
@@ -65,32 +63,29 @@ struct HomeDashboardView: View {
         default:          return 0
         }
     }
-    
-    // ✅ ИСПРАВЛЕНО: Правильный тип для локализации строки
+
     private func localizedMealType(_ type: String) -> String {
         String(localized: String.LocalizationValue(type))
     }
-    
+
     private var allTimeCalories: Int {
         summaries.reduce(0) { $0 + $1.totalCalories }
     }
-    
+
     var body: some View {
             NavigationStack {
                 ZStack {
                     Color.themeBg.ignoresSafeArea()
-                    
+
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 24) {
                             HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
                             CalendarCarouselView(selectedDate: $selectedDate)
                             InsightsWidget(summary: currentSummary, user: currentUser)
 
-                            // ✅ НОВЫЙ ДИНАМИЧЕСКИЙ ДАШБОРД ВМЕСТО СТАРОЙ КАРУСЕЛИ И ШТОРКИ
                             DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
                                 .padding(.bottom, 8)
-                            
-                            // 🟢 БЛОК ПРИЕМОВ ПИЩИ + КНОПКА DAILY LOG
+
                             VStack(spacing: 16) {
                                 HStack {
                                     Text("Nutrition")
@@ -109,10 +104,10 @@ struct HomeDashboardView: View {
                                     }
                                 }
                                 .padding(.horizontal, 20)
-                                
+
                                 ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
                                     let meal = currentSummary.meals.first(where: { $0.title == mealType })
-                                    
+
                                     MealCardView(
                                         title: localizedMealType(mealType),
                                         calories: meal?.totalCalories,
@@ -124,16 +119,15 @@ struct HomeDashboardView: View {
                                 }
                                 .padding(.horizontal)
                             }
-                            
+
                             WaterGridTrackerView(summary: currentSummary).padding(.horizontal)
                             WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
-                            
-                            // 🟢 БЛОК ЗАМЕТОК ВНИЗУ
+
                             DailyNoteCard(summary: currentSummary) {
                                 showNoteSheet = true
                             }
                             .padding(.horizontal)
-                            
+
                             AllTimeStatsCardView(totalCalories: allTimeCalories)
                         }
                         .padding(.bottom, 120)
@@ -143,9 +137,9 @@ struct HomeDashboardView: View {
                                 .task(id: selectedDate) {
                                     await fetchHealthData(for: currentSummary)
                                 }
-                                // ✅ ДОБАВЛЕНЫ ЭТИ ДВА МОДИФИКАТОРА:
+
                                 .onChange(of: scenePhase) { _, newPhase in
-                                    // Обновляем данные каждый раз, когда возвращаемся в приложение
+
                                     if newPhase == .active {
                                         Task {
                                             await fetchHealthData(for: currentSummary)
@@ -153,14 +147,14 @@ struct HomeDashboardView: View {
                                     }
                                 }
                                 .onChange(of: HealthKitManager.shared.isAuthorized) { _, isAuth in
-                                    // Моментально обновляем данные после выдачи прав HealthKit
+
                                     if isAuth {
                                         Task {
                                             await fetchHealthData(for: currentSummary)
                                         }
                                     }
                                 }
-                // MARK: - РОУТИНГ ЭКРАНОВ
+
                 .navigationDestination(isPresented: $navigateToProfile) {
                     ProfileWrapperView()
                 }
@@ -173,7 +167,7 @@ struct HomeDashboardView: View {
                 )) { mealItem in
                     MealDetailView(title: mealItem.value, date: selectedDate)
                 }
-                // MARK: - ВСПЛЫВАЮЩИЕ ШТОРКИ
+
                 .sheet(isPresented: $showNoteSheet) {
                     DailyNoteSheet(summary: currentSummary)
                         .presentationDetents([.height(450)])
@@ -190,49 +184,46 @@ struct HomeDashboardView: View {
                 }
             }
         }
-    
+
     private func fetchHealthData(for summary: DailySummary) async {
-            // 1. Берем калории из Workout Tracker (App Group)
+
             let workoutCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: summary.date)
-            
+
             var fetchedSteps = summary.stepsCount
             var fetchedActiveCals = summary.activeCaloriesBurned
 
-            // 2. Запрашиваем Apple Health асинхронно
             if currentUser?.isHealthKitEnabled == true {
                 do {
                     fetchedSteps = try await HealthKitManager.shared.fetchSteps(for: summary.date)
                 } catch { print("Steps error: \(error)") }
-                
+
                 do {
                     let totalHealthCals = try await HealthKitManager.shared.fetchTotalActiveCalories(for: summary.date)
-                    // Берем максимум, чтобы учесть и тренировки, и просто ходьбу
+
                     fetchedActiveCals = max(totalHealthCals, workoutCals)
                 } catch { print("Health cals error: \(error)") }
             } else {
                 fetchedActiveCals = workoutCals
             }
 
-            // ✅ 3. Строго обновляем SwiftData и интерфейс в Главном Потоке (MainActor)
             await MainActor.run {
                 var needsSave = false
-                
+
                 if summary.workoutCalories != workoutCals {
                     summary.workoutCalories = workoutCals
                     needsSave = true
                 }
-                
+
                 if summary.stepsCount != fetchedSteps {
                     summary.stepsCount = fetchedSteps
                     needsSave = true
                 }
-                
+
                 if summary.activeCaloriesBurned != fetchedActiveCals {
                     summary.activeCaloriesBurned = fetchedActiveCals
                     needsSave = true
                 }
-                
-                // Если данные изменились — сохраняем. Интерфейс (SwiftUI) перерисуется мгновенно!
+
                 if needsSave {
                     if summary.modelContext == nil {
                         context.insert(summary)
@@ -244,7 +235,7 @@ struct HomeDashboardView: View {
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
         let summary = currentSummary
         var newFoodItems: [FoodItem] = []
-        
+
         for item in items {
             let copiedItem = FoodItem(
                 name: item.name, weight: item.weight, calories: item.calories,
@@ -255,7 +246,7 @@ struct HomeDashboardView: View {
             context.insert(copiedItem)
             newFoodItems.append(copiedItem)
         }
-        
+
         if let existingMeal = summary.meals.first(where: { $0.title == title }) {
             existingMeal.foodItems.append(contentsOf: newFoodItems)
             existingMeal.date = .now
@@ -264,26 +255,25 @@ struct HomeDashboardView: View {
             context.insert(newMeal)
             summary.meals.append(newMeal)
         }
-        
+
         if summary.modelContext == nil {
             context.insert(summary)
         }
-        
+
         try? context.save()
     }
 }
 
-// MARK: - Header
 struct HeaderView: View {
     let selectedDate: Date
     var onProfileTap: () -> Void
-    
+
     private var monthYearString: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
         return formatter.string(from: selectedDate)
     }
-    
+
     private var relativeDateString: String {
         let calendar = Calendar.current
         if calendar.isDateInToday(selectedDate) { return "Today" }
@@ -293,7 +283,7 @@ struct HeaderView: View {
         formatter.timeStyle = .none
         return formatter.string(from: selectedDate)
     }
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
@@ -301,7 +291,7 @@ struct HeaderView: View {
                 Text(relativeDateString).foregroundColor(.textGray)
             }
             Spacer()
-            
+
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onProfileTap()
@@ -323,11 +313,11 @@ struct HeaderView: View {
 struct InsightsWidget: View {
     let summary: DailySummary
     let user: User?
-    
+
     private var insightData: (message: String, icon: String, color: Color) {
         let baseGoal = user?.dailyCaloriesGoal ?? 2400
         let remaining = (baseGoal + summary.activeCaloriesBurned) - summary.totalCalories
-        
+
         if summary.totalCalories == 0 {
             return ("Good morning! Ready to crush your goals?", "sun.max.fill", .themeDarkYellow)
         } else if remaining < 0 {
@@ -340,20 +330,20 @@ struct InsightsWidget: View {
             return ("You're on track! Keep up the great work.", "star.fill", .themePink)
         }
     }
-    
+
     var body: some View {
         let data = insightData
         HStack(spacing: 16) {
             Image(systemName: data.icon)
                 .font(.title2)
                 .foregroundColor(data.color)
-            
+
             Text(data.message)
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundColor(.primary)
                 .lineLimit(2)
-            
+
             Spacer()
         }
         .padding(16)
@@ -364,26 +354,24 @@ struct InsightsWidget: View {
     }
 }
 
-// MARK: - 🍱 Детализация приема пищи (Full Page)
 struct MealDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Query private var summaries: [DailySummary]
     @Query private var users: [User]
-    
+
     let title: String
     let date: Date
-    
+
     @State private var selectedFoodForDetail: FoodItem? = nil
     @State private var showingAddFood = false
-    
+
     private var meal: Meal? {
         let startOfDay = Calendar.current.startOfDay(for: date)
         return summaries.first { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }?
             .meals.first { $0.title == title }
     }
-    
-    // ✅ ДОБАВЛЕН МЕТОД УДАЛЕНИЯ ЕДЫ
+
     private func deleteFoodItem(_ food: FoodItem) {
         if let meal = meal, let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
             withAnimation {
@@ -393,11 +381,11 @@ struct MealDetailView: View {
             }
         }
     }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(spacing: 24) {
                     HStack {
@@ -414,7 +402,7 @@ struct MealDetailView: View {
                     }
                     .padding(.horizontal)
                     .padding(.top, 16)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text(title)
                             .font(.system(size: 38, weight: .heavy, design: .rounded))
@@ -433,19 +421,19 @@ struct MealDetailView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
-                    
+
                     if let meal = meal, !meal.foodItems.isEmpty {
                         VStack(spacing: 16) {
                             Text("\(meal.totalCalories) kcal")
                                 .font(.system(size: 48, weight: .heavy, design: .rounded))
                                 .foregroundColor(.themePink)
-                            
+
                             HStack(spacing: 20) {
                                 let user = users.first
                                 let targetP = (user?.targetProtein ?? 150.0) / 3
                                 let targetF = (user?.targetFats ?? 70.0) / 3
                                 let targetC = (user?.targetCarbs ?? 250.0) / 3
-                                
+
                                 MiniProgressView(title: "Protein", progress: meal.totalProtein / max(targetP, 1), color: .themePeach)
                                 MiniProgressView(title: "Fats", progress: meal.totalFats / max(targetF, 1), color: .themeYellow)
                                 MiniProgressView(title: "Carbs", progress: meal.totalCarbs / max(targetC, 1), color: .drinkWater)
@@ -453,15 +441,15 @@ struct MealDetailView: View {
                         }
                         .ultraPremiumCardStyle()
                         .padding(.horizontal)
-                        
+
                         VStack(alignment: .leading, spacing: 0) {
                             Text("What you ate")
                                 .font(.title3.bold())
                                 .padding(.horizontal)
                                 .padding(.bottom, 12)
-                            
+
                             VStack(spacing: 0) {
-                                // ✅ ИСПРАВЛЕНА ОБРАБОТКА ЭЛЕМЕНТОВ (ДОБАВЛЕНО УДАЛЕНИЕ И КОНТЕКСТНОЕ МЕНЮ)
+
                                 ForEach(meal.foodItems) { food in
                                     FoodItemDetailedRow(food: food, onDelete: {
                                         deleteFoodItem(food)
@@ -478,7 +466,7 @@ struct MealDetailView: View {
                                             Label("Delete", systemImage: "trash")
                                         }
                                     }
-                                    
+
                                     if food.id != meal.foodItems.last?.id {
                                         Divider().padding(.leading, 20)
                                     }
@@ -489,12 +477,12 @@ struct MealDetailView: View {
                             .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                         }
                         .padding(.horizontal)
-                        
+
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Key Micronutrients")
                                 .font(.title3.bold())
                                 .padding(.horizontal)
-                            
+
                             MicronutrientRingsView(meal: meal)
                                 .padding(.horizontal)
                         }
@@ -511,7 +499,7 @@ struct MealDetailView: View {
                 }
                 .padding(.bottom, 120)
             }
-            
+
             Button(action: { showingAddFood.toggle() }) {
                 HStack {
                     Image(systemName: "plus.circle.fill")
@@ -547,14 +535,14 @@ struct MealDetailView: View {
     private func addFoodsToMeal(items: [FoodItem]) {
         let startOfDay = Calendar.current.startOfDay(for: date)
         let summary: DailySummary
-        
+
         if let existingSummary = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
             summary = existingSummary
         } else {
             summary = DailySummary(date: startOfDay)
             context.insert(summary)
         }
-        
+
         var newFoodItems: [FoodItem] = []
         for item in items {
             let copiedItem = FoodItem(
@@ -566,7 +554,7 @@ struct MealDetailView: View {
             context.insert(copiedItem)
             newFoodItems.append(copiedItem)
         }
-        
+
         if let existingMeal = summary.meals.first(where: { $0.title == title }) {
             existingMeal.foodItems.append(contentsOf: newFoodItems)
             existingMeal.date = .now
@@ -575,20 +563,19 @@ struct MealDetailView: View {
             context.insert(newMeal)
             summary.meals.append(newMeal)
         }
-        
+
         if summary.modelContext == nil {
             context.insert(summary)
         }
-        
+
         try? context.save()
     }
 }
 
-// MARK: - Детальная строка для списка продуктов
 struct FoodItemDetailedRow: View {
     let food: FoodItem
-    var onDelete: (() -> Void)? = nil // ✅ Опциональный коллбек для кнопки удаления
-    
+    var onDelete: (() -> Void)? = nil
+
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
@@ -609,10 +596,9 @@ struct FoodItemDetailedRow: View {
                 }
             }
             Spacer()
-            
+
             Text("\(food.calories) kcal").font(.headline).foregroundColor(.themePink)
-            
-            // ✅ ЕСЛИ ПЕРЕДАН МЕТОД УДАЛЕНИЯ – ПОКАЗЫВАЕМ КОРЗИНУ
+
             if let onDelete = onDelete {
                 Button(action: {
                     HapticManager.shared.impact(style: .medium)
@@ -622,7 +608,7 @@ struct FoodItemDetailedRow: View {
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.red.opacity(0.8))
                         .padding(.leading, 4)
-                        .padding(.vertical, 8) // Увеличиваем хитбокс
+                        .padding(.vertical, 8)
                 }
             } else {
                 Image(systemName: "chevron.right")
@@ -636,14 +622,12 @@ struct FoodItemDetailedRow: View {
     }
 }
 
-
-
 struct MicronutrientRingsView: View {
     let meal: Meal
     private let targetOmega3: Double = 1.6 / 3
     private let targetPotassium: Double = 3500 / 3
     private let targetMagnesium: Double = 400 / 3
-    
+
     var body: some View {
         HStack(spacing: 24) {
             ZStack {
@@ -655,7 +639,7 @@ struct MicronutrientRingsView: View {
                     .foregroundStyle(.linearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
             }
             .frame(width: 112, height: 112)
-            
+
             VStack(alignment: .leading, spacing: 16) {
                 RingLegendRow(color: .themePink, title: "Omega-3", value: meal.totalOmega3, unit: "g", target: targetOmega3)
                 RingLegendRow(color: .themeYellow, title: "Potassium", value: meal.totalPotassium, unit: "mg", target: targetPotassium)
@@ -676,7 +660,7 @@ private struct RingLegendRow: View {
     let value: Double
     let unit: String
     let target: Double
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Circle().fill(color).frame(width: 10, height: 10)
@@ -693,7 +677,7 @@ private struct ActivityRing: View {
     let color: Color
     let radius: CGFloat
     let thickness: CGFloat
-    
+
     var body: some View {
         ZStack {
             Circle().stroke(color.opacity(0.15), lineWidth: thickness)
@@ -718,7 +702,6 @@ private struct RingLegend: View {
     }
 }
 
-// MARK: - 🍱 Meal Card
 struct MealCardView: View {
     let title: String
     let calories: Int?
@@ -726,7 +709,7 @@ struct MealCardView: View {
     let time: Date?
     var onCardTap: () -> Void
     var onQuickAdd: () -> Void
-    
+
     var iconAndColor: (String, Color) {
         switch title {
         case "Breakfast": return ("sunrise.fill", .themeYellow)
@@ -736,7 +719,7 @@ struct MealCardView: View {
         default:          return ("fork.knife", .gray)
         }
     }
-    
+
     var body: some View {
         HStack(spacing: 16) {
             let meta = iconAndColor
@@ -744,7 +727,7 @@ struct MealCardView: View {
                 Circle().fill(meta.1.opacity(0.15)).frame(width: 50, height: 50)
                 Image(systemName: meta.0).font(.system(size: 22, weight: .semibold)).foregroundColor(meta.1)
             }
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.primary)
                 HStack(spacing: 6) {
@@ -759,14 +742,14 @@ struct MealCardView: View {
                 }
             }
             Spacer()
-            
+
             VStack(alignment: .trailing, spacing: 2) {
                 Text("Target").font(.system(size: 10, weight: .bold)).foregroundColor(.gray.opacity(0.6))
                 Text("\(recommendedCalories)").font(.system(size: 14, weight: .bold, design: .rounded)).foregroundColor(.gray.opacity(0.8))
                 Text("kcal").font(.system(size: 8)).foregroundColor(.gray.opacity(0.5))
             }
             .padding(.trailing, 8)
-            
+
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onQuickAdd()
@@ -789,12 +772,11 @@ struct MealCardView: View {
     }
 }
 
-// MARK: - Search Bar & Action Buttons
 struct ActionSearchBar: View {
     @Binding var text: String
     var onBarcodeTap: () -> Void
-    var onManualAddTap: () -> Void // ✅ ДОБАВЛЕНО: Обработчик для ручного добавления
-    
+    var onManualAddTap: () -> Void
+
     var body: some View {
         HStack(spacing: 12) {
             HStack {
@@ -810,8 +792,7 @@ struct ActionSearchBar: View {
             .background(Color.white)
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
-            
-            // Кнопка ИИ Камеры
+
             Button(action: { HapticManager.shared.impact(style: .medium) }) {
                 Image(systemName: "camera.viewfinder")
                     .font(.system(size: 20))
@@ -820,8 +801,7 @@ struct ActionSearchBar: View {
                     .background(Color.themePink.opacity(0.1))
                     .cornerRadius(14)
             }
-            
-            // Кнопка Штрихкода
+
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onBarcodeTap()
@@ -833,8 +813,7 @@ struct ActionSearchBar: View {
                     .background(Color.themeOrange.opacity(0.1))
                     .cornerRadius(14)
             }
-            
-            // ✅ НОВАЯ КНОПКА: Ручное создание продукта
+
             Button(action: {
                 HapticManager.shared.impact(style: .light)
                 onManualAddTap()
@@ -854,14 +833,14 @@ struct InteractiveFoodRow: View {
     let isSelected: Bool
     @State private var weight: Double
     let action: () -> Void
-    
+
     init(food: FoodItem, isSelected: Bool, action: @escaping () -> Void) {
         self.food = food
         self.isSelected = isSelected
         self.action = action
         self._weight = State(initialValue: food.weight)
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Button(action: action) {
@@ -871,7 +850,7 @@ struct InteractiveFoodRow: View {
                         .frame(width: 44, height: 44)
                         .background(isSelected ? Color.white : Color.gray.opacity(0.05))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text(food.name).font(.system(size: 17, weight: .semibold, design: .rounded)).foregroundColor(.primary)
                         let currentCals = Int((Double(food.calories) / food.weight) * weight)
@@ -884,7 +863,7 @@ struct InteractiveFoodRow: View {
                     }
                 }.padding(16)
             }.buttonStyle(PlainButtonStyle())
-            
+
             if isSelected {
                 HStack(spacing: 20) {
                     HStack {
@@ -943,21 +922,20 @@ struct MacroDot: View {
 struct FoodSearchResultRow: View {
     let food: FoodItem
     let action: () -> Void
-    
+
     @Query private var users: [User]
-    
+
     var body: some View {
         let user = users.first
         let compatibility = food.compatibility(with: user?.activeDietPlan)
-        
+
         Button(action: action) {
             HStack(spacing: 16) {
-                // Иконка
+
                 ZStack {
                     Circle().fill(Color.gray.opacity(0.05)).frame(width: 48, height: 48)
                     Text("🍲").font(.system(size: 24))
-                    
-                    // БЕЙДЖ СОВМЕСТИМОСТИ С ДИЕТОЙ
+
                     if compatibility != .neutral {
                         Image(systemName: compatibility.icon)
                             .font(.system(size: 14))
@@ -966,18 +944,18 @@ struct FoodSearchResultRow: View {
                             .offset(x: 16, y: 16)
                     }
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(food.name)
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(compatibility == .avoid ? .gray : .primary)
-                        .strikethrough(compatibility == .avoid, color: .red.opacity(0.5)) // Зачеркиваем плохие продукты
-                    
+                        .strikethrough(compatibility == .avoid, color: .red.opacity(0.5))
+
                     HStack {
                         Text("\(food.calories) kcal • 100g")
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
-                        
+
                         if compatibility == .perfect {
                             Text("• Great for \(user?.activeDietPlan?.name ?? "")")
                                 .font(.system(size: 10, weight: .bold))
@@ -1025,7 +1003,7 @@ struct AllTimeStatsCardView: View {
 struct DailyNoteCard: View {
     let summary: DailySummary
     var onEdit: () -> Void
-    
+
     var body: some View {
         Button(action: {
             HapticManager.shared.impact(style: .medium)
@@ -1040,12 +1018,12 @@ struct DailyNoteCard: View {
                     Image(systemName: "square.and.pencil")
                         .foregroundColor(.themePink)
                 }
-                
+
                 if summary.dayNote.isEmpty && summary.dayMoodEmoji.isEmpty {
-                    // Пустое состояние (как на скрине, но красивее)
+
                     HStack(spacing: 20) {
                         Text("☀️").font(.system(size: 40))
-                        
+
                         VStack(alignment: .leading, spacing: 4) {
                             Text("How was your day?")
                                 .font(.headline)
@@ -1054,7 +1032,7 @@ struct DailyNoteCard: View {
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
-                        
+
                         Spacer()
                         Text("🌧️").font(.system(size: 30)).opacity(0.5)
                     }
@@ -1062,7 +1040,7 @@ struct DailyNoteCard: View {
                     .background(Color.gray.opacity(0.05))
                     .cornerRadius(20)
                 } else {
-                    // Заполненное состояние
+
                     HStack(alignment: .top, spacing: 16) {
                         if !summary.dayMoodEmoji.isEmpty {
                             Text(summary.dayMoodEmoji)
@@ -1071,14 +1049,14 @@ struct DailyNoteCard: View {
                                 .background(Color.themePink.opacity(0.1))
                                 .clipShape(Circle())
                         }
-                        
+
                         Text(summary.dayNote.isEmpty ? "No text added, just a mood!" : summary.dayNote)
                             .font(.body)
                             .foregroundColor(.primary.opacity(0.9))
                             .lineLimit(4)
                             .multilineTextAlignment(.leading)
                             .padding(.top, 8)
-                        
+
                         Spacer()
                     }
                 }
@@ -1093,8 +1071,7 @@ struct DailyNoteSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Bindable var summary: DailySummary
-    
-    // Пресеты настроений/дней
+
     let moods = [
         ("☀️", "Great Day"),
         ("🍩", "Cheat Day"),
@@ -1104,14 +1081,14 @@ struct DailyNoteSheet: View {
         ("🧘‍♀️", "Relaxed"),
         ("🤢", "Felt Sick")
     ]
-    
+
     var body: some View {
         VStack(spacing: 24) {
             Capsule()
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 40, height: 5)
                 .padding(.top, 10)
-            
+
             HStack {
                 Text("Your Day")
                     .font(.title2.bold())
@@ -1125,8 +1102,7 @@ struct DailyNoteSheet: View {
                 .foregroundColor(.themePink)
             }
             .padding(.horizontal, 24)
-            
-            // Текстовое поле
+
             TextField("Write about your meals, feelings, or workouts...", text: $summary.dayNote, axis: .vertical)
                 .lineLimit(4...8)
                 .padding(16)
@@ -1134,13 +1110,12 @@ struct DailyNoteSheet: View {
                 .cornerRadius(20)
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
                 .padding(.horizontal, 24)
-            
-            // Выбор настроения (Горизонтальный скролл как на скрине конкурента)
+
             VStack(alignment: .leading, spacing: 12) {
                 Text("Tags & Mood")
                     .font(.headline)
                     .padding(.horizontal, 24)
-                
+
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(moods, id: \.1) { mood in
@@ -1148,7 +1123,7 @@ struct DailyNoteSheet: View {
                                 HapticManager.shared.impact(style: .light)
                                 withAnimation {
                                     if summary.dayMoodEmoji == mood.0 {
-                                        summary.dayMoodEmoji = "" // Отмена выбора
+                                        summary.dayMoodEmoji = ""
                                     } else {
                                         summary.dayMoodEmoji = mood.0
                                     }
@@ -1164,7 +1139,7 @@ struct DailyNoteSheet: View {
                                                 .stroke(summary.dayMoodEmoji == mood.0 ? Color.themePink : Color.gray.opacity(0.2), lineWidth: 2)
                                         )
                                         .cornerRadius(20)
-                                    
+
                                     Text(mood.1)
                                         .font(.caption)
                                         .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
@@ -1178,21 +1153,18 @@ struct DailyNoteSheet: View {
                     .padding(.bottom, 10)
                 }
             }
-            
+
             Spacer()
         }
         .background(Color.themeBg.ignoresSafeArea())
     }
 }
 
-// MARK: - 📋 ПОЛНЫЙ ЛОГ ЗА ДЕНЬ (Daily Nutrition Log)
-
 struct DailyLogDetailView: View {
     @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) private var context // ✅ ДОБАВЛЕН КОНТЕКСТ
+    @Environment(\.modelContext) private var context
     let summary: DailySummary
-    
-    // ✅ МЕТОД ДЛЯ УДАЛЕНИЯ ИЗ ОБЩЕГО ЛОГА
+
     private func deleteFoodItem(_ food: FoodItem, from meal: Meal) {
         if let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
             withAnimation {
@@ -1205,11 +1177,10 @@ struct DailyLogDetailView: View {
     var body: some View {
         ZStack {
             Color.themeBg.ignoresSafeArea()
-            
+
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
-                    
-                    // Шапка с итогами дня
+
                     VStack(spacing: 8) {
                         Text("\(summary.totalFoodCalories) kcal")
                             .font(.system(size: 48, weight: .heavy, design: .rounded))
@@ -1219,17 +1190,16 @@ struct DailyLogDetailView: View {
                             .foregroundColor(.gray)
                     }
                     .padding(.vertical, 20)
-                    
-                    // Итерируемся по приемам пищи
+
                     let activeMeals = summary.meals.filter { !$0.foodItems.isEmpty }
-                    
+
                     if activeMeals.isEmpty {
                         EmptyStateView(imageName: "doc.text.magnifyingglass", title: "No Food Logged", description: "You haven't logged any food for this day yet.")
                             .padding(.top, 40)
                     } else {
                         ForEach(activeMeals) { meal in
                             VStack(alignment: .leading, spacing: 0) {
-                                // Заголовок приема пищи
+
                                 HStack {
                                     Text(meal.title)
                                         .font(.title3.bold())
@@ -1241,8 +1211,7 @@ struct DailyLogDetailView: View {
                                 .padding(.horizontal, 20)
                                 .padding(.top, 20)
                                 .padding(.bottom, 12)
-                                
-                                // Продукты внутри приема пищи
+
                                 VStack(spacing: 0) {
                                     ForEach(meal.foodItems) { food in
                                         HStack(spacing: 16) {
@@ -1250,12 +1219,12 @@ struct DailyLogDetailView: View {
                                                 Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
                                                 Text(String(food.name.first ?? "🥘")).font(.headline)
                                             }
-                                            
+
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(food.name)
                                                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                                                     .foregroundColor(.primary)
-                                                
+
                                                 HStack {
                                                     Text("\(Int(food.weight))g")
                                                     Text("•")
@@ -1265,12 +1234,11 @@ struct DailyLogDetailView: View {
                                                 .foregroundColor(.gray)
                                             }
                                             Spacer()
-                                            
+
                                             Text("\(food.calories)")
                                                                                            .font(.headline)
                                                                                            .foregroundColor(.primary)
-                                                                                       
-                                                                                       // ✅ КНОПКА УДАЛЕНИЯ В ПОЛНОМ ЛОГЕ
+
                                                                                        Button(action: {
                                                                                            HapticManager.shared.impact(style: .medium)
                                                                                            deleteFoodItem(food, from: meal)
@@ -1282,7 +1250,7 @@ struct DailyLogDetailView: View {
                                                                                    }
                                         .padding(.horizontal, 20)
                                         .padding(.vertical, 12)
-                                        
+
                                         if food.id != meal.foodItems.last?.id {
                                             Divider().padding(.leading, 70)
                                         }
@@ -1309,7 +1277,7 @@ struct ActivitySourceRow: View {
     let title: String
     let subtitle: String
     let calories: Int
-    
+
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
@@ -1320,7 +1288,7 @@ struct ActivitySourceRow: View {
                     .font(.title3)
                     .foregroundColor(iconColor)
             }
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -1330,9 +1298,9 @@ struct ActivitySourceRow: View {
                     .foregroundColor(iconColor)
                     .bold()
             }
-            
+
             Spacer()
-            
+
             Text("\(calories) kcal")
                 .font(.system(size: 18, weight: .heavy, design: .rounded))
                 .foregroundColor(calories > 0 ? .primary : .gray.opacity(0.5))
@@ -1347,23 +1315,23 @@ struct SmartAddFoodView: View {
     @Query private var allDatabaseFoods: [FoodItem]
     @Query private var customRecipes: [CustomRecipe]
     @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
-    
+
     @State private var selectedFoodForDetail: FoodItem? = nil
     let mealTitle: String
     var onSave: ([FoodItem]) -> Void
-    
+
     @State private var showingScanner = false
-    @State private var showingManualAdd = false // ✅
+    @State private var showingManualAdd = false
     @State private var selectedFoods: [FoodItem] = []
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
-    
+
     @State private var apiSearchResults: [FoodItem] = []
     @State private var isSearchingAPI = false
     @State private var searchTask: Task<Void, Never>? = nil
-    
+
     let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
-    
+
     var allAvailableFoods: [FoodItem] {
         var uniqueItems: [String: FoodItem] = [:]
         for meal in pastMeals {
@@ -1383,15 +1351,15 @@ struct SmartAddFoodView: View {
         }
         return results
     }
-    
+
     var filteredLocalFoods: [FoodItem] {
         var items: [FoodItem] = []
         var foodCounts: [String: Int] = [:]
-        
+
         for meal in pastMeals {
             for food in meal.foodItems { foodCounts[food.name, default: 0] += 1 }
         }
-        
+
         switch selectedCategory {
         case "Recent": items = allAvailableFoods
         case "Frequent": items = allAvailableFoods.sorted { (foodCounts[$0.name] ?? 0) > (foodCounts[$1.name] ?? 0) }
@@ -1399,7 +1367,7 @@ struct SmartAddFoodView: View {
         case "My Recipes": items = customRecipes.map { $0.toFoodItem() }
         default: items = allAvailableFoods
         }
-        
+
         if !searchText.isEmpty {
             items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
@@ -1408,18 +1376,18 @@ struct SmartAddFoodView: View {
         }
         return items
     }
-    
+
     var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
-                // ШАПКА
+
                 VStack(spacing: 16) {
                     Capsule().fill(Color.gray.opacity(0.3)).frame(width: 40, height: 5).padding(.top, 10)
-                    
+
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(mealTitle).font(.system(size: 28, weight: .bold, design: .rounded))
@@ -1430,14 +1398,14 @@ struct SmartAddFoodView: View {
                             Image(systemName: "xmark.circle.fill").font(.system(size: 28)).foregroundColor(Color.gray.opacity(0.3))
                         }
                     }.padding(.horizontal, 20)
-                    
+
                     ActionSearchBar(
                         text: $searchText,
                         onBarcodeTap: { showingScanner = true },
                         onManualAddTap: { showingManualAdd = true }
                     )
                     .padding(.horizontal, 20)
-                    
+
                     if searchText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
@@ -1463,8 +1431,7 @@ struct SmartAddFoodView: View {
                 .padding(.bottom, 10)
                 .background(Rectangle().fill(.ultraThinMaterial).ignoresSafeArea().shadow(color: .black.opacity(0.03), radius: 8, y: 4))
                 .zIndex(2)
-                
-                // СПИСОК РЕЗУЛЬТАТОВ
+
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 12) {
                         if !searchText.isEmpty {
@@ -1478,20 +1445,20 @@ struct SmartAddFoodView: View {
                                         FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
                                     }
                                 }
-                                
+
                                 if !apiSearchResults.isEmpty {
                                     Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
                                     ForEach(apiSearchResults, id: \.self) { food in
                                         FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
                                     }
                                 } else if filteredLocalFoods.isEmpty {
-                                    // 🟢 КРАСИВЫЙ БЛОК РУЧНОГО ВВОДА
+
                                     VStack(spacing: 16) {
                                         Image(systemName: "questionmark.folder.fill").font(.system(size: 48)).foregroundColor(.themeOrange.opacity(0.5))
                                         Text("Can't find '\(searchText)'?").font(.headline)
                                         Text("No worries! You can quickly add it to your personal database and use it forever.")
                                             .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center).padding(.horizontal, 20)
-                                        
+
                                         Button(action: {
                                             HapticManager.shared.impact(style: .medium)
                                             showingManualAdd = true
@@ -1523,7 +1490,7 @@ struct SmartAddFoodView: View {
                     .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
                 }
             }
-            
+
             if !selectedFoods.isEmpty {
                 FloatingCartButton(count: selectedFoods.count, calories: cartCalories) {
                     HapticManager.shared.impact(style: .heavy)
@@ -1556,7 +1523,7 @@ struct SmartAddFoodView: View {
             .presentationDragIndicator(.visible)
         }
     }
-    
+
     private func performSearch(query: String) {
         searchTask?.cancel()
         guard query.count > 2 else {

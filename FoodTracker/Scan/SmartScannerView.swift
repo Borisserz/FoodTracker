@@ -1,8 +1,3 @@
-//
-//  SmartScannerView.swift
-//  FoodTracker
-//
-
 import SwiftUI
 import AVFoundation
 import VisionKit
@@ -10,38 +5,32 @@ import Combine
 
 struct SmartScannerView: View {
     @Environment(\.dismiss) private var dismiss
-    
-    // ✅ КОЛЛБЕКИ СГРУППИРОВАНЫ ВМЕСТЕ В ПРАВИЛЬНОМ ПОРЯДКЕ
+
     var onProductFound: (FoodItem) -> Void
     var onManualEntryRequest: () -> Void
-    
-    // Передаем сюда оставшиеся калории из Dashboard, чтобы ИИ знал контекст
+
     var remainingCalories: Int = 1000
     var remainingProtein: Int = 50
-    
-    // Стейты штрихкода
+
     @State private var recognizedBarcode: String? = nil
     @State private var isScanning: Bool = false
     @State private var isFlashlightOn: Bool = false
-    
-    // Стейты AI камеры (Встроенная камера)
+
     @State private var selectedMode: ScannerMode = .barcode
     @StateObject private var cameraManager = LiveFoodCameraManager()
     @State private var isAnalyzingAI = false
-    @State private var showShutterFlash = false // Эффект вспышки при снимке
-    
-    // Стейт для ответа ИИ по меню
+    @State private var showShutterFlash = false
+
     @State private var menuResponse: VertexAIManager.MenuAIResponse? = nil
-    
-    // Стейты сети
+
     @State private var isLoading: Bool = false
     @State private var notFoundError: Bool = false
-    
+
     enum ScannerMode { case barcode, mealAI, menuAI }
-    
+
     var body: some View {
         ZStack {
-            // --- 1. ФОН: ШТРИХКОД ИЛИ ЖИВАЯ AI-КАМЕРА ---
+
             if selectedMode == .barcode && DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
                 DataScannerRepresentable(recognizedBarcode: $recognizedBarcode, isScanning: $isScanning)
                     .ignoresSafeArea()
@@ -53,8 +42,7 @@ struct SmartScannerView: View {
             } else {
                 Color.black.ignoresSafeArea()
             }
-            
-            // --- 2. МАСКА С ВЫРЕЗОМ (Только для штрихкода) ---
+
             if selectedMode == .barcode {
                 Color.black.opacity(0.65)
                     .ignoresSafeArea()
@@ -65,10 +53,9 @@ struct SmartScannerView: View {
                             .luminanceToAlpha()
                     )
             }
-            
-            // --- 3. ИНТЕРФЕЙС ---
+
             VStack {
-                // Шапка (Крестик)
+
                 HStack {
                     Spacer()
                     Button(action: { dismiss() }) {
@@ -82,16 +69,15 @@ struct SmartScannerView: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 50)
-                
+
                 Spacer()
-                
-                // РАМКА ЗАГРУЗКИ / ОШИБКИ (Для штрихкода)
+
                 if selectedMode == .barcode {
                     ZStack {
                         RoundedRectangle(cornerRadius: 24)
                             .stroke(Color.white, lineWidth: 2)
                             .frame(width: 250, height: 250)
-                        
+
                         if isLoading {
                             VStack(spacing: 12) {
                                 ProgressView().tint(.white).scaleEffect(1.5)
@@ -105,8 +91,7 @@ struct SmartScannerView: View {
                                 Text("Product not found")
                                     .font(.headline)
                                     .foregroundColor(.white)
-                                
-                                // ✅ КНОПКА РУЧНОГО ВВОДА ПРЯМО НА ЭКРАНЕ СКАНЕРА
+
                                 Button(action: {
                                     HapticManager.shared.impact(style: .medium)
                                     dismiss()
@@ -126,20 +111,19 @@ struct SmartScannerView: View {
                         }
                     }
                 } else {
-                    // Подсказка по центру для AI режимов
+
                     if selectedMode == .mealAI {
                         cameraHint(icon: "viewfinder", text: "Point at your meal\nand snap a photo")
                     } else if selectedMode == .menuAI {
                         cameraHint(icon: "text.book.closed.fill", text: "Scan a restaurant menu\nto get smart choices")
                     }
                 }
-                
+
                 Spacer()
-                
-                // НИЖНЯЯ ПАНЕЛЬ
+
                 VStack(spacing: 24) {
                     ScannerModePicker(selectedMode: $selectedMode)
-                    
+
                     HStack {
                         FloatingActionButton(icon: "pencil") {
                             HapticManager.shared.impact(style: .medium)
@@ -148,10 +132,9 @@ struct SmartScannerView: View {
                                 onManualEntryRequest()
                             }
                         }
-                        
+
                         Spacer()
-                        
-                        // КНОПКА КАМЕРЫ ДЛЯ AI
+
                         if selectedMode == .mealAI || selectedMode == .menuAI {
                             Button(action: takePhoto) {
                                 ZStack {
@@ -169,10 +152,9 @@ struct SmartScannerView: View {
                         } else {
                             Color.clear.frame(width: 76, height: 76)
                         }
-                        
+
                         Spacer()
-                        
-                        // ✅ Кнопка фонарика
+
                         FloatingActionButton(icon: isFlashlightOn ? "bolt.fill" : "bolt.slash.fill") {
                             toggleFlashlight()
                         }
@@ -181,13 +163,11 @@ struct SmartScannerView: View {
                 }
                 .padding(.bottom, 40)
             }
-            
-            // --- 4. ЭФФЕКТ ВСПЫШКИ ПРИ СНИМКЕ ---
+
             if showShutterFlash {
                 Color.white.ignoresSafeArea()
             }
-            
-            // --- 5. ОВЕРЛЕЙ ЗАГРУЗКИ AI ---
+
             if isAnalyzingAI {
                 ZStack {
                     Color.black.opacity(0.85).ignoresSafeArea()
@@ -196,7 +176,7 @@ struct SmartScannerView: View {
                             .font(.system(size: 60))
                             .foregroundStyle(LinearGradient(colors: [.themePink, .blue], startPoint: .top, endPoint: .bottom))
                             .symbolEffect(.pulse)
-                        
+
                         Text(selectedMode == .menuAI ? "AI is reading the menu...\nFinding the best options 🕵️‍♂️" : "AI is analyzing your meal...\nCalculating macros 🪄")
                             .font(.headline)
                             .foregroundColor(.white)
@@ -207,8 +187,7 @@ struct SmartScannerView: View {
                 .zIndex(100)
                 .transition(.opacity)
             }
-            
-            // --- 6. РЕЗУЛЬТАТ МЕНЮ (МЕНЮ ХАКЕР) ---
+
             if let menu = menuResponse {
                 ZStack {
                     Color.black.opacity(0.6).ignoresSafeArea().onTapGesture { menuResponse = nil }
@@ -227,14 +206,14 @@ struct SmartScannerView: View {
         }
         .onDisappear {
             isScanning = false
-            // Выключаем фонарик, если вышли с экрана
+
             if isFlashlightOn { toggleFlashlight() }
             cameraManager.stop()
         }
         .onChange(of: selectedMode) { _, newMode in
-            // Выключаем фонарик при переключении между системной камерой и нашей
+
             if isFlashlightOn { toggleFlashlight() }
-            
+
             isScanning = (newMode == .barcode)
             if newMode == .barcode {
                 cameraManager.stop()
@@ -257,8 +236,7 @@ struct SmartScannerView: View {
             }
         }
     }
-    
-    // MARK: - Вспомогательные методы UI
+
     private func takePhoto() {
         HapticManager.shared.impact(style: .heavy)
         withAnimation(.linear(duration: 0.1)) { showShutterFlash = true }
@@ -267,7 +245,7 @@ struct SmartScannerView: View {
         }
         cameraManager.takePhoto()
     }
-    
+
     private func cameraHint(icon: String, text: String) -> some View {
         VStack(spacing: 12) {
             Image(systemName: icon)
@@ -284,12 +262,10 @@ struct SmartScannerView: View {
         .cornerRadius(20)
     }
 
-    // MARK: - Логика API и AI
-    
     private func searchBarcodeInDatabase(barcode: String) {
         isLoading = true
         notFoundError = false
-        
+
         Task {
             if let foodItem = await NetworkManager.shared.fetchProduct(barcode: barcode) {
                 await MainActor.run {
@@ -307,10 +283,10 @@ struct SmartScannerView: View {
             }
         }
     }
-    
+
     private func analyzeMealWithAI(_ image: UIImage) {
         withAnimation { isAnalyzingAI = true }
-        
+
         Task {
             if let foodItem = await VertexAIManager.shared.analyzeFoodImage(image) {
                 await MainActor.run {
@@ -327,7 +303,7 @@ struct SmartScannerView: View {
             }
         }
     }
-    
+
     private func analyzeMenuWithAI(_ image: UIImage) {
         withAnimation { isAnalyzingAI = true }
         Task {
@@ -347,19 +323,19 @@ struct SmartScannerView: View {
             }
         }
     }
-    
+
     private func toggleFlashlight() {
         guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }
-        
+
         do {
             try device.lockForConfiguration()
-            
+
             if isFlashlightOn {
                 device.torchMode = .off
             } else {
                 try device.setTorchModeOn(level: 1.0)
             }
-            
+
             device.unlockForConfiguration()
             isFlashlightOn.toggle()
             HapticManager.shared.impact(style: .light)
@@ -369,15 +345,13 @@ struct SmartScannerView: View {
     }
 }
 
-// MARK: - 📸 ВСТРОЕННАЯ КАМЕРА (БЕЗ СИСТЕМНОГО UI)
-
 class LiveFoodCameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
     @Published var session = AVCaptureSession()
     @Published var capturedImage: UIImage? = nil
-    
+
     private let photoOutput = AVCapturePhotoOutput()
     private var isConfigured = false
-    
+
     func checkPermissionAndStart() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
@@ -389,10 +363,10 @@ class LiveFoodCameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDe
                 }
             }
         default:
-            break // Нет доступа
+            break
         }
     }
-    
+
     private func setupAndStart() {
         guard !isConfigured else {
             if !session.isRunning {
@@ -400,31 +374,31 @@ class LiveFoodCameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDe
             }
             return
         }
-        
+
         session.beginConfiguration()
         session.sessionPreset = .photo
-        
+
         guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
               let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
               session.canAddInput(videoInput) else {
             session.commitConfiguration()
             return
         }
-        
+
         session.addInput(videoInput)
-        
+
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
         }
-        
+
         session.commitConfiguration()
         isConfigured = true
-        
+
         DispatchQueue.global(qos: .userInitiated).async {
             self.session.startRunning()
         }
     }
-    
+
     func stop() {
         if session.isRunning {
             DispatchQueue.global(qos: .userInitiated).async {
@@ -432,24 +406,22 @@ class LiveFoodCameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDe
             }
         }
     }
-    
+
     func takePhoto() {
         let settings = AVCapturePhotoSettings()
         photoOutput.capturePhoto(with: settings, delegate: self)
     }
-    
-    // Делегат получения фото
+
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else { return }
-        
-        // Исправляем ориентацию
+
         let fixedImage = fixOrientation(img: image)
-        
+
         DispatchQueue.main.async {
             self.capturedImage = fixedImage
         }
     }
-    
+
     private func fixOrientation(img: UIImage) -> UIImage {
         guard img.imageOrientation != .up else { return img }
         UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale)
@@ -460,26 +432,23 @@ class LiveFoodCameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDe
     }
 }
 
-// MARK: - ВЬЮ ДЛЯ ОТОБРАЖЕНИЯ СЕССИИ КАМЕРЫ
 struct LiveCameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
-    
+
     class VideoPreviewView: UIView {
         override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
         var videoPreviewLayer: AVCaptureVideoPreviewLayer { layer as! AVCaptureVideoPreviewLayer }
     }
-    
+
     func makeUIView(context: Context) -> VideoPreviewView {
         let view = VideoPreviewView()
         view.videoPreviewLayer.session = session
         view.videoPreviewLayer.videoGravity = .resizeAspectFill
         return view
     }
-    
+
     func updateUIView(_ uiView: VideoPreviewView, context: Context) {}
 }
-
-// MARK: - ОСТАЛЬНЫЕ UI КОМПОНЕНТЫ
 
 struct ScannerModePicker: View {
     @Binding var selectedMode: SmartScannerView.ScannerMode
@@ -535,11 +504,10 @@ struct FloatingActionButton: View {
     }
 }
 
-// MARK: - Карточка результатов ресторана
 struct MenuHackerResultsView: View {
     let response: VertexAIManager.MenuAIResponse
     let onClose: () -> Void
-    
+
     var body: some View {
         VStack(spacing: 20) {
             HStack {
@@ -551,7 +519,7 @@ struct MenuHackerResultsView: View {
                         .foregroundColor(.gray)
                 }
             }
-            
+
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     MenuRecCard(rec: response.ideal, type: "Ideal Match", icon: "checkmark.seal.fill", color: .green)
@@ -572,7 +540,7 @@ struct MenuRecCard: View {
     let type: String
     let icon: String
     let color: Color
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -583,15 +551,15 @@ struct MenuRecCard: View {
                     .font(.headline)
                     .foregroundColor(.primary)
             }
-            
+
             Text(rec.dishName)
                 .font(.title3.bold())
                 .foregroundColor(.primary)
-            
+
             Text(rec.reasoning)
                 .font(.subheadline)
                 .foregroundColor(.gray)
-            
+
             HStack {
                 Text("Est. Protein:").font(.caption).foregroundColor(.gray)
                 Text("\(Int(rec.protein))g").font(.caption.bold()).foregroundColor(color)

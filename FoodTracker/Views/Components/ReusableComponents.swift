@@ -1,13 +1,12 @@
 import SwiftUI
-import UIKit // <-- Важно для HapticManager
-import Charts // Не забудь убедиться, что импортирован Charts
+import UIKit
+import Charts
 
-// MARK: - Haptic Manager
 class HapticManager {
     static let shared = HapticManager()
-    
-    private init() {} // Гарантирует, что будет только один экземпляр
-    
+
+    private init() {}
+
     func impact(style: UIImpactFeedbackGenerator.FeedbackStyle) {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.prepare()
@@ -15,10 +14,9 @@ class HapticManager {
     }
 }
 
-// MARK: - Macro Battery View
 struct MacroBatteryView: View {
     let title: String; let current: Int; let total: Int; let color: Color
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -27,12 +25,12 @@ struct MacroBatteryView: View {
                 let textColor = color == .themeYellow ? Color.themeDarkYellow : color
                 Text("\(current)/\(total)g").font(.caption.bold()).foregroundColor(textColor)
             }
-            
+
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule()
                         .fill(Color.gray.opacity(0.15))
-                    
+
                     Capsule()
                         .fill(color)
                         .frame(width: min(geometry.size.width * CGFloat(current) / CGFloat(max(total, 1)), geometry.size.width))
@@ -47,7 +45,7 @@ struct MacroBatteryView: View {
 struct MacroSummaryView: View {
     let protein: Double; let fats: Double; let carbs: Double
     let targetProtein: Double; let targetFats: Double; let targetCarbs: Double
-    
+
     var body: some View {
         HStack(spacing: 15) {
             MacroBatteryView(title: "Protein", current: Int(protein), total: Int(targetProtein), color: .themePeach)
@@ -57,16 +55,15 @@ struct MacroSummaryView: View {
     }
 }
 
-// MARK: - Вспомогательные компоненты для MealDetailView
 struct MiniProgressView: View {
     let title: String
     let progress: Double
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 6) {
             Text(title).font(.caption).bold().foregroundColor(.textGray)
-            // Добавлено min() и max(), чтобы значение никогда не выходило за рамки 0...1
+
             ProgressView(value: min(max(progress, 0.0), 1.0)).tint(color)
         }
     }
@@ -75,7 +72,7 @@ struct FoodItemRow: View {
     let name: String
     let weight: String
     let calories: Int
-    
+
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
@@ -98,7 +95,7 @@ struct EmptyStateView: View {
     let imageName: String
     let title: String
     let description: String
-    
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: imageName).font(.system(size: 48)).foregroundColor(.gray.opacity(0.3))
@@ -110,7 +107,7 @@ struct EmptyStateView: View {
 }
 struct FoodGradeBadge: View {
     let grade: HealthGrade
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: grade.icon)
@@ -125,7 +122,7 @@ struct FoodGradeBadge: View {
         .cornerRadius(8)
     }
 }
-// MARK: - ГЛАВНЫЙ ИНТЕРАКТИВНЫЙ ДАШБОРД ЭНЕРГИИ
+
 enum EnergyTab: String, CaseIterable {
     case eaten = "Eaten"
     case burned = "Burned"
@@ -136,16 +133,16 @@ struct DynamicEnergyDashboard: View {
     let summary: DailySummary
     let summaries: [DailySummary]
     let user: User?
-    
+
     @State private var selectedTab: EnergyTab = .eaten
-    
+
     @State private var eatenPage = 0
     @State private var burnedPage = 0
     @State private var netPage = 0
-    
+
     var body: some View {
         VStack(spacing: 16) {
-            // 1. ПЕРЕКЛЮЧАТЕЛЬ
+
             HStack(spacing: 8) {
                 ForEach(EnergyTab.allCases, id: \.self) { tab in
                     Button(action: {
@@ -166,8 +163,7 @@ struct DynamicEnergyDashboard: View {
                 }
             }
             .padding(.horizontal, 20)
-            
-            // 2. КАРУСЕЛИ
+
             Group {
                 switch selectedTab {
                 case .eaten:
@@ -179,41 +175,39 @@ struct DynamicEnergyDashboard: View {
                             MealBreakdownCard(summary: summary).tag(3)
                         }
                         .tabViewStyle(.page(indexDisplayMode: .never))
-                        // ✅ ИСПРАВЛЕНИЕ: Даем кольцу достаточно места (было 320, стало 390)
+
                         .frame(height: 440)
-                        
+
                         CustomPaginator(pageCount: 4, currentPage: eatenPage, color: .themePink)
                     }
-                    
+
                 case .burned:
                                   VStack(spacing: 12) {
                                       TabView(selection: $burnedPage) {
                                           BurnedRingCard(summary: summary, user: user).tag(0)
                                           BurnedDetailsCard(summary: summary).tag(1)
-                                          // 🔥 НОВАЯ КАРТОЧКА ИНТЕНСИВНОСТИ
+
                                           ActivityIntensityCard(summary: summary).tag(2)
                                           BurnedWeeklyTrendCard(summaries: summaries).tag(3)
                                       }
                                       .tabViewStyle(.page(indexDisplayMode: .never))
                                       .frame(height: 440)
-                                      
-                                      // 🔥 Обновляем количество точек
+
                                       CustomPaginator(pageCount: 4, currentPage: burnedPage, color: .themeOrange)
                                   }
-                                  
+
                               case .net:
                                   VStack(spacing: 12) {
                                       TabView(selection: $netPage) {
                                           NetRingCard(summary: summary, user: user).tag(0)
                                           NetDetailsCard(summary: summary).tag(1)
-                                          // 🔥 НОВАЯ КАРТОЧКА ЭНЕРГЕТИЧЕСКОГО БАНКА
+
                                           WeeklyEnergyBankCard(summaries: summaries, user: user).tag(2)
                                           NetGoalImpactCard(summary: summary, user: user).tag(3)
                                       }
                                       .tabViewStyle(.page(indexDisplayMode: .never))
                                       .frame(height: 440)
-                                      
-                                      // 🔥 Обновляем количество точек
+
                                       CustomPaginator(pageCount: 4, currentPage: netPage, color: .green)
                                   }
                               }
@@ -222,12 +216,12 @@ struct DynamicEnergyDashboard: View {
         }
     }
 }
-// MARK: - ПАГИНАТОР
+
 struct CustomPaginator: View {
     let pageCount: Int
     let currentPage: Int
     let color: Color
-    
+
     var body: some View {
         HStack(spacing: 8) {
             ForEach(0..<pageCount, id: \.self) { index in
@@ -240,30 +234,22 @@ struct CustomPaginator: View {
     }
 }
 
-// =====================================================================
-// MARK: - КАРТОЧКИ ДЛЯ ВЛАДКИ "BURNED"
-// =====================================================================
-
 struct BurnedDetailsCard: View {
     let summary: DailySummary
-    
-    // 1. Калории из твоего приложения
+
     var appWorkoutCalories: Int {
         summary.workoutCalories
     }
-    
-    // 2. Примерные калории от шагов (в среднем 0.04 ккал за 1 шаг)
+
     var stepCalories: Int {
         Int(Double(summary.stepsCount) * 0.04)
     }
-    
-    // 3. Системные калории (Apple Health, Apple Watch и т.д.)
-    // Отнимаем от всех сожженных калорий твои тренировки и шаги.
+
     var appleFitnessCalories: Int {
         let remainder = summary.activeCaloriesBurned - appWorkoutCalories - stepCalories
-        return max(0, remainder) // Защита от отрицательных чисел
+        return max(0, remainder)
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -274,11 +260,9 @@ struct BurnedDetailsCard: View {
                     .foregroundColor(.themeOrange)
                     .font(.title2)
             }
-            
-            // Список источников активности
+
             VStack(spacing: 0) {
-                
-                // 1. Твои Тренировки
+
                 ActivitySourceRow(
                     icon: "dumbbell.fill",
                     iconColor: .themeOrange,
@@ -286,21 +270,19 @@ struct BurnedDetailsCard: View {
                     subtitle: "Workout Tracker",
                     calories: appWorkoutCalories
                 )
-                
+
                 Divider().padding(.leading, 80)
-                
-                // 2. Apple Fitness / Системные тренировки
+
                 ActivitySourceRow(
-                    icon: "applewatch", // Иконка Apple Watch идеально подходит сюда
+                    icon: "applewatch",
                     iconColor: .themePink,
                     title: "Apple Fitness",
                     subtitle: "System & Other Apps",
                     calories: appleFitnessCalories
                 )
-                
+
                 Divider().padding(.leading, 80)
-                
-                // 3. Шаги
+
                 ActivitySourceRow(
                     icon: "figure.walk",
                     iconColor: .green,
@@ -313,10 +295,9 @@ struct BurnedDetailsCard: View {
             .cornerRadius(20)
             .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.08), lineWidth: 1))
-            
+
             Spacer(minLength: 0)
-            
-            // ИНСАЙТ (Мотивация)
+
             HStack(alignment: .top, spacing: 16) {
                 ZStack {
                     Circle().fill(Color.white.opacity(0.2)).frame(width: 36, height: 36)
@@ -344,13 +325,13 @@ struct BurnedDetailsCard: View {
 
 struct BurnedWeeklyTrendCard: View {
     let summaries: [DailySummary]
-    
+
     private var chartData: [(day: String, calories: Int)] {
         let cal = Calendar.current
         let today = cal.startOfDay(for: Date())
         var data: [(String, Int)] = []
         let formatter = DateFormatter(); formatter.dateFormat = "EEE"
-        
+
         for i in (0..<7).reversed() {
             let date = cal.date(byAdding: .day, value: -i, to: today)!
             let dayName = formatter.string(from: date)
@@ -359,7 +340,7 @@ struct BurnedWeeklyTrendCard: View {
         }
         return data
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
@@ -370,30 +351,28 @@ struct BurnedWeeklyTrendCard: View {
                     .foregroundColor(.themeOrange)
                     .font(.title2)
             }
-            
-            // Увеличенный график
+
             Chart {
                 ForEach(chartData, id: \.day) { point in
                     BarMark(
                         x: .value("Day", point.day),
                         y: .value("Calories", point.calories),
-                        width: .fixed(20) // Делаем столбики толще
+                        width: .fixed(20)
                     )
                     .foregroundStyle(LinearGradient(colors: [.themeOrange, .themePink], startPoint: .bottom, endPoint: .top))
-                    .cornerRadius(6) // Закругляем верхушки
+                    .cornerRadius(6)
                 }
             }
-            .frame(height: 200) // Увеличили высоту графика
+            .frame(height: 200)
             .chartYAxis(.hidden)
             .chartXAxis {
                 AxisMarks { value in
                     AxisValueLabel().foregroundStyle(Color.gray).font(.caption2.bold())
                 }
             }
-            
+
             Spacer(minLength: 0)
-            
-            // 🔥 НОВЫЙ БЛОК: КРАСИВАЯ СТАТИСТИКА
+
             let avg = chartData.map { $0.calories }.reduce(0, +) / 7
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -411,8 +390,7 @@ struct BurnedWeeklyTrendCard: View {
                     }
                 }
                 Spacer()
-                
-                // Имитация активности
+
                 Image(systemName: "waveform.path.ecg")
                     .font(.system(size: 30))
                     .foregroundColor(.themeOrange.opacity(0.3))
@@ -426,13 +404,10 @@ struct BurnedWeeklyTrendCard: View {
         .padding(.horizontal, 20)
     }
 }
-// =====================================================================
-// MARK: - КАРТОЧКИ ДЛЯ ВЛАДКИ "NET"
-// =====================================================================
 
 struct NetDetailsCard: View {
     let summary: DailySummary
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             HStack {
@@ -443,36 +418,32 @@ struct NetDetailsCard: View {
                     .foregroundColor(.green)
                     .font(.title2)
             }
-            
-            // Блоки с цифрами
+
             HStack(spacing: 12) {
                 EquationBlock(title: "Eaten", value: summary.totalCalories, color: .themePink, icon: "fork.knife")
                 Text("–").font(.title.bold()).foregroundColor(.gray.opacity(0.3))
                 EquationBlock(title: "Burned", value: summary.activeCaloriesBurned, color: .themeOrange, icon: "flame.fill")
             }
-            
-            // 🔥 НОВЫЙ БЛОК: ВИЗУАЛЬНЫЙ БАЛАНС-БАР
+
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("Visual Balance").font(.caption.bold()).foregroundColor(.gray)
                     Spacer()
                     Text("Net: \(summary.netCalories) kcal").font(.caption.bold()).foregroundColor(summary.netCalories > 0 ? .primary : .green)
                 }
-                
+
                 GeometryReader { geo in
                     let total = max(Double(summary.totalCalories + summary.activeCaloriesBurned), 1.0)
                     let eatenWidth = geo.size.width * (Double(summary.totalCalories) / total)
                     let burnedWidth = geo.size.width * (Double(summary.activeCaloriesBurned) / total)
-                    
+
                     ZStack(alignment: .leading) {
-                        Capsule().fill(Color.gray.opacity(0.1)) // Фон
-                        
-                        // Съедено (Слева направо)
+                        Capsule().fill(Color.gray.opacity(0.1))
+
                         Capsule()
                             .fill(Color.themePink)
                             .frame(width: eatenWidth)
-                        
-                        // Сожжено (Справа налево, перекрывает)
+
                         Capsule()
                             .fill(Color.themeOrange.opacity(0.8))
                             .frame(width: burnedWidth)
@@ -482,10 +453,9 @@ struct NetDetailsCard: View {
                 .frame(height: 16)
             }
             .padding(.vertical, 10)
-            
+
             Spacer(minLength: 0)
-            
-            // Подсказка снизу
+
             HStack {
                 Image(systemName: "info.circle.fill").foregroundColor(.gray.opacity(0.5))
                 Text("Your body uses 'Burned' energy to process 'Eaten' food.")
@@ -503,10 +473,9 @@ struct NetDetailsCard: View {
     }
 }
 
-// Обновленный блок для математики (стал красивее)
 struct EquationBlock: View {
     let title: String; let value: Int; let color: Color; let icon: String
-    
+
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 4) {
@@ -515,7 +484,7 @@ struct EquationBlock: View {
             }
             .foregroundColor(color)
             .textCase(.uppercase)
-            
+
             Text("\(value)")
                 .font(.system(size: 26, weight: .heavy, design: .rounded))
                 .foregroundColor(.primary)
@@ -533,19 +502,18 @@ struct EquationBlock: View {
 struct NetGoalImpactCard: View {
     let summary: DailySummary
     let user: User?
-    
+
     var body: some View {
         let goal = user?.dailyCaloriesGoal ?? 2400
         let deficit = goal - summary.netCalories
-        
-        // В 1 кг жира ~7700 ккал
+
         let weeklyDeficit = deficit * 7
         let weightChange = Double(weeklyDeficit) / 7700.0
-        
+
         let isLosing = deficit > 0
         let isMaintaining = deficit == 0
         let statusColor = isLosing ? Color.green : (isMaintaining ? Color.themeYellow : Color.red)
-        
+
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 Text("Weight Impact")
@@ -555,8 +523,7 @@ struct NetGoalImpactCard: View {
                     .foregroundColor(.blue)
                     .font(.title2)
             }
-            
-            // 🔥 НОВЫЙ БЛОК ЗОНЫ (Gradient Hero)
+
             HStack(spacing: 16) {
                 ZStack {
                     Circle()
@@ -566,12 +533,12 @@ struct NetGoalImpactCard: View {
                         .font(.title2.bold())
                         .foregroundColor(.white)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(isLosing ? "Weight Loss Zone" : (isMaintaining ? "Maintenance" : "Weight Gain Zone"))
                         .font(.title3.bold())
                         .foregroundColor(.white)
-                    
+
                     Text(isLosing ? "You are in a calorie deficit." : "You are in a calorie surplus.")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.9))
@@ -584,21 +551,20 @@ struct NetGoalImpactCard: View {
             )
             .cornerRadius(24)
             .shadow(color: statusColor.opacity(0.3), radius: 10, y: 5)
-            
+
             Spacer(minLength: 0)
-            
-            // ПРОГНОЗ ВЕСА
+
             VStack(alignment: .leading, spacing: 8) {
                 Text("Projected Result")
                     .font(.caption.bold())
                     .foregroundColor(.gray)
                     .textCase(.uppercase)
-                
+
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text("\(abs(weightChange), specifier: "%.2f")")
                         .font(.system(size: 48, weight: .heavy, design: .rounded))
                         .foregroundColor(.primary)
-                    
+
                     VStack(alignment: .leading, spacing: 0) {
                         Text("kg")
                             .font(.title3.bold())
@@ -608,7 +574,7 @@ struct NetGoalImpactCard: View {
                             .foregroundColor(.gray)
                     }
                 }
-                
+
                 Text("If every day was exactly like today.")
                     .font(.caption)
                     .foregroundColor(.gray.opacity(0.8))
@@ -624,29 +590,27 @@ struct NetGoalImpactCard: View {
         .padding(.horizontal, 20)
     }
 }
-// MARK: - УНИВЕРСАЛЬНЫЙ ПАГИНАТОР (Точки под каруселью)
 
-// Вспомогательная карточка для математики
 struct EnergyEquationCard: View {
     let title: String
     let value: Int
     let icon: String
     let color: Color
     let isNegative: Bool
-    
+
     var body: some View {
         VStack(spacing: 12) {
             ZStack {
                 Circle().fill(color.opacity(0.15)).frame(width: 44, height: 44)
                 Image(systemName: icon).foregroundColor(color).font(.headline)
             }
-            
+
             VStack(spacing: 2) {
                 Text(title)
                     .font(.caption.bold())
                     .foregroundColor(.gray)
                     .textCase(.uppercase)
-                
+
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     if isNegative && value > 0 {
                         Text("-")
@@ -670,13 +634,12 @@ struct EnergyEquationCard: View {
 struct DetailedMacroRingsCard: View {
     let summary: DailySummary
     let user: User?
-    
-    // Генерируем умный совет на основе макросов
+
     private var smartInsight: (title: String, text: String, icon: String, color: Color) {
         let p = summary.totalProtein; let targetP = user?.targetProtein ?? 150
         let f = summary.totalFats; let targetF = user?.targetFats ?? 70
         let c = summary.totalCarbs; let targetC = user?.targetCarbs ?? 250
-        
+
         if summary.totalFoodCalories == 0 {
             return ("Fresh Start", "Log your first meal to see your macro balance.", "leaf.fill", .green)
         } else if p < targetP * 0.4 && summary.totalFoodCalories > 800 {
@@ -689,25 +652,24 @@ struct DetailedMacroRingsCard: View {
             return ("Perfect Balance", "Your macros are looking great today! Keep it up.", "checkmark.seal.fill", .themePink)
         }
     }
-    
+
     var body: some View {
         let targetP = user?.targetProtein ?? 150
         let targetF = user?.targetFats ?? 70
         let targetC = user?.targetCarbs ?? 250
-        
+
         VStack(spacing: 24) {
             Text("Macronutrients")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
+
             HStack(spacing: 15) {
                 IndividualMacroRing(title: "Carbs", current: summary.totalCarbs, target: targetC, color: .drinkWater)
                 IndividualMacroRing(title: "Fat", current: summary.totalFats, target: targetF, color: .themeYellow)
                 IndividualMacroRing(title: "Protein", current: summary.totalProtein, target: targetP, color: .themePeach)
             }
             .padding(.vertical, 4)
-            
-            // НОВАЯ КАРТОЧКА: AI INSIGHT (Заполняет пустое место)
+
             let insight = smartInsight
             HStack(alignment: .top, spacing: 16) {
                 ZStack {
@@ -717,7 +679,7 @@ struct DetailedMacroRingsCard: View {
                     Image(systemName: insight.icon)
                         .foregroundColor(insight.color)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(insight.title)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -734,7 +696,7 @@ struct DetailedMacroRingsCard: View {
             .background(Color.gray.opacity(0.04))
             .cornerRadius(16)
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(insight.color.opacity(0.3), lineWidth: 1))
-            
+
             Spacer(minLength: 0)
         }
         .ultraPremiumCardStyle()
@@ -746,25 +708,25 @@ struct IndividualMacroRing: View {
     let current: Double
     let target: Double
     let color: Color
-    
+
     @State private var progress: Double = 0
-    
+
     var body: some View {
         VStack(spacing: 12) {
             Text(title)
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .foregroundColor(color)
-            
+
             ZStack {
                 Circle()
                     .stroke(color.opacity(0.15), lineWidth: 10)
-                
+
                 Circle()
                     .trim(from: 0, to: min(progress, 1.0))
                     .stroke(color, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .shadow(color: color.opacity(0.4), radius: 3, x: 0, y: 0)
-                
+
                 VStack(spacing: 0) {
                     Text("\(Int(current))")
                         .font(.system(size: 18, weight: .heavy, design: .rounded))
@@ -774,7 +736,7 @@ struct IndividualMacroRing: View {
                 }
             }
             .frame(width: 80, height: 80)
-            
+
             Text("\(Int((current/max(target, 1)) * 100))%")
                 .font(.caption2)
                 .foregroundColor(.gray)
@@ -790,13 +752,12 @@ struct IndividualMacroRing: View {
 }
 struct MicronutrientsFocusCard: View {
     let summary: DailySummary
-    
-    // Берем данные из твоей модели (Meal)
+
     private var totalOmega3: Double { summary.meals.reduce(0) { $0 + $1.totalOmega3 } }
     private var totalMagnesium: Double { summary.meals.reduce(0) { $0 + $1.totalMagnesium } }
     private var totalCalcium: Double { summary.meals.reduce(0) { $0 + $1.totalCalcium } }
     private var totalIron: Double { summary.meals.reduce(0) { $0 + $1.totalIron } }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
@@ -806,16 +767,14 @@ struct MicronutrientsFocusCard: View {
                 Image(systemName: "heart.text.square.fill")
                     .foregroundColor(.themePink)
             }
-            
-            // СЕТКА НУТРИЕНТОВ (Выглядит гораздо плотнее и премиальнее)
+
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                 CompactMicroCard(title: "Omega-3", icon: "fish.fill", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
                 CompactMicroCard(title: "Magnesium", icon: "bolt.heart.fill", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
                 CompactMicroCard(title: "Calcium", icon: "bone.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
                 CompactMicroCard(title: "Iron", icon: "drop.fill", current: totalIron, target: 18, unit: "mg", color: .red.opacity(0.8))
             }
-            
-            // БАННЕР С СОВЕТОМ (Заполняет низ карточки)
+
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Boost your minerals")
@@ -836,7 +795,7 @@ struct MicronutrientsFocusCard: View {
             )
             .cornerRadius(16)
             .shadow(color: Color.themePink.opacity(0.3), radius: 8, y: 4)
-            
+
             Spacer(minLength: 0)
         }
         .ultraPremiumCardStyle()
@@ -844,7 +803,6 @@ struct MicronutrientsFocusCard: View {
     }
 }
 
-// НОВЫЙ КОМПОНЕНТ ДЛЯ СЕТКИ
 struct CompactMicroCard: View {
     let title: String
     let icon: String
@@ -852,9 +810,9 @@ struct CompactMicroCard: View {
     let target: Double
     let unit: String
     let color: Color
-    
+
     @State private var progress: Double = 0
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
@@ -866,7 +824,7 @@ struct CompactMicroCard: View {
                     .foregroundColor(.gray)
                 Spacer()
             }
-            
+
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text("\(current, specifier: "%.1f")")
                     .font(.system(size: 16, weight: .heavy, design: .rounded))
@@ -874,7 +832,7 @@ struct CompactMicroCard: View {
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.gray)
             }
-            
+
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule().fill(color.opacity(0.15))
@@ -904,9 +862,9 @@ struct MicroProgressBar: View {
     let target: Double
     let unit: String
     let color: Color
-    
+
     @State private var progress: Double = 0
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -918,12 +876,12 @@ struct MicroProgressBar: View {
                     .font(.caption)
                     .foregroundColor(.primary)
             }
-            
+
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
                         .fill(color.opacity(0.15))
-                    
+
                     Capsule()
                         .fill(
                             LinearGradient(colors: [color.opacity(0.6), color], startPoint: .leading, endPoint: .trailing)
@@ -946,17 +904,16 @@ struct MicroProgressBar: View {
 
 struct MealBreakdownCard: View {
     let summary: DailySummary
-    
+
     @State private var selectedMeal: String = "Breakfast"
     let mealsList = ["Breakfast", "Lunch", "Dinner", "Snack"]
-    
+
     var body: some View {
         VStack(spacing: 20) {
             Text("Meals Breakdown")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
-            // Чистый Apple-style переключатель
+
             HStack(spacing: 8) {
                 ForEach(mealsList, id: \.self) { meal in
                     Button(action: {
@@ -976,11 +933,9 @@ struct MealBreakdownCard: View {
                     }
                 }
             }
-            
-            // Выбор текущего приема пищи из базы
+
             let currentMealData = summary.meals.first(where: { $0.title == selectedMeal })
-            
-            // Список данных
+
             VStack(spacing: 16) {
                 MealMacroRow(title: "Calories", value: Double(currentMealData?.totalCalories ?? 0), unit: "kcal", color: .themePink)
                 Divider()
@@ -1000,7 +955,7 @@ struct MealBreakdownCard: View {
                             .stroke(Color.gray.opacity(0.08), lineWidth: 1)
                     )
             )
-            
+
             Spacer(minLength: 0)
         }
         .ultraPremiumCardStyle()
@@ -1008,13 +963,12 @@ struct MealBreakdownCard: View {
     }
 }
 
-// Строка данных для 4 слайда
 struct MealMacroRow: View {
     let title: String
     let value: Double
     let unit: String
     let color: Color
-    
+
     var body: some View {
         HStack {
             Text(title)
@@ -1032,7 +986,7 @@ struct EatenDetailsCarousel: View {
     let summary: DailySummary
     let user: User?
     @State private var selectedPage = 0
-    
+
     var body: some View {
         VStack(spacing: 12) {
             TabView(selection: $selectedPage) {
@@ -1042,7 +996,7 @@ struct EatenDetailsCarousel: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 320)
-            
+
             HStack(spacing: 8) {
                 ForEach(0..<3) { index in
                     Circle()
@@ -1054,8 +1008,6 @@ struct EatenDetailsCarousel: View {
         }
     }
 }
-
-// MARK: - КАРТОЧКИ С КОЛЬЦАМИ ДЛЯ КАРУСЕЛЕЙ (Первые слайды)
 
 struct EatenRingCard: View {
     let summary: DailySummary
@@ -1150,25 +1102,25 @@ struct NetRingCard: View {
 struct WeeklyEnergyBankCard: View {
     let summaries: [DailySummary]
     let user: User?
-    
+
     var body: some View {
         let goal = user?.dailyCaloriesGoal ?? 2000
         let last7Days = summaries.prefix(7)
         let totalNet = last7Days.reduce(0) { $0 + $1.netCalories }
         let totalGoal = goal * last7Days.count
-        let bankBalance = totalGoal - totalNet // Положительный баланс = дефицит (сэкономленные калории)
-        
+        let bankBalance = totalGoal - totalNet
+
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 Text("Weekly Energy Bank").font(.headline)
                 Spacer()
                 Image(systemName: "banknote.fill").foregroundColor(.green)
             }
-            
+
             VStack(spacing: 8) {
                 Text("Accumulated Deficit")
                     .font(.caption.bold()).foregroundColor(.gray).textCase(.uppercase)
-                
+
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text("\(bankBalance)")
                         .font(.system(size: 48, weight: .heavy, design: .rounded))
@@ -1180,7 +1132,7 @@ struct WeeklyEnergyBankCard: View {
             .padding(.vertical, 20)
             .background(bankBalance >= 0 ? Color.green.opacity(0.05) : Color.red.opacity(0.05))
             .cornerRadius(24)
-            
+
             HStack {
                 Image(systemName: bankBalance >= 0 ? "arrow.down.circle.fill" : "exclamationmark.circle.fill")
                     .foregroundColor(bankBalance >= 0 ? .green : .red)
@@ -1189,7 +1141,7 @@ struct WeeklyEnergyBankCard: View {
                      : "You've accumulated a surplus this week.")
                     .font(.subheadline).foregroundColor(.gray)
             }
-            
+
             Spacer(minLength: 0)
         }
         .ultraPremiumCardStyle()
@@ -1199,18 +1151,18 @@ struct WeeklyEnergyBankCard: View {
 
 struct ActivityIntensityCard: View {
     let summary: DailySummary
-    
+
     var stepCals: Double { Double(summary.stepsCount) * 0.04 }
     var workoutCals: Double { Double(summary.workoutCalories) }
     var appleCals: Double {
         max(0, Double(summary.activeCaloriesBurned) - workoutCals - stepCals)
     }
     var totalActive: Double { Double(max(summary.activeCaloriesBurned, 1)) }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Burn Intensity").font(.headline)
-            
+
             HStack(alignment: .bottom, spacing: 20) {
                 IntensityBar(title: "Steps", value: stepCals, total: totalActive, color: .green)
                 IntensityBar(title: "Apple", value: appleCals, total: totalActive, color: .themePink)
@@ -1218,16 +1170,16 @@ struct ActivityIntensityCard: View {
             }
             .frame(height: 150)
             .padding(.vertical, 10)
-            
+
             Divider()
-            
+
             HStack {
                 VStack(alignment: .leading) {
                     Text("Main Source").font(.caption).foregroundColor(.gray)
-                    
+
                     let maxVal = max(stepCals, max(appleCals, workoutCals))
                     let sourceName = maxVal == workoutCals ? "Custom Workouts" : (maxVal == appleCals ? "Apple Fitness" : "Daily Walking")
-                    
+
                     Text(sourceName)
                         .font(.headline).foregroundColor(.primary)
                 }

@@ -1,35 +1,28 @@
-// FILE: FoodTracker/Views/AICoach/AICoachDashboardView.swift
-
 import SwiftUI
 import SwiftData
 
-
-// MARK: - 1. ГЛАВНЫЙ ЭКРАН (Bento Box + Кнопка чата)
 struct AICoachDashboardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
-    
-    // Стейты агентов
+
     @State private var isFixingMacros = false
     @State private var isFixingHydration = false
     @State private var macroAdvice: MacroFixAdviceDTO? = nil
     @State private var hydrationAdvice: HydrationAdviceDTO? = nil
 
     let selectedDate: Date
-    
-    // Стейты основного анализа (✅ ТУТ БЫЛА ОШИБКА, ДОБАВЛЕН @)
+
     @State private var isAnalyzing = false
     @State private var hasAnalyzedToday = false
     @State private var verdictTitle: String = "AI Daily Review"
     @State private var verdictMessage: String = "Tap the button below to analyze your calories, macros, and get a personalized summary for today."
     @State private var verdictMood: String = "neutral"
-    
-    // Стейты рецептов из холодильника
+
     @State private var fridgeInput: String = ""
     @State private var isGeneratingRecipe = false
     @State private var generatedRecipe: AIRecipeDTO? = nil
-    
+
     private var currentUser: User? { users.first }
     private var currentSummary: DailySummary {
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
@@ -39,8 +32,7 @@ struct AICoachDashboardView: View {
             return DailySummary(date: startOfDay)
         }
     }
-    
-    // Динамические цвета для ауры на фоне
+
     private var moodColors: [Color] {
         switch verdictMood.lowercased() {
         case "perfect": return [.green, .mint]
@@ -49,29 +41,27 @@ struct AICoachDashboardView: View {
         default: return [.themePink, .themeOrange]
         }
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.themeBg.ignoresSafeArea()
-                
-                // 1. ДИНАМИЧЕСКИЕ АУРЫ (ЛЕВИТИРУЮЩИЕ ПЯТНА)
+
                 Circle()
                     .fill(moodColors[0].opacity(0.15))
                     .frame(width: 300, height: 300)
                     .blur(radius: 80)
                     .offset(x: -100, y: -200)
-                
+
                 Circle()
                     .fill(moodColors[1].opacity(0.15))
                     .frame(width: 350, height: 350)
                     .blur(radius: 80)
                     .offset(x: 150, y: 200)
-                
+
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        
-                        // 2. ШАПКА С КНОПКОЙ ЧАТА
+
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("AI Coach")
@@ -80,8 +70,7 @@ struct AICoachDashboardView: View {
                                     .foregroundColor(.gray)
                             }
                             Spacer()
-                            
-                            // КНОПКА ПЕРЕХОДА В ЧАТ
+
                             NavigationLink(destination: AICoachChatView(
                                 userGoal: currentUser?.dailyCaloriesGoal ?? 2000,
                                 consumed: currentSummary.totalCalories,
@@ -93,7 +82,7 @@ struct AICoachDashboardView: View {
                                         .frame(width: 50, height: 50)
                                         .opacity(isAnalyzing || isGeneratingRecipe ? 0.5 : 1.0)
                                         .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isAnalyzing || isGeneratingRecipe)
-                                    
+
                                     Image(systemName: "message.fill")
                                         .font(.title3)
                                         .foregroundColor(.white)
@@ -101,17 +90,16 @@ struct AICoachDashboardView: View {
                             }
                         }
                         .padding(.horizontal)
-                        
-                        // 3. ДИНАМИЧЕСКАЯ КАРТОЧКА (BENTO С МАТОВЫМ СТЕКЛОМ)
+
                         DailyVerdictGlassCard(
                             title: verdictTitle,
                             message: verdictMessage,
                             moodColor: moodColors[0],
                             isLoading: isAnalyzing,
-                            hasAnalyzed: hasAnalyzedToday, // ✅ ПЕРЕДАЕМ НОВЫЙ ПАРАМЕТР
-                            onAnalyze: { runDailyAnalysis() } // ✅ ДЕЙСТВИЕ ДЛЯ КНОПКИ
+                            hasAnalyzed: hasAnalyzedToday,
+                            onAnalyze: { runDailyAnalysis() }
                         )
-                        
+
                         HStack(spacing: 16) {
                             AIFixCard(
                                 title: "Fix Macros",
@@ -120,7 +108,7 @@ struct AICoachDashboardView: View {
                                 isLoading: isFixingMacros,
                                 action: { analyzeMacros() }
                             )
-                            
+
                             AIFixCard(
                                 title: "Hydration",
                                 icon: "drop.fill",
@@ -131,9 +119,8 @@ struct AICoachDashboardView: View {
                         }
                         .padding(.horizontal)
 
-                        
                         fridgeToRecipeSection
-                        
+
                     }
                     .padding(.bottom, 120)
                 }
@@ -153,7 +140,7 @@ struct AICoachDashboardView: View {
 
         }
     }
-    
+
     private var fridgeToRecipeSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -164,16 +151,16 @@ struct AICoachDashboardView: View {
                 Text("Fridge to Recipe")
                     .font(.title3).bold()
             }
-            
+
             Text("Tell me what you have, and I'll generate a recipe that perfectly fits your remaining calories.")
                 .font(.subheadline).foregroundColor(.gray)
-            
+
             HStack {
                 TextField("E.g. Eggs, chicken, rice...", text: $fridgeInput)
                     .padding()
                     .background(Color.gray.opacity(0.05))
                     .cornerRadius(12)
-                
+
                 Button(action: generateSmartRecipe) {
                     if isGeneratingRecipe {
                         ProgressView().tint(.white)
@@ -190,7 +177,7 @@ struct AICoachDashboardView: View {
                 }
                 .disabled(fridgeInput.isEmpty || isGeneratingRecipe)
             }
-            
+
             if let recipe = generatedRecipe {
                 VStack(alignment: .leading, spacing: 12) {
                     Divider().padding(.vertical, 8)
@@ -201,7 +188,7 @@ struct AICoachDashboardView: View {
                         Spacer()
                         Label("\(recipe.cookingTime) min", systemImage: "clock.fill").foregroundColor(.gray)
                     }.font(.caption.bold())
-                    
+
                     Button(action: { saveGeneratedRecipe(recipe) }) {
                         Text("Save to My Recipes").font(.subheadline.bold()).foregroundColor(.white)
                             .frame(maxWidth: .infinity).padding(.vertical, 12).background(Color.themePink).cornerRadius(12)
@@ -210,22 +197,22 @@ struct AICoachDashboardView: View {
             }
         }.premiumCardStyle().padding(.horizontal)
     }
-    
+
     private func runDailyAnalysis(forceRefresh: Bool = false) {
             guard let user = currentUser else { return }
             let cals = currentSummary.totalCalories; let goal = user.dailyCaloriesGoal
             let protein = currentSummary.totalProtein; let targetP = user.targetProtein
-            
+
             HapticManager.shared.impact(style: .medium)
             withAnimation { isAnalyzing = true }
-            
+
             Task {
                 if let verdict = await AINutritionService.shared.generateDailyVerdict(consumed: cals, goal: goal, protein: protein, targetProtein: targetP) {
                     await MainActor.run { withAnimation(.spring()) {
                         self.verdictTitle = verdict.title
                         self.verdictMessage = verdict.message
                         self.verdictMood = verdict.mood
-                        self.hasAnalyzedToday = true // ✅ Помечаем, что анализ прошел
+                        self.hasAnalyzedToday = true
                         self.isAnalyzing = false
                         HapticManager.shared.impact(style: .heavy)
                     }}
@@ -234,13 +221,13 @@ struct AICoachDashboardView: View {
                         if cals > goal { self.verdictMood = "danger" } else if cals < goal / 2 { self.verdictMood = "warning" } else { self.verdictMood = "perfect" }
                         self.verdictTitle = "Data Collected"
                         self.verdictMessage = "You've eaten \(cals) kcal out of \(goal)."
-                        self.hasAnalyzedToday = true // ✅ Помечаем, что анализ прошел (даже при ошибке)
+                        self.hasAnalyzedToday = true
                         self.isAnalyzing = false
                     }}
                 }
             }
         }
-    
+
     private func generateSmartRecipe() {
         guard let user = currentUser else { return }
         let missingCals = max(0, user.dailyCaloriesGoal - currentSummary.totalCalories); let missingProtein = max(0, Int(user.targetProtein - currentSummary.totalProtein))
@@ -257,23 +244,23 @@ struct AICoachDashboardView: View {
             guard let user = currentUser else { return }
             HapticManager.shared.impact(style: .medium)
             isFixingMacros = true
-            
+
             let missingCals = user.dailyCaloriesGoal - currentSummary.totalCalories
             let missingP = Int(user.targetProtein - currentSummary.totalProtein)
             let missingF = Int(user.targetFats - currentSummary.totalFats)
             let missingC = Int(user.targetCarbs - currentSummary.totalCarbs)
-            
+
             Task {
                 if let advice = await AINutritionService.shared.getMacroFixAdvice(missingCals: missingCals, missingProtein: missingP, missingFats: missingF, missingCarbs: missingC) {
                     await MainActor.run {
                         self.macroAdvice = advice
-                        self.isFixingMacros = false // Останавливаем крутилку
+                        self.isFixingMacros = false
                         HapticManager.shared.impact(style: .heavy)
                     }
                 } else {
                     await MainActor.run {
                         print("❌ Не удалось получить совет по макросам от ИИ")
-                        self.isFixingMacros = false // Останавливаем крутилку даже при ошибке
+                        self.isFixingMacros = false
                     }
                 }
             }
@@ -281,9 +268,9 @@ struct AICoachDashboardView: View {
     private func analyzeHydration() {
         HapticManager.shared.impact(style: .medium)
         isFixingHydration = true
-        
+
         let drank = currentSummary.totalHydrationLiters
-        
+
         Task {
             if let advice = await AINutritionService.shared.getHydrationAdvice(drankLiters: drank, goalLiters: 2.5) {
                 await MainActor.run {
@@ -306,15 +293,14 @@ struct AICoachDashboardView: View {
     }
 }
 
-// MARK: - 2. ВСПОМОГАТЕЛЬНЫЕ UI-КОМПОНЕНТЫ
 struct DailyVerdictGlassCard: View {
     let title: String
     let message: String
     let moodColor: Color
     let isLoading: Bool
-    let hasAnalyzed: Bool // ✅
-    let onAnalyze: () -> Void // ✅
-    
+    let hasAnalyzed: Bool
+    let onAnalyze: () -> Void
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -325,18 +311,17 @@ struct DailyVerdictGlassCard: View {
                 Spacer()
                 if isLoading { ProgressView().tint(moodColor) }
             }
-            
+
             Text(title)
                 .font(.title2.bold())
                 .foregroundColor(.primary)
                 .contentTransition(.interpolate)
-            
+
             FoodTypewriterTextView(fullText: message, isAnimating: !isLoading && hasAnalyzed)
                 .font(.body)
                 .foregroundColor(.textGray)
                 .lineSpacing(4)
-            
-            // ✅ КНОПКА ПОЯВЛЯЕТСЯ, ТОЛЬКО ЕСЛИ АНАЛИЗ ЕЩЕ НЕ ДЕЛАЛИ
+
             if !hasAnalyzed && !isLoading {
                 Button(action: onAnalyze) {
                     HStack {
@@ -368,9 +353,9 @@ struct AIFixCard: View {
     let title: String
     let icon: String
     let color: Color
-    let isLoading: Bool // НОВОЕ: Состояние загрузки
+    let isLoading: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: {
             if !isLoading { action() }
@@ -384,19 +369,18 @@ struct AIFixCard: View {
                         .foregroundColor(color)
                         .font(.system(size: 20, weight: .semibold))
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
-                    
+
                     HStack {
                         Text(isLoading ? "Analyzing..." : "Auto-analyze")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.gray)
                         Spacer()
-                        
-                        // АНИМАЦИЯ ЗАГРУЗКИ ИЛИ СТРЕЛОЧКА
+
                         if isLoading {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: color))
@@ -414,7 +398,7 @@ struct AIFixCard: View {
             .background(Color.white)
             .cornerRadius(24)
             .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
-            // Плавное свечение при загрузке
+
             .overlay(
                 RoundedRectangle(cornerRadius: 24)
                     .stroke(isLoading ? color.opacity(0.3) : Color.clear, lineWidth: 2)
@@ -428,14 +412,14 @@ struct MacroFixResultSheet: View {
     @Environment(\.dismiss) var dismiss
     let advice: MacroFixAdviceDTO
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 24) {
             Capsule()
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 40, height: 5)
                 .padding(.top, 10)
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "sparkles")
@@ -445,23 +429,23 @@ struct MacroFixResultSheet: View {
                         .foregroundColor(color)
                         .textCase(.uppercase)
                 }
-                
+
                 Text(advice.title)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
-                
+
                 Text(advice.explanation)
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
-            
+
             if !advice.suggestedSnacks.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Perfect Matches for You:")
                         .font(.headline)
                         .padding(.horizontal, 24)
-                    
+
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
                             ForEach(advice.suggestedSnacks, id: \.self) { snack in
@@ -470,9 +454,9 @@ struct MacroFixResultSheet: View {
                                         .font(.headline)
                                         .lineLimit(2)
                                         .fixedSize(horizontal: false, vertical: true)
-                                    
+
                                     Spacer()
-                                    
+
                                     HStack {
                                         Label("\(snack.calories) kcal", systemImage: "flame.fill")
                                             .foregroundColor(.themeOrange)
@@ -494,9 +478,9 @@ struct MacroFixResultSheet: View {
                     }
                 }
             }
-            
+
             Spacer()
-            
+
             Button(action: { dismiss() }) {
                 Text("Got it")
                     .font(.headline)
@@ -517,32 +501,32 @@ struct HydrationFixResultSheet: View {
     @Environment(\.dismiss) var dismiss
     let advice: HydrationAdviceDTO
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 24) {
             Capsule()
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 40, height: 5)
                 .padding(.top, 10)
-            
+
             ZStack {
                 Circle().fill(color.opacity(0.15)).frame(width: 80, height: 80)
                 Image(systemName: "drop.fill").font(.system(size: 40)).foregroundColor(color)
             }
-            
+
             VStack(spacing: 8) {
                 Text(advice.title)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
-                
+
                 Text(advice.message)
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
             }
-            
+
             Spacer()
-            
+
             HStack(spacing: 16) {
                 Button(action: { dismiss() }) {
                     Text("Close")
@@ -553,8 +537,7 @@ struct HydrationFixResultSheet: View {
                         .background(Color.gray.opacity(0.1))
                         .cornerRadius(20)
                 }
-                
-                // В будущем сюда можно привязать добавление стакана воды
+
                 Button(action: { dismiss() }) {
                     Text("Drink Now")
                         .font(.headline)

@@ -1,36 +1,34 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - ADD MEAL VIEW
 struct AddMealView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) var dismiss
     @Query private var summaries: [DailySummary]
-    
+
     @State private var selectedMealType = "Breakfast"
     @State private var selectedFoods: [FoodItem] = []
     @State private var showingAddFood = false
-    
+
     let mealTypes = ["Breakfast", "Lunch", "Snack", "Dinner"]
     let selectedDate: Date
-    
-    // ✅ ИСПРАВЛЕНО: Правильный тип для локализации строки через код
+
     func localizedMealType(_ type: String) -> String {
         String(localized: String.LocalizationValue(type))
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("Meal Details") {
                     Picker("Meal Type", selection: $selectedMealType) {
                         ForEach(mealTypes, id: \.self) { type in
-                            // ✅ ИСПРАВЛЕНО: добавили tag(type), чтобы выборка не ломалась из-за перевода
+
                             Text(LocalizedStringKey(type)).tag(type)
                         }
                     }
                 }
-                
+
                 Section("Foods") {
                     if selectedFoods.isEmpty {
                         Text("No food items added yet.")
@@ -45,7 +43,7 @@ struct AddMealView: View {
                         }
                         .onDelete(perform: deleteFood)
                     }
-                    
+
                     Button(action: { showingAddFood = true }) {
                         Label("Add Food Item", systemImage: "plus")
                     }
@@ -71,15 +69,15 @@ struct AddMealView: View {
             }
         }
     }
-    
+
     private func deleteFood(at offsets: IndexSet) {
         selectedFoods.remove(atOffsets: offsets)
     }
-    
+
     private func saveMealAndDismiss() {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
-        
+
         let summaryToUse: DailySummary
         if let existingSummary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: startOfDay) }) {
             summaryToUse = existingSummary
@@ -87,14 +85,14 @@ struct AddMealView: View {
             summaryToUse = DailySummary(date: startOfDay)
             modelContext.insert(summaryToUse)
         }
-        
+
         if let existingMeal = summaryToUse.meals.first(where: { $0.title == selectedMealType }) {
             existingMeal.foodItems.append(contentsOf: selectedFoods)
         } else {
             let newMeal = Meal(title: selectedMealType, date: selectedDate, foodItems: selectedFoods)
             summaryToUse.meals.append(newMeal)
         }
-        
+
         do {
             try modelContext.save()
             dismiss()

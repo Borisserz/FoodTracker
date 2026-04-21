@@ -1,21 +1,17 @@
-// FoodTracker/Views/Profile/ProfileView.swift
-
 import SwiftUI
 import SwiftData
 import Charts
 
-// MARK: - 1. WRAPPER (Оболочка для безопасной загрузки данных)
-// Этот View будет точкой входа из Navigation. Он загружает данные и передает их основному View.
 struct ProfileWrapperView: View {
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
 
     var body: some View {
         if let user = users.first {
-            // Передаем пользователя и его историю в основной View
+
             ProfileView(user: user, summaries: summaries)
         } else {
-            // Заглушка на случай, если данные еще не загрузились
+
             VStack {
                 ProgressView()
                 Text("Loading Profile...")
@@ -25,23 +21,21 @@ struct ProfileWrapperView: View {
     }
 }
 
-// MARK: - 2. MAIN PROFILE VIEW (Основной экран профиля)
 struct ProfileView: View {
     @Environment(\.modelContext) private var context
     @Bindable var user: User
     let summaries: [DailySummary]
-    
+
     @State private var currentStreak: Int = 0
-    
-    // Стейты для навигации по модальным окнам
+
     @State private var showingEditProfile = false
     @State private var showingNutritionSettings = false
     @State private var showingSettings = false
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
-                // 1. HEADER: Аватар и базовая инфа
+
                 VStack(spacing: 16) {
                     Image(systemName: "person.crop.circle.fill")
                         .resizable()
@@ -51,7 +45,7 @@ struct ProfileView: View {
                             LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
                         .shadow(color: .themePink.opacity(0.3), radius: 10, y: 5)
-                    
+
                     VStack(spacing: 4) {
                         Text(user.name)
                             .font(.system(size: 28, weight: .bold, design: .rounded))
@@ -59,7 +53,7 @@ struct ProfileView: View {
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }
-                    
+
                     Button(action: { showingEditProfile = true }) {
                         Text("Edit Profile")
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
@@ -71,8 +65,7 @@ struct ProfileView: View {
                             .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 3)
                     }
                     .buttonStyle(BounceButtonStyle())
-                    
-                    // Stats Row
+
                     HStack(spacing: 0) {
                         ProfileStatItem(value: "\(String(format: "%.1f", user.weight))", unit: "kg", title: "Weight")
                         Divider().frame(height: 40)
@@ -83,15 +76,14 @@ struct ProfileView: View {
                     .padding(.top, 8)
                 }
                 .premiumCardStyle()
-                
-                // 2. NUTRITION WIDGET (Карточка для макросов)
+
                 Button(action: { showingNutritionSettings = true }) {
                     HStack {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Nutrition Targets")
                                 .font(.headline)
                                 .foregroundColor(.primary)
-                            
+
                             HStack(spacing: 12) {
                                 MacroDotLabel(color: .themePeach, title: "P: \(Int(user.targetProtein))g")
                                 MacroDotLabel(color: .themeYellow, title: "F: \(Int(user.targetFats))g")
@@ -109,13 +101,11 @@ struct ProfileView: View {
                     .premiumCardStyle()
                 }
                 .buttonStyle(BounceButtonStyle())
-                
-                // 3. STREAK
+
                 StreakCardView(streak: currentStreak)
-                
-                // 4. APPLE-STYLE ACHIEVEMENTS
+
                 AchievementsSectionView(user: user)
-                
+
             }
             .padding(20)
             .padding(.bottom, 40)
@@ -144,7 +134,7 @@ struct ProfileView: View {
             currentStreak = calculateStreak()
         }
     }
-    
+
     private func calculateStreak() -> Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date.now)
@@ -162,17 +152,16 @@ struct ProfileView: View {
     }
 }
 
-// MARK: - 3. EDIT PROFILE SHEET (Модальное окно редактирования)
 struct EditProfileSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Bindable var user: User
-    
+
     @State private var name: String
     @State private var weight: Double
     @State private var height: Double
     @State private var age: Int
-    
+
     init(user: User) {
         self._user = Bindable(user)
         _name = State(initialValue: user.name)
@@ -180,7 +169,7 @@ struct EditProfileSheet: View {
         _height = State(initialValue: user.height)
         _age = State(initialValue: user.age)
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -192,8 +181,7 @@ struct EditProfileSheet: View {
                     }
                     Stepper("Age: \(age) years", value: $age, in: 10...100)
                 }
-                
-                // Исправлен синтаксис Section для поддержки footer-а
+
                 Section {
                     Stepper("Height: \(Int(height)) cm", value: $height, in: 100...250)
                     Stepper("Weight: \(String(format: "%.1f", weight)) kg", value: $weight, in: 30...250, step: 0.1)
@@ -216,7 +204,7 @@ struct EditProfileSheet: View {
             }
         }
     }
-    
+
     private func saveChanges() {
         HapticManager.shared.impact(style: .medium)
         user.name = name
@@ -224,30 +212,28 @@ struct EditProfileSheet: View {
         user.height = height
         user.age = age
         user.calculateGoals()
-        // Находим текущее соотношение макросов
+
         let totalCals = Double(user.dailyCaloriesGoal)
         let pRatio = (user.targetProtein * 4.0) / totalCals
         let fRatio = (user.targetFats * 9.0) / totalCals
         let cRatio = 1.0 - pRatio - fRatio
-        
-        // ✅ ИСПРАВЛЕНО: dietName -> dietKey
+
         user.applyDietBreakdown(fatPercent: Int(fRatio * 100), proteinPercent: Int(pRatio * 100), carbsPercent: Int(cRatio * 100), dietKey: user.activeDietKey)
-        
+
         try? context.save()
     }
 }
 
-// MARK: - 4. NUTRITION SETTINGS EDITOR (Редактор макросов)
 struct NutritionSettingsEditor: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Bindable var user: User
-    
+
     @State private var dailyCals: Int
     @State private var pPct: Double
     @State private var fPct: Double
     @State private var cPct: Double
-    
+
     init(user: User) {
         self._user = Bindable(user)
         let cals = user.dailyCaloriesGoal
@@ -259,9 +245,9 @@ struct NutritionSettingsEditor: View {
         _fPct = State(initialValue: f)
         _cPct = State(initialValue: 100 - p - f)
     }
-    
+
     private var isBalanced: Bool { Int(pPct + fPct + cPct) == 100 }
-    
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
@@ -276,7 +262,7 @@ struct NutritionSettingsEditor: View {
                                 Button(action: { adjustCals(50) }) { Image(systemName: "plus.circle.fill").font(.title).foregroundColor(.themePink) }
                             }
                         }.padding(.top, 20)
-                        
+
                         ZStack {
                             Chart {
                                 SectorMark(angle: .value("Carbs", cPct), innerRadius: .ratio(0.75), angularInset: 2).foregroundStyle(Color.drinkWater.gradient)
@@ -288,17 +274,17 @@ struct NutritionSettingsEditor: View {
                                 Text(isBalanced ? "Balanced" : "Adjust to 100%").font(.caption).foregroundColor(isBalanced ? .gray : .red)
                             }
                         }.frame(height: 220)
-                        
+
                         VStack(spacing: 24) {
                             MacroAdjusterRow(title: "Protein", color: .themePeach, pct: $pPct, grams: calculateGrams(pct: pPct, multiplier: 4), onAdjust: { adjustMacros(changed: .protein) })
                             MacroAdjusterRow(title: "Fat", color: .themeYellow, pct: $fPct, grams: calculateGrams(pct: fPct, multiplier: 9), onAdjust: { adjustMacros(changed: .fat) })
                             MacroAdjusterRow(title: "Carbs", color: .drinkWater, pct: $cPct, grams: calculateGrams(pct: cPct, multiplier: 4), onAdjust: { adjustMacros(changed: .carbs) })
                         }.padding(20).background(Color.white).cornerRadius(24).shadow(color: .black.opacity(0.04), radius: 10, y: 5).padding(.horizontal, 20)
-                        
+
                         Spacer().frame(height: 100)
                     }
                 }
-                
+
                 Button(action: saveSettings) {
                     Text("Save Plan").font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 18).background(isBalanced ? Color.themePink : Color.gray).cornerRadius(24)
                 }
@@ -308,10 +294,10 @@ struct NutritionSettingsEditor: View {
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
         }
     }
-    
+
     private func adjustCals(_ amount: Int) { withAnimation { dailyCals = max(1000, dailyCals + amount) } }
     private func calculateGrams(pct: Double, multiplier: Double) -> Int { Int((Double(dailyCals) * (pct / 100)) / multiplier) }
-    
+
     enum MacroType { case protein, fat, carbs }
     private func adjustMacros(changed: MacroType) {
         let diff = (pPct + fPct + cPct) - 100; guard diff != 0 else { return }
@@ -322,83 +308,78 @@ struct NutritionSettingsEditor: View {
         }
         pPct = max(0, pPct); fPct = max(0, fPct); cPct = max(0, cPct)
     }
-    
+
     private func saveSettings() {
         user.dailyCaloriesGoal = dailyCals
-        // ✅ ИСПРАВЛЕНО: dietName -> dietKey ("custom" используем как ключ кастомной диеты)
+
         user.applyDietBreakdown(fatPercent: Int(fPct), proteinPercent: Int(pPct), carbsPercent: Int(cPct), dietKey: "custom")
         try? context.save()
         dismiss()
     }
 }
 
-
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Bindable var user: User
-    
-    // В реальном приложении это можно хранить в @AppStorage
+
     @AppStorage("useMetricSystem") private var useMetricSystem = true
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.themeBg.ignoresSafeArea()
-                
+
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        
-                        // ГРУППА 1: Основные настройки (Preferences)
+
                         VStack(spacing: 0) {
                             NavigationLink(destination: AccountSettingsView(user: user)) {
                                 SettingsRowView(icon: "person.fill", iconColor: .themePink, title: "Account")
                             }
                             Divider().padding(.leading, 56)
-                            
+
                             NavigationLink(destination: RemindersSettingsView()) {
                                 SettingsRowView(icon: "bell.fill", iconColor: .themeYellow, title: "Reminders")
                             }
                             Divider().padding(.leading, 56)
-                            
+
                             NavigationLink(destination: AppleHealthSettingsView(user: user)) {
                                 SettingsRowView(icon: "heart.fill", iconColor: .red, title: "Apple Health")
                             }
                             Divider().padding(.leading, 56)
-                            
+
                             NavigationLink(destination: UnitsSettingsView(useMetric: $useMetricSystem)) {
                                 SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: "Units settings", value: useMetricSystem ? "Metric" : "Imperial")
                             }
                         }
                         .premiumCardStyle()
                         .padding(.horizontal, 20)
-                        
-                        // ГРУППА 2: Поддержка и Информация (Support & About)
+
                         VStack(spacing: 0) {
                             Button(action: { rateApp() }) {
                                 SettingsRowView(icon: "star.fill", iconColor: .themeOrange, title: "Rate the app")
                             }
                             Divider().padding(.leading, 56)
-                            
+
                             Button(action: { contactSupport() }) {
                                 SettingsRowView(icon: "questionmark.circle.fill", iconColor: .green, title: "Help")
                             }
                             Divider().padding(.leading, 56)
-                            
+
                             Button(action: { openTerms() }) {
                                 SettingsRowView(icon: "doc.text.fill", iconColor: .gray, title: "Terms of Service & Privacy")
                             }
                         }
                         .premiumCardStyle()
                         .padding(.horizontal, 20)
-                        
-                        // FOOTER: Версия приложения
+
                         VStack(spacing: 4) {
                             Text("version 1.0.0 global")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .textCase(.lowercase)
-                            
+
                             Text("Made with ❤️ for your health")
                                 .font(.caption2)
                                 .foregroundColor(.gray.opacity(0.6))
@@ -425,26 +406,25 @@ struct SettingsView: View {
             }
         }
     }
-    
-    // MARK: - Actions
+
     private func rateApp() {
         HapticManager.shared.impact(style: .medium)
-        // В реальном приложении вызываем SKStoreReviewController
+
         print("Rate App Tapped")
     }
-    
+
     private func contactSupport() {
         HapticManager.shared.impact(style: .medium)
         let subject = "Help Needed - FoodTracker User ID: 372026"
         let body = "Please describe your issue here...\n\n\n--- App Info ---\nVersion: 1.0.0"
         let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        
+
         if let url = URL(string: "mailto:support@foodbok.com?subject=\(encodedSubject)&body=\(encodedBody)") {
             UIApplication.shared.open(url)
         }
     }
-    
+
     private func openTerms() {
         HapticManager.shared.impact(style: .light)
         if let url = URL(string: "https://yourwebsite.com/terms") {
@@ -453,58 +433,54 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Вспомогательный компонент строки (UI/UX)
 struct SettingsRowView: View {
     let icon: String
     let iconColor: Color
     let title: String
     var value: String? = nil
-    
+
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
                 Circle()
                     .fill(iconColor.opacity(0.15))
                     .frame(width: 36, height: 36)
-                
+
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(iconColor)
             }
-            
+
             Text(title)
                 .font(.system(size: 16, weight: .medium, design: .rounded))
                 .foregroundColor(.primary)
-            
+
             Spacer()
-            
+
             if let value = value {
                 Text(value)
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
-            
+
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.gray.opacity(0.4))
         }
         .padding(.vertical, 12)
-        .contentShape(Rectangle()) // Чтобы нажималась вся строка
+        .contentShape(Rectangle())
     }
 }
 
-// MARK: - SUB-SCREENS
-
-// 1. ACCOUNT SETTINGS (С кнопками выхода и удаления)
 struct AccountSettingsView: View {
     let user: User
-    
+
     var body: some View {
         ZStack {
             Color.themeBg.ignoresSafeArea()
-            
+
             VStack(spacing: 24) {
-                // Карточка с инфой
+
                 VStack(alignment: .leading, spacing: 16) {
                     AccountInfoRow(title: "User ID", value: "372 026")
                     Divider()
@@ -518,12 +494,11 @@ struct AccountSettingsView: View {
                 .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                 .padding(.horizontal, 20)
                 .padding(.top, 24)
-                
+
                 Spacer()
-                
-                // Опасные кнопки
+
                 VStack(spacing: 16) {
-                    Button(action: { /* Log out logic */ }) {
+                    Button(action: {  }) {
                         HStack {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
                             Text("Log out")
@@ -537,8 +512,8 @@ struct AccountSettingsView: View {
                         .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
                     }
                     .buttonStyle(BounceButtonStyle())
-                    
-                    Button(action: { /* Delete account logic */ }) {
+
+                    Button(action: {  }) {
                         HStack {
                             Image(systemName: "trash")
                             Text("Delete account")
@@ -565,7 +540,7 @@ struct AccountInfoRow: View {
     let title: String
     let value: String
     var valueColor: Color = .primary
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -578,16 +553,15 @@ struct AccountInfoRow: View {
     }
 }
 
-// 2. REMINDERS SETTINGS
 struct RemindersSettingsView: View {
     @AppStorage("remindMeals") private var remindMeals = true
     @AppStorage("remindWater") private var remindWater = true
     @AppStorage("remindWeight") private var remindWeight = false
-    
+
     var body: some View {
         ZStack {
             Color.themeBg.ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 16) {
@@ -595,7 +569,7 @@ struct RemindersSettingsView: View {
                             .font(.subheadline)
                             .foregroundColor(.gray)
                             .padding(.bottom, 8)
-                        
+
                         Toggle("Meals", isOn: $remindMeals).tint(.themePink)
                         Divider()
                         Toggle("Water", isOn: $remindWater).tint(.cyan)
@@ -603,13 +577,13 @@ struct RemindersSettingsView: View {
                     .premiumCardStyle()
                     .padding(.horizontal, 20)
                     .padding(.top, 24)
-                    
+
                     VStack(alignment: .leading, spacing: 16) {
                         Text("It's best to track your measurements on the same day each week, at the same time and under the same circumstances.")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                             .padding(.bottom, 8)
-                        
+
                         Toggle("Weight-in", isOn: $remindWeight).tint(.themeOrange)
                     }
                     .premiumCardStyle()
@@ -622,15 +596,14 @@ struct RemindersSettingsView: View {
     }
 }
 
-// 3. APPLE HEALTH SETTINGS
 struct AppleHealthSettingsView: View {
     @Environment(\.modelContext) private var context
     @Bindable var user: User
-    
+
     var body: some View {
         ZStack {
             Color.themeBg.ignoresSafeArea()
-            
+
             VStack(spacing: 24) {
                 VStack(spacing: 16) {
                     ZStack {
@@ -642,16 +615,16 @@ struct AppleHealthSettingsView: View {
                             .foregroundColor(.red)
                     }
                     .padding(.top, 20)
-                    
+
                     Text("Sync with Apple Health")
                         .font(.title2.bold())
-                    
+
                     Text("Sync nutrition, activity and body measurement with Apple Health app. Data from Apple Health will help give you more accurate recommendations.")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 20)
-                    
+
                     Button(action: toggleHealthKit) {
                         Text(user.isHealthKitEnabled ? "Disconnect" : "Connect")
                             .font(.headline)
@@ -666,14 +639,14 @@ struct AppleHealthSettingsView: View {
                 }
                 .premiumCardStyle()
                 .padding(20)
-                
+
                 Spacer()
             }
         }
         .navigationTitle("Apple Health")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
+
     private func toggleHealthKit() {
         HapticManager.shared.impact(style: .medium)
         user.isHealthKitEnabled.toggle()
@@ -684,14 +657,13 @@ struct AppleHealthSettingsView: View {
     }
 }
 
-// 4. UNITS SETTINGS
 struct UnitsSettingsView: View {
     @Binding var useMetric: Bool
-    
+
     var body: some View {
         ZStack {
             Color.themeBg.ignoresSafeArea()
-            
+
             VStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 0) {
                     Button(action: { withAnimation { useMetric = true }; HapticManager.shared.impact(style: .light) }) {
@@ -705,9 +677,9 @@ struct UnitsSettingsView: View {
                         .padding(.vertical, 16)
                         .contentShape(Rectangle())
                     }
-                    
+
                     Divider()
-                    
+
                     Button(action: { withAnimation { useMetric = false }; HapticManager.shared.impact(style: .light) }) {
                         HStack {
                             Text("Imperial (lb, ft, oz)")
@@ -725,7 +697,7 @@ struct UnitsSettingsView: View {
                 .cornerRadius(24)
                 .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                 .padding(20)
-                
+
                 Spacer()
             }
         }
@@ -734,7 +706,6 @@ struct UnitsSettingsView: View {
     }
 }
 
-// MARK: - 6. Вспомогательные компоненты
 struct ProfileStatItem: View {
     let value: String; let unit: String; let title: String
     var body: some View {
@@ -782,7 +753,7 @@ struct AchievementsSectionView: View {
                 Spacer()
                 Text("\(user.unlockedAchievements.count) Unlocked").font(.caption).foregroundColor(.gray)
             }.padding(.horizontal, 20)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
                     ForEach(Achievement.all) { achievement in
@@ -813,19 +784,16 @@ struct AppleStyleBadge: View {
     }
 }
 
-// Убрана лишняя скобка, которая ломала компиляцию
-
-// MARK: - STREAK CARD VIEW
 struct StreakCardView: View {
     let streak: Int
-    
+
     var body: some View {
         HStack(spacing: 20) {
             ZStack {
                 Circle()
                     .fill(Color.themeOrange.opacity(0.1))
                     .frame(width: 60, height: 60)
-                
+
                 Image(systemName: "flame.fill")
                     .font(.system(size: 32))
                     .foregroundStyle(
@@ -834,12 +802,12 @@ struct StreakCardView: View {
                             : LinearGradient(colors: [.gray.opacity(0.5), .gray], startPoint: .top, endPoint: .bottom)
                     )
             }
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(streak) Day Streak!")
                     .font(.title3)
                     .bold()
-                
+
                 Text(streak > 0 ? "Keep it up! You're doing great." : "Start logging meals to build your streak.")
                     .font(.subheadline)
                     .foregroundColor(.gray)

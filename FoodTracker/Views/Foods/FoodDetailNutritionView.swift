@@ -1,46 +1,37 @@
-//
-//  FoodDetailNutritionView.swift
-//  FoodTracker
-//
-
 import SwiftUI
 
 struct FoodDetailNutritionView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     let food: FoodItem
     let mealTitle: String
     var onAdd: (FoodItem) -> Void
-    
-    // Стейт для веса (по умолчанию берем вес порции из базы, обычно 100г)
+
     @State private var weight: Double
-    
+
     init(food: FoodItem, mealTitle: String, onAdd: @escaping (FoodItem) -> Void) {
         self.food = food
         self.mealTitle = mealTitle
         self.onAdd = onAdd
         self._weight = State(initialValue: food.weight > 0 ? food.weight : 100.0)
     }
-    
-    // MARK: - Динамические вычисления
+
     private var multiplier: Double { weight / max(food.weight, 1.0) }
     private var currentCals: Int { Int(Double(food.calories) * multiplier) }
     private var currentP: Double { food.protein * multiplier }
     private var currentF: Double { food.fats * multiplier }
     private var currentC: Double { food.carbs * multiplier }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
-            
+
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
-                    
-                    // 1. ШАПКА + НОВАЯ ДИАГРАММА МАКРОСОВ
+
                     VStack(spacing: 0) {
                         FoodDetailHeader(name: food.name)
-                        
-                        // НОВАЯ КАРТОЧКА ДИАГРАММЫ (Наползает на шапку)
+
                         MacroDonutChartCard(
                             calories: currentCals,
                             p: currentP,
@@ -48,28 +39,26 @@ struct FoodDetailNutritionView: View {
                             c: currentC
                         )
                         .padding(.horizontal, 20)
-                        .offset(y: -40) // Поднимаем карточку на градиент шапки
-                        .padding(.bottom, -40) // Компенсируем отступ
+                        .offset(y: -40)
+                        .padding(.bottom, -40)
                     }
-                    
-                    // 2. УМНЫЙ РЕДАКТОР ПОРЦИИ
+
                     ServingSizeEditor(weight: $weight)
                         .padding(.horizontal, 20)
-                    
-                    // 3. ПОДРОБНАЯ НУТРИЦИОЛОГИЯ
+
                     VStack(alignment: .leading, spacing: 0) {
                         Text("Nutrition Facts")
                             .font(.title3.bold())
                             .padding(.horizontal, 20)
                             .padding(.bottom, 12)
-                        
+
                         VStack(spacing: 0) {
                             NutritionRow(title: "Proteins", value: currentP, unit: "g")
                             NutritionRow(title: "Total Fat", value: currentF, unit: "g")
                             NutritionRow(title: "Carbs", value: currentC, unit: "g")
-                            
+
                             NutritionSectionHeader(title: "Vitamins & Minerals")
-                            
+
                             NutritionRow(title: "Vitamin C", value: food.vitaminC * multiplier, unit: "mg", isPro: true)
                             NutritionRow(title: "Vitamin D", value: food.vitaminD * multiplier, unit: "mcg", isPro: true)
                             NutritionRow(title: "Calcium", value: food.calcium * multiplier, unit: "mg", isPro: true)
@@ -78,21 +67,19 @@ struct FoodDetailNutritionView: View {
                             NutritionRow(title: "Potassium", value: food.potassium * multiplier, unit: "mg", isPro: true)
                             NutritionRow(title: "Omega-3", value: food.omega3 * multiplier, unit: "g", isPro: true)
                         }
-                        .padding(.horizontal, 20) // ✅ ДОБАВИЛИ: Внутренний отступ по бокам
-                        .padding(.vertical, 8)    // ✅ ДОБАВИЛИ: Внутренний отступ сверху и снизу
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
                         .background(Color.white)
                         .cornerRadius(24)
-                        .padding(.horizontal, 20) // Это внешний отступ карточки от экрана (оставляем)
+                        .padding(.horizontal, 20)
                         .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                     }
-                    
-                    // Отступ под плавающую кнопку
+
                     Spacer().frame(height: 100)
                 }
             }
             .ignoresSafeArea(edges: .top)
-            
-            // 4. FLOATING ADD BUTTON
+
             VStack {
                 Spacer()
                 ZStack {
@@ -100,7 +87,7 @@ struct FoodDetailNutritionView: View {
                         .fill(.ultraThinMaterial)
                         .frame(height: 110)
                         .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-                    
+
                     Button(action: {
                         HapticManager.shared.impact(style: .heavy)
                         let addedFood = FoodItem(
@@ -146,18 +133,15 @@ struct FoodDetailNutritionView: View {
     }
 }
 
-// MARK: - COMPONENTS
-
-// 1. Упрощенная Шапка (Только градиент, кнопки и название)
 private struct FoodDetailHeader: View {
     @Environment(\.dismiss) var dismiss
     @State private var isFavorite = false
-    
+
     let name: String
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Навбар
+
             HStack {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
@@ -180,71 +164,64 @@ private struct FoodDetailHeader: View {
                         .clipShape(Circle())
                 }
             }
-            .padding(.top, 50) // Safe area
-            
+            .padding(.top, 50)
+
             Text(name)
                 .font(.system(size: 32, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
-                .padding(.bottom, 50) // Отступ для карточки диаграммы
+                .padding(.bottom, 50)
         }
         .padding(.horizontal, 20)
         .background(
             LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
-        // Обрезаем только нижние углы
+
         .clipShape(RoundedCorner(radius: 32, corners: [.bottomLeft, .bottomRight]))
         .shadow(color: Color.themePink.opacity(0.3), radius: 15, y: 10)
     }
 }
 
-// MARK: - 🟢 НОВАЯ КАРТОЧКА ДИАГРАММЫ (По твоему скриншоту)
 private struct MacroDonutChartCard: View {
     let calories: Int
     let p: Double
     let f: Double
     let c: Double
-    
+
     @State private var showAnimation = false
-    
-    // Подсчет калорий из макросов для процентов (1г углеводов/белков = 4 ккал, 1г жиров = 9 ккал)
+
     private var totalMacroCals: Double {
         max((p * 4) + (f * 9) + (c * 4), 1.0)
     }
-    
+
     private var cPercent: Double { (c * 4) / totalMacroCals }
     private var fPercent: Double { (f * 9) / totalMacroCals }
     private var pPercent: Double { (p * 4) / totalMacroCals }
-    
+
     var body: some View {
         HStack(spacing: 16) {
-            
-            // 1. КОЛЬЦО
+
             ZStack {
-                // Серый фон кольца
+
                 Circle()
                     .stroke(Color.gray.opacity(0.15), lineWidth: 8)
-                
-                // Углеводы (Cyan)
+
                 Circle()
                     .trim(from: 0, to: showAnimation ? cPercent : 0)
                     .stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                
-                // Жиры (Yellow)
+
                 Circle()
                     .trim(from: showAnimation ? cPercent : 0, to: showAnimation ? (cPercent + fPercent) : 0)
                     .stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                
-                // Белки (Peach)
+
                 Circle()
                     .trim(from: showAnimation ? (cPercent + fPercent) : 0, to: showAnimation ? 1.0 : 0)
                     .stroke(Color.themePeach, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                
-                // Текст внутри
+
                 VStack(spacing: 0) {
                     Text("\(calories)")
                         .font(.system(size: 24, weight: .heavy, design: .rounded))
@@ -256,10 +233,9 @@ private struct MacroDonutChartCard: View {
                 }
             }
             .frame(width: 80, height: 80)
-            
+
             Spacer()
-            
-            // 2. СТОЛБЦЫ ДАННЫХ
+
             HStack(spacing: 16) {
                 MacroColumnInfo(percent: cPercent, grams: c, title: "Carbs", color: .drinkWater)
                 MacroColumnInfo(percent: fPercent, grams: f, title: "Fat", color: .themeYellow)
@@ -277,7 +253,7 @@ private struct MacroDonutChartCard: View {
                 }
             }
         }
-        // Перезапуск анимации при изменении порции
+
         .onChange(of: calories) { _, _ in
             showAnimation = false
             withAnimation(.spring(response: 0.8, dampingFraction: 0.8)) {
@@ -287,24 +263,23 @@ private struct MacroDonutChartCard: View {
     }
 }
 
-// Мини-компонент для столбцов процентов (Carbs, Fat, Protein)
 private struct MacroColumnInfo: View {
     let percent: Double
     let grams: Double
     let title: String
     let color: Color
-    
+
     var body: some View {
         VStack(alignment: .center, spacing: 4) {
             Text("\(Int(percent * 100))%")
                 .font(.system(size: 12, weight: .bold))
                 .foregroundColor(color)
-            
+
             Text("\(grams, specifier: "%.1f") g")
                 .font(.system(size: 16, weight: .bold, design: .rounded))
                 .foregroundColor(.primary)
                 .contentTransition(.numericText())
-            
+
             Text(title)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.gray)
@@ -313,15 +288,14 @@ private struct MacroColumnInfo: View {
     }
 }
 
-// 2. Умный редактор порции
 private struct ServingSizeEditor: View {
     @Binding var weight: Double
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Serving Size")
                 .font(.headline)
-            
+
             HStack {
                 Button(action: { changeWeight(by: -10) }) {
                     Image(systemName: "minus")
@@ -331,9 +305,9 @@ private struct ServingSizeEditor: View {
                         .background(Color.themePink.opacity(0.1))
                         .cornerRadius(16)
                 }
-                
+
                 Spacer()
-                
+
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(Int(weight))")
                         .font(.system(size: 40, weight: .bold, design: .rounded))
@@ -342,9 +316,9 @@ private struct ServingSizeEditor: View {
                         .font(.title3.bold())
                         .foregroundColor(.gray)
                 }
-                
+
                 Spacer()
-                
+
                 Button(action: { changeWeight(by: 10) }) {
                     Image(systemName: "plus")
                         .font(.title2.bold())
@@ -354,7 +328,7 @@ private struct ServingSizeEditor: View {
                         .cornerRadius(16)
                 }
             }
-            
+
             HStack(spacing: 12) {
                 ForEach([50, 100, 150, 200], id: \.self) { amount in
                     Button(action: {
@@ -379,7 +353,7 @@ private struct ServingSizeEditor: View {
         .cornerRadius(24)
         .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
     }
-    
+
     private func changeWeight(by amount: Double) {
         HapticManager.shared.impact(style: .light)
         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
@@ -388,21 +362,20 @@ private struct ServingSizeEditor: View {
     }
 }
 
-// 3. Строка нутриентов
 private struct NutritionRow: View {
     let title: String
     let value: Double
     let unit: String
     var isPro: Bool = false
-    
+
     var body: some View {
         HStack {
             Text(title)
                 .font(.subheadline)
                 .foregroundColor(.primary)
-            
+
             Spacer()
-            
+
             if isPro {
                 HStack(spacing: 4) {
                     Image(systemName: "lock.fill").font(.system(size: 10))
@@ -421,7 +394,7 @@ private struct NutritionRow: View {
                     .contentTransition(.numericText())
             }
         }
-        .padding(.vertical, 18) 
+        .padding(.vertical, 18)
         .overlay(
             Divider(), alignment: .bottom
         )
@@ -440,7 +413,6 @@ private struct NutritionSectionHeader: View {
     }
 }
 
-// MARK: - Extension for specific corner radius
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape( RoundedCorner(radius: radius, corners: corners) )

@@ -1,32 +1,25 @@
-//
-//  ChefRecipesView.swift
-//  FoodTracker
-//
-
 import SwiftUI
 import SwiftData
 
-// MARK: - 1. MOCK DATA MODELS
 struct PremiumRecipe: Identifiable, Hashable, Codable {
-    var id: UUID = UUID() // Генерируется автоматически
+    var id: UUID = UUID()
     let title: String
     let description: String
     let time: String
     let caloriesPerServing: Int
     let imageUrl: String
     var isFavorite: Bool
-    
+
     let tags: [String]
     let baseServings: Int
-    
+
     let protein: Double
     let fat: Double
     let carbs: Double
-    
+
     let ingredients: [RecipeIngredient]
     let directions: [String]
-    
-    // Исключаем id из JSON, чтобы не писать его вручную каждый раз
+
     enum CodingKeys: String, CodingKey {
         case title, description, time, caloriesPerServing, imageUrl, isFavorite, tags, baseServings, protein, fat, carbs, ingredients, directions
     }
@@ -76,23 +69,21 @@ var mockRecipesData: [PremiumRecipe] = [
     )
 ]
 
-// MARK: - 2. MAIN RECIPES CONTAINER (РАЗДЕЛЕН НА ВКЛАДКИ)
 struct RecipesContainerView: View {
     @Binding var path: NavigationPath
     @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
-    
-    // ✅ ИСПРАВЛЕНИЕ: Теперь мы получаем его из среды, а не создаем заново!
+
     @Environment(RecipeDataLoader.self) private var dataLoader
-    
+
     @State private var selectedTab: Int = 0
     @State private var searchText = ""
     @State private var showFilters = false
-    
+
     @Namespace private var animation
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            // --- CUSTOM ANIMATED TAB BAR ---
+
             HStack {
                 TabButton(title: "Discover", tabIndex: 0, selectedTab: $selectedTab, animation: animation)
                 TabButton(title: "My Recipes", tabIndex: 1, selectedTab: $selectedTab, animation: animation)
@@ -100,8 +91,7 @@ struct RecipesContainerView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 10)
             .background(Color.themeBg)
-            
-            // --- СТРОКА ПОИСКА (ОБЩАЯ) ---
+
             HStack(spacing: 12) {
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundColor(.gray)
@@ -112,7 +102,7 @@ struct RecipesContainerView: View {
                 .background(Color.white)
                 .cornerRadius(16)
                 .shadow(color: Color.black.opacity(0.03), radius: 5, y: 2)
-                
+
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
                     showFilters = true
@@ -128,12 +118,12 @@ struct RecipesContainerView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 16)
             .background(Color.themeBg)
-            
+
             TabView(selection: $selectedTab) {
-                 // ПЕРЕДАЕМ ЗАГРУЖЕННЫЕ РЕЦЕПТЫ
+
                  DiscoverTabView(path: $path, allRecipes: dataLoader.recipes)
                      .tag(0)
-                 
+
                  MyRecipesTabView(path: $path, customRecipes: customRecipes, allRecipes: dataLoader.recipes)
                      .tag(1)
              }
@@ -145,7 +135,7 @@ struct RecipesContainerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showFilters) {
             AdvancedRecipeFilterSheet(allRecipes: dataLoader.recipes) { title, filtered in
-                // Когда фильтр закрывается, мы пушим новый экран
+
                 path.append(FoodsRoute.filteredList(title, filtered))
             }
             .presentationDragIndicator(.visible)
@@ -156,13 +146,12 @@ struct RecipesContainerView: View {
     }
 }
 
-// Анимированная кнопка таба
 struct TabButton: View {
     let title: String
     let tabIndex: Int
     @Binding var selectedTab: Int
     let animation: Namespace.ID
-    
+
     var body: some View {
         Button(action: {
             HapticManager.shared.impact(style: .light)
@@ -174,7 +163,7 @@ struct TabButton: View {
                 Text(title)
                     .font(.system(size: 16, weight: selectedTab == tabIndex ? .bold : .medium, design: .rounded))
                     .foregroundColor(selectedTab == tabIndex ? .themePink : .gray)
-                
+
                 if selectedTab == tabIndex {
                     Capsule()
                         .fill(Color.themePink)
@@ -191,46 +180,43 @@ struct TabButton: View {
     }
 }
 
-// MARK: - 3. DISCOVER TAB (КРУТЫЕ КАТЕГОРИИ И ПЛИТКИ)
 struct DiscoverTabView: View {
     @Binding var path: NavigationPath
     let allRecipes: [PremiumRecipe]
-    
+
     let calorieRanges = [
         ("Under 300", Color.green, 0, 300),
         ("300 - 450", Color.themeYellow, 300, 450),
         ("450 - 600", Color.themeOrange, 450, 600),
         ("600+ kcal", Color.themePink, 600, 5000)
     ]
-    
+
     var body: some View {
-        // 👇 УМНАЯ СОРТИРОВКА (Один рецепт = одна группа)
+
         var pool = allRecipes
-        
+
         let highProtein = pool.filter { $0.tags.contains("High Protein") }
         pool.removeAll { r in highProtein.contains(where: { $0.id == r.id }) }
-        
+
         let ketoLowCarb = pool.filter { $0.tags.contains("Low Carb") || $0.tags.contains("Ketogenic") }
         pool.removeAll { r in ketoLowCarb.contains(where: { $0.id == r.id }) }
-        
+
         let quickEasy = pool.filter { $0.tags.contains("Quickly Prepared") || $0.tags.contains("Easy") }
         pool.removeAll { r in quickEasy.contains(where: { $0.id == r.id }) }
-        
+
         let plantBased = pool.filter { $0.tags.contains("Vegan") || $0.tags.contains("Vegetarian") }
         pool.removeAll { r in plantBased.contains(where: { $0.id == r.id }) }
-        
-        // Все, что не попало в категории выше, идет в "Спецпредложения от шефа"
+
         let chefsSpecials = Array(pool.prefix(6))
-        
+
         return ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
-                
-                // --- 1. PICK YOUR MEAL (Рабочие кнопки) ---
+
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Pick Your Meal")
                         .font(.title2).bold()
                         .padding(.horizontal, 20)
-                    
+
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
                             MealTypeCard(title: "Breakfast", subtitle: "Start your day right", emoji: "🥣", color: .themeYellow) {
@@ -251,13 +237,12 @@ struct DiscoverTabView: View {
                     }
                 }
                 .padding(.top, 10)
-                
-                // --- 2. BROWSE BY CALORIES (Рабочие фильтры) ---
+
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Browse by Calories")
                         .font(.title2).bold()
                         .padding(.horizontal, 20)
-                    
+
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(calorieRanges, id: \.0) { range in
@@ -275,8 +260,7 @@ struct DiscoverTabView: View {
                         .padding(.bottom, 10)
                     }
                 }
-                
-                // --- 3. РАЗБИВКА НА ТЕМАТИЧЕСКИЕ КАТЕГОРИИ (Без дубликатов) ---
+
                 if !highProtein.isEmpty {
                     RecipeHorizontalSection(title: "High Protein Power", recipes: highProtein, path: $path)
                 }
@@ -292,12 +276,12 @@ struct DiscoverTabView: View {
                 if !chefsSpecials.isEmpty {
                     RecipeHorizontalSection(title: "Chef's Specials", recipes: chefsSpecials, path: $path)
                 }
-                
+
             }
-            .padding(.bottom, 120) // Отступ под TabBar
+            .padding(.bottom, 120)
         }
     }
-    
+
     private func openFiltered(title: String, tags: [String]) {
         HapticManager.shared.impact(style: .medium)
         let filtered = allRecipes.filter { recipe in
@@ -307,14 +291,13 @@ struct DiscoverTabView: View {
     }
 }
 
-// Карточка для Pick Your Meal
 struct MealTypeCard: View {
     let title: String
     let subtitle: String
     let emoji: String
     let color: Color
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack {
@@ -333,17 +316,16 @@ struct MealTypeCard: View {
     }
 }
 
-// Новая компактная и премиальная карточка калорий
 struct CalorieRangeCard: View {
     let title: String
     let color: Color
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "flame.fill")
                 .font(.system(size: 14))
                 .foregroundColor(color)
-            
+
             Text(title)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundColor(.primary)
@@ -365,9 +347,9 @@ struct MyRecipesTabView: View {
     let customRecipes: [CustomRecipe]
     let allRecipes: [PremiumRecipe]
     @Environment(\.modelContext) private var context
-    
+
     var favoriteRecipes: [PremiumRecipe] { allRecipes.filter { $0.isFavorite } }
-    
+
     private func deleteCustomRecipe(_ recipe: CustomRecipe) {
         HapticManager.shared.impact(style: .medium)
         withAnimation {
@@ -375,12 +357,11 @@ struct MyRecipesTabView: View {
             try? context.save()
         }
     }
-      
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
-                
-                // --- 1. КНОПКА СОЗДАНИЯ (Hero Button) ---
+
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
                     path.append(FoodsRoute.createRecipe)
@@ -392,7 +373,7 @@ struct MyRecipesTabView: View {
                                 .font(.title2.bold())
                                 .foregroundColor(.white)
                         }
-                        
+
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Create Custom Recipe")
                                 .font(.headline)
@@ -413,13 +394,12 @@ struct MyRecipesTabView: View {
                 .buttonStyle(BounceButtonStyle())
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
-                
-                // --- 2. МОИ РЕЦЕПТЫ (Вертикальный список с крутыми карточками) ---
+
                 VStack(alignment: .leading, spacing: 16) {
                     Text("My Creations")
                         .font(.title2).bold()
                         .padding(.horizontal, 20)
-                    
+
                     if customRecipes.isEmpty {
                         EmptyStateView(
                             imageName: "frying.pan",
@@ -449,13 +429,12 @@ struct MyRecipesTabView: View {
                         .padding(.horizontal, 20)
                     }
                 }
-                
-                // --- 3. ИЗБРАННОЕ ---
+
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Saved Favorites")
                         .font(.title2).bold()
                         .padding(.horizontal, 20)
-                    
+
                     if favoriteRecipes.isEmpty {
                         Text("No favorites yet. Tap the star icon on any recipe to save it here.")
                             .font(.subheadline).foregroundColor(.gray)
@@ -478,16 +457,15 @@ struct MyRecipesTabView: View {
     }
 }
 
-// MARK: - ПРЕМИУМ КАРТОЧКА КАСТОМНОГО РЕЦЕПТА (Без картинки, но красивая)
 struct CustomRecipePremiumCard: View {
     let recipe: CustomRecipe
-    
+
     var body: some View {
-        // Конвертируем в FoodItem чтобы получить общие макросы
+
         let macros = recipe.toFoodItem()
-        
+
         VStack(spacing: 0) {
-            // Верхняя часть с градиентом и названием
+
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(recipe.info.uppercased())
@@ -497,13 +475,13 @@ struct CustomRecipePremiumCard: View {
                         .padding(.vertical, 4)
                         .background(Color.themePink.opacity(0.15))
                         .clipShape(Capsule())
-                    
+
                     Text(recipe.name)
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
-                    
+
                     HStack(spacing: 12) {
                         Label("\(recipe.cookingTime) min", systemImage: "clock.fill")
                         Label("\(recipe.servings) servings", systemImage: "person.2.fill")
@@ -512,8 +490,7 @@ struct CustomRecipePremiumCard: View {
                     .foregroundColor(.gray)
                 }
                 Spacer()
-                
-                // Круг с калориями
+
                 ZStack {
                     Circle()
                         .stroke(Color.gray.opacity(0.1), lineWidth: 4)
@@ -521,7 +498,7 @@ struct CustomRecipePremiumCard: View {
                         .trim(from: 0, to: 0.8)
                         .stroke(Color.themePink, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                         .rotationEffect(.degrees(-90))
-                    
+
                     VStack(spacing: 0) {
                         Text("\(recipe.totalCalories)")
                             .font(.system(size: 16, weight: .heavy, design: .rounded))
@@ -533,10 +510,9 @@ struct CustomRecipePremiumCard: View {
                 .frame(width: 60, height: 60)
             }
             .padding(20)
-            
+
             Divider().padding(.horizontal, 20)
-            
-            // Нижняя часть с макросами
+
             HStack(spacing: 20) {
                 MacroPill(title: "Carbs", value: macros.carbs, color: .drinkWater)
                 MacroPill(title: "Fat", value: macros.fats, color: .themeYellow)
@@ -557,7 +533,7 @@ struct MacroPill: View {
     let title: String
     let value: Double
     let color: Color
-    
+
     var body: some View {
         HStack(spacing: 6) {
             Circle().fill(color).frame(width: 8, height: 8)
@@ -570,33 +546,33 @@ struct MacroPill: View {
         }
     }
 }
-// MARK: - 5. УЛЬТИМАТИВНЫЙ ФИЛЬТР (ADVANCED RECIPE FILTER SHEET)
+
 struct AdvancedRecipeFilterSheet: View {
     @Environment(\.dismiss) var dismiss
-    
+
     let allRecipes: [PremiumRecipe]
     var onApply: (String, [PremiumRecipe]) -> Void
-    
+
     @State private var selectedTags: Set<String> = []
-    
+
     let meals = [("Breakfast", "cup.and.saucer.fill"), ("Lunch", "takeoutbag.and.cup.and.straw.fill"), ("Dinner", "fork.knife"), ("Snack", "apple.logo"), ("Smoothie", "drop.fill")]
     let prep = [("Quickly Prepared", "timer"), ("On the Go", "figure.walk"), ("Few Ingredients", "cart.fill"), ("Baking", "oven.fill"), ("Easy", "hand.thumbsup.fill")]
     let diets = [("Vegetarian", "leaf.fill", Color.green), ("Vegan", "leaf.arrow.circlepath", Color.mint), ("Low Carb", "meatcases.fill", Color.orange), ("High Protein", "dumbbell.fill", Color.blue), ("Ketogenic", "flame.fill", Color.red)]
-    
+
     var filteredRecipes: [PremiumRecipe] {
           if selectedTags.isEmpty { return allRecipes }
           return allRecipes.filter { recipe in
-              // Рецепт должен содержать ВСЕ выбранные теги
+
               selectedTags.isSubset(of: Set(recipe.tags))
           }
       }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
-                // Header
+
                 HStack {
                     Button("Reset") {
                         HapticManager.shared.impact(style: .light)
@@ -610,7 +586,7 @@ struct AdvancedRecipeFilterSheet: View {
                 }
                 .padding(20)
                 .background(Color.white)
-                
+
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 32) {
                         FilterIconSection(title: "Meals", items: meals, selection: $selectedTags)
@@ -621,8 +597,7 @@ struct AdvancedRecipeFilterSheet: View {
                     .padding(.bottom, 100)
                 }
             }
-            
-            // Плавающая липкая кнопка
+
             VStack {
                 Spacer()
                 ZStack {
@@ -630,7 +605,7 @@ struct AdvancedRecipeFilterSheet: View {
                         .fill(.ultraThinMaterial)
                         .frame(height: 100)
                         .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-                    
+
                     Button(action: {
                         HapticManager.shared.impact(style: .heavy)
                         onApply("Filtered Recipes", filteredRecipes)
@@ -656,16 +631,15 @@ struct AdvancedRecipeFilterSheet: View {
     }
 }
 
-// Компонент фильтра с иконками
 struct FilterIconSection: View {
     let title: String
     let items: [(String, String)]
     @Binding var selection: Set<String>
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(title).font(.headline).foregroundColor(.primary)
-            
+
             RecipeTagLayout(spacing: 12) {
                 ForEach(items, id: \.0) { item in
                     Button(action: {
@@ -691,16 +665,15 @@ struct FilterIconSection: View {
     }
 }
 
-// Компонент фильтра с цветными иконками (для Диет)
 struct FilterColoredSection: View {
     let title: String
     let items: [(String, String, Color)]
     @Binding var selection: Set<String>
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(title).font(.headline).foregroundColor(.primary)
-            
+
             RecipeTagLayout(spacing: 12) {
                 ForEach(items, id: \.0) { item in
                     Button(action: {
@@ -727,20 +700,17 @@ struct FilterColoredSection: View {
     }
 }
 
-
-// MARK: - 6. ВЕРТИКАЛЬНАЯ СЕКЦИЯ (Для подкатегорий)
 struct RecipeHorizontalSection: View {
     let title: String
     let recipes: [PremiumRecipe]
     @Binding var path: NavigationPath
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            
-            // 👇 ИСПРАВЛЕНИЕ: Обернули заголовок в кнопку
+
             Button(action: {
                 HapticManager.shared.impact(style: .light)
-                // Открываем экран со списком всех рецептов этой категории
+
                 path.append(FoodsRoute.filteredList(title, recipes))
             }) {
                 HStack {
@@ -748,18 +718,18 @@ struct RecipeHorizontalSection: View {
                         .font(.title2)
                         .bold()
                         .foregroundColor(.primary)
-                    
+
                     Image(systemName: "chevron.right")
                         .foregroundColor(.gray.opacity(0.6))
                         .font(.system(size: 14, weight: .bold))
-                    
+
                     Spacer()
                 }
-                .contentShape(Rectangle()) // Делает кликабельной всю строку, а не только текст
+                .contentShape(Rectangle())
             }
-            .buttonStyle(PlainButtonStyle()) // Чтобы текст не стал стандартным синим цветом кнопки
+            .buttonStyle(PlainButtonStyle())
             .padding(.horizontal, 20)
-            
+
             if recipes.isEmpty {
                 Text("More recipes coming soon.")
                     .font(.subheadline).foregroundColor(.gray)
@@ -782,19 +752,17 @@ struct RecipeHorizontalSection: View {
     }
 }
 
-// MARK: - 7. ПЕРЕИСПОЛЬЗУЕМЫЕ КОМПОНЕНТЫ ИЗ ПРОШЛОГО ШАГА (Карточки, Детали, Диаграмма)
-
 struct PremiumRecipeCard: View {
     let recipe: PremiumRecipe
     var width: CGFloat? = nil
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topTrailing) {
                 AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
                     if let image = phase.image { image.resizable().aspectRatio(contentMode: .fill) } else { Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView()) }
                 }.frame(height: 160).clipped()
-                
+
                 if recipe.isFavorite {
                     Image(systemName: "star.fill").foregroundColor(.themeYellow).padding(12).background(Color.black.opacity(0.3)).clipShape(Circle()).padding(8)
                 }
@@ -810,14 +778,13 @@ struct PremiumRecipeCard: View {
     }
 }
 
-// Карточка кастомного рецепта
 struct CustomRecipeCard: View {
     let title: String
     let calories: String
     let items: String
     let cookingTime: Int?
     let difficulty: String?
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title).font(.headline).lineLimit(1)
@@ -844,21 +811,20 @@ struct PremiumRecipeDetailView: View {
     @State private var showMealSheet = false
     @Environment(RecipeDataLoader.self) private var dataLoader
     init(recipe: PremiumRecipe) { self._recipe = State(initialValue: recipe); self._servings = State(initialValue: recipe.baseServings) }
-    
+
     private var multiplier: Double { Double(servings) / Double(max(recipe.baseServings, 1)) }
     private var dynamicCalories: Int { Int(Double(recipe.caloriesPerServing * recipe.baseServings) * multiplier) }
     private var dynamicProtein: Int { Int(recipe.protein * Double(recipe.baseServings) * multiplier) }
     private var dynamicFat: Int { Int(recipe.fat * Double(recipe.baseServings) * multiplier) }
     private var dynamicCarbs: Int { Int(recipe.carbs * Double(recipe.baseServings) * multiplier) }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     ZStack(alignment: .bottomLeading) {
-                        
-                        // 👇 ИСПРАВЛЕНИЕ ЗДЕСЬ: Добавлено .frame(maxWidth: .infinity)
+
                         AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
                             if let image = phase.image {
                                 image.resizable().aspectRatio(contentMode: .fill)
@@ -866,18 +832,18 @@ struct PremiumRecipeDetailView: View {
                                 Rectangle().fill(Color.gray.opacity(0.2))
                             }
                         }
-                        .frame(maxWidth: .infinity) // <--- ВОТ ЭТА СТРОКА РЕШАЕТ ПРОБЛЕМУ С ЗУМОМ
+                        .frame(maxWidth: .infinity)
                         .frame(height: 320)
                         .clipped()
-                        
+
                         LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
-                        
+
                         VStack(alignment: .leading, spacing: 12) {
                             Text(recipe.title)
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                                 .lineLimit(3)
-                            
+
                             HStack(spacing: 16) {
                                 Label(recipe.time, systemImage: "clock")
                                 Label("\(recipe.caloriesPerServing) Cal", systemImage: "flame")
@@ -889,13 +855,13 @@ struct PremiumRecipeDetailView: View {
                     }
                     .recipeCustomCornerRadius(32, corners: [.bottomLeft, .bottomRight])
                     .ignoresSafeArea(edges: .top)
-                    
+
                     VStack(alignment: .leading, spacing: 32) {
                         VStack(alignment: .leading, spacing: 16) {
                             Text(recipe.description).font(.body).foregroundColor(.gray).lineSpacing(4)
                             RecipeTagLayout(spacing: 8) { ForEach(recipe.tags, id: \.self) { tag in Text(tag).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundColor(.gray).padding(.horizontal, 12).padding(.vertical, 8).background(Color.gray.opacity(0.15)).cornerRadius(16) } }
                         }.padding(.horizontal, 20)
-                        
+
                         VStack(alignment: .leading, spacing: 24) {
                             RecipeMacroDonutView(calories: dynamicCalories, protein: Double(dynamicProtein), fat: Double(dynamicFat), carbs: Double(dynamicCarbs))
                             VStack(alignment: .leading, spacing: 12) {
@@ -913,22 +879,22 @@ struct PremiumRecipeDetailView: View {
                                 }
                             }
                         }.padding(.horizontal, 20)
-                        
+
                         if !recipe.ingredients.isEmpty {
                                                     VStack(alignment: .leading, spacing: 16) {
-                                                        // ✅ КРАСИВЫЙ ЗАГОЛОВОК С КНОПКОЙ ДОБАВЛЕНИЯ В СПИСОК
+
                                                         HStack {
                                                             Text("Ingredients").font(.title2).bold()
                                                             Spacer()
                                                             Button(action: {
                                                                 HapticManager.shared.impact(style: .heavy)
-                                                                // Логика добавления в список
+
                                                                 for ingredient in recipe.ingredients {
                                                                     let item = ShoppingItem(name: ingredient.name, amount: ingredient.amount, addedFromRecipe: recipe.title)
                                                                     context.insert(item)
                                                                 }
                                                                 try? context.save()
-                                                                // TODO: Можно показать всплывающее уведомление (Toast)
+
                                                             }) {
                                                                 HStack(spacing: 4) {
                                                                     Image(systemName: "cart.badge.plus")
@@ -942,7 +908,7 @@ struct PremiumRecipeDetailView: View {
                                                                 .clipShape(Capsule())
                                                             }
                                                         }
-                                                        
+
                                                         VStack(spacing: 16) {
                                                             ForEach(recipe.ingredients, id: \.name) { ingredient in
                                                                 HStack(alignment: .top) {
@@ -957,8 +923,7 @@ struct PremiumRecipeDetailView: View {
                                                         }
                                                     }.padding(.horizontal, 20)
                                                 }
-                        
-                        // БЛОК ШАГОВ
+
                         if !recipe.directions.isEmpty {
                             VStack(alignment: .leading, spacing: 20) {
                                 Text("Directions").font(.title2).bold()
@@ -992,38 +957,34 @@ struct PremiumRecipeDetailView: View {
                             }
                             .padding(.horizontal, 20)
                         }
-                        
+
                         Spacer().frame(height: 120)
                     }.offset(y: -20)
                 }
             }.ignoresSafeArea(edges: .top)
-            
-            // Навигационный бар с кнопками (Назад, Поделиться, Избранное)
+
             VStack {
                 HStack {
                     Button(action: { dismiss() }) { Image(systemName: "chevron.left").font(.title3.bold()).foregroundColor(.primary).frame(width: 40, height: 40).background(.ultraThinMaterial).clipShape(Circle()) }
                     Spacer(); Text("Recipe Info").font(.headline).foregroundColor(.white).shadow(radius: 2); Spacer()
                     HStack(spacing: 12) {
-                        // Кнопка Share
-                        Button(action: { /* Share */ }) {
+
+                        Button(action: {  }) {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.title3)
                                 .foregroundColor(.white)
                                 .shadow(radius: 2)
                         }
-                        
-                        // ✅ ИСПРАВЛЕННАЯ КНОПКА ИЗБРАННОГО
+
                         Button(action: {
                             HapticManager.shared.impact(style: .medium)
-                            
-                            // 1. Локально меняем состояние для мгновенной анимации
+
                             withAnimation(.spring()) {
                                 recipe.isFavorite.toggle()
                             }
-                            
-                            // 2. Отправляем сигнал в наш глобальный загрузчик данных
+
                             dataLoader.toggleFavorite(for: recipe.id)
-                            
+
                         }) {
                             Image(systemName: recipe.isFavorite ? "star.fill" : "star")
                                 .font(.title3)
@@ -1034,8 +995,7 @@ struct PremiumRecipeDetailView: View {
                 }.padding(.horizontal, 20).padding(.top, 50)
                 Spacer()
             }
-            
-            // Нижняя кнопка Add to Meal
+
             VStack {
                 Spacer()
                 ZStack {
@@ -1055,17 +1015,16 @@ struct PremiumRecipeDetailView: View {
     }
 }
 
-// Экран для вывода отфильтрованного списка
 struct FilteredRecipesListView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     let title: String
     let recipes: [PremiumRecipe]
     @Binding var path: NavigationPath
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            // 1. Кастомный навигационный бар
+
             HStack {
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
@@ -1079,16 +1038,15 @@ struct FilteredRecipesListView: View {
                         .clipShape(Circle())
                         .shadow(color: .black.opacity(0.04), radius: 5, y: 2)
                 }
-                
+
                 Spacer()
-                
+
                 Text(title)
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
-                
+
                 Spacer()
-                
-                // Пустая вьюшка для симметрии (чтобы заголовок был ровно по центру)
+
                 Color.clear.frame(width: 44, height: 44)
             }
             .padding(.horizontal, 20)
@@ -1096,11 +1054,10 @@ struct FilteredRecipesListView: View {
             .padding(.bottom, 16)
             .background(Color.themeBg)
             .zIndex(1)
-            
-            // 2. Список рецептов
+
             ScrollView(showsIndicators: false) {
                 if recipes.isEmpty {
-                    // Красивая заглушка, если по фильтрам ничего не найдено
+
                     EmptyStateView(
                         imageName: "magnifyingglass",
                         title: "No Recipes Found",
@@ -1114,22 +1071,22 @@ struct FilteredRecipesListView: View {
                                 HapticManager.shared.impact(style: .light)
                                 path.append(FoodsRoute.premiumRecipeDetail(recipe))
                             }) {
-                                // Карточка рецепта
+
                                 PremiumRecipeCard(recipe: recipe)
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
                     }
                     .padding(20)
-                    .padding(.bottom, 120) // Отступ, чтобы карточки не прятались за нижний TabBar
+                    .padding(.bottom, 120)
                 }
             }
         }
         .background(Color.themeBg.ignoresSafeArea())
-        .navigationBarHidden(true) // Убираем стандартный бар, так как у нас свой кастомный
+        .navigationBarHidden(true)
     }
 }
-// Остальные вспомогательные структуры из прошлого шага свернуты для экономии места:
+
 struct ChooseMealSheet: View {
     @Environment(\.dismiss) var dismiss; @Environment(\.modelContext) private var context; @Query private var summaries: [DailySummary]
     let recipe: PremiumRecipe; let calories: Int; let p: Double; let f: Double; let c: Double
