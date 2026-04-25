@@ -6,6 +6,7 @@
 ![SwiftData](https://img.shields.io/badge/Database-SwiftData-blue.svg?style=for-the-badge)
 ![VertexAI](https://img.shields.io/badge/AI-Google_Vertex_AI-purple.svg?style=for-the-badge)
 ![HealthKit](https://img.shields.io/badge/Health-Apple_HealthKit-ff69b4.svg?style=for-the-badge&logo=apple)
+![AVFoundation](https://img.shields.io/badge/Camera-AVFoundation-black.svg?style=for-the-badge&logo=apple)
 
 **FoodTracker** is a premium, fully native iOS nutrition and lifestyle application. It moves beyond basic calorie counting by leveraging **Multi-modal Generative AI (Gemini 2.5 Flash)**, **Computer Vision**, and **Biometric Data** to serve as your ultimate digital nutritionist.
 
@@ -22,9 +23,9 @@
     <td align="center"><b>Macro Adjustments & Portions</b></td>
   </tr>
   <tr>
-    <td><img src="Screenshots/1_home.png" width="250"></td>
-    <td><img src="Screenshots/2_search.png" width="250"></td>
-    <td><img src="Screenshots/3_food_detail.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/1_home.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/2_search.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/3_food_detail.png" width="250"></td>
   </tr>
   <tr>
     <td align="center"><b>Diet Architect</b></td>
@@ -32,9 +33,9 @@
     <td align="center"><b>Burned vs. Eaten Analytics</b></td>
   </tr>
   <tr>
-    <td><img src="Screenshots/4_diet_plan.png" width="250"></td>
-    <td><img src="Screenshots/5_fasting.png" width="250"></td>
-    <td><img src="Screenshots/6_burned_stats.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/4_diet_plan.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/5_fasting.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/6_burned_stats.png" width="250"></td>
   </tr>
   <tr>
     <td align="center"><b>Advanced Nutrition Radar</b></td>
@@ -42,9 +43,9 @@
     <td align="center"><b>Premium Recipes Hub</b></td>
   </tr>
   <tr>
-    <td><img src="Screenshots/7_daily_macros.png" width="250"></td>
-    <td><img src="Screenshots/8_explore.png" width="250"></td>
-    <td><img src="Screenshots/9_recipes.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/7_daily_macros.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/8_explore.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/9_recipes.png" width="250"></td>
   </tr>
   <tr>
     <td align="center"><b>Proactive AI Coach</b></td>
@@ -52,9 +53,9 @@
     <td align="center"><b>Gamification & Profile</b></td>
   </tr>
   <tr>
-    <td><img src="Screenshots/10_ai_coach.png" width="250"></td>
-    <td><img src="Screenshots/11_settings.png" width="250"></td>
-    <td><img src="Screenshots/12_achievements.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/10_ai_coach.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/11_settings.png" width="250"></td>
+    <td><img src="FoodTracker/Screenshots/12_achievements.png" width="250"></td>
   </tr>
 </table>
 
@@ -64,7 +65,7 @@
 
 ### 👁️ Multi-Modal AI Vision (Meal & Menu Hacker)
 
-- **AI Meal Scanner:** Point your custom AVFoundation camera at any plate. The Vertex AI model instantly identifies the dish, estimates its weight in grams, and reverse-engineers the exact Calories, Protein, Fats, and Carbs.
+- **AI Meal Scanner:** Point your custom `AVFoundation` camera at any plate. The Vertex AI model instantly identifies the dish, estimates its weight in grams, and reverse-engineers the exact Calories, Protein, Fats, and Carbs.
 - **Restaurant Menu Hacker:** Unsure what to order? Snap a photo of a restaurant menu. The AI cross-references the menu with your _remaining daily macros_ and suggests 3 options: an **Ideal** match, a **Caution** dish, and an absolute **Avoid**.
 - **Live Barcode Scanning:** Ultra-fast scanning using Apple's native `DataScannerViewController` (VisionKit), querying the global OpenFoodFacts and FatSecret databases.
 
@@ -80,10 +81,17 @@
 - **HealthKit Two-Way Sync:** Automatically pulls Steps, Resting Energy, and Active Energy from Apple Watch. Concurrently writes your logged water intake and consumed dietary energy back to Apple Health.
 - **Dynamic Energy Equation:** The dashboard calculates your true "Net Calories" (Eaten – Burned) and projects real-time weight loss/gain forecasts based on your 7-day trend.
 
-### 🧬 Advanced Diets & Intermittent Fasting
+### 🧬 Advanced Diets, Fasting & Deep Nutrition
 
-- **Physiological Fasting Tracker:** Tracks your fasts (16:8, OMAD, Alternate Day) and visually displays your current physiological state (Blood Sugar Normalization, Fat Burning, Ketosis, Deep Autophagy). Includes push notifications for each stage.
+- **Physiological Fasting Tracker:** Tracks your fasts (16:8, OMAD, Alternate Day) and visually displays your current physiological state (Blood Sugar Normalization, Fat Burning, Ketosis, Deep Autophagy). Uses offline `UserNotifications` to alert you when entering a new metabolic phase.
+- **Deep Micronutrient Tracking:** Goes beyond simple Macros (Protein/Fat/Carbs) by dynamically calculating Omega-3, Potassium, Magnesium, Iron, Calcium, and Vitamins C & D for every meal.
 - **Smart Diet Plans:** Choose plans like High Protein, Mediterranean, or Keto. The app recalculates your macro pie charts instantly and color-codes food searches (Perfect Match ✅ vs. Avoid ❌) based on your active diet rules.
+
+### 📚 Education, Planning & Mindfulness
+
+- **Nutrition Academy:** A built-in educational hub rendering rich Markdown (`AttributedString(markdown:)`) articles to build healthy habits, complete with read-progress tracking.
+- **Mindful Eating Journal:** Track your daily emotional relationship with food using the Emoji-based Mood Journal and daily notes.
+- **Smart Shopping List:** Seamlessly export missing ingredients from any premium or custom recipe directly into a SwiftData-backed digital grocery list.
 
 ### 📊 Deep Analytics & UI/UX Magic
 
@@ -101,6 +109,7 @@ This project is built for scale, speed, and safety, utilizing the absolute lates
 - **UI/UX Framework:** 100% `SwiftUI`. Advanced use of `Layout` protocols, `matchedGeometryEffect`, and native `Swift Charts` for data visualization.
 - **Data Persistence:** Powered by Apple's modern `SwiftData` framework. Models are strongly typed, relationships are cascaded, and background thread handling prevents UI stuttering.
 - **AI Backend:** Custom implementation of Google Cloud's `Vertex AI`. Features a standalone JWT Token Signer (`JWTSigner`) built from scratch in Swift to generate secure Access Tokens without relying on heavy third-party Firebase SDKs.
+- **Hardware Integration:** Custom camera pipelines using `AVFoundation` (`AVCaptureSession`) for snapping menu/meal photos optimized for AI processing.
 - **State Management:** Fully migrated to Apple's `@Observable` macro architecture, replacing legacy `Combine` and `@StateObject` patterns for minimal memory footprint.
 - **Smart Dual-API Fallback:** Network manager intelligently cascades database searches: it first hits the open-source `OpenFoodFacts` API, and if results are scarce, seamlessly falls back to OAuth 2.0 authorized `FatSecret` REST API.
 
@@ -138,7 +147,7 @@ To compile and run this project, you will need **macOS Sonoma/Sequoia** and **Xc
 FoodTracker operates on a privacy-first model:
 
 - **No Cloud Storage for Health Data:** All biometric data, food logs, and custom recipes are stored locally via SwiftData and Apple Health.
-- **Secure Processing:** Image buffers sent to Vertex AI for the _Meal Scanner_ and _Menu Hacker_ are compressed and transient. They are not saved to the camera roll unless explicitly exported by the user.
+- **Secure Processing:** Image buffers sent to Vertex AI for the _Meal Scanner_ are compressed and transient. They are not saved to the camera roll unless explicitly exported by the user.
 
 ---
 
