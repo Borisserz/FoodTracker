@@ -1,4 +1,4 @@
-# FoodTracker: AI-Powered Nutrition & Health Ecosystem 🥗🧠
+# FoodTracker: AI-Powered Nutrition & Health Ecosystem
 
 ![iOS](https://img.shields.io/badge/iOS-17.0+-blue.svg?style=for-the-badge&logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-5.10%20%7C%206.0-orange.svg?style=for-the-badge&logo=swift)
