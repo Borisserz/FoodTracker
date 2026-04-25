@@ -22,9 +22,9 @@
     <td align="center"><b>Macro Adjustments & Portions</b></td>
   </tr>
   <tr>
-    <td><img src="Screenshots/1_home.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
-    <td><img src="Screenshots/2_search.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
-    <td><img src="Screenshots/3_food_detail.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
+    <td><img src="Screenshots/1_home.png" width="250"></td>
+    <td><img src="Screenshots/2_search.png" width="250"></td>
+    <td><img src="Screenshots/3_food_detail.png" width="250"></td>
   </tr>
   <tr>
     <td align="center"><b>Diet Architect</b></td>
@@ -32,9 +32,9 @@
     <td align="center"><b>Burned vs. Eaten Analytics</b></td>
   </tr>
   <tr>
-    <td><img src="Screenshots/4_diet_plan.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
-    <td><img src="Screenshots/5_fasting.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
-    <td><img src="Screenshots/6_burned_stats.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
+    <td><img src="Screenshots/4_diet_plan.png" width="250"></td>
+    <td><img src="Screenshots/5_fasting.png" width="250"></td>
+    <td><img src="Screenshots/6_burned_stats.png" width="250"></td>
   </tr>
   <tr>
     <td align="center"><b>Advanced Nutrition Radar</b></td>
@@ -42,19 +42,19 @@
     <td align="center"><b>Premium Recipes Hub</b></td>
   </tr>
   <tr>
-    <td><img src="Screenshots/7_daily_macros.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
-    <td><img src="Screenshots/8_explore.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
-    <td><img src="Screenshots/9_recipes.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
+    <td><img src="Screenshots/7_daily_macros.png" width="250"></td>
+    <td><img src="Screenshots/8_explore.png" width="250"></td>
+    <td><img src="Screenshots/9_recipes.png" width="250"></td>
   </tr>
   <tr>
     <td align="center"><b>Proactive AI Coach</b></td>
     <td align="center"><b>Dynamic Macro Setup</b></td>
-    <td align="center"><b>Holographic Gamification</b></td>
+    <td align="center"><b>Gamification & Profile</b></td>
   </tr>
   <tr>
-    <td><img src="Screenshots/10_ai_coach.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
-    <td><img src="Screenshots/11_settings.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
-    <td><img src="Screenshots/12_achievements.png" width="250" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></td>
+    <td><img src="Screenshots/10_ai_coach.png" width="250"></td>
+    <td><img src="Screenshots/11_settings.png" width="250"></td>
+    <td><img src="Screenshots/12_achievements.png" width="250"></td>
   </tr>
 </table>
 
