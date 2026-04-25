@@ -1,7 +1,12 @@
--e 
+
+============================================================
+FILE: FoodTracker/README.md
+============================================================
+
+
 ============================================================
 FILE: FoodTracker/Info.plist
--e ============================================================
+============================================================
 
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -15,10 +20,10 @@ FILE: FoodTracker/Info.plist
 	<string>FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized</string>
 </dict>
 </plist>
--e 
+
 ============================================================
 FILE: FoodTracker/FoodTracker.entitlements
--e ============================================================
+============================================================
 
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -32,10 +37,10 @@ FILE: FoodTracker/FoodTracker.entitlements
 	</array>
 </dict>
 </plist>
--e 
+
 ============================================================
 FILE: FoodTracker/App/FoodTrackerApp.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -207,10 +212,10 @@ struct ContentView: View {
             try? context.save()
         }
     }
--e 
+
 ============================================================
 FILE: FoodTracker/Managers/AcademyDataLoader.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import Observation
@@ -292,10 +297,10 @@ class AcademyDataLoader {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Managers/FastingManager.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import Observation
@@ -475,10 +480,10 @@ final class FastingManager {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Managers/NetworkManager.swift
--e ============================================================
+============================================================
 
 import Foundation
 
@@ -715,10 +720,10 @@ class NetworkManager {
         } catch { return nil }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Managers/RecipeDataLoader.swift
--e ============================================================
+============================================================
 
 import Foundation
 import SwiftUI
@@ -758,10 +763,10 @@ class RecipeDataLoader {
            }
        }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Managers/WorkoutSyncManager.swift
--e ============================================================
+============================================================
 
 import Foundation
 import Observation
@@ -782,10 +787,10 @@ import Observation
         return sharedDefaults?.integer(forKey: dateKey) ?? 0
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Managers/VertexAIManager.swift
--e ============================================================
+============================================================
 
 import Foundation
 import UIKit
@@ -965,10 +970,10 @@ class VertexAIManager {
         return nil
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Managers/HealthKitManager.swift
--e ============================================================
+============================================================
 
 import Foundation
 import HealthKit
@@ -1063,10 +1068,10 @@ import Observation
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Managers/VertexAuthenticator.swift
--e ============================================================
+============================================================
 
 import Foundation
 import SwiftJWT
@@ -1158,10 +1163,10 @@ actor VertexAuthenticator {
         return tokenResponse.access_token
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Utils/SampleData.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -1250,10 +1255,10 @@ class SampleDataGenerator {
         ]
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Utils/ThemeUtils.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import Foundation
@@ -1312,10 +1317,10 @@ extension View {
         self.modifier(PremiumCardModifier())
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Models/DataModels.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -1629,10 +1634,10 @@ extension FoodItem {
         self.dateAdded = Date()
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Models/UserModel.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -1647,10 +1652,10 @@ import Observation
 
     init() {}
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Models/DietModel.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 
@@ -1854,10 +1859,10 @@ extension FoodItem {
         return .neutral
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Scan/BarcodeScannerController.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import VisionKit
@@ -1911,10 +1916,10 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Scan/SmartScannerView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import AVFoundation
@@ -2493,10 +2498,10 @@ struct MenuRecCard: View {
         )
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/AI/AINutritionService.swift
--e ============================================================
+============================================================
 
 import Foundation
 
@@ -2720,10 +2725,10 @@ class AINutritionService {
         return nil
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/AI/AICoachChatView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -3024,10 +3029,10 @@ struct FoodChatHistorySheet: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/AI/AICoachDashboardView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -3586,10 +3591,10 @@ struct HydrationFixResultSheet: View {
         .background(Color.white)
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/ShoppingListView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -3823,10 +3828,10 @@ struct ShoppingRowView: View {
         Divider().padding(.leading, 56)
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Home/AdvancedBeverageTrackerView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -4120,10 +4125,10 @@ struct WaterGlassButtonStyle: ButtonStyle {
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Home/HomeDashboardView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -5676,10 +5681,10 @@ struct SmartAddFoodView: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Home/CalendarView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 
@@ -5884,10 +5889,10 @@ struct FullCalendarSheet: View {
         .background(Color.themeBg.ignoresSafeArea())
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/CreateRecipeView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -6831,10 +6836,10 @@ struct RecipeDetailView: View {
         }
     }
 
--e 
+
 ============================================================
 FILE: FoodTracker/Views/AddMealView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -6939,10 +6944,10 @@ struct AddMealView: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Components/MorphingQuickAddView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 
@@ -7066,10 +7071,10 @@ struct MorphingQuickAddView: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Components/BreathingCaloriesDashboard.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 struct EatenCaloriesRing: View {
@@ -7228,10 +7233,10 @@ struct NetCaloriesRing: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Components/ReusableComponents.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import UIKit
@@ -8449,10 +8454,10 @@ struct IntensityBar: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Components/PremiumQuickAddSheet.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -8646,10 +8651,10 @@ struct QuickPresetButton: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Components/HoloAchievementCard.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 
@@ -8783,10 +8788,10 @@ struct HoloAchievementCard: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Components/WeightTrackerCardView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -9017,10 +9022,10 @@ private struct WeightStepperButton: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Profile/ProfileView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -9841,10 +9846,10 @@ struct StreakCardView: View {
         .premiumCardStyle()
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Profile/AnalyticsDashboardView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -10652,10 +10657,10 @@ struct ChartLegendItem: View {
         }
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/History/HistoryView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -11211,10 +11216,10 @@ struct ArticleDetailView: View {
         .navigationBarHidden(true)
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Foods/FoodDetailNutritionView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 
@@ -11645,10 +11650,10 @@ struct RoundedCorner: Shape {
         return Path(path.cgPath)
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Foods/SuperFoodsView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -12058,10 +12063,10 @@ struct PremiumFoodCategorySection: View {
         .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
     }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/MicronutrientsView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 
@@ -12156,10 +12161,10 @@ private struct RingLegend: View {
     }
 }
 
--e 
+
 ============================================================
 FILE: FoodTracker/Views/Chefs/ChefRecipesView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 import SwiftData
@@ -13282,10 +13287,10 @@ struct RecipeTagLayout: Layout {
     private struct Row { var elements: [Element] = []; var maxHeight: CGFloat = 0 }
     private struct Element { let view: LayoutSubview; let size: CGSize }
 }
--e 
+
 ============================================================
 FILE: FoodTracker/Views/FastingDashboardView.swift
--e ============================================================
+============================================================
 
 import SwiftUI
 enum FastingCategory: String, CaseIterable {

@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # Название временного файла
 TEMP_FILE="foodtracker_code.tmp"
@@ -6,9 +7,9 @@ TEMP_FILE="foodtracker_code.tmp"
 echo "🔍 Сбор кода FoodTracker (Swift + Конфиги)..."
 
 # 1. Конфигурационные файлы
-# Мы ищем их в корне и в основной папке проекта
+# ИСПРАВЛЕНО: README.md находится внутри папки FoodTracker (судя по вашему скриншоту)
 CONFIG_FILES=(
-    "README.md"
+    "FoodTracker/README.md"
     "FoodTracker/Info.plist"
     "FoodTracker/FoodTracker.entitlements"
 )
@@ -18,6 +19,8 @@ files_to_read=""
 for file in "${CONFIG_FILES[@]}"; do
     if [ -f "$file" ]; then
         files_to_read="$files_to_read$file"$'\n'
+    else
+        echo "⚠️ Файл не найден: $file"
     fi
 done
 
@@ -43,3 +46,10 @@ echo "$files_to_read" | sed '/^\s*$/d' | while IFS= read -r file; do
         cat "$file" >> "$TEMP_FILE"
     fi
 done
+
+# =====================================================================
+# 4. ДОБАВЛЕНО: Копирование содержимого временного файла в буфер обмена
+# =====================================================================
+cat "$TEMP_FILE" | pbcopy
+
+echo "✅ Готово! Текст успешно скопирован в буфер обмена."
