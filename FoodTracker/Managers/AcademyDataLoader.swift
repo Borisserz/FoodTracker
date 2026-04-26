@@ -1,15 +1,16 @@
+import Foundation
 import SwiftUI
 import Observation
+import FirebaseFirestore
 
 struct ArticleCategory: Identifiable, Codable, Hashable {
-    let id: String
+    @DocumentID var id: String?
     let title: String
-    var completedCount: Int
+    var completedCount: Int = 0
     let articles: [Article]
 
     var totalCount: Int { articles.count }
 }
-
 struct Article: Identifiable, Codable, Hashable {
     let id: String
     let title: String
@@ -28,12 +29,13 @@ struct Article: Identifiable, Codable, Hashable {
 @Observable
 class AcademyDataLoader {
     var categories: [ArticleCategory] = []
-
     var completedArticleIDs: Set<String> = []
+    
+    private let db = Firestore.firestore()
 
     init() {
         loadCompletedArticles()
-        loadData()
+        fetchCategoriesFromFirestore()
     }
 
     private func loadCompletedArticles() {
@@ -42,13 +44,9 @@ class AcademyDataLoader {
         }
     }
 
-    private func saveCompletedArticles() {
-        UserDefaults.standard.set(Array(completedArticleIDs), forKey: "CompletedAcademyArticles")
-    }
-
     func markAsCompleted(articleID: String) {
         completedArticleIDs.insert(articleID)
-        saveCompletedArticles()
+        UserDefaults.standard.set(Array(completedArticleIDs), forKey: "CompletedAcademyArticles")
         recalculateProgress()
     }
 
@@ -59,22 +57,112 @@ class AcademyDataLoader {
         }
     }
 
-    func loadData() {
-        guard let url = Bundle.main.url(forResource: "academy", withExtension: "json") else {
-            print("❌ academy.json не найден. Загрузите JSON файл в проект.")
-            return
-        }
-
-        do {
-            let data = try Data(contentsOf: url)
-            let decoded = try JSONDecoder().decode([ArticleCategory].self, from: data)
-
-            DispatchQueue.main.async {
-                self.categories = decoded
-                self.recalculateProgress()
+    func fetchCategoriesFromFirestore() {
+        db.collection("academy_categories").getDocuments { [weak self] snapshot, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("❌ Ошибка загрузки Академии: \(error.localizedDescription)")
+                return
             }
-        } catch {
-            print("❌ Ошибка парсинга academy.json: \(error)")
+            
+            guard let documents = snapshot?.documents else { return }
+            
+            do {
+                let fetchedCategories = try documents.compactMap { try $0.data(as: ArticleCategory.self) }
+                
+                DispatchQueue.main.async {
+                    self.categories = fetchedCategories.sorted { $0.title < $1.title } // Или добавь поле order для сортировки
+                    self.recalculateProgress()
+                    print("✅ Академия загружена: \(self.categories.count) категорий.")
+                }
+            } catch {
+                print("❌ Ошибка парсинга Академии: \(error)")
+            }
         }
     }
+}
+import FirebaseFirestore
+import Foundation
+
+class FirebaseUploader {
+    static let shared = FirebaseUploader()
+    private let db = Firestore.firestore()
+    
+    // 1. Выгрузка рецептов
+    func uploadRecipesFromJSON() {
+        guard let url = Bundle.main.url(forResource: "recipes", withExtension: "json") else { return }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            // Парсим твою старую модель (где ID был UUID)
+            let recipes = try JSONDecoder().decode([PremiumRecipe].self, from: data)
+            
+            for recipe in recipes {
+                do {
+                    // Создаем новый документ в коллекции
+                    let docRef = db.collection("premium_recipes").document()
+                    try docRef.setData(from: recipe)
+                    print("⬆️ Загружен рецепт: \(recipe.title)")
+                } catch {
+                    print("Ошибка при загрузке рецепта: \(error)")
+                }
+            }
+            print("✅ Все рецепты успешно загружены в Firestore!")
+        } catch {
+            print("Ошибка чтения recipes.json: \(error)")
+        }
+    }
+    // Выгрузка диет
+        func uploadDiets() {
+            for diet in DietPlan.defaultDiets { // defaultDiets - тот самый массив, который мы переименовали
+                do {
+                    try db.collection("diets").document(diet.key).setData(from: diet)
+                    print("⬆️ Загружена диета: \(diet.name)")
+                } catch {
+                    print("❌ Ошибка диеты: \(error)")
+                }
+            }
+        }
+        
+        // Выгрузка планов голодания
+        func uploadFastingPlans() {
+            for plan in FastingPlan.defaultPlans { // defaultPlans - массив планов
+                do {
+                    try db.collection("fasting_plans").document().setData(from: plan)
+                    print("⬆️ Загружен план: \(plan.title)")
+                } catch {
+                    print("❌ Ошибка плана: \(error)")
+                }
+            }
+        }
+    // 2. Выгрузка Академии
+    func uploadAcademyFromJSON() {
+           guard let url = Bundle.main.url(forResource: "academy", withExtension: "json") else { return }
+           
+           do {
+               let data = try Data(contentsOf: url)
+               
+               // Читаем как сырой массив словарей (чтобы обойти конфликт Codable и @DocumentID)
+               guard let categoriesArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+                   print("❌ Не удалось распарсить academy.json как массив словарей")
+                   return
+               }
+               
+               for categoryDict in categoriesArray {
+                   let docRef = db.collection("academy_categories").document()
+                   // Заливаем данные напрямую
+                   docRef.setData(categoryDict) { error in
+                       if let error = error {
+                           print("❌ Ошибка при загрузке категории: \(error)")
+                       } else {
+                           print("⬆️ Загружена категория из Академии")
+                       }
+                   }
+               }
+               print("✅ Скрипт загрузки Академии завершен!")
+           } catch {
+               print("❌ Ошибка чтения academy.json: \(error)")
+           }
+       }
 }

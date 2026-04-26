@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-
 struct DietsListView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
@@ -10,48 +9,56 @@ struct DietsListView: View {
 
     var body: some View {
         ZStack {
-
-            let currentDietColor = DietPlan.allDiets[selectedIndex].color
-            currentDietColor.opacity(0.15)
-                .ignoresSafeArea()
-                .animation(.easeInOut(duration: 0.8), value: selectedIndex)
-
-            VStack(spacing: 0) {
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Diet Plans")
-                        .font(.system(size: 34, weight: .heavy, design: .rounded))
-                    Text("Choose your path to success")
-                        .foregroundColor(.gray)
+            // Защита: если диеты еще не загрузились с сервера
+            if DietDataLoader.shared.diets.isEmpty {
+                VStack {
+                    ProgressView()
+                    Text("Loading Diet Plans...").foregroundColor(.gray).padding(.top)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.top, 20)
+            } else {
+                // Данные загружены, отображаем интерфейс
+                let currentDietColor = DietDataLoader.shared.diets[selectedIndex].color
+                currentDietColor.opacity(0.15)
+                    .ignoresSafeArea()
+                    .animation(.easeInOut(duration: 0.8), value: selectedIndex)
 
-                TabView(selection: $selectedIndex) {
-                    ForEach(DietPlan.allDiets.indices, id: \.self) { index in
-                        let diet = DietPlan.allDiets[index]
-                        let isUserActiveDiet = users.first?.activeDietPlan?.key == diet.key
+                VStack(spacing: 0) {
 
-                        NavigationLink(destination: PremiumDietDetailView(diet: diet)) {
-                            DietHeroCard(diet: diet, isActive: isUserActiveDiet)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Diet Plans")
+                            .font(.system(size: 34, weight: .heavy, design: .rounded))
+                        Text("Choose your path to success")
+                            .foregroundColor(.gray)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 20)
+
+                    TabView(selection: $selectedIndex) {
+                        ForEach(DietDataLoader.shared.diets.indices, id: \.self) { index in
+                            let diet = DietDataLoader.shared.diets[index]
+                            let isUserActiveDiet = users.first?.activeDietPlan?.key == diet.key
+
+                            NavigationLink(destination: PremiumDietDetailView(diet: diet)) {
+                                DietHeroCard(diet: diet, isActive: isUserActiveDiet)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .tag(index)
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .tag(index)
                     }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .padding(.vertical, 20)
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .padding(.vertical, 20)
 
-                HStack(spacing: 8) {
-                    ForEach(DietPlan.allDiets.indices, id: \.self) { index in
-                        Circle()
-                            .fill(selectedIndex == index ? DietPlan.allDiets[index].color : Color.gray.opacity(0.3))
-                            .frame(width: selectedIndex == index ? 24 : 8, height: 8)
-                            .animation(.spring(response: 0.3), value: selectedIndex)
+                    HStack(spacing: 8) {
+                        ForEach(DietDataLoader.shared.diets.indices, id: \.self) { index in
+                            Circle()
+                                .fill(selectedIndex == index ? DietDataLoader.shared.diets[index].color : Color.gray.opacity(0.3))
+                                .frame(width: selectedIndex == index ? 24 : 8, height: 8)
+                                .animation(.spring(response: 0.3), value: selectedIndex)
+                        }
                     }
+                    .padding(.bottom, 40)
                 }
-                .padding(.bottom, 40)
             }
         }
     }

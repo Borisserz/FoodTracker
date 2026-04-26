@@ -1,5 +1,15 @@
 import SwiftUI
 import SwiftData
+import FirebaseCore
+
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        FirebaseApp.configure()
+        return true
+    }
+}
 
 @Model final class AIChatSession {
     var id: UUID = UUID()
@@ -27,16 +37,19 @@ struct AIChatMessage: Identifiable, Codable, Equatable {
 
 @main
 struct FoodTrackerApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     let modelContainer: ModelContainer
 
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .modelContainer(modelContainer)
-                .preferredColorScheme(.light)
-        }
-    }
-
+          WindowGroup {
+              ContentView()
+                  .modelContainer(modelContainer)
+                  .preferredColorScheme(.light)
+                  .task {
+                      await RemoteConfigManager.shared.fetchCloudValues()
+                  }
+          }
+      }
     init() {
         do {
 

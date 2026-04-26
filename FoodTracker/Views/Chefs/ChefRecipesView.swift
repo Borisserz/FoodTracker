@@ -1,8 +1,8 @@
 import SwiftUI
 import SwiftData
-
+import FirebaseFirestore
 struct PremiumRecipe: Identifiable, Hashable, Codable {
-    var id: UUID = UUID()
+    @DocumentID var id: String? // Оставляем так
     let title: String
     let description: String
     let time: String
@@ -20,11 +20,8 @@ struct PremiumRecipe: Identifiable, Hashable, Codable {
     let ingredients: [RecipeIngredient]
     let directions: [String]
 
-    enum CodingKeys: String, CodingKey {
-        case title, description, time, caloriesPerServing, imageUrl, isFavorite, tags, baseServings, protein, fat, carbs, ingredients, directions
-    }
+    
 }
-
 struct RecipeIngredient: Hashable, Codable {
     let name: String
     let amount: String
@@ -704,7 +701,7 @@ struct RecipeHorizontalSection: View {
     let title: String
     let recipes: [PremiumRecipe]
     @Binding var path: NavigationPath
-
+    @Environment(RecipeDataLoader.self) private var dataLoader
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
 
@@ -739,9 +736,9 @@ struct RecipeHorizontalSection: View {
                     HStack(spacing: 16) {
                         ForEach(recipes) { recipe in
                             Button(action: { path.append(FoodsRoute.premiumRecipeDetail(recipe)) }) {
-                                PremiumRecipeCard(recipe: recipe, width: 280)
+                                PremiumRecipeCard(recipe: recipe)
+                              
                             }
-                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                     .padding(.horizontal, 20)

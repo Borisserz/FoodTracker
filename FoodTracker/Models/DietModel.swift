@@ -1,20 +1,20 @@
 import SwiftUI
-
-struct FoodItemDetail: Identifiable, Hashable {
-    let id = UUID()
+import FirebaseFirestore
+struct FoodItemDetail: Identifiable, Hashable, Codable {
+    var id: String = UUID().uuidString
     let name: String
     let calories: Int
     let icon: String
 }
 
-struct FoodCategory: Identifiable, Hashable {
-    let id = UUID()
+struct FoodCategory: Identifiable, Hashable, Codable {
+    var id: String = UUID().uuidString
     let title: String
     let items: [FoodItemDetail]
 }
 
-struct DietPlan: Identifiable, Hashable {
-    let id: UUID = UUID()
+struct DietPlan: Identifiable, Hashable, Codable {
+    @DocumentID var id: String?
     let key: String
     let name: String
     let tagline: String
@@ -25,17 +25,15 @@ struct DietPlan: Identifiable, Hashable {
     let colorHex: UInt
     let categories: [FoodCategory]
 
-    var color: Color {
-        Color(hex: colorHex)
-    }
+    var color: Color { Color(hex: colorHex) }
 
-    struct MacroBreakdown: Hashable {
+    struct MacroBreakdown: Hashable, Codable {
         let fat: Int
         let protein: Int
         let carbs: Int
     }
-
-    static let allDiets: [DietPlan] = [
+    
+    static let defaultDiets: [DietPlan] = [
         DietPlan(
             key: "keto",
             name: String(localized: "Keto"),
@@ -149,10 +147,9 @@ struct DietPlan: Identifiable, Hashable {
 
 extension User {
     var activeDietPlan: DietPlan? {
-        DietPlan.allDiets.first(where: { $0.key == self.activeDietKey })
+        DietDataLoader.shared.diets.first(where: { $0.key == self.activeDietKey })
     }
 }
-
 extension FoodItem {
     enum DietCompatibility {
         case perfect, neutral, avoid

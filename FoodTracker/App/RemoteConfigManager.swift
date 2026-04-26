@@ -1,0 +1,41 @@
+//
+//  RemoteConfigManager.swift
+//  FoodTracker
+//
+//  Created by Boris Serzhanovich on 26.04.26.
+//
+
+import Foundation
+import FirebaseRemoteConfig
+
+actor RemoteConfigManager: Sendable {
+    static let shared = RemoteConfigManager()
+    private let remoteConfig = RemoteConfig.remoteConfig()
+
+    private init() {
+        let settings = RemoteConfigSettings()
+        #if DEBUG
+        settings.minimumFetchInterval = 0
+        #else
+        settings.minimumFetchInterval = 3600
+        #endif
+        remoteConfig.configSettings = settings
+    }
+
+    func fetchCloudValues() async {
+        do {
+            let status = try await remoteConfig.fetchAndActivate()
+            if status == .successFetchedFromRemote {
+                print("☁️✅ FoodTracker: Свежие ключи загружены из облака!")
+            } else {
+                print("☁️⚡️ FoodTracker: Используем кэш конфига.")
+            }
+        } catch {
+            print("☁️❌ Ошибка Remote Config: \(error.localizedDescription)")
+        }
+    }
+
+    func getString(forKey key: String) -> String {
+        return remoteConfig.configValue(forKey: key).stringValue ?? ""
+    }
+}

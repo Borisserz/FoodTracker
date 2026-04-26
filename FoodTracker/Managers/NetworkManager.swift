@@ -4,9 +4,6 @@ class NetworkManager {
     static let shared = NetworkManager()
     private init() {}
 
-    private let fatSecretClientId = "b6be4805aa7e4b95bed4354d677d0b89"
-    private let fatSecretClientSecret = "fa2b8559e5764541bde8594140ca29db"
-
     private var fatSecretAccessToken: String?
 
     private var currentLanguage: String {
@@ -126,14 +123,22 @@ class NetworkManager {
     }
 
     private func ensureToken() async -> String? {
-        if let token = fatSecretAccessToken { return token }
+            if let token = fatSecretAccessToken { return token }
 
-        let urlString = "https://oauth.fatsecret.com/connect/token"
-        guard let url = URL(string: urlString) else { return nil }
+            // 1. Берем ключи из Firebase
+            let clientId = await RemoteConfigManager.shared.getString(forKey: "fatsecret_client_id")
+            let clientSecret = await RemoteConfigManager.shared.getString(forKey: "fatsecret_secret")
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        let auth = "\(fatSecretClientId):\(fatSecretClientSecret)".data(using: .utf8)!.base64EncodedString()
+            let urlString = "https://oauth.fatsecret.com/connect/token"
+            guard let url = URL(string: urlString) else { return nil }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            
+            // 2. Используем скачанные ключи
+            let auth = "\(clientId):\(clientSecret)".data(using: .utf8)!.base64EncodedString()
+            request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
+            
         request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.httpBody = "grant_type=client_credentials&scope=basic".data(using: .utf8)
