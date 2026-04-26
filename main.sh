@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Название временного файла
+TEMP_FILE="foodtracker_code.tmp"
+> "$TEMP_FILE"
+
+echo "🔍 Сбор кода FoodTracker (Swift + Конфиги)..."
+
+# 1. Конфигурационные файлы
+# ИСПРАВЛЕНО: README.md находится внутри папки FoodTracker (судя по вашему скриншоту)
+CONFIG_FILES=(
+    "FoodTracker/README.md"
+    "FoodTracker/Info.plist"
+    "FoodTracker/FoodTracker.entitlements"
+)
+
+files_to_read=""
+
+for file in "${CONFIG_FILES[@]}"; do
+    if [ -f "$file" ]; then
+        files_to_read="$files_to_read$file"$'\n'
+    else
+        echo "⚠️ Файл не найден: $file"
+    fi
+done
+
+# 2. Поиск всех .swift файлов внутри папки FoodTracker
+if [ -d "FoodTracker" ]; then
+    # Ищем файлы, исключая скрытые папки (типа .git)
+    src_code=$(find FoodTracker -type f -name '*.swift' -not -path "*/.*" 2>/dev/null)
+    if [ -n "$src_code" ]; then
+        files_to_read="$files_to_read$src_code"$'\n'
+    fi
+else
+    echo "❌ Ошибка: Папка 'FoodTracker' не найдена в текущей директории."
+    exit 1
+fi
+
+# 3. Чтение файлов и запись в общий файл
+echo "$files_to_read" | sed '/^\s*$/d' | while IFS= read -r file; do
+    if [ -f "$file" ]; then
+        echo "📄 Добавляю: $file"
+        echo -e "\n============================================================" >> "$TEMP_FILE"
+        echo "FILE: $file" >> "$TEMP_FILE"
+        echo -e "============================================================\n" >> "$TEMP_FILE"
+        cat "$file" >> "$TEMP_FILE"
+    fi
+done
+
+# =====================================================================
+# 4. ДОБАВЛЕНО: Копирование содержимого временного файла в буфер обмена
+# =====================================================================
+cat "$TEMP_FILE" | pbcopy
+
+echo "✅ Готово! Текст успешно скопирован в буфер обмена."
