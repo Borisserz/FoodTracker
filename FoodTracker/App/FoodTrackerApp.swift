@@ -2,7 +2,6 @@ import SwiftUI
 import SwiftData
 import FirebaseCore
 
-
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -41,21 +40,20 @@ struct FoodTrackerApp: App {
     let modelContainer: ModelContainer
 
     var body: some Scene {
-          WindowGroup {
-              ContentView()
-                  .modelContainer(modelContainer)
-                  .preferredColorScheme(.light)
-                  .task {
-                      await RemoteConfigManager.shared.fetchCloudValues()
-                  }
-          }
-      }
+        WindowGroup {
+            RootLaunchView()
+                .modelContainer(modelContainer)
+                .preferredColorScheme(.light)
+                .task {
+                    await RemoteConfigManager.shared.fetchCloudValues()
+                }
+        }
+    }
+
     init() {
         do {
-
-            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker")!
+            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
             let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
-
             let config = ModelConfiguration(url: dbURL)
 
             modelContainer = try ModelContainer(
@@ -63,7 +61,7 @@ struct FoodTrackerApp: App {
                 configurations: config
             )
         } catch {
-            fatalError("Could not initialize ModelContainer: \(error)")
+            modelContainer = try! ModelContainer(for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
         }
     }
 }
@@ -116,14 +114,14 @@ struct ContentView: View {
         }
         .tint(.themePink)
         .onAppear {
-                    initializeUserIfNeeded()
+            initializeUserIfNeeded()
 
-                    if let user = users.first, user.isHealthKitEnabled {
-                        Task {
-                            try? await HealthKitManager.shared.requestAuthorization()
-                        }
-                    }
+            if let user = users.first, user.isHealthKitEnabled {
+                Task {
+                    try? await HealthKitManager.shared.requestAuthorization()
                 }
+            }
+        }
         .sheet(isPresented: $showQuickAddSheet) {
             PremiumQuickAddSheet(selectedDate: Date()) { selectedMeal in
                 self.mealToOpenInSmartAdd = IdentifiableString(value: selectedMeal)
@@ -148,36 +146,83 @@ struct ContentView: View {
     }
 
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: Date())
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
 
-            let summary: DailySummary
-            if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
-                summary = existing
-            } else {
-                summary = DailySummary(date: today)
-                context.insert(summary)
-            }
+        let summary: DailySummary
+        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
+            summary = existing
+        } else {
+            summary = DailySummary(date: today)
+            context.insert(summary)
+        }
 
-            var newFoodItems: [FoodItem] = []
-            for item in items {
-                let copiedItem = FoodItem(
-                    name: item.name, weight: item.weight, calories: item.calories,
-                    protein: item.protein, fats: item.fats, carbs: item.carbs,
-                    omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
-                    magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
-                )
-                context.insert(copiedItem)
-                newFoodItems.append(copiedItem)
-            }
+        var newFoodItems: [FoodItem] = []
+        for item in items {
+            let copiedItem = FoodItem(
+                name: item.name, weight: item.weight, calories: item.calories,
+                protein: item.protein, fats: item.fats, carbs: item.carbs,
+                omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
+                magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
+            )
+            context.insert(copiedItem)
+            newFoodItems.append(copiedItem)
+        }
 
-            if let existingMeal = summary.meals.first(where: { $0.title == title }) {
-                existingMeal.foodItems.append(contentsOf: newFoodItems)
-            } else {
-                let newMeal = Meal(title: title, date: Date(), foodItems: newFoodItems)
-                context.insert(newMeal)
-                summary.meals.append(newMeal)
+        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
+            existingMeal.foodItems.append(contentsOf: newFoodItems)
+        } else {
+            let newMeal = Meal(title: title, date: Date(), foodItems: newFoodItems)
+            context.insert(newMeal)
+            summary.meals.append(newMeal)
+        }
+        try? context.save()
+    }
+}
+enum AppLaunchStep {
+    case screen1
+    case screen2
+    case mainApp
+}
+
+struct RootLaunchView: View {
+    // Обычный State: при перезапуске приложения всегда будет .screen1
+    @State private var currentStep: AppLaunchStep = .screen1
+    
+    // Проверка на премиум (сохраняется навсегда)
+    @AppStorage("isPremiumActivated") var isPremiumActivated: Bool = false
+
+    var body: some View {
+        ZStack {
+            switch currentStep {
+            case .screen1:
+                // ЭКРАН 1 ИЗ МОНЕТКИ (3D-еда и вход)
+                OnboardingView(onSuccess: {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                        currentStep = .screen2
+                    }
+                })
+                .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading).combined(with: .opacity)))
+
+            case .screen2:
+                // ЭКРАН 2 ИЗ МОНЕТКИ (Возраст, вес, расчет метаболизма)
+                OnboardingNutritionMode(onFinish: {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                        currentStep = .mainApp
+                    }
+                })
+                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .move(edge: .leading).combined(with: .opacity)))
+
+            case .mainApp:
+                // Переход в главное приложение ИЛИ на Пейволл
+                if isPremiumActivated {
+                    ContentView() // Главный экран FoodTracker
+                        .transition(.opacity)
+                } else {
+                    PremiumPaywallScreen() // Экран подписки
+                        .transition(.opacity)
+                }
             }
-            try? context.save()
         }
     }
+}
