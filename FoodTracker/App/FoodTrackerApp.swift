@@ -77,21 +77,9 @@ struct ContentView: View {
     @Query private var summaries: [DailySummary]
 
     @State private var selectedTab = 0
-    @State private var showQuickAddSheet = false
-    @State private var mealToOpenInSmartAdd: IdentifiableString? = nil
 
     var body: some View {
-        TabView(selection: Binding(
-            get: { selectedTab },
-            set: { newValue in
-                if newValue == 2 {
-                    HapticManager.shared.impact(style: .medium)
-                    showQuickAddSheet = true
-                } else {
-                    selectedTab = newValue
-                }
-            }
-        )) {
+        TabView(selection: $selectedTab) {
             HomeDashboardView()
                 .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(0)
@@ -100,8 +88,8 @@ struct ContentView: View {
                 .tabItem { Label("Foods", systemImage: "leaf.arrow.circlepath") }
                 .tag(1)
 
-            Color.clear
-                .tabItem { Label("Add", systemImage: "plus.circle.fill") }
+            AIChefStudioView()
+                .tabItem { Label("AI Chef", systemImage: "frying.pan.fill") }
                 .tag(2)
 
             AnalyticsTabView()
@@ -122,19 +110,6 @@ struct ContentView: View {
                 }
             }
         }
-        .sheet(isPresented: $showQuickAddSheet) {
-            PremiumQuickAddSheet(selectedDate: Date()) { selectedMeal in
-                self.mealToOpenInSmartAdd = IdentifiableString(value: selectedMeal)
-            }
-            .presentationDetents([.height(550)])
-            .presentationCornerRadius(32)
-            .presentationDragIndicator(.visible)
-        }
-        .fullScreenCover(item: $mealToOpenInSmartAdd) { mealInfo in
-            SmartAddFoodView(mealTitle: mealInfo.value) { selectedItems in
-                addFoodsToMeal(title: mealInfo.value, items: selectedItems)
-            }
-        }
     }
 
     private func initializeUserIfNeeded() {
@@ -144,6 +119,7 @@ struct ContentView: View {
             try? context.save()
         }
     }
+
 
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
         let calendar = Calendar.current
@@ -186,7 +162,6 @@ enum AppLaunchStep {
 }
 
 struct RootLaunchView: View {
-    // Обычный State: при перезапуске приложения всегда будет .screen1
     @State private var currentStep: AppLaunchStep = .screen1
     
     // Проверка на премиум (сохраняется навсегда)

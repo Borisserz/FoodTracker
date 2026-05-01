@@ -41,7 +41,8 @@ struct HomeDashboardView: View {
     @State private var showingQuickAddSheet = false
     @State private var quickAddMealType: String = "Breakfast"
     @State private var selectedMealForDetail: String? = nil
-
+    @State private var showPremiumQuickAdd = false
+        @State private var mealToOpenInSmartAdd: IdentifiableString? = nil
     private var currentUser: User? { users.first }
 
     private var currentSummary: DailySummary {
@@ -73,117 +74,131 @@ struct HomeDashboardView: View {
     }
 
     var body: some View {
-            NavigationStack {
-                ZStack {
-                    Color.themeBg.ignoresSafeArea()
+          NavigationStack {
+              ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
+                  Color.themeBg.ignoresSafeArea()
 
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 24) {
-                            HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
-                            CalendarCarouselView(selectedDate: $selectedDate)
-                            InsightsWidget(summary: currentSummary, user: currentUser)
+                  ScrollView(showsIndicators: false) {
+                      VStack(spacing: 24) {
+                          HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
+                          CalendarCarouselView(selectedDate: $selectedDate)
+                          InsightsWidget(summary: currentSummary, user: currentUser)
 
-                            DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
-                                .padding(.bottom, 8)
+                          DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
+                              .padding(.bottom, 8)
 
-                            VStack(spacing: 16) {
-                                HStack {
-                                    Text("Nutrition")
-                                        .font(.title2).bold()
-                                    Spacer()
-                                    Button(action: {
-                                        HapticManager.shared.impact(style: .medium)
-                                        showDailyLog = true
-                                    }) {
-                                        HStack(spacing: 4) {
-                                            Text("Daily Log")
-                                            Image(systemName: "list.bullet.clipboard")
-                                        }
-                                        .font(.subheadline.bold())
-                                        .foregroundColor(.themePink)
-                                    }
-                                }
-                                .padding(.horizontal, 20)
+                          VStack(spacing: 16) {
+                              HStack {
+                                  Text("Nutrition")
+                                      .font(.title2).bold()
+                                  Spacer()
+                                  Button(action: {
+                                      HapticManager.shared.impact(style: .medium)
+                                      showDailyLog = true
+                                  }) {
+                                      HStack(spacing: 4) {
+                                          Text("Daily Log")
+                                          Image(systemName: "list.bullet.clipboard")
+                                      }
+                                      .font(.subheadline.bold())
+                                      .foregroundColor(.themePink)
+                                  }
+                              }
+                              .padding(.horizontal, 20)
 
-                                ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
-                                    let meal = currentSummary.meals.first(where: { $0.title == mealType })
+                              ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
+                                  let meal = currentSummary.meals.first(where: { $0.title == mealType })
 
-                                    MealCardView(
-                                        title: localizedMealType(mealType),
-                                        calories: meal?.totalCalories,
-                                        recommendedCalories: getRecommendedCalories(for: mealType),
-                                        time: meal?.date,
-                                        onCardTap: { self.selectedMealForDetail = mealType },
-                                        onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
-                                    )
-                                }
-                                .padding(.horizontal)
-                            }
+                                  MealCardView(
+                                      title: localizedMealType(mealType),
+                                      calories: meal?.totalCalories,
+                                      recommendedCalories: getRecommendedCalories(for: mealType),
+                                      time: meal?.date,
+                                      onCardTap: { self.selectedMealForDetail = mealType },
+                                      onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
+                                  )
+                              }
+                              .padding(.horizontal)
+                          }
 
-                            WaterGridTrackerView(summary: currentSummary).padding(.horizontal)
-                            WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
+                          WaterGridTrackerView(summary: currentSummary).padding(.horizontal)
+                          WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
 
-                            DailyNoteCard(summary: currentSummary) {
-                                showNoteSheet = true
-                            }
-                            .padding(.horizontal)
+                          DailyNoteCard(summary: currentSummary) {
+                              showNoteSheet = true
+                          }
+                          .padding(.horizontal)
 
-                            AllTimeStatsCardView(totalCalories: allTimeCalories)
-                        }
-                        .padding(.bottom, 120)
-                    }
-                }
-                .navigationBarHidden(true)
-                                .task(id: selectedDate) {
-                                    await fetchHealthData(for: currentSummary)
-                                }
-
-                                .onChange(of: scenePhase) { _, newPhase in
-
-                                    if newPhase == .active {
-                                        Task {
-                                            await fetchHealthData(for: currentSummary)
-                                        }
-                                    }
-                                }
-                                .onChange(of: HealthKitManager.shared.isAuthorized) { _, isAuth in
-
-                                    if isAuth {
-                                        Task {
-                                            await fetchHealthData(for: currentSummary)
-                                        }
-                                    }
-                                }
-
-                .navigationDestination(isPresented: $navigateToProfile) {
-                    ProfileWrapperView()
-                }
-                .navigationDestination(isPresented: $showDailyLog) {
-                    DailyLogDetailView(summary: currentSummary)
-                }
-                .navigationDestination(item: Binding(
-                    get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
-                    set: { selectedMealForDetail = $0?.value }
-                )) { mealItem in
-                    MealDetailView(title: mealItem.value, date: selectedDate)
-                }
-
-                .sheet(isPresented: $showNoteSheet) {
-                    DailyNoteSheet(summary: currentSummary)
-                        .presentationDetents([.height(450)])
-                        .presentationCornerRadius(32)
-                        .presentationDragIndicator(.visible)
-                }
-                .sheet(isPresented: $showingQuickAddSheet) {
-                    SmartAddFoodView(mealTitle: localizedMealType(quickAddMealType)) { selectedItems in
-                        addFoodsToMeal(title: quickAddMealType, items: selectedItems)
-                    }
-                    .presentationDetents([.fraction(0.85), .large])
-                    .presentationCornerRadius(32)
-                    .presentationDragIndicator(.hidden)
-                }
-            }
-        }
+                          AllTimeStatsCardView(totalCalories: allTimeCalories)
+                      }
+                      .padding(.bottom, 120) // Оставили место для плавающей кнопки
+                  }
+                  
+                  // ПЛАВАЮЩАЯ КНОПКА QUICK ADD (ПЕРЕНЕСЕНА СЮДА)
+                  Button(action: {
+                      HapticManager.shared.impact(style: .medium)
+                      showPremiumQuickAdd = true
+                  }) {
+                      Image(systemName: "plus")
+                          .font(.system(size: 26, weight: .bold))
+                          .foregroundColor(.white)
+                          .frame(width: 64, height: 64)
+                          .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                          .clipShape(Circle())
+                          .shadow(color: .themePink.opacity(0.4), radius: 10, y: 5)
+                  }
+                  .padding(.trailing, 24)
+                  .padding(.bottom, 24)
+              }
+              .navigationBarHidden(true)
+              .task(id: selectedDate) {
+                  await fetchHealthData(for: currentSummary)
+              }
+              .onChange(of: scenePhase) { _, newPhase in
+                  if newPhase == .active {
+                      Task { await fetchHealthData(for: currentSummary) }
+                  }
+              }
+              .onChange(of: HealthKitManager.shared.isAuthorized) { _, isAuth in
+                  if isAuth { Task { await fetchHealthData(for: currentSummary) } }
+              }
+              .navigationDestination(isPresented: $navigateToProfile) { ProfileWrapperView() }
+              .navigationDestination(isPresented: $showDailyLog) { DailyLogDetailView(summary: currentSummary) }
+              .navigationDestination(item: Binding(
+                  get: { selectedMealForDetail.map { IdentifiableString(value: $0) } },
+                  set: { selectedMealForDetail = $0?.value }
+              )) { mealItem in
+                  MealDetailView(title: mealItem.value, date: selectedDate)
+              }
+              .sheet(isPresented: $showNoteSheet) {
+                  DailyNoteSheet(summary: currentSummary)
+                      .presentationDetents([.height(450)])
+                      .presentationCornerRadius(32)
+                      .presentationDragIndicator(.visible)
+              }
+              .sheet(isPresented: $showingQuickAddSheet) {
+                  SmartAddFoodView(mealTitle: localizedMealType(quickAddMealType)) { selectedItems in
+                      addFoodsToMeal(title: quickAddMealType, items: selectedItems)
+                  }
+                  .presentationDetents([.fraction(0.85), .large])
+                  .presentationCornerRadius(32)
+                  .presentationDragIndicator(.hidden)
+              }
+              .sheet(isPresented: $showPremiumQuickAdd) {
+                  PremiumQuickAddSheet(selectedDate: selectedDate) { selectedMeal in
+                      self.mealToOpenInSmartAdd = IdentifiableString(value: selectedMeal)
+                  }
+                  .presentationDetents([.height(550)])
+                  .presentationCornerRadius(32)
+                  .presentationDragIndicator(.visible)
+              }
+              .fullScreenCover(item: $mealToOpenInSmartAdd) { mealInfo in
+                  SmartAddFoodView(mealTitle: mealInfo.value) { selectedItems in
+                      addFoodsToMeal(title: mealInfo.value, items: selectedItems)
+                  }
+              }
+          }
+      }
 
     private func fetchHealthData(for summary: DailySummary) async {
 
