@@ -234,11 +234,11 @@ struct AICoachDashboardView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(tip.title)
                                 .font(.system(size: 16, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
+                                .foregroundColor(.black)
                             
                             Text(tip.text)
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.textGray)
+                                .foregroundColor(.black.opacity(0.65))
                                 .lineLimit(3)
                                 .multilineTextAlignment(.leading)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -247,25 +247,12 @@ struct AICoachDashboardView: View {
                         Spacer()
                     }
                     .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(Color.black.opacity(0.25))
-                            .background(.ultraThinMaterial)
-                    )
+                    .background(Color.white)
                     .cornerRadius(24)
+                    .shadow(color: Color.black.opacity(0.08), radius: 12, y: 6)
                     .overlay(
                         RoundedRectangle(cornerRadius: 24)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        tip.gradientColors[0].opacity(0.4),
-                                        .clear
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1.2
-                            )
+                            .stroke(Color.black.opacity(0.06), lineWidth: 1)
                     )
                     .padding(.horizontal)
                     .padding(.bottom, 8)
