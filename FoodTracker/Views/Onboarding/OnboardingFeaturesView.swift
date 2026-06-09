@@ -495,97 +495,115 @@ struct AIChefStudioIllustration: View {
 }
 
 struct VisualProgressIllustration: View {
-    @State private var sliderOffset: CGFloat = -15
-    @State private var scaleBefore = 0.95
-    @State private var scaleAfter = 1.0
+    @State private var sliderOffset: CGFloat = -45
     
     var body: some View {
         ZStack {
+            // Glow backdrop
             Circle()
                 .fill(Color.green.opacity(0.12))
                 .frame(width: 120, height: 120)
                 .blur(radius: 12)
             
-            HStack(spacing: -20) {
-                // Before card
+            // Single flat comparison container frame
+            ZStack {
+                // Background (Before state)
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.black.opacity(0.45))
-                        .frame(width: 70, height: 90)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                        )
+                    Color.black.opacity(0.4)
                     
                     Image(systemName: "person.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.white.opacity(0.25))
+                        .font(.system(size: 44))
+                        .foregroundColor(.white.opacity(0.2))
                     
-                    Text("BEFORE")
-                        .font(.system(size: 8, weight: .bold, design: .rounded))
-                        .foregroundColor(.orange)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Color.orange.opacity(0.2))
-                        .cornerRadius(3)
-                        .offset(y: 28)
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Text("BEFORE")
+                                .font(.system(size: 8, weight: .bold, design: .rounded))
+                                .foregroundColor(.orange)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(Color.orange.opacity(0.15))
+                                .cornerRadius(3)
+                                .padding(8)
+                            Spacer()
+                        }
+                    }
                 }
-                .rotation3DEffect(.degrees(12), axis: (x: 0, y: 1, z: 0))
-                .scaleEffect(scaleBefore)
-                
-                // After card (elevated glow)
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.black.opacity(0.45))
-                        .frame(width: 70, height: 90)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.green.opacity(0.5), lineWidth: 1.5)
-                        )
-                        .shadow(color: Color.green.opacity(0.25), radius: 8)
-                    
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.green)
-                        .shadow(color: .green, radius: 4)
-                    
-                    Text("AFTER")
-                        .font(.system(size: 8, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Color.green)
-                        .cornerRadius(3)
-                        .offset(y: 28)
-                }
-                .rotation3DEffect(.degrees(-12), axis: (x: 0, y: 1, z: 0))
-                .scaleEffect(scaleAfter)
-            }
-            
-            // Slider divider
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [.clear, Color.green, .clear],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .frame(width: 2, height: 100)
-                .offset(x: sliderOffset)
+                .frame(width: 130, height: 95)
+                .cornerRadius(12)
                 .overlay(
-                    Image(systemName: "arrow.left.and.right.circle.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(.green)
-                        .background(Circle().fill(Color.black))
-                        .offset(x: sliderOffset)
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
                 )
+                
+                // Foreground (After state, masked)
+                GeometryReader { geo in
+                    let width = geo.size.width
+                    let maskWidth = width/2 + sliderOffset
+                    
+                    ZStack {
+                        Color.black.opacity(0.5)
+                        
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 44))
+                            .foregroundColor(.green)
+                            .shadow(color: .green.opacity(0.5), radius: 6)
+                        
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                Text("AFTER")
+                                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 2)
+                                    .background(Color.green)
+                                    .cornerRadius(3)
+                                    .padding(8)
+                            }
+                        }
+                    }
+                    .frame(width: width, height: geo.size.height)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.green.opacity(0.4), lineWidth: 1)
+                    )
+                    .mask(
+                        HStack(spacing: 0) {
+                            Spacer(minLength: 0)
+                            Rectangle()
+                                .frame(width: width - maskWidth)
+                        }
+                    )
+                }
+                .frame(width: 130, height: 95)
+                
+                // Sliding line and handle
+                ZStack {
+                    Rectangle()
+                        .fill(Color.green)
+                        .frame(width: 2, height: 95)
+                    
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 20, height: 20)
+                        .overlay(
+                            Image(systemName: "arrow.left.and.right")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(.white)
+                        )
+                        .shadow(color: .green.opacity(0.4), radius: 4)
+                }
+                .offset(x: sliderOffset)
+            }
+            .frame(width: 130, height: 95)
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) {
-                sliderOffset = 15
-                scaleBefore = 1.0
-                scaleAfter = 0.95
+                sliderOffset = 45
             }
         }
     }
