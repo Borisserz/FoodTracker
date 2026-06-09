@@ -277,7 +277,7 @@ struct RootLaunchView: View {
 
     init() {
         // Initialize step from persisted flag so we don't force the account screen every launch
-        let completed = UserDefaults.standard.bool(forKey: "hasCompletedInitialOnboarding_v1")
+        let completed = UserDefaults.standard.bool(forKey: "hasCompletedInitialOnboarding_v2")
         _currentStep = State(initialValue: completed ? .mainApp : .screen1)
     }
 
