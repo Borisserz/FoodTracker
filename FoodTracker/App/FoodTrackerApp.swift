@@ -100,6 +100,7 @@ struct FoodTrackerApp: App {
 
     @MainActor
     private func setupDependencies() async {
+        print("🚀 [setupDependencies] Starting initialization...")
         do {
             let schema = Schema([
                 User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
@@ -108,6 +109,7 @@ struct FoodTrackerApp: App {
             
             let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
             let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
+            print("🚀 [setupDependencies] dbURL resolved: \(dbURL)")
             
             let cloudConfig = ModelConfiguration(
                 schema: schema,
@@ -117,24 +119,35 @@ struct FoodTrackerApp: App {
 
             let container: ModelContainer
             do {
+                print("🚀 [setupDependencies] Initializing ModelContainer with CloudKit...")
                 container = try ModelContainer(for: schema, configurations: [cloudConfig])
+                print("🚀 [setupDependencies] ModelContainer successfully initialized with CloudKit!")
             } catch {
                 print("⚠️ CloudKit init failed, falling back to local: \(error)")
                 let localConfig = ModelConfiguration(schema: schema, url: dbURL, cloudKitDatabase: .none)
                 container = try ModelContainer(for: schema, configurations: [localConfig])
+                print("🚀 [setupDependencies] ModelContainer successfully initialized on Local Storage fallback!")
             }
 
             let di = DIContainer(modelContainer: container)
             self.diContainer = di
+            print("🚀 [setupDependencies] diContainer assigned to state. Re-rendering UI...")
             
             do {
+                print("🚀 [setupDependencies] Attempting Anonymous Firebase sign-in...")
                 _ = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+                print("🚀 [setupDependencies] Firebase Sign-in Complete!")
             } catch {
                 print("⚠️ Anonymous auth failed: \(error)")
             }
 
+            print("🚀 [setupDependencies] Fetching Remote Config values...")
             await RemoteConfigManager.shared.fetchCloudValues()
+            print("🚀 [setupDependencies] Remote Config Fetch Complete!")
+            
+            print("🚀 [setupDependencies] Checking for updates...")
             await versionManager.checkForUpdates()
+            print("🚀 [setupDependencies] Update checks complete!")
         } catch {
             self.databaseLoadError = error
             TrackingManager.shared.recordError(error: error)
