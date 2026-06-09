@@ -7,6 +7,12 @@ struct OnboardingFeatureItem: Identifiable {
     let title: String
     let description: String
     let color: Color
+    
+    // Sub-feature info columns
+    let leftIcon: String
+    let leftLabel: String
+    let rightIcon: String
+    let rightLabel: String
 }
 
 struct OnboardingFeaturesView: View {
@@ -20,83 +26,88 @@ struct OnboardingFeaturesView: View {
             iconName: "sparkles",
             title: "AI Nutrition Coach",
             description: "Chat with your personal AI coach. Get macro advice, daily verdicts, and personalized health guidance.",
-            color: .themePink
+            color: .themePink,
+            leftIcon: "message.fill",
+            leftLabel: "24/7 AI Chat",
+            rightIcon: "brain.head.profile",
+            rightLabel: "Macro Verdicts"
         ),
         OnboardingFeatureItem(
             iconName: "camera.viewfinder",
             title: "Smart Food Vision",
             description: "Simply snap a photo of your meal or scan a barcode. Our AI instantly calculates your calories, protein, fats, and carbs.",
-            color: .themeOrange
+            color: .themeOrange,
+            leftIcon: "camera.viewfinder",
+            leftLabel: "Photo Scan",
+            rightIcon: "barcode.viewfinder",
+            rightLabel: "Barcode Scan"
         ),
         OnboardingFeatureItem(
             iconName: "frying.pan.fill",
             title: "AI Chef Studio",
             description: "Input ingredients from your fridge and get diet-matched recipes. Plus, use your camera so the AI can monitor and guide your cooking process!",
-            color: .themeYellow
+            color: .themeYellow,
+            leftIcon: "frying.pan.fill",
+            leftLabel: "Diet Recipes",
+            rightIcon: "camera.fill",
+            rightLabel: "Cook Monitor"
         ),
         OnboardingFeatureItem(
             iconName: "person.crop.circle.badge.clock",
             title: "Visual Progress",
             description: "Upload Before & After photos to visually compare your transformation and let AI analyze your physical progress.",
-            color: .green
+            color: .green,
+            leftIcon: "photo.stack.fill",
+            leftLabel: "Before & After",
+            rightIcon: "chart.line.uptrend.xyaxis",
+            rightLabel: "AI Analysis"
         ),
         OnboardingFeatureItem(
             iconName: "chart.bar.xaxis",
             title: "Intelligent Analytics",
             description: "Deep insights into your consistency and habits, featuring an AI Hydration Coach that optimizes your water and pH balance.",
-            color: .cyan
+            color: .cyan,
+            leftIcon: "drop.fill",
+            leftLabel: "Hydration Coach",
+            rightIcon: "chart.bar.xaxis",
+            rightLabel: "pH Balance"
         )
     ]
 
     var body: some View {
         ZStack {
-            // Deep space dark background
-            Color(red: 0.02, green: 0.02, blue: 0.04).ignoresSafeArea()
-            
-            // Dynamic starry/glowing background
-            GeometryReader { geo in
-                ZStack {
-                    Circle()
-                        .fill(features[currentIndex].color.opacity(0.15))
-                        .frame(width: geo.size.width * 1.5, height: geo.size.width * 1.5)
-                        .blur(radius: 100)
-                        .offset(
-                            x: -geo.size.width * 0.2 + CGFloat(motionManager.roll * 50),
-                            y: -geo.size.height * 0.2 + CGFloat(motionManager.pitch * 50)
-                        )
-                    
-                    Circle()
-                        .fill(features[currentIndex].color.opacity(0.1))
-                        .frame(width: geo.size.width, height: geo.size.width)
-                        .blur(radius: 80)
-                        .offset(
-                            x: geo.size.width * 0.4 - CGFloat(motionManager.roll * 40),
-                            y: geo.size.height * 0.4 - CGFloat(motionManager.pitch * 40)
-                        )
-                }
-                .animation(.easeInOut(duration: 0.8), value: currentIndex)
-                .animation(.interactiveSpring(), value: motionManager.pitch)
-            }
-            .ignoresSafeArea()
+            // Custom interactive cosmic starfield background
+            CosmicStarfieldView(themeColor: features[currentIndex].color, motion: motionManager)
             
             VStack {
                 Spacer()
                 
                 TabView(selection: $currentIndex) {
                     ForEach(0..<features.count, id: \.self) { index in
-                        Parallax3DCard(item: features[index], motion: motionManager)
-                            .padding(.horizontal, 32)
-                            .tag(index)
+                        Parallax3DCard(
+                            item: features[index],
+                            activeIndex: currentIndex,
+                            cardIndex: index,
+                            totalCount: features.count,
+                            motion: motionManager
+                        )
+                        .padding(.horizontal, 32)
+                        .tag(index)
                     }
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Hide native page indicators
                 .frame(height: 520)
                 
                 Spacer()
                 
-                OnboardingButton(title: currentIndex == features.count - 1 ? "Get Started" : "Continue") {
+                CosmicContinueButton(
+                    title: currentIndex == features.count - 1 ? "Get Started" : "Continue",
+                    themeColor: features[currentIndex].color
+                ) {
                     if currentIndex < features.count - 1 {
-                        withAnimation { currentIndex += 1 }
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                            currentIndex += 1
+                        }
                     } else {
                         onNext()
                     }
@@ -108,13 +119,634 @@ struct OnboardingFeaturesView: View {
     }
 }
 
+// MARK: - Interactive Cosmic Starfield Background
+struct CosmicStarfieldView: View {
+    let themeColor: Color
+    let motion: MotionManager
+    
+    @State private var nebulaOffset1 = CGSize.zero
+    @State private var nebulaOffset2 = CGSize.zero
+    @State private var starSeed = Double.random(in: 0...100)
+    
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                // Deep dark space background gradient
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.01, green: 0.01, blue: 0.03),
+                        Color(red: 0.03, green: 0.01, blue: 0.06),
+                        Color(red: 0.01, green: 0.01, blue: 0.03)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+                // Tech grid mesh pattern (low opacity)
+                Path { path in
+                    let gridSpacing: CGFloat = 40
+                    for x in stride(from: CGFloat(0), to: geo.size.width, by: gridSpacing) {
+                        path.move(to: CGPoint(x: x, y: 0))
+                        path.addLine(to: CGPoint(x: x, y: geo.size.height))
+                    }
+                    for y in stride(from: CGFloat(0), to: geo.size.height, by: gridSpacing) {
+                        path.move(to: CGPoint(x: 0, y: y))
+                        path.addLine(to: CGPoint(x: geo.size.width, y: y))
+                    }
+                }
+                .stroke(Color.white.opacity(0.015), lineWidth: 1)
+                
+                // Nebula 1 (Current feature theme color glow)
+                Circle()
+                    .fill(themeColor.opacity(0.18))
+                    .frame(width: geo.size.width * 1.6, height: geo.size.width * 1.6)
+                    .blur(radius: 120)
+                    .offset(
+                        x: -geo.size.width * 0.3 + nebulaOffset1.width + CGFloat(motion.roll * 40),
+                        y: -geo.size.height * 0.2 + nebulaOffset1.height + CGFloat(motion.pitch * 40)
+                    )
+                
+                // Nebula 2 (Purple glow for contrast)
+                Circle()
+                    .fill(Color.purple.opacity(0.12))
+                    .frame(width: geo.size.width * 1.2, height: geo.size.width * 1.2)
+                    .blur(radius: 100)
+                    .offset(
+                        x: geo.size.width * 0.4 + nebulaOffset2.width - CGFloat(motion.roll * 30),
+                        y: geo.size.height * 0.5 + nebulaOffset2.height - CGFloat(motion.pitch * 30)
+                    )
+                
+                // Twinkling Starfield
+                StarFieldPatternView(seed: starSeed)
+            }
+            .animation(.easeInOut(duration: 0.8), value: themeColor)
+            .onAppear {
+                withAnimation(.linear(duration: 25).repeatForever(autoreverses: true)) {
+                    nebulaOffset1 = CGSize(width: 50, height: -30)
+                }
+                withAnimation(.linear(duration: 30).repeatForever(autoreverses: true)) {
+                    nebulaOffset2 = CGSize(width: -60, height: 45)
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct StarFieldPatternView: View {
+    let seed: Double
+    @State private var twinkle = false
+    
+    // Predetermined coordinates and opacities for stars
+    private static let stars: [(x: CGFloat, y: CGFloat, size: CGFloat, opacity: Double, type: Int)] = {
+        var temp: [(x: CGFloat, y: CGFloat, size: CGFloat, opacity: Double, type: Int)] = []
+        for i in 0..<80 {
+            let x = CGFloat((i * 17) % 100) / 100.0
+            let y = CGFloat((i * 29) % 100) / 100.0
+            let size = CGFloat(((i * 7) % 3) + 1)
+            let opacity = Double(((i * 13) % 6) + 3) / 10.0
+            let type = i % 4
+            temp.append((x: x, y: y, size: size, opacity: opacity, type: type))
+        }
+        return temp
+    }()
+    
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                ForEach(0..<Self.stars.count, id: \.self) { index in
+                    let star = Self.stars[index]
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: star.size, height: star.size)
+                        .position(x: star.x * geo.size.width, y: star.y * geo.size.height)
+                        .opacity(star.opacity * (twinkle ? (star.type == 0 ? 0.3 : (star.type == 1 ? 1.4 : 1.0)) : 1.0))
+                }
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
+                    twinkle = true
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Custom Feature Illustrations
+struct FeatureIllustrationView: View {
+    let title: String
+    
+    var body: some View {
+        switch title {
+        case "AI Nutrition Coach":
+            AINutritionCoachIllustration()
+        case "Smart Food Vision":
+            SmartFoodVisionIllustration()
+        case "AI Chef Studio":
+            AIChefStudioIllustration()
+        case "Visual Progress":
+            VisualProgressIllustration()
+        case "Intelligent Analytics":
+            IntelligentAnalyticsIllustration()
+        default:
+            Image(systemName: "sparkles")
+                .font(.system(size: 60))
+                .foregroundColor(.white)
+        }
+    }
+}
+
+struct AINutritionCoachIllustration: View {
+    @State private var rotateOrbit = 0.0
+    @State private var pulseCircle = 1.0
+    
+    var body: some View {
+        ZStack {
+            // Glow behind
+            Circle()
+                .fill(Color.themePink.opacity(0.15))
+                .frame(width: 110, height: 110)
+                .blur(radius: 12)
+                
+            // Orbiting dashed path
+            Circle()
+                .stroke(
+                    LinearGradient(colors: [Color.themePink.opacity(0.5), .clear, Color.themePink.opacity(0.15)], startPoint: .top, endPoint: .bottom),
+                    style: StrokeStyle(lineWidth: 1, lineCap: .round, dash: [4, 6])
+                )
+                .frame(width: 130, height: 130)
+                .rotationEffect(.degrees(rotateOrbit))
+                
+            // Planet node
+            Circle()
+                .fill(Color.themePink)
+                .frame(width: 8, height: 8)
+                .shadow(color: .themePink, radius: 4)
+                .offset(y: -65)
+                .rotationEffect(.degrees(rotateOrbit))
+                
+            // Pulsing waves
+            Circle()
+                .stroke(Color.themePink.opacity(0.3), lineWidth: 1.5)
+                .frame(width: 80, height: 80)
+                .scaleEffect(pulseCircle)
+                .opacity(2.0 - pulseCircle)
+                
+            // Central brain sphere
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(colors: [Color.themePink, Color.purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .frame(width: 66, height: 66)
+                    .shadow(color: Color.themePink.opacity(0.5), radius: 12)
+                    
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: 28))
+                    .foregroundColor(.white)
+                    
+                Image(systemName: "sparkles")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white)
+                    .offset(x: 16, y: -16)
+            }
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) {
+                rotateOrbit = 360
+            }
+            withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
+                pulseCircle = 1.3
+            }
+        }
+    }
+}
+
+struct ViewfinderCorner: View {
+    let rotation: Double
+    var body: some View {
+        Path { path in
+            path.move(to: CGPoint(x: 0, y: 10))
+            path.addLine(to: CGPoint(x: 0, y: 0))
+            path.addLine(to: CGPoint(x: 10, y: 0))
+        }
+        .stroke(style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+        .frame(width: 10, height: 10)
+        .rotationEffect(.degrees(rotation))
+    }
+}
+
+struct SmartFoodVisionIllustration: View {
+    @State private var scanLineOffset: CGFloat = -40
+    @State private var pulseTarget = 1.0
+    
+    var body: some View {
+        ZStack {
+            // Viewfinder frame brackets
+            VStack {
+                HStack {
+                    ViewfinderCorner(rotation: 0)
+                    Spacer()
+                    ViewfinderCorner(rotation: 90)
+                }
+                Spacer()
+                HStack {
+                    ViewfinderCorner(rotation: 270)
+                    Spacer()
+                    ViewfinderCorner(rotation: 180)
+                }
+            }
+            .frame(width: 130, height: 110)
+            .foregroundColor(Color.themeOrange.opacity(0.8))
+            
+            Circle()
+                .fill(Color.themeOrange.opacity(0.12))
+                .frame(width: 100, height: 100)
+                .blur(radius: 12)
+            
+            Circle()
+                .stroke(Color.themeOrange.opacity(0.35), lineWidth: 1.5)
+                .frame(width: 75, height: 75)
+                .scaleEffect(pulseTarget)
+                .opacity(1.5 - pulseTarget)
+            
+            // Scanner Core (Camera + target sight)
+            ZStack {
+                Circle()
+                    .fill(Color.black.opacity(0.35))
+                    .frame(width: 60, height: 60)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.themeOrange.opacity(0.5), lineWidth: 1)
+                    )
+                
+                Image(systemName: "camera.viewfinder")
+                    .font(.system(size: 24))
+                    .foregroundColor(Color.themeOrange)
+                    .shadow(color: Color.themeOrange, radius: 5)
+            }
+            
+            // Neon scanning laser bar
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [.clear, Color.themeOrange, .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(width: 120, height: 2)
+                .shadow(color: Color.themeOrange, radius: 4, y: 0)
+                .offset(y: scanLineOffset)
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                scanLineOffset = 40
+            }
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                pulseTarget = 1.2
+            }
+        }
+    }
+}
+
+struct AIChefStudioIllustration: View {
+    @State private var steamOffset1: CGFloat = 0
+    @State private var steamOffset2: CGFloat = 0
+    @State private var steamOpacity1: Double = 0.8
+    @State private var steamOpacity2: Double = 0.8
+    @State private var panRotate = -4.0
+    @State private var orbitRotate = 0.0
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.themeYellow.opacity(0.12))
+                .frame(width: 120, height: 120)
+                .blur(radius: 12)
+            
+            // Floating ingredient icons
+            ZStack {
+                Image(systemName: "carrot.fill")
+                    .font(.system(size: 13))
+                    .foregroundColor(.orange)
+                    .offset(x: -60, y: -18)
+                
+                Image(systemName: "leaf.fill")
+                    .font(.system(size: 11))
+                    .foregroundColor(.green)
+                    .offset(x: 60, y: 12)
+                
+                Image(systemName: "cookbook.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
+                    .offset(x: 0, y: -60)
+            }
+            .rotationEffect(.degrees(orbitRotate))
+            
+            // Animated steam particles rising
+            Group {
+                Circle()
+                    .fill(Color.white.opacity(0.3))
+                    .frame(width: 7, height: 7)
+                    .blur(radius: 0.5)
+                    .offset(x: -12, y: steamOffset1 - 20)
+                    .opacity(steamOpacity1)
+                
+                Circle()
+                    .fill(Color.white.opacity(0.25))
+                    .frame(width: 9, height: 9)
+                    .blur(radius: 0.5)
+                    .offset(x: 8, y: steamOffset2 - 20)
+                    .opacity(steamOpacity2)
+            }
+            
+            // Frying pan
+            VStack {
+                Spacer()
+                Image(systemName: "frying.pan.fill")
+                    .font(.system(size: 48))
+                    .foregroundColor(Color.themeYellow)
+                    .shadow(color: Color.themeYellow.opacity(0.5), radius: 8)
+                    .rotationEffect(.degrees(panRotate))
+                    .padding(.bottom, 16)
+            }
+            .frame(height: 110)
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
+                panRotate = 4.0
+            }
+            withAnimation(.linear(duration: 12).repeatForever(autoreverses: false)) {
+                orbitRotate = 360
+            }
+            
+            // Reset and animate steam
+            withAnimation(.linear(duration: 1.6).repeatForever(autoreverses: false)) {
+                steamOffset1 = -32
+                steamOpacity1 = 0
+            }
+            withAnimation(.linear(duration: 2.1).repeatForever(autoreverses: false)) {
+                steamOffset2 = -36
+                steamOpacity2 = 0
+            }
+        }
+    }
+}
+
+struct VisualProgressIllustration: View {
+    @State private var sliderOffset: CGFloat = -15
+    @State private var scaleBefore = 0.95
+    @State private var scaleAfter = 1.0
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.green.opacity(0.12))
+                .frame(width: 120, height: 120)
+                .blur(radius: 12)
+            
+            HStack(spacing: -20) {
+                // Before card
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.black.opacity(0.45))
+                        .frame(width: 70, height: 90)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                    
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 32))
+                        .foregroundColor(.white.opacity(0.25))
+                    
+                    Text("BEFORE")
+                        .font(.system(size: 8, weight: .bold, design: .rounded))
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color.orange.opacity(0.2))
+                        .cornerRadius(3)
+                        .offset(y: 28)
+                }
+                .rotation3DEffect(.degrees(12), axis: (x: 0, y: 1, z: 0))
+                .scaleEffect(scaleBefore)
+                
+                // After card (elevated glow)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.black.opacity(0.45))
+                        .frame(width: 70, height: 90)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.green.opacity(0.5), lineWidth: 1.5)
+                        )
+                        .shadow(color: Color.green.opacity(0.25), radius: 8)
+                    
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 32))
+                        .foregroundColor(.green)
+                        .shadow(color: .green, radius: 4)
+                    
+                    Text("AFTER")
+                        .font(.system(size: 8, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color.green)
+                        .cornerRadius(3)
+                        .offset(y: 28)
+                }
+                .rotation3DEffect(.degrees(-12), axis: (x: 0, y: 1, z: 0))
+                .scaleEffect(scaleAfter)
+            }
+            
+            // Slider divider
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [.clear, Color.green, .clear],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 2, height: 100)
+                .offset(x: sliderOffset)
+                .overlay(
+                    Image(systemName: "arrow.left.and.right.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.green)
+                        .background(Circle().fill(Color.black))
+                        .offset(x: sliderOffset)
+                )
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) {
+                sliderOffset = 15
+                scaleBefore = 1.0
+                scaleAfter = 0.95
+            }
+        }
+    }
+}
+
+struct IntelligentAnalyticsIllustration: View {
+    @State private var ringTrim1: CGFloat = 0
+    @State private var ringTrim2: CGFloat = 0
+    @State private var dropletOffset: CGFloat = 0
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.cyan.opacity(0.12))
+                .frame(width: 120, height: 120)
+                .blur(radius: 12)
+            
+            // Progress tracker circles
+            Circle()
+                .stroke(Color.white.opacity(0.08), lineWidth: 5)
+                .frame(width: 100, height: 100)
+            
+            Circle()
+                .trim(from: 0, to: ringTrim1)
+                .stroke(
+                    LinearGradient(colors: [Color.cyan, Color.blue], startPoint: .topLeading, endPoint: .bottomTrailing),
+                    style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                )
+                .frame(width: 100, height: 100)
+                .rotationEffect(.degrees(-90))
+            
+            Circle()
+                .stroke(Color.white.opacity(0.08), lineWidth: 5)
+                .frame(width: 82, height: 82)
+            
+            Circle()
+                .trim(from: 0, to: ringTrim2)
+                .stroke(
+                    LinearGradient(colors: [Color.purple, Color.cyan], startPoint: .topLeading, endPoint: .bottomTrailing),
+                    style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                )
+                .frame(width: 82, height: 82)
+                .rotationEffect(.degrees(-90))
+            
+            // Glowing water droplet
+            ZStack {
+                Circle()
+                    .fill(Color.black.opacity(0.4))
+                    .frame(width: 54, height: 54)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
+                    )
+                
+                Image(systemName: "drop.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(Color.cyan)
+                    .shadow(color: Color.cyan, radius: 6)
+                    .offset(y: dropletOffset)
+            }
+        }
+        .onAppear {
+            withAnimation(.easeOut(duration: 1.4)) {
+                ringTrim1 = 0.75
+                ringTrim2 = 0.55
+            }
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                dropletOffset = -3
+            }
+        }
+    }
+}
+
+// MARK: - Premium Cards Components
+struct InfoColumn: View {
+    let icon: String
+    let text: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(color)
+                .shadow(color: color.opacity(0.4), radius: 4)
+            
+            Text(text.uppercased())
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundColor(.white.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .tracking(0.5)
+                .lineLimit(2)
+                .frame(height: 24, alignment: .top)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.03))
+        )
+    }
+}
+
+struct CosmicContinueButton: View {
+    let title: String
+    let themeColor: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            HapticManager.shared.impact(style: .medium)
+            action()
+        }) {
+            Text(title.uppercased())
+                .font(.system(size: 16, weight: .black, design: .rounded))
+                .tracking(2)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 18)
+                .background(
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0.1, green: 0.7, blue: 1.0),
+                                    Color(red: 0.6, green: 0.3, blue: 1.0)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(
+                            LinearGradient(
+                                colors: [.white.opacity(0.4), .clear],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 1.2
+                        )
+                )
+                .shadow(color: Color(red: 0.1, green: 0.7, blue: 1.0).opacity(0.4), radius: 15, x: 0, y: 8)
+                .shadow(color: Color(red: 0.6, green: 0.3, blue: 1.0).opacity(0.3), radius: 15, x: 0, y: 8)
+        }
+        .buttonStyle(BouncyButtonStyle())
+    }
+}
+
+// MARK: - Premium Glassmorphic 3D Card
 private struct Parallax3DCard: View {
     let item: OnboardingFeatureItem
+    let activeIndex: Int
+    let cardIndex: Int
+    let totalCount: Int
     let motion: MotionManager
+    
     @State private var isVisible = false
     @State private var dragOffset: CGSize = .zero
     
-    // Convert motion attitude to degrees for rotation, adding dragOffset for simulator support
     private var rollDegrees: Double {
         let baseRoll = max(-15, min(15, motion.roll * 180 / .pi))
         let dragRoll = Double(dragOffset.width) / 10.0
@@ -129,70 +761,101 @@ private struct Parallax3DCard: View {
     
     var body: some View {
         ZStack {
-            // Base Card Layer
-            RoundedRectangle(cornerRadius: 40)
-                .fill(Color(red: 0.08, green: 0.08, blue: 0.12))
-                .shadow(color: item.color.opacity(0.3), radius: 30, x: CGFloat(rollDegrees), y: CGFloat(pitchDegrees) + 10)
+            // Glassmorphism background
+            RoundedRectangle(cornerRadius: 32)
+                .fill(Color.black.opacity(0.45))
+                .background(.ultraThinMaterial)
+                .cornerRadius(32)
+                .shadow(color: item.color.opacity(0.35), radius: 25, x: CGFloat(rollDegrees), y: CGFloat(pitchDegrees) + 8)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 40)
-                        .stroke(LinearGradient(colors: [item.color.opacity(0.6), .clear], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: 32)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    item.color.opacity(0.6),
+                                    .clear,
+                                    item.color.opacity(0.2)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
                 )
             
-            // Content Layer
-            VStack(spacing: 32) {
-                // Floating Icon Layer
-                ZStack {
-                    Circle()
-                        .fill(item.color.opacity(0.15))
-                        .frame(width: 140, height: 140)
-                        .blur(radius: 20)
-                        .offset(x: CGFloat(-rollDegrees * 1.5), y: CGFloat(-pitchDegrees * 1.5))
-                    
-                    Image(systemName: item.iconName)
-                        .font(.system(size: 64, weight: .ultraLight))
-                        .foregroundStyle(item.color)
-                        .shadow(color: item.color.opacity(0.8), radius: 15, x: 0, y: 0)
-                        .symbolEffect(.pulse, options: .repeating, value: isVisible)
-                        // Extra parallax for the icon
-                        .offset(x: CGFloat(-rollDegrees * 2.5), y: CGFloat(-pitchDegrees * 2.5))
-                }
-                .padding(.top, 40)
+            VStack(spacing: 20) {
+                // 1. Feature Illustration
+                FeatureIllustrationView(title: item.title)
+                    .frame(height: 150)
+                    .padding(.top, 24)
+                    .offset(x: CGFloat(-rollDegrees * 2.0), y: CGFloat(-pitchDegrees * 2.0))
                 
-                // Floating Text Layer
-                VStack(spacing: 16) {
-                    Text(item.title)
-                        .font(.system(size: 30, weight: .black, design: .rounded))
-                        .foregroundStyle(.white)
-                        .multilineTextAlignment(.center)
-                        .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 5)
-                        // Medium parallax for title
-                        .offset(x: CGFloat(-rollDegrees * 1.0), y: CGFloat(-pitchDegrees * 1.0))
-                    
-                    Text(item.description)
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(6)
-                        .padding(.horizontal, 24)
-                        // Subtle parallax for description
-                        .offset(x: CGFloat(-rollDegrees * 0.5), y: CGFloat(-pitchDegrees * 0.5))
+                // 2. Column Sub-features
+                HStack(spacing: 16) {
+                    InfoColumn(icon: item.leftIcon, text: item.leftLabel, color: item.color)
+                    InfoColumn(icon: item.rightIcon, text: item.rightLabel, color: item.color)
                 }
-                .padding(.bottom, 50)
+                .padding(.horizontal, 24)
+                .offset(x: CGFloat(-rollDegrees * 1.5), y: CGFloat(-pitchDegrees * 1.5))
+                
+                // 3. Main Title
+                Text(item.title.uppercased())
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.white, item.color, item.color.opacity(0.8)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+                    .offset(x: CGFloat(-rollDegrees * 1.0), y: CGFloat(-pitchDegrees * 1.0))
+                
+                // 4. Description
+                Text(item.description)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(5)
+                    .padding(.horizontal, 24)
+                    .offset(x: CGFloat(-rollDegrees * 0.5), y: CGFloat(-pitchDegrees * 0.5))
+                
+                Spacer()
+                
+                // 5. Card-embedded Progress Indicator
+                HStack(spacing: 12) {
+                    HStack(spacing: 6) {
+                        ForEach(0..<totalCount, id: \.self) { idx in
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(idx == activeIndex ? item.color : Color.white.opacity(0.15))
+                                .frame(width: idx == activeIndex ? 24 : 12, height: 4)
+                        }
+                    }
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: activeIndex)
+                    
+                    Spacer()
+                    
+                    Text("\(activeIndex + 1) of \(totalCount)")
+                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.4))
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: 500)
-        // Apply the core 3D rotation to the entire card
+        .frame(maxWidth: .infinity, maxHeight: 480)
         .rotation3DEffect(
             .degrees(rollDegrees),
             axis: (x: 0.0, y: 1.0, z: 0.0),
-            perspective: 0.5
+            perspective: 0.4
         )
         .rotation3DEffect(
             .degrees(pitchDegrees),
             axis: (x: -1.0, y: 0.0, z: 0.0),
-            perspective: 0.5
+            perspective: 0.4
         )
-        .scaleEffect(isVisible ? 1 : 0.8)
+        .scaleEffect(isVisible ? 1 : 0.85)
         .opacity(isVisible ? 1 : 0)
         .gesture(
             DragGesture()
