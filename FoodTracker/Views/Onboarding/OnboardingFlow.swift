@@ -22,30 +22,30 @@ struct RootOnboardingView: View {
             AnimatedBackground()
             
             if currentStage == 0 {
-                OnboardingFeaturesView(onNext: {
+                MetricsScreen(metrics: $metrics, onNext: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 1 }
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             } else if currentStage == 1 {
-                MetricsScreen(metrics: $metrics, onNext: {
+                ActivityScreen(metrics: $metrics, onNext: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 2 }
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             } else if currentStage == 2 {
-                ActivityScreen(metrics: $metrics, onNext: {
+                OnboardingGoalScreen(metrics: $metrics, onNext: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 3 }
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             } else if currentStage == 3 {
-                OnboardingGoalScreen(metrics: $metrics, onNext: {
+                FinishScreen(onCalculationComplete: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 4 }
                 })
-                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                .transition(.opacity)
             } else if currentStage == 4 {
-                FinishScreen(onCalculationComplete: {
+                OnboardingFeaturesView(onNext: {
                     onFinish(metrics)
                 })
-                .transition(.opacity)
+                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             }
         }
         .preferredColorScheme(.dark)

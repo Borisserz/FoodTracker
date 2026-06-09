@@ -112,14 +112,19 @@ private struct Parallax3DCard: View {
     let item: OnboardingFeatureItem
     let motion: MotionManager
     @State private var isVisible = false
+    @State private var dragOffset: CGSize = .zero
     
-    // Convert motion attitude to degrees for rotation
+    // Convert motion attitude to degrees for rotation, adding dragOffset for simulator support
     private var rollDegrees: Double {
-        max(-15, min(15, motion.roll * 180 / .pi))
+        let baseRoll = max(-15, min(15, motion.roll * 180 / .pi))
+        let dragRoll = Double(dragOffset.width) / 10.0
+        return max(-20, min(20, baseRoll + dragRoll))
     }
     
     private var pitchDegrees: Double {
-        max(-15, min(15, motion.pitch * 180 / .pi))
+        let basePitch = max(-15, min(15, motion.pitch * 180 / .pi))
+        let dragPitch = Double(dragOffset.height) / 10.0
+        return max(-20, min(20, basePitch + dragPitch))
     }
     
     var body: some View {
@@ -189,6 +194,19 @@ private struct Parallax3DCard: View {
         )
         .scaleEffect(isVisible ? 1 : 0.8)
         .opacity(isVisible ? 1 : 0)
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    withAnimation(.interactiveSpring(response: 0.2, dampingFraction: 0.8)) {
+                        dragOffset = value.translation
+                    }
+                }
+                .onEnded { _ in
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                        dragOffset = .zero
+                    }
+                }
+        )
         .onAppear {
             withAnimation(.spring(response: 0.7, dampingFraction: 0.6)) {
                 isVisible = true
