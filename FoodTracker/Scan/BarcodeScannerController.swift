@@ -9,9 +9,10 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
 
         let scanner = DataScannerViewController(
             recognizedDataTypes: [.barcode()],
-            qualityLevel: .fast,
+            qualityLevel: .balanced,
             recognizesMultipleItems: false,
             isHighFrameRateTrackingEnabled: true,
+            isPinchToZoomEnabled: true,
             isHighlightingEnabled: true
         )
         scanner.delegate = context.coordinator

@@ -1,0 +1,319 @@
+[
+  {
+    "id": "course-1",
+    "title": "Kurs 1: Ernährungsgrundlagen",
+    "completedCount": 1,
+    "articles": [
+      {
+        "id": "art-1",
+        "title": "Die goldene Regel zum Abnehmen",
+        "subtitle": "Kalorien rein vs. Kalorien raus einfach erklärt.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#4CAF50",
+        "colorHex2": "#009688",
+        "iconName": "scale.3d",
+        "content": "## Die Wissenschaft der Gewichtsabnahme\n\nIm Kern beruht die Änderung Ihres Körpergewichts auf einem Grundgesetz der Thermodynamik: **Energiebilanz**.\n\nAlles, was Sie essen und trinken, enthält Energie, gemessen in Kalorien. Ihr Körper nutzt diese Energie, um Sie am Leben zu halten (atmen, Blut pumpen) und um sich zu bewegen.\n\n### Die 3 Zustände der Energiebilanz:\n\n1. **Erhaltung**: Sie verbrauchen genau die gleiche Menge an Kalorien, wie Sie verbrennen. Ihr Gewicht bleibt gleich.\n2. **Kalorienüberschuss**: Sie verbrauchen MEHR Kalorien, als Sie verbrennen. Ihr Körper speichert die zusätzliche Energie, normalerweise als Fett. Sie nehmen zu.\n3. **Kaloriendefizit**: Sie nehmen WENIGER Kalorien zu sich, als Sie verbrennen. Ihr Körper ist gezwungen, gespeichertes Fett zur Energiegewinnung zu nutzen. **Du verlierst Gewicht.**\n\n### Warum ist das wichtig?\nDenn es bedeutet, dass es **keine von Natur aus „dickmachenden“ Lebensmittel gibt**. Sie können an Gewicht zunehmen, wenn Sie zu viel davon essen, wenn Sie vollkommen saubere und gesunde Lebensmittel zu sich nehmen. Und Sie können mit Pizza abnehmen, solange Sie ein Kaloriendefizit haben.\n\n*Tipp: Konzentrieren Sie sich zunächst darauf, Ihr tägliches Kalorienziel zu erreichen. Es ist die Grundlage für alles andere.*"
+      },
+      {
+        "id": "art-2",
+        "title": "Makronährstoffe beherrschen",
+        "subtitle": "Warum Proteine, Fette und Kohlenhydrate wichtig sind.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#FF9800",
+        "colorHex2": "#FFC107",
+        "iconName": "chart.pie.fill",
+        "content": "## Lernen Sie die Makros kennen\n\nWenn Kalorien bestimmen, **wie viel** Gewicht Sie verlieren, bestimmen Makronährstoffe, **welche Art** Gewicht Sie verlieren (Fett vs. Muskeln) und wie Sie sich dabei fühlen.\n\n### 🥩 Protein (4 kcal/g)\nProtein ist der Baustein Ihres Körpers. \n* **Warum Sie es brauchen:** Es bewahrt Ihre Muskelmasse, während Sie Fett verlieren. Es ist außerdem der Nährstoff mit der höchsten Sättigung, was bedeutet, dass es Sie länger satt hält.\n* **Quellen:** Huhn, Eier, Tofu, griechischer Joghurt, Fisch.\n\n### 🥑 Fette (9 kcal/g)\nFette haben einen schlechten Ruf, aber sie sind lebenswichtig.\n* **Warum Sie es brauchen:** Hormonregulierung (einschließlich Testosteron und Östrogen), Gehirngesundheit und Vitaminaufnahme.\n* **Quellen:** Avocados, Nüsse, Olivenöl, Lachs.\n\n### 🍚 Kohlenhydrate (4 kcal/g)\nKohlenhydrate sind die bevorzugte Energiequelle Ihres Körpers.\n* **Warum Sie es brauchen:** Sie stärken Ihr Gehirn und Ihr Training. Wenn Sie sich während einer Diät müde und träge fühlen, liegt das oft an einem extrem niedrigen Kohlenhydratgehalt.\n* **Quellen:** Reis, Kartoffeln, Obst, Hafer.\n\n**Imbiss:** Verzichten Sie nicht auf Makronährstoffe. Ausgewogenheit ist der Schlüssel zu einer nachhaltigen Ernährung."
+      },
+      {
+        "id": "art-3",
+        "title": "Die verborgene Kraft der Faser",
+        "subtitle": "Das Geheimnis für eine satte und gesunde Verdauung.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#9C27B0",
+        "iconName": "leaf.fill",
+        "content": "## Was sind Ballaststoffe?\n\nBallaststoffe sind eine Art Kohlenhydrate, die Ihr Körper nicht verdauen kann. Anstatt es zur Energiegewinnung aufzuspalten, wird es durch Ihren Körper geleitet und bietet dabei unglaubliche gesundheitliche Vorteile.\n\n### Warum Ballaststoffe der beste Freund von Diäten sind:\n1. **Massives Sättigungsgefühl:** Ballaststoffe absorbieren Wasser und dehnen sich in Ihrem Magen aus, wodurch starke „Ich bin satt“-Signale an Ihr Gehirn gesendet werden.\n2. **Blutzuckerkontrolle:** Es verlangsamt die Aufnahme von Zucker und verhindert so Energieeinbrüche und Heißhunger auf Zucker.\n3. **Darmgesundheit:** Es nährt die guten Bakterien in Ihrem Mikrobiom.\n\n### Wie viel brauchen Sie?\nStreben Sie **25–30 Gramm** pro Tag an. \n*Zu den wichtigsten Quellen gehören:* Bohnen, Linsen, Hafer, Himbeeren und Chiasamen."
+      },
+      {
+        "id": "art-4",
+        "title": "Flüssigkeitszufuhr: Der unbesungene Held",
+        "subtitle": "Warum Wasser für den Fettabbau entscheidend ist.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#03A9F4",
+        "colorHex2": "#00BCD4",
+        "iconName": "drop.fill",
+        "content": "## Wasser und Gewichtsverlust\n\nWasser ist an fast jedem biologischen Prozess beteiligt, einschließlich der Lipolyse (der Fettverbrennung). Wenn Sie dehydriert sind, kann Ihr Körper Fett oder Kohlenhydrate nicht effizient verstoffwechseln.\n\n### Die Falle des „falschen Hungers“.\nWenn Sie Hunger verspüren, ist Ihr Körper oft nur durstig. Die Signale für Durst und Hunger kommen aus demselben Teil des Gehirns (dem Hypothalamus). \n\n**Handlungsschritt:** Wenn Sie das nächste Mal ein zufälliges Verlangen verspüren, trinken Sie ein großes Glas Wasser und warten Sie 15 Minuten. Das Verlangen verschwindet oft.\n\nStreben Sie nach mindestens 2,5 bis 3 Litern Wasser pro Tag, insbesondere wenn Sie trainieren."
+      },
+      {
+        "id": "art-5",
+        "title": "So verfolgen Sie Lebensmittel genau",
+        "subtitle": "Hören Sie auf zu raten und beginnen Sie mit dem Messen.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#607D8B",
+        "colorHex2": "#455A64",
+        "iconName": "scalemass.fill",
+        "content": "## Die Küchenwaage ist Ihr Freund\n\nDie meisten Menschen unterschätzen stark, wie viel sie essen. Ein „Esslöffel“ Erdnussbutter kann leicht 3 Esslöffel sein, wenn Sie nur einen normalen Löffel verwenden, wodurch aus einem 90-Kalorien-Snack eine 300-Kalorien-Bombe wird.\n\n### Tracking-Regeln:\n1. **Roh/ungekocht wiegen:** Fleisch schrumpft beim Kochen (verliert Wasser), Reis dehnt sich aus (nimmt Wasser auf). Wiegen Sie Lebensmittel aus Genauigkeitsgründen immer im rohen Zustand, es sei denn, in der App steht ausdrücklich „gekocht“.\n2. **Flüssige Kalorien und Öle nicht vergessen:** Ein Spritzer Olivenöl in der Pfanne hat 120 Kalorien. Ein Spritzer Sahne in Ihrem Kaffee hat 50 Kalorien. Verfolgen Sie alles.\n3. **Volumen vs. Gewicht:** Messbecher (Becher, Löffel) messen das Volumen, nicht das Gewicht. Für absolute Genauigkeit verwenden Sie bei einer Digitalwaage immer Gramm."
+      }
+    ]
+  },
+  {
+    "id": "course-2",
+    "title": "Kurs 2: Mindset & Psychologie",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-6",
+        "title": "Warum es zu Essattacken kommt und wie man damit aufhört",
+        "subtitle": "Den Restrict-Binge-Zyklus für immer durchbrechen.",
+        "readTime": 6,
+        "isLocked": false,
+        "colorHex1": "#2196F3",
+        "colorHex2": "#3F51B5",
+        "iconName": "brain.head.profile",
+        "content": "## Der Restrict-Binge-Zyklus\n\nDie meisten Menschen glauben, dass sie Essattacken haben, weil es ihnen an Willenskraft mangelt. In Wirklichkeit ist Essattacken oft eine biologische und psychologische Reaktion auf **übermäßige Einschränkungen**.\n\nWenn Sie Ihre Kalorienzufuhr zu stark reduzieren oder Ihre Lieblingsspeisen ganz verbieten, schaltet Ihr Gehirn in den Überlebensmodus. Es wird besessen von der eingeschränkten Nahrung sein, bis Sie schließlich nachgeben – und weil Sie sich schuldig fühlen, essen Sie so viel davon wie möglich. \n\n### So durchbrechen Sie den Teufelskreis:\n\n1. **Hören Sie auf, Lebensmittel als „gut“ oder „schlecht“ zu kennzeichnen**\nEssen besteht nur aus Daten. Ein Apfel hat andere Daten als ein Donut, aber das Essen eines Donuts macht dich nicht zu einem schlechten Menschen.\n2. **Die 80/20-Regel**\nBeziehen Sie 80 % Ihrer Kalorien aus vollwertigen, nährstoffreichen Lebensmitteln und sparen Sie 20 % für Leckereien, die Sie wirklich lieben. \n3. **Iss ausreichend Eiweiß und Ballaststoffe**\nWenn Sie körperlich satt sind, ist die Wahrscheinlichkeit von Essattacken deutlich geringer.\n\nDenken Sie daran: Eine Diät, die Sie 5 Jahre lang durchhalten können, ist besser als eine Diät, die Sie 5 Tage lang durchhalten können."
+      },
+      {
+        "id": "art-7",
+        "title": "Umgang mit der Waage",
+        "subtitle": "Warum Ihr Gewicht täglich schwankt und warum das normal ist.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#00BCD4",
+        "colorHex2": "#2196F3",
+        "iconName": "arrow.up.arrow.down",
+        "content": "## Die Waage lügt\n\nSie sind auf die Waage gestiegen und haben gesehen, dass Sie über Nacht 1,5 Kilo zugenommen haben? **Keine Panik. Du hast keine 2 Pfund Fett zugenommen.**\n\nUm tatsächlich 2 Pfund Körperfett zuzunehmen, müssten Sie zusätzlich zu Ihrem Erhaltungsbedarf 7.000 Kalorien zu sich nehmen. Das ist nicht passiert, es sei denn, Sie haben gestern einen Liter Sahne getrunken.\n\n### Was verursacht tägliche Schwankungen?\n\n1. **Kohlenhydrate und Wasser:** Für jedes Gramm Kohlenhydrate, das Sie zu sich nehmen, speichert Ihr Körper etwa 3 Gramm Wasser. Gestern Abend Sushi oder Pasta gegessen? Ihr Gewicht wird aufgrund von Wassereinlagerungen in die Höhe schnellen.\n2. **Natrium (Salz):** Eine hohe Salzaufnahme führt dazu, dass Ihr Körper Wasser speichert.\n3. **Verdauung:** Nahrung hat physisch Gewicht. Wenn Sie nicht auf die Toilette gegangen sind, ist dieses Gewicht immer noch in Ihnen.\n4. **Stress und Schlaf:** Ein hoher Cortisolspiegel führt zu Wassereinlagerungen.\n\n**Profi-Tipp:** Wiegen Sie sich täglich, aber achten Sie auf den **Wochendurchschnitt**. Entscheidend ist der Trend, nicht die tägliche Zahl."
+      },
+      {
+        "id": "art-8",
+        "title": "Die „Alles oder Nichts“-Falle",
+        "subtitle": "Einen Keks gegessen? Warum der Tag nicht ruiniert ist.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#F44336",
+        "colorHex2": "#FF9800",
+        "iconName": "exclamationmark.triangle.fill",
+        "content": "## Die Analogie zum platten Reifen\n\nStellen Sie sich vor, Sie fahren und haben einen platten Reifen. Steigen Sie aus dem Auto und zerschneiden die anderen drei Reifen? Natürlich nicht. Sie reparieren den Platten und fahren weiter.\n\nWarum machen wir das also mit unserer Ernährung?\n\nDu isst im Büro einen Keks. Du denkst: „Nun, ich habe meine Diät für heute ruiniert.“ Ich könnte genauso gut eine große Pizza zum Abendessen bestellen und am Montag von vorne anfangen.‘*\n\n### Die Mathematik eines Ausrutschers\nEin Keks hat 200 Kalorien. Das ist ein kleiner Unterschied in Ihrem wöchentlichen Kalorienbedarf. Aber die Pizza, die Sie bestellt haben, weil Sie „aufgegeben“ haben, hat 2.000 Kalorien. Der Cookie hat Ihren Fortschritt nicht ruiniert – die Reaktion darauf schon.\n\n**Aktionsschritt:** Wenn Sie zu viel essen, kompensieren Sie es nicht. Verhungern Sie am nächsten Tag nicht. Kehren Sie einfach bei nächster Gelegenheit zu Ihren normalen Mahlzeiten zurück."
+      },
+      {
+        "id": "art-9",
+        "title": "Motivation vs. Disziplin",
+        "subtitle": "Warum die Motivation immer scheitern wird.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#673AB7",
+        "colorHex2": "#3F51B5",
+        "iconName": "bolt.fill",
+        "content": "## Der Motivationsmythos\n\nMotivation ist eine Emotion. Und wie alle Emotionen (Glück, Traurigkeit, Wut) sind sie vorübergehend und flüchtig.\n\nSie können sich nicht auf die Motivation verlassen, ins Fitnessstudio zu gehen oder Ihre Mahlzeiten zuzubereiten, denn es wird Tage geben, an denen Sie müde oder gestresst sind oder einfach keine Lust dazu haben.\n\n### Geben Sie Disziplin ein\nDisziplin bedeutet, das zu tun, was getan werden muss, auch wenn man es nicht tun möchte. Disziplin ist ein Muskel, der trainiert werden muss.\n\n**Wie man Disziplin aufbaut:**\n* **Reibung reduzieren:** Packen Sie am Vorabend Ihre Sporttasche. Kochen Sie Ihre Mahlzeiten vor. Machen Sie die richtige Wahl zur einfachsten Wahl.\n* **Die 5-Minuten-Regel:** Sie möchten nicht trainieren? Sagen Sie sich, dass Sie einfach ein 5-minütiges Aufwärmprogramm durchführen werden. Sobald Sie beginnen, übernimmt normalerweise der Schwung und Sie beenden das Training."
+      }
+    ]
+  },
+  {
+    "id": "course-3",
+    "title": "Kurs 3: Lebensstil in der realen Welt",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-10",
+        "title": "Wie man auswärts isst und auf dem richtigen Weg bleibt",
+        "subtitle": "Restaurant-Überlebensratgeber für Kalorienzähler.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#FF5722",
+        "colorHex2": "#E91E63",
+        "iconName": "fork.knife",
+        "content": "## Auswärts essen, ohne auszuflippen\n\nRestaurants wollen, dass die Speisen unglaublich gut schmecken, was normalerweise bedeutet, dass sie mit großen Mengen Butter und Öl kochen. Aber man muss kein Einsiedler sein, um abzunehmen.\n\n### Überlebenstaktiken:\n1. **Melden Sie Ihre Mahlzeit vorab an:** Schauen Sie sich die Speisekarte online an, bevor Sie gehen. Entscheiden Sie, was Sie essen möchten, protokollieren Sie es in der App und bauen Sie die restlichen Kalorien Ihres Tages darauf auf.\n2. **Protein und Gemüse:** Suchen Sie nach Mahlzeiten, die sich auf mageres Protein (gegrilltes Hähnchen, Steak, Fisch) und Gemüse konzentrieren. Vermeiden Sie Wörter wie *knusprig, gebraten, cremig oder glasiert*.\n3. **Dressings als Beilage:** Fragen Sie nach Salaten mit Dressing als Beilage. Tauchen Sie Ihre Gabel in das Dressing, bevor Sie einen Bissen Salat essen. Sie verbrauchen 80 % weniger Dressing.\n4. **Trinken Sie nicht Ihre Kalorien:** Bleiben Sie bei Cola Light, Wasser oder kalorienfreien Getränken."
+      },
+      {
+        "id": "art-11",
+        "title": "Alkohol und Gewichtsverlust",
+        "subtitle": "Kann man Wein trinken und trotzdem Fett verlieren?",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#9C27B0",
+        "colorHex2": "#673AB7",
+        "iconName": "wineglass.fill",
+        "content": "## Flüssige Kalorien\n\nJa, man kann durchaus Alkohol genießen und dabei abnehmen. Allerdings ist Alkohol oft der „stille Killer“ von Diäten. Hier ist der Grund:\n\n1. **Es hat Kalorien (7 kcal/g)**\nAlkohol ist der 4. Makronährstoff. Ein normales Glas Wein hat etwa 120 Kalorien. Ein Cocktail wie eine Margarita kann aufgrund des zugesetzten Zuckers über 300 Kalorien haben.\n\n2. **Es stoppt die Fettverbrennung**\nIhr Körper betrachtet Alkohol als Gift. Wenn Sie trinken, stoppt Ihre Leber die Fettverbrennung und konzentriert sich ausschließlich auf die Verarbeitung des Alkohols aus Ihrem Körper.\n\n3. **Die „Munchies“**\nAlkohol senkt Ihre Hemmungen. Sie könnten Ihre Kalorien den ganzen Tag über perfekt im Auge behalten, aber nach drei Bieren klingt die Pizza bis spät in die Nacht plötzlich nach einer tollen Idee.\n\n### Intelligente Trinktipps:\n* Halten Sie sich an klare Spirituosen mit kalorienfreien Mixern (Wodka Soda hat etwa 90 kcal).\n* Wechseln Sie jedes alkoholische Getränk mit einem großen Glas Wasser ab.\n* Melden Sie Ihre Getränke vorab in der App an, bevor Sie ausgehen."
+      },
+      {
+        "id": "art-12",
+        "title": "Schlaf: Der ultimative Fatburner",
+        "subtitle": "Wie schlechter Schlaf Ihre Ernährung sabotiert.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#3F51B5",
+        "colorHex2": "#212121",
+        "iconName": "moon.zzz.fill",
+        "content": "## Die Geheimwaffe\n\nSie können die perfekte Ernährung und das perfekte Trainingsprogramm haben, aber wenn Sie schlecht schlafen, kämpfen Sie einen harten Kampf.\n\n### Was passiert, wenn Ihnen der Schlaf entzogen ist?\n1. **Hormonchaos:** Leptin (das Hormon, das für ein Sättigungsgefühl sorgt) sinkt. Ghrelin (das Hormon, das hungrig macht) steigt. Du wachst mit Heißhunger auf.\n2. **Heißhunger:** Ihr Gehirn sucht nach schneller Energie, um Müdigkeit zu bekämpfen, was zu einem starken Verlangen nach Zucker und Kohlenhydraten führt.\n3. **Muskelabbau:** In einer Studie, in der zwei Gruppen mit genau demselben Kaloriendefizit verglichen wurden, verlor die Gruppe, die 8,5 Stunden schlief, den größten Teil an Fett. Die Gruppe, die 5,5 Stunden schlief, verlor genau die gleiche Menge an Gewicht, aber *die Hälfte davon war Muskelmasse*.\n\nStreben Sie jede Nacht 7–9 Stunden guten Schlaf an."
+      },
+      {
+        "id": "art-13",
+        "title": "Feiertage und Ferien überleben",
+        "subtitle": "Genießen Sie Ihre freie Zeit, ohne den Fortschritt zunichte zu machen.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#009688",
+        "colorHex2": "#4CAF50",
+        "iconName": "airplane",
+        "content": "## Urlaubsmodus\n\nFerien und Feiertage sind dazu da, genossen zu werden. Das Ziel besteht nicht unbedingt darin, im Urlaub Gewicht zu verlieren, sondern vielmehr darin, **den Schaden zu minimieren** und gleichzeitig den Spaß zu maximieren.\n\n### 1. Intermittierendes Fasten\nWenn Sie wissen, dass Sie ein umfangreiches Abendessen mit Getränken zu sich nehmen werden, lassen Sie das Frühstück aus. Iss ein leichtes, proteinreiches Mittagessen. Das spart tausende Kalorien für den Abend.\n\n### 2. Priorisieren Sie Protein\nStellen Sie sicher, dass jede Mahlzeit eine solide Proteinquelle enthält. Es hält Sie satt und verhindert, dass Sie endlos Junkfood naschen.\n\n### 3. Bleiben Sie aktiv\nGehen Sie überall hin. Erkunden Sie die Stadt zu Fuß, schwimmen Sie im Meer oder absolvieren Sie ein schnelles 15-minütiges Bodyweight-Workout in Ihrem Hotelzimmer. \n\nDenken Sie daran, dass ein einwöchiger Urlaub Ihren Körper nicht ruiniert, genauso wie eine einwöchige Diät Ihnen keinen Sixpack beschert."
+      }
+    ]
+  },
+  {
+    "id": "course-4",
+    "title": "Kurs 4: Zerplatzte Fitness-Mythen",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-14",
+        "title": "Machen Kohlenhydrate in der Nacht dick?",
+        "subtitle": "Spoiler: Dein Körper hat keine Uhr.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#795548",
+        "colorHex2": "#212121",
+        "iconName": "clock.badge.exclamationmark",
+        "content": "## Der 18-Uhr-Mythos\n\nEiner der hartnäckigsten Mythen im Fitnessbereich ist, dass sich der Verzehr von Kohlenhydraten nach 18 Uhr auf magische Weise in Fett verwandelt, weil der Stoffwechsel nachts „verlangsamt“ wird.\n\n**Das ist 100 % falsch.**\n\nIhr Körper verfügt nicht über eine Uhr, die nach Sonnenuntergang die Nahrung zu Ihren Fettzellen umleitet. Der Gewichtsverlust wird durch die gesamte tägliche Kalorienaufnahme bestimmt.\n\nWenn Ihre Erhaltungskalorien bei 2.000 liegen und Sie um 23:00 Uhr direkt vor dem Schlafengehen 1.500 Kalorien reine Nudeln essen … **werden Sie trotzdem Gewicht verlieren.**\n\nEssen Sie Ihre Kohlenhydrate, wann immer es zu Ihrem Lebensstil passt und Ihnen dabei hilft, Höchstleistungen zu erbringen!"
+      },
+      {
+        "id": "art-15",
+        "title": "Die Wahrheit über „Detox“-Diäten",
+        "subtitle": "Warum Sie bereits das beste Detox-System haben.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#8BC34A",
+        "colorHex2": "#009688",
+        "iconName": "drop.triangle.fill",
+        "content": "## Detox-Tees und Saftreinigungen\n\nUnternehmen verdienen Milliarden von Dollar mit dem Verkauf von „Detox“-Tees, -Säften und -Pillen, die versprechen, Giftstoffe aus Ihrem Körper zu entfernen und Fett zu schmelzen.\n\n### Die Realität:\nSie verfügen bereits über das fortschrittlichste High-Tech-Entgiftungssystem im bekannten Universum. Es heißt Ihre **Leber und Ihre Nieren**.\n\nWenn Ihre Leber und Nieren aufhören würden, Ihren Körper zu entgiften, bräuchten Sie keine Saftkur, sondern eine Notaufnahme.\n\n### Warum verlieren Menschen durch Kuren Gewicht?\nDenn eine Saftkur führt zu einem massiven Kaloriendefizit (oft unter 800 Kalorien pro Tag). Sie verlieren schnell Wassergewicht und Glykogen. Sobald Sie wieder feste Nahrung zu sich nehmen, ist das Gewicht sofort wieder da. Sparen Sie Ihr Geld."
+      },
+      {
+        "id": "art-16",
+        "title": "Steigert das Frühstück den Stoffwechsel?",
+        "subtitle": "Ist das Frühstück wirklich die wichtigste Mahlzeit?",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#FFC107",
+        "colorHex2": "#FF5722",
+        "iconName": "sunrise.fill",
+        "content": "## Die Lüge der Getreideindustrie\n\nDer Satz „Frühstück ist die wichtigste Mahlzeit des Tages“ wurde tatsächlich im 19. Jahrhundert in einer Marketingkampagne eines Getreideunternehmens geprägt.\n\nDas Auslassen des Frühstücks verlangsamt Ihren Stoffwechsel nicht. Tatsächlich nutzen viele Menschen intermittierendes Fasten (das Auslassen des Frühstücks) als äußerst wirksames Mittel, um ihre täglichen Kalorien zu kontrollieren.\n\n* **Wenn Sie hungrig aufwachen:** Essen Sie ein proteinreiches Frühstück, um gestärkt in den Tag zu starten.\n* **Wenn Sie keinen Hunger haben:** Zwingen Sie sich nicht zum Essen. Trinken Sie einen Kaffee oder ein Wasser und warten Sie auf das Mittagessen. Sie haben sich gerade über 400 Kalorien gespart."
+      },
+      {
+        "id": "art-17",
+        "title": "„Fettverbrennende“ Lebensmittel: Fakt oder Fiktion?",
+        "subtitle": "Können Grapefruit und Sellerie Fett verbrennen?",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#F44336",
+        "iconName": "flame.fill",
+        "content": "## Der Mythos der negativen Kalorien\n\nIn Artikeln wird oft behauptet, dass Lebensmittel wie Sellerie, Grapefruit oder Chilischoten „negative Kalorien“ haben oder aktiv Fett verbrennen.\n\nWährend der thermische Effekt von Lebensmitteln (TEF) bedeutet, dass Ihr Körper bei der Verdauung von Lebensmitteln (insbesondere Protein) Kalorien verbrennt, **verbrennt kein Lebensmittel mehr Kalorien, als es enthält.**\n\nSellerie eignet sich hervorragend zum Abnehmen, da er extrem kalorienarm und reich an Wasser/Ballaststoffen ist und satt macht. Aber wenn man eine Stange Sellerie isst, schmilzt das Fett nicht auf magische Weise vom Magen. Nur ein Kaloriendefizit tut es."
+      }
+    ]
+  },
+  {
+    "id": "course-5",
+    "title": "Kurs 5: Treiben Sie Ihr Training an",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-18",
+        "title": "Pre-Workout-Ernährung 101",
+        "subtitle": "Was man essen sollte, bevor man ins Fitnessstudio geht.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#3F51B5",
+        "colorHex2": "#00BCD4",
+        "iconName": "figure.run",
+        "content": "## Die Maschine befeuern\n\nWas Sie vor dem Training essen, bestimmt Ihr Energieniveau, Ihre Kraft und Ihre Ausdauer.\n\n### Die perfekte Mahlzeit vor dem Training\nSie möchten eine Kombination aus **Kohlenhydraten** (für schnelle Energie) und **Protein** (zum Schutz der Muskeln).\n\n* **Zeitpunkt:** Essen Sie 1 bis 2 Stunden vor dem Training.\n* **Vermeiden Sie:** Fettreiche Mahlzeiten direkt vor dem Training. Fett verlangsamt die Verdauung und kann bei intensiver körperlicher Betätigung zu Trägheit und Übelkeit führen.\n\n**Tolle Pre-Workout-Snacks:**\n* Eine Banane und eine Kugel Molkenprotein.\n* Haferflocken mit einer Handvoll Beeren.\n* Griechischer Joghurt mit Honig."
+      },
+      {
+        "id": "art-19",
+        "title": "Erholung nach dem Training",
+        "subtitle": "Ist das „anabole Fenster“ real?",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#4CAF50",
+        "colorHex2": "#8BC34A",
+        "iconName": "dumbbell.fill",
+        "content": "## Der Mythos des anabolen Fensters\n\nJahrzehntelang glaubten Bodybuilder, dass die Muskeln abbauen würden und das Training umsonst sei, wenn man nicht genau 30 Minuten nach Beendigung des Trainings einen Proteinshake trinke.\n\nDie Wissenschaft hat bewiesen, dass dies falsch ist. Das „anabole Fenster“ dauert tatsächlich **24 bis 48 Stunden** nach dem Training.\n\n### Was wirklich zählt:\nSolange Sie Ihr **Gesamttagesproteinziel** bis zum Ende des Tages erreichen, ist der Zeitpunkt der Mahlzeiten für den durchschnittlichen Fitnessstudiobesucher weitgehend irrelevant. Wenn Sie nach Hause kommen, essen Sie eine feste Mahlzeit mit Proteinen und Kohlenhydraten, aber Sie müssen nicht in die Umkleidekabine rennen, um einen Shake zu trinken."
+      },
+      {
+        "id": "art-20",
+        "title": "Benötigen Sie Proteinpulver?",
+        "subtitle": "Die Wahrheit über Nahrungsergänzungsmittel.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#FF9800",
+        "colorHex2": "#FF5722",
+        "iconName": "cup.and.saucer.fill",
+        "content": "## Das Zauberpulver?\n\nProteinpulver ist kein Steroid. Es handelt sich nicht um eine magische Muskelaufbausubstanz. **Es ist buchstäblich nur Essen.**\n\nMolkenprotein wird aus Milch gewonnen (ein Nebenprodukt der Käseproduktion). Es ist genau das Gleiche, als würde man Protein aus einer Hähnchenbrust oder einem Karton Eier gewinnen.\n\n### Warum es verwenden?\n1. **Komfort:** Es ist schnell, einfach und erfordert kein Kochen.\n2. **Kostengünstig:** Molke ist pro Gramm Protein oft günstiger als Fleisch.\n3. **Verdauung:** Es wird schnell verdaut und eignet sich daher hervorragend während des Trainings.\n\nWenn Sie Ihr tägliches Proteinziel mit echten Lebensmitteln erreichen können, benötigen Sie kein Proteinpulver. Aber es ist ein fantastisches und praktisches Werkzeug."
+      },
+      {
+        "id": "art-21",
+        "title": "Cardio vs. Gewichte für den Fettabbau",
+        "subtitle": "Was ist eigentlich besser?",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#9C27B0",
+        "iconName": "figure.strengthtraining.traditional",
+        "content": "## Der ultimative Showdown\n\nWer abnehmen möchte, greift meist aufs Laufband. Aber ist das der beste Weg?\n\n### Cardio (Laufen, Radfahren)\nCardio verbrennt *während* der eigentlichen Aktivität mehr Kalorien als das Heben von Gewichten. Es ist großartig für die Herzgesundheit und die Herz-Kreislauf-Ausdauer.\n\n### Gewichtheben (Widerstandstraining)\nDurch das Heben von Gewichten werden Muskeln aufgebaut. Muskeln sind stoffwechselaktives Gewebe, was bedeutet, dass sie **auch im Ruhezustand Kalorien verbrennen**. Je mehr Muskeln Sie haben, desto höher ist Ihr BMR (Basal Metabolic Rate).\n\nDarüber hinaus stellt das Heben von Gewichten sicher, dass das Gewicht, das Sie verlieren, aus Fett und nicht aus Muskeln stammt, was Ihnen ein „gestrafftes“ Aussehen verleiht, anstatt nur eine kleinere Version Ihres aktuellen Selbst zu werden.\n\n**Das Urteil:** Der absolut beste Ansatz für den Fettabbau ist ein Kaloriendefizit + Gewichtheben (um Muskeln aufzubauen/zu erhalten) + leichtes Cardio (für Herzgesundheit und zusätzliche Kalorienverbrennung)."
+      }
+    ]
+  },
+  {
+    "id": "course-6",
+    "title": "Kurs 6: Fortgeschrittene Ernährungsstrategien",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-22",
+        "title": "Intermittierendes Fasten erklärt",
+        "subtitle": "Ist das Auslassen des Frühstücks das Geheimnis des Fettabbaus?",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#212121",
+        "colorHex2": "#607D8B",
+        "iconName": "timer",
+        "content": "## Was ist IF?\n\nIntermittierendes Fasten (IF) ist ein Ernährungsmuster, das zwischen Fasten- und Essensphasen wechselt. Die beliebteste Methode ist **16:8** (16 Stunden fasten, alle Mahlzeiten innerhalb eines 8-Stunden-Fensters einnehmen).\n\n### Funktioniert es magisch?\nNein. IF verbrennt kein Fett. Es funktioniert, weil es eine genial einfache Möglichkeit ist, **Kalorien einzuschränken**.\n\nDurch den Verzicht auf das Frühstück und den Verzicht auf Snacks bis spät in die Nacht haben Sie einfach weniger Zeit zum Essen, was in der Regel dazu führt, dass Sie insgesamt weniger Kalorien zu sich nehmen.\n\nWenn Sie während Ihres 8-Stunden-Fensters 3.000 Kalorien zu sich nehmen, nehmen Sie trotzdem zu. Verwenden Sie IF, wenn es zu Ihrem Lebensstil passt und Ihnen hilft, Ihren Hunger zu kontrollieren, aber erwarten Sie keine Magie."
+      },
+      {
+        "id": "art-23",
+        "title": "Die Keto-Diät verstehen",
+        "subtitle": "Hoher Fettgehalt, keine Kohlenhydrate. Funktioniert es?",
+        "readTime": 6,
+        "isLocked": false,
+        "colorHex1": "#FFC107",
+        "colorHex2": "#FF9800",
+        "iconName": "avocado.fill",
+        "content": "## Die ketogene Diät\n\nKeto ist eine extrem kohlenhydratarme, fettreiche Diät. Indem Sie Ihrem Körper Kohlenhydrate entziehen, gelangt er in einen Stoffwechselzustand namens **Ketose**, in dem er Fett anstelle von Glukose als Brennstoff verbrennt.\n\n### Die Vorteile:\n* Sehr sättigend (Fett und Eiweiß halten sehr satt).\n* Schneller anfänglicher Gewichtsverlust (hauptsächlich Wassergewicht durch Abbau von Glykogen).\n* Stabiler Blutzuckerspiegel.\n\n### Die Nachteile:\n* Sehr restriktiv und auf lange Sicht schwer durchzuhalten.\n* Verlust der explosiven Energie bei hochintensiven Trainingseinheiten.\n* „Keto-Grippe“ während der anfänglichen Anpassungsphase.\n\nKeto ist nur eine weitere Möglichkeit, ein Kaloriendefizit zu erreichen. Wenn Sie Speck, Avocado und Käse lieben und sich nicht für Brot oder Nudeln interessieren, könnte es genau das Richtige für Sie sein."
+      },
+      {
+        "id": "art-24",
+        "title": "Was ist Carb Cycling?",
+        "subtitle": "Kohlenhydrate für maximale Leistung manipulieren.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#00BCD4",
+        "colorHex2": "#3F51B5",
+        "iconName": "chart.xyaxis.line",
+        "content": "## Ernährung der nächsten Stufe\n\nCarb Cycling ist eine fortschrittliche Ernährungsstrategie, bei der Sie je nach Aktivitätsgrad zwischen kohlenhydratreichen und kohlenhydratarmen Tagen wechseln.\n\n### So funktioniert es:\n* **Tage mit hohem Kohlenhydratgehalt:** Wird an den Tagen mit der höchsten Trainingsintensität (z. B. Beintag) platziert. Die Kohlenhydrate fördern intensive Leistung und füllen das Muskelglykogen wieder auf.\n* **Low-Carb-Tage:** An Ruhetagen oder leichten Cardio-Tagen. Ohne die zu verbrennenden Kohlenhydrate ist der Körper gezwungen, sich mehr auf Fett als Brennstoff zu verlassen.\n\nMit dieser Methode können Sie die Fettverbrennungsvorteile einer kohlenhydratarmen Diät nutzen und gleichzeitig die Leistungsfähigkeit und den Muskelaufbauvorteil einer kohlenhydratreichen Diät beibehalten."
+      },
+      {
+        "id": "art-25",
+        "title": "Nahrungsergänzungsmittel, die tatsächlich funktionieren",
+        "subtitle": "Verschwenden Sie kein Geld mehr für Marketing-Hypes.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#9C27B0",
+        "colorHex2": "#E91E63",
+        "iconName": "pills.fill",
+        "content": "## Der wissenschaftlich fundierte Stack\n\n95 % der Nahrungsergänzungsmittel auf dem Markt sind völlig nutzlos. Es gibt jedoch einige, deren Wirksamkeit durch jahrzehntelange wissenschaftliche Forschung nachgewiesen wurde.\n\n1. **Kreatin-Monohydrat:** Das am besten erforschte Sportergänzungsmittel der Geschichte. Es steigert Kraft, Leistungsabgabe und Muskelmasse, indem es Ihrem Körper hilft, schneller ATP (Energie) zu produzieren.\n2. **Molkenprotein:** Eine hoch bioverfügbare, schnell verdauliche Proteinquelle, die Ihnen hilft, Ihre täglichen Makroziele zu erreichen.\n3. **Koffein:** Der einzige legale, nachgewiesene Leistungssteigerer vor dem Training. Es erhöht die Ausdauer, reduziert die wahrgenommene Anstrengung und kurbelt den Stoffwechsel leicht an.\n4. **Omega-3 (Fischöl):** Hervorragend für die Herzgesundheit, die Gehirnfunktion und die Reduzierung von Gelenkentzündungen.\n5. **Vitamin D3:** Dem Großteil der Bevölkerung fehlt Vitamin D, das für die Immunfunktion, die Knochengesundheit und die Hormonregulation von entscheidender Bedeutung ist."
+      }
+    ]
+  }
+]

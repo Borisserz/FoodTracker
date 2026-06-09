@@ -13,5 +13,15 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>FoodTracker needs access to your camera to scan food barcodes, and analyze photos of your meals and restaurant menus using AI for accurate nutritional estimation.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>FoodTracker needs access to your Health data to read active energy burned, steps, body mass, and workouts. This allows us to accurately calculate your daily calorie goals and track your fitness progress.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to collect anonymous crash reports and improve app analytics.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 </dict>
 </plist>

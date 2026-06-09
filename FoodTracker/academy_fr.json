@@ -1,0 +1,319 @@
+[
+  {
+    "id": "course-1",
+    "title": "Cours 1 : Fondamentaux de la nutrition",
+    "completedCount": 1,
+    "articles": [
+      {
+        "id": "art-1",
+        "title": "La règle d'or de la perte de poids",
+        "subtitle": "Calories entrantes et calories sortantes expliquées simplement.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#4CAF50",
+        "colorHex2": "#009688",
+        "iconName": "scale.3d",
+        "content": "## La science de la perte de poids\n\nÀ la base, la modification de votre poids corporel se résume à une loi fondamentale de la thermodynamique : **l'équilibre énergétique**.\n\nTout ce que vous mangez et buvez contient de l’énergie, mesurée en calories. Votre corps utilise cette énergie pour vous maintenir en vie (respirer, pomper le sang) et pour bouger.\n\n### Les 3 états du bilan énergétique :\n\n1. **Entretien** : Vous consommez exactement la même quantité de calories que vous brûlez. Votre poids reste le même.\n2. **Surplus calorique** : Vous consommez PLUS de calories que vous n'en brûlez. Votre corps stocke l’énergie supplémentaire, généralement sous forme de graisse. Vous prenez du poids.\n3. **Déficit calorique** : Vous consommez MOINS de calories que vous n'en brûlez. Votre corps est obligé d’utiliser les graisses stockées pour produire de l’énergie. **Vous perdez du poids.**\n\n### Pourquoi est-ce important ?\nParce que cela signifie qu'il n'y a **pas d'aliments intrinsèquement « gras »**. Vous pouvez prendre du poids en mangeant des aliments parfaitement propres et sains si vous en mangez trop. Et on peut perdre du poids en mangeant de la pizza, à condition de rester en déficit calorique.\n\n*Conseil : concentrez-vous d’abord sur votre objectif calorique quotidien. C'est la base de tout le reste.*"
+      },
+      {
+        "id": "art-2",
+        "title": "Maîtriser les macronutriments",
+        "subtitle": "Pourquoi les protéines, les graisses et les glucides sont tous importants.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#FF9800",
+        "colorHex2": "#FFC107",
+        "iconName": "chart.pie.fill",
+        "content": "## Rencontrez les macros\n\nSi les calories déterminent **combien** de poids vous perdez, les macronutriments déterminent **quel type** de poids vous perdez (graisse ou muscle) et comment vous vous sentez pendant le processus.\n\n### 🥩 Protéines (4 kcal/g)\nLes protéines sont l’élément constitutif de votre corps. \n* **Pourquoi en avez-vous besoin :** Il préserve votre masse musculaire pendant que vous perdez de la graisse. C’est également le nutriment le plus rassasiant, ce qui signifie qu’il vous rassasie plus longtemps.\n* **Sources :** Poulet, œufs, tofu, yaourt grec, poisson.\n\n### 🥑 Graisses (9 kcal/g)\nLes graisses ont mauvaise réputation, mais elles sont essentielles.\n* **Pourquoi en avez-vous besoin :** Régulation hormonale (y compris la testostérone et les œstrogènes), santé cérébrale et absorption des vitamines.\n* **Sources :** Avocats, noix, huile d'olive, saumon.\n\n### 🍚 Glucides (4 kcal/g)\nLes glucides sont la source d’énergie préférée de votre corps.\n* **Pourquoi en avez-vous besoin :** Ils alimentent votre cerveau et vos entraînements. Lorsque vous vous sentez fatigué et paresseux pendant un régime, cela est souvent dû à une teneur extrêmement faible en glucides.\n* **Sources :** Riz, pommes de terre, fruits, avoine.\n\n**À emporter :** Ne supprimez aucun macronutriment. L’équilibre est la clé d’une alimentation durable."
+      },
+      {
+        "id": "art-3",
+        "title": "Le pouvoir caché de la fibre",
+        "subtitle": "Le secret pour rester rassasié et avoir une digestion saine.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#9C27B0",
+        "iconName": "leaf.fill",
+        "content": "## Qu'est-ce que la fibre ?\n\nLes fibres sont un type de glucides que votre corps ne peut pas digérer. Au lieu de le décomposer en énergie, il traverse votre système, offrant ainsi d’incroyables bienfaits pour la santé.\n\n### Pourquoi les fibres sont les meilleures amies des personnes à la diète :\n1. **Satiété massive :** Les fibres absorbent l'eau et se dilatent dans votre estomac, envoyant des signaux forts « Je suis rassasié » à votre cerveau.\n2. **Contrôle de la glycémie :** Il ralentit l'absorption du sucre, évitant ainsi les chutes d'énergie et les envies de sucre.\n3. **Santé intestinale :** Il nourrit les bonnes bactéries de votre microbiome.\n\n### De combien avez-vous besoin ?\nVisez **25 à 30 grammes** par jour. \n*Les principales sources comprennent :* Les haricots, les lentilles, l'avoine, les framboises et les graines de chia."
+      },
+      {
+        "id": "art-4",
+        "title": "Hydratation : le héros méconnu",
+        "subtitle": "Pourquoi l'eau est cruciale pour la perte de graisse.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#03A9F4",
+        "colorHex2": "#00BCD4",
+        "iconName": "drop.fill",
+        "content": "## Eau et perte de poids\n\nL'eau est impliquée dans presque tous les processus biologiques, y compris la lipolyse (la combustion des graisses). Si vous êtes déshydraté, votre corps ne peut pas métaboliser efficacement les graisses ou les glucides.\n\n### Le piège de la « fausse faim »\nSouvent, lorsque vous avez faim, votre corps a simplement soif. Les signaux de soif et de faim proviennent de la même partie du cerveau (l’hypothalamus). \n\n**Étape d'action :** La prochaine fois que vous ressentirez une envie aléatoire, buvez un grand verre d'eau et attendez 15 minutes. L'envie disparaîtra souvent.\n\nVisez au moins 2,5 à 3 litres d’eau par jour, surtout si vous vous entraînez."
+      },
+      {
+        "id": "art-5",
+        "title": "Comment suivre les aliments avec précision",
+        "subtitle": "Arrêtez de deviner et commencez à mesurer.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#607D8B",
+        "colorHex2": "#455A64",
+        "iconName": "scalemass.fill",
+        "content": "## La balance de cuisine est votre amie\n\nLa plupart des gens sous-estiment largement la quantité qu’ils mangent. Une « cuillère à soupe » de beurre de cacahuète peut facilement représenter 3 cuillères à soupe si vous utilisez simplement une cuillère normale, transformant ainsi une collation de 90 calories en une bombe de 300 calories.\n\n### Règles de suivi :\n1. **Peser cru/non cuit :** La viande rétrécit à la cuisson (perd de l'eau), le riz se dilate (absorbe l'eau). Pesez toujours les aliments à l'état cru pour plus de précision, à moins que l'application n'indique spécifiquement « cuit ».\n2. **N'oubliez pas les calories liquides et les huiles :** Un peu d'huile d'olive dans la poêle équivaut à 120 calories. Un peu de crème dans votre café équivaut à 50 calories. Suivez tout.\n3. **Volume par rapport au poids :** Les tasses à mesurer (tasses, cuillères) mesurent le volume, pas le poids. Pour une précision absolue, utilisez toujours les grammes sur une balance numérique."
+      }
+    ]
+  },
+  {
+    "id": "course-2",
+    "title": "Cours 2 : État d’esprit et psychologie",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-6",
+        "title": "Pourquoi vous vous gavez et comment arrêter",
+        "subtitle": "Briser le cycle de restriction et de frénésie pour toujours.",
+        "readTime": 6,
+        "isLocked": false,
+        "colorHex1": "#2196F3",
+        "colorHex2": "#3F51B5",
+        "iconName": "brain.head.profile",
+        "content": "## Le cycle de restriction et de frénésie\n\nLa plupart des gens pensent qu’ils mangent de façon excessive parce qu’ils manquent de volonté. En réalité, la frénésie est souvent une réponse biologique et psychologique à une **restriction excessive**.\n\nLorsque vous réduisez trop peu vos calories ou bannissez complètement vos aliments préférés, votre cerveau passe en mode survie. Il sera obsédé par la nourriture restreinte jusqu'à ce que vous finissiez par céder – et parce que vous vous sentez coupable, vous en mangez autant que possible. \n\n### Comment briser le cycle :\n\n1. **Arrêtez d'étiqueter les aliments comme « bons » ou « mauvais »**\nLa nourriture n’est que des données. Une pomme a des données différentes de celles d'un beignet, mais manger un beignet ne fait pas de vous une mauvaise personne.\n2. **La règle des 80/20**\nObtenez 80 % de vos calories provenant d’aliments entiers et nutritifs et économisez 20 % pour les friandises que vous aimez vraiment. \n3. **Mangez suffisamment de protéines et de fibres**\nVous êtes beaucoup moins susceptible de vous gaver lorsque vous êtes physiquement rassasié.\n\nN’oubliez pas : un régime auquel vous pouvez vous tenir pendant 5 ans est meilleur qu’un régime que vous pouvez suivre pendant 5 jours."
+      },
+      {
+        "id": "art-7",
+        "title": "Gérer la balance",
+        "subtitle": "Pourquoi votre poids fluctue quotidiennement et pourquoi c'est normal.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#00BCD4",
+        "colorHex2": "#2196F3",
+        "iconName": "arrow.up.arrow.down",
+        "content": "## La balance se trouve\n\nVous êtes monté sur la balance et avez vu que vous avez pris 2 livres du jour au lendemain ? **Ne pas paniquer. Vous n'avez pas pris 2 livres de graisse.**\n\nPour gagner 2 livres de graisse corporelle réelle, vous devrez consommer 7 000 calories supplémentaires par rapport à votre niveau d'entretien. À moins que vous ayez bu un gallon de crème épaisse hier, cela ne s'est pas produit.\n\n### Qu'est-ce qui cause les fluctuations quotidiennes ?\n\n1. **Glucides et eau :** Pour chaque gramme de glucides que vous consommez, votre corps stocke environ 3 grammes d'eau. Vous avez mangé des sushis ou des pâtes hier soir ? Votre poids augmentera en raison de la rétention d’eau.\n2. **Sodium (sel) :** Une consommation élevée de sel amène votre corps à retenir l'eau.\n3. **Digestion :** La nourriture a physiquement du poids. Si vous n’êtes pas allé aux toilettes, ce poids est toujours en vous.\n4. **Stress et sommeil :** Des niveaux élevés de cortisol entraînent une rétention d'eau.\n\n**Conseil de pro :** Pesez-vous quotidiennement, mais regardez la **moyenne hebdomadaire**. C'est la tendance qui compte, pas le chiffre quotidien."
+      },
+      {
+        "id": "art-8",
+        "title": "Le piège du « tout ou rien »",
+        "subtitle": "Vous avez mangé un cookie ? Pourquoi la journée n'est pas gâchée.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#F44336",
+        "colorHex2": "#FF9800",
+        "iconName": "exclamationmark.triangle.fill",
+        "content": "## L'analogie avec la crevaison\n\nImaginez que vous conduisez et que vous avez une crevaison. Sortez-vous de la voiture et coupez-vous les trois autres pneus ? Bien sûr que non. Vous réparez l’appartement et continuez à conduire.\n\nAlors pourquoi faisons-nous cela avec notre alimentation ?\n\nVous mangez un cookie au bureau. Vous pensez : *'Eh bien, j'ai ruiné mon régime pour aujourd'hui. Autant commander une grande pizza pour le dîner et recommencer lundi.'*\n\n### Les mathématiques d'une erreur\nUn cookie représente 200 calories. Il s’agit d’un petit problème dans votre apport calorique hebdomadaire. Mais la pizza que vous avez commandée parce que vous avez « abandonné » contient 2 000 calories. Le cookie n’a pas gâché votre progression, mais bien la réaction.\n\n**Étape d'action :** Si vous mangez trop, ne compensez pas. Ne vous affamez pas le lendemain. Reprenez simplement vos repas normaux à la toute prochaine occasion."
+      },
+      {
+        "id": "art-9",
+        "title": "Motivation contre discipline",
+        "subtitle": "Pourquoi la motivation vous fera toujours défaut.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#673AB7",
+        "colorHex2": "#3F51B5",
+        "iconName": "bolt.fill",
+        "content": "## Le mythe de la motivation\n\nLa motivation est une émotion. Et comme toutes les émotions (bonheur, tristesse, colère), elle est temporaire et éphémère.\n\nVous ne pouvez pas compter sur la motivation pour aller à la salle de sport ou préparer vos repas, car il y aura des jours où vous serez fatigué, stressé ou n'en aurez tout simplement pas envie.\n\n### Entrez la discipline\nLa discipline, c'est faire ce qui doit être fait, même si vous ne voulez pas le faire. La discipline est un muscle qui doit être entraîné.\n\n**Comment développer la discipline :**\n* **Réduisez les frictions :** Préparez votre sac de sport la veille. Précuisez vos repas. Faites du bon choix le choix le plus simple.\n* **La règle des 5 minutes :** Vous ne voulez pas vous entraîner ? Dites-vous que vous ferez juste un échauffement de 5 minutes. Habituellement, une fois que vous avez commencé, l’élan prend le dessus et vous terminez l’entraînement."
+      }
+    ]
+  },
+  {
+    "id": "course-3",
+    "title": "Cours 3 : Style de vie réel",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-10",
+        "title": "Comment manger au restaurant et rester sur la bonne voie",
+        "subtitle": "Guide de survie des restaurants pour compteurs de calories.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#FF5722",
+        "colorHex2": "#E91E63",
+        "iconName": "fork.knife",
+        "content": "## Dîner au restaurant sans paniquer\n\nLes restaurants veulent que la nourriture ait un goût incroyable, ce qui signifie généralement cuisiner avec d'énormes quantités de beurre et d'huile. Mais il n’est pas nécessaire d’être un ermite pour perdre du poids.\n\n### Tactiques de survie :\n1. **Pré-enregistrez votre repas :** Consultez le menu en ligne avant de partir. Décidez de ce que vous allez manger, enregistrez-le dans l'application et construisez le reste de votre journée en calories autour de cela.\n2. **Protéines et légumes :** Recherchez des repas centrés sur une protéine maigre (poulet grillé, steak, poisson) et des légumes. Évitez les mots comme *croustillant, frit, crémeux ou glacé*.\n3. **Vinaigrettes à part :** Demandez des salades avec vinaigrette à part. Trempez votre fourchette dans la vinaigrette avant de croquer dans la salade. Vous utiliserez 80 % de pansement en moins.\n4. **Ne buvez pas vos calories :** Tenez-vous-en au Coca light, à l'eau ou aux boissons sans calories."
+      },
+      {
+        "id": "art-11",
+        "title": "Alcool et perte de poids",
+        "subtitle": "Peut-on boire du vin tout en perdant de la graisse ?",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#9C27B0",
+        "colorHex2": "#673AB7",
+        "iconName": "wineglass.fill",
+        "content": "## Calories liquides\n\nOui, vous pouvez absolument profiter de l’alcool et perdre du poids. Cependant, l'alcool est souvent le « tueur silencieux » des régimes. Voici pourquoi :\n\n1. **Il contient des calories (7 kcal/g)**\nL'alcool est le 4ème macronutriment. Un verre de vin standard contient environ 120 calories. Un cocktail comme une Margarita peut contenir plus de 300 calories en raison des sucres ajoutés.\n\n2. **Il arrête la combustion des graisses**\nVotre corps considère l’alcool comme une toxine. Lorsque vous buvez, votre foie cesse de brûler les graisses et se concentre entièrement sur le traitement de l’alcool hors de votre système.\n\n3. **Les « Munchies »**\nL'alcool réduit vos inhibitions. Vous pourriez parfaitement suivre vos calories toute la journée, mais après 3 bières, cette pizza de fin de soirée semble soudainement être une excellente idée.\n\n### Conseils pour boire intelligemment :\n* Tenez-vous-en aux spiritueux clairs avec des mélangeurs sans calories (la Vodka Soda contient environ 90 kcal).\n* Alternez chaque boisson alcoolisée avec un grand verre d'eau.\n* Pré-enregistrez vos boissons dans l'application avant de sortir."
+      },
+      {
+        "id": "art-12",
+        "title": "Sommeil : le brûleur de graisse ultime",
+        "subtitle": "À quel point un mauvais sommeil sabote votre alimentation.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#3F51B5",
+        "colorHex2": "#212121",
+        "iconName": "moon.zzz.fill",
+        "content": "## L'arme secrète\n\nVous pouvez avoir le régime alimentaire parfait et la routine d’entraînement parfaite, mais si votre sommeil est mauvais, vous menez une bataille difficile.\n\n### Que se passe-t-il lorsque vous manquez de sommeil ?\n1. **Chaos hormonal :** La leptine (l'hormone qui vous rassasie) chute. La ghréline (l’hormone qui donne faim) augmente. Vous vous réveillez avec une faim vorace.\n2. **Envies :** Votre cerveau recherche rapidement de l'énergie pour combattre la fatigue, ce qui entraîne des envies intenses de sucre et de glucides.\n3. **Perte musculaire :** Dans une étude comparant deux groupes présentant exactement le même déficit calorique, le groupe qui a dormi 8,5 heures a perdu principalement de la graisse. Le groupe qui a dormi 5,5 heures a perdu exactement la même quantité de poids, mais *la moitié était de la masse musculaire*.\n\nVisez 7 à 9 heures de sommeil de qualité chaque nuit."
+      },
+      {
+        "id": "art-13",
+        "title": "Survivre aux vacances et aux vacances",
+        "subtitle": "Profitez de votre temps libre sans annuler vos progrès.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#009688",
+        "colorHex2": "#4CAF50",
+        "iconName": "airplane",
+        "content": "## Mode vacances\n\nLes vacances et les vacances sont faites pour être appréciées. Le but n'est pas forcément de perdre du poids pendant les vacances, mais plutôt de **minimiser les dégâts** tout en maximisant le plaisir.\n\n### 1. Jeûne intermittent\nSi vous savez que vous allez prendre un dîner copieux avec des boissons, sautez le petit-déjeuner. Prenez un déjeuner léger et riche en protéines. Cela permet d'économiser des milliers de calories pour la soirée.\n\n### 2. Prioriser les protéines\nAssurez-vous que chaque repas contient une source solide de protéines. Cela vous rassasiera et vous évitera de grignoter sans fin des cochonneries.\n\n### 3. Restez actif\nMarchez partout. Explorez la ville à pied, nagez dans l'océan ou faites une séance d'entraînement rapide de 15 minutes avec le poids du corps dans votre chambre d'hôtel. \n\nN'oubliez pas qu'une semaine de vacances ne ruinera pas votre corps, tout comme une semaine de régime ne vous donnera pas un pack de six."
+      }
+    ]
+  },
+  {
+    "id": "course-4",
+    "title": "Cours 4 : Les mythes sur le fitness brisés",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-14",
+        "title": "Les glucides la nuit font-ils grossir ?",
+        "subtitle": "Spoiler : Votre corps n’a pas d’horloge.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#795548",
+        "colorHex2": "#212121",
+        "iconName": "clock.badge.exclamationmark",
+        "content": "## Le mythe de 18 heures\n\nL'un des mythes les plus persistants en matière de fitness est que manger des glucides après 18 heures se transformera comme par magie en graisse parce que votre métabolisme « ralentit » la nuit.\n\n**C'est 100 % faux.**\n\nVotre corps n’a pas d’horloge qui redirige les aliments vers vos cellules adipeuses après le coucher du soleil. La perte de poids est dictée par l’apport calorique quotidien total.\n\nSi vos calories d'entretien sont de 2 000 et que vous mangez 1 500 calories de pâtes pures à 23h00 juste avant de vous coucher... **vous perdrez quand même du poids.**\n\nMangez vos glucides chaque fois que cela correspond à votre style de vie et vous aide à être plus performant !"
+      },
+      {
+        "id": "art-15",
+        "title": "La vérité sur les régimes « détox »",
+        "subtitle": "Pourquoi vous disposez déjà du meilleur système de désintoxication.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#8BC34A",
+        "colorHex2": "#009688",
+        "iconName": "drop.triangle.fill",
+        "content": "## Thés et jus détoxifiants\n\nLes entreprises gagnent des milliards de dollars en vendant des thés, des jus et des pilules « détoxifiantes » promettant d'éliminer les toxines de votre corps et de faire fondre les graisses.\n\n### La réalité :\nVous disposez déjà du système de désintoxication de haute technologie le plus avancé de l’univers connu. Cela s'appelle votre **foie et vos reins**.\n\nSi votre foie et vos reins arrêtaient de détoxifier votre corps, vous n'auriez pas besoin d'une cure de jus : vous auriez besoin d'une salle d'urgence.\n\n### Pourquoi les gens perdent-ils du poids avec les nettoyages ?\nParce qu’une cure de jus vous met dans un déficit calorique massif (souvent moins de 800 calories par jour). Vous perdez rapidement du poids en eau et en glycogène. Dès que vous mangez à nouveau des aliments solides, le poids revient immédiatement. Économisez votre argent."
+      },
+      {
+        "id": "art-16",
+        "title": "Le petit-déjeuner stimule-t-il le métabolisme ?",
+        "subtitle": "Le petit-déjeuner est-il vraiment le repas le plus important ?",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#FFC107",
+        "colorHex2": "#FF5722",
+        "iconName": "sunrise.fill",
+        "content": "## Le mensonge de l’industrie céréalière\n\nL'expression « Le petit-déjeuner est le repas le plus important de la journée » a en fait été inventée lors d'une campagne de marketing menée par une entreprise céréalière au XIXe siècle.\n\nSauter le petit-déjeuner **ne** ralentit pas votre métabolisme. En fait, de nombreuses personnes utilisent le jeûne intermittent (sauter le petit-déjeuner) comme un outil très efficace pour contrôler leurs calories quotidiennes.\n\n* **Si vous vous réveillez affamé :** Prenez un petit-déjeuner riche en protéines pour commencer la journée en force.\n* **Si vous n'avez pas faim :** Ne vous forcez pas à manger. Prenez un café ou de l'eau et attendez le déjeuner. Vous venez d'économiser plus de 400 calories."
+      },
+      {
+        "id": "art-17",
+        "title": "Aliments « brûle-graisses » : réalité ou fiction ?",
+        "subtitle": "Le pamplemousse et le céleri peuvent-ils brûler les graisses ?",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#F44336",
+        "iconName": "flame.fill",
+        "content": "## Le mythe des calories négatives\n\nLes articles affirment souvent que les aliments comme le céleri, le pamplemousse ou le piment contiennent des « calories négatives » ou brûlent activement les graisses.\n\nAlors que l'effet thermique des aliments (TEF) signifie que votre corps brûle des calories en digérant les aliments (en particulier les protéines), **aucun aliment ne brûle plus de calories qu'il n'en contient.**\n\nLe céleri est idéal pour perdre du poids car il est extrêmement faible en calories et riche en eau et en fibres, ce qui vous rassasie. Mais manger un bâton de céleri ne fait pas fondre comme par magie la graisse de votre estomac. Seul un déficit calorique le fait."
+      }
+    ]
+  },
+  {
+    "id": "course-5",
+    "title": "Cours 5 : Alimenter vos entraînements",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-18",
+        "title": "Nutrition pré-entraînement 101",
+        "subtitle": "Que manger avant d'aller à la salle de sport.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#3F51B5",
+        "colorHex2": "#00BCD4",
+        "iconName": "figure.run",
+        "content": "## Alimenter la machine\n\nCe que vous mangez avant une séance d’entraînement dicte votre niveau d’énergie, votre force et votre endurance.\n\n### Le repas parfait avant l'entraînement\nVous voulez une combinaison de **Glucides** (pour une énergie rapide) et de **Protéines** (pour protéger les muscles).\n\n* **Timing :** Mangez 1 à 2 heures avant l'entraînement.\n* **Éviter :** Repas riches en graisses juste avant l'entraînement. La graisse ralentit la digestion et peut vous rendre léthargique et nauséeux lors d’un exercice intense.\n\n**Excellentes collations avant l'entraînement :**\n* Une banane et une boule de protéine de lactosérum.\n* Gruau avec une poignée de baies.\n* Yaourt grec au miel."
+      },
+      {
+        "id": "art-19",
+        "title": "Récupération après l'entraînement",
+        "subtitle": "La « fenêtre anabolisante » est-elle réelle ?",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#4CAF50",
+        "colorHex2": "#8BC34A",
+        "iconName": "dumbbell.fill",
+        "content": "## Le mythe de la fenêtre anabolisante\n\nPendant des décennies, les bodybuilders ont cru que si vous ne buviez pas de boisson protéinée exactement 30 minutes après la fin de votre entraînement, vos muscles tomberaient et l'entraînement serait inutile.\n\nLa science a prouvé que c’était faux. La « fenêtre anabolisante » dure en réalité **24 à 48 heures** après une séance d'entraînement.\n\n### Ce qui compte vraiment :\nTant que vous atteignez votre **objectif quotidien total en protéines** d'ici la fin de la journée, le moment des repas n'a pratiquement aucune importance pour le sportif moyen. Mangez un repas solide avec des protéines et des glucides lorsque vous rentrez chez vous, mais il n'est pas nécessaire de courir jusqu'à votre vestiaire pour prendre un shake."
+      },
+      {
+        "id": "art-20",
+        "title": "Avez-vous besoin de protéines en poudre ?",
+        "subtitle": "La vérité sur les suppléments.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#FF9800",
+        "colorHex2": "#FF5722",
+        "iconName": "cup.and.saucer.fill",
+        "content": "## La Poudre Magique ?\n\nLa poudre de protéine n’est pas un stéroïde. Ce n’est pas une substance magique pour développer les muscles. **C'est littéralement juste de la nourriture.**\n\nLa protéine de lactosérum est dérivée du lait (c'est un sous-produit de la production de fromage). C’est exactement la même chose que d’obtenir des protéines à partir d’une poitrine de poulet ou d’un carton d’œufs.\n\n### Pourquoi l'utiliser ?\n1. **Commodité :** C'est rapide, facile et ne nécessite aucune cuisson.\n2. **Rentable :** Par gramme de protéines, le lactosérum est souvent moins cher que la viande.\n3. **Digestion :** Il se digère rapidement, ce qui le rend idéal pendant les heures d'entraînement.\n\nSi vous parvenez à atteindre votre objectif quotidien en protéines en mangeant de vrais aliments, vous n’avez pas besoin de protéines en poudre. Mais c’est un outil fantastique et pratique."
+      },
+      {
+        "id": "art-21",
+        "title": "Cardio vs poids pour perdre de la graisse",
+        "subtitle": "Qu'est-ce qui est réellement meilleur ?",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#9C27B0",
+        "iconName": "figure.strengthtraining.traditional",
+        "content": "## La confrontation ultime\n\nLorsque les gens veulent perdre du poids, ils sautent généralement sur un tapis roulant. Mais est-ce la meilleure façon ?\n\n### Cardio (course à pied, cyclisme)\nLe cardio brûle plus de calories *pendant* l'activité réelle que la levée de poids. C’est excellent pour la santé cardiaque et l’endurance cardiovasculaire.\n\n### Haltérophilie (entraînement en résistance)\nSoulever des poids développe les muscles. Le muscle est un tissu métaboliquement actif, ce qui signifie **qu'il brûle des calories même lorsque vous êtes au repos**. Plus vous avez de muscle, plus votre BMR (taux métabolique basal) est élevé.\n\nDe plus, soulever des poids garantit que le poids que vous perdez provient de la graisse et non des muscles, ce qui vous donne un aspect « tonique » plutôt que de simplement devenir une version plus petite de vous-même actuel.\n\n**Le verdict :** La meilleure approche absolue pour perdre de la graisse est un déficit calorique + une haltérophilie (pour développer/entretenir les muscles) + un cardio léger (pour la santé cardiaque et une combustion supplémentaire de calories)."
+      }
+    ]
+  },
+  {
+    "id": "course-6",
+    "title": "Cours 6 : Stratégies diététiques avancées",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-22",
+        "title": "Le jeûne intermittent expliqué",
+        "subtitle": "Sauter le petit-déjeuner est-il le secret de la perte de graisse ?",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#212121",
+        "colorHex2": "#607D8B",
+        "iconName": "timer",
+        "content": "## Qu'est-ce que SI ?\n\nLe jeûne intermittent (FI) est un modèle alimentaire qui alterne entre des périodes de jeûne et de repas. La méthode la plus populaire est **16:8** (jeûner pendant 16 heures, prendre tous les repas dans un intervalle de 8 heures).\n\n### Est-ce que ça marche comme par magie ?\nNon. IF ne brûle pas les graisses comme par magie. Cela fonctionne parce que c'est un moyen extrêmement simple de **restreindre les calories**.\n\nEn sautant le petit-déjeuner et en éliminant les collations de fin de soirée, vous avez tout simplement moins de temps pour manger, ce qui se traduit généralement par une consommation globale de moins de calories.\n\nSi vous consommez 3 000 calories pendant votre fenêtre de 8 heures, vous prendrez quand même du poids. Utilisez IF si cela correspond à votre style de vie et vous aide à contrôler votre faim, mais ne vous attendez pas à de la magie."
+      },
+      {
+        "id": "art-23",
+        "title": "Comprendre le régime Keto",
+        "subtitle": "Riche en graisses, pas de glucides. Est-ce que ça marche ?",
+        "readTime": 6,
+        "isLocked": false,
+        "colorHex1": "#FFC107",
+        "colorHex2": "#FF9800",
+        "iconName": "avocado.fill",
+        "content": "## Le régime cétogène\n\nKeto est un régime extrêmement faible en glucides et riche en graisses. En privant votre corps de glucides, il entre dans un état métabolique appelé **cétose**, dans lequel il brûle les graisses comme carburant au lieu du glucose.\n\n### Les avantages :\n* Très rassasiant (les graisses et les protéines vous rassasient).\n* Perte de poids initiale rapide (principalement du poids en eau dû à l'épuisement du glycogène).\n* Niveaux de sucre dans le sang stables.\n\n### Les inconvénients :\n* Très restrictif et difficile à maintenir à long terme.\n* Perte d'énergie explosive pour les entraînements de haute intensité.\n* \"Keto Flu\" pendant la phase initiale d'adaptation.\n\nKeto n'est qu'un autre moyen d'atteindre un déficit calorique. Si vous aimez le bacon, l'avocat et le fromage et que vous ne vous souciez pas du pain ou des pâtes, cela pourrait être parfait pour vous."
+      },
+      {
+        "id": "art-24",
+        "title": "Qu’est-ce que le Carb Cycling ?",
+        "subtitle": "Manipuler les glucides pour des performances maximales.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#00BCD4",
+        "colorHex2": "#3F51B5",
+        "iconName": "chart.xyaxis.line",
+        "content": "## Nutrition de niveau supérieur\n\nLe cycle des glucides est une stratégie diététique avancée dans laquelle vous alternez entre des jours riches en glucides et des jours faibles en glucides en fonction de votre niveau d'activité.\n\n### Comment ça marche :\n* **Jours riches en glucides :** Placés sur vos jours d'entraînement les plus intenses (comme le jour des jambes). Les glucides alimentent des performances intenses et reconstituent le glycogène musculaire.\n* **Jours faibles en glucides :** Placés les jours de repos ou les jours de cardio léger. Sans glucides à brûler, le corps est obligé de compter davantage sur les graisses comme carburant.\n\nCette méthode vous permet d'obtenir les avantages d'un régime pauvre en glucides en matière de combustion des graisses tout en conservant les avantages de haute performance et de développement musculaire d'un régime riche en glucides."
+      },
+      {
+        "id": "art-25",
+        "title": "Des suppléments qui fonctionnent réellement",
+        "subtitle": "Arrêtez de gaspiller de l’argent en marketing publicitaire.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#9C27B0",
+        "colorHex2": "#E91E63",
+        "iconName": "pills.fill",
+        "content": "## La pile fondée sur la science\n\n95% des compléments disponibles sur le marché sont totalement inutiles. Cependant, il y en a quelques-uns qui ont des décennies de recherche scientifique prouvant leur efficacité.\n\n1. **Créatine Monohydrate :** Le complément sportif le plus étudié de l'histoire. Il augmente la force, la puissance et la masse musculaire en aidant votre corps à produire de l’ATP (énergie) plus rapidement.\n2. **Whey Protein :** Une source de protéines hautement biodisponible et à digestion rapide pour vous aider à atteindre vos objectifs macro quotidiens.\n3. **Caféine :** Le seul amplificateur de performance légal et éprouvé avant l'entraînement. Il augmente l’endurance, réduit la perception de l’effort et stimule légèrement le métabolisme.\n4. **Oméga-3 (huile de poisson) :** Excellent pour la santé cardiaque, la fonction cérébrale et la réduction de l'inflammation des articulations.\n5. **Vitamine D3 :** La plupart de la population souffre d'une carence en vitamine D, qui est cruciale pour la fonction immunitaire, la santé des os et la régulation hormonale."
+      }
+    ]
+  }
+]

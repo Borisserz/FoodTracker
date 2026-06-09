@@ -1,0 +1,319 @@
+[
+  {
+    "id": "course-1",
+    "title": "Curso 1: Fundamentos de Nutrición",
+    "completedCount": 1,
+    "articles": [
+      {
+        "id": "art-1",
+        "title": "La regla de oro para bajar de peso",
+        "subtitle": "Calorías que entran y calorías que salen explicadas de forma sencilla.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#4CAF50",
+        "colorHex2": "#009688",
+        "iconName": "scale.3d",
+        "content": "## La ciencia de la pérdida de peso\n\nEn esencia, cambiar el peso corporal se reduce a una ley fundamental de la termodinámica: **Equilibrio energético**.\n\nTodo lo que comes y bebes contiene energía, medida en calorías. Su cuerpo usa esta energía para mantenerse vivo (respirar, bombear sangre) y moverse.\n\n### Los 3 estados del equilibrio energético:\n\n1. **Mantenimiento**: Consumes exactamente la misma cantidad de calorías que quemas. Tu peso sigue siendo el mismo.\n2. **Excedente calórico**: Consumes MÁS calorías de las que quemas. Su cuerpo almacena la energía extra, generalmente en forma de grasa. Ganas peso.\n3. **Déficit calórico**: Consumes MENOS calorías de las que quemas. Su cuerpo se ve obligado a utilizar la grasa almacenada para obtener energía. **Pierdes peso.**\n\n### ¿Por qué es importante esto?\nPorque significa que **no hay alimentos que \"engorden\" inherentemente**. Puedes ganar peso comiendo alimentos perfectamente limpios y saludables si comes demasiado. Y puedes perder peso comiendo pizza, siempre y cuando mantengas un déficit calórico.\n\n*Consejo: Concéntrate primero en alcanzar tu objetivo de calorías diarias. Es la base de todo lo demás.*"
+      },
+      {
+        "id": "art-2",
+        "title": "Dominar los macronutrientes",
+        "subtitle": "Por qué son importantes las proteínas, las grasas y los carbohidratos.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#FF9800",
+        "colorHex2": "#FFC107",
+        "iconName": "chart.pie.fill",
+        "content": "## Conoce las macros\n\nSi las calorías determinan **cuánto** peso pierdes, los macronutrientes determinan **qué tipo** de peso pierdes (grasa versus músculo) y cómo te sientes durante el proceso.\n\n### 🥩 Proteína (4 kcal/g)\nLa proteína es el componente básico de su cuerpo. \n* **Por qué lo necesitas:** Preserva tu masa muscular mientras pierdes grasa. También es el nutriente más saciante, lo que significa que te mantiene lleno durante más tiempo.\n* **Fuentes:** Pollo, huevos, tofu, yogur griego, pescado.\n\n### 🥑 Grasas (9 kcal/g)\nLas grasas tienen mala fama, pero son imprescindibles.\n* **Por qué lo necesitas:** Regulación hormonal (incluidos testosterona y estrógeno), salud cerebral y absorción de vitaminas.\n* **Fuentes:** Aguacates, nueces, aceite de oliva, salmón.\n\n### 🍚 Hidratos de carbono (4 kcal/g)\nLos carbohidratos son la fuente de energía preferida de su cuerpo.\n* **Por qué lo necesitas:** Alimentan tu cerebro y tus entrenamientos. Cuando te sientes cansado y lento mientras estás a dieta, a menudo se debe a que tienes niveles extremadamente bajos de carbohidratos.\n* **Fuentes:** Arroz, patatas, frutas, avena.\n\n**Conclusión:** No elimines ningún macronutriente. El equilibrio es la clave para una dieta sostenible."
+      },
+      {
+        "id": "art-3",
+        "title": "El poder oculto de la fibra",
+        "subtitle": "El secreto para mantener una digestión plena y saludable.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#9C27B0",
+        "iconName": "leaf.fill",
+        "content": "## ¿Qué es la fibra?\n\nLa fibra es un tipo de carbohidrato que tu cuerpo no puede digerir. En lugar de descomponerlo para obtener energía, pasa a través de su sistema, brindando increíbles beneficios para la salud a lo largo del camino.\n\n### Por qué la fibra es la mejor amiga de las personas que hacen dieta:\n1. **Saciedad masiva:** La fibra absorbe agua y se expande en el estómago, enviando fuertes señales de \"Estoy lleno\" a tu cerebro.\n2. **Control del azúcar en sangre:** Ralentiza la absorción de azúcar, previniendo caídas de energía y antojos de azúcar.\n3. **Salud intestinal:** Alimenta las bacterias buenas de tu microbioma.\n\n### ¿Cuánto necesitas?\nIntenta consumir **25-30 gramos** por día. \n*Las fuentes principales incluyen:* Frijoles, lentejas, avena, frambuesas y semillas de chía."
+      },
+      {
+        "id": "art-4",
+        "title": "Hidratación: el héroe anónimo",
+        "subtitle": "Por qué el agua es crucial para perder grasa.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#03A9F4",
+        "colorHex2": "#00BCD4",
+        "iconName": "drop.fill",
+        "content": "## Agua y pérdida de peso\n\nEl agua participa en casi todos los procesos biológicos, incluida la lipólisis (la quema de grasa). Si está deshidratado, su cuerpo no puede metabolizar eficientemente las grasas o los carbohidratos.\n\n### La trampa del 'falso hambre'\nA menudo, cuando tienes hambre, tu cuerpo en realidad sólo tiene sed. Las señales de sed y hambre provienen de la misma parte del cerebro (el hipotálamo). \n\n**Paso de acción:** La próxima vez que sientas un antojo aleatorio, bebe un vaso grande de agua y espera 15 minutos. El deseo muchas veces desaparecerá.\n\nIntente beber al menos entre 2,5 y 3 litros de agua al día, especialmente si hace ejercicio."
+      },
+      {
+        "id": "art-5",
+        "title": "Cómo realizar un seguimiento de los alimentos con precisión",
+        "subtitle": "Deja de adivinar y empieza a medir.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#607D8B",
+        "colorHex2": "#455A64",
+        "iconName": "scalemass.fill",
+        "content": "## La báscula de cocina es tu amiga\n\nLa mayoría de la gente subestima enormemente lo que come. Una 'cucharada' de mantequilla de maní puede equivaler fácilmente a 3 cucharadas si solo usa una cuchara normal, convirtiendo un refrigerio de 90 calorías en una bomba de 300 calorías.\n\n### Reglas de seguimiento:\n1. **Pesar cruda/sin cocer:** La carne se encoge cuando se cocina (pierde agua), el arroz se expande (absorbe agua). Pese siempre los alimentos en su estado crudo para mayor precisión, a menos que la aplicación diga específicamente \"cocido\".\n2. **No olvides las calorías líquidas y los aceites:** Un chorrito de aceite de oliva en la sartén equivale a 120 calorías. Un chorrito de crema en tu café tiene 50 calorías. Seguimiento de todo.\n3. **Volumen vs. Peso:** Las tazas medidoras (tazas, cucharas) miden el volumen, no el peso. Para una precisión absoluta, utilice siempre gramos en una báscula digital."
+      }
+    ]
+  },
+  {
+    "id": "course-2",
+    "title": "Curso 2: Mentalidad y Psicología",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-6",
+        "title": "Por qué se da un atracón y cómo dejar de hacerlo",
+        "subtitle": "Rompiendo el ciclo de restricción y atracones para siempre.",
+        "readTime": 6,
+        "isLocked": false,
+        "colorHex1": "#2196F3",
+        "colorHex2": "#3F51B5",
+        "iconName": "brain.head.profile",
+        "content": "## El ciclo de restricción y atracones\n\nLa mayoría de las personas piensan que comen en exceso porque les falta fuerza de voluntad. En realidad, los atracones son a menudo una respuesta biológica y psicológica a la **restricción excesiva**.\n\nCuando reduce demasiado sus calorías o prohíbe por completo sus comidas favoritas, su cerebro entra en modo de supervivencia. Se obsesionará con la comida restringida hasta que usted finalmente ceda y, como se siente culpable, comerá la mayor cantidad posible. \n\n### Cómo romper el ciclo:\n\n1. **Deja de etiquetar los alimentos como 'buenos' o 'malos'**\nLa comida son sólo datos. Una manzana tiene datos diferentes a los de un donut, pero comer un donut no te convierte en una mala persona.\n2. **La regla 80/20**\nObtenga el 80 % de sus calorías de alimentos integrales y nutritivos y ahorre el 20 % en las delicias que realmente le encantan. \n3. **Coma suficientes proteínas y fibra**\nEs mucho menos probable que se dé un atracón cuando esté físicamente lleno.\n\nRecuerde: una dieta que pueda seguir durante 5 años es mejor que una dieta que pueda seguir durante 5 días."
+      },
+      {
+        "id": "art-7",
+        "title": "Lidiando con la escala",
+        "subtitle": "Por qué su peso fluctúa diariamente y por qué es normal.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#00BCD4",
+        "colorHex2": "#2196F3",
+        "iconName": "arrow.up.arrow.down",
+        "content": "## La balanza miente\n\n¿Se subió a la báscula y vio que ganó 2 libras durante la noche? **No entrar en pánico. No ganaste 2 libras de grasa.**\n\nPara ganar 2 libras de grasa corporal real, necesitaría consumir 7000 calorías adicionales por encima de su nivel de mantenimiento. A menos que ayer bebieras un galón de crema espesa, eso no sucedió.\n\n### ¿Qué causa las fluctuaciones diarias?\n\n1. **Carbohidratos y agua:** Por cada gramo de carbohidratos que consume, su cuerpo almacena aproximadamente 3 gramos de agua. ¿Comiste sushi o pasta anoche? Su peso aumentará debido a la retención de agua.\n2. **Sodio (Sal):** El consumo elevado de sal hace que el cuerpo retenga agua.\n3. **Digestión:** La comida tiene peso físicamente. Si no has ido al baño, ese peso todavía está dentro de ti.\n4. **Estrés y sueño:** Los niveles altos de cortisol provocan retención de agua.\n\n**Consejo profesional:** Pésate diariamente, pero mira el **promedio semanal**. Lo que importa es la tendencia, no el número diario."
+      },
+      {
+        "id": "art-8",
+        "title": "La trampa del 'todo o nada'",
+        "subtitle": "¿Comiste una galleta? Por qué el día no se arruina.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#F44336",
+        "colorHex2": "#FF9800",
+        "iconName": "exclamationmark.triangle.fill",
+        "content": "## La analogía del neumático pinchado\n\nImagina que estás conduciendo y se te pincha una rueda. ¿Sales del auto y cortas los otros tres neumáticos? Por supuesto que no. Arreglas el piso y sigues conduciendo.\n\nEntonces, ¿por qué hacemos esto con nuestra dieta?\n\nTe comes una galleta en la oficina. Piensas: *'Bueno, arruiné mi dieta de hoy. También podría pedir una pizza grande para cenar y empezar de nuevo el lunes.'*\n\n### Las matemáticas de un desliz\nUna galleta tiene 200 calorías. Se trata de un pequeño problema en la cantidad semanal de calorías. Pero la pizza que pediste porque 'te rendiste' tiene 2000 calorías. La galleta no arruinó tu progreso; la reacción sí lo hizo.\n\n**Paso de acción:** Si comes en exceso, no lo compenses. No te mueras de hambre al día siguiente. Simplemente regrese a sus comidas normales en la próxima oportunidad."
+      },
+      {
+        "id": "art-9",
+        "title": "Motivación versus disciplina",
+        "subtitle": "Por qué la motivación siempre te fallará.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#673AB7",
+        "colorHex2": "#3F51B5",
+        "iconName": "bolt.fill",
+        "content": "## El mito de la motivación\n\nLa motivación es una emoción. Y como toda emoción (felicidad, tristeza, enfado), es temporal y fugaz.\n\nNo puedes confiar en la motivación para ir al gimnasio o preparar tus comidas, porque habrá días en los que estés cansado, estresado o simplemente no tengas ganas.\n\n### Ingrese la disciplina\nLa disciplina es hacer lo que hay que hacer, incluso cuando no quieras hacerlo. La disciplina es un músculo que hay que entrenar.\n\n**Cómo desarrollar la disciplina:**\n* **Reduce la fricción:** Empaca tu bolsa de gimnasia la noche anterior. Precocina tus comidas. Haga de la elección correcta la elección más fácil.\n* **La regla de los 5 minutos:** ¿No quieres hacer ejercicio? Dígase a sí mismo que solo hará un calentamiento de 5 minutos. Por lo general, una vez que comienzas, el impulso toma el control y terminas el entrenamiento."
+      }
+    ]
+  },
+  {
+    "id": "course-3",
+    "title": "Curso 3: Estilo de vida del mundo real",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-10",
+        "title": "Cómo salir a comer y mantener el rumbo",
+        "subtitle": "Guía de supervivencia en restaurantes para contadores de calorías.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#FF5722",
+        "colorHex2": "#E91E63",
+        "iconName": "fork.knife",
+        "content": "## Salir a cenar sin asustarse\n\nLos restaurantes quieren que la comida tenga un sabor increíble, lo que normalmente significa cocinar con grandes cantidades de mantequilla y aceite. Pero no es necesario ser un ermitaño para perder peso.\n\n### Tácticas de supervivencia:\n1. **Registre previamente su comida:** Mire el menú en línea antes de ir. Decide qué vas a comer, regístralo en la aplicación y acumula el resto de las calorías del día en torno a ello.\n2. **Proteínas y verduras:** Busque comidas centradas en proteínas magras (pollo, bistec, pescado a la parrilla) y verduras. Evite palabras como *crujiente, frito, cremoso o glaseado*.\n3. **Aderezos al lado:** Pide ensaladas con aderezo al lado. Sumerge el tenedor en el aderezo antes de darle un bocado a la ensalada. Utilizarás un 80% menos de aderezo.\n4. **No bebas tus calorías:** Consume Coca-Cola Light, agua o bebidas sin calorías."
+      },
+      {
+        "id": "art-11",
+        "title": "El alcohol y la pérdida de peso",
+        "subtitle": "¿Puedes beber vino y aun así perder grasa?",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#9C27B0",
+        "colorHex2": "#673AB7",
+        "iconName": "wineglass.fill",
+        "content": "## Calorías líquidas\n\nSí, puedes disfrutar absolutamente del alcohol y perder peso. Sin embargo, el alcohol es a menudo el \"asesino silencioso\" de las dietas. He aquí por qué:\n\n1. **Tiene calorías (7 kcal/g)**\nEl alcohol es el cuarto macronutriente. Una copa de vino estándar tiene ~120 calorías. Un cóctel como el Margarita puede tener más de 300 calorías debido a los azúcares añadidos.\n\n2. **Detiene la quema de grasa**\nTu cuerpo ve el alcohol como una toxina. Cuando bebes, tu hígado deja de quemar grasa y se concentra por completo en procesar el alcohol fuera de tu sistema.\n\n3. **Los 'Munchies'**\nEl alcohol reduce tus inhibiciones. Podrías hacer un seguimiento perfecto de tus calorías durante todo el día, pero después de 3 cervezas, esa pizza nocturna de repente suena como una gran idea.\n\n### Consejos inteligentes para beber:\n* Cíñete a bebidas espirituosas claras con batidoras sin calorías (el vodka soda tiene ~90 kcal).\n*Alternar cada bebida alcohólica con un vaso grande de agua.\n* Registre previamente sus bebidas en la aplicación antes de salir."
+      },
+      {
+        "id": "art-12",
+        "title": "Dormir: el mejor quemagrasas",
+        "subtitle": "Cómo dormir mal sabotea tu dieta.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#3F51B5",
+        "colorHex2": "#212121",
+        "iconName": "moon.zzz.fill",
+        "content": "## El arma secreta\n\nPuedes tener la dieta perfecta y la rutina de ejercicios perfecta, pero si duermes mal, estás librando una batalla cuesta arriba.\n\n### ¿Qué sucede cuando tienes falta de sueño?\n1. **Caos hormonal:** La leptina (la hormona que te hace sentir lleno) cae. La grelina (la hormona que te da hambre) aumenta. Te despiertas con un hambre voraz.\n2. **Antojos:** Tu cerebro busca energía rápida para combatir la fatiga, lo que genera antojos intensos de azúcar y carbohidratos.\n3. **Pérdida muscular:** En un estudio que comparó dos grupos con exactamente el mismo déficit calórico, el grupo que durmió 8,5 horas perdió principalmente grasa. El grupo que durmió 5,5 horas perdió exactamente la misma cantidad de peso, pero *la mitad fue masa muscular*.\n\nTrate de dormir entre 7 y 9 horas de calidad todas las noches."
+      },
+      {
+        "id": "art-13",
+        "title": "Sobrevivir a las fiestas y vacaciones",
+        "subtitle": "Disfrute de su tiempo libre sin deshacer el progreso.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#009688",
+        "colorHex2": "#4CAF50",
+        "iconName": "airplane",
+        "content": "## Modo vacaciones\n\nLas vacaciones y los días festivos están hechos para disfrutarlos. El objetivo no es necesariamente perder peso durante las vacaciones, sino **minimizar el daño** y maximizar la diversión.\n\n### 1. Ayuno intermitente\nSi sabes que vas a tener una cena multitudinaria con bebidas, sáltate el desayuno. Tome un almuerzo ligero y rico en proteínas. Esto ahorra miles de calorías para la noche.\n\n### 2. Prioriza las proteínas\nAsegúrese de que cada comida tenga una fuente sólida de proteínas. Te mantendrá lleno y evitará que comas basura sin cesar.\n\n### 3. Mantente activo\nCamine a todas partes. Explore la ciudad a pie, nade en el océano o haga un rápido entrenamiento de peso corporal de 15 minutos en su habitación de hotel. \n\nRecuerde, una semana de vacaciones no arruinará su cuerpo, al igual que una semana de dieta no le permitirá tener abdominales marcados."
+      }
+    ]
+  },
+  {
+    "id": "course-4",
+    "title": "Curso 4: Mitos reventados sobre el fitness",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-14",
+        "title": "¿Los carbohidratos nocturnos engordan?",
+        "subtitle": "Spoiler: Tu cuerpo no tiene reloj.",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#795548",
+        "colorHex2": "#212121",
+        "iconName": "clock.badge.exclamationmark",
+        "content": "## El mito de las 6 p.m.\n\nUno de los mitos más persistentes en el fitness es que comer carbohidratos después de las 6 de la tarde se convertirá mágicamente en grasa porque el metabolismo se \"ralentiza\" durante la noche.\n\n**Esto es 100% falso.**\n\nTu cuerpo no tiene un reloj que redirija los alimentos a tus células grasas después del atardecer. La pérdida de peso está dictada por la ingesta calórica diaria total.\n\nSi tus calorías de mantenimiento son 2000 y comes 1500 calorías de pasta pura a las 11:00 p.m. justo antes de acostarte... **aún así perderás peso.**\n\n¡Come carbohidratos siempre que se adapte a tu estilo de vida y te ayude a rendir mejor!"
+      },
+      {
+        "id": "art-15",
+        "title": "La verdad sobre las dietas 'detox'",
+        "subtitle": "Por qué ya tienes el mejor sistema detox.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#8BC34A",
+        "colorHex2": "#009688",
+        "iconName": "drop.triangle.fill",
+        "content": "## Tés detox y limpiezas de jugos\n\nLas empresas ganan miles de millones de dólares vendiendo tés, jugos y píldoras \"desintoxicantes\" que prometen eliminar las toxinas del cuerpo y derretir la grasa.\n\n### La realidad:\nYa tienes el sistema de desintoxicación de alta tecnología más avanzado del universo conocido. Se llama **hígado y riñones**.\n\nSi su hígado y riñones dejaran de desintoxicar su cuerpo, no necesitaría una limpieza con jugos; necesitaría una sala de emergencias.\n\n### ¿Por qué la gente pierde peso con las limpiezas?\nPorque una limpieza con jugos te pone en un enorme déficit calórico (a menudo menos de 800 calorías por día). Se pierde peso de agua y glucógeno rápidamente. En el momento en que vuelves a comer alimentos sólidos, el peso vuelve inmediatamente. Ahorre su dinero."
+      },
+      {
+        "id": "art-16",
+        "title": "¿El desayuno estimula el metabolismo?",
+        "subtitle": "¿Es realmente el desayuno la comida más importante?",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#FFC107",
+        "colorHex2": "#FF5722",
+        "iconName": "sunrise.fill",
+        "content": "## La mentira de la industria cerealera\n\nLa frase \"El desayuno es la comida más importante del día\" fue acuñada en realidad en una campaña de marketing de una empresa de cereales en el siglo XIX.\n\nSaltarse el desayuno **no** ralentiza tu metabolismo. De hecho, muchas personas utilizan el Ayuno Intermitente (saltarse el desayuno) como una herramienta muy eficaz para controlar sus calorías diarias.\n\n* **Si te despiertas con hambre:** Consume un desayuno rico en proteínas para comenzar el día con fuerza.\n* **Si no tienes hambre:** No te fuerces a comer. Toma un café o agua y espera el almuerzo. Acabas de ahorrarte más de 400 calorías."
+      },
+      {
+        "id": "art-17",
+        "title": "Alimentos 'quemagrasas': ¿realidad o ficción?",
+        "subtitle": "¿Pueden el pomelo y el apio quemar grasas?",
+        "readTime": 3,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#F44336",
+        "iconName": "flame.fill",
+        "content": "## El mito de las calorías negativas\n\nLos artículos a menudo afirman que alimentos como el apio, la toronja o los chiles tienen \"calorías negativas\" o queman grasa activamente.\n\nSi bien el efecto térmico de los alimentos (TEF) significa que su cuerpo quema calorías al digerir los alimentos (especialmente las proteínas), **ningún alimento quema más calorías de las que contiene.**\n\nEl apio es excelente para perder peso porque es extremadamente bajo en calorías y rico en agua y fibra, lo que te llena. Pero comer una rama de apio no derrite mágicamente la grasa del estómago. Sólo un déficit calórico lo hace."
+      }
+    ]
+  },
+  {
+    "id": "course-5",
+    "title": "Curso 5: Impulsando tus entrenamientos",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-18",
+        "title": "Nutrición previa al entrenamiento 101",
+        "subtitle": "Qué comer antes de ir al gimnasio.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#3F51B5",
+        "colorHex2": "#00BCD4",
+        "iconName": "figure.run",
+        "content": "## Alimentando la máquina\n\nLo que comes antes de hacer ejercicio dicta tus niveles de energía, fuerza y resistencia.\n\n### La comida perfecta antes del entrenamiento\nQuieres una combinación de **Carbohidratos** (para obtener energía rápida) y **Proteínas** (para proteger los músculos).\n\n* **Tiempo:** Comer 1 a 2 horas antes del entrenamiento.\n* **Evitar:** Comidas ricas en grasas justo antes del entrenamiento. La grasa ralentiza la digestión y puede provocar sensación de lentitud y náuseas durante el ejercicio intenso.\n\n**Excelentes refrigerios previos al entrenamiento:**\n* Un plátano y una cucharada de proteína de suero.\n* Avena con un puñado de frutos rojos.\n* Yogur griego con miel."
+      },
+      {
+        "id": "art-19",
+        "title": "Recuperación post-entrenamiento",
+        "subtitle": "¿Es real la 'Ventana Anabólica'?",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#4CAF50",
+        "colorHex2": "#8BC34A",
+        "iconName": "dumbbell.fill",
+        "content": "## El mito de la ventana anabólica\n\nDurante décadas, los culturistas creyeron que si no bebías un batido de proteínas exactamente 30 minutos después de terminar tu entrenamiento, tus músculos se caerían y el entrenamiento era en vano.\n\nLa ciencia ha demostrado que esto es falso. La 'ventana anabólica' en realidad dura **24 a 48 horas** después de un entrenamiento.\n\n### Lo que realmente importa:\nSiempre y cuando alcances tu **objetivo total diario de proteínas** al final del día, el horario de las comidas es en gran medida irrelevante para el asistente promedio al gimnasio. Consuma una comida sólida con proteínas y carbohidratos cuando llegue a casa, pero no es necesario correr al vestuario para tomar un batido."
+      },
+      {
+        "id": "art-20",
+        "title": "¿Necesita proteína en polvo?",
+        "subtitle": "La verdad sobre los suplementos.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#FF9800",
+        "colorHex2": "#FF5722",
+        "iconName": "cup.and.saucer.fill",
+        "content": "## ¿El polvo mágico?\n\nLa proteína en polvo no son esteroides. No es una sustancia mágica para desarrollar músculos. **Es literalmente solo comida.**\n\nLa proteína de suero se deriva de la leche (es un subproducto de la producción de queso). Es exactamente lo mismo que obtener proteínas de una pechuga de pollo o de un cartón de huevos.\n\n### ¿Por qué usarlo?\n1. **Conveniencia:** Es rápido, fácil y no requiere cocción.\n2. **Rentable:** Por gramo de proteína, el suero suele ser más barato que la carne.\n3. **Digestión:** Se digiere rápidamente, lo que lo hace ideal para las horas de entrenamiento.\n\nSi puedes alcanzar tu objetivo diario de proteínas comiendo alimentos reales, no necesitas proteína en polvo. Pero es una herramienta fantástica y conveniente."
+      },
+      {
+        "id": "art-21",
+        "title": "Cardio versus pesas para perder grasa",
+        "subtitle": "¿Cuál es realmente mejor?",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#E91E63",
+        "colorHex2": "#9C27B0",
+        "iconName": "figure.strengthtraining.traditional",
+        "content": "## El enfrentamiento definitivo\n\nCuando la gente quiere perder peso, suele subirse a una cinta de correr. ¿Pero es esa la mejor manera?\n\n### Cardio (correr, andar en bicicleta)\nEl cardio quema más calorías *durante* la actividad real que levantar pesas. Es excelente para la salud del corazón y la resistencia cardiovascular.\n\n### Levantamiento de pesas (entrenamiento de resistencia)\nLevantar pesas desarrolla músculos. El músculo es un tejido metabólicamente activo, lo que significa que **quema calorías incluso mientras estás en reposo**. Cuanto más músculo tengas, mayor será tu BMR (tasa metabólica basal).\n\nAdemás, levantar pesas garantiza que el peso que se pierde provenga de la grasa, no del músculo, lo que le brinda una apariencia \"tonificada\" en lugar de simplemente convertirse en una versión más pequeña de su yo actual.\n\n**El veredicto:** El mejor enfoque para perder grasa es un déficit calórico + levantamiento de pesas (para desarrollar/mantener los músculos) + cardio ligero (para la salud del corazón y quemar calorías adicionales)."
+      }
+    ]
+  },
+  {
+    "id": "course-6",
+    "title": "Curso 6: Estrategias Dietéticas Avanzadas",
+    "completedCount": 0,
+    "articles": [
+      {
+        "id": "art-22",
+        "title": "Ayuno intermitente explicado",
+        "subtitle": "¿Saltarse el desayuno es el secreto para perder grasa?",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#212121",
+        "colorHex2": "#607D8B",
+        "iconName": "timer",
+        "content": "## ¿Qué es SI?\n\nEl ayuno intermitente (AI) es un patrón de alimentación que alterna entre períodos de ayuno y comida. El método más popular es **16:8** (ayuno durante 16 horas, comer todas las comidas dentro de un período de 8 horas).\n\n### ¿Hace magia?\nNo. IF no quema grasa mágicamente. Funciona porque es una forma increíblemente sencilla de **restringir calorías**.\n\nAl saltarse el desayuno y eliminar los refrigerios nocturnos, simplemente tendrá menos tiempo para comer, lo que generalmente resulta en un consumo general de menos calorías.\n\nSi consumes 3000 calorías durante tu período de 8 horas, seguirás aumentando de peso. Utilice IF si se adapta a su estilo de vida y le ayuda a controlar el hambre, pero no espere magia."
+      },
+      {
+        "id": "art-23",
+        "title": "Entendiendo la dieta ceto",
+        "subtitle": "Alto en grasas, sin carbohidratos. ¿Funciona?",
+        "readTime": 6,
+        "isLocked": false,
+        "colorHex1": "#FFC107",
+        "colorHex2": "#FF9800",
+        "iconName": "avocado.fill",
+        "content": "## La dieta cetogénica\n\nKeto es una dieta extremadamente baja en carbohidratos y alta en grasas. Al privar a su cuerpo de carbohidratos, entra en un estado metabólico llamado **cetosis**, donde quema grasa como combustible en lugar de glucosa.\n\n### Los pros:\n* Altamente saciante (las grasas y proteínas te mantienen muy lleno).\n* Pérdida de peso inicial rápida (principalmente peso de agua debido al agotamiento del glucógeno).\n* Niveles estables de azúcar en sangre.\n\n### Los contras:\n* Muy restrictivo y difícil de sostener a largo plazo.\n* Pérdida de energía explosiva para entrenamientos de alta intensidad.\n* \"Keto Flu\" durante la fase inicial de adaptación.\n\nKeto es solo otra forma de lograr un déficit calórico. Si te encanta el tocino, el aguacate y el queso, y no te importa el pan ni la pasta, puede que sea perfecto para ti."
+      },
+      {
+        "id": "art-24",
+        "title": "¿Qué es el ciclo de carbohidratos?",
+        "subtitle": "Manipulación de carbohidratos para un máximo rendimiento.",
+        "readTime": 5,
+        "isLocked": false,
+        "colorHex1": "#00BCD4",
+        "colorHex2": "#3F51B5",
+        "iconName": "chart.xyaxis.line",
+        "content": "## Nutrición de siguiente nivel\n\nEl ciclo de carbohidratos es una estrategia dietética avanzada en la que se alternan días altos y bajos en carbohidratos según su nivel de actividad.\n\n### Cómo funciona:\n* **Días ricos en carbohidratos:** Se colocan en los días de entrenamiento más intenso (como el Día de las piernas). Los carbohidratos impulsan el rendimiento intenso y reponen el glucógeno muscular.\n* **Días bajos en carbohidratos:** Se colocan en días de descanso o días de cardio ligero. Sin carbohidratos para quemar, el cuerpo se ve obligado a depender más de la grasa como combustible.\n\nEste método le permite obtener los beneficios de quema de grasa de una dieta baja en carbohidratos mientras mantiene los beneficios de alto rendimiento y desarrollo muscular de una dieta alta en carbohidratos."
+      },
+      {
+        "id": "art-25",
+        "title": "Suplementos que realmente funcionan",
+        "subtitle": "Deje de gastar dinero en publicidad exagerada.",
+        "readTime": 4,
+        "isLocked": false,
+        "colorHex1": "#9C27B0",
+        "colorHex2": "#E91E63",
+        "iconName": "pills.fill",
+        "content": "## La pila respaldada por la ciencia\n\nEl 95% de los suplementos que hay en el mercado son completamente inútiles. Sin embargo, hay algunos que cuentan con décadas de investigación científica que demuestran su eficacia.\n\n1. **Monohidrato de creatina:** El suplemento deportivo más investigado de la historia. Aumenta la fuerza, la producción de potencia y la masa muscular al ayudar al cuerpo a producir ATP (energía) más rápido.\n2. **Proteína de suero:** Una fuente de proteína altamente biodisponible y de rápida digestión para ayudarle a alcanzar sus objetivos macroeconómicos diarios.\n3. **Cafeína:** El único potenciador del rendimiento previo al entrenamiento legal y comprobado. Aumenta la resistencia, reduce el esfuerzo percibido y acelera ligeramente el metabolismo.\n4. **Omega-3 (aceite de pescado):** Excelente para la salud del corazón, la función cerebral y para reducir la inflamación de las articulaciones.\n5. **Vitamina D3:** La mayor parte de la población tiene deficiencia de vitamina D, que es crucial para la función inmune, la salud ósea y la regulación hormonal."
+      }
+    ]
+  }
+]

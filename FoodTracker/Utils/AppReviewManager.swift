@@ -38,8 +38,7 @@ final class AppReviewManager {
     }
 
     static func openAppStoreReview() {
-        // Replace with the actual App Store ID
-        guard let url = URL(string: "https://apps.apple.com/app/idYOUR_APP_ID?action=write-review") else { return }
+        guard let url = URL(string: "https://apps.apple.com/app/id6445831998?action=write-review") else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
 }

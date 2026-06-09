@@ -15,6 +15,7 @@ struct SmartScannerView: View {
     @State private var recognizedBarcode: String? = nil
     @State private var isScanning: Bool = false
     @State private var isFlashlightOn: Bool = false
+    @State private var isPulseActive: Bool = false
 
     @State private var selectedMode: ScannerMode = .barcode
     // @State for @Observable class (replaces @StateObject for the migrated LiveFoodCameraManager)
@@ -76,8 +77,12 @@ struct SmartScannerView: View {
                 if selectedMode == .barcode {
                     ZStack {
                         RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.white, lineWidth: 2)
+                            .stroke(Color.white.opacity(isPulseActive ? 0.3 : 1.0), lineWidth: isPulseActive ? 4 : 2)
                             .frame(width: 250, height: 250)
+                            .scaleEffect(isPulseActive ? 1.02 : 1.0)
+                            .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isPulseActive)
+                            .onAppear { isPulseActive = true }
+                            .onDisappear { isPulseActive = false }
 
                         if isLoading {
                             VStack(spacing: 12) {
@@ -390,6 +395,23 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
               session.canAddInput(videoInput) else {
             session.commitConfiguration()
             return
+        }
+
+        do {
+            try videoDevice.lockForConfiguration()
+            if videoDevice.isFocusModeSupported(.continuousAutoFocus) {
+                videoDevice.focusMode = .continuousAutoFocus
+            }
+            if videoDevice.isExposureModeSupported(.continuousAutoExposure) {
+                videoDevice.exposureMode = .continuousAutoExposure
+            }
+            if videoDevice.isLowLightBoostSupported {
+                videoDevice.automaticallyEnablesLowLightBoostWhenAvailable = true
+            }
+            videoDevice.isSubjectAreaChangeMonitoringEnabled = true
+            videoDevice.unlockForConfiguration()
+        } catch {
+            print("❌ Failed to configure camera: \(error.localizedDescription)")
         }
 
         session.addInput(videoInput)

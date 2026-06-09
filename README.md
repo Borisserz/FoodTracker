@@ -156,3 +156,14 @@ FoodTracker operates on a privacy-first model:
 Copyright (c) 2026 [Boris Serzhanovich]. All rights reserved.
 
 This project is showcased for **portfolio and demonstration purposes only**. The source code, AI prompt engineering logic, UI designs, and custom algorithms are proprietary. They are not licensed for public, commercial use, redistribution, or modification without explicit written permission from the author.
+
+## Scripts
+
+- `scripts/copy_to_clipboard.sh` — copy files or folders to the system clipboard on macOS (or copy paths as text on Linux).
+
+Usage examples:
+
+```bash
+./scripts/copy_to_clipboard.sh README.md FoodTracker/App/RemoteConfigManager.swift
+./scripts/copy_to_clipboard.sh --all
+```

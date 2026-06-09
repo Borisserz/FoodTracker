@@ -9,6 +9,23 @@ final class VertexAIManager {
     // Delegate to the shared client (deduplication complete for this file).
     private let client = GeminiProxyClient.shared
 
+    private var currentLanguage: String {
+        let code = Locale.current.language.languageCode?.identifier ?? "en"
+        switch code {
+        case "ru": return "Russian"
+        case "es": return "Spanish"
+        case "fr": return "French"
+        case "de": return "German"
+        case "it": return "Italian"
+        case "pt": return "Portuguese"
+        default: return "English"
+        }
+    }
+
+    private var languageInstruction: String {
+        "CRITICAL: RESPOND EXCLUSIVELY IN THIS LANGUAGE: \\(currentLanguage). If returning JSON, keep JSON keys in English, but translate ALL string values to \\(currentLanguage)."
+    }
+
     struct AIFoodResponse: Codable {
         let isFood: Bool
         let errorMessage: String?
@@ -38,10 +55,13 @@ final class VertexAIManager {
         let base64Image = imageData.base64EncodedString()
 
         let prompt = """
-        You are an elite AI nutritionist. Analyze the image.
+        You are an elite AI nutritionist. Analyze the image with extreme precision.
         1. Check if the image contains food or a drink. If it DOES NOT, set "isFood" to false and write a funny "errorMessage" (e.g., "That's a keyboard, not a sandwich!").
-        2. If it IS food, set "isFood" to true. Estimate the food name, total weight in grams, total calories, and macros (protein, fats, carbs in grams).
-        3. Respond ONLY with a raw, valid JSON object. NO Markdown, NO ```json formatting, NO extra text.
+        2. If it IS food, set "isFood" to true.
+        3. Identify all visible ingredients. Estimate the physical portion size (in grams) by comparing it to typical plates or hands in the frame.
+        4. Calculate total calories and macros (protein, fats, carbs in grams). Be conservative and realistic. Account for hidden oils, butter, and dressings often used in cooking.
+        5. Respond ONLY with a raw, valid JSON object. NO Markdown, NO ```json formatting, NO extra text.
+        \(languageInstruction)
         Format exactly like this:
         {"isFood": true, "errorMessage": null, "name": "Avocado Toast", "weight": 150.0, "calories": 220, "protein": 5.0, "fats": 12.0, "carbs": 20.0}
         """
@@ -59,7 +79,7 @@ final class VertexAIManager {
             }
 
             return FoodItem(
-                name: aiResponse.name ?? "Unknown Meal",
+                name: aiResponse.name ?? String(localized: "Unknown Meal"),
                 weight: aiResponse.weight ?? 100.0,
                 calories: aiResponse.calories ?? 0,
                 protein: aiResponse.protein ?? 0,
@@ -77,14 +97,16 @@ final class VertexAIManager {
         let base64Image = imageData.base64EncodedString()
 
         let prompt = """
-        You are an elite AI nutritionist. Read the restaurant menu in the image.
+        You are an elite AI nutritionist and menu analyst. Read the restaurant menu in the image.
         The user has \(remainingCalories) kcal left for today and needs around \(targetProtein)g more protein.
-
+        
+        Analyze the dishes, estimating hidden calories from restaurant cooking methods (oils, heavy creams, large portions).
         Pick exactly 3 dishes from the menu:
-        1. "ideal" - The best fit for their remaining calories and high protein.
-        2. "caution" - A dish that is okay, but they should be careful (e.g., ask for dressing on the side).
-        3. "avoid" - A calorie-bomb or unhealthy dish they must avoid today to stay on track.
+        1. "ideal" - The best fit for their remaining calories and high protein. Prioritize lean proteins and veggies.
+        2. "caution" - A dish that is okay but risky. Provide advice on how to modify it (e.g., "ask for dressing on the side", "no cheese").
+        3. "avoid" - A massive calorie-bomb or highly processed dish they must avoid today.
 
+        \(languageInstruction)
         Respond ONLY with a raw, valid JSON object. No Markdown. Format exactly:
         {"ideal": {"dishName": "Name", "estimatedCalories": 400, "protein": 30.0, "reasoning": "Why"}, "caution": {...}, "avoid": {...}}
         """

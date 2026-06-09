@@ -91,6 +91,23 @@ class AINutritionService {
     static let shared = AINutritionService()
     private init() {}
 
+    private var currentLanguage: String {
+        let code = Locale.current.language.languageCode?.identifier ?? "en"
+        switch code {
+        case "ru": return "Russian"
+        case "es": return "Spanish"
+        case "fr": return "French"
+        case "de": return "German"
+        case "it": return "Italian"
+        case "pt": return "Portuguese"
+        default: return "English"
+        }
+    }
+
+    private var languageInstruction: String {
+        "CRITICAL: RESPOND EXCLUSIVELY IN THIS LANGUAGE: \\(currentLanguage). If returning JSON, keep JSON keys in English, but translate ALL string values to \\(currentLanguage)."
+    }
+
     private let location = "us-central1"
 
     func generateDailyVerdict(consumed: Int, goal: Int, protein: Double, targetProtein: Double) async -> DailyVerdictDTO? {
@@ -104,6 +121,7 @@ class AINutritionService {
         - If they need to eat more/less to hit goals, mood is "warning".
         - If they heavily ruined their diet (huge surplus), mood is "danger".
 
+        \(languageInstruction)
         Return ONLY a raw JSON object. No Markdown. Format:
         {"title": "String", "message": "String", "mood": "String"}
         """
@@ -117,6 +135,7 @@ class AINutritionService {
         They need a meal that is roughly around \(missingCalories) kcal and contains around \(missingProtein)g of protein to hit their daily goals perfectly.
 
         Invent a creative, tasty recipe using primarily these ingredients.
+        \(languageInstruction)
         Return ONLY a raw JSON object. No Markdown. Format:
         {"name": "String", "info": "Short description of how to cook it", "calories": Int, "protein": Double, "fats": Double, "carbs": Double, "cookingTime": Int}
         """
@@ -128,6 +147,7 @@ class AINutritionService {
         let prompt = """
         You are a Michelin-star AI Chef. The user wants to cook a meal called "\(mealName)" using these exact ingredients: \(ingredientsString).
         Generate a highly structured, step-by-step recipe.
+        \(languageInstruction)
         Provide the response STRICTLY as a raw JSON object (no markdown formatting, no ```json tags).
         Use this exact schema:
         {
@@ -155,6 +175,7 @@ class AINutritionService {
         let prompt = """
         You are an expert nutritionist database. The user searched for "\(query)" but it wasn't found in our API.
         Estimate the macronutrients for exactly 100 grams of this food.
+        \(languageInstruction)
         Provide the response STRICTLY as a raw JSON object (no markdown formatting, no ```json tags).
         Use this exact schema:
         {
@@ -187,6 +208,7 @@ class AINutritionService {
         - Cooking Complexity: \(complexity)
         
         Generate exactly 4 meals per day: Breakfast, Lunch, Dinner, Snack.
+        \(languageInstruction)
         Provide the response STRICTLY as a raw JSON object matching this schema:
         {
           "days": [
@@ -260,13 +282,14 @@ class AINutritionService {
 
           Respond conversationally, warmly, and concisely. Keep answers under 4 sentences.
           If they ask if they can eat something, check their remaining calories from the context and give advice based on their \(activeDiet) diet.
+          \(languageInstruction)
           """
           return await fetchRawTextFromGemini(prompt: systemPrompt)
       }
 
     func generateChatTitle(for userMessage: String) async -> String {
-        let systemPrompt = "Create a very short title (max 2-3 words) for a nutrition chat based on this first message: '\(userMessage)'. Return ONLY the text without quotes."
-        return await fetchRawTextFromGemini(prompt: systemPrompt) ?? "Diet Chat"
+        let systemPrompt = "Create a very short title (max 2-3 words) for a nutrition chat based on this first message: '\(userMessage)'. Return ONLY the text without quotes. \(languageInstruction)"
+        return await fetchRawTextFromGemini(prompt: systemPrompt) ?? String(localized: "Diet Chat")
     }
 
     func getMacroFixAdvice(missingCals: Int, missingProtein: Int, missingFats: Int, missingCarbs: Int) async -> MacroFixAdviceDTO? {
@@ -277,6 +300,7 @@ class AINutritionService {
         If missingCals is negative, they overate. Tell them gently how to recover.
         If missingCals is positive, suggest exactly 3 quick, realistic snacks/meals to hit these remaining macros perfectly.
 
+        \(languageInstruction)
         Respond ONLY with a raw, valid JSON object. No Markdown. Format exactly:
         {
           "title": "Short punchy title",
@@ -295,6 +319,7 @@ class AINutritionService {
 
         Write a short, motivating message. If they reached the goal, praise them. If not, tell them exactly how much is left and when to drink next.
 
+        \(languageInstruction)
         Respond ONLY with a raw, valid JSON object. No Markdown. Format exactly:
         {
           "title": "Stay Hydrated / Great Job",
