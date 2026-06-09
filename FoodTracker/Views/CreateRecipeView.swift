@@ -937,7 +937,7 @@ struct RecipeDetailView: View {
 
         private func saveToDiary() async {
             // Use @ModelActor repo to ensure the day's summary (removes detached creation)
-            _ = try? await di.summaryRepository.ensureSummary(for: .now)
+            _ = try? await di.summaryRepository.ensureSummary(for: Date.now)
 
             guard let summary = summaries.first else { return }
 

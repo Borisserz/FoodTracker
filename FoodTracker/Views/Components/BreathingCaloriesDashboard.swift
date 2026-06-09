@@ -142,6 +142,7 @@ struct NetCaloriesRing: View {
         let isOver = net > target
         let progress = Double(net) / Double(max(target, 1))
         let ringColor = isOver ? Color.red : Color.green
+        let remaining = target - net
 
         ZStack {
             Circle()
@@ -163,7 +164,6 @@ struct NetCaloriesRing: View {
                     .font(.system(.headline, design: .rounded))
                     .foregroundColor(.textGray)
 
-                let remaining = target - net
                 Text(remaining >= 0 ? "\(remaining) left" : "\(abs(remaining)) over")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(ringColor)

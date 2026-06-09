@@ -7,18 +7,13 @@ protocol SummaryRepositoryProtocol: Sendable {
     func fetchAllTimeCalories() async throws -> Int
     func calculateCurrentStreak() async throws -> Int
     func fetchSummaries(startDate: Date, endDate: Date) async throws -> [DailySummary]
+    func ensureSummary(for date: Date) async throws -> DailySummary
 }
 
 @ModelActor
 actor SummaryRepository: SummaryRepositoryProtocol {
-    // modelContext is now provided by @ModelActor (isolated, off-main by design)
-    // We no longer create ad-hoc ModelContext per call.
-
-    // Note: init(modelContainer:) is synthesized by the macro.
-    // The explicit init below is kept for compatibility with existing DI call sites.
-    init(modelContainer: ModelContainer) {
-        self.modelContainer = modelContainer
-    }
+    // modelContext and init(modelContainer:) are provided by the @ModelActor macro.
+    // We removed the custom init to avoid redeclaration with the synthesized one.
 
     func fetchSummary(for date: Date) async throws -> DailySummary? {
         let startOfDay = Calendar.current.startOfDay(for: date)
@@ -40,17 +35,19 @@ actor SummaryRepository: SummaryRepositoryProtocol {
     }
 
     func fetchAllTimeCalories() async throws -> Int {
-        // For a true aggregate, a more advanced approach (e.g. persistent computed or batch) would be ideal.
-        // For now we fetch only the totalCalories property where possible.
-        let fetchDescriptor = FetchDescriptor<DailySummary>(propertiesToFetch: [\.totalCalories])
+        // We have to fetch the full objects because totalCalories is a computed property
+        // (depends on relationships to meals and beverages).
+        // For a true aggregate without loading everything, we would need to persist the total
+        // or use a different query strategy.
+        let fetchDescriptor = FetchDescriptor<DailySummary>()
         let summaries = try modelContext.fetch(fetchDescriptor)
         return summaries.reduce(0) { $0 + $1.totalCalories }
     }
 
     func calculateCurrentStreak() async throws -> Int {
-        let fetchDescriptor = FetchDescriptor<DailySummary>(
-            sortBy: [SortDescriptor(\.date, order: .reverse)],
-            propertiesToFetch: [\.totalCalories, \.date]
+        // Fetch full objects so we can access the computed totalCalories.
+        var fetchDescriptor = FetchDescriptor<DailySummary>(
+            sortBy: [SortDescriptor(\DailySummary.date, order: .reverse)]
         )
         let summaries = try modelContext.fetch(fetchDescriptor)
 

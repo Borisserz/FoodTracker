@@ -68,8 +68,13 @@ struct AIMoodAdvicePopup: View {
             VStack(spacing: 16) {
                 Button(action: {
                     dismiss()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        onChatWithCoach()
+                    // Use structured concurrency instead of Dispatch for the small delay
+                    // so the transition to chat is cleaner and doesn't risk re-triggering the advice sheet.
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(300))
+                        await MainActor.run {
+                            onChatWithCoach()
+                        }
                     }
                 }) {
                     HStack {

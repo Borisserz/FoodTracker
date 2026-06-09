@@ -8,11 +8,7 @@ protocol UserRepositoryProtocol: Sendable {
 
 @ModelActor
 actor UserRepository: UserRepositoryProtocol {
-    // modelContext provided by @ModelActor macro (properly isolated, runs off main thread).
-
-    init(modelContainer: ModelContainer) {
-        self.modelContainer = modelContainer
-    }
+    // modelContext and init(modelContainer:) are provided by the @ModelActor macro.
 
     func fetchUser() async throws -> User? {
         var fetchDescriptor = FetchDescriptor<User>()

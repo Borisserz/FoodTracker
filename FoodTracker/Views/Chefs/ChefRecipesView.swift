@@ -1125,7 +1125,7 @@ struct ChooseMealSheet: View {
 
     private func saveToDiary() async {
         // Route summary creation/ensure through the @ModelActor-powered repository
-        _ = try? await di.summaryRepository.ensureSummary(for: .now)
+        _ = try? await di.summaryRepository.ensureSummary(for: Date.now)
 
         // Prefer the one from the local @Query (live from main context)
         guard let summary = summaries.first else { return }

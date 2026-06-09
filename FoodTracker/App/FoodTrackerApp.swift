@@ -144,8 +144,12 @@ struct FoodTrackerApp: App {
 }
 
 struct IdentifiableString: Identifiable, Hashable {
-    let id = UUID()
     let value: String
+    
+    var id: String { value }  // Stable identity based on the wrapped value.
+    // Previously used a fresh UUID() every time the struct was created,
+    // which caused .sheet(item:) / .fullScreenCover(item:) to repeatedly
+    // dismiss and re-present the sheet because SwiftUI saw "different" items.
 }
 
 struct ContentView: View {
