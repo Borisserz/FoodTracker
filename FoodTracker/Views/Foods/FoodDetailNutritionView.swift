@@ -376,23 +376,10 @@ private struct NutritionRow: View {
 
             Spacer()
 
-            if isPro {
-                HStack(spacing: 4) {
-                    Image(systemName: "lock.fill").font(.system(size: 10))
-                    Text("PRO")
-                }
-                .font(.system(size: 10, weight: .black))
-                .foregroundColor(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
-                .cornerRadius(8)
-            } else {
-                Text("\(value, specifier: "%.1f") \(unit)")
-                    .font(.subheadline.bold())
-                    .foregroundColor(.gray)
-                    .contentTransition(.numericText())
-            }
+            Text("\(value, specifier: "%.1f") \(unit)")
+                .font(.subheadline.bold())
+                .foregroundColor(.gray)
+                .contentTransition(.numericText())
         }
         .padding(.vertical, 18)
         .overlay(

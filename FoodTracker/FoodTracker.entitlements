@@ -8,5 +8,13 @@
 	<array>
 		<string>group.com.borisdev.WorkoutTracker</string>
 	</array>
+	<key>com.apple.developer.icloud-container-identifiers</key>
+	<array>
+		<string>iCloud.com.borisdev.FoodTracker</string>
+	</array>
+	<key>com.apple.developer.icloud-services</key>
+	<array>
+		<string>CloudKit</string>
+	</array>
 </dict>
 </plist>

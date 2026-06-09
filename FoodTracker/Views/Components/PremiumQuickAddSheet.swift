@@ -9,6 +9,15 @@ struct PremiumQuickAddSheet: View {
     let selectedDate: Date
     var onSelectDetailedMeal: (String) -> Void
 
+    init(selectedDate: Date, onSelectDetailedMeal: @escaping (String) -> Void) {
+        self.selectedDate = selectedDate
+        self.onSelectDetailedMeal = onSelectDetailedMeal
+        let startOfDay = Calendar.current.startOfDay(for: selectedDate)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
+        self._summaries = Query(filter: predicate)
+    }
+
     @State private var quickCalories: Double = 300.0
 
     let mealOptions = [
@@ -150,7 +159,7 @@ struct PremiumQuickAddSheet: View {
         let startOfDay = calendar.startOfDay(for: selectedDate)
 
         let summary: DailySummary
-        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: startOfDay) }) {
+        if let existing = summaries.first {
             summary = existing
         } else {
             summary = DailySummary(date: startOfDay)

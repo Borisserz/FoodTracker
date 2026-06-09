@@ -1,12 +1,22 @@
 import SwiftUI
 import SwiftData
 import FirebaseCore
+import FirebaseAppCheck
+import GoogleSignIn
+import AppTrackingTransparency
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        AppCheck.setAppCheckProviderFactory(AppCheckFactory())
         FirebaseApp.configure()
         return true
+    }
+
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        return GIDSignIn.sharedInstance.handle(url)
     }
 }
 
@@ -37,31 +47,98 @@ struct AIChatMessage: Identifiable, Codable, Equatable {
 @main
 struct FoodTrackerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    let modelContainer: ModelContainer
+
+    // Migrated from @StateObject/ObservableObject to @Observable per system-rules and swiftui-pro
+    @State private var versionManager = VersionManager.shared
+
+    @State private var diContainer: DIContainer?
+    @State private var databaseLoadError: Error?
 
     var body: some Scene {
         WindowGroup {
-            RootLaunchView()
-                .modelContainer(modelContainer)
-                .preferredColorScheme(.light)
-                .task {
-                    await RemoteConfigManager.shared.fetchCloudValues()
+            Group {
+                if versionManager.updateRequirement == .hardUpdate {
+                    VStack {
+                        Text("Update Required")
+                            .font(.title).bold()
+                        Text("Please update to the latest version to continue.")
+                            .multilineTextAlignment(.center).padding()
+                        Button("Update Now") { AppReviewManager.openAppStoreReview() }
+                            .buttonStyle(.borderedProminent)
+                    }
+                } else if let error = databaseLoadError {
+                    Text("Database Error: \(error.localizedDescription)")
+                } else if let di = diContainer {
+                    RootLaunchView()
+                        .modelContainer(di.modelContainer)
+                        .environment(di)
+                        .environment(di.appState)
+                        .environment(di.authManager)
+                        .environment(ThemeManager.shared)
+                        .preferredColorScheme(.light)
+                } else {
+                    ProgressView("Initializing...")
                 }
+            }
+            .task {
+                await setupDependencies()
+            }
+            .alert("Update Available", isPresented: Binding(
+                get: { versionManager.updateRequirement == .softUpdate && !versionManager.hasDismissedSoftUpdate },
+                set: { if !$0 { versionManager.hasDismissedSoftUpdate = true } }
+            )) {
+                Button("Update Now") { AppReviewManager.openAppStoreReview() }
+                Button("Later", role: .cancel) { versionManager.hasDismissedSoftUpdate = true }
+            } message: {
+                Text("A new version of FoodTracker is available.")
+            }
+            .onAppear {
+                TrackingManager.shared.track(.appOpened(source: "launch"))
+            }
         }
     }
 
-    init() {
+    @MainActor
+    private func setupDependencies() async {
         do {
+            let schema = Schema([
+                User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
+                WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
+            ])
+            
             let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
             let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
-            let config = ModelConfiguration(url: dbURL)
-
-            modelContainer = try ModelContainer(
-                for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
-                configurations: config
+            
+            let cloudConfig = ModelConfiguration(
+                schema: schema,
+                url: dbURL,
+                cloudKitDatabase: .private("iCloud.com.borisdev.FoodTracker")
             )
+
+            let container: ModelContainer
+            do {
+                container = try ModelContainer(for: schema, configurations: [cloudConfig])
+            } catch {
+                print("⚠️ CloudKit init failed, falling back to local: \(error)")
+                let localConfig = ModelConfiguration(schema: schema, url: dbURL, cloudKitDatabase: .none)
+                container = try ModelContainer(for: schema, configurations: [localConfig])
+            }
+
+            let di = DIContainer(modelContainer: container)
+            self.diContainer = di
+            
+            do {
+                _ = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+            } catch {
+                print("⚠️ Anonymous auth failed: \(error)")
+            }
+
+            await RemoteConfigManager.shared.fetchCloudValues()
+            await versionManager.checkForUpdates()
         } catch {
-            modelContainer = try! ModelContainer(for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+            self.databaseLoadError = error
+            TrackingManager.shared.recordError(error: error)
+            print("❌ SwiftData Init Failed: \(error)")
         }
     }
 }
@@ -72,14 +149,27 @@ struct IdentifiableString: Identifiable, Hashable {
 }
 
 struct ContentView: View {
+    @Environment(AppStateManager.self) private var appState
+    @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
-    @Query private var summaries: [DailySummary]
-
-    @State private var selectedTab = 0
+    @AppStorage("hasCompletedOnboarding_v1") private var hasCompletedOnboarding = false
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+        Group {
+            if hasCompletedOnboarding {
+                mainAppView
+            } else {
+                RootOnboardingView { metrics in
+                    completeOnboarding(metrics: metrics)
+                }
+            }
+        }
+    }
+
+    private var mainAppView: some View {
+        @Bindable var state = appState
+        return TabView(selection: $state.selectedTab) {
             HomeDashboardView()
                 .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(0)
@@ -99,8 +189,12 @@ struct ContentView: View {
             AICoachDashboardView(selectedDate: Date())
                 .tabItem { Label("Coach", systemImage: "sparkles") }
                 .tag(4)
+                
+            GoalsTabView()
+                .tabItem { Label("Goals", systemImage: "target") }
+                .tag(5)
         }
-        .tint(.themePink)
+        .tint(themeManager.current.primaryAccent)
         .onAppear {
             initializeUserIfNeeded()
 
@@ -108,6 +202,11 @@ struct ContentView: View {
                 Task {
                     try? await HealthKitManager.shared.requestAuthorization()
                 }
+            }
+            
+            Task {
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                _ = await ATTrackingManager.requestTrackingAuthorization()
             }
         }
     }
@@ -119,53 +218,68 @@ struct ContentView: View {
             try? context.save()
         }
     }
-
-
-    private func addFoodsToMeal(title: String, items: [FoodItem]) {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-
-        let summary: DailySummary
-        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
-            summary = existing
-        } else {
-            summary = DailySummary(date: today)
-            context.insert(summary)
+    
+    private func completeOnboarding(metrics: OnboardingMetrics) {
+        let bmr = 10.0 * Double(metrics.weight) + 6.25 * Double(metrics.height) - 5.0 * Double(metrics.age) + 5.0
+        
+        var multiplier = 1.2
+        switch metrics.activityLevel {
+        case .none: multiplier = 1.2
+        case .office: multiplier = 1.2
+        case .light: multiplier = 1.375
+        case .active: multiplier = 1.55
+        case .beast: multiplier = 1.725
         }
+        
+        var tdee = bmr * multiplier
+        
+        if metrics.goal == "Lose Weight" {
+            tdee -= 500
+        } else if metrics.goal == "Build Muscle" {
+            tdee += 300
+        }
+        
+        let cals = Int(tdee)
 
-        var newFoodItems: [FoodItem] = []
-        for item in items {
-            let copiedItem = FoodItem(
-                name: item.name, weight: item.weight, calories: item.calories,
-                protein: item.protein, fats: item.fats, carbs: item.carbs,
-                omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
-                magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
+        if let existingUser = users.first {
+            existingUser.age = metrics.age
+            existingUser.height = Double(metrics.height)
+            existingUser.weight = Double(metrics.weight)
+            existingUser.dailyCaloriesGoal = cals
+        } else {
+            let newUser = User(
+                name: "Champion",
+                weight: Double(metrics.weight),
+                height: Double(metrics.height),
+                age: metrics.age,
+                gender: "Male"
             )
-            context.insert(copiedItem)
-            newFoodItems.append(copiedItem)
-        }
-
-        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
-            existingMeal.foodItems.append(contentsOf: newFoodItems)
-        } else {
-            let newMeal = Meal(title: title, date: Date(), foodItems: newFoodItems)
-            context.insert(newMeal)
-            summary.meals.append(newMeal)
+            newUser.dailyCaloriesGoal = cals
+            context.insert(newUser)
         }
         try? context.save()
+        hasCompletedOnboarding = true
     }
 }
 enum AppLaunchStep {
     case screen1
-    case screen2
     case mainApp
 }
 
 struct RootLaunchView: View {
-    @State private var currentStep: AppLaunchStep = .screen1
-    
-    // Проверка на премиум (сохраняется навсегда)
-    @AppStorage("isPremiumActivated") var isPremiumActivated: Bool = false
+    @Environment(AppStateManager.self) private var appState
+
+    // Persist whether user has already completed the initial Monetka/account entry screen.
+    // Without this the fancy onboarding re-appears on every cold launch.
+    @AppStorage("hasCompletedInitialOnboarding_v1") private var hasCompletedInitialOnboarding = false
+
+    @State private var currentStep: AppLaunchStep
+
+    init() {
+        // Initialize step from persisted flag so we don't force the account screen every launch
+        let completed = UserDefaults.standard.bool(forKey: "hasCompletedInitialOnboarding_v1")
+        _currentStep = State(initialValue: completed ? .mainApp : .screen1)
+    }
 
     var body: some View {
         ZStack {
@@ -173,30 +287,17 @@ struct RootLaunchView: View {
             case .screen1:
                 // ЭКРАН 1 ИЗ МОНЕТКИ (3D-еда и вход)
                 OnboardingView(onSuccess: {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                        currentStep = .screen2
-                    }
-                })
-                .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading).combined(with: .opacity)))
-
-            case .screen2:
-                // ЭКРАН 2 ИЗ МОНЕТКИ (Возраст, вес, расчет метаболизма)
-                OnboardingNutritionMode(onFinish: {
+                    hasCompletedInitialOnboarding = true
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                         currentStep = .mainApp
                     }
                 })
-                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .move(edge: .leading).combined(with: .opacity)))
+                .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading).combined(with: .opacity)))
 
             case .mainApp:
-                // Переход в главное приложение ИЛИ на Пейволл
-                if isPremiumActivated {
-                    ContentView() // Главный экран FoodTracker
-                        .transition(.opacity)
-                } else {
-                    PremiumPaywallScreen() // Экран подписки
-                        .transition(.opacity)
-                }
+                // Переход в главное приложение
+                ContentView() // Главный экран FoodTracker
+                    .transition(.opacity)
             }
         }
     }

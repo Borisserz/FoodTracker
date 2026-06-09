@@ -1085,22 +1085,59 @@ struct FilteredRecipesListView: View {
 }
 
 struct ChooseMealSheet: View {
-    @Environment(\.dismiss) var dismiss; @Environment(\.modelContext) private var context; @Query private var summaries: [DailySummary]
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context
+    @Environment(DIContainer.self) private var di   // for repo access
+    @Query private var summaries: [DailySummary]
     let recipe: PremiumRecipe; let calories: Int; let p: Double; let f: Double; let c: Double
     @State private var selectedMeal = "Dinner"; let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
+
+    init(recipe: PremiumRecipe, calories: Int, p: Double, f: Double, c: Double) {
+        self.recipe = recipe
+        self.calories = calories
+        self.p = p
+        self.f = f
+        self.c = c
+        let today = Calendar.current.startOfDay(for: .now)
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        let predicate = #Predicate<DailySummary> { $0.date >= today && $0.date < tomorrow }
+        self._summaries = Query(filter: predicate)
+    }
     var body: some View {
         VStack(spacing: 24) {
             Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
             Picker("Meal", selection: $selectedMeal) { ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) } }.pickerStyle(.wheel).frame(height: 120)
-            Button(action: { HapticManager.shared.impact(style: .heavy); saveToDiary(); dismiss() }) { Text("Select").font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 18).background(Color.themePink).cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4) }.buttonStyle(BounceButtonStyle()).padding(.horizontal, 24).padding(.bottom, 20)
-        }.background(Color.themeBg.ignoresSafeArea())
+            Button(action: {
+                HapticManager.shared.impact(style: .heavy)
+                Task {
+                    await saveToDiary()
+                    await MainActor.run { dismiss() }
+                }
+            }) {
+                Text("Select").font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 18).background(Color.themePink).cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+            }
+            .buttonStyle(BounceButtonStyle())
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
+        }
+        .background(Color.themeBg.ignoresSafeArea())
     }
-    private func saveToDiary() {
-        let calendar = Calendar.current; let today = calendar.startOfDay(for: .now); let summary: DailySummary
-        if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) { summary = existing } else { summary = DailySummary(date: today); context.insert(summary) }
+
+    private func saveToDiary() async {
+        // Route summary creation/ensure through the @ModelActor-powered repository
+        _ = try? await di.summaryRepository.ensureSummary(for: .now)
+
+        // Prefer the one from the local @Query (live from main context)
+        guard let summary = summaries.first else { return }
+
         let newFood = FoodItem(name: recipe.title, weight: 100, calories: calories, protein: p, fats: f, carbs: c)
-        if let meal = summary.meals.first(where: { $0.title == selectedMeal }) { meal.foodItems.append(newFood) } else {
-            let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood]); context.insert(newMeal); summary.meals.append(newMeal)
+        // Attach via relationship; explicit insert for the item/meal is kept for safety with current cascades
+        if let meal = summary.meals.first(where: { $0.title == selectedMeal }) {
+            meal.foodItems.append(newFood)
+        } else {
+            let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
+            context.insert(newMeal)
+            summary.meals.append(newMeal)
         }
         try? context.save()
     }

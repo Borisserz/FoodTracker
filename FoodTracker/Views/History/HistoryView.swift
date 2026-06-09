@@ -344,12 +344,7 @@ struct LearnCategorySection: View {
                     ForEach(category.articles) { article in
                         Button(action: {
                             HapticManager.shared.impact(style: .light)
-                            if article.isLocked {
-
-                                print("Locked!")
-                            } else {
-                                path.append(FoodsRoute.articleDetail(article))
-                            }
+                            path.append(FoodsRoute.articleDetail(article))
                         }) {
                             ArticleCardView(article: article)
                         }
@@ -389,14 +384,6 @@ struct ArticleCardView: View {
                 .padding(.horizontal, 8).padding(.vertical, 6)
                 .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
                 .clipShape(Capsule()).padding(12)
-
-                if article.isLocked {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 14, weight: .bold)).foregroundColor(.white)
-                        .padding(10).background(Color.black.opacity(0.4)).clipShape(Circle())
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                        .padding(12)
-                }
             }
             .frame(height: 120).clipped()
 

@@ -12,6 +12,12 @@ class HapticManager {
         generator.prepare()
         generator.impactOccurred()
     }
+    
+    func notification(type: UINotificationFeedbackGenerator.FeedbackType) {
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(type)
+    }
 }
 
 struct MacroBatteryView: View {

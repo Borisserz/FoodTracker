@@ -138,7 +138,9 @@ struct WaterGridTrackerView: View {
            }
 
            if let user = users.first, user.isHealthKitEnabled {
-               HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: Date())
+               Task {
+                   await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: Date())
+               }
            }
        }
     private func removeLastWaterEntry() {

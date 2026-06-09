@@ -82,7 +82,7 @@ struct HoloAchievementCard: View {
                         .fill(.ultraThinMaterial)
 
                     VStack(spacing: 12) {
-                        Image(systemName: "lock.fill")
+                        Image(systemName: achievement.icon)
                             .font(.system(size: 36))
                             .foregroundColor(.gray.opacity(0.5))
                             .shadow(color: .white.opacity(0.2), radius: 1, y: 1)

@@ -3,11 +3,13 @@ import SwiftData
 
 struct AICoachChatView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
     @Query(sort: \AIChatSession.date, order: .reverse) private var allSessions: [AIChatSession]
 
     let userGoal: Int
     let consumed: Int
     let activeDiet: String
+    var initialContext: String? = nil
 
     @State private var currentSession: AIChatSession?
     @State private var chatHistory: [AIChatMessage] = []
@@ -63,31 +65,47 @@ struct AICoachChatView: View {
                 .onTapGesture { isInputFocused = false }
             }
 
-            HStack(alignment: .bottom, spacing: 12) {
-                TextField("Type your question...", text: $inputText, axis: .vertical)
-                    .lineLimit(1...5)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Color.white)
-                    .cornerRadius(20)
-                    .focused($isInputFocused)
-                    .disabled(isGenerating)
-                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.2), lineWidth: 1))
+            VStack(spacing: 0) {
+                // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
+                Text("FoodTracker AI provides general nutritional information. Not medical advice.")
+                    .font(.system(size: 10))
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, 4)
 
-                Button(action: sendMessage) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 34))
-                        .foregroundColor((inputText.isEmpty || isGenerating) ? .gray.opacity(0.5) : .themePink)
+                HStack(alignment: .bottom, spacing: 12) {
+                    TextField("Type your question...", text: $inputText, axis: .vertical)
+                        .lineLimit(1...5)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.white)
+                        .cornerRadius(20)
+                        .focused($isInputFocused)
+                        .disabled(isGenerating)
+                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.2), lineWidth: 1))
+
+                    Button(action: sendMessage) {
+                        Image(systemName: "arrow.up.circle.fill")
+                            .font(.system(size: 34))
+                            .foregroundColor((inputText.isEmpty || isGenerating) ? .gray.opacity(0.5) : .themePink)
+                    }
+                    .disabled(inputText.isEmpty || isGenerating)
                 }
-                .disabled(inputText.isEmpty || isGenerating)
+                .padding(.horizontal)
+                .padding(.vertical, 12)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 12)
             .background(.ultraThinMaterial)
         }
         .navigationTitle(currentSession?.title ?? "New Chat")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                        .font(.title2)
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showHistorySheet = true } label: {
                     Image(systemName: "clock.arrow.circlepath").foregroundColor(.primary)
@@ -102,6 +120,16 @@ struct AICoachChatView: View {
         .sheet(isPresented: $showHistorySheet) {
             FoodChatHistorySheet(sessions: allSessions) { session in
                 loadSession(session)
+            }
+        }
+        .onAppear {
+            if let contextMsg = initialContext, chatHistory.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    if self.chatHistory.isEmpty {
+                        self.inputText = contextMsg
+                        self.sendMessage()
+                    }
+                }
             }
         }
     }

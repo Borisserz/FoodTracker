@@ -54,9 +54,10 @@ extension View {
 }
 
 struct AnalyticsTabView: View {
+    @Environment(DIContainer.self) private var di
     @Query private var users: [User]
-    @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
 
+    @State private var viewModel: AnalyticsViewModel?
     @State private var globalPeriod: AnalyticsPeriod = .day
 
     var body: some View {
@@ -94,23 +95,32 @@ struct AnalyticsTabView: View {
 
                             GlobalPeriodPicker(selection: $globalPeriod)
                                 .padding(.horizontal, 20)
+                                .onChange(of: globalPeriod) { _, newValue in
+                                    viewModel?.loadData(for: newValue)
+                                }
 
-                            AIWeeklyInsightCard(summaries: summaries, user: user, period: globalPeriod)
+                            AIWeeklyInsightCard(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
                                 .padding(.horizontal, 20)
 
                             if globalPeriod == .day {
-                                DailyAnalyticsInsightView(summaries: summaries, user: user)
+                                DailyAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user)
                                     .padding(.horizontal, 20)
                             } else {
-                                TrendsAnalyticsInsightView(summaries: summaries, user: user, period: globalPeriod)
+                                TrendsAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
                                     .padding(.horizontal, 20)
                             }
 
-                            ConsistencyHeatmapCard(summaries: summaries, user: user)
+                            ConsistencyHeatmapCard(summaries: viewModel?.summaries ?? [], user: user)
                                 .padding(.horizontal, 20)
 
                         }
                         .padding(.bottom, 120)
+                        .onAppear {
+                            if viewModel == nil {
+                                viewModel = di.makeAnalyticsViewModel()
+                            }
+                            viewModel?.loadData(for: globalPeriod)
+                        }
                     }
                 } else {
                     EmptyStateView(imageName: "chart.bar.xaxis", title: "No Data", description: "User data not found.")

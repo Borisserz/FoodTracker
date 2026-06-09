@@ -1,5 +1,6 @@
 import Foundation
-
+import FirebaseAuth
+import FirebaseAppCheck
 struct DailyVerdictDTO: Codable {
     let title: String
     let message: String
@@ -14,6 +15,56 @@ struct AIRecipeDTO: Codable {
     let fats: Double
     let carbs: Double
     let cookingTime: Int
+}
+
+struct AIFoodItemDTO: Codable {
+    let name: String
+    let calories: Int
+    let protein: Double
+    let fats: Double
+    let carbs: Double
+}
+
+struct AIWeeklyPlanItemDTO: Codable {
+    let title: String
+    let type: String
+    let calories: Int
+    let protein: Int
+    let carbs: Int
+    let fat: Int
+    let ingredients: String
+    let instructions: String
+    let prepTimeMinutes: Int
+}
+
+struct AIWeeklyPlanDayDTO: Codable {
+    let dayIndex: Int
+    let totalCalories: Int
+    let totalProtein: Int
+    let totalCarbs: Int
+    let totalFat: Int
+    let meals: [AIWeeklyPlanItemDTO]
+}
+
+struct AIWeeklyPlanDTO: Codable {
+    let days: [AIWeeklyPlanDayDTO]
+}
+
+struct AIChefRecipeDTO: Codable {
+    let title: String
+    let calories: Int
+    let protein: Int
+    let cookTime: Int
+    let difficulty: Int
+    let history: String
+    let ingredients: [String]
+    let steps: [RecipeStepDTO]
+    let platingTip: String
+}
+
+struct RecipeStepDTO: Codable {
+    let instruction: String
+    let aiTip: String?
 }
 
 struct MacroFixAdviceDTO: Codable, Identifiable {
@@ -72,6 +123,132 @@ class AINutritionService {
         return await fetchFromGemini(prompt: prompt, responseType: AIRecipeDTO.self)
     }
 
+    func generateCookingSteps(for mealName: String, ingredients: [String]) async -> AIChefRecipeDTO? {
+        let ingredientsString = ingredients.joined(separator: ", ")
+        let prompt = """
+        You are a Michelin-star AI Chef. The user wants to cook a meal called "\(mealName)" using these exact ingredients: \(ingredientsString).
+        Generate a highly structured, step-by-step recipe.
+        Provide the response STRICTLY as a raw JSON object (no markdown formatting, no ```json tags).
+        Use this exact schema:
+        {
+          "title": "String (a creative name for the dish)",
+          "calories": Int (estimated total calories),
+          "protein": Int (estimated total protein in grams),
+          "cookTime": Int (estimated cooking time in minutes),
+          "difficulty": Int (1 to 5),
+          "history": "String (a short fun fact or history about this dish or ingredients)",
+          "ingredients": ["String"],
+          "steps": [
+            {
+              "instruction": "String (clear cooking instruction)",
+              "aiTip": "String (optional pro-tip for this step, can be null)"
+            }
+          ],
+          "platingTip": "String (how to beautifully plate it)"
+        }
+        """
+        
+        return await fetchFromGemini(prompt: prompt, responseType: AIChefRecipeDTO.self)
+    }
+
+    func generateFoodItem(for query: String) async -> FoodItem? {
+        let prompt = """
+        You are an expert nutritionist database. The user searched for "\(query)" but it wasn't found in our API.
+        Estimate the macronutrients for exactly 100 grams of this food.
+        Provide the response STRICTLY as a raw JSON object (no markdown formatting, no ```json tags).
+        Use this exact schema:
+        {
+          "name": "String (best name for the food in Russian or English)",
+          "calories": Int,
+          "protein": Double,
+          "fats": Double,
+          "carbs": Double
+        }
+        """
+        
+        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIFoodItemDTO.self) {
+            return FoodItem(
+                name: dto.name,
+                weight: 100.0,
+                calories: dto.calories,
+                protein: dto.protein,
+                fats: dto.fats,
+                carbs: dto.carbs
+            )
+        }
+        return nil
+    }
+
+    func generateWeeklyPlan(targetCalories: Int, diet: String, complexity: String) async -> WeeklyMealPlan? {
+        let prompt = """
+        You are an elite nutritionist. Generate a 7-day meal plan (0 to 6) following these constraints:
+        - Target Calories per day: exactly \(targetCalories) kcal
+        - Diet Type: \(diet)
+        - Cooking Complexity: \(complexity)
+        
+        Generate exactly 4 meals per day: Breakfast, Lunch, Dinner, Snack.
+        Provide the response STRICTLY as a raw JSON object matching this schema:
+        {
+          "days": [
+             {
+               "dayIndex": Int (0-6),
+               "totalCalories": Int,
+               "totalProtein": Int,
+               "totalCarbs": Int,
+               "totalFat": Int,
+               "meals": [
+                  {
+                    "title": "String",
+                    "type": "String",
+                    "calories": Int,
+                    "protein": Int,
+                    "carbs": Int,
+                    "fat": Int,
+                    "ingredients": "String",
+                    "instructions": "String",
+                    "prepTimeMinutes": Int
+                  }
+               ]
+             }
+          ]
+        }
+        Do not include markdown tags. Only output the raw JSON. Ensure all arrays have 7 items for days, and 4 items for meals.
+        """
+        
+        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self) {
+            let plan = WeeklyMealPlan(targetCalories: targetCalories, dietType: diet)
+            
+            for dayDTO in dto.days {
+                let day = MealPlanDay(
+                    dayIndex: dayDTO.dayIndex,
+                    totalCalories: dayDTO.totalCalories,
+                    totalProtein: dayDTO.totalProtein,
+                    totalCarbs: dayDTO.totalCarbs,
+                    totalFat: dayDTO.totalFat
+                )
+                
+                for mealDTO in dayDTO.meals {
+                    let meal = MealPlanItem(
+                        title: mealDTO.title,
+                        type: mealDTO.type,
+                        calories: mealDTO.calories,
+                        protein: mealDTO.protein,
+                        carbs: mealDTO.carbs,
+                        fat: mealDTO.fat,
+                        ingredients: mealDTO.ingredients,
+                        instructions: mealDTO.instructions,
+                        prepTimeMinutes: mealDTO.prepTimeMinutes
+                    )
+                    day.meals.append(meal)
+                }
+                
+                plan.days.append(day)
+            }
+            return plan
+        }
+        return nil
+    }
+
     func sendChatMessage(prompt: String, userContext: String, activeDiet: String) async -> String? {
           let systemPrompt = """
           You are a friendly, elite AI Nutritionist.
@@ -128,95 +305,26 @@ class AINutritionService {
         return await fetchFromGemini(prompt: prompt, responseType: HydrationAdviceDTO.self)
     }
 
+    // All transport, auth, and parsing now lives in the shared client.
+    // This removes massive duplication with VertexAIManager.
+    private let client = GeminiProxyClient.shared
+
     private func fetchRawTextFromGemini(prompt: String) async -> String? {
         do {
-            let token = try await VertexAuthenticator.shared.getValidAccessToken()
-            let projectId = try await VertexAuthenticator.shared.getProjectId()
-            let model = "gemini-2.5-flash"
-            let urlString = "https://\(location)-aiplatform.googleapis.com/v1/projects/\(projectId)/locations/\(location)/publishers/google/models/\(model):generateContent"
-            guard let url = URL(string: urlString) else { return nil }
-
-            let requestBody: [String: Any] = [
-                "contents": [ ["role": "user", "parts": [ ["text": prompt] ]] ],
-                "generationConfig": ["temperature": 0.7]
-            ]
-
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-
-            let (data, response) = try await URLSession.shared.data(for: request)
-
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                if let jsonResult = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let candidates = jsonResult["candidates"] as? [[String: Any]],
-                   let textResponse = (candidates.first?["content"] as? [String: Any])?["parts"] as? [[String: Any]],
-                   let finalString = textResponse.first?["text"] as? String {
-                    return finalString
-                }
-            }
+            return try await client.fetchText(prompt: prompt)
         } catch {
             print("❌ AI Chat Error: \(error.localizedDescription)")
+            return nil
         }
-        return nil
     }
 
     private func fetchFromGemini<T: Codable>(prompt: String, responseType: T.Type) async -> T? {
         do {
-            let token = try await VertexAuthenticator.shared.getValidAccessToken()
-            let projectId = try await VertexAuthenticator.shared.getProjectId()
-            let model = "gemini-2.5-flash"
-            let urlString = "https://\(location)-aiplatform.googleapis.com/v1/projects/\(projectId)/locations/\(location)/publishers/google/models/\(model):generateContent"
-            guard let url = URL(string: urlString) else { return nil }
-
-            let requestBody: [String: Any] = [
-                "contents": [ ["role": "user", "parts": [ ["text": prompt] ]] ],
-                "generationConfig": ["responseMimeType": "application/json"]
-            ]
-
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-
-            let (data, response) = try await URLSession.shared.data(for: request)
-
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                print("❌ AI Service Error: HTTP \(httpResponse.statusCode)")
-                return nil
-            }
-
-            if let jsonResult = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let candidates = jsonResult["candidates"] as? [[String: Any]],
-               let textResponse = (candidates.first?["content"] as? [String: Any])?["parts"] as? [[String: Any]],
-               let finalString = textResponse.first?["text"] as? String {
-
-                var cleanString = finalString.trimmingCharacters(in: .whitespacesAndNewlines)
-                if cleanString.hasPrefix("```json") { cleanString = String(cleanString.dropFirst(7)) }
-                if cleanString.hasPrefix("```") { cleanString = String(cleanString.dropFirst(3)) }
-                if cleanString.hasSuffix("```") { cleanString = String(cleanString.dropLast(3)) }
-                cleanString = cleanString.trimmingCharacters(in: .whitespacesAndNewlines)
-
-                guard let jsonData = cleanString.data(using: .utf8) else {
-                    print("❌ Ошибка конвертации очищенной строки в Data")
-                    return nil
-                }
-
-                do {
-                    let decoded = try JSONDecoder().decode(T.self, from: jsonData)
-                    return decoded
-                } catch {
-                    print("❌ Ошибка парсинга JSON: \(error)")
-                    print("📝 Текст от ИИ был: \(cleanString)")
-                    return nil
-                }
-            }
+            return try await client.fetchJSON(prompt: prompt, responseType: responseType)
         } catch {
+            // The client already logs detailed decode/raw info on failure.
             print("❌ AI Service Exception: \(error.localizedDescription)")
+            return nil
         }
-        return nil
     }
 }

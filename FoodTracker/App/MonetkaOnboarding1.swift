@@ -238,6 +238,7 @@ struct OnboardingView: View {
                 // ПЕРЕХОД ПРИ НАЖАТИИ "ГОСТЬ"
                 onStayGuest: {
                     showGuestModal = false
+                    TrackingManager.shared.track(.onboardingCompleted(goal: "guest", diet: "none"))
                     onSuccess()
                 },
                 onSignIn: { showGuestModal = false }
@@ -257,6 +258,9 @@ struct OnboardingView: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("Here you can plug in your real Google Sign In flow.")
+        }
+        .onAppear {
+            TrackingManager.shared.track(.appOpened(source: "onboarding"))
         }
     }
 }

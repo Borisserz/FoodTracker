@@ -9,16 +9,24 @@ struct EatenCaloriesRing: View {
     @State private var animC: Double = 0
     @State private var animF: Double = 0
     @State private var animP: Double = 0
-    @State private var animOther: Double = 0
 
-    private var macroTotal: Double { max(protein * 4.0 + fats * 9.0 + carbs * 4.0, 0) }
-    private var otherTotal: Double { max(Double(consumed) - macroTotal, 0) }
-    private var displayTotal: Double { max(Double(target), max(Double(consumed), 1.0)) }
+    private var eatenFrac: Double {
+        min(Double(consumed) / Double(max(target, 1)), 1.0)
+    }
 
-    private var cFrac: Double { (carbs * 4.0) / displayTotal }
-    private var fFrac: Double { (fats * 9.0) / displayTotal }
-    private var pFrac: Double { (protein * 4.0) / displayTotal }
-    private var otherFrac: Double { otherTotal / displayTotal }
+    private var macroCals: Double {
+        max(protein * 4.0 + fats * 9.0 + carbs * 4.0, 1.0)
+    }
+
+    // Portions of the *eaten* calories coming from each macro (so the three colors always sum exactly to eatenFrac)
+    private var cPortion: Double { (carbs * 4.0) / macroCals }
+    private var fPortion: Double { (fats * 9.0) / macroCals }
+    private var pPortion: Double { (protein * 4.0) / macroCals }
+
+    // Cumulative positions on the ring (0...eatenFrac)
+    private var cEnd: Double { eatenFrac * cPortion }
+    private var fEnd: Double { eatenFrac * (cPortion + fPortion) }
+    private var pEnd: Double { eatenFrac } // full eaten progress
 
     var body: some View {
         VStack(spacing: 24) {
@@ -26,10 +34,24 @@ struct EatenCaloriesRing: View {
                 Circle()
                     .stroke(Color.gray.opacity(0.15).shadow(.inner(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)), lineWidth: 24)
 
-                Circle().trim(from: 0, to: min(animC, 1.0)).stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 24, lineCap: .round)).rotationEffect(.degrees(-90)).shadow(color: Color.drinkWater.opacity(0.4), radius: 8)
-                Circle().trim(from: min(animC, 1.0), to: min(animC + animF, 1.0)).stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 24, lineCap: .round)).rotationEffect(.degrees(-90)).shadow(color: Color.themeYellow.opacity(0.4), radius: 8)
-                Circle().trim(from: min(animC + animF, 1.0), to: min(animC + animF + animP, 1.0)).stroke(Color.themePeach, style: StrokeStyle(lineWidth: 24, lineCap: .round)).rotationEffect(.degrees(-90)).shadow(color: Color.themePeach.opacity(0.4), radius: 8)
-                Circle().trim(from: min(animC + animF + animP, 1.0), to: min(animC + animF + animP + animOther, 1.0)).stroke(Color.gray.opacity(0.4), style: StrokeStyle(lineWidth: 24, lineCap: .round)).rotationEffect(.degrees(-90)).shadow(color: Color.gray.opacity(0.2), radius: 5)
+                // Only the three macro colors — no ugly gray "other" segment
+                Circle()
+                    .trim(from: 0, to: min(animC, 1.0))
+                    .stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: Color.drinkWater.opacity(0.4), radius: 8)
+
+                Circle()
+                    .trim(from: min(animC, 1.0), to: min(animF, 1.0))
+                    .stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: Color.themeYellow.opacity(0.4), radius: 8)
+
+                Circle()
+                    .trim(from: min(animF, 1.0), to: min(animP, 1.0))
+                    .stroke(Color.themePeach, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .shadow(color: Color.themePeach.opacity(0.4), radius: 8)
 
                 VStack(spacing: 6) {
                     Text("\(consumed)")
@@ -45,13 +67,20 @@ struct EatenCaloriesRing: View {
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(.textGray)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(consumed) calories eaten out of \(target) goal")
+                .accessibilityValue("Progress ring showing macro breakdown")
             }
             .frame(width: 240, height: 240)
             .padding(.top, 10)
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                animC = cFrac; animF = fFrac; animP = pFrac; animOther = otherFrac
+                withAnimation(.spring(response: 0.9, dampingFraction: 0.85)) {
+                    animC = cEnd
+                    animF = fEnd
+                    animP = pEnd
+                }
             }
         }
     }
@@ -90,14 +119,14 @@ struct BurnedCaloriesRing: View {
                     .font(.system(size: 16, weight: .medium, design: .rounded))
                     .foregroundColor(.textGray)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(burned) calories burned, goal \(targetBurn)")
         }
         .frame(width: 240, height: 240)
         .padding(.top, 10)
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
-                    animProgress = progress
-                }
+            withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
+                animProgress = progress
             }
         }
     }
@@ -125,7 +154,6 @@ struct NetCaloriesRing: View {
                 .shadow(color: ringColor.opacity(0.5), radius: 10)
 
             VStack(spacing: 6) {
-
                 Text("\(net)")
                     .font(.system(size: 52, weight: .heavy, design: .rounded))
                     .foregroundColor(ringColor)
@@ -143,15 +171,41 @@ struct NetCaloriesRing: View {
                     .background(ringColor.opacity(0.15))
                     .clipShape(Capsule())
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Net \(net) calories, \(remaining >= 0 ? "\(remaining) left" : "\(abs(remaining)) over goal")")
         }
         .frame(width: 240, height: 240)
         .padding(.top, 10)
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
-                    animProgress = abs(progress)
-                }
+            withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
+                animProgress = abs(progress)
             }
         }
     }
+}
+
+// Example preview (per system-rules + swiftui-pro: previews should be present; for complex views we inject mock DI + ModelContainer)
+#Preview {
+    VStack(spacing: 40) {
+        EatenCaloriesRing(
+            consumed: 1650,
+            target: 2200,
+            protein: 130,
+            fats: 55,
+            carbs: 165
+        )
+
+        BurnedCaloriesRing(
+            burned: 480,
+            targetBurn: 600
+        )
+
+        NetCaloriesRing(
+            net: 1170,
+            target: 1600
+        )
+    }
+    .padding()
+    .background(Color(white: 0.97))
+    .preferredColorScheme(.light)
 }

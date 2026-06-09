@@ -40,14 +40,14 @@ struct Achievement: Identifiable {
     ]
 }
 
-@Model final class User {
-    var name: String
-    var weight: Double
-    var height: Double
-    var age: Int
-    var gender: String
-    var dailyCaloriesGoal: Int
-    var createdDate: Date
+@Model final class User: @unchecked Sendable {
+    var name: String = ""
+    var weight: Double = 0.0
+    var height: Double = 0.0
+    var age: Int = 0
+    var gender: String = "Male"
+    var dailyCaloriesGoal: Int = 0
+    var createdDate: Date = Date()
     var isHealthKitEnabled: Bool = false
 
     var activeDietKey: String = "balanced"
@@ -56,6 +56,13 @@ struct Achievement: Identifiable {
     var targetCarbs: Double = 250.0
 
     var unlockedAchievements: [String] = []
+    
+    var totalXP: Int = 0
+    var level: Int = 1
+    
+    // Goals
+    var targetWeight: Double?
+    var weightGoalType: String? // "lose", "gain", "maintain"
 
     init(name: String, weight: Double, height: Double, age: Int, gender: String = "Male") {
         self.name = name
@@ -100,12 +107,12 @@ struct Achievement: Identifiable {
 }
 
 @Model final class Beverage {
-    var date: Date
-    var name: String
-    var icon: String
-    var colorHex: String
-    var caloriesPerGlass: Int
-    var volumeMl: Double
+    var date: Date = Date()
+    var name: String = ""
+    var icon: String = ""
+    var colorHex: String = ""
+    var caloriesPerGlass: Int = 0
+    var volumeMl: Double = 0.0
 
     init(date: Date = Date(), name: String, icon: String, colorHex: String, caloriesPerGlass: Int, volumeMl: Double = 250.0) {
         self.date = date
@@ -119,20 +126,20 @@ struct Achievement: Identifiable {
 
 @Model final class FoodItem {
     var id: UUID = UUID()
-    var name: String
-    var weight: Double
-    var calories: Int
-    var protein: Double
-    var fats: Double
-    var carbs: Double
+    var name: String = ""
+    var weight: Double = 0.0
+    var calories: Int = 0
+    var protein: Double = 0.0
+    var fats: Double = 0.0
+    var carbs: Double = 0.0
 
-    var omega3: Double
-    var calcium: Double
-    var potassium: Double
-    var magnesium: Double
-    var iron: Double
-    var vitaminC: Double
-    var vitaminD: Double
+    var omega3: Double = 0.0
+    var calcium: Double = 0.0
+    var potassium: Double = 0.0
+    var magnesium: Double = 0.0
+    var iron: Double = 0.0
+    var vitaminC: Double = 0.0
+    var vitaminD: Double = 0.0
 
     init(name: String, weight: Double, calories: Int, protein: Double, fats: Double, carbs: Double,
          omega3: Double = 0, calcium: Double = 0, potassium: Double = 0,
@@ -148,8 +155,8 @@ struct Achievement: Identifiable {
 }
 
 @Model final class Meal {
-    var title: String
-    var date: Date
+    var title: String = ""
+    var date: Date = Date()
     @Relationship(deleteRule: .cascade) var foodItems: [FoodItem] = []
 
     var totalCalories: Int { foodItems.reduce(0) { $0 + $1.calories } }
@@ -173,11 +180,11 @@ struct Achievement: Identifiable {
 }
 
 @Model final class CustomRecipe {
-    var name: String
-    var info: String
+    var name: String = ""
+    var info: String = ""
     @Relationship(deleteRule: .cascade) var foodItems: [FoodItem] = []
-    var cookingTime: Int
-    var difficulty: String
+    var cookingTime: Int = 0
+    var difficulty: String = ""
 
     var servings: Int = 1
     var directions: [String] = []
@@ -192,8 +199,8 @@ struct Achievement: Identifiable {
     }
 }
 
-@Model final class DailySummary {
-    @Attribute(.unique) var date: Date
+@Model final class DailySummary: @unchecked Sendable {
+    @Attribute(.unique) var date: Date = Date()
     @Relationship(deleteRule: .cascade) var meals: [Meal] = []
     @Relationship(deleteRule: .cascade) var beverages: [Beverage] = []
     var weight: Double?
@@ -296,11 +303,11 @@ extension FoodItem {
 }
 @Model final class ShoppingItem {
     var id: UUID = UUID()
-    var name: String
-    var amount: String
-    var isChecked: Bool
+    var name: String = ""
+    var amount: String = ""
+    var isChecked: Bool = false
     var addedFromRecipe: String?
-    var dateAdded: Date
+    var dateAdded: Date = Date()
 
     init(name: String, amount: String = "", isChecked: Bool = false, addedFromRecipe: String? = nil) {
         self.name = name
@@ -308,5 +315,17 @@ extension FoodItem {
         self.isChecked = isChecked
         self.addedFromRecipe = addedFromRecipe
         self.dateAdded = Date()
+    }
+}
+
+@Model final class WeightLog: @unchecked Sendable {
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var weight: Double = 0.0
+
+    init(id: UUID = UUID(), date: Date = Date(), weight: Double = 0.0) {
+        self.id = id
+        self.date = date
+        self.weight = weight
     }
 }

@@ -894,11 +894,20 @@ struct RecipeDetailView: View {
     struct CustomChooseMealSheet: View {
         @Environment(\.dismiss) var dismiss
         @Environment(\.modelContext) private var context
+        @Environment(DIContainer.self) private var di
         @Query private var summaries: [DailySummary]
 
         let recipe: CustomRecipe
         @State private var selectedMeal = "Breakfast"
         let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
+
+        init(recipe: CustomRecipe) {
+            self.recipe = recipe
+            let today = Calendar.current.startOfDay(for: .now)
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+            let predicate = #Predicate<DailySummary> { $0.date >= today && $0.date < tomorrow }
+            self._summaries = Query(filter: predicate)
+        }
 
         var body: some View {
             VStack(spacing: 24) {
@@ -910,8 +919,10 @@ struct RecipeDetailView: View {
 
                 Button(action: {
                     HapticManager.shared.impact(style: .heavy)
-                    saveToDiary()
-                    dismiss()
+                    Task {
+                        await saveToDiary()
+                        await MainActor.run { dismiss() }
+                    }
                 }) {
                     Text("Select")
                         .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
@@ -924,17 +935,19 @@ struct RecipeDetailView: View {
             .background(Color.themeBg.ignoresSafeArea())
         }
 
-        private func saveToDiary() {
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: .now)
-            let summary: DailySummary
-            if let existing = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: today) }) { summary = existing } else {
-                summary = DailySummary(date: today); context.insert(summary)
-            }
+        private func saveToDiary() async {
+            // Use @ModelActor repo to ensure the day's summary (removes detached creation)
+            _ = try? await di.summaryRepository.ensureSummary(for: .now)
+
+            guard let summary = summaries.first else { return }
+
             let newFood = recipe.toFoodItem()
-            if let meal = summary.meals.first(where: { $0.title == selectedMeal }) { meal.foodItems.append(newFood) } else {
+            if let meal = summary.meals.first(where: { $0.title == selectedMeal }) {
+                meal.foodItems.append(newFood)
+            } else {
                 let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
-                context.insert(newMeal); summary.meals.append(newMeal)
+                context.insert(newMeal)
+                summary.meals.append(newMeal)
             }
             try? context.save()
         }

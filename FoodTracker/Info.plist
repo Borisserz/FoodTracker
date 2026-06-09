@@ -2,11 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Camera Usage Description</key>
+	<key>NSCameraUsageDescription</key>
 	<string>FoodTracker needs access to your camera to scan food barcodes</string>
-	<key>Health Share Usage Description</key>
+	<key>NSHealthShareUsageDescription</key>
 	<string>FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.</string>
-	<key>Health Update Usage Description</key>
+	<key>NSHealthUpdateUsageDescription</key>
 	<string>FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to deliver personalized ads to you and improve analytics.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 </dict>
 </plist>

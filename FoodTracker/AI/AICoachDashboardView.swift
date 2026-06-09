@@ -6,27 +6,23 @@ struct AICoachDashboardView: View {
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
 
-    @State private var isFixingMacros = false
-    @State private var isFixingHydration = false
-    @State private var macroAdvice: MacroFixAdviceDTO? = nil
-    @State private var hydrationAdvice: HydrationAdviceDTO? = nil
+    @Environment(DIContainer.self) private var di
+    @State private var viewModel: AICoachViewModel?
 
     let selectedDate: Date
 
-    @State private var isAnalyzing = false
-    @State private var hasAnalyzedToday = false
-    @State private var verdictTitle: String = "AI Daily Review"
-    @State private var verdictMessage: String = "Tap the button below to analyze your calories, macros, and get a personalized summary for today."
-    @State private var verdictMood: String = "neutral"
-
-    @State private var fridgeInput: String = ""
-    @State private var isGeneratingRecipe = false
-    @State private var generatedRecipe: AIRecipeDTO? = nil
+    init(selectedDate: Date) {
+        self.selectedDate = selectedDate
+        let startOfDay = Calendar.current.startOfDay(for: selectedDate)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
+        self._summaries = Query(filter: predicate)
+    }
 
     private var currentUser: User? { users.first }
     private var currentSummary: DailySummary {
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
-        if let existing = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
+        if let existing = summaries.first {
             return existing
         } else {
             return DailySummary(date: startOfDay)
@@ -34,7 +30,8 @@ struct AICoachDashboardView: View {
     }
 
     private var moodColors: [Color] {
-        switch verdictMood.lowercased() {
+        guard let viewModel = viewModel else { return [.themePink, .themeOrange] }
+        switch viewModel.verdictMood.lowercased() {
         case "perfect": return [.green, .mint]
         case "danger": return [.red, .themePink]
         case "warning": return [.orange, .themeYellow]
@@ -44,100 +41,121 @@ struct AICoachDashboardView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.themeBg.ignoresSafeArea()
+            Group {
+                if let viewModel = viewModel {
+                    ZStack {
+                        Color.themeBg.ignoresSafeArea()
 
-                Circle()
-                    .fill(moodColors[0].opacity(0.15))
-                    .frame(width: 300, height: 300)
-                    .blur(radius: 80)
-                    .offset(x: -100, y: -200)
+                        Circle()
+                            .fill(moodColors[0].opacity(0.15))
+                            .frame(width: 300, height: 300)
+                            .blur(radius: 80)
+                            .offset(x: -100, y: -200)
 
-                Circle()
-                    .fill(moodColors[1].opacity(0.15))
-                    .frame(width: 350, height: 350)
-                    .blur(radius: 80)
-                    .offset(x: 150, y: 200)
+                        Circle()
+                            .fill(moodColors[1].opacity(0.15))
+                            .frame(width: 350, height: 350)
+                            .blur(radius: 80)
+                            .offset(x: 150, y: 200)
 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 24) {
 
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("AI Coach")
-                                    .font(.system(size: 34, weight: .heavy, design: .rounded))
-                                Text("Your proactive nutritionist")
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("AI Coach")
+                                            .font(.system(size: 34, weight: .heavy, design: .rounded))
+                                        Text("Your proactive nutritionist")
+                                            .foregroundColor(.gray)
+                                    }
+                                    Spacer()
 
-                            NavigationLink(destination: AICoachChatView(
-                                userGoal: currentUser?.dailyCaloriesGoal ?? 2000,
-                                consumed: currentSummary.totalCalories,
-                                activeDiet: currentUser?.activeDietPlan?.name ?? String(localized: "Balanced")
-                            )) {
-                                ZStack {
-                                    Circle()
-                                        .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .frame(width: 50, height: 50)
-                                        .opacity(isAnalyzing || isGeneratingRecipe ? 0.5 : 1.0)
-                                        .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isAnalyzing || isGeneratingRecipe)
+                                    NavigationLink(destination: AICoachChatView(
+                                        userGoal: currentUser?.dailyCaloriesGoal ?? 2000,
+                                        consumed: currentSummary.totalCalories,
+                                        activeDiet: currentUser?.activeDietPlan?.name ?? String(localized: "Balanced")
+                                    )) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                .frame(width: 50, height: 50)
+                                                .opacity(viewModel.isAnalyzing || viewModel.isGeneratingRecipe ? 0.5 : 1.0)
+                                                .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: viewModel.isAnalyzing || viewModel.isGeneratingRecipe)
 
-                                    Image(systemName: "message.fill")
-                                        .font(.title3)
-                                        .foregroundColor(.white)
+                                            Image(systemName: "message.fill")
+                                                .font(.title3)
+                                                .foregroundColor(.white)
+                                        }
+                                    }
                                 }
+                                .padding(.horizontal)
+
+                                DailyVerdictGlassCard(
+                                    title: viewModel.verdictTitle,
+                                    message: viewModel.verdictMessage,
+                                    moodColor: moodColors[0],
+                                    isLoading: viewModel.isAnalyzing,
+                                    hasAnalyzed: viewModel.hasAnalyzedToday,
+                                    onAnalyze: { if let u = currentUser { viewModel.runDailyAnalysis(currentSummary: currentSummary, currentUser: u) } }
+                                )
+
+                                HStack(spacing: 16) {
+                                    AIFixCard(
+                                        title: "Fix Macros",
+                                        icon: "chart.pie.fill",
+                                        color: .themeYellow,
+                                        isLoading: viewModel.isFixingMacros,
+                                        action: { if let u = currentUser { viewModel.analyzeMacros(currentSummary: currentSummary, currentUser: u) } }
+                                    )
+
+                                    AIFixCard(
+                                        title: "Hydration",
+                                        icon: "drop.fill",
+                                        color: .cyan,
+                                        isLoading: viewModel.isFixingHydration,
+                                        action: { viewModel.analyzeHydration(currentSummary: currentSummary) }
+                                    )
+                                }
+                                .padding(.horizontal)
+
+                                fridgeToRecipeSection
+
+                                // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
+                                Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
+                                    .font(.caption2)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 24)
+                                    .padding(.top, 16)
                             }
+                            .padding(.bottom, 120)
                         }
-                        .padding(.horizontal)
-
-                        DailyVerdictGlassCard(
-                            title: verdictTitle,
-                            message: verdictMessage,
-                            moodColor: moodColors[0],
-                            isLoading: isAnalyzing,
-                            hasAnalyzed: hasAnalyzedToday,
-                            onAnalyze: { runDailyAnalysis() }
-                        )
-
-                        HStack(spacing: 16) {
-                            AIFixCard(
-                                title: "Fix Macros",
-                                icon: "chart.pie.fill",
-                                color: .themeYellow,
-                                isLoading: isFixingMacros,
-                                action: { analyzeMacros() }
-                            )
-
-                            AIFixCard(
-                                title: "Hydration",
-                                icon: "drop.fill",
-                                color: .cyan,
-                                isLoading: isFixingHydration,
-                                action: { analyzeHydration() }
-                            )
-                        }
-                        .padding(.horizontal)
-
-                        fridgeToRecipeSection
-
                     }
-                    .padding(.bottom, 120)
+                } else {
+                    ProgressView()
                 }
             }
-            .sheet(item: $macroAdvice) { advice in
-                MacroFixResultSheet(advice: advice, color: .themeYellow)
-                    .presentationDetents([.medium, .large])
-                    .presentationCornerRadius(32)
-                    .presentationDragIndicator(.visible)
+            .sheet(isPresented: Binding(get: { viewModel?.macroAdvice != nil }, set: { if !$0 { viewModel?.macroAdvice = nil } })) {
+                if let advice = viewModel?.macroAdvice {
+                    MacroFixResultSheet(advice: advice, color: .themeYellow)
+                        .presentationDetents([.medium, .large])
+                        .presentationCornerRadius(32)
+                        .presentationDragIndicator(.visible)
+                }
             }
-            .sheet(item: $hydrationAdvice) { advice in
-                HydrationFixResultSheet(advice: advice, color: .cyan)
-                    .presentationDetents([.height(300)])
-                    .presentationCornerRadius(32)
-                    .presentationDragIndicator(.visible)
+            .sheet(isPresented: Binding(get: { viewModel?.hydrationAdvice != nil }, set: { if !$0 { viewModel?.hydrationAdvice = nil } })) {
+                if let advice = viewModel?.hydrationAdvice {
+                    HydrationFixResultSheet(advice: advice, color: .cyan)
+                        .presentationDetents([.height(300)])
+                        .presentationCornerRadius(32)
+                        .presentationDragIndicator(.visible)
+                }
             }
-
+            .onAppear {
+                if viewModel == nil {
+                    viewModel = di.makeAICoachViewModel()
+                }
+            }
         }
     }
 
@@ -156,13 +174,13 @@ struct AICoachDashboardView: View {
                 .font(.subheadline).foregroundColor(.gray)
 
             HStack {
-                TextField("E.g. Eggs, chicken, rice...", text: $fridgeInput)
+                TextField("E.g. Eggs, chicken, rice...", text: Binding(get: { viewModel?.fridgeInput ?? "" }, set: { viewModel?.fridgeInput = $0 }))
                     .padding()
                     .background(Color.gray.opacity(0.05))
                     .cornerRadius(12)
 
-                Button(action: generateSmartRecipe) {
-                    if isGeneratingRecipe {
+                Button(action: { if let u = currentUser { viewModel?.generateSmartRecipe(currentSummary: currentSummary, currentUser: u) } }) {
+                    if viewModel?.isGeneratingRecipe == true {
                         ProgressView().tint(.white)
                             .padding()
                             .background(Color.themePink)
@@ -175,10 +193,10 @@ struct AICoachDashboardView: View {
                             .cornerRadius(12)
                     }
                 }
-                .disabled(fridgeInput.isEmpty || isGeneratingRecipe)
+                .disabled((viewModel?.fridgeInput.isEmpty ?? true) || (viewModel?.isGeneratingRecipe ?? true))
             }
 
-            if let recipe = generatedRecipe {
+            if let recipe = viewModel?.generatedRecipe {
                 VStack(alignment: .leading, spacing: 12) {
                     Divider().padding(.vertical, 8)
                     Text(recipe.name).font(.headline)
@@ -198,98 +216,14 @@ struct AICoachDashboardView: View {
         }.premiumCardStyle().padding(.horizontal)
     }
 
-    private func runDailyAnalysis(forceRefresh: Bool = false) {
-            guard let user = currentUser else { return }
-            let cals = currentSummary.totalCalories; let goal = user.dailyCaloriesGoal
-            let protein = currentSummary.totalProtein; let targetP = user.targetProtein
 
-            HapticManager.shared.impact(style: .medium)
-            withAnimation { isAnalyzing = true }
-
-            Task {
-                if let verdict = await AINutritionService.shared.generateDailyVerdict(consumed: cals, goal: goal, protein: protein, targetProtein: targetP) {
-                    await MainActor.run { withAnimation(.spring()) {
-                        self.verdictTitle = verdict.title
-                        self.verdictMessage = verdict.message
-                        self.verdictMood = verdict.mood
-                        self.hasAnalyzedToday = true
-                        self.isAnalyzing = false
-                        HapticManager.shared.impact(style: .heavy)
-                    }}
-                } else {
-                    await MainActor.run { withAnimation(.spring()) {
-                        if cals > goal { self.verdictMood = "danger" } else if cals < goal / 2 { self.verdictMood = "warning" } else { self.verdictMood = "perfect" }
-                        self.verdictTitle = "Data Collected"
-                        self.verdictMessage = "You've eaten \(cals) kcal out of \(goal)."
-                        self.hasAnalyzedToday = true
-                        self.isAnalyzing = false
-                    }}
-                }
-            }
-        }
-
-    private func generateSmartRecipe() {
-        guard let user = currentUser else { return }
-        let missingCals = max(0, user.dailyCaloriesGoal - currentSummary.totalCalories); let missingProtein = max(0, Int(user.targetProtein - currentSummary.totalProtein))
-        HapticManager.shared.impact(style: .medium); withAnimation { isGeneratingRecipe = true }
-        Task {
-            if let recipe = await AINutritionService.shared.generateFridgeRecipe(ingredients: fridgeInput, missingCalories: missingCals, missingProtein: missingProtein) {
-                await MainActor.run { withAnimation(.spring()) {
-                    self.generatedRecipe = recipe; self.fridgeInput = ""; self.isGeneratingRecipe = false; HapticManager.shared.impact(style: .heavy)
-                }}
-            } else { await MainActor.run { self.isGeneratingRecipe = false } }
-        }
-    }
-    private func analyzeMacros() {
-            guard let user = currentUser else { return }
-            HapticManager.shared.impact(style: .medium)
-            isFixingMacros = true
-
-            let missingCals = user.dailyCaloriesGoal - currentSummary.totalCalories
-            let missingP = Int(user.targetProtein - currentSummary.totalProtein)
-            let missingF = Int(user.targetFats - currentSummary.totalFats)
-            let missingC = Int(user.targetCarbs - currentSummary.totalCarbs)
-
-            Task {
-                if let advice = await AINutritionService.shared.getMacroFixAdvice(missingCals: missingCals, missingProtein: missingP, missingFats: missingF, missingCarbs: missingC) {
-                    await MainActor.run {
-                        self.macroAdvice = advice
-                        self.isFixingMacros = false
-                        HapticManager.shared.impact(style: .heavy)
-                    }
-                } else {
-                    await MainActor.run {
-                        print("❌ Не удалось получить совет по макросам от ИИ")
-                        self.isFixingMacros = false
-                    }
-                }
-            }
-        }
-    private func analyzeHydration() {
-        HapticManager.shared.impact(style: .medium)
-        isFixingHydration = true
-
-        let drank = currentSummary.totalHydrationLiters
-
-        Task {
-            if let advice = await AINutritionService.shared.getHydrationAdvice(drankLiters: drank, goalLiters: 2.5) {
-                await MainActor.run {
-                    self.isFixingHydration = false
-                    self.hydrationAdvice = advice
-                    HapticManager.shared.impact(style: .heavy)
-                }
-            } else {
-                await MainActor.run { self.isFixingHydration = false }
-            }
-        }
-    }
     private func saveGeneratedRecipe(_ recipeDTO: AIRecipeDTO) {
         let newRecipe = CustomRecipe(
             name: recipeDTO.name, info: recipeDTO.info,
             foodItems: [FoodItem(name: recipeDTO.name, weight: 100, calories: recipeDTO.calories, protein: recipeDTO.protein, fats: recipeDTO.fats, carbs: recipeDTO.carbs)],
             cookingTime: recipeDTO.cookingTime, difficulty: "Medium")
         context.insert(newRecipe); try? context.save()
-        withAnimation { generatedRecipe = nil }; HapticManager.shared.impact(style: .light)
+        withAnimation { viewModel?.generatedRecipe = nil }; HapticManager.shared.impact(style: .light)
     }
 }
 

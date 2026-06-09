@@ -13,6 +13,14 @@ struct AddMealView: View {
     let mealTypes = ["Breakfast", "Lunch", "Snack", "Dinner"]
     let selectedDate: Date
 
+    init(selectedDate: Date) {
+        self.selectedDate = selectedDate
+        let startOfDay = Calendar.current.startOfDay(for: selectedDate)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
+        self._summaries = Query(filter: predicate)
+    }
+
     func localizedMealType(_ type: String) -> String {
         String(localized: String.LocalizationValue(type))
     }
@@ -79,7 +87,7 @@ struct AddMealView: View {
         let startOfDay = calendar.startOfDay(for: selectedDate)
 
         let summaryToUse: DailySummary
-        if let existingSummary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: startOfDay) }) {
+        if let existingSummary = summaries.first {
             summaryToUse = existingSummary
         } else {
             summaryToUse = DailySummary(date: startOfDay)

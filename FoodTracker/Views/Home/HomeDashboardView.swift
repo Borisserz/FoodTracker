@@ -1,40 +1,23 @@
 import SwiftUI
 import SwiftData
 
-struct BounceButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
-    }
-}
-
-struct UltraPremiumCardModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(20)
-            .background(Color.white)
-            .cornerRadius(24)
-            .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.04), radius: 15, x: 0, y: 6)
-    }
-}
-
-extension View {
-    func ultraPremiumCardStyle() -> some View {
-        self.modifier(UltraPremiumCardModifier())
-    }
-}
+// SharedUI components (BounceButtonStyle, UltraPremiumCardModifier) are now available globally
 
 struct HomeDashboardView: View {
+    @State private var selectedDate: Date = .now
+
+    var body: some View {
+        HomeDashboardContentView(selectedDate: $selectedDate)
+    }
+}
+
+struct HomeDashboardContentView: View {
     @Environment(\.modelContext) private var context
+    @Environment(DIContainer.self) private var di
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
     @Environment(\.scenePhase) private var scenePhase
-    @State private var selectedDate: Date = .now
+    @Binding var selectedDate: Date
     @State private var navigateToProfile = false
     @State private var showDailyLog = false
        @State private var showNoteSheet = false
@@ -42,7 +25,19 @@ struct HomeDashboardView: View {
     @State private var quickAddMealType: String = "Breakfast"
     @State private var selectedMealForDetail: String? = nil
     @State private var showPremiumQuickAdd = false
-        @State private var mealToOpenInSmartAdd: IdentifiableString? = nil
+    @State private var mealToOpenInSmartAdd: IdentifiableString? = nil
+    @State private var allTimeCalories: Int = 0
+    @State private var showXPPopup = false
+    @State private var xpBreakdown: NutritionXPBreakdown? = nil
+
+    init(selectedDate: Binding<Date>) {
+        self._selectedDate = selectedDate
+        let startOfDay = Calendar.current.startOfDay(for: selectedDate.wrappedValue)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
+        self._summaries = Query(filter: predicate)
+    }
+
     private var currentUser: User? { users.first }
 
     private var currentSummary: DailySummary {
@@ -50,8 +45,15 @@ struct HomeDashboardView: View {
         if let existing = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
             return existing
         } else {
+            // Never return a detached object. The ensure task below (or callers) will create via the actor repo.
+            // Return a transient placeholder; UI code should ensure before heavy mutation.
             return DailySummary(date: startOfDay)
         }
+    }
+
+    private func ensureCurrentSummary() async {
+        // Route creation through the @ModelActor-powered repository so the write is isolated.
+        _ = try? await di.summaryRepository.ensureSummary(for: selectedDate)
     }
 
     private func getRecommendedCalories(for mealType: String) -> Int {
@@ -69,18 +71,22 @@ struct HomeDashboardView: View {
         String(localized: String.LocalizationValue(type))
     }
 
-    private var allTimeCalories: Int {
-        summaries.reduce(0) { $0 + $1.totalCalories }
-    }
-
     var body: some View {
           NavigationStack {
               ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
                   Color.themeBg.ignoresSafeArea()
 
+                  // Ensure the day's summary exists via the actor-isolated repo (removes detached main-context creation).
+                  .task(id: selectedDate) {
+                      await ensureCurrentSummary()
+                  }
+                  .task {
+                      await ensureCurrentSummary()
+                  }
+
                   ScrollView(showsIndicators: false) {
                       VStack(spacing: 24) {
-                          HeaderView(selectedDate: selectedDate) { navigateToProfile = true }
+                          HeaderView(selectedDate: selectedDate, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
                           CalendarCarouselView(selectedDate: $selectedDate)
                           InsightsWidget(summary: currentSummary, user: currentUser)
 
@@ -127,8 +133,25 @@ struct HomeDashboardView: View {
                           DailyNoteCard(summary: currentSummary) {
                               showNoteSheet = true
                           }
+                          
+                          Button(action: {
+                              finishDayAndCalculateXP()
+                          }) {
+                              HStack {
+                                  Image(systemName: "flag.checkered")
+                                  Text("Finish Day")
+                              }
+                              .font(.headline)
+                              .foregroundColor(.white)
+                              .frame(maxWidth: .infinity)
+                              .padding()
+                              .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                              .cornerRadius(16)
+                              .shadow(color: .themePink.opacity(0.3), radius: 10, y: 5)
+                          }
                           .padding(.horizontal)
-
+                          .padding(.top, 16)
+                          
                           AllTimeStatsCardView(totalCalories: allTimeCalories)
                       }
                       .padding(.bottom, 120) // Оставили место для плавающей кнопки
@@ -149,10 +172,24 @@ struct HomeDashboardView: View {
                   }
                   .padding(.trailing, 24)
                   .padding(.bottom, 24)
+                  
+                  if showXPPopup, let breakdown = xpBreakdown {
+                      NutritionXPBreakdownPopup(breakdown: breakdown) {
+                          withAnimation {
+                              showXPPopup = false
+                          }
+                      }
+                      .transition(.opacity.combined(with: .scale))
+                      .zIndex(100)
+                  }
               }
               .navigationBarHidden(true)
               .task(id: selectedDate) {
                   await fetchHealthData(for: currentSummary)
+              }
+              .onAppear {
+                  TrackingManager.shared.track(.appOpened(source: "home_dashboard"))
+                  Task { allTimeCalories = (try? await di.summaryRepository.fetchAllTimeCalories()) ?? 0 }
               }
               .onChange(of: scenePhase) { _, newPhase in
                   if newPhase == .active {
@@ -240,10 +277,10 @@ struct HomeDashboardView: View {
                 }
 
                 if needsSave {
-                    if summary.modelContext == nil {
-                        context.insert(summary)
-                    }
+                    // Summary should have been ensured via the @ModelActor repo (see .task ensureCurrentSummary).
+                    // We still save on the view's main context for @Query reactivity; the actor path owns creation.
                     try? context.save()
+                    // Future improvement: await di.summaryRepository.saveSummary(summary) after mapping if needed.
                 }
             }
         }
@@ -271,17 +308,56 @@ struct HomeDashboardView: View {
             summary.meals.append(newMeal)
         }
 
-        if summary.modelContext == nil {
-            context.insert(summary)
-        }
-
+        // Ensured via repo task; save on main context for live @Query updates.
         try? context.save()
+        AppReviewManager.shared.userDidLogMeal()
+    }
+    
+    private func shareDailySummary() {
+        let card = MealShareCard(summary: currentSummary)
+        ShareSheetManager.renderAndShare(view: card, title: "My Nutrition Day")
+    }
+    
+    private func finishDayAndCalculateXP() {
+        HapticManager.shared.impact(style: .medium)
+        
+        let baseXP = 50
+        var proteinXP = 0
+        var calorieXP = 0
+        
+        if let user = currentUser {
+            let totalProtein = Int(currentSummary.totalProtein)
+            let totalCalories = Int(currentSummary.totalCalories)
+            
+            if totalProtein >= Int(user.targetProtein) {
+                proteinXP = 100
+            } else if totalProtein >= Int(user.targetProtein) - 20 {
+                proteinXP = 50
+            }
+            
+            if totalCalories <= user.dailyCaloriesGoal {
+                calorieXP = 150
+            } else if totalCalories <= user.dailyCaloriesGoal + 200 {
+                calorieXP = 50
+            }
+        }
+        
+        let breakdown = NutritionXPBreakdown(baseXP: baseXP, proteinGoalXP: proteinXP, calorieGoalXP: calorieXP)
+        xpBreakdown = breakdown
+        showXPPopup = true
+        
+        if let user = currentUser {
+            var manager = NutritionProgressManager(user: user)
+            manager.addXP(from: breakdown)
+            try? context.save()
+        }
     }
 }
 
 struct HeaderView: View {
     let selectedDate: Date
     var onProfileTap: () -> Void
+    var onShareTap: () -> Void
 
     private var monthYearString: String {
         let formatter = DateFormatter()
@@ -307,6 +383,20 @@ struct HeaderView: View {
             }
             Spacer()
 
+            HStack(spacing: 16) {
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    onShareTap()
+                }) {
+                    Image(systemName: "square.and.arrow.up.circle.fill")
+                        .font(.system(size: 36))
+                        .foregroundStyle(
+                            LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
+                        .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
+                }
+                .buttonStyle(BounceButtonStyle())
+
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onProfileTap()
@@ -319,6 +409,7 @@ struct HeaderView: View {
                     .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
             }
             .buttonStyle(BounceButtonStyle())
+            }
         }
         .padding(.horizontal)
         .padding(.top, 10)
@@ -378,13 +469,25 @@ struct MealDetailView: View {
     let title: String
     let date: Date
 
+    init(title: String, date: Date) {
+        self.title = title
+        self.date = date
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
+        self._summaries = Query(filter: predicate)
+    }
+
     @State private var selectedFoodForDetail: FoodItem? = nil
     @State private var showingAddFood = false
+    @State private var isGeneratingRecipe = false
+    @State private var generatedRecipe: AIChefRecipe? = nil
+    @State private var recipeGenerationError: String? = nil
+    @State private var showingRecipeError = false
+    @Environment(DIContainer.self) private var di
 
     private var meal: Meal? {
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        return summaries.first { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }?
-            .meals.first { $0.title == title }
+        return summaries.first?.meals.first { $0.title == title }
     }
 
     private func deleteFoodItem(_ food: FoodItem) {
@@ -393,6 +496,39 @@ struct MealDetailView: View {
                 meal.foodItems.remove(at: index)
                 context.delete(food)
                 try? context.save()
+            }
+        }
+    }
+    
+    private func generateRecipe(from meal: Meal) {
+        let mealName = title
+        let ingredients = meal.foodItems.map { $0.name }
+        isGeneratingRecipe = true
+        HapticManager.shared.impact(style: .medium)
+        
+        Task {
+            let dto = await AINutritionService.shared.generateCookingSteps(for: mealName, ingredients: ingredients)
+            DispatchQueue.main.async {
+                isGeneratingRecipe = false
+                if let dto = dto {
+                    HapticManager.shared.notification(type: .success)
+                    self.generatedRecipe = AIChefRecipe(
+                        title: dto.title,
+                        calories: dto.calories,
+                        protein: dto.protein,
+                        heroImage: "agent_chef",
+                        cookTime: dto.cookTime,
+                        difficulty: dto.difficulty,
+                        history: dto.history,
+                        ingredients: dto.ingredients,
+                        steps: dto.steps.map { RecipeStep(instruction: $0.instruction, imageName: "", aiTip: $0.aiTip) },
+                        platingTip: dto.platingTip
+                    )
+                } else {
+                    HapticManager.shared.notification(type: .error)
+                    self.recipeGenerationError = "AI Chef needs a break! Please check your connection and try again."
+                    self.showingRecipeError = true
+                }
             }
         }
     }
@@ -492,6 +628,41 @@ struct MealDetailView: View {
                             .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                         }
                         .padding(.horizontal)
+                        
+                        if meal.foodItems.count > 2 {
+                            Button(action: {
+                                generateRecipe(from: meal)
+                            }) {
+                                HStack {
+                                    if isGeneratingRecipe {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    } else {
+                                        Image(systemName: "sparkles")
+                                    }
+                                    Text(isGeneratingRecipe ? "Chef is writing recipe..." : "Cook with Chef")
+                                }
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(16)
+                                .background(
+                                    ZStack {
+                                        Color.themePink
+                                        if isGeneratingRecipe {
+                                            Color.white.opacity(0.3)
+                                                .blur(radius: 10)
+                                                .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isGeneratingRecipe)
+                                        }
+                                    }
+                                )
+                                .cornerRadius(16)
+                                .shadow(color: isGeneratingRecipe ? Color.themePink.opacity(0.8) : Color.themePink.opacity(0.3), radius: isGeneratingRecipe ? 15 : 8, y: 4)
+                            }
+                            .padding(.horizontal)
+                            .disabled(isGeneratingRecipe)
+                            .animation(.easeInOut, value: isGeneratingRecipe)
+                        }
 
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Key Micronutrients")
@@ -546,6 +717,24 @@ struct MealDetailView: View {
                 addFoodsToMeal(items: [addedFood])
             }
         }
+        .fullScreenCover(item: $generatedRecipe) { recipe in
+            NavigationStack {
+                PrepChecklistView(
+                    recipe: recipe,
+                    isFlowPresented: Binding(
+                        get: { generatedRecipe != nil },
+                        set: { if !$0 { generatedRecipe = nil } }
+                    )
+                )
+            }
+        }
+        .alert(isPresented: $showingRecipeError) {
+            Alert(
+                title: Text("Generation Failed"),
+                message: Text(recipeGenerationError ?? "Unknown error"),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
     private func addFoodsToMeal(items: [FoodItem]) {
         let startOfDay = Calendar.current.startOfDay(for: date)
@@ -554,6 +743,8 @@ struct MealDetailView: View {
         if let existingSummary = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
             summary = existingSummary
         } else {
+            // Creation is now handled by the repo ensure (called from .task on date change).
+            // If still missing, the caller should have ensured; fall back to local create + main insert for this flow.
             summary = DailySummary(date: startOfDay)
             context.insert(summary)
         }
@@ -579,10 +770,7 @@ struct MealDetailView: View {
             summary.meals.append(newMeal)
         }
 
-        if summary.modelContext == nil {
-            context.insert(summary)
-        }
-
+        // Ensured via repo task; save on main context for live @Query updates.
         try? context.save()
     }
 }
@@ -1096,7 +1284,11 @@ struct DailyNoteSheet: View {
         ("🧘‍♀️", "Relaxed"),
         ("🤢", "Felt Sick")
     ]
-
+    
+    @State private var selectedMoodForAI: String? = nil
+    @State private var showAIChat = false
+    @State private var moodContextForChat: String? = nil
+    
     var body: some View {
         VStack(spacing: 24) {
             Capsule()
@@ -1111,6 +1303,7 @@ struct DailyNoteSheet: View {
                 Button("Save") {
                     HapticManager.shared.impact(style: .heavy)
                     try? context.save()
+                    clearAIMoodStates()
                     dismiss()
                 }
                 .font(.headline)
@@ -1125,6 +1318,7 @@ struct DailyNoteSheet: View {
                 .cornerRadius(20)
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
                 .padding(.horizontal, 24)
+                .accessibilityLabel("Daily note")
 
             VStack(alignment: .leading, spacing: 12) {
                 Text("Tags & Mood")
@@ -1139,15 +1333,25 @@ struct DailyNoteSheet: View {
                                 withAnimation {
                                     if summary.dayMoodEmoji == mood.0 {
                                         summary.dayMoodEmoji = ""
+                                        clearAIMoodStates()
                                     } else {
                                         summary.dayMoodEmoji = mood.0
+                                        clearAIMoodStates() // prevent stale chat state from previous mood
+                                        
+                                        // Trigger AI Advice popup with a small delay for nice animation feel
+                                        Task {
+                                            try? await Task.sleep(for: .milliseconds(250))
+                                            await MainActor.run {
+                                                selectedMoodForAI = mood.0
+                                            }
+                                        }
                                     }
                                 }
                             }) {
                                 VStack(spacing: 8) {
                                     Text(mood.0)
                                         .font(.system(size: 30))
-                                        .padding(16)
+                                        .frame(minWidth: 52, minHeight: 52)
                                         .background(summary.dayMoodEmoji == mood.0 ? Color.themePink.opacity(0.2) : Color.white)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 20)
@@ -1160,8 +1364,12 @@ struct DailyNoteSheet: View {
                                         .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
                                         .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
                                 }
+                                .frame(minWidth: 64, minHeight: 80) // Ensure good tap target per HIG (44pt minimum)
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("\(mood.1) mood")
+                            .accessibilityValue(summary.dayMoodEmoji == mood.0 ? "Selected" : "Not selected")
+                            .accessibilityAddTraits(.isButton)
                         }
                     }
                     .padding(.horizontal, 24)
@@ -1172,6 +1380,47 @@ struct DailyNoteSheet: View {
             Spacer()
         }
         .background(Color.themeBg.ignoresSafeArea())
+        .onDisappear {
+            clearAIMoodStates()
+        }
+        .sheet(item: Binding(
+            get: { selectedMoodForAI.map { IdentifiableString(value: $0) } },
+            set: { selectedMoodForAI = $0?.value }
+        )) { wrappedEmoji in
+            let emoji = wrappedEmoji.value
+            let moodName = moods.first(where: { $0.0 == emoji })?.1 ?? "Mood"
+            AIMoodAdvicePopup(moodEmoji: emoji, moodName: moodName) {
+                // Force-clear the advice item BEFORE opening chat to prevent re-presentation loop
+                selectedMoodForAI = nil
+                moodContextForChat = "I feel \(moodName) \(emoji) right now. Can we talk about it?"
+                showAIChat = true
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .fullScreenCover(isPresented: $showAIChat) {
+            if let user = try? context.fetch(FetchDescriptor<User>()).first {
+                NavigationStack {
+                    AICoachChatView(
+                        userGoal: user.dailyCaloriesGoal,
+                        consumed: summary.totalCalories,
+                        activeDiet: user.activeDietPlan?.name ?? "Balanced",
+                        initialContext: moodContextForChat
+                    )
+                }
+            }
+        }
+        .onChange(of: showAIChat) { _, isPresented in
+            if !isPresented {
+                // Clean up after chat is dismissed so it doesn't re-trigger anything
+                moodContextForChat = nil
+            }
+        }
+    }
+
+    private func clearAIMoodStates() {
+        selectedMoodForAI = nil
+        moodContextForChat = nil
+        showAIChat = false
     }
 }
 

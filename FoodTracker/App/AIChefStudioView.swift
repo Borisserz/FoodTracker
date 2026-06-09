@@ -61,6 +61,7 @@ let mockDatabase: [AIChefRecipe] = [
 
 // MARK: - 👨‍🍳 Главный Экран
 struct AIChefStudioView: View {
+    @Environment(ThemeManager.self) private var themeManager
     @State private var remainingCalories: Int = 450
     @State private var remainingProtein: Int = 32
     @State private var remainingFat: Int = 18
@@ -68,6 +69,7 @@ struct AIChefStudioView: View {
     
     @State private var searchText = ""
     @State private var showAIAssistantFlow = false
+    @State private var showSmartBuilder = false
     
     var filteredRecipes: [AIChefRecipe] { mockDatabase.filter { $0.title.localizedCaseInsensitiveContains(searchText) } }
     var suggestedRecipes: [AIChefRecipe] { mockDatabase.filter { $0.calories <= remainingCalories + 150 } }
@@ -101,7 +103,31 @@ struct AIChefStudioView: View {
                             .cornerRadius(24)
                             .shadow(color: .themePink.opacity(0.3), radius: 10, y: 5)
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .buttonStyle(BounceButtonStyle())
+                        .padding(.horizontal)
+                        
+                        // 1.5 SMART MEAL PLAN BUILDER
+                        Button(action: {
+                            HapticManager.shared.impact(style: .medium)
+                            showSmartBuilder = true
+                        }) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    HStack {
+                                        Image(systemName: "calendar.badge.clock")
+                                        Text("AI Menu Builder")
+                                    }.font(.caption.bold()).foregroundColor(.white.opacity(0.8))
+                                    Text("Build a 7-Day Plan").font(.title3.bold()).foregroundColor(.white)
+                                }
+                                Spacer()
+                                Image(systemName: "wand.and.stars").font(.system(size: 32)).foregroundColor(.white)
+                            }
+                            .padding(20)
+                            .background(themeManager.current.primaryGradient)
+                            .cornerRadius(24)
+                            .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
+                        }
+                        .buttonStyle(BounceButtonStyle())
                         .padding(.horizontal)
                         
                         // 2. ВИДЖЕТ МАКРОСОВ
@@ -143,12 +169,27 @@ struct AIChefStudioView: View {
                                 }
                             }
                         }
+                        
+                        // 5. МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
+                        Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 16)
+                            
                     }.padding(.vertical)
                 }
             }
             .navigationTitle("AI Шеф")
+            .onAppear {
+                TrackingManager.shared.track(.featureDiscovered(feature: "ai_chef_studio"))
+            }
             .fullScreenCover(isPresented: $showAIAssistantFlow) {
                 AIAssistantFlowView(isPresented: $showAIAssistantFlow)
+            }
+            .sheet(isPresented: $showSmartBuilder) {
+                SmartPlanBuilderFlow()
             }
         }
     }
@@ -190,10 +231,7 @@ struct DailyMacroWidget: View {
                 MacroPillView(title: "Углеводы", value: "\(carbs)г", color: .drinkWater)
             }
         }
-        .padding(20)
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
+        .ultraPremiumCardStyle()
         .padding(.horizontal)
     }
 }
@@ -414,6 +452,15 @@ struct AIAssistantFlowView: View {
                                 }) { SearchResultRow(recipe: recipe) }.buttonStyle(PlainButtonStyle())
                             }
                         }.padding(.horizontal)
+                        
+                        // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
+                        Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 16)
+                            .padding(.bottom, 24)
                     }
                 }
             }
@@ -458,6 +505,18 @@ struct PrepChecklistView: View {
         }
         .background(Color.themeBg.ignoresSafeArea())
         .navigationDestination(isPresented: $isCookingPhase) { AgentCookingView(recipe: recipe, isFlowPresented: $isFlowPresented) }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+                    HapticManager.shared.impact(style: .rigid)
+                    isFlowPresented = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                        .font(.title2)
+                }
+            }
+        }
     }
 }
 
@@ -523,6 +582,18 @@ struct AgentCookingView: View {
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $showCameraScanner) {
             if let step = currentStepForCamera { AICameraScannerView(step: step, isPresented: $showCameraScanner) }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+                    HapticManager.shared.impact(style: .rigid)
+                    isFlowPresented = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                        .font(.title2)
+                }
+            }
         }
     }
 }

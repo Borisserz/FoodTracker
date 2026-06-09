@@ -6,10 +6,10 @@ extension Color {
         self.init(.sRGB, red: Double((hex >> 16) & 0xff) / 255, green: Double((hex >> 08) & 0xff) / 255, blue: Double((hex >> 00) & 0xff) / 255, opacity: alpha)
     }
 
-    static let themePink   = Color(hex: 0xF25C78)
+    static var themePink: Color { ThemeManager.shared.current.primaryAccent }
     static let themeYellow = Color(hex: 0xE5A93B)
     static let themeDarkYellow = Color(hex: 0xC48000)
-    static let themeOrange = Color(hex: 0xF28B66)
+    static var themeOrange: Color { ThemeManager.shared.current.secondaryAccent }
     static let themeBg     = Color(hex: 0xF5F2EB)
     static let themePeach  = Color(hex: 0xE06C53)
 

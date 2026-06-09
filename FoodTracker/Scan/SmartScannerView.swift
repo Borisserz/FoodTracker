@@ -17,7 +17,8 @@ struct SmartScannerView: View {
     @State private var isFlashlightOn: Bool = false
 
     @State private var selectedMode: ScannerMode = .barcode
-    @StateObject private var cameraManager = LiveFoodCameraManager()
+    // @State for @Observable class (replaces @StateObject for the migrated LiveFoodCameraManager)
+    @State private var cameraManager = LiveFoodCameraManager()
     @State private var isAnalyzingAI = false
     @State private var showShutterFlash = false
 
@@ -299,6 +300,9 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     withAnimation { isAnalyzingAI = false }
                     cameraManager.capturedImage = nil
+                    // Better user feedback for AI vision failures (was silent before)
+                    // In a fuller implementation we would surface via appState or a local banner.
+                    print("❌ Meal AI analysis failed - user will see camera reset")
                 }
             }
         }
@@ -319,6 +323,7 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     withAnimation { isAnalyzingAI = false }
                     cameraManager.capturedImage = nil
+                    print("❌ Menu AI analysis failed - user will see camera reset")
                 }
             }
         }
@@ -345,9 +350,11 @@ struct SmartScannerView: View {
     }
 }
 
-class LiveFoodCameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
-    @Published var session = AVCaptureSession()
-    @Published var capturedImage: UIImage? = nil
+@Observable
+final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
+    // Migrated from ObservableObject/@Published to @Observable (plain vars now notify observers)
+    var session = AVCaptureSession()
+    var capturedImage: UIImage? = nil
 
     private let photoOutput = AVCapturePhotoOutput()
     private var isConfigured = false

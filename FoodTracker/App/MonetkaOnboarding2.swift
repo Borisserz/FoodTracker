@@ -54,7 +54,7 @@ struct OnboardingNutritionMode: View {
     }
     
     @State private var step: Step = .welcome
-    @State private var metrics = UserMetrics()
+    @State private var metrics = OnboardingMetrics()
     
     var body: some View {
         ZStack {
@@ -136,7 +136,7 @@ struct WelcomeScreenMetrics: View {
 
 // MARK: - 2. Экран Метрик
 struct MetricsScreen: View {
-    @Binding var metrics: UserMetrics
+    @Binding var metrics: OnboardingMetrics
     let onNext: () -> Void
     
     var body: some View {
@@ -220,7 +220,7 @@ struct WheelColumn: View {
 
 // MARK: - 3. Экран Активности
 struct ActivityScreen: View {
-    @Binding var metrics: UserMetrics
+    @Binding var metrics: OnboardingMetrics
     let onNext: () -> Void
     
     var body: some View {
@@ -563,15 +563,7 @@ struct GodModeButton: View {
     }
 }
 
-struct BouncyButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
-    }
-}
-
+// BouncyButtonStyle is already declared in OnboardingViews.swift
 struct AnimatedBackground: View {
     @State private var move1 = false
     @State private var move2 = false

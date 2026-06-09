@@ -1,15 +1,14 @@
 import SwiftUI
 import SwiftData
 import Charts
+import FirebaseAuth
 
 struct ProfileWrapperView: View {
     @Query private var users: [User]
-    @Query private var summaries: [DailySummary]
 
     var body: some View {
         if let user = users.first {
-
-            ProfileView(user: user, summaries: summaries)
+            ProfileView(user: user)
         } else {
 
             VStack {
@@ -23,46 +22,58 @@ struct ProfileWrapperView: View {
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var context
+    @Environment(DIContainer.self) private var di
+    @Environment(ThemeManager.self) private var themeManager
     @Bindable var user: User
-    let summaries: [DailySummary]
 
-    @State private var currentStreak: Int = 0
+    @State private var viewModel: ProfileViewModel?
 
     @State private var showingEditProfile = false
     @State private var showingNutritionSettings = false
     @State private var showingSettings = false
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 24) {
+        ZStack {
+            ProfileBreathingBackground()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
 
-                VStack(spacing: 16) {
-                    Image(systemName: "person.crop.circle.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 100, height: 100)
-                        .foregroundStyle(
-                            LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
-                        )
-                        .shadow(color: .themePink.opacity(0.3), radius: 10, y: 5)
+                    VStack(spacing: 16) {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 100, height: 100)
+                            .foregroundStyle(themeManager.current.primaryGradient)
+                            .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
 
-                    VStack(spacing: 4) {
-                        Text(user.name)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                        Text("Active Goal: \(user.dailyCaloriesGoal) kcal")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
+                        VStack(spacing: 4) {
+                            Text(user.name)
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                            
+                            let progressManager = NutritionProgressManager(user: user)
+                            Text(progressManager.currentTitle)
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.themeOrange)
+                            
+                            Text("Active Goal: \(user.dailyCaloriesGoal) kcal")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        NutritionLevelProgressBar(progressManager: NutritionProgressManager(user: user))
+                            .padding(.vertical, 8)
 
-                    Button(action: { showingEditProfile = true }) {
+                        Button(action: { showingEditProfile = true }) {
                         Text("Edit Profile")
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundColor(.white)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 10)
-                            .background(Color.themePink)
+                            .background(themeManager.current.primaryAccent)
                             .clipShape(Capsule())
-                            .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 3)
+                            .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 5, y: 3)
                     }
                     .buttonStyle(BounceButtonStyle())
 
@@ -93,24 +104,24 @@ struct ProfileView: View {
                         Spacer()
                         Image(systemName: "chart.pie.fill")
                             .font(.title2)
-                            .foregroundColor(.themePink)
+                            .foregroundColor(themeManager.current.primaryAccent)
                             .padding(12)
-                            .background(Color.themePink.opacity(0.1))
+                            .background(themeManager.current.primaryAccent.opacity(0.1))
                             .clipShape(Circle())
                     }
                     .premiumCardStyle()
                 }
                 .buttonStyle(BounceButtonStyle())
 
-                StreakCardView(streak: currentStreak)
+                StreakCardView(streak: viewModel?.currentStreak ?? 0)
 
-                AchievementsSectionView(user: user)
+                NutritionAchievementsCarousel(user: user)
 
             }
             .padding(20)
             .padding(.bottom, 40)
         }
-        .background(Color.themeBg.ignoresSafeArea())
+        }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -131,24 +142,11 @@ struct ProfileView: View {
             SettingsView(user: user)
         }
         .onAppear {
-            currentStreak = calculateStreak()
+            if viewModel == nil {
+                viewModel = di.makeProfileViewModel()
+            }
+            viewModel?.loadData()
         }
-    }
-
-    private func calculateStreak() -> Int {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date.now)
-        let activeDates = summaries.filter { $0.totalCalories > 0 }.map { calendar.startOfDay(for: $0.date) }.sorted(by: >)
-        guard let mostRecent = activeDates.first else { return 0 }
-        let daysFromToday = calendar.dateComponents([.day], from: mostRecent, to: today).day ?? 0
-        if daysFromToday > 1 { return 0 }
-        var streak = 1; var previousDate = mostRecent
-        for i in 1..<activeDates.count {
-            let currentDate = activeDates[i]
-            let diff = calendar.dateComponents([.day], from: currentDate, to: previousDate).day ?? 0
-            if diff == 1 { streak += 1; previousDate = currentDate } else if diff == 0 { continue } else { break }
-        }
-        return streak
     }
 }
 
@@ -321,9 +319,11 @@ struct NutritionSettingsEditor: View {
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
+    @Environment(ThemeManager.self) private var themeManager
     @Bindable var user: User
 
     @AppStorage("useMetricSystem") private var useMetricSystem = true
+    @Query private var summaries: [DailySummary]
 
     var body: some View {
         NavigationStack {
@@ -335,7 +335,7 @@ struct SettingsView: View {
 
                         VStack(spacing: 0) {
                             NavigationLink(destination: AccountSettingsView(user: user)) {
-                                SettingsRowView(icon: "person.fill", iconColor: .themePink, title: "Account")
+                                SettingsRowView(icon: "person.fill", iconColor: themeManager.current.primaryAccent, title: "Account")
                             }
                             Divider().padding(.leading, 56)
 
@@ -351,6 +351,16 @@ struct SettingsView: View {
 
                             NavigationLink(destination: UnitsSettingsView(useMetric: $useMetricSystem)) {
                                 SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: "Units settings", value: useMetricSystem ? "Metric" : "Imperial")
+                            }
+                            Divider().padding(.leading, 56)
+                            
+                            NavigationLink(destination: ThemeSettingsView()) {
+                                SettingsRowView(icon: "paintpalette.fill", iconColor: themeManager.current.secondaryAccent, title: "App Theme", value: themeManager.current.name)
+                            }
+                            Divider().padding(.leading, 56)
+
+                            Button(action: { exportData() }) {
+                                SettingsRowView(icon: "square.and.arrow.up.fill", iconColor: .green, title: "Export Data to CSV")
                             }
                         }
                         .premiumCardStyle()
@@ -406,28 +416,55 @@ struct SettingsView: View {
             }
         }
     }
+    
+    private func exportData() {
+        do {
+            let fileURL = try DataExportService.generateCSV(from: summaries)
+            let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+            
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController {
+                
+                var topVC = rootVC
+                while let presented = topVC.presentedViewController {
+                    topVC = presented
+                }
+                
+                if let popover = activityVC.popoverPresentationController {
+                    popover.sourceView = topVC.view
+                    popover.sourceRect = CGRect(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY, width: 0, height: 0)
+                    popover.permittedArrowDirections = []
+                }
+                
+                topVC.present(activityVC, animated: true)
+            }
+        } catch {
+            print("Failed to export data: \(error)")
+        }
+    }
 
     private func rateApp() {
         HapticManager.shared.impact(style: .medium)
-
-        print("Rate App Tapped")
+        if let url = URL(string: "itms-apps://itunes.apple.com/app/id6445831998?action=write-review") {
+            UIApplication.shared.open(url)
+        }
     }
 
     private func contactSupport() {
         HapticManager.shared.impact(style: .medium)
-        let subject = "Help Needed - FoodTracker User ID: 372026"
+        let subject = "Help Needed - FoodTracker"
         let body = "Please describe your issue here...\n\n\n--- App Info ---\nVersion: 1.0.0"
         let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
 
-        if let url = URL(string: "mailto:support@foodbok.com?subject=\(encodedSubject)&body=\(encodedBody)") {
+        if let url = URL(string: "mailto:support@foodtracker.app?subject=\(encodedSubject)&body=\(encodedBody)") {
             UIApplication.shared.open(url)
         }
     }
 
     private func openTerms() {
         HapticManager.shared.impact(style: .light)
-        if let url = URL(string: "https://yourwebsite.com/terms") {
+        if let url = URL(string: "https://foodtracker.app/privacy") {
             UIApplication.shared.open(url)
         }
     }
@@ -473,7 +510,12 @@ struct SettingsRowView: View {
 }
 
 struct AccountSettingsView: View {
+    @Environment(AuthManager.self) private var authManager
     let user: User
+
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var showError = false
 
     var body: some View {
         ZStack {
@@ -482,11 +524,15 @@ struct AccountSettingsView: View {
             VStack(spacing: 24) {
 
                 VStack(alignment: .leading, spacing: 16) {
-                    AccountInfoRow(title: "User ID", value: "372 026")
+                    AccountInfoRow(title: "User ID", value: String(authManager.currentUserId.prefix(8)))
                     Divider()
-                    AccountInfoRow(title: "Account type", value: "Premium", valueColor: .themePink)
+                    AccountInfoRow(title: "Account type", value: authManager.isAnonymous ? "Guest" : "Registered", valueColor: authManager.isAnonymous ? .gray : .themePink)
                     Divider()
-                    AccountInfoRow(title: "Total logged days", value: "42")
+                    if !authManager.isAnonymous, let email = authManager.currentUserEmail {
+                        AccountInfoRow(title: "Email", value: email)
+                    } else {
+                        AccountInfoRow(title: "Total logged days", value: "42")
+                    }
                 }
                 .padding(20)
                 .background(Color.white)
@@ -498,22 +544,99 @@ struct AccountSettingsView: View {
                 Spacer()
 
                 VStack(spacing: 16) {
-                    Button(action: {  }) {
-                        HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                            Text("Log out")
+                    if authManager.isAnonymous {
+                        Button(action: {
+                            Task {
+                                isLoading = true
+                                do {
+                                    try await SocialAuthService.shared.signInWithApple()
+                                } catch {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                }
+                                isLoading = false
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "applelogo")
+                                Text("Sign in with Apple")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.black)
+                            .cornerRadius(20)
                         }
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.white)
-                        .cornerRadius(20)
-                        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
-                    }
-                    .buttonStyle(BounceButtonStyle())
+                        .buttonStyle(BounceButtonStyle())
 
-                    Button(action: {  }) {
+                        Button(action: {
+                            Task {
+                                isLoading = true
+                                do {
+                                    try await SocialAuthService.shared.signInWithGoogle()
+                                } catch {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                }
+                                isLoading = false
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "g.circle.fill")
+                                Text("Sign in with Google")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+                        }
+                        .buttonStyle(BounceButtonStyle())
+                    } else {
+                        Button(action: {
+                            Task {
+                                isLoading = true
+                                do {
+                                    try await SocialAuthService.shared.signOut()
+                                } catch {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                }
+                                isLoading = false
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                                Text("Log out")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+                        }
+                        .buttonStyle(BounceButtonStyle())
+                    }
+
+                    Button(action: {
+                        Task {
+                            isLoading = true
+                            do {
+                                try await SocialAuthService.shared.reauthenticateForDeletion()
+                                try await authManager.deleteCurrentUser()
+                                try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                showError = true
+                            }
+                            isLoading = false
+                        }
+                    }) {
                         HStack {
                             Image(systemName: "trash")
                             Text("Delete account")
@@ -530,9 +653,18 @@ struct AccountSettingsView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 40)
             }
+            if isLoading {
+                Color.black.opacity(0.3).ignoresSafeArea()
+                ProgressView().controlSize(.large).tint(.white)
+            }
         }
         .navigationTitle("Account")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Error", isPresented: $showError, actions: {
+            Button("OK", role: .cancel) { }
+        }, message: {
+            Text(errorMessage ?? "Unknown error")
+        })
     }
 }
 
@@ -744,46 +876,6 @@ struct MacroAdjusterRow: View {
     }
 }
 
-struct AchievementsSectionView: View {
-    let user: User
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Awards").font(.title2).bold()
-                Spacer()
-                Text("\(user.unlockedAchievements.count) Unlocked").font(.caption).foregroundColor(.gray)
-            }.padding(.horizontal, 20)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 20) {
-                    ForEach(Achievement.all) { achievement in
-                        let isUnlocked = user.unlockedAchievements.contains(achievement.id)
-                        AppleStyleBadge(achievement: achievement, isUnlocked: isUnlocked)
-                    }
-                }.padding(.horizontal, 20).padding(.bottom, 10)
-            }
-        }
-        .padding(.vertical, 16).background(Color.white).cornerRadius(24).shadow(color: .black.opacity(0.04), radius: 10, y: 5)
-    }
-}
-
-struct AppleStyleBadge: View {
-    let achievement: Achievement; let isUnlocked: Bool
-    var body: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                Circle().fill(LinearGradient(colors: isUnlocked ? [Color(white: 0.9), Color(white: 0.7)] : [Color(white: 0.95), Color(white: 0.9)], startPoint: .topLeading, endPoint: .bottomTrailing)).frame(width: 80, height: 80).shadow(color: isUnlocked ? achievement.color.opacity(0.3) : .clear, radius: 8, y: 4)
-                Circle().fill(isUnlocked ? LinearGradient(colors: [achievement.color.opacity(0.8), achievement.color], startPoint: .top, endPoint: .bottom) : LinearGradient(colors: [Color(white: 0.85)], startPoint: .top, endPoint: .bottom)).frame(width: 68, height: 68)
-                Image(systemName: achievement.icon).font(.system(size: 32, weight: .bold)).foregroundColor(isUnlocked ? .white : .gray.opacity(0.5)).shadow(color: isUnlocked ? .black.opacity(0.2) : .clear, radius: 2, y: 1)
-            }
-            VStack(spacing: 2) {
-                Text(achievement.title).font(.system(size: 13, weight: .bold, design: .rounded)).foregroundColor(isUnlocked ? .primary : .gray).lineLimit(1)
-                Text(achievement.description).font(.system(size: 10)).foregroundColor(.gray).multilineTextAlignment(.center).lineLimit(2).frame(height: 24)
-            }.frame(width: 90)
-        }.opacity(isUnlocked ? 1.0 : 0.6).grayscale(isUnlocked ? 0 : 1)
-    }
-}
-
 struct StreakCardView: View {
     let streak: Int
 
@@ -815,5 +907,57 @@ struct StreakCardView: View {
             Spacer()
         }
         .premiumCardStyle()
+    }
+}
+
+struct ThemeSettingsView: View {
+    @Environment(\.dismiss) var dismiss
+    @Environment(ThemeManager.self) private var themeManager
+    
+    var body: some View {
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 16) {
+                    ForEach(0..<themeManager.themes.count, id: \.self) { index in
+                        let theme = themeManager.themes[index]
+                        Button(action: {
+                            themeManager.currentThemeIndex = index
+                            HapticManager.shared.impact(style: .medium)
+                        }) {
+                            HStack {
+                                Circle()
+                                    .fill(theme.primaryGradient)
+                                    .frame(width: 40, height: 40)
+                                
+                                Text(theme.name)
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                                
+                                if themeManager.currentThemeIndex == index {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(theme.primaryAccent)
+                                        .font(.title3)
+                                }
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(themeManager.currentThemeIndex == index ? theme.primaryAccent : Color.clear, lineWidth: 2)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding()
+            }
+        }
+        .navigationTitle("App Theme")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
