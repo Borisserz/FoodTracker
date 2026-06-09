@@ -22,21 +22,26 @@ struct RootOnboardingView: View {
             AnimatedBackground()
             
             if currentStage == 0 {
-                MetricsScreen(metrics: $metrics, onNext: {
+                OnboardingFeaturesView(onNext: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 1 }
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             } else if currentStage == 1 {
-                ActivityScreen(metrics: $metrics, onNext: {
+                MetricsScreen(metrics: $metrics, onNext: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 2 }
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             } else if currentStage == 2 {
-                OnboardingGoalScreen(metrics: $metrics, onNext: {
+                ActivityScreen(metrics: $metrics, onNext: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 3 }
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             } else if currentStage == 3 {
+                OnboardingGoalScreen(metrics: $metrics, onNext: {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 4 }
+                })
+                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+            } else if currentStage == 4 {
                 FinishScreen(onCalculationComplete: {
                     onFinish(metrics)
                 })
