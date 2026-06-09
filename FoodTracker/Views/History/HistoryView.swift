@@ -46,25 +46,44 @@ struct FoodsDashboardView: View {
                         }
 
                     VStack(spacing: 16) {
-
-                        HStack(spacing: 16) {
-                            FoodsFeatureCard(title: "Recipes", subtitle: "Custom & Chefs", icon: "book.pages.fill", color: .themePink) {
-                                path.append(FoodsRoute.recipes)
-                            }
-
-                            FoodsFeatureCard(title: "Diet Plans", subtitle: "Keto, Vegan...", icon: "leaf.fill", color: .green) {
-                                path.append(FoodsRoute.diets)
-                            }
+                        FoodsFeatureCard(
+                            title: "Recipes",
+                            subtitle: "Custom & Chefs",
+                            description: "Explore 600+ recipes matching your targets, create custom meals, or cook with professional chef videos.",
+                            icon: "book.pages.fill",
+                            color: .themePink
+                        ) {
+                            path.append(FoodsRoute.recipes)
                         }
 
-                        HStack(spacing: 16) {
-                            FoodsFeatureCard(title: "Academy", subtitle: "Tips & Guides", icon: "graduationcap.fill", color: .blue) {
-                                path.append(FoodsRoute.learn)
-                            }
+                        FoodsFeatureCard(
+                            title: "Diet Plans",
+                            subtitle: "Keto, Vegan...",
+                            description: "Personalize your nutrition style. Set Keto, Vegan, or Mediterranean diets with automated target adjustments.",
+                            icon: "leaf.fill",
+                            color: .green
+                        ) {
+                            path.append(FoodsRoute.diets)
+                        }
 
-                            FoodsFeatureCard(title: "Fasting", subtitle: "16:8, OMAD...", icon: "timer", color: .themeOrange) {
-                                path.append(FoodsRoute.fasting)
-                            }
+                        FoodsFeatureCard(
+                            title: "Academy",
+                            subtitle: "Tips & Guides",
+                            description: "Master your habits. Learn about nutrition science, hydration balance, metabolism, and calories.",
+                            icon: "graduationcap.fill",
+                            color: .blue
+                        ) {
+                            path.append(FoodsRoute.learn)
+                        }
+
+                        FoodsFeatureCard(
+                            title: "Fasting",
+                            subtitle: "16:8, OMAD...",
+                            description: "Track intermittent fasting with custom windows. Monitor ketosis states and keep your streaks.",
+                            icon: "timer",
+                            color: .themeOrange
+                        ) {
+                            path.append(FoodsRoute.fasting)
                         }
                     }
                     .padding(.horizontal)
@@ -184,37 +203,76 @@ struct FoodsDashboardView: View {
 struct FoodsFeatureCard: View {
     let title: String
     let subtitle: String
+    let description: String
     let icon: String
     let color: Color
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 16) {
+                // Left Visual Accent Bar
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(color)
+                    .frame(width: 4, height: 44)
+                
+                // Text Information
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text(title)
+                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                        
+                        Text(subtitle.uppercased())
+                            .font(.system(size: 9, weight: .black, design: .rounded))
+                            .foregroundColor(color)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(color.opacity(0.1))
+                            .cornerRadius(4)
+                    }
+                    
+                    Text(description)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.gray)
+                        .lineSpacing(2)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                
+                Spacer()
+                
+                // Floating Gradient Icon
                 ZStack {
                     Circle()
-                        .fill(color.opacity(0.15))
+                        .fill(
+                            LinearGradient(
+                                colors: [color, color.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                         .frame(width: 44, height: 44)
-
+                        .shadow(color: color.opacity(0.35), radius: 6, y: 3)
+                    
                     Image(systemName: icon)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(color)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
                 }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
+                
+                // Trailing Chevron
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.gray.opacity(0.4))
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity)
             .background(Color.white)
-            .cornerRadius(24)
-            .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+            .cornerRadius(20)
+            .shadow(color: color.opacity(0.06), radius: 12, x: 0, y: 6)
+            .shadow(color: Color.black.opacity(0.02), radius: 6, x: 0, y: 2)
         }
         .buttonStyle(BounceButtonStyle())
     }
