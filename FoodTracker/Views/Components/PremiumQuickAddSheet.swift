@@ -8,10 +8,12 @@ struct PremiumQuickAddSheet: View {
 
     let selectedDate: Date
     var onSelectDetailedMeal: (String) -> Void
+    var onSelectActivity: () -> Void
 
-    init(selectedDate: Date, onSelectDetailedMeal: @escaping (String) -> Void) {
+    init(selectedDate: Date, onSelectDetailedMeal: @escaping (String) -> Void, onSelectActivity: @escaping () -> Void = {}) {
         self.selectedDate = selectedDate
         self.onSelectDetailedMeal = onSelectDetailedMeal
+        self.onSelectActivity = onSelectActivity
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
         let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
         let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
@@ -139,6 +141,30 @@ struct PremiumQuickAddSheet: View {
                     }
                     .padding(.horizontal, 24)
                 }
+                
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    dismiss()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        onSelectActivity()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "figure.run")
+                            .font(.system(size: 20))
+                        Text("Log Physical Activity")
+                            .font(.headline)
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.themeOrange)
+                    .cornerRadius(16)
+                    .shadow(color: Color.themeOrange.opacity(0.4), radius: 8, y: 4)
+                }
+                .buttonStyle(BounceButtonStyle())
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
 
                 Spacer()
             }

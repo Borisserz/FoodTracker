@@ -20,9 +20,10 @@ struct HomeDashboardContentView: View {
     @Binding var selectedDate: Date
     @State private var navigateToProfile = false
     @State private var showDailyLog = false
-       @State private var showNoteSheet = false
+    @State private var showNoteSheet = false
     @State private var showingQuickAddSheet = false
-    @State private var quickAddMealType: String = "Breakfast"
+    @State private var quickAddMealType = "Snack"
+    @State private var showingQuickActivitySheet = false
     @State private var selectedMealForDetail: String? = nil
     @State private var showPremiumQuickAdd = false
     @State private var mealToOpenInSmartAdd: IdentifiableString? = nil
@@ -222,12 +223,19 @@ struct HomeDashboardContentView: View {
                   .presentationDragIndicator(.hidden)
               }
               .sheet(isPresented: $showPremiumQuickAdd) {
-                  PremiumQuickAddSheet(selectedDate: selectedDate) { selectedMeal in
+                  PremiumQuickAddSheet(selectedDate: selectedDate, onSelectDetailedMeal: { selectedMeal in
                       self.mealToOpenInSmartAdd = IdentifiableString(value: selectedMeal)
-                  }
-                  .presentationDetents([.height(550)])
+                  }, onSelectActivity: {
+                      self.showingQuickActivitySheet = true
+                  })
+                  .presentationDetents([.height(650)])
                   .presentationCornerRadius(32)
                   .presentationDragIndicator(.visible)
+              }
+              .sheet(isPresented: $showingQuickActivitySheet) {
+                  QuickActivityAddView(summary: currentSummary)
+                      .presentationDetents([.fraction(0.85), .large])
+                      .presentationCornerRadius(32)
               }
               .fullScreenCover(item: $mealToOpenInSmartAdd) { mealInfo in
                   SmartAddFoodView(mealTitle: mealInfo.value) { selectedItems in
@@ -251,11 +259,10 @@ struct HomeDashboardContentView: View {
 
                 do {
                     let totalHealthCals = try await HealthKitManager.shared.fetchTotalActiveCalories(for: summary.date)
-
-                    fetchedActiveCals = max(totalHealthCals, workoutCals)
+                    fetchedActiveCals = max(totalHealthCals, workoutCals, summary.localActivityCalories)
                 } catch { print("Health cals error: \(error)") }
             } else {
-                fetchedActiveCals = workoutCals
+                fetchedActiveCals = max(workoutCals, summary.localActivityCalories)
             }
 
             await MainActor.run {
@@ -311,6 +318,9 @@ struct HomeDashboardContentView: View {
         // Ensured via repo task; save on main context for live @Query updates.
         try? context.save()
         AppReviewManager.shared.userDidLogMeal()
+        
+        let addedCals = newFoodItems.reduce(0) { $0 + $1.calories }
+        TrackingManager.shared.track(.mealLogged(mealType: title, totalCalories: addedCals))
     }
     
     private func shareDailySummary() {

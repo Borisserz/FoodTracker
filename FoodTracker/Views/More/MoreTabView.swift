@@ -43,6 +43,13 @@ struct MoreTabView: View {
                         }
                         .padding(.horizontal)
 
+                        // Cross-Promo Banner
+                        crossPromoBanner
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                            .opacity(appearedItems.count >= moreItems.count ? 1 : 0)
+                            .animation(.easeIn(duration: 0.5).delay(0.3), value: appearedItems.count)
+
                         // App info footer
                         footerSection
                             .padding(.bottom, 32)
@@ -137,6 +144,68 @@ struct MoreTabView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)
+    }
+
+    private var crossPromoBanner: some View {
+        Button(action: {
+            TrackingManager.shared.track(.crossPromoTapped(app: "workout_tracker"))
+            if let url = URL(string: "https://apps.apple.com/app/id6774895106") {
+                UIApplication.shared.open(url)
+            }
+        }) {
+            HStack(spacing: 16) {
+                // App Icon Placeholder
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(LinearGradient(colors: [Color.themeOrange, Color.themePink], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 64, height: 64)
+                        .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                    
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 30))
+                        .foregroundStyle(.white)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Workout Tracker")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundStyle(.primary)
+                    
+                    Text("Your ultimate fitness companion")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+                
+                Spacer(minLength: 0)
+                
+                // "GET" Button
+                VStack {
+                    Text("GET")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.themeOrange)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.themeOrange.opacity(0.15))
+                        .clipShape(Capsule())
+                    
+                    Text("In-App Purchases")
+                        .font(.system(size: 8))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 2)
+                }
+            }
+            .padding(16)
+            .background {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(Color(uiColor: .systemBackground))
+                    .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
+                
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(LinearGradient(colors: [.themeOrange.opacity(0.5), .themePink.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+            }
+        }
+        .buttonStyle(BounceButtonStyle())
     }
 
     @ViewBuilder

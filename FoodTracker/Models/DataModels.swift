@@ -199,10 +199,27 @@ struct Achievement: Identifiable {
     }
 }
 
+@Model final class ActivityLog {
+    var title: String = ""
+    var icon: String = ""
+    var durationMinutes: Int = 0
+    var calories: Int = 0
+    var date: Date = Date()
+
+    init(title: String, icon: String, durationMinutes: Int, calories: Int, date: Date = Date()) {
+        self.title = title
+        self.icon = icon
+        self.durationMinutes = durationMinutes
+        self.calories = calories
+        self.date = date
+    }
+}
+
 @Model final class DailySummary: @unchecked Sendable {
     @Attribute(.unique) var date: Date = Date()
     @Relationship(deleteRule: .cascade) var meals: [Meal] = []
     @Relationship(deleteRule: .cascade) var beverages: [Beverage] = []
+    @Relationship(deleteRule: .cascade) var activities: [ActivityLog] = []
     var weight: Double?
     var activeCaloriesBurned: Int = 0
     var dayNote: String = ""
@@ -220,6 +237,8 @@ struct Achievement: Identifiable {
     var totalFats: Double { meals.reduce(0) { $0 + $1.totalFats } }
     var totalCarbs: Double { meals.reduce(0) { $0 + $1.totalCarbs } }
 
+    var localActivityCalories: Int { activities.reduce(0) { $0 + $1.calories } }
+
     var netCalories: Int {
         totalCalories - activeCaloriesBurned
     }
@@ -228,9 +247,9 @@ struct Achievement: Identifiable {
         return (userGoal + activeCaloriesBurned) - totalCalories
     }
 
-    init(date: Date, meals: [Meal] = [], beverages: [Beverage] = []) {
+    init(date: Date, meals: [Meal] = [], beverages: [Beverage] = [], activities: [ActivityLog] = []) {
         self.date = Calendar.current.startOfDay(for: date)
-        self.meals = meals; self.beverages = beverages
+        self.meals = meals; self.beverages = beverages; self.activities = activities
         self.activeCaloriesBurned = 0
         self.stepsCount = 0
         self.workoutCalories = 0

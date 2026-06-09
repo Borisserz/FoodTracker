@@ -127,6 +127,8 @@ struct WaterGridTrackerView: View {
            HapticManager.shared.impact(style: .medium)
            let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
 
+           TrackingManager.shared.track(.waterLogged(volume: ml))
+
            withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
 
                if summary.modelContext == nil {

@@ -123,6 +123,7 @@ struct AICoachChatView: View {
             }
         }
         .onAppear {
+            TrackingManager.shared.track(.featureDiscovered(feature: "AI Coach Chat"))
             if let contextMsg = initialContext, chatHistory.isEmpty {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     if self.chatHistory.isEmpty {

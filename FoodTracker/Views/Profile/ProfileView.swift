@@ -87,6 +87,10 @@ struct ProfileView: View {
                     .padding(.top, 8)
                 }
                 .premiumCardStyle()
+                
+                let heightM = user.height / 100.0
+                let bmi = heightM > 0 ? user.weight / (heightM * heightM) : 0
+                BMICardView(bmi: bmi)
 
                 Button(action: { showingNutritionSettings = true }) {
                     HStack {
@@ -959,5 +963,92 @@ struct ThemeSettingsView: View {
         }
         .navigationTitle("App Theme")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct BMIScaleView: View {
+    let bmi: Double
+
+    var body: some View {
+        GeometryReader { geo in
+            let minBMI = 15.0
+            let maxBMI = 40.0
+            let clampedBMI = max(minBMI, min(maxBMI, bmi))
+            let percentage = (clampedBMI - minBMI) / (maxBMI - minBMI)
+
+            ZStack(alignment: .leading) {
+                // Background Gradient
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(LinearGradient(
+                        stops: [
+                            .init(color: .blue, location: 0.0),
+                            .init(color: .green, location: 0.25),
+                            .init(color: .orange, location: 0.6),
+                            .init(color: .red, location: 0.9)
+                        ],
+                        startPoint: .leading, endPoint: .trailing
+                    ))
+                    .frame(height: 12)
+
+                // Indicator
+                VStack(spacing: 0) {
+                    Image(systemName: "arrowtriangle.down.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.primary)
+                    Spacer().frame(height: 12)
+                }
+                .offset(x: geo.size.width * CGFloat(percentage) - 7, y: -10)
+            }
+        }
+        .frame(height: 24)
+    }
+}
+
+struct BMICardView: View {
+    let bmi: Double
+    
+    var category: (text: String, color: Color) {
+        switch bmi {
+        case ..<18.5: return (String(localized: "Underweight"), .blue)
+        case 18.5..<25.0: return (String(localized: "Normal"), .green)
+        case 25.0..<30.0: return (String(localized: "Overweight"), .orange)
+        default: return (String(localized: "Obese"), .red)
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Body Mass Index")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text("Healthy range: 18.5 - 24.9")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                Text(String(format: "%.1f", bmi))
+                    .font(.system(size: 32, weight: .heavy, design: .rounded))
+                    .foregroundColor(category.color)
+            }
+            
+            BMIScaleView(bmi: bmi)
+            
+            HStack(spacing: 6) {
+                Image(systemName: "info.circle.fill")
+                    .foregroundColor(category.color)
+                Text("Your BMI indicates you are ")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                + Text(category.text)
+                    .font(.subheadline).bold()
+                    .foregroundColor(category.color)
+                + Text(".")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+        }
+        .premiumCardStyle()
     }
 }

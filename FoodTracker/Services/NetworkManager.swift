@@ -41,6 +41,7 @@ class NetworkManager {
 
         if results.isEmpty {
             print("⚠️ Оба API ничего не нашли. Подключаем ИИ-генерацию для '\(query)'...")
+            TrackingManager.shared.track(.aiChefUsed(queryLength: query.count))
             if let aiFood = await AINutritionService.shared.generateFoodItem(for: query) {
                 print("✨ ИИ сгенерировал продукт: \(aiFood.name)")
                 results.append(aiFood)

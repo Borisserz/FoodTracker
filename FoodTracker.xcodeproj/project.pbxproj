@@ -14,7 +14,6 @@
 		AC5031BE2FD81A1800C2DD0A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031BD2FD81A1800C2DD0A /* GoogleSignInSwift */; };
 		AC6A96632F8FF42600905EA9 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = AC6A96622F8FF42600905EA9 /* SwiftJWT */; };
 		AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */; };
-		ACA422502F9E755C000F61A8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ACA4224F2F9E755C000F61A8 /* GoogleService-Info.plist */; };
 		ACF45AA92F9E4A4C00206681 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AA82F9E4A4C00206681 /* FirebaseAnalytics */; };
 		ACF45AAB2F9E4A4C00206681 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAA2F9E4A4C00206681 /* FirebaseFirestore */; };
 		ACF45AAD2F9E4A4C00206681 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAC2F9E4A4C00206681 /* FirebaseRemoteConfig */; };
@@ -22,7 +21,6 @@
 
 /* Begin PBXFileReference section */
 		AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
-		ACA4224F2F9E755C000F61A8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ACD93EFF2F8AC7E200868265 /* FoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -80,7 +78,6 @@
 				AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */,
 				ACD93F012F8AC7E200868265 /* FoodTracker */,
 				ACD93F002F8AC7E200868265 /* Products */,
-				ACA4224F2F9E755C000F61A8 /* GoogleService-Info.plist */,
 				AC5031B32FD818F600C2DD0A /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -103,6 +100,7 @@
 				ACD93EFB2F8AC7E200868265 /* Sources */,
 				ACD93EFC2F8AC7E200868265 /* Frameworks */,
 				ACD93EFD2F8AC7E200868265 /* Resources */,
+				A8E93B9035C662EEC7D5AB5B /* Firebase Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -177,12 +175,36 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ACA422502F9E755C000F61A8 /* GoogleService-Info.plist in Resources */,
 				AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A8E93B9035C662EEC7D5AB5B /* Firebase Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(SRCROOT)/FoodTracker/GoogleService-Info.plist",
+			);
+			name = "Firebase Crashlytics";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\" -gsp ${PROJECT_DIR}/FoodTracker/GoogleService-Info.plist";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		ACD93EFB2F8AC7E200868265 /* Sources */ = {
@@ -330,9 +352,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FoodTracker/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "FoodTracker needs access to your camera to scan food barcodes.";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned and steps...";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync...";
+				INFOPLIST_KEY_NSCameraUsageDescription = "FoodTracker needs access to your camera to scan food barcodes";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you and improve analytics.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -344,7 +368,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.borisdev.FoodTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.borisdev.FoodTracker2026;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -368,9 +392,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FoodTracker/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "FoodTracker needs access to your camera to scan food barcodes.";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned and steps...";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync...";
+				INFOPLIST_KEY_NSCameraUsageDescription = "FoodTracker needs access to your camera to scan food barcodes";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you and improve analytics.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -382,7 +408,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.borisdev.FoodTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.borisdev.FoodTracker2026;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

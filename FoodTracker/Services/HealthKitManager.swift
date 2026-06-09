@@ -18,8 +18,8 @@ import Observation
               let activeEnergy = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)
         else { return }
 
-        let typesToRead: Set<HKObjectType> = [bodyMass, steps, activeEnergy]
-        let typesToWrite: Set<HKSampleType> = [water, dietaryEnergy]
+        let typesToRead: Set<HKObjectType> = [bodyMass, steps, activeEnergy, HKObjectType.workoutType()]
+        let typesToWrite: Set<HKSampleType> = [water, dietaryEnergy, HKObjectType.workoutType()]
 
         // Check current status before requesting (don't over-request; respect denial)
         let status = healthStore.authorizationStatus(for: steps)
@@ -84,6 +84,31 @@ import Observation
             print("Saved \(calories) kcal dietary energy to HealthKit")
         } catch {
             print("Error saving dietary energy: \(error.localizedDescription)")
+        }
+    }
+
+    func saveWorkout(activityType: HKWorkoutActivityType, calories: Int, durationMinutes: Int, date: Date) async {
+        guard isAuthorized else { return }
+        let duration = TimeInterval(durationMinutes * 60)
+        let energyBurned = HKQuantity(unit: .kilocalorie(), doubleValue: Double(calories))
+
+        // Ensure HealthKit handles standard workouts without issue.
+        let workout = HKWorkout(
+            activityType: activityType,
+            start: date.addingTimeInterval(-duration),
+            end: date,
+            duration: duration,
+            totalEnergyBurned: energyBurned,
+            totalDistance: nil,
+            device: nil,
+            metadata: nil
+        )
+
+        do {
+            try await healthStore.save(workout)
+            print("Successfully saved workout to HealthKit: \(calories) kcal for \(durationMinutes) min.")
+        } catch {
+            print("Error saving workout to HealthKit: \(error.localizedDescription)")
         }
     }
 

@@ -141,6 +141,8 @@ struct CreateRecipeView: View {
     }
 
     private func saveAndNavigate() {
+        TrackingManager.shared.track(.customRecipeCreated(ingredientsCount: ingredients.count))
+
         let cleanDirections = directions.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
 
         let newRecipe = CustomRecipe(

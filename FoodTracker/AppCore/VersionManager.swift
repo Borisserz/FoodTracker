@@ -17,10 +17,14 @@ final class VersionManager {
     
     private init() {}
     
-    func checkForUpdates() async {
-        let minVersion = await RemoteConfigManager.shared.getString(forKey: "minimumAppVersion")
-        let recVersion = await RemoteConfigManager.shared.getString(forKey: "recommendedAppVersion")
+    func checkVersion() async {
+        // Fetch values from Remote Config
+        let minVersion = await RemoteConfigManager.shared.getString(forKey: "food_minimum_ios_version")
+        let recVersion = await RemoteConfigManager.shared.getString(forKey: "food_recommended_ios_version")
+        
+        // Debug prints
         let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+        print("📱 App Version: \(currentVersion)")
         
         let newRequirement = evaluateRequirement(current: currentVersion, minimum: minVersion, recommended: recVersion)
         

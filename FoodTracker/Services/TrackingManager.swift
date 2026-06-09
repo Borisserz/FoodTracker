@@ -15,6 +15,7 @@ public final class TrackingManager {
         case aiChefUsed(queryLength: Int)
         case featureDiscovered(feature: String)
         case errorOccurred(errorType: String, screen: String)
+        case crossPromoTapped(app: String)
 
         var name: String {
             switch self {
@@ -26,6 +27,7 @@ public final class TrackingManager {
             case .aiChefUsed: return "ai_chef_used"
             case .featureDiscovered: return "feature_discovered"
             case .errorOccurred: return "error_occurred"
+            case .crossPromoTapped: return "cross_promo_tapped"
             }
         }
 
@@ -38,7 +40,8 @@ public final class TrackingManager {
             case .appOpened(let source): return ["source": source]
             case .aiChefUsed(let len): return ["query_length": len]
             case .featureDiscovered(let feature): return ["feature": feature]
-            case .errorOccurred(let type, let screen): return ["error_type": type, "screen": screen]
+            case .errorOccurred(let err, let screen): return ["error_type": err, "screen": screen]
+            case .crossPromoTapped(let app): return ["app": app]
             }
         }
     }

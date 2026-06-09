@@ -146,7 +146,7 @@ struct FoodTrackerApp: App {
             print("🚀 [setupDependencies] Remote Config Fetch Complete!")
             
             print("🚀 [setupDependencies] Checking for updates...")
-            await versionManager.checkForUpdates()
+            await VersionManager.shared.checkVersion()
             print("🚀 [setupDependencies] Update checks complete!")
         } catch {
             self.databaseLoadError = error
@@ -271,6 +271,10 @@ struct ContentView: View {
             context.insert(newUser)
         }
         try? context.save()
+        
+        // Track onboarding completion
+        TrackingManager.shared.track(.onboardingCompleted(goal: metrics.goal, diet: "Standard"))
+        
         hasCompletedOnboarding = true
     }
 }
