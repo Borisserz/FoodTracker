@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodTracker - Digitize Your Nutrition with AI</title>
+    <meta name="description" content="Elevate your health with FoodTracker. Chat with AI Nutrition Coach, scan meals instantly with Food Vision, cook with AI Chef Studio, and track visual progress.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Interactive Background Canvas -->
+    <canvas id="space-canvas"></canvas>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="#" class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logo-grad)" stroke-width="3"/>
+                    <path d="M12 16L15 19L20 13" stroke="url(#logo-grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#ff79c6"/>
+                            <stop offset="1" stop-color="#8be9fd"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>FoodTracker</span>
+            </a>
+            <nav class="nav">
+                <a href="#coach" class="nav-link">AI Coach</a>
+                <a href="#vision" class="nav-link">Smart Vision</a>
+                <a href="#chef" class="nav-link">Chef Studio</a>
+                <a href="#progress" class="nav-link">Visual Progress</a>
+                <a href="#analytics" class="nav-link">Analytics</a>
+            </nav>
+            <a href="#" class="btn btn-primary btn-magnetic header-btn">Download App</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge-glow">POWERED BY ADVANCED AI</div>
+            <h1 class="hero-title">DIGITIZE YOUR<br><span class="gradient-text">NUTRITION</span></h1>
+            <p class="hero-subtitle">Experience a premium, space-themed nutrition companion. Scan food in 3D, chat with your personal AI Coach, and witness your body transform.</p>
+            <div class="hero-actions">
+                <a href="#" class="btn btn-primary btn-magnetic">Get FoodTracker Now</a>
+                <a href="#features" class="btn btn-secondary btn-magnetic">Explore Features</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Features Showcase -->
+    <main id="features" class="features-showcase">
+        
+        <!-- Section 1: AI Nutrition Coach -->
+        <section id="coach" class="feature-section reveal scroll-trigger" style="--accent-color: var(--color-pink)">
+            <div class="feature-grid">
+                <div class="feature-info">
+                    <div class="feature-tag">24/7 NUTRITION ASSISTANT</div>
+                    <h2 class="feature-title">AI NUTRITION<br><span class="highlight-text" style="color: var(--color-pink);">COACH</span></h2>
+                    <p class="feature-description">Get instant answers to complex diet questions. Coach Stella monitors your macro balances, gives daily nutrition verdicts, and offers personalized feedback on how to optimize your metabolism.</p>
+                    
+                    <!-- Sub-features columns -->
+                    <div class="sub-features">
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(255, 121, 198, 0.1); color: var(--color-pink);">💬</div>
+                            <div>
+                                <h4>24/7 AI Chat</h4>
+                                <p>Ask any meal advice, anytime.</p>
+                            </div>
+                        </div>
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(255, 121, 198, 0.1); color: var(--color-pink);">🧠</div>
+                            <div>
+                                <h4>Macro Verdicts</h4>
+                                <p>Deep analysis of daily nutrition habits.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mockup Slot -->
+                <div class="mockup-slot">
+                    <div class="iphone-frame">
+                        <div class="iphone-screen">
+                            <div class="app-header">
+                                <span class="app-title">AI Nutrition Coach</span>
+                            </div>
+                            <div class="chat-container">
+                                <div class="chat-bubble user">Is peanut butter good for fat loss?</div>
+                                <div class="chat-bubble bot typing-effect">Peanut butter is high in protein and healthy fats, but it's very calorie-dense. Consuming it in moderation is great, but ensure it fits your daily calorie targets!</div>
+                                <div class="chat-suggestions">
+                                    <button class="chat-sug-btn" onclick="askCoach('Should I eat carbs before a workout?')">Carbs pre-workout?</button>
+                                    <button class="chat-sug-btn" onclick="askCoach('How can I boost my metabolism?')">Boost metabolism?</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Smart Food Vision -->
+        <section id="vision" class="feature-section reveal scroll-trigger alt-row" style="--accent-color: var(--color-orange)">
+            <div class="feature-grid">
+                <div class="feature-info">
+                    <div class="feature-tag">3D SCAN TECHNOLOGY</div>
+                    <h2 class="feature-title">SMART FOOD<br><span class="highlight-text" style="color: var(--color-orange);">VISION</span></h2>
+                    <p class="feature-description">No more manual calorie logging. Simply point your camera at your plate or scan any product barcode. Our computer vision AI instantly segment-identifies items and estimates calorie and macronutrient counts.</p>
+                    <div class="sub-features">
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(255, 184, 108, 0.1); color: var(--color-orange);">📷</div>
+                            <div>
+                                <h4>Photo Recognition</h4>
+                                <p>Snap and analyze meals instantly.</p>
+                            </div>
+                        </div>
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(255, 184, 108, 0.1); color: var(--color-orange);">🏷️</div>
+                            <div>
+                                <h4>Barcode Scanner</h4>
+                                <p>Lookup ingredient nutrition details.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mockup-slot">
+                    <div class="iphone-frame">
+                        <div class="iphone-screen camera-screen">
+                            <div class="scan-laser"></div>
+                            <div class="scan-reticle"></div>
+                            <div class="scan-overlay">
+                                <div class="scan-target">
+                                    <span class="scan-dot"></span>
+                                    <div class="scan-tag">
+                                        <h5>Salmon Salad</h5>
+                                        <p>320 kcal • P: 28g • F: 12g • C: 15g</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="scan-shutter">
+                                <div class="shutter-btn"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: AI Chef Studio -->
+        <section id="chef" class="feature-section reveal scroll-trigger" style="--accent-color: var(--color-yellow)">
+            <div class="feature-grid">
+                <div class="feature-info">
+                    <div class="feature-tag">SMART KITCHEN INSTRUCTIONS</div>
+                    <h2 class="feature-title">AI CHEF<br><span class="highlight-text" style="color: var(--color-yellow);">STUDIO</span></h2>
+                    <p class="feature-description">Turn ingredients in your fridge into macro-calculated culinary masterpieces. Fire up the camera monitor, and the AI Chef will visually track your cooking step-by-step to prevent overcooking and ensure perfect preparation.</p>
+                    <div class="sub-features">
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(241, 250, 140, 0.1); color: var(--color-yellow);">🍳</div>
+                            <div>
+                                <h4>Fridge Recipes</h4>
+                                <p>Get recipes tailored to your ingredients.</p>
+                            </div>
+                        </div>
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(241, 250, 140, 0.1); color: var(--color-yellow);">👀</div>
+                            <div>
+                                <h4>Cooking Monitor</h4>
+                                <p>Live camera guide to monitor food status.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mockup-slot">
+                    <div class="iphone-frame">
+                        <div class="iphone-screen chef-screen">
+                            <div class="chef-status-bar">
+                                <span class="cooking-badge">🍳 Cook Monitor Active</span>
+                                <span class="completion-percent">82%</span>
+                            </div>
+                            <div class="recipe-image">
+                                <div class="steam-particle s1"></div>
+                                <div class="steam-particle s2"></div>
+                                <div class="steam-particle s3"></div>
+                            </div>
+                            <div class="recipe-card">
+                                <h3>Seared Glazed Salmon</h3>
+                                <p class="chef-instruction">Step 4 of 6: Sear on skin side for 4 minutes. Ensure heat is medium-high.</p>
+                                <div class="timer-bar"><div class="timer-fill"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Visual Progress -->
+        <section id="progress" class="feature-section reveal scroll-trigger alt-row" style="--accent-color: var(--color-green)">
+            <div class="feature-grid">
+                <div class="feature-info">
+                    <div class="feature-tag">TRANSFORMATION SLIDER</div>
+                    <h2 class="feature-title">VISUAL BODY<br><span class="highlight-text" style="color: var(--color-green);">PROGRESS</span></h2>
+                    <p class="feature-description">Track your physical transformation using our premium Before & After interactive slider. Upload your photos and let the AI analyze body fat, muscle definition, and posture shifts over time.</p>
+                    <div class="sub-features">
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(80, 250, 123, 0.1); color: var(--color-green);">📊</div>
+                            <div>
+                                <h4>Visual Comparison</h4>
+                                <p>Sweep directly between time periods.</p>
+                            </div>
+                        </div>
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(80, 250, 123, 0.1); color: var(--color-green);">🔬</div>
+                            <div>
+                                <h4>Composition Analysis</h4>
+                                <p>AI estimates fat and muscle balance shifts.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Interactive Slider mockup -->
+                <div class="mockup-slot">
+                    <div class="iphone-frame">
+                        <div class="iphone-screen progress-screen">
+                            <div class="app-header">
+                                <span class="app-title">Visual Progress</span>
+                            </div>
+                            <!-- Before/After slider container -->
+                            <div class="slider-wrapper">
+                                <div class="slider-container" id="ba-slider">
+                                    <div class="image-before">
+                                        <div class="before-tag">BEFORE</div>
+                                    </div>
+                                    <div class="image-after">
+                                        <div class="after-tag">AFTER</div>
+                                    </div>
+                                    <div class="slider-bar" id="ba-bar">
+                                        <div class="slider-handle">↔</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="progress-stats">
+                                <div class="stat-box">
+                                    <span>Weight</span>
+                                    <strong>-6.2 kg</strong>
+                                </div>
+                                <div class="stat-box">
+                                    <span>Fat Mass</span>
+                                    <strong>-4.8%</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Intelligent Analytics -->
+        <section id="analytics" class="feature-section reveal scroll-trigger" style="--accent-color: var(--color-cyan)">
+            <div class="feature-grid">
+                <div class="feature-info">
+                    <div class="feature-tag">HYDRATION & HABIT INSIGHTS</div>
+                    <h2 class="feature-title">INTELLIGENT<br><span class="highlight-text" style="color: var(--color-cyan);">ANALYTICS</span></h2>
+                    <p class="feature-description">Track your daily water intake with a highly interactive fluid tracker. Get smart warnings about electrolyte concentration, pH balance, and sodium flushing based on your nutrition profile.</p>
+                    <div class="sub-features">
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(139, 233, 253, 0.1); color: var(--color-cyan);">💧</div>
+                            <div>
+                                <h4>AI Hydration Coach</h4>
+                                <p>Liquid volume tracker with advice.</p>
+                            </div>
+                        </div>
+                        <div class="sub-col">
+                            <div class="sub-icon" style="background: rgba(139, 233, 253, 0.1); color: var(--color-cyan);">📉</div>
+                            <div>
+                                <h4>pH & Electrolyte Logs</h4>
+                                <p>Understand water retention and balance.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mockup-slot">
+                    <div class="iphone-frame">
+                        <div class="iphone-screen analytics-screen">
+                            <div class="app-header">
+                                <span class="app-title">Hydration & pH</span>
+                            </div>
+                            <div class="hydration-container">
+                                <div class="water-cylinder">
+                                    <div class="water-liquid"></div>
+                                </div>
+                                <div class="hydration-stats">
+                                    <h3>Hydration</h3>
+                                    <h2>1.8L / 2.5L</h2>
+                                    <p>Optimal pH Level: 7.35</p>
+                                </div>
+                            </div>
+                            <div class="analytics-verdict">
+                                <span class="verdict-icon">💡</span>
+                                <p>Sodium levels slightly elevated. Drink 300ml water to flush and balance fluid levels.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2026 FoodTracker App. Built for visual excellence & premium nutrition coaching.</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Terms</a>
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
