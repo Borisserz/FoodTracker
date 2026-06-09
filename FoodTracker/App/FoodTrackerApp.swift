@@ -157,7 +157,7 @@ struct ContentView: View {
     @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
-    @AppStorage("hasCompletedOnboarding_v1") private var hasCompletedOnboarding = false
+    @AppStorage("hasCompletedOnboarding_v2") private var hasCompletedOnboarding = false
 
     var body: some View {
         Group {
@@ -271,7 +271,7 @@ struct RootLaunchView: View {
 
     // Persist whether user has already completed the initial Monetka/account entry screen.
     // Without this the fancy onboarding re-appears on every cold launch.
-    @AppStorage("hasCompletedInitialOnboarding_v1") private var hasCompletedInitialOnboarding = false
+    @AppStorage("hasCompletedInitialOnboarding_v2") private var hasCompletedInitialOnboarding = false
 
     @State private var currentStep: AppLaunchStep
 
