@@ -190,13 +190,9 @@ struct ContentView: View {
                 .tabItem { Label("Analytics", systemImage: "chart.bar.fill") }
                 .tag(3)
 
-            AICoachDashboardView(selectedDate: Date())
-                .tabItem { Label("Coach", systemImage: "sparkles") }
+            MoreTabView()
+                .tabItem { Label("AI Coach", systemImage: "sparkles") }
                 .tag(4)
-                
-            GoalsTabView()
-                .tabItem { Label("Goals", systemImage: "target") }
-                .tag(5)
         }
         .tint(themeManager.current.primaryAccent)
         .onAppear {

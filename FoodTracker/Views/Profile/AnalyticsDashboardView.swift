@@ -236,7 +236,7 @@ struct DailyAnalyticsInsightView: View {
 
             MealDistributionCard(summary: todaySummary)
 
-            DailyWaterCard(summary: todaySummary)
+            AIHydrationAnalyticsCard(summary: todaySummary)
         }
         .transition(.asymmetric(insertion: .move(edge: .leading).combined(with: .opacity), removal: .opacity))
 
@@ -397,46 +397,98 @@ struct MealDistributionCard: View {
     }
 }
 
-struct DailyWaterCard: View {
+struct AIHydrationAnalyticsCard: View {
     let summary: DailySummary?
     @State private var animProgress: Double = 0
-
+    
     var body: some View {
         let liters = summary?.totalHydrationLiters ?? 0
         let goal = 2.5
         let progress = min(liters / goal, 1.0)
-
-        VStack(alignment: .leading, spacing: 16) {
+        
+        let advice = generateMockAdvice(liters: liters)
+        
+        VStack(alignment: .leading, spacing: 20) {
+            // Header
             HStack {
-                Text("Water Balance").font(.title3.bold())
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("AI Hydration Coach").font(.title3.bold())
+                    Text("Optimizing your pH & metabolism").font(.caption).foregroundColor(.gray)
+                }
                 Spacer()
-                Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title3)
-            }
-
-            HStack(alignment: .firstTextBaseline) {
-                Text("\(String(format: "%.2f", liters)) L")
-                    .font(.system(size: 32, weight: .heavy, design: .rounded))
-                    .foregroundColor(.cyan)
-                    .contentTransition(.numericText())
-                Text("/ \(String(format: "%.2f", goal)) L Goal")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Color.cyan.opacity(0.15))
-                    Capsule()
-                        .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing))
-                        .frame(width: geo.size.width * CGFloat(animProgress))
-                        .shadow(color: .cyan.opacity(0.5), radius: 5, y: 0)
+                ZStack {
+                    Circle().fill(Color.cyan.opacity(0.15)).frame(width: 40, height: 40)
+                    Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title3)
                 }
             }
-            .frame(height: 16)
-            .onAppear { withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) { animProgress = progress } }
-            .onChange(of: progress) { _, nv in withAnimation { animProgress = nv } }
+            
+            // Progress Section
+            HStack(spacing: 20) {
+                // Liquid capsule
+                ZStack(alignment: .bottom) {
+                    Capsule().fill(Color.cyan.opacity(0.1))
+                        .frame(width: 30, height: 110)
+                    
+                    Capsule()
+                        .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom))
+                        .frame(width: 30, height: 110 * CGFloat(animProgress))
+                        .animation(.spring(response: 0.8, dampingFraction: 0.7), value: animProgress)
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("\(String(format: "%.2f", liters)) L")
+                            .font(.system(size: 32, weight: .heavy, design: .rounded))
+                            .foregroundColor(.cyan)
+                            .contentTransition(.numericText())
+                        Text("/ \(String(format: "%.2f", goal)) L")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    // Advice Box
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 6) {
+                            Image(systemName: advice.icon)
+                                .foregroundColor(advice.color)
+                            Text(advice.title)
+                                .font(.subheadline.bold())
+                                .foregroundColor(.primary)
+                        }
+                        Text(advice.message)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .lineLimit(3)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(12)
+                    .background(advice.color.opacity(0.1))
+                    .cornerRadius(12)
+                }
+            }
+            
+            // Educational Nudge
+            HStack(spacing: 12) {
+                Image(systemName: "info.circle.fill")
+                    .foregroundColor(.gray.opacity(0.5))
+                Text("Water maintains blood volume, flushes out excess sodium, and keeps your body's pH perfectly balanced.")
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+            }
         }
         .divineCardStyle()
+        .onAppear { withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) { animProgress = progress } }
+        .onChange(of: progress) { _, nv in withAnimation { animProgress = nv } }
+    }
+    
+    private func generateMockAdvice(liters: Double) -> (title: String, message: String, color: Color, icon: String) {
+        if liters < 1.0 {
+            return ("Dehydration Risk", "Drink water now to stabilize your blood pH and prevent sodium retention.", .themeOrange, "exclamationmark.triangle.fill")
+        } else if liters < 2.0 {
+            return ("Keep Hydrating", "You're on track. A bit more water will help flush excess salt.", .themeYellow, "drop.circle.fill")
+        } else {
+            return ("Perfect Balance", "Your hydration is optimal! Your body's pH and sodium levels are perfectly balanced.", .green, "checkmark.seal.fill")
+        }
     }
 }
 
