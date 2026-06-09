@@ -118,6 +118,8 @@ struct AICoachDashboardView: View {
                                 }
                                 .padding(.horizontal)
 
+                                bioHackingTipsSection
+
                                 fridgeToRecipeSection
 
                                 // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
@@ -156,6 +158,121 @@ struct AICoachDashboardView: View {
                     viewModel = di.makeAICoachViewModel()
                 }
             }
+        }
+    }
+
+    private let tips: [BioHackingTip] = [
+        BioHackingTip(
+            title: "Iron Synergy",
+            text: "Pair iron-rich foods (spinach, lentils) with Vitamin C (citrus, peppers) to increase iron absorption by up to 300%.",
+            icon: "leaf.fill",
+            gradientColors: [.green, .mint]
+        ),
+        BioHackingTip(
+            title: "Protein Pacing",
+            text: "Distribute your protein intake in 30-40g portions every 3-4 hours to keep muscle protein synthesis optimized.",
+            icon: "flame.fill",
+            gradientColors: [.themePink, .themeOrange]
+        ),
+        BioHackingTip(
+            title: "Circadian Fasting",
+            text: "Finish eating at least 3 hours before sleep. This lowers insulin levels and improves deep sleep recovery phases.",
+            icon: "moon.stars.fill",
+            gradientColors: [.purple, .indigo]
+        ),
+        BioHackingTip(
+            title: "Hydration Window",
+            text: "Drink 500ml of water immediately upon waking to kickstart metabolism and offset overnight dehydration.",
+            icon: "drop.fill",
+            gradientColors: [.cyan, .blue]
+        ),
+        BioHackingTip(
+            title: "Sodium Balance",
+            text: "Feeling bloated? Increase potassium intake (avocados, bananas) to assist kidneys in flushing out excess sodium.",
+            icon: "sparkles",
+            gradientColors: [.themeYellow, .themeOrange]
+        )
+    ]
+
+    private var bioHackingTipsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                ZStack {
+                    Circle().fill(Color.purple.opacity(0.15)).frame(width: 36, height: 36)
+                    Image(systemName: "lightbulb.fill").foregroundColor(.purple)
+                }
+                Text("Bio-hacking Tips")
+                    .font(.title3).bold()
+                
+                Spacer()
+                
+                Text("Swipe")
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.05))
+                    .cornerRadius(6)
+            }
+            .padding(.horizontal)
+            
+            TabView {
+                ForEach(tips) { tip in
+                    HStack(spacing: 16) {
+                        ZStack {
+                            Circle()
+                                .fill(LinearGradient(colors: tip.gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(width: 50, height: 50)
+                                .shadow(color: tip.gradientColors[0].opacity(0.3), radius: 8)
+                            
+                            Image(systemName: tip.icon)
+                                .font(.title3)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.leading, 4)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(tip.title)
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                            
+                            Text(tip.text)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.textGray)
+                                .lineLimit(3)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(Color.black.opacity(0.25))
+                            .background(.ultraThinMaterial)
+                    )
+                    .cornerRadius(24)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        tip.gradientColors[0].opacity(0.4),
+                                        .clear
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.2
+                            )
+                    )
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+                }
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+            .frame(height: 145)
         }
     }
 
@@ -488,4 +605,12 @@ struct HydrationFixResultSheet: View {
         }
         .background(Color.white)
     }
+}
+
+struct BioHackingTip: Identifiable {
+    let id = UUID()
+    let title: String
+    let text: String
+    let icon: String
+    let gradientColors: [Color]
 }
