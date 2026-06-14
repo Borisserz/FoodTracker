@@ -324,7 +324,13 @@ struct RecipeDetailAIView: View {
 struct InteractiveCookingView: View {
     let recipe: AIChefRecipe
     @Binding var isPresented: Bool
-    @State private var visibleStepsCount = 1
+    @State private var visibleStepsCount: Int
+    
+    init(recipe: AIChefRecipe, isPresented: Binding<Bool>, startWithAllSteps: Bool = false) {
+        self.recipe = recipe
+        self._isPresented = isPresented
+        self._visibleStepsCount = State(initialValue: startWithAllSteps ? recipe.steps.count : 1)
+    }
     
     var body: some View {
         ZStack {

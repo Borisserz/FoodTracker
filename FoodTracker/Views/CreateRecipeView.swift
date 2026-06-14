@@ -743,6 +743,7 @@ struct RecipeDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showMealSheet = false
+    @State private var showAICooking = false
 
        private func deleteRecipe() {
            context.delete(recipe)
@@ -807,7 +808,27 @@ struct RecipeDetailView: View {
 
                     if !recipe.directions.isEmpty {
                         VStack(alignment: .leading, spacing: 20) {
-                            Text("Directions").font(.title2).bold()
+                            HStack {
+                                Text("Directions").font(.title2).bold()
+                                Spacer()
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .medium)
+                                    showAICooking = true
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "sparkles")
+                                        Text("Cook with AI")
+                                    }
+                                    .font(.caption.bold())
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .clipShape(Capsule())
+                                    .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
+                                }
+                                .buttonStyle(BounceButtonStyle())
+                            }
                             VStack(alignment: .leading, spacing: 24) {
                                 ForEach(Array(recipe.directions.enumerated()), id: \.offset) { index, step in
                                     HStack(alignment: .top, spacing: 16) {
@@ -910,6 +931,9 @@ struct RecipeDetailView: View {
                         .presentationCornerRadius(32)
                         .presentationDragIndicator(.visible)
                 }
+        }
+        .fullScreenCover(isPresented: $showAICooking) {
+            InteractiveCookingView(recipe: recipe.toAIChefRecipe(), isPresented: $showAICooking, startWithAllSteps: true)
         }
     }
 }
@@ -1039,4 +1063,35 @@ struct RecipeDetailView: View {
             try? context.save()
         }
     }
+
+extension CustomRecipe {
+    func toAIChefRecipe() -> AIChefRecipe {
+        let recipeSteps = directions.map { step in
+            RecipeStep(instruction: step, imageName: "fork.knife", aiTip: nil)
+        }
+        let ingredientNames = foodItems.map { "\($0.name) (\(Int($0.weight))g)" }
+        let diff: Int
+        switch difficulty.lowercased() {
+        case "easy": diff = 2
+        case "medium": diff = 3
+        case "hard": diff = 5
+        default: diff = 3
+        }
+        return AIChefRecipe(
+            id: UUID().uuidString,
+            title: name,
+            calories: totalCalories,
+            protein: Int(foodItems.reduce(0.0) { $0 + $1.protein }),
+            fat: Int(foodItems.reduce(0.0) { $0 + $1.fats }),
+            carbs: Int(foodItems.reduce(0.0) { $0 + $1.carbs }),
+            heroImage: "fork.knife",
+            cookTime: cookingTime,
+            difficulty: diff,
+            history: info,
+            ingredients: ingredientNames,
+            steps: recipeSteps,
+            platingTip: "Enjoy your freshly prepared dish!"
+        )
+    }
+}
 
