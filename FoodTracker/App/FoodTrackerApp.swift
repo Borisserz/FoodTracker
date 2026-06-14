@@ -114,7 +114,7 @@ struct FoodTrackerApp: App {
             let cloudConfig = ModelConfiguration(
                 schema: schema,
                 url: dbURL,
-                cloudKitDatabase: .private("iCloud.com.borisdev.FoodTracker")
+                cloudKitDatabase: .private("iCloud.com.borisdev.FoodTracker2026")
             )
 
             let container: ModelContainer
