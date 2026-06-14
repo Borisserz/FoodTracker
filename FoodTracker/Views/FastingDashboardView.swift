@@ -145,11 +145,14 @@ struct FastingCategorySection: View {
                             PremiumFastingCard(plan: plan)
                         }
                         .buttonStyle(BounceButtonStyle())
+                        .containerRelativeFrame(.horizontal, count: 2, span: 1, spacing: 16)
                     }
                 }
+                .scrollTargetLayout()
                 .padding(.horizontal, 24)
                 .padding(.bottom, 20)
             }
+            .scrollTargetBehavior(.viewAligned)
         }
     }
 }
@@ -221,9 +224,8 @@ struct PremiumFastingCard: View {
             }
             .padding(16)
         }
-        .frame(width: 170, height: 230)
         .background(Color.white)
-        .cornerRadius(28)
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .shadow(color: plan.color.opacity(0.15), radius: 15, y: 8)
     }
 }
@@ -307,7 +309,7 @@ struct PremiumFastingDetailView: View {
                                         .trim(from: 0, to: animateRing ? plan.eatingFraction : 0)
                                         .stroke(plan.color, style: StrokeStyle(lineWidth: 12, lineCap: .round))
                                         .rotationEffect(.degrees(-90))
-                                        .shadow(color: plan.color.opacity(0.4), radius: 5, y: 2)
+                                        .shadow(color: plan.color.opacity(0.8), radius: 15, y: 0) // Glow effect
 
                                     Image(systemName: "clock.fill")
                                         .font(.title)
@@ -622,6 +624,7 @@ struct ActiveFastingCard: View {
                         .trim(from: 0, to: manager.progress)
                         .stroke(manager.currentPhase.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                         .rotationEffect(.degrees(-90))
+                        .shadow(color: manager.currentPhase.color.opacity(0.6), radius: 8, y: 0)
                         .animation(.linear(duration: 1.0), value: manager.progress)
 
                     Text("\(Int(manager.progress * 100))%")

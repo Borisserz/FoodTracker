@@ -80,8 +80,9 @@ struct DietHeroCard: View {
 
                 Image(systemName: "leaf.fill")
                     .font(.system(size: 150))
-                    .foregroundColor(.white.opacity(0.2))
+                    .foregroundStyle(.white.opacity(0.2))
                     .offset(x: 180, y: 50)
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 8) {
                     if isActive {
@@ -89,28 +90,27 @@ struct DietHeroCard: View {
                             Image(systemName: "checkmark.seal.fill")
                             Text("ACTIVE PLAN")
                         }
-                        .font(.system(size: 12, weight: .black, design: .rounded))
-                        .foregroundColor(diet.color)
+                        .font(.system(.caption, design: .rounded, weight: .black))
+                        .foregroundStyle(diet.color)
                         .padding(.horizontal, 12).padding(.vertical, 6)
                         .background(Color.white)
                         .clipShape(Capsule())
                         .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
                     }
 
-                    Spacer()
+                    Spacer(minLength: 80)
 
                     Text(diet.name)
-                        .font(.system(size: 42, weight: .heavy, design: .rounded))
-                        .foregroundColor(.white)
+                        .font(.system(.largeTitle, design: .rounded, weight: .heavy))
+                        .foregroundStyle(.white)
                         .shadow(color: .black.opacity(0.2), radius: 2, y: 2)
 
                     Text(diet.tagline)
                         .font(.headline)
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundStyle(.white.opacity(0.9))
                 }
                 .padding(24)
             }
-            .frame(height: 300)
 
             VStack(spacing: 20) {
                 HStack(spacing: 24) {
@@ -126,12 +126,12 @@ struct DietHeroCard: View {
                     Image(systemName: "arrow.right.circle.fill")
                         .font(.title)
                 }
-                .foregroundColor(diet.color)
+                .foregroundStyle(diet.color)
             }
             .padding(24)
             .background(Color.white)
         }
-        .cornerRadius(32)
+        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
         .shadow(color: diet.color.opacity(0.3), radius: 20, y: 10)
         .padding(.horizontal, 24)
     }
@@ -140,15 +140,20 @@ struct DietHeroCard: View {
 struct MacroMiniStat: View {
     let title: String; let value: Int; let color: Color
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("\(value)%")
-                .font(.system(size: 24, weight: .heavy, design: .rounded))
-                .foregroundColor(color)
+        VStack(spacing: 6) {
+            ZStack {
+                Circle().stroke(Color.gray.opacity(0.15), lineWidth: 4)
+                Circle().trim(from: 0, to: CGFloat(value) / 100.0)
+                    .stroke(color, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                Text("\(value)%").font(.system(.caption, design: .rounded, weight: .bold))
+            }.frame(width: 44, height: 44)
             Text(title)
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
                 .bold()
         }
+        .frame(maxWidth: .infinity)
     }
 }
 

@@ -737,13 +737,16 @@ struct RecipeHorizontalSection: View {
                         ForEach(recipes) { recipe in
                             Button(action: { path.append(FoodsRoute.premiumRecipeDetail(recipe)) }) {
                                 PremiumRecipeCard(recipe: recipe)
-                              
                             }
+                            .buttonStyle(BounceButtonStyle())
+                            .containerRelativeFrame(.horizontal, count: 2, span: 1, spacing: 16)
                         }
                     }
+                    .scrollTargetLayout()
                     .padding(.horizontal, 20)
                     .padding(.bottom, 10)
                 }
+                .scrollTargetBehavior(.viewAligned)
             }
         }
     }
@@ -755,23 +758,47 @@ struct PremiumRecipeCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ZStack(alignment: .topTrailing) {
+            ZStack(alignment: .bottomLeading) {
                 AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
                     if let image = phase.image { image.resizable().aspectRatio(contentMode: .fill) } else { Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView()) }
                 }.frame(height: 160).clipped()
 
+                LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
+
+                if let firstTag = recipe.tags.first {
+                    Text(firstTag.uppercased())
+                        .font(.system(.caption2, design: .rounded, weight: .black))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
+                        .clipShape(Capsule())
+                        .padding(12)
+                }
+
                 if recipe.isFavorite {
-                    Image(systemName: "star.fill").foregroundColor(.themeYellow).padding(12).background(Color.black.opacity(0.3)).clipShape(Circle()).padding(8)
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Image(systemName: "star.fill").foregroundStyle(.themeYellow).padding(10).background(.ultraThinMaterial).clipShape(Circle()).padding(8)
+                        }
+                        Spacer()
+                    }
                 }
             }
+            .frame(height: 160)
+
             VStack(alignment: .leading, spacing: 6) {
-                Text(recipe.title).font(.system(size: 16, weight: .bold, design: .rounded)).foregroundColor(.primary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                Text(recipe.title).font(.system(.headline, design: .rounded, weight: .bold)).foregroundStyle(.primary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 12) {
                     Text(recipe.time)
                     Text("\(recipe.caloriesPerServing) Cal")
-                }.font(.subheadline).foregroundColor(.gray)
+                }.font(.subheadline).foregroundStyle(.secondary)
             }.padding(16)
-        }.frame(width: width).background(Color.white).cornerRadius(24).shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+        }
+        .frame(width: width)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
     }
 }
 

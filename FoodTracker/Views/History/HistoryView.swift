@@ -214,67 +214,71 @@ struct FoodsFeatureCard: View {
                 // Left Visual Accent Bar
                 RoundedRectangle(cornerRadius: 3)
                     .fill(color)
-                    .frame(width: 4, height: 44)
+                    .frame(width: 4)
+                    .padding(.vertical, 8)
                 
                 // Text Information
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 6) {
                         Text(title)
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundStyle(.primary)
                         
                         Text(subtitle.uppercased())
-                            .font(.system(size: 9, weight: .black, design: .rounded))
-                            .foregroundColor(color)
+                            .font(.system(.caption2, design: .rounded, weight: .black))
+                            .foregroundStyle(color)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(color.opacity(0.1))
-                            .cornerRadius(4)
+                            .background(color.opacity(0.15))
+                            .clipShape(Capsule())
                     }
                     
                     Text(description)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.gray)
+                        .font(.system(.subheadline, weight: .medium))
+                        .foregroundStyle(.secondary)
                         .lineSpacing(2)
                         .multilineTextAlignment(.leading)
-                        .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                .padding(.vertical, 14)
                 
-                Spacer()
+                Spacer(minLength: 8)
                 
                 // Floating Gradient Icon
                 ZStack {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [color, color.opacity(0.8)],
+                                colors: [color.opacity(0.8), color],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .frame(width: 44, height: 44)
-                        .shadow(color: color.opacity(0.35), radius: 6, y: 3)
+                        .shadow(color: color.opacity(0.3), radius: 8, y: 4)
                     
                     Image(systemName: icon)
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
+                        .accessibilityHidden(true)
                 }
                 
                 // Trailing Chevron
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.gray.opacity(0.4))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
             }
-            .padding(.vertical, 14)
             .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity)
-            .background(Color.white)
-            .cornerRadius(20)
-            .shadow(color: color.opacity(0.06), radius: 12, x: 0, y: 6)
-            .shadow(color: Color.black.opacity(0.02), radius: 6, x: 0, y: 2)
+            .background(.regularMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .shadow(color: color.opacity(0.08), radius: 12, y: 6)
+            .shadow(color: Color.black.opacity(0.03), radius: 4, y: 2)
         }
         .buttonStyle(BounceButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title), \(subtitle). \(description)")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -407,11 +411,14 @@ struct LearnCategorySection: View {
                             ArticleCardView(article: article)
                         }
                         .buttonStyle(BounceButtonStyle())
+                        .containerRelativeFrame(.horizontal, count: 2, span: 1, spacing: 16)
                     }
                 }
+                .scrollTargetLayout()
                 .padding(.horizontal)
                 .padding(.bottom, 15)
             }
+            .scrollTargetBehavior(.viewAligned)
         }
     }
 }
@@ -430,15 +437,16 @@ struct ArticleCardView: View {
 
                 Image(systemName: article.iconName)
                     .font(.system(size: 70))
-                    .foregroundColor(.white.opacity(0.25))
+                    .foregroundStyle(.white.opacity(0.25))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .offset(x: 10, y: 15)
+                    .accessibilityHidden(true)
 
                 HStack(spacing: 4) {
                     Image(systemName: "book.fill").font(.system(size: 10))
                     Text("\(article.readTime) min").font(.system(size: 10, weight: .bold))
                 }
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(.horizontal, 8).padding(.vertical, 6)
                 .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
                 .clipShape(Capsule()).padding(12)
@@ -446,15 +454,23 @@ struct ArticleCardView: View {
             .frame(height: 120).clipped()
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(article.title).font(.system(size: 15, weight: .bold, design: .rounded)).foregroundColor(.primary).lineLimit(2).multilineTextAlignment(.leading)
-                Text(article.subtitle).font(.system(size: 12, weight: .medium)).foregroundColor(.gray).lineLimit(2).multilineTextAlignment(.leading)
+                Text(article.title)
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                Text(article.subtitle)
+                    .font(.system(.caption, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
             }
-            .padding(14).frame(maxWidth: .infinity, alignment: .leading).frame(height: 100).background(Color.white)
+            .padding(14).frame(maxWidth: .infinity, alignment: .leading).frame(height: 100)
+            .background(.regularMaterial)
         }
-        .frame(width: 180).cornerRadius(20)
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
-        .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 5)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .shadow(color: Color.black.opacity(0.06), radius: 10, y: 5)
     }
 }
 
@@ -486,39 +502,48 @@ struct ArticleDetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
 
-                    ZStack(alignment: .bottomLeading) {
-                        LinearGradient(
-                            colors: [article.color1, article.color2],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                    GeometryReader { geo in
+                        let minY = geo.frame(in: .global).minY
+                        let isScrollingDown = minY > 0
 
-                        Image(systemName: article.iconName)
-                            .font(.system(size: 150))
-                            .foregroundColor(.white.opacity(0.15))
-                            .offset(x: UIScreen.main.bounds.width * 0.4, y: 30)
+                        ZStack(alignment: .bottomLeading) {
+                            LinearGradient(
+                                colors: [article.color1, article.color2],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            .frame(height: isScrollingDown ? 380 + minY : 380)
+                            .offset(y: isScrollingDown ? -minY : 0)
 
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "clock.fill")
-                                Text("\(article.readTime) min read")
+                            Image(systemName: article.iconName)
+                                .font(.system(size: 150))
+                                .foregroundStyle(.white.opacity(0.15))
+                                .offset(x: UIScreen.main.bounds.width * 0.4, y: 30)
+                                .accessibilityHidden(true)
+
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "clock.fill")
+                                    Text("\(article.readTime) min read")
+                                }
+                                .font(.caption.bold())
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(.ultraThinMaterial)
+                                .environment(\.colorScheme, .dark)
+                                .clipShape(Capsule())
+
+                                Text(article.title)
+                                    .font(.system(.largeTitle, design: .rounded, weight: .heavy))
+                                    .foregroundStyle(.white)
+                                    .lineSpacing(4)
+                                    .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
                             }
-                            .font(.caption.bold())
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(.ultraThinMaterial)
-                            .environment(\.colorScheme, .dark)
-                            .clipShape(Capsule())
-
-                            Text(article.title)
-                                .font(.system(size: 34, weight: .heavy, design: .rounded))
-                                .foregroundColor(.white)
-                                .lineSpacing(4)
-                                .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+                            .padding(.horizontal, 24)
+                            .padding(.bottom, 60)
+                            .offset(y: isScrollingDown ? -minY * 0.5 : 0)
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 60)
                     }
                     .frame(height: 380)
 
