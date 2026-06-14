@@ -124,7 +124,7 @@ struct GoalsTabView: View {
             .sheet(isPresented: $showSetGoalSheet) {
                 if let u = user {
                     SetGoalSheet(user: u)
-                        .presentationDetents([.fraction(0.65)])
+                        .presentationDetents([.fraction(0.8)])
                         .presentationCornerRadius(32)
                         .presentationDragIndicator(.visible)
                 }
@@ -595,6 +595,7 @@ struct SetGoalSheet: View {
     
     @State private var targetWeight: Double
     @State private var goalType: String
+    @State private var height: Double
     
     let goalTypes = ["lose", "maintain", "gain"]
     
@@ -602,6 +603,7 @@ struct SetGoalSheet: View {
         self.user = user
         _targetWeight = State(initialValue: user.targetWeight ?? user.weight)
         _goalType = State(initialValue: user.weightGoalType ?? "lose")
+        _height = State(initialValue: user.height > 0 ? user.height : 170.0)
     }
     
     var body: some View {
@@ -614,7 +616,7 @@ struct SetGoalSheet: View {
                 .blur(radius: 50)
                 .offset(y: -120)
             
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
                 Capsule()
                     .fill(Color.gray.opacity(0.3))
                     .frame(width: 40, height: 5)
@@ -623,98 +625,151 @@ struct SetGoalSheet: View {
                 Text("Set Your Goal")
                     .font(.system(.title2, design: .rounded, weight: .bold))
                 
-                // Custom Goal Picker cards
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Goal Direction")
-                        .font(.system(.caption, design: .rounded, weight: .bold))
-                        .foregroundColor(.secondary)
-                        .textCase(.uppercase)
-                        .padding(.horizontal, 4)
-                    
-                    HStack(spacing: 12) {
-                        ForEach(goalTypes, id: \.self) { type in
-                            let isSelected = goalType == type
-                            Button(action: {
-                                HapticManager.shared.impact(style: .light)
-                                goalType = type
-                                if type == "maintain" {
-                                    targetWeight = user.weight
-                                }
-                            }) {
-                                VStack(spacing: 8) {
-                                    Image(systemName: iconForGoalType(type))
-                                        .font(.system(size: 20, weight: .bold))
-                                    Text(type.capitalized)
-                                        .font(.system(size: 13, weight: .bold, design: .rounded))
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(isSelected ? themeManager.current.primaryGradient : LinearGradient(colors: [Color.primary.opacity(0.04), Color.primary.opacity(0.04)], startPoint: .top, endPoint: .bottom))
-                                .foregroundColor(isSelected ? .white : .primary)
-                                .cornerRadius(16)
-                                .shadow(color: isSelected ? themeManager.current.primaryAccent.opacity(0.3) : .clear, radius: 6)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                    }
-                }
-                .padding(.horizontal, 24)
-                
-                if goalType != "maintain" {
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("Target Weight")
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        // Custom Goal Picker cards
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Goal Direction")
                                 .font(.system(.caption, design: .rounded, weight: .bold))
                                 .foregroundColor(.secondary)
                                 .textCase(.uppercase)
-                            Spacer()
+                                .padding(.horizontal, 4)
                             
-                            HStack(spacing: 4) {
-                                TextField("kg", value: $targetWeight, format: .number)
-                                    .keyboardType(.decimalPad)
-                                    .multilineTextAlignment(.trailing)
-                                    .frame(width: 70)
-                                    .font(.system(.title3, design: .rounded, weight: .bold))
-                                    .foregroundColor(themeManager.current.primaryAccent)
-                                Text("kg")
-                                    .font(.system(.body, design: .rounded, weight: .bold))
-                                    .foregroundColor(.secondary)
+                            HStack(spacing: 12) {
+                                ForEach(goalTypes, id: \.self) { type in
+                                    let isSelected = goalType == type
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .light)
+                                        goalType = type
+                                        if type == "maintain" {
+                                            targetWeight = user.weight
+                                        }
+                                    }) {
+                                        VStack(spacing: 8) {
+                                            Image(systemName: iconForGoalType(type))
+                                                .font(.system(size: 20, weight: .bold))
+                                            Text(type.capitalized)
+                                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .background(isSelected ? themeManager.current.primaryGradient : LinearGradient(colors: [Color.primary.opacity(0.04), Color.primary.opacity(0.04)], startPoint: .top, endPoint: .bottom))
+                                        .foregroundColor(isSelected ? .white : .primary)
+                                        .cornerRadius(16)
+                                        .shadow(color: isSelected ? themeManager.current.primaryAccent.opacity(0.3) : .clear, radius: 6)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.primary.opacity(0.04))
-                            .cornerRadius(10)
                         }
                         
-                        // Premium Slider for Target Weight adjustment (30kg to 200kg)
-                        VStack(spacing: 6) {
-                            Slider(value: $targetWeight, in: 30...200, step: 0.1)
-                                .tint(themeManager.current.primaryAccent)
-                            
+                        // Height Card
+                        VStack(spacing: 16) {
                             HStack {
-                                Text("30 kg")
+                                Text("Your Height")
+                                    .font(.system(.caption, design: .rounded, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                    .textCase(.uppercase)
                                 Spacer()
-                                Text(String(format: "%.1f kg", targetWeight))
-                                    .font(.system(.subheadline, design: .rounded, weight: .bold))
-                                    .foregroundColor(themeManager.current.primaryAccent)
-                                Spacer()
-                                Text("200 kg")
+                                
+                                HStack(spacing: 4) {
+                                    TextField("cm", value: $height, format: .number)
+                                        .keyboardType(.numberPad)
+                                        .multilineTextAlignment(.trailing)
+                                        .frame(width: 60)
+                                        .font(.system(.title3, design: .rounded, weight: .bold))
+                                        .foregroundColor(themeManager.current.primaryAccent)
+                                    Text("cm")
+                                        .font(.system(.body, design: .rounded, weight: .bold))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.primary.opacity(0.04))
+                                .cornerRadius(10)
                             }
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
-                            .foregroundColor(.secondary)
+                            
+                            // Height slider
+                            VStack(spacing: 6) {
+                                Slider(value: $height, in: 100...250, step: 1)
+                                    .tint(themeManager.current.primaryAccent)
+                                
+                                HStack {
+                                    Text("100 cm")
+                                    Spacer()
+                                    Text("\(Int(height)) cm")
+                                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                        .foregroundColor(themeManager.current.primaryAccent)
+                                    Spacer()
+                                    Text("250 cm")
+                                }
+                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(20)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(24)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                        
+                        // Target Weight Card (only visible if goalType is not maintain)
+                        if goalType != "maintain" {
+                            VStack(spacing: 16) {
+                                HStack {
+                                    Text("Target Weight")
+                                        .font(.system(.caption, design: .rounded, weight: .bold))
+                                        .foregroundColor(.secondary)
+                                        .textCase(.uppercase)
+                                    Spacer()
+                                    
+                                    HStack(spacing: 4) {
+                                        TextField("kg", value: $targetWeight, format: .number)
+                                            .keyboardType(.decimalPad)
+                                            .multilineTextAlignment(.trailing)
+                                            .frame(width: 70)
+                                            .font(.system(.title3, design: .rounded, weight: .bold))
+                                            .foregroundColor(themeManager.current.primaryAccent)
+                                        Text("kg")
+                                            .font(.system(.body, design: .rounded, weight: .bold))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.primary.opacity(0.04))
+                                    .cornerRadius(10)
+                                }
+                                
+                                // Slider for Weight selection
+                                VStack(spacing: 6) {
+                                    Slider(value: $targetWeight, in: 30...200, step: 0.1)
+                                        .tint(themeManager.current.primaryAccent)
+                                    
+                                    HStack {
+                                        Text("30 kg")
+                                        Spacer()
+                                        Text(String(format: "%.1f kg", targetWeight))
+                                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                            .foregroundColor(themeManager.current.primaryAccent)
+                                        Spacer()
+                                        Text("200 kg")
+                                    }
+                                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(20)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(24)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            )
                         }
                     }
-                    .padding(20)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(24)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
                     .padding(.horizontal, 24)
-                } else {
-                    Spacer()
-                        .frame(height: 100)
                 }
                 
                 Spacer()
@@ -764,6 +819,8 @@ struct SetGoalSheet: View {
         } else {
             user.targetWeight = targetWeight
         }
+        user.height = height
+        user.calculateGoals()
         try? context.save()
         HapticManager.shared.notification(type: .success)
         dismiss()
@@ -847,28 +904,58 @@ struct JourneyTimelineView: View {
     let progress: Double
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 0) {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color.primary.opacity(0.06))
-                        .frame(height: 4)
-                    
-                    Capsule()
-                        .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
-                        .frame(width: max(geo.size.width * CGFloat(progress), 0), height: 4)
-                    
-                    HStack {
-                        TimelineNode(label: "Start", val: startWeight, isCompleted: true)
-                        Spacer()
-                        TimelineNode(label: "Goal", val: targetWeight, isCompleted: progress >= 1.0)
+                    // Track line
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.primary.opacity(0.08))
+                            .frame(height: 6)
+                        
+                        Capsule()
+                            .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
+                            .frame(width: max(geo.size.width * CGFloat(progress), 0), height: 6)
+                            .shadow(color: Color.themePink.opacity(0.4), radius: 4, y: 1)
                     }
+                    .offset(y: 36)
                     
+                    // Start Node
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 10, height: 10)
+                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                        Text("Start")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f kg", startWeight))
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                    }
+                    .offset(y: 24)
+                    
+                    // Goal Node
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(progress >= 1.0 ? Color.green : Color.primary.opacity(0.15))
+                            .frame(width: 10, height: 10)
+                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                        Text("Goal")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f kg", targetWeight))
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                    }
+                    .offset(x: geo.size.width - 50, y: 24)
+                    
+                    // Hovering current node
                     TimelineCurrentNode(val: currentWeight)
-                        .offset(x: max((geo.size.width - 24) * CGFloat(progress), 0))
+                        .offset(x: max((geo.size.width - 60) * CGFloat(progress), 0), y: 14)
                 }
             }
-            .frame(height: 38)
+            .frame(height: 75)
             .padding(.horizontal, 10)
         }
     }
@@ -895,17 +982,28 @@ struct TimelineCurrentNode: View {
     let val: Double
     
     var body: some View {
-        VStack(spacing: 2) {
-            Image(systemName: "figure.walk")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(.themePink)
-                .frame(width: 24, height: 24)
-                .background(Circle().fill(Color.white).shadow(radius: 2))
-            Text(String(format: "%.1f kg", val))
-                .font(.system(size: 10, weight: .black, design: .rounded))
-                .foregroundColor(.primary)
+        VStack(spacing: 0) {
+            VStack(spacing: 2) {
+                Image(systemName: "figure.walk")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.white)
+                Text(String(format: "%.1f kg", val))
+                    .font(.system(size: 9, weight: .black, design: .rounded))
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
+            .cornerRadius(12)
+            .shadow(color: Color.themePink.opacity(0.35), radius: 6, y: 3)
+            
+            Image(systemName: "triangle.fill")
+                .font(.system(size: 8))
+                .foregroundColor(.themeOrange)
+                .rotationEffect(.degrees(180))
+                .offset(y: -2)
         }
-        .offset(y: -14)
+        .offset(y: -30)
     }
 }
 
