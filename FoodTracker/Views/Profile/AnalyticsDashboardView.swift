@@ -32,26 +32,7 @@ enum AnalyticsMacro: String, Identifiable {
     }
 }
 
-struct DivineCardModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(20)
-            .background(.ultraThinMaterial)
-            .background(Color.white.opacity(0.65))
-            .cornerRadius(32)
-            .overlay(
-                RoundedRectangle(cornerRadius: 32)
-                    .stroke(LinearGradient(colors: [.white, .white.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 20, x: 0, y: 10)
-    }
-}
 
-extension View {
-    func divineCardStyle() -> some View {
-        self.modifier(DivineCardModifier())
-    }
-}
 
 struct AnalyticsTabView: View {
     @Environment(DIContainer.self) private var di
@@ -163,9 +144,14 @@ struct GlobalPeriodPicker: View {
             }
         }
         .padding(6)
-        .background(Color.white.opacity(0.8))
+        .background(.ultraThinMaterial)
+        .background(Color.white.opacity(0.5))
         .clipShape(Capsule())
-        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
+        .overlay(
+            Capsule()
+                .stroke(Color.white.opacity(0.6), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -192,27 +178,33 @@ struct AIWeeklyInsightCard: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .center, spacing: 16) {
             ZStack {
-                Circle().fill(insight.color.opacity(0.2)).frame(width: 48, height: 48)
+                Circle()
+                    .fill(LinearGradient(colors: [insight.color.opacity(0.25), insight.color.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 52, height: 52)
+                    .overlay(
+                        Circle()
+                            .stroke(insight.color.opacity(0.35), lineWidth: 1.5)
+                    )
                 Image(systemName: "sparkles")
-                    .font(.title2)
+                    .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(insight.color)
                     .symbolEffect(.pulse)
             }
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(insight.title)
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 Text(insight.text)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                    .lineSpacing(4)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .lineSpacing(3)
             }
             Spacer()
         }
-        .divineCardStyle()
+        .ultraPremiumCardStyle()
     }
 }
 
@@ -270,11 +262,10 @@ struct FitnessRingsCard: View {
             }
 
             HStack(spacing: 30) {
-
                 ZStack {
-                    RingView(progress: p/tp, color: .themePeach, radius: 130, width: 14)
-                    RingView(progress: f/tf, color: .themeYellow, radius: 98, width: 14)
-                    RingView(progress: c/tc, color: .drinkWater, radius: 66, width: 14)
+                    RingView(progress: p/tp, color: .themePeach, radius: 130, width: 14, delay: 0.0)
+                    RingView(progress: f/tf, color: .themeYellow, radius: 98, width: 14, delay: 0.2)
+                    RingView(progress: c/tc, color: .drinkWater, radius: 66, width: 14, delay: 0.4)
                 }
                 .frame(width: 130, height: 130)
 
@@ -293,25 +284,36 @@ struct FitnessRingsCard: View {
                 }
             }
         }
-        .divineCardStyle()
+        .ultraPremiumCardStyle()
     }
 }
 
 struct RingView: View {
     var progress: Double; var color: Color; var radius: CGFloat; var width: CGFloat
+    var delay: Double = 0.0
     @State private var show = false
 
     var body: some View {
         ZStack {
-            Circle().stroke(color.opacity(0.15), lineWidth: width)
+            Circle().stroke(color.opacity(0.12), lineWidth: width)
             Circle()
                 .trim(from: 0, to: show ? min(progress, 1.0) : 0)
-                .stroke(color, style: StrokeStyle(lineWidth: width, lineCap: .round))
+                .stroke(
+                    LinearGradient(colors: [color, color.opacity(0.85)], startPoint: .top, endPoint: .bottom),
+                    style: StrokeStyle(lineWidth: width, lineCap: .round)
+                )
                 .rotationEffect(.degrees(-90))
-                .shadow(color: color.opacity(0.5), radius: 5, x: 0, y: 0)
+                .shadow(color: color.opacity(0.4), radius: 6, x: 0, y: 3)
         }
         .frame(width: radius, height: radius)
-        .onAppear { withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) { show = true } }
+        .onAppear {
+            withAnimation(
+                .spring(response: 1.2, dampingFraction: 0.85)
+                .delay(delay)
+            ) {
+                show = true
+            }
+        }
     }
 }
 
@@ -319,20 +321,38 @@ struct LegendRow: View {
     let title: String; let current: Double; let target: Double; let color: Color
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Circle().fill(color).frame(width: 8, height: 8).shadow(color: color, radius: 2)
-                    Text(title).font(.system(size: 14, weight: .bold, design: .rounded))
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(LinearGradient(colors: [color, color.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 10, height: 10)
+                        .shadow(color: color.opacity(0.4), radius: 3, x: 0, y: 1.5)
+                    Text(title)
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
                 }
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text("\(Int(current))").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundColor(.primary)
-                    Text("/ \(Int(target))g").font(.caption).foregroundColor(.gray)
+                    Text("\(Int(current))")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                    Text("/ \(Int(target))g")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundColor(.gray.opacity(0.8))
                 }
-                .padding(.leading, 14)
+                .padding(.leading, 18)
             }
             Spacer()
-            Image(systemName: "chevron.right").font(.caption.bold()).foregroundColor(color.opacity(0.5))
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(color.opacity(0.6))
+                .padding(6)
+                .background(color.opacity(0.1))
+                .clipShape(Circle())
         }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(Color.gray.opacity(0.02))
+        .cornerRadius(16)
         .contentShape(Rectangle())
     }
 }
@@ -357,43 +377,63 @@ struct MealDistributionCard: View {
             if totalCals == 0 {
                 Text("Log food to see distribution.").font(.subheadline).foregroundColor(.gray)
             } else {
-
                 GeometryReader { geo in
-                    HStack(spacing: 2) {
+                    HStack(spacing: 3) {
                         ForEach(meals, id: \.0) { meal in
                             let cals = summary?.meals.first(where: { $0.title == meal.0 })?.totalCalories ?? 0
                             if cals > 0 {
-                                let width = geo.size.width * CGFloat(Double(cals) / Double(totalCals))
+                                let width = max(0, (geo.size.width - 9) * CGFloat(Double(cals) / Double(totalCals)))
                                 Rectangle()
-                                    .fill(meal.1)
+                                    .fill(LinearGradient(colors: [meal.1, meal.1.opacity(0.85)], startPoint: .top, endPoint: .bottom))
                                     .frame(width: showAnim ? width : 0)
                             }
                         }
                     }
                     .clipShape(Capsule())
                 }
-                .frame(height: 16)
+                .frame(height: 14)
+                .shadow(color: Color.black.opacity(0.03), radius: 3, y: 1.5)
                 .onAppear { withAnimation(.spring()) { showAnim = true } }
 
-                VStack(spacing: 12) {
+                VStack(spacing: 10) {
                     ForEach(meals, id: \.0) { meal in
                         let cals = summary?.meals.first(where: { $0.title == meal.0 })?.totalCalories ?? 0
                         if cals > 0 {
-                            HStack {
-                                HStack(spacing: 8) {
-                                    Circle().fill(meal.1).frame(width: 8, height: 8)
-                                    Text(meal.0).font(.subheadline.bold())
-                                }
+                            HStack(spacing: 12) {
+                                Circle()
+                                    .fill(meal.1)
+                                    .frame(width: 8, height: 8)
+                                    .shadow(color: meal.1, radius: 2)
+                                
+                                Text(meal.0)
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                
                                 Spacer()
-                                Text("\(cals) kcal").font(.subheadline).foregroundColor(.gray)
-                                Text("(\(Int((Double(cals)/Double(totalCals))*100))%)").font(.caption.bold()).foregroundColor(meal.1).frame(width: 45, alignment: .trailing)
+                                
+                                Text("\(cals) kcal")
+                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                
+                                Text("\(Int((Double(cals)/Double(totalCals))*100))%")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(meal.1)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(meal.1.opacity(0.1))
+                                    .cornerRadius(8)
+                                    .frame(width: 55, alignment: .trailing)
                             }
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
+                            .background(Color.gray.opacity(0.015))
+                            .cornerRadius(12)
                         }
                     }
                 }
             }
         }
-        .divineCardStyle()
+        .ultraPremiumCardStyle()
     }
 }
 
@@ -424,16 +464,41 @@ struct AIHydrationAnalyticsCard: View {
             
             // Progress Section
             HStack(spacing: 20) {
-                // Liquid capsule
+                // Liquid capsule representing a modern glass
                 ZStack(alignment: .bottom) {
-                    Capsule().fill(Color.cyan.opacity(0.1))
-                        .frame(width: 30, height: 110)
+                    // Glass background container
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.cyan.opacity(0.08))
+                        .frame(width: 45, height: 130)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.cyan.opacity(0.2), lineWidth: 1.5)
+                        )
                     
-                    Capsule()
-                        .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom))
-                        .frame(width: 30, height: 110 * CGFloat(animProgress))
-                        .animation(.spring(response: 0.8, dampingFraction: 0.7), value: animProgress)
+                    // Liquid level with subtle wave effect using a soft vertical gradient and corner clipping
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.cyan.opacity(0.9), Color.blue],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .frame(width: 41, height: max(126 * CGFloat(animProgress), 0))
+                        .padding(2)
+                        .animation(.spring(response: 0.9, dampingFraction: 0.75), value: animProgress)
+                    
+                    // Measurement tick marks inside the glass
+                    VStack(spacing: 16) {
+                        ForEach(0..<4) { _ in
+                            Rectangle()
+                                .fill(Color.white.opacity(0.35))
+                                .frame(width: 12, height: 1.5)
+                        }
+                    }
+                    .padding(.bottom, 15)
                 }
+                .shadow(color: Color.cyan.opacity(0.15), radius: 8, x: 0, y: 4)
                 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .firstTextBaseline) {
@@ -448,22 +513,34 @@ struct AIHydrationAnalyticsCard: View {
                     
                     // Advice Box
                     VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 6) {
+                        HStack(spacing: 8) {
                             Image(systemName: advice.icon)
+                                .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(advice.color)
                             Text(advice.title)
-                                .font(.subheadline.bold())
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                         }
                         Text(advice.message)
-                            .font(.caption)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
+                            .lineSpacing(3)
                             .lineLimit(3)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    .padding(12)
-                    .background(advice.color.opacity(0.1))
-                    .cornerRadius(12)
+                    .padding(14)
+                    .background(
+                        LinearGradient(
+                            colors: [advice.color.opacity(0.12), advice.color.opacity(0.04)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(advice.color.opacity(0.2), lineWidth: 1)
+                    )
+                    .cornerRadius(16)
                 }
             }
             
@@ -476,7 +553,7 @@ struct AIHydrationAnalyticsCard: View {
                     .foregroundColor(.gray)
             }
         }
-        .divineCardStyle()
+        .ultraPremiumCardStyle()
         .onAppear { withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) { animProgress = progress } }
         .onChange(of: progress) { _, nv in withAnimation { animProgress = nv } }
     }
@@ -533,7 +610,7 @@ struct DivineCaloriesChart: View {
 
             Chart {
                 RuleMark(y: .value("Goal", user.dailyCaloriesGoal))
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                    .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
                     .foregroundStyle(Color.themeOrange.opacity(0.8))
                     .annotation(position: .top, alignment: .leading) {
                         Text("GOAL").font(.system(size: 10, weight: .black)).foregroundColor(.themeOrange)
@@ -554,7 +631,7 @@ struct DivineCaloriesChart: View {
                         y: .value("Eaten", point.eaten)
                     )
                     .interpolationMethod(.catmullRom)
-                    .foregroundStyle(LinearGradient(colors: [Color.themePink.opacity(0.4), Color.clear], startPoint: .top, endPoint: .bottom))
+                    .foregroundStyle(LinearGradient(colors: [Color.themePink.opacity(0.35), Color.clear], startPoint: .top, endPoint: .bottom))
                 }
             }
             .chartXAxis {
@@ -564,10 +641,17 @@ struct DivineCaloriesChart: View {
                     }
                 }
             }
-            .chartYAxis(.hidden)
+            .chartYAxis {
+                AxisMarks(position: .trailing, values: .automatic(desiredCount: 4)) { value in
+                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.12))
+                    if let val = value.as(Double.self) {
+                        AxisValueLabel("\(Int(val)) kcal").font(.system(size: 9, weight: .bold)).foregroundStyle(Color.gray.opacity(0.8))
+                    }
+                }
+            }
             .frame(height: 220)
         }
-        .divineCardStyle()
+        .ultraPremiumCardStyle()
     }
 }
 
@@ -608,21 +692,17 @@ struct DivineMacrosChart: View {
             Chart {
                 ForEach(chartData) { item in
                     BarMark(
-
                         x: .value("Date", item.date, unit: .day),
                         y: .value("Grams", item.value),
-                        width: .fixed(16)
+                        width: .fixed(10)
                     )
-
                     .foregroundStyle(by: .value("Type", item.type))
-                    .cornerRadius(4)
                 }
             }
-
             .chartForegroundStyleScale([
-                "Carbs": Color.drinkWater.gradient,
-                "Fats": Color.themeYellow.gradient,
-                "Protein": Color.themePeach.gradient
+                "Carbs": LinearGradient(colors: [Color.drinkWater, Color.drinkWater.opacity(0.7)], startPoint: .top, endPoint: .bottom),
+                "Fats": LinearGradient(colors: [Color.themeYellow, Color.themeYellow.opacity(0.7)], startPoint: .top, endPoint: .bottom),
+                "Protein": LinearGradient(colors: [Color.themePeach, Color.themePeach.opacity(0.7)], startPoint: .top, endPoint: .bottom)
             ])
             .chartYScale(domain: 0...maxGrams)
             .chartXAxis {
@@ -632,9 +712,9 @@ struct DivineMacrosChart: View {
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 4)) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.15))
+                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.12))
                     if let val = value.as(Double.self) {
-                        AxisValueLabel("\(Int(val))g").font(.caption2).foregroundStyle(Color.gray)
+                        AxisValueLabel("\(Int(val))g").font(.system(size: 9, weight: .bold)).foregroundStyle(Color.gray)
                     }
                 }
             }
@@ -646,7 +726,7 @@ struct DivineMacrosChart: View {
                 ChartLegendItem(color: .drinkWater, text: "Carbs")
             }
         }
-        .divineCardStyle()
+        .ultraPremiumCardStyle()
     }
 }
 struct TrendsWaterChart: View {
@@ -677,21 +757,27 @@ struct TrendsWaterChart: View {
 
             Chart {
                 RuleMark(y: .value("Goal", 2.5))
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
-                    .foregroundStyle(Color.cyan.opacity(0.8))
+                    .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
+                    .foregroundStyle(Color.cyan.opacity(0.7))
                     .annotation(position: .top, alignment: .leading) {
-                        Text("GOAL").font(.system(size: 10, weight: .black)).foregroundColor(.cyan)
+                        Text("GOAL (2.5L)")
+                            .font(.system(size: 9, weight: .black, design: .rounded))
+                            .foregroundColor(.cyan)
                     }
 
                 ForEach(chartData, id: \.date) { point in
                     BarMark(
-
                         x: .value("Date", point.date, unit: .day),
                         y: .value("Liters", point.liters),
-                        width: .fixed(16)
+                        width: .fixed(12)
                     )
-                    .foregroundStyle(Color.cyan.gradient)
-                    .cornerRadius(6)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.cyan, Color.cyan.opacity(0.7)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                 }
             }
             .chartYScale(domain: 0...maxLiters)
@@ -702,7 +788,7 @@ struct TrendsWaterChart: View {
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: [0, 1, 2, 3]) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.15))
+                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.12))
                     if let val = value.as(Double.self), val >= 0 {
                         AxisValueLabel("\(Int(val))L").font(.caption2).foregroundStyle(Color.gray)
                     }
@@ -710,7 +796,7 @@ struct TrendsWaterChart: View {
             }
             .frame(height: 200)
         }
-        .divineCardStyle()
+        .ultraPremiumCardStyle()
     }
 }
 
@@ -755,10 +841,27 @@ struct ConsistencyHeatmapCard: View {
                 ForEach(days, id: \.self) { date in
                     let level = completionLevel(for: date)
                     let color = colorForLevel(level)
+                    let isToday = Calendar.current.isDateInToday(date)
 
-                    VStack(spacing: 4) {
-                        Text(Calendar.current.component(.day, from: date).description).font(.system(size: 10, weight: .bold)).foregroundColor(.gray)
-                        RoundedRectangle(cornerRadius: 6).fill(color.gradient).frame(width: 18, height: 36).shadow(color: level == 3 ? .green.opacity(0.4) : .clear, radius: 4, y: 2)
+                    VStack(spacing: 6) {
+                        Text(Calendar.current.component(.day, from: date).description)
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundColor(isToday ? .themePink : .gray.opacity(0.8))
+                        
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [color, color.opacity(level > 0 ? 0.75 : 1.0)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .frame(width: 16, height: 42)
+                            .overlay(
+                                Capsule()
+                                    .stroke(isToday ? Color.themePink.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1.5)
+                            )
+                            .shadow(color: level > 0 ? color.opacity(0.35) : Color.clear, radius: 5, x: 0, y: 3)
                     }
                 }
             }
@@ -770,7 +873,7 @@ struct ConsistencyHeatmapCard: View {
                 LegendDot(color: .themeYellow, text: "Under")
             }.padding(.top, 8)
         }
-        .divineCardStyle()
+        .ultraPremiumCardStyle()
     }
 }
 
