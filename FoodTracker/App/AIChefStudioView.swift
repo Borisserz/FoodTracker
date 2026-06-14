@@ -8,12 +8,10 @@
 import SwiftUI
 import SwiftData
 
-
-
-// MARK: - 🗄 База Данных
+// MARK: - 🗄 База Данных с реальными фото
 let mockDatabase: [AIChefRecipe] = [
     AIChefRecipe(
-        title: "Лосось с киноа", calories: 420, protein: 35, heroImage: "fish.fill", cookTime: 25, difficulty: 2,
+        title: "Лосось с киноа", calories: 420, protein: 35, heroImage: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600&q=80", cookTime: 25, difficulty: 2,
         history: "Киноа — это не просто крупа, а подлинное «золото инков». Более трех тысяч лет назад высоко в горах Анд древние племена называли её «чизия мама» (матерь всех семян). Лосось же даст тебе премиальный белок и полезные жиры Омега-3.",
         ingredients: ["Филе лосося (200г)", "Киноа (50г сухой)", "Спаржа (100г)", "Лимон (30г / половинка)", "Оливковое масло (10мл)", "Морская соль (2г)", "Белый перец", "Сушеный чеснок"],
         steps: [
@@ -25,7 +23,7 @@ let mockDatabase: [AIChefRecipe] = [
         platingTip: "Выложи киноа через кулинарное кольцо в центр тарелки. Сверху аккуратно помести лосось. Спаржу уложи рядом, скрестив стебли. Сбрызни всё каплей оливкового масла экстра-класса и укрась долькой лимона."
     ),
     AIChefRecipe(
-        title: "Стейк Рибай", calories: 550, protein: 50, heroImage: "fork.knife", cookTime: 15, difficulty: 4,
+        title: "Стейк Рибай", calories: 550, protein: 50, heroImage: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80", cookTime: 15, difficulty: 4,
         history: "Рибай — неоспоримый король среди стейков. Его мраморность тает при жарке, пропитывая мясо изнутри. Сегодня ты научишься готовить его как шеф-повар мишленовского ресторана.",
         ingredients: ["Стейк Рибай (250г)", "Сливочное масло (20г)", "Чеснок (2 зубчика)", "Розмарин (1 свежая веточка)", "Крупная морская соль (4г)", "Черный перец горошком"],
         steps: [
@@ -39,6 +37,83 @@ let mockDatabase: [AIChefRecipe] = [
     )
 ]
 
+// MARK: - 🎨 Вспомогательные визуальные элементы (Shimmer & Image)
+struct ShimmerView: View {
+    @State private var phase: CGFloat = 0
+    
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            
+            ZStack {
+                Color.primary.opacity(0.04)
+                
+                Color.white
+                    .opacity(0.15)
+                    .mask(
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.clear, .white.opacity(0.4), .clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: width * 1.5)
+                            .offset(x: -width + (width * 2) * phase)
+                    )
+            }
+            .onAppear {
+                withAnimation(
+                    Animation.linear(duration: 1.5)
+                        .repeatForever(autoreverses: false)
+                ) {
+                    phase = 1.0
+                }
+            }
+        }
+    }
+}
+
+struct RecipeImageView: View {
+    let imageString: String
+    let fallbackSystemName: String
+    
+    var body: some View {
+        if let url = URL(string: imageString), imageString.hasPrefix("http") {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .empty:
+                    ShimmerView()
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .failure:
+                    FallbackView
+                @unknown default:
+                    FallbackView
+                }
+            }
+        } else {
+            FallbackView
+        }
+    }
+    
+    private var FallbackView: some View {
+        ZStack {
+            LinearGradient(
+                colors: [.themePink.opacity(0.12), .themeOrange.opacity(0.12)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            Image(systemName: fallbackSystemName)
+                .font(.system(size: 26))
+                .foregroundColor(.themePink)
+        }
+    }
+}
+
 // MARK: - 👨‍🍳 Главный Экран
 struct AIChefStudioView: View {
     @Environment(ThemeManager.self) private var themeManager
@@ -51,13 +126,31 @@ struct AIChefStudioView: View {
     @State private var showAIAssistantFlow = false
     @State private var showSmartBuilder = false
     
+    @State private var bgPhase = 0.0
+    
     var filteredRecipes: [AIChefRecipe] { mockDatabase.filter { $0.title.localizedCaseInsensitiveContains(searchText) } }
     var suggestedRecipes: [AIChefRecipe] { mockDatabase.filter { $0.calories <= remainingCalories + 150 } }
 
     var body: some View {
         NavigationStack {
             ZStack {
+                // Premium background blobs
                 Color.themeBg.ignoresSafeArea()
+                
+                ZStack {
+                    Circle()
+                        .fill(themeManager.current.primaryAccent.opacity(0.12))
+                        .frame(width: 260, height: 260)
+                        .blur(radius: 60)
+                        .offset(x: -120 + bgPhase * 30, y: -220 + bgPhase * 50)
+                    
+                    Circle()
+                        .fill(themeManager.current.secondaryAccent.opacity(0.08))
+                        .frame(width: 300, height: 300)
+                        .blur(radius: 70)
+                        .offset(x: 120 - bgPhase * 40, y: 150 - bgPhase * 60)
+                }
+                .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 24) {
@@ -69,19 +162,38 @@ struct AIChefStudioView: View {
                         }) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    HStack {
+                                    HStack(spacing: 6) {
                                         Image(systemName: "sparkles.tv")
                                         Text("ИИ-Ассистент")
-                                    }.font(.caption.bold()).foregroundColor(.white.opacity(0.8))
-                                    Text("Опробуй готовку с ИИ").font(.title3.bold()).foregroundColor(.white)
+                                    }
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.85))
+                                    
+                                    Text("Опробуй готовку с ИИ")
+                                        .font(.system(.title3, design: .rounded, weight: .black))
+                                        .foregroundColor(.white)
                                 }
                                 Spacer()
-                                Image(systemName: "camera.macro.circle.fill").font(.system(size: 40)).foregroundColor(.white).symbolEffect(.pulse)
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.white.opacity(0.12))
+                                        .frame(width: 52, height: 52)
+                                    Image(systemName: "camera.viewfinder")
+                                        .font(.system(size: 22, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .symbolEffect(.pulse)
+                                }
                             }
                             .padding(20)
-                            .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .background(
+                                LinearGradient(
+                                    colors: [.themePink, .themeOrange],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
                             .cornerRadius(24)
-                            .shadow(color: .themePink.opacity(0.3), radius: 10, y: 5)
+                            .shadow(color: .themePink.opacity(0.35), radius: 10, y: 4)
                         }
                         .buttonStyle(BounceButtonStyle())
                         .padding(.horizontal)
@@ -93,19 +205,31 @@ struct AIChefStudioView: View {
                         }) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    HStack {
+                                    HStack(spacing: 6) {
                                         Image(systemName: "calendar.badge.clock")
                                         Text("AI Menu Builder")
-                                    }.font(.caption.bold()).foregroundColor(.white.opacity(0.8))
-                                    Text("Build a 7-Day Plan").font(.title3.bold()).foregroundColor(.white)
+                                    }
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.85))
+                                    
+                                    Text("Составить меню на 7 дней")
+                                        .font(.system(.title3, design: .rounded, weight: .black))
+                                        .foregroundColor(.white)
                                 }
                                 Spacer()
-                                Image(systemName: "wand.and.stars").font(.system(size: 32)).foregroundColor(.white)
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.white.opacity(0.12))
+                                        .frame(width: 52, height: 52)
+                                    Image(systemName: "wand.and.stars")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
                             }
                             .padding(20)
                             .background(themeManager.current.primaryGradient)
                             .cornerRadius(24)
-                            .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
+                            .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 10, y: 4)
                         }
                         .buttonStyle(BounceButtonStyle())
                         .padding(.horizontal)
@@ -113,15 +237,48 @@ struct AIChefStudioView: View {
                         // 2. ВИДЖЕТ МАКРОСОВ
                         DailyMacroWidget(calories: remainingCalories, protein: remainingProtein, fat: remainingFat, carbs: remainingCarbs)
                         
-                        // 3. ПОИСК
-                        HStack {
-                            Image(systemName: "magnifyingglass").foregroundColor(.gray)
+                        // 3. ПОИСК (Glassmorphic)
+                        HStack(spacing: 12) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(themeManager.current.primaryAccent)
+                            
                             TextField("Найти блюдо в базе...", text: $searchText)
+                                .font(.system(.body, design: .rounded))
+                            
                             if !searchText.isEmpty {
-                                Button(action: { searchText = "" }) { Image(systemName: "xmark.circle.fill").foregroundColor(.gray) }
+                                Button(action: { searchText = "" }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.secondary)
+                                }
+                                .transition(.opacity.combined(with: .scale))
                             }
                         }
-                        .padding().background(Color.white).cornerRadius(16).padding(.horizontal)
+                        .padding(14)
+                        .background(
+                            ZStack {
+                                Color.primary.opacity(0.01)
+                                RoundedRectangle(cornerRadius: 18)
+                                    .fill(.ultraThinMaterial)
+                            }
+                        )
+                        .cornerRadius(18)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [
+                                            themeManager.current.primaryAccent.opacity(0.2),
+                                            themeManager.current.secondaryAccent.opacity(0.05)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
+                        )
+                        .shadow(color: themeManager.current.primaryAccent.opacity(0.04), radius: 6, x: 0, y: 3)
+                        .padding(.horizontal)
                         
                         // 4. КОНТЕНТ ПОД ПОИСКОМ
                         if !searchText.isEmpty {
@@ -129,41 +286,56 @@ struct AIChefStudioView: View {
                                 ForEach(filteredRecipes) { recipe in
                                     NavigationLink(destination: RecipeDetailAIView(recipe: recipe)) {
                                         SearchResultRow(recipe: recipe)
-                                    }.buttonStyle(PlainButtonStyle())
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
-                                if filteredRecipes.isEmpty { Text("Блюдо не найдено").foregroundColor(.gray).padding() }
-                            }.padding(.horizontal)
+                                if filteredRecipes.isEmpty {
+                                    Text("Блюдо не найдено")
+                                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                        .foregroundColor(.secondary)
+                                        .padding()
+                                }
+                            }
+                            .padding(.horizontal)
                         } else {
                             VStack(alignment: .leading, spacing: 16) {
                                 Text("ИИ подобрал под твои макросы:")
-                                    .font(.title3.bold())
+                                    .font(.system(.title3, design: .rounded, weight: .bold))
+                                    .foregroundColor(.primary)
                                     .padding(.horizontal)
+                                
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 16) {
                                         ForEach(suggestedRecipes) { recipe in
                                             NavigationLink(destination: RecipeDetailAIView(recipe: recipe)) {
                                                 RecipeCardView(recipe: recipe)
-                                            }.buttonStyle(PlainButtonStyle())
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
                                         }
-                                    }.padding(.horizontal)
+                                    }
+                                    .padding(.horizontal)
                                 }
                             }
                         }
                         
-                        // 5. МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
+                        // 5. МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР
                         Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
-                            .font(.caption2)
-                            .foregroundColor(.gray)
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 24)
+                            .padding(.horizontal, 28)
                             .padding(.top, 16)
                             
-                    }.padding(.vertical)
+                    }
+                    .padding(.vertical)
                 }
             }
             .navigationTitle("AI Шеф")
             .onAppear {
                 TrackingManager.shared.track(.featureDiscovered(feature: "ai_chef_studio"))
+                withAnimation(.easeInOut(duration: 8.0).repeatForever(autoreverses: true)) {
+                    bgPhase = 1.0
+                }
             }
             .fullScreenCover(isPresented: $showAIAssistantFlow) {
                 AIAssistantFlowView(isPresented: $showAIAssistantFlow)
@@ -182,36 +354,52 @@ struct DailyMacroWidget: View {
     let fat: Int
     let carbs: Int
     
+    @Environment(ThemeManager.self) private var themeManager
+    
     var body: some View {
         VStack(spacing: 20) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Осталось на сегодня")
-                        .font(.subheadline.weight(.medium))
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundColor(.secondary)
+                    
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(calories)")
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .font(.system(size: 38, weight: .black, design: .rounded))
                             .foregroundColor(.primary)
                         Text("ккал")
-                            .font(.headline)
+                            .font(.system(.title3, design: .rounded, weight: .bold))
                             .foregroundColor(.secondary)
                     }
                 }
                 Spacer()
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.themePink)
-                    .opacity(0.8)
+                    .font(.system(size: 38))
+                    .foregroundColor(themeManager.current.primaryAccent)
+                    .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 5)
             }
             
-            HStack(spacing: 12) {
-                MacroPillView(title: "Белки", value: "\(protein)г", color: .themePeach)
-                MacroPillView(title: "Жиры", value: "\(fat)г", color: .themeYellow)
-                MacroPillView(title: "Углеводы", value: "\(carbs)г", color: .drinkWater)
+            HStack(spacing: 10) {
+                MacroPillView(title: "Белки", value: "\(protein)г", amount: protein, maxAmount: 100, color: .themePeach)
+                MacroPillView(title: "Жиры", value: "\(fat)г", amount: fat, maxAmount: 80, color: .themeYellow)
+                MacroPillView(title: "Углеводы", value: "\(carbs)г", amount: carbs, maxAmount: 250, color: .drinkWater)
             }
         }
-        .ultraPremiumCardStyle()
+        .padding(20)
+        .background(
+            ZStack {
+                Color.primary.opacity(0.01)
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(.ultraThinMaterial)
+            }
+        )
+        .cornerRadius(24)
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.02), radius: 5, y: 3)
         .padding(.horizontal)
     }
 }
@@ -219,43 +407,158 @@ struct DailyMacroWidget: View {
 struct MacroPillView: View {
     let title: String
     let value: String
+    let amount: Int
+    let maxAmount: Int
     let color: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.caption2.bold()).foregroundColor(color)
-            Text(value).font(.headline.bold()).foregroundColor(.primary)
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundColor(color)
+            
+            Text(value)
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
+            
+            // Mini progress indicator
+            GeometryReader { geo in
+                let width = geo.size.width
+                let fillWidth = max(min(width * CGFloat(amount) / CGFloat(maxAmount), width), 0)
+                
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.primary.opacity(0.04))
+                    
+                    Capsule()
+                        .fill(LinearGradient(colors: [color, color.opacity(0.7)], startPoint: .leading, endPoint: .trailing))
+                        .frame(width: fillWidth)
+                }
+            }
+            .frame(height: 4)
         }
-        .frame(maxWidth: .infinity, alignment: .leading).padding(12).background(color.opacity(0.1)).cornerRadius(12)
+        .padding(12)
+        .background(Color.primary.opacity(0.01))
+        .cornerRadius(14)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+        )
     }
 }
 
 struct SearchResultRow: View {
     let recipe: AIChefRecipe
+    @Environment(ThemeManager.self) private var themeManager
+    
     var body: some View {
-        HStack {
-            Image(systemName: recipe.heroImage).foregroundColor(.themePink).frame(width: 40, height: 40).background(Color.themePink.opacity(0.1)).cornerRadius(10)
-            VStack(alignment: .leading) {
-                Text(recipe.title).font(.headline)
-                Text("\(recipe.calories) ккал").font(.caption).foregroundColor(.gray)
+        HStack(spacing: 16) {
+            RecipeImageView(imageString: recipe.heroImage, fallbackSystemName: "fork.knife")
+                .frame(width: 50, height: 50)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .shadow(color: Color.black.opacity(0.05), radius: 3, y: 1)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(recipe.title)
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                HStack(spacing: 6) {
+                    Text("\(recipe.calories) ккал")
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundColor(themeManager.current.primaryAccent)
+                    Text("•")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("\(recipe.cookTime) мин")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+                }
             }
+            
             Spacer()
-            Image(systemName: "chevron.right").foregroundColor(.gray.opacity(0.5))
-        }.padding().background(Color.white).cornerRadius(16)
+            
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(themeManager.current.primaryAccent.opacity(0.6))
+                .padding(8)
+                .background(Color.primary.opacity(0.02))
+                .clipShape(Circle())
+        }
+        .padding(12)
+        .background(
+            ZStack {
+                Color.primary.opacity(0.01)
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(.ultraThinMaterial)
+            }
+        )
+        .cornerRadius(18)
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.02), radius: 4, x: 0, y: 2)
     }
 }
 
 struct RecipeCardView: View {
     let recipe: AIChefRecipe
+    @Environment(ThemeManager.self) private var themeManager
+    
     var body: some View {
-        VStack(alignment: .leading) {
-            ZStack {
-                Color.themePink.opacity(0.15)
-                Image(systemName: recipe.heroImage).resizable().scaledToFit().frame(width: 50, height: 50).foregroundColor(.themePink)
-            }.frame(width: 180, height: 120).cornerRadius(16)
-            Text(recipe.title).font(.headline).lineLimit(1).padding(.top, 8)
-            Text("\(recipe.calories) ккал • \(recipe.cookTime) мин").font(.caption).foregroundColor(.gray)
-        }.frame(width: 180)
+        VStack(alignment: .leading, spacing: 10) {
+            ZStack(alignment: .topTrailing) {
+                // Cover Image
+                RecipeImageView(imageString: recipe.heroImage, fallbackSystemName: "fork.knife")
+                    .frame(width: 200, height: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                
+                // Cook time overlay
+                HStack(spacing: 4) {
+                    Image(systemName: "clock.fill")
+                        .font(.system(size: 8, weight: .bold))
+                    Text("\(recipe.cookTime) мин")
+                        .font(.system(size: 8, weight: .black, design: .rounded))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(.ultraThinMaterial)
+                .cornerRadius(8)
+                .padding(10)
+            }
+            .frame(width: 200, height: 140)
+            .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(recipe.title)
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                HStack(spacing: 8) {
+                    Text("\(recipe.calories) ккал")
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundColor(themeManager.current.primaryAccent)
+                    
+                    Text("•")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    HStack(spacing: 2) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 8))
+                            .foregroundColor(.themeYellow)
+                        Text(String(format: "%d", recipe.difficulty))
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+        .frame(width: 200)
     }
 }
 
@@ -263,55 +566,205 @@ struct RecipeCardView: View {
 struct RecipeDetailAIView: View {
     let recipe: AIChefRecipe
     @State private var isCookingModeActive = false
+    @Environment(ThemeManager.self) private var themeManager
     
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                Circle().fill(Color.themePink.opacity(0.2)).frame(width: 120, height: 120)
-                    .overlay(Image(systemName: recipe.heroImage).font(.system(size: 50)).foregroundColor(.themePink)).padding(.top, 20)
-                
-                Text(recipe.title).font(.title.bold()).multilineTextAlignment(.center)
-                
-                HStack(spacing: 40) {
-                    VStack { Image(systemName: "clock.fill").foregroundColor(.gray); Text("\(recipe.cookTime) мин").font(.subheadline.bold()) }
-                    VStack {
-                        HStack(spacing: 2) { ForEach(1...5, id: \.self) { star in Image(systemName: star <= recipe.difficulty ? "star.fill" : "star").foregroundColor(.themeYellow).font(.caption) } }
-                        Text("Сложность").font(.caption).foregroundColor(.gray)
+                // Hero Image Card
+                ZStack(alignment: .bottomLeading) {
+                    RecipeImageView(imageString: recipe.heroImage, fallbackSystemName: "fork.knife")
+                        .frame(height: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 28))
+                        .overlay(
+                            LinearGradient(
+                                colors: [.clear, .black.opacity(0.65)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            .cornerRadius(28)
+                        )
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(recipe.title)
+                            .font(.system(.title2, design: .rounded, weight: .black))
+                            .foregroundColor(.white)
+                            .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 2)
                     }
-                }.padding().background(Color.white).cornerRadius(16)
+                    .padding(20)
+                }
+                .padding(.horizontal)
+                .shadow(color: Color.black.opacity(0.12), radius: 10, x: 0, y: 5)
                 
-                Button(action: { HapticManager.shared.impact(style: .medium); isCookingModeActive = true }) {
-                    HStack { Image(systemName: "play.circle.fill"); Text("Начать пошаговую готовку") }
-                        .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding().background(Color.themePink).cornerRadius(16)
-                }.padding(.horizontal, 24)
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "list.bullet.clipboard.fill").foregroundColor(.themePink); Text("Ингредиенты").font(.title3.bold()) }
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(recipe.ingredients, id: \.self) { ingredient in
-                            HStack(alignment: .top) { Circle().fill(Color.themePink).frame(width: 6, height: 6).padding(.top, 6); Text(ingredient).font(.body) }
+                // Cooking Stats Panel
+                HStack(spacing: 16) {
+                    VStack(spacing: 4) {
+                        Image(systemName: "clock.fill")
+                            .font(.headline)
+                            .foregroundColor(themeManager.current.primaryAccent)
+                        Text("\(recipe.cookTime) мин")
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.primary.opacity(0.02))
+                    .cornerRadius(16)
+                    
+                    VStack(spacing: 4) {
+                        HStack(spacing: 1) {
+                            ForEach(1...5, id: \.self) { star in
+                                Image(systemName: star <= recipe.difficulty ? "star.fill" : "star")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(.themeYellow)
+                            }
                         }
-                    }.padding(.top, 4)
-                }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.white).cornerRadius(16).padding(.horizontal)
+                        Text("Сложность")
+                            .font(.system(.caption, design: .rounded, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.primary.opacity(0.02))
+                    .cornerRadius(16)
+                }
+                .padding(.horizontal)
                 
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "book.pages.fill").foregroundColor(.themePink); Text("История и Факты").font(.title3.bold()) }
-                    Text(recipe.history).font(.body).lineSpacing(6).foregroundColor(.secondary)
-                }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.white).cornerRadius(16).padding(.horizontal)
+                // Action Button
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    isCookingModeActive = true
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "play.circle.fill")
+                            .font(.title3)
+                        Text("Начать готовку")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(themeManager.current.primaryGradient)
+                    .cornerRadius(20)
+                    .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 8, x: 0, y: 4)
+                }
+                .padding(.horizontal)
+                .buttonStyle(BounceButtonStyle())
                 
-                // 🌟 СЕРВИРОВКА
+                // Ingredients Section
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "list.bullet.clipboard.fill")
+                            .foregroundColor(themeManager.current.primaryAccent)
+                        Text("Ингредиенты")
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        ForEach(recipe.ingredients, id: \.self) { ingredient in
+                            HStack(spacing: 10) {
+                                Image(systemName: "circle.fill")
+                                    .font(.system(size: 6))
+                                    .foregroundColor(themeManager.current.primaryAccent)
+                                Text(ingredient)
+                                    .font(.system(.body, design: .rounded))
+                                    .foregroundColor(.primary)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    ZStack {
+                        Color.primary.opacity(0.01)
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(.ultraThinMaterial)
+                    }
+                )
+                .cornerRadius(24)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                )
+                .padding(.horizontal)
+                
+                // History Section
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "book.pages.fill")
+                            .foregroundColor(themeManager.current.primaryAccent)
+                        Text("История блюда")
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                    }
+                    
+                    Text(recipe.history)
+                        .font(.system(.body, design: .rounded))
+                        .lineSpacing(5)
+                        .foregroundColor(.secondary)
+                }
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    ZStack {
+                        Color.primary.opacity(0.01)
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(.ultraThinMaterial)
+                    }
+                )
+                .cornerRadius(24)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                )
+                .padding(.horizontal)
+                
+                // Plating tip "Michelin Special"
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Искусство подачи").font(.title3.bold()) }
+                    HStack(spacing: 8) {
+                        Image(systemName: "sparkles")
+                            .font(.title3)
+                            .foregroundColor(.themeOrange)
+                        Text("Совет шеф-повара по подаче")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundColor(.themeOrange)
+                    }
+                    
                     Text(recipe.platingTip)
-                        .font(.body.italic())
-                        .lineSpacing(6)
+                        .font(.system(.body, design: .rounded).italic())
+                        .lineSpacing(5)
                         .foregroundColor(.primary)
                 }
-                .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeOrange.opacity(0.1)).cornerRadius(16).padding(.horizontal)
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.themeOrange.opacity(0.08))
+                .cornerRadius(24)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.themeOrange.opacity(0.15), lineWidth: 1)
+                )
+                .padding(.horizontal)
                 
-            }.padding(.bottom, 40)
+            }
+            .padding(.bottom, 40)
         }
-        .background(Color.themeBg.ignoresSafeArea())
+        .background(
+            ZStack {
+                Color.themeBg.ignoresSafeArea()
+                
+                Circle()
+                    .fill(themeManager.current.primaryAccent.opacity(0.12))
+                    .frame(width: 200, height: 200)
+                    .blur(radius: 50)
+                    .offset(x: -120, y: -200)
+                
+                Circle()
+                    .fill(themeManager.current.secondaryAccent.opacity(0.10))
+                    .frame(width: 250, height: 250)
+                    .blur(radius: 60)
+                    .offset(x: 120, y: 150)
+            }
+        )
         .navigationTitle("Рецепт")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $isCookingModeActive) {
@@ -439,7 +892,7 @@ struct AIAssistantFlowView: View {
                             }
                         }.padding(.horizontal)
                         
-                        // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
+                        // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР
                         Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
                             .font(.caption2)
                             .foregroundColor(.gray)
