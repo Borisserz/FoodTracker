@@ -32,6 +32,62 @@ enum AnalyticsMacro: String, Identifiable {
     }
 }
 
+enum AnalyticsMicro: String, CaseIterable, Identifiable {
+    case omega3 = "Omega-3"
+    case potassium = "Potassium"
+    case magnesium = "Magnesium"
+    case calcium = "Calcium"
+    case iron = "Iron"
+    case vitaminC = "Vitamin C"
+    case vitaminD = "Vitamin D"
+
+    var id: String { self.rawValue }
+
+    var unit: String {
+        switch self {
+        case .omega3: return "g"
+        case .potassium, .magnesium, .calcium, .iron, .vitaminC: return "mg"
+        case .vitaminD: return "mcg"
+        }
+    }
+
+    var rda: Double {
+        switch self {
+        case .omega3: return 1.6
+        case .potassium: return 3500.0
+        case .magnesium: return 400.0
+        case .calcium: return 1000.0
+        case .iron: return 12.0
+        case .vitaminC: return 90.0
+        case .vitaminD: return 20.0
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .omega3: return "brain.fill"
+        case .potassium: return "heart.fill"
+        case .magnesium: return "bolt.fill"
+        case .calcium: return "bone.fill"
+        case .iron: return "dumbbell.fill"
+        case .vitaminC: return "sparkles"
+        case .vitaminD: return "sun.max.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .omega3: return .purple
+        case .potassium: return .pink
+        case .magnesium: return .themeOrange
+        case .calcium: return .orange
+        case .iron: return .red
+        case .vitaminC: return .themeYellow
+        case .vitaminD: return .green
+        }
+    }
+}
+
 
 
 struct AnalyticsTabView: View {
@@ -40,6 +96,7 @@ struct AnalyticsTabView: View {
 
     @State private var viewModel: AnalyticsViewModel?
     @State private var globalPeriod: AnalyticsPeriod = .day
+    @State private var bgPhase = 0.0
 
     var body: some View {
         NavigationStack {
@@ -47,17 +104,25 @@ struct AnalyticsTabView: View {
 
                 Color.themeBg.ignoresSafeArea()
 
-                Circle()
-                    .fill(Color.themePink.opacity(0.15))
-                    .frame(width: 300, height: 300)
-                    .blur(radius: 60)
-                    .offset(x: -100, y: -200)
+                ZStack {
+                    Circle()
+                        .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 400, height: 400)
+                        .blur(radius: 80)
+                        .offset(x: bgPhase == 0 ? -150 : -50, y: bgPhase == 0 ? -250 : -150)
 
-                Circle()
-                    .fill(Color.themeOrange.opacity(0.15))
-                    .frame(width: 300, height: 300)
-                    .blur(radius: 60)
-                    .offset(x: 150, y: 300)
+                    Circle()
+                        .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 350, height: 350)
+                        .blur(radius: 90)
+                        .offset(x: bgPhase == 0 ? 150 : 50, y: bgPhase == 0 ? 350 : 250)
+                }
+                .ignoresSafeArea()
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
+                        bgPhase = 1.0
+                    }
+                }
 
                 if let user = users.first {
                     ScrollView(showsIndicators: false) {
@@ -84,8 +149,10 @@ struct AnalyticsTabView: View {
                                 .padding(.horizontal, 20)
 
                             if globalPeriod == .day {
-                                DailyAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user)
-                                    .padding(.horizontal, 20)
+                                DailyAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user) {
+                                    viewModel?.loadData(for: globalPeriod)
+                                }
+                                .padding(.horizontal, 20)
                             } else {
                                 TrendsAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
                                     .padding(.horizontal, 20)
@@ -161,19 +228,92 @@ struct AIWeeklyInsightCard: View {
     let period: AnalyticsPeriod
 
     private var insight: (title: String, text: String, color: Color) {
-        if period == .day {
-            return ("Daily Focus", "Keep an eye on your hydration today. You're doing great with proteins!", .themePink)
-        } else {
-            let validSummaries = summaries.prefix(period.daysCount).filter { $0.totalFoodCalories > 0 }
-            let avg = validSummaries.isEmpty ? 0 : validSummaries.reduce(0) { $0 + $1.totalFoodCalories } / validSummaries.count
+        let activeSummaries = Array(summaries.suffix(period.daysCount))
+        let validSummaries = activeSummaries.filter { $0.totalFoodCalories > 0 }
 
-            if avg == 0 {
-                return ("Start Tracking", "Log your meals to see advanced analytics and AI recommendations.", .gray)
-            } else if avg > user.dailyCaloriesGoal {
-                return ("Trend Alert", "Your average is \(avg) kcal. Slightly above your goal. Try reducing evening snacks.", .themeOrange)
-            } else {
-                return ("Perfect Streak", "Your average is \(avg) kcal. You are perfectly hitting your goals! Keep it up.", .green)
+        let avgCals = validSummaries.isEmpty ? 0 : validSummaries.reduce(0) { $0 + $1.totalFoodCalories } / validSummaries.count
+        let avgWater = activeSummaries.isEmpty ? 0.0 : activeSummaries.reduce(0.0) { $0 + $1.totalHydrationLiters } / Double(activeSummaries.count)
+
+        // Find the lowest micronutrient percentage today or weekly avg
+        let micronutrients = AnalyticsMicro.allCases
+        var lowestMicro: AnalyticsMicro?
+        var lowestPct = 1.0
+
+        if period == .day {
+            let today = summaries.first(where: { Calendar.current.isDateInToday($0.date) })
+            if let today = today {
+                for micro in micronutrients {
+                    let amount = getValue(for: micro, in: today)
+                    let pct = amount / micro.rda
+                    if pct < lowestPct {
+                        lowestPct = pct
+                        lowestMicro = micro
+                    }
+                }
             }
+
+            let water = today?.totalHydrationLiters ?? 0.0
+            if water < 1.0 {
+                return ("Hydration Alert", "You've logged \(String(format: "%.1f", water))L of water today. Drink a glass now to boost metabolism and energy!", .cyan)
+            } else if let lowest = lowestMicro, lowestPct < 0.6 {
+                let hint = getHint(for: lowest)
+                return ("\(lowest.rawValue) Focus", "Your \(lowest.rawValue) is only at \(Int(lowestPct * 100))% of RDA. \(hint)", lowest.color)
+            } else if let eaten = today?.totalFoodCalories, eaten > user.dailyCaloriesGoal {
+                return ("Caloric Limit", "You've exceeded your daily calorie goal by \(eaten - user.dailyCaloriesGoal) kcal. Keep dinner light today.", .themeOrange)
+            } else {
+                return ("Daily Focus", "All parameters are in range! Continue logging your meals to sustain this streak.", .green)
+            }
+        } else {
+            // Weekly/Monthly trend
+            if avgCals == 0 {
+                return ("Start Tracking", "Log your meals and fluids to activate personal AI analytics and dynamic trend insights.", .gray)
+            }
+            
+            // Check average micro levels
+            for micro in micronutrients {
+                let totalAmount = validSummaries.reduce(0.0) { $0 + getValue(for: micro, in: $1) }
+                let avgAmount = totalAmount / Double(max(1, validSummaries.count))
+                let pct = avgAmount / micro.rda
+                if pct < lowestPct {
+                    lowestPct = pct
+                    lowestMicro = micro
+                }
+            }
+
+            if avgWater < 1.5 {
+                return ("Hydration Trend", "Your average hydration (\(String(format: "%.2f", avgWater))L) is below the 2.5L target. Focus on drinking more fluids.", .cyan)
+            } else if let lowest = lowestMicro, lowestPct < 0.7 {
+                let hint = getHint(for: lowest)
+                return ("\(lowest.rawValue) Trend", "Your average \(lowest.rawValue) is low (\(Int(lowestPct * 100))%). \(hint)", lowest.color)
+            } else if avgCals > user.dailyCaloriesGoal + 100 {
+                return ("Calorie Trend", "Your daily average is \(avgCals) kcal, slightly above your goal. Consider adjusting portion sizes.", .themeOrange)
+            } else {
+                return ("Perfect Streak", "Excellent consistency! Your average is \(avgCals) kcal. You are perfectly hitting your goals! Keep it up.", .green)
+            }
+        }
+    }
+
+    private func getValue(for micro: AnalyticsMicro, in summary: DailySummary) -> Double {
+        switch micro {
+        case .omega3: return summary.totalOmega3
+        case .potassium: return summary.totalPotassium
+        case .magnesium: return summary.totalMagnesium
+        case .calcium: return summary.totalCalcium
+        case .iron: return summary.totalIron
+        case .vitaminC: return summary.totalVitaminC
+        case .vitaminD: return summary.totalVitaminD
+        }
+    }
+
+    private func getHint(for micro: AnalyticsMicro) -> String {
+        switch micro {
+        case .omega3: return "Try adding fatty fish (salmon), flaxseeds, or walnuts to your meals."
+        case .potassium: return "Foods like bananas, avocados, spinach, and sweet potatoes are rich in potassium."
+        case .magnesium: return "Try eating pumpkin seeds, dark chocolate, almonds, or spinach."
+        case .calcium: return "Add yogurt, cheese, milk, tofu, or almonds to boost your calcium."
+        case .iron: return "Eat red meat, spinach, lentils, or fortified cereals to increase iron."
+        case .vitaminC: return "Oranges, bell peppers, strawberries, and broccoli are great sources."
+        case .vitaminD: return "Consider egg yolks, mushrooms, fatty fish, or brief sun exposure."
         }
     }
 
@@ -211,8 +351,9 @@ struct AIWeeklyInsightCard: View {
 struct DailyAnalyticsInsightView: View {
     let summaries: [DailySummary]
     let user: User
+    var onUpdate: () -> Void = {}
 
-    @State private var selectedMacroForTop: AnalyticsMacro? = nil
+    @State private var selectedMicroForTop: AnalyticsMicro? = nil
 
     private var todaySummary: DailySummary? {
         let calendar = Calendar.current
@@ -221,224 +362,216 @@ struct DailyAnalyticsInsightView: View {
 
     var body: some View {
         VStack(spacing: 24) {
+            CompactDailySummaryCard(summary: todaySummary, user: user)
 
-            FitnessRingsCard(summary: todaySummary, user: user) { macro in
-                selectedMacroForTop = macro
+            AIHydrationAnalyticsCard(summary: todaySummary, onUpdate: onUpdate)
+
+            MicronutrientsGridCard(summary: todaySummary) { micro in
+                selectedMicroForTop = micro
             }
-
-            MealDistributionCard(summary: todaySummary)
-
-            AIHydrationAnalyticsCard(summary: todaySummary)
         }
         .transition(.asymmetric(insertion: .move(edge: .leading).combined(with: .opacity), removal: .opacity))
-
-        .sheet(item: $selectedMacroForTop) { macro in
-            TopSourcesSheetView(macro: macro, summary: todaySummary)
-                .presentationDetents([.height(400)])
+        .sheet(item: $selectedMicroForTop) { micro in
+            TopMicroSourcesSheetView(micro: micro, summary: todaySummary)
+                .presentationDetents([.height(420)])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
         }
     }
 }
 
-struct FitnessRingsCard: View {
+struct CompactDailySummaryCard: View {
     let summary: DailySummary?
     let user: User
-    var onMacroTap: (AnalyticsMacro) -> Void
 
     var body: some View {
-        let c = summary?.totalCarbs ?? 0; let tc = user.targetCarbs
-        let f = summary?.totalFats ?? 0;  let tf = user.targetFats
-        let p = summary?.totalProtein ?? 0; let tp = user.targetProtein
+        let eaten = summary?.totalFoodCalories ?? 0
+        let target = user.dailyCaloriesGoal
+        let progress = min(Double(eaten) / Double(max(1, target)), 1.0)
 
-        VStack(spacing: 24) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Daily Macros").font(.title3.bold())
-                    Text("Tap a nutrient to see top sources").font(.caption).foregroundColor(.gray)
+        let p = summary?.totalProtein ?? 0; let tp = user.targetProtein
+        let f = summary?.totalFats ?? 0;  let tf = user.targetFats
+        let c = summary?.totalCarbs ?? 0; let tc = user.targetCarbs
+
+        VStack(spacing: 18) {
+            // Calories Progress
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Energy & Macros").font(.headline.bold())
+                        Text("Today's balance summary").font(.caption2).foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(eaten)").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundColor(.primary)
+                        Text("/ \(target) kcal").font(.caption).foregroundColor(.secondary)
+                    }
                 }
-                Spacer()
-                Image(systemName: "chart.pie.fill").foregroundColor(.gray.opacity(0.5))
+
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.primary.opacity(0.06))
+                        Capsule()
+                            .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
+                            .frame(width: geo.size.width * CGFloat(progress))
+                            .shadow(color: Color.themePink.opacity(0.3), radius: 6, x: 0, y: 3)
+                    }
+                }
+                .frame(height: 10)
             }
 
-            HStack(spacing: 30) {
-                ZStack {
-                    RingView(progress: p/tp, color: .themePeach, radius: 130, width: 14, delay: 0.0)
-                    RingView(progress: f/tf, color: .themeYellow, radius: 98, width: 14, delay: 0.2)
-                    RingView(progress: c/tc, color: .drinkWater, radius: 66, width: 14, delay: 0.4)
-                }
-                .frame(width: 130, height: 130)
-
-                VStack(alignment: .leading, spacing: 16) {
-                    Button(action: { onMacroTap(.protein) }) {
-                        LegendRow(title: "Protein", current: p, target: tp, color: .themePeach)
-                    }.buttonStyle(PlainButtonStyle())
-
-                    Button(action: { onMacroTap(.fat) }) {
-                        LegendRow(title: "Fats", current: f, target: tf, color: .themeYellow)
-                    }.buttonStyle(PlainButtonStyle())
-
-                    Button(action: { onMacroTap(.carbs) }) {
-                        LegendRow(title: "Carbs", current: c, target: tc, color: .drinkWater)
-                    }.buttonStyle(PlainButtonStyle())
-                }
+            // Macros Row
+            HStack(spacing: 20) {
+                MacroBar(title: "Protein", current: p, target: tp, color: .themePeach)
+                MacroBar(title: "Fats", current: f, target: tf, color: .themeYellow)
+                MacroBar(title: "Carbs", current: c, target: tc, color: .drinkWater)
             }
         }
         .ultraPremiumCardStyle()
     }
 }
 
-struct RingView: View {
-    var progress: Double; var color: Color; var radius: CGFloat; var width: CGFloat
-    var delay: Double = 0.0
-    @State private var show = false
+struct MacroBar: View {
+    let title: String
+    let current: Double
+    let target: Double
+    let color: Color
 
     var body: some View {
-        ZStack {
-            Circle().stroke(color.opacity(0.12), lineWidth: width)
-            Circle()
-                .trim(from: 0, to: show ? min(progress, 1.0) : 0)
-                .stroke(
-                    LinearGradient(colors: [color, color.opacity(0.85)], startPoint: .top, endPoint: .bottom),
-                    style: StrokeStyle(lineWidth: width, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
-                .shadow(color: color.opacity(0.4), radius: 6, x: 0, y: 3)
-        }
-        .frame(width: radius, height: radius)
-        .onAppear {
-            withAnimation(
-                .spring(response: 1.2, dampingFraction: 0.85)
-                .delay(delay)
-            ) {
-                show = true
+        let percent = min(current / max(1, target), 1.0)
+
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(title).font(.caption).bold().foregroundColor(.secondary)
+                Spacer()
+                Text("\(Int(current))g").font(.caption).bold().foregroundColor(color)
             }
+
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.primary.opacity(0.04))
+                    Capsule()
+                        .fill(color)
+                        .frame(width: geo.size.width * CGFloat(percent))
+                }
+            }
+            .frame(height: 6)
         }
     }
 }
 
-struct LegendRow: View {
-    let title: String; let current: Double; let target: Double; let color: Color
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(LinearGradient(colors: [color, color.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 10, height: 10)
-                        .shadow(color: color.opacity(0.4), radius: 3, x: 0, y: 1.5)
-                    Text(title)
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                }
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text("\(Int(current))")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                    Text("/ \(Int(target))g")
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundColor(.gray.opacity(0.8))
-                }
-                .padding(.leading, 18)
-            }
-            Spacer()
-            Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(color.opacity(0.6))
-                .padding(6)
-                .background(color.opacity(0.1))
-                .clipShape(Circle())
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .background(Color.gray.opacity(0.02))
-        .cornerRadius(16)
-        .contentShape(Rectangle())
-    }
-}
-
-struct MealDistributionCard: View {
+struct MicronutrientsGridCard: View {
     let summary: DailySummary?
-    let meals = [
-        ("Breakfast", Color.themeYellow),
-        ("Lunch", Color.green),
-        ("Dinner", Color.themePink),
-        ("Snack", Color.themeOrange)
+    let onMicroTap: (AnalyticsMicro) -> Void
+
+    private let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
     ]
 
-    @State private var showAnim = false
-
     var body: some View {
-        let totalCals = summary?.totalFoodCalories ?? 0
-
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Meal Distribution").font(.title3.bold())
-
-            if totalCals == 0 {
-                Text("Log food to see distribution.").font(.subheadline).foregroundColor(.gray)
-            } else {
-                GeometryReader { geo in
-                    HStack(spacing: 3) {
-                        ForEach(meals, id: \.0) { meal in
-                            let cals = summary?.meals.first(where: { $0.title == meal.0 })?.totalCalories ?? 0
-                            if cals > 0 {
-                                let width = max(0, (geo.size.width - 9) * CGFloat(Double(cals) / Double(totalCals)))
-                                Rectangle()
-                                    .fill(LinearGradient(colors: [meal.1, meal.1.opacity(0.85)], startPoint: .top, endPoint: .bottom))
-                                    .frame(width: showAnim ? width : 0)
-                            }
-                        }
-                    }
-                    .clipShape(Capsule())
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Daily Micronutrients").font(.title3.bold())
+                    Text("Tap to see food sources").font(.caption2).foregroundColor(.secondary)
                 }
-                .frame(height: 14)
-                .shadow(color: Color.black.opacity(0.03), radius: 3, y: 1.5)
-                .onAppear { withAnimation(.spring()) { showAnim = true } }
+                Spacer()
+                Image(systemName: "sparkles.rectangle.stack.fill").foregroundColor(.themePink.opacity(0.8))
+            }
 
-                VStack(spacing: 10) {
-                    ForEach(meals, id: \.0) { meal in
-                        let cals = summary?.meals.first(where: { $0.title == meal.0 })?.totalCalories ?? 0
-                        if cals > 0 {
-                            HStack(spacing: 12) {
-                                Circle()
-                                    .fill(meal.1)
-                                    .frame(width: 8, height: 8)
-                                    .shadow(color: meal.1, radius: 2)
-                                
-                                Text(meal.0)
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
-                                
-                                Spacer()
-                                
-                                Text("\(cals) kcal")
-                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.secondary)
-                                
-                                Text("\(Int((Double(cals)/Double(totalCals))*100))%")
-                                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                                    .foregroundColor(meal.1)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(meal.1.opacity(0.1))
-                                    .cornerRadius(8)
-                                    .frame(width: 55, alignment: .trailing)
-                            }
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, 12)
-                            .background(Color.gray.opacity(0.015))
-                            .cornerRadius(12)
-                        }
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(AnalyticsMicro.allCases) { micro in
+                    let amount = getValue(for: micro)
+                    MicronutrientCell(micro: micro, amount: amount) {
+                        onMicroTap(micro)
                     }
                 }
             }
         }
         .ultraPremiumCardStyle()
+    }
+
+    private func getValue(for micro: AnalyticsMicro) -> Double {
+        guard let summary = summary else { return 0 }
+        switch micro {
+        case .omega3: return summary.totalOmega3
+        case .potassium: return summary.totalPotassium
+        case .magnesium: return summary.totalMagnesium
+        case .calcium: return summary.totalCalcium
+        case .iron: return summary.totalIron
+        case .vitaminC: return summary.totalVitaminC
+        case .vitaminD: return summary.totalVitaminD
+        }
+    }
+}
+
+struct MicronutrientCell: View {
+    let micro: AnalyticsMicro
+    let amount: Double
+    let action: () -> Void
+
+    var body: some View {
+        let pct = min(amount / max(0.1, micro.rda), 2.0)
+
+        Button(action: action) {
+            VStack(spacing: 10) {
+                ZStack {
+                    // Thin background track
+                    Circle()
+                        .stroke(micro.color.opacity(0.1), lineWidth: 5)
+                        .frame(width: 54, height: 54)
+
+                    // Progress ring
+                    Circle()
+                        .trim(from: 0, to: CGFloat(min(pct, 1.0)))
+                        .stroke(
+                            LinearGradient(
+                                colors: [micro.color, micro.color.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                        )
+                        .rotationEffect(.degrees(-90))
+                        .frame(width: 54, height: 54)
+                        .shadow(color: micro.color.opacity(0.3), radius: 3, x: 0, y: 2)
+
+                    // Icon in the center
+                    Image(systemName: micro.icon)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(micro.color)
+                }
+
+                VStack(spacing: 2) {
+                    Text(micro.rawValue)
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+
+                    Text("\(Int(pct * 100))%")
+                        .font(.system(size: 12, weight: .heavy, design: .rounded))
+                        .foregroundColor(micro.color)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(Color.primary.opacity(0.02))
+            .cornerRadius(16)
+        }
+        .buttonStyle(BounceButtonStyle())
     }
 }
 
 struct AIHydrationAnalyticsCard: View {
+    @Environment(\.modelContext) private var context
+    @Query private var users: [User]
     let summary: DailySummary?
+    var onUpdate: () -> Void = {}
+    
     @State private var animProgress: Double = 0
     
     var body: some View {
@@ -552,6 +685,84 @@ struct AIHydrationAnalyticsCard: View {
                     .font(.caption2)
                     .foregroundColor(.gray)
             }
+            
+            // Quick Add Water Buttons
+            HStack(spacing: 16) {
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    let today = Calendar.current.startOfDay(for: Date())
+                    var targetSummary: DailySummary? = summary
+                    if targetSummary == nil {
+                        let descriptor = FetchDescriptor<DailySummary>(
+                            predicate: #Predicate<DailySummary> { $0.date == today }
+                        )
+                        if let existing = try? context.fetch(descriptor).first {
+                            targetSummary = existing
+                        }
+                    }
+                    if let targetSummary = targetSummary {
+                        if let lastWater = targetSummary.beverages.last(where: { $0.name == "Water" }) {
+                            if let index = targetSummary.beverages.firstIndex(of: lastWater) {
+                                targetSummary.beverages.remove(at: index)
+                            }
+                            context.delete(lastWater)
+                            try? context.save()
+                            onUpdate()
+                        }
+                    }
+                }) {
+                    Image(systemName: "minus")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.cyan)
+                        .frame(width: 50, height: 50)
+                        .background(Color.cyan.opacity(0.15))
+                        .clipShape(Circle())
+                }
+                
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    let today = Calendar.current.startOfDay(for: Date())
+                    var targetSummary: DailySummary? = summary
+                    if targetSummary == nil {
+                        let descriptor = FetchDescriptor<DailySummary>(
+                            predicate: #Predicate<DailySummary> { $0.date == today }
+                        )
+                        if let existing = try? context.fetch(descriptor).first {
+                            targetSummary = existing
+                        } else {
+                            let newSummary = DailySummary(date: today)
+                            context.insert(newSummary)
+                            targetSummary = newSummary
+                        }
+                    }
+                    if let targetSummary = targetSummary {
+                        let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250.0)
+                        context.insert(newBeverage)
+                        targetSummary.beverages.append(newBeverage)
+                        try? context.save()
+                        onUpdate()
+                        
+                        if let user = users.first, user.isHealthKitEnabled {
+                            Task {
+                                await HealthKitManager.shared.saveWater(liters: 0.25, date: Date())
+                            }
+                        }
+                    }
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "plus")
+                        Text("Add 250ml")
+                    }
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing))
+                    .cornerRadius(25)
+                    .shadow(color: Color.cyan.opacity(0.3), radius: 8, y: 4)
+                }
+            }
+            .padding(.top, 4)
         }
         .ultraPremiumCardStyle()
         .onAppear { withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) { animProgress = progress } }
@@ -577,7 +788,7 @@ struct TrendsAnalyticsInsightView: View {
     var body: some View {
         VStack(spacing: 24) {
             DivineCaloriesChart(summaries: summaries, user: user, period: period)
-            DivineMacrosChart(summaries: summaries, period: period)
+            TrendsMicroChart(summaries: summaries, period: period)
             TrendsWaterChart(summaries: summaries, period: period)
         }
         .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
@@ -655,80 +866,133 @@ struct DivineCaloriesChart: View {
     }
 }
 
-struct DivineMacrosChart: View {
+struct TrendsMicroChart: View {
     let summaries: [DailySummary]
     let period: AnalyticsPeriod
 
-    struct MacroData: Identifiable { let id = UUID(); let date: Date; let type: String; let value: Double; let color: Color }
+    @State private var selectedMicro: AnalyticsMicro = .vitaminC
 
-    private var chartData: [MacroData] {
+    private var chartData: [(date: Date, value: Double)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
-        var data: [MacroData] = []
-        for i in (0..<period.daysCount).reversed() {
+        return (0..<period.daysCount).map { i in
             let date = calendar.date(byAdding: .day, value: -i, to: today)!
-            let s = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
-
-            let carbs = s?.totalCarbs ?? 0
-            let fats = s?.totalFats ?? 0
-            let protein = s?.totalProtein ?? 0
-
-            data.append(MacroData(date: date, type: "Carbs", value: carbs, color: .drinkWater))
-            data.append(MacroData(date: date, type: "Fats", value: fats, color: .themeYellow))
-            data.append(MacroData(date: date, type: "Protein", value: protein, color: .themePeach))
-        }
-        return data
+            let summary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
+            let value: Double
+            if let s = summary {
+                switch selectedMicro {
+                case .omega3: value = s.totalOmega3
+                case .potassium: value = s.totalPotassium
+                case .magnesium: value = s.totalMagnesium
+                case .calcium: value = s.totalCalcium
+                case .iron: value = s.totalIron
+                case .vitaminC: value = s.totalVitaminC
+                case .vitaminD: value = s.totalVitaminD
+                }
+            } else {
+                value = 0.0
+            }
+            return (date: date, value: value)
+        }.reversed()
     }
 
-    private var maxGrams: Double {
+    private var maxVal: Double {
         let maxData = chartData.map { $0.value }.max() ?? 0
-        return max(200.0, maxData * 1.5)
+        return max(selectedMicro.rda * 1.2, maxData * 1.1)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Macros Balance").font(.title3.bold())
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Micronutrient Trend").font(.title3.bold())
+                    Text("Weekly & monthly trace").font(.caption2).foregroundColor(.secondary)
+                }
+                Spacer()
+                Image(systemName: "waveform.path.ecg").foregroundColor(selectedMicro.color)
+            }
+
+            // Micronutrient horizontal selector
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(AnalyticsMicro.allCases) { micro in
+                        Button(action: {
+                            HapticManager.shared.impact(style: .light)
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                selectedMicro = micro
+                            }
+                        }) {
+                            Text(micro.rawValue)
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundColor(selectedMicro == micro ? .white : .primary.opacity(0.8))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    Capsule()
+                                        .fill(selectedMicro == micro ? micro.color : Color.primary.opacity(0.04))
+                                )
+                        }
+                    }
+                }
+                .padding(.horizontal, 2)
+            }
 
             Chart {
-                ForEach(chartData) { item in
-                    BarMark(
-                        x: .value("Date", item.date, unit: .day),
-                        y: .value("Grams", item.value),
-                        width: .fixed(10)
+                RuleMark(y: .value("RDA Goal", selectedMicro.rda))
+                    .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
+                    .foregroundStyle(selectedMicro.color.opacity(0.8))
+                    .annotation(position: .top, alignment: .leading) {
+                        Text("GOAL (\(Int(selectedMicro.rda))\(selectedMicro.unit))")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .foregroundColor(selectedMicro.color)
+                    }
+
+                ForEach(chartData, id: \.date) { point in
+                    LineMark(
+                        x: .value("Date", point.date),
+                        y: .value("Value", point.value)
                     )
-                    .foregroundStyle(by: .value("Type", item.type))
+                    .interpolationMethod(.catmullRom)
+                    .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .foregroundStyle(selectedMicro.color)
+
+                    AreaMark(
+                        x: .value("Date", point.date),
+                        y: .value("Value", point.value)
+                    )
+                    .interpolationMethod(.catmullRom)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [selectedMicro.color.opacity(0.35), selectedMicro.color.opacity(0.0)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                 }
             }
-            .chartForegroundStyleScale([
-                "Carbs": LinearGradient(colors: [Color.drinkWater, Color.drinkWater.opacity(0.7)], startPoint: .top, endPoint: .bottom),
-                "Fats": LinearGradient(colors: [Color.themeYellow, Color.themeYellow.opacity(0.7)], startPoint: .top, endPoint: .bottom),
-                "Protein": LinearGradient(colors: [Color.themePeach, Color.themePeach.opacity(0.7)], startPoint: .top, endPoint: .bottom)
-            ])
-            .chartYScale(domain: 0...maxGrams)
+            .chartYScale(domain: 0...maxVal)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
-                    if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray) }
+                    if let date = value.as(Date.self) {
+                        AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray)
+                    }
                 }
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.12))
                     if let val = value.as(Double.self) {
-                        AxisValueLabel("\(Int(val))g").font(.system(size: 9, weight: .bold)).foregroundStyle(Color.gray)
+                        AxisValueLabel("\(Int(val))\(selectedMicro.unit)").font(.system(size: 9, weight: .bold)).foregroundStyle(Color.gray)
                     }
                 }
             }
             .frame(height: 200)
-
-            HStack(spacing: 20) {
-                ChartLegendItem(color: .themePeach, text: "Protein")
-                ChartLegendItem(color: .themeYellow, text: "Fats")
-                ChartLegendItem(color: .drinkWater, text: "Carbs")
-            }
+            .animation(.easeInOut, value: selectedMicro)
         }
         .ultraPremiumCardStyle()
     }
 }
+
 struct TrendsWaterChart: View {
     let summaries: [DailySummary]; let period: AnalyticsPeriod
 
@@ -778,6 +1042,7 @@ struct TrendsWaterChart: View {
                             endPoint: .bottom
                         )
                     )
+                    .cornerRadius(6)
                 }
             }
             .chartYScale(domain: 0...maxLiters)
@@ -877,30 +1142,34 @@ struct ConsistencyHeatmapCard: View {
     }
 }
 
-struct TopSourcesSheetView: View {
+struct TopMicroSourcesSheetView: View {
     @Environment(\.dismiss) private var dismiss
-    let macro: AnalyticsMacro
+    let micro: AnalyticsMicro
     let summary: DailySummary?
 
     private var topFoods: [FoodItem] {
         guard let summary = summary else { return [] }
         let allFoods = summary.meals.flatMap { $0.foodItems }
-        switch macro {
-        case .protein: return Array(allFoods.filter { $0.protein > 0 }.sorted { $0.protein > $1.protein }.prefix(3))
-        case .fat: return Array(allFoods.filter { $0.fats > 0 }.sorted { $0.fats > $1.fats }.prefix(3))
-        case .carbs: return Array(allFoods.filter { $0.carbs > 0 }.sorted { $0.carbs > $1.carbs }.prefix(3))
+        switch micro {
+        case .omega3: return Array(allFoods.filter { $0.omega3 > 0 }.sorted { $0.omega3 > $1.omega3 }.prefix(3))
+        case .potassium: return Array(allFoods.filter { $0.potassium > 0 }.sorted { $0.potassium > $1.potassium }.prefix(3))
+        case .magnesium: return Array(allFoods.filter { $0.magnesium > 0 }.sorted { $0.magnesium > $1.magnesium }.prefix(3))
+        case .calcium: return Array(allFoods.filter { $0.calcium > 0 }.sorted { $0.calcium > $1.calcium }.prefix(3))
+        case .iron: return Array(allFoods.filter { $0.iron > 0 }.sorted { $0.iron > $1.iron }.prefix(3))
+        case .vitaminC: return Array(allFoods.filter { $0.vitaminC > 0 }.sorted { $0.vitaminC > $1.vitaminC }.prefix(3))
+        case .vitaminD: return Array(allFoods.filter { $0.vitaminD > 0 }.sorted { $0.vitaminD > $1.vitaminD }.prefix(3))
         }
     }
 
     var body: some View {
         VStack(spacing: 24) {
-            Text("Top \(macro.rawValue) Sources")
+            Text("Top \(micro.rawValue) Sources")
                 .font(.system(size: 24, weight: .heavy, design: .rounded))
                 .padding(.top, 24)
 
             if topFoods.isEmpty {
                 Spacer()
-                Text("No foods logged yet.").font(.subheadline).foregroundColor(.gray)
+                Text("No sources logged yet today.").font(.subheadline).foregroundColor(.gray)
                 Spacer()
             } else {
                 VStack(spacing: 16) {
@@ -912,15 +1181,16 @@ struct TopSourcesSheetView: View {
                             Text("\(index + 1)")
                                 .font(.headline.bold()).foregroundColor(.white)
                                 .frame(width: 32, height: 32)
-                                .background(macro.color.opacity(index == 0 ? 1.0 : (index == 1 ? 0.7 : 0.4)))
+                                .background(micro.color.opacity(index == 0 ? 1.0 : (index == 1 ? 0.7 : 0.4)))
                                 .clipShape(Circle())
 
                             Text(food.name).font(.system(size: 16, weight: .bold, design: .rounded)).lineLimit(1)
                             Spacer()
-                            Text("\(value, specifier: "%.1f") g").font(.headline).foregroundColor(macro.color)
+                            Text("\(value, specifier: "%.1f") \(micro.unit)").font(.headline).foregroundColor(micro.color)
                         }
                         .padding(16)
-                        .background(Color.white)
+                        .background(Color.white.opacity(0.05))
+                        .background(.ultraThinMaterial)
                         .cornerRadius(20)
                         .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
                     }
@@ -932,7 +1202,7 @@ struct TopSourcesSheetView: View {
             Button(action: { dismiss() }) {
                 Text("Close")
                     .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
-                    .padding(.vertical, 16).background(macro.color).cornerRadius(20)
+                    .padding(.vertical, 16).background(micro.color).cornerRadius(20)
             }
             .buttonStyle(BounceButtonStyle())
             .padding(.horizontal, 24)
@@ -942,10 +1212,14 @@ struct TopSourcesSheetView: View {
     }
 
     private func getValue(for food: FoodItem) -> Double {
-        switch macro {
-        case .protein: return food.protein
-        case .fat: return food.fats
-        case .carbs: return food.carbs
+        switch micro {
+        case .omega3: return food.omega3
+        case .potassium: return food.potassium
+        case .magnesium: return food.magnesium
+        case .calcium: return food.calcium
+        case .iron: return food.iron
+        case .vitaminC: return food.vitaminC
+        case .vitaminD: return food.vitaminD
         }
     }
 }

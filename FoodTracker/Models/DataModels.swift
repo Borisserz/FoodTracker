@@ -237,6 +237,14 @@ struct Achievement: Identifiable {
     var totalFats: Double { meals.reduce(0) { $0 + $1.totalFats } }
     var totalCarbs: Double { meals.reduce(0) { $0 + $1.totalCarbs } }
 
+    var totalOmega3: Double { meals.reduce(0) { $0 + $1.totalOmega3 } }
+    var totalPotassium: Double { meals.reduce(0) { $0 + $1.totalPotassium } }
+    var totalMagnesium: Double { meals.reduce(0) { $0 + $1.totalMagnesium } }
+    var totalCalcium: Double { meals.reduce(0) { $0 + $1.totalCalcium } }
+    var totalIron: Double { meals.reduce(0) { $0 + $1.totalIron } }
+    var totalVitaminC: Double { meals.reduce(0) { $0 + $1.totalVitaminC } }
+    var totalVitaminD: Double { meals.reduce(0) { $0 + $1.totalVitaminD } }
+
     var localActivityCalories: Int { activities.reduce(0) { $0 + $1.calories } }
 
     var netCalories: Int {
