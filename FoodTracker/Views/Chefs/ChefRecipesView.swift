@@ -216,16 +216,16 @@ struct DiscoverTabView: View {
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            MealTypeCard(title: "Breakfast", subtitle: "Start your day right", emoji: "🥣", color: .themeYellow) {
+                            MealTypeCard(title: "Breakfast", subtitle: "Start your day right", imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=400", color: .themeYellow) {
                                 openFiltered(title: "Breakfast", tags: ["Breakfast"])
                             }
-                            MealTypeCard(title: "Lunch", subtitle: "Healthy & filling", emoji: "🥗", color: .green) {
+                            MealTypeCard(title: "Lunch", subtitle: "Healthy & filling", imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400", color: .green) {
                                 openFiltered(title: "Lunch", tags: ["Lunch"])
                             }
-                            MealTypeCard(title: "Dinner", subtitle: "Cozy evenings", emoji: "🍲", color: .themePink) {
+                            MealTypeCard(title: "Dinner", subtitle: "Cozy evenings", imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400", color: .themePink) {
                                 openFiltered(title: "Dinner", tags: ["Dinner"])
                             }
-                            MealTypeCard(title: "Snack", subtitle: "Quick bites", emoji: "🍎", color: .themeOrange) {
+                            MealTypeCard(title: "Snack", subtitle: "Quick bites", imageUrl: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?q=80&w=400", color: .themeOrange) {
                                 openFiltered(title: "Snack", tags: ["Snack"])
                             }
                         }
@@ -291,23 +291,68 @@ struct DiscoverTabView: View {
 struct MealTypeCard: View {
     let title: String
     let subtitle: String
-    let emoji: String
+    let imageUrl: String
     let color: Color
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(title).font(.title3.bold()).foregroundColor(.white)
-                    Text(subtitle).font(.caption).foregroundColor(.white.opacity(0.8))
+            ZStack(alignment: .bottomLeading) {
+                // Background food image with placeholder
+                AsyncImage(url: URL(string: imageUrl)) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        LinearGradient(
+                            colors: [color.opacity(0.85), color],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
                 }
-                Spacer()
-                Text(emoji).font(.system(size: 50)).shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+                .frame(width: 260, height: 110)
+                .clipped()
+                
+                // Dark gradient overlay for text readability
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.55), .black.opacity(0.75)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                // Content
+                HStack(alignment: .bottom) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title)
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text(subtitle)
+                            .font(.system(.caption, weight: .medium))
+                            .foregroundColor(.white.opacity(0.85))
+                            .lineLimit(1)
+                    }
+                    Spacer()
+                    
+                    // Glassmorphic circle with chevron
+                    ZStack {
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .environment(\.colorScheme, .dark)
+                            .frame(width: 32, height: 32)
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                }
+                .padding(14)
             }
-            .padding(20).frame(width: 260, height: 110)
-            .background(LinearGradient(colors: [color.opacity(0.8), color], startPoint: .topLeading, endPoint: .bottomTrailing))
-            .cornerRadius(24).shadow(color: color.opacity(0.3), radius: 10, y: 5)
+            .frame(width: 260, height: 110)
+            .cornerRadius(24)
+            .shadow(color: Color.black.opacity(0.08), radius: 8, y: 4)
         }
         .buttonStyle(BounceButtonStyle())
     }
@@ -737,13 +782,16 @@ struct RecipeHorizontalSection: View {
                         ForEach(recipes) { recipe in
                             Button(action: { path.append(FoodsRoute.premiumRecipeDetail(recipe)) }) {
                                 PremiumRecipeCard(recipe: recipe)
-                              
                             }
+                            .buttonStyle(BounceButtonStyle())
+                            .containerRelativeFrame(.horizontal, count: 2, span: 1, spacing: 16)
                         }
                     }
+                    .scrollTargetLayout()
                     .padding(.horizontal, 20)
                     .padding(.bottom, 10)
                 }
+                .scrollTargetBehavior(.viewAligned)
             }
         }
     }
@@ -755,23 +803,47 @@ struct PremiumRecipeCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ZStack(alignment: .topTrailing) {
+            ZStack(alignment: .bottomLeading) {
                 AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
                     if let image = phase.image { image.resizable().aspectRatio(contentMode: .fill) } else { Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView()) }
                 }.frame(height: 160).clipped()
 
+                LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
+
+                if let firstTag = recipe.tags.first {
+                    Text(firstTag.uppercased())
+                        .font(.system(.caption2, design: .rounded, weight: .black))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
+                        .clipShape(Capsule())
+                        .padding(12)
+                }
+
                 if recipe.isFavorite {
-                    Image(systemName: "star.fill").foregroundColor(.themeYellow).padding(12).background(Color.black.opacity(0.3)).clipShape(Circle()).padding(8)
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Image(systemName: "star.fill").foregroundStyle(Color.themeYellow).padding(10).background(.ultraThinMaterial).clipShape(Circle()).padding(8)
+                        }
+                        Spacer()
+                    }
                 }
             }
+            .frame(height: 160)
+
             VStack(alignment: .leading, spacing: 6) {
-                Text(recipe.title).font(.system(size: 16, weight: .bold, design: .rounded)).foregroundColor(.primary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                Text(recipe.title).font(.system(.headline, design: .rounded, weight: .bold)).foregroundStyle(.primary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 12) {
                     Text(recipe.time)
                     Text("\(recipe.caloriesPerServing) Cal")
-                }.font(.subheadline).foregroundColor(.gray)
+                }.font(.subheadline).foregroundStyle(.secondary)
             }.padding(16)
-        }.frame(width: width).background(Color.white).cornerRadius(24).shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+        }
+        .frame(width: width)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
     }
 }
 

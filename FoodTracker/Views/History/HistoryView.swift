@@ -46,43 +46,21 @@ struct FoodsDashboardView: View {
                         }
 
                     VStack(spacing: 16) {
-                        FoodsFeatureCard(
-                            title: "Recipes",
-                            subtitle: "Custom & Chefs",
-                            description: "Explore 600+ recipes matching your targets, create custom meals, or cook with professional chef videos.",
-                            icon: "book.pages.fill",
-                            color: .themePink
-                        ) {
+                        RecipesHeroCard {
                             path.append(FoodsRoute.recipes)
                         }
 
-                        FoodsFeatureCard(
-                            title: "Diet Plans",
-                            subtitle: "Keto, Vegan...",
-                            description: "Personalize your nutrition style. Set Keto, Vegan, or Mediterranean diets with automated target adjustments.",
-                            icon: "leaf.fill",
-                            color: .green
-                        ) {
-                            path.append(FoodsRoute.diets)
+                        HStack(spacing: 16) {
+                            DietGridCard {
+                                path.append(FoodsRoute.diets)
+                            }
+                            
+                            AcademyGridCard {
+                                path.append(FoodsRoute.learn)
+                            }
                         }
 
-                        FoodsFeatureCard(
-                            title: "Academy",
-                            subtitle: "Tips & Guides",
-                            description: "Master your habits. Learn about nutrition science, hydration balance, metabolism, and calories.",
-                            icon: "graduationcap.fill",
-                            color: .blue
-                        ) {
-                            path.append(FoodsRoute.learn)
-                        }
-
-                        FoodsFeatureCard(
-                            title: "Fasting",
-                            subtitle: "16:8, OMAD...",
-                            description: "Track intermittent fasting with custom windows. Monitor ketosis states and keep your streaks.",
-                            icon: "timer",
-                            color: .themeOrange
-                        ) {
+                        FastingWideCard {
                             path.append(FoodsRoute.fasting)
                         }
                     }
@@ -200,81 +178,297 @@ struct FoodsDashboardView: View {
     }
 }
 
-struct FoodsFeatureCard: View {
-    let title: String
-    let subtitle: String
-    let description: String
-    let icon: String
-    let color: Color
+struct RecipesHeroCard: View {
     let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            ZStack(alignment: .bottomLeading) {
+                // Background image with fallback
+                AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    LinearGradient(
+                        colors: [.themePink.opacity(0.85), .themeOrange.opacity(0.85)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+                .frame(height: 190)
+                .clipped()
+                
+                // Dark overlay gradient for readable texts
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.5), .black.opacity(0.8)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                // Content
+                HStack(alignment: .bottom) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 8) {
+                            Text("Recipes".uppercased())
+                                .font(.system(.caption2, design: .rounded, weight: .black))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.themePink)
+                                .clipShape(Capsule())
+                            
+                            Text("600+ DISHES")
+                                .font(.system(.caption2, design: .rounded, weight: .bold))
+                                .foregroundStyle(Color.themeYellow)
+                        }
+                        
+                        Text("Explore Healthy Cooking")
+                            .font(.system(.title3, design: .rounded, weight: .heavy))
+                            .foregroundStyle(.white)
+                        
+                        Text("Custom meals, step-by-step videos, and chef creations.")
+                            .font(.system(.caption, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.85))
+                            .lineLimit(1)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    Spacer()
+                    
+                    // Floating interactive chevron button
+                    ZStack {
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .environment(\.colorScheme, .dark)
+                            .frame(width: 40, height: 40)
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                }
+                .padding(16)
+            }
+            .frame(height: 190)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: Color.black.opacity(0.1), radius: 12, y: 6)
+        }
+        .buttonStyle(BounceButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Recipes: Explore Healthy Cooking. 600+ dishes, custom meals, and step-by-step videos.")
+        .accessibilityAddTraits(.isButton)
+    }
+}
 
+struct DietGridCard: View {
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Top Visual Gradient & Icon
+                ZStack(alignment: .topLeading) {
+                    LinearGradient(
+                        colors: [Color.green.opacity(0.85), Color.teal],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    
+                    Image(systemName: "leaf.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.white.opacity(0.2))
+                        .offset(x: 45, y: 15)
+                        .accessibilityHidden(true)
+                    
+                    ZStack {
+                        Circle()
+                            .fill(.white.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        
+                        Image(systemName: "leaf.fill")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(12)
+                }
+                .frame(height: 60)
+                .frame(maxWidth: .infinity)
+                .clipped()
+                
+                // Bottom content
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Diet Plans")
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundStyle(.primary)
+                    
+                    Text("Keto, Vegan & More")
+                        .font(.system(.caption2, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.regularMaterial)
+            }
+            .frame(height: 115)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .shadow(color: Color.black.opacity(0.05), radius: 8, y: 4)
+        }
+        .buttonStyle(BounceButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Diet Plans: Keto, Vegan & More.")
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
+struct AcademyGridCard: View {
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Top Visual Gradient & Icon
+                ZStack(alignment: .topLeading) {
+                    LinearGradient(
+                        colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.8)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    
+                    Image(systemName: "graduationcap.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.white.opacity(0.2))
+                        .offset(x: 45, y: 15)
+                        .accessibilityHidden(true)
+                    
+                    ZStack {
+                        Circle()
+                            .fill(.white.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        
+                        Image(systemName: "graduationcap.fill")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(12)
+                }
+                .frame(height: 60)
+                .frame(maxWidth: .infinity)
+                .clipped()
+                
+                // Bottom content
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Academy")
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundStyle(.primary)
+                    
+                    Text("Nutrition Guides")
+                        .font(.system(.caption2, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.regularMaterial)
+            }
+            .frame(height: 115)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .shadow(color: Color.black.opacity(0.05), radius: 8, y: 4)
+        }
+        .buttonStyle(BounceButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Academy: Nutrition Guides.")
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
+struct FastingWideCard: View {
+    let action: () -> Void
+    var manager = FastingManager.shared
+    
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
-                // Left Visual Accent Bar
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(color)
-                    .frame(width: 4, height: 44)
-                
-                // Text Information
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        Text(title)
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-                        
-                        Text(subtitle.uppercased())
-                            .font(.system(size: 9, weight: .black, design: .rounded))
-                            .foregroundColor(color)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(color.opacity(0.1))
-                            .cornerRadius(4)
-                    }
-                    
-                    Text(description)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.gray)
-                        .lineSpacing(2)
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                Spacer()
-                
-                // Floating Gradient Icon
+                // Left Icon Accent with subtle animation/rotation or glow
                 ZStack {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [color, color.opacity(0.8)],
+                                colors: manager.isFasting ? [manager.currentPhase.color.opacity(0.2), manager.currentPhase.color.opacity(0.4)] : [Color.themeOrange.opacity(0.15), Color.themeOrange.opacity(0.3)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 44, height: 44)
-                        .shadow(color: color.opacity(0.35), radius: 6, y: 3)
+                        .frame(width: 52, height: 52)
                     
-                    Image(systemName: icon)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
+                    Image(systemName: manager.isFasting ? manager.currentPhase.icon : "timer")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(manager.isFasting ? manager.currentPhase.color : Color.themeOrange)
+                }
+                .padding(.leading, 12)
+                
+                // Content Texts
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text("Fasting")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundStyle(.primary)
+                        
+                        if manager.isFasting {
+                            Text("ACTIVE")
+                                .font(.system(.caption2, design: .rounded, weight: .black))
+                                .foregroundStyle(manager.currentPhase.color)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(manager.currentPhase.color.opacity(0.15))
+                                .clipShape(Capsule())
+                        } else {
+                            Text("16:8, OMAD")
+                                .font(.system(.caption2, design: .rounded, weight: .bold))
+                                .foregroundStyle(Color.themeOrange)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.themeOrange.opacity(0.15))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    
+                    if manager.isFasting {
+                        Text("Current: \(manager.planName) • \(manager.elapsedTimeString) elapsed")
+                            .font(.system(.subheadline, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    } else {
+                        Text("Track fasting windows, monitor streaks & ketosis.")
+                            .font(.system(.subheadline, weight: .medium))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                 }
                 
-                // Trailing Chevron
+                Spacer()
+                
+                // Right Chevron
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.gray.opacity(0.4))
+                    .foregroundStyle(.tertiary)
+                    .padding(.trailing, 12)
+                    .accessibilityHidden(true)
             }
             .padding(.vertical, 14)
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity)
-            .background(Color.white)
-            .cornerRadius(20)
-            .shadow(color: color.opacity(0.06), radius: 12, x: 0, y: 6)
-            .shadow(color: Color.black.opacity(0.02), radius: 6, x: 0, y: 2)
+            .background(.regularMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: manager.isFasting ? manager.currentPhase.color.opacity(0.1) : Color.black.opacity(0.05), radius: 12, y: 6)
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(manager.isFasting ? manager.currentPhase.color.opacity(0.2) : Color.clear, lineWidth: 1.5)
+            )
         }
         .buttonStyle(BounceButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(manager.isFasting ? "Fasting tracker active, current fast: \(manager.planName), time elapsed: \(manager.elapsedTimeString)" : "Fasting Tracker: track fasting windows, monitor streaks and ketosis.")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -330,6 +524,19 @@ struct LearnDashboardView: View {
     @Binding var path: NavigationPath
     @State private var dataLoader = AcademyDataLoader()
 
+    private var totalArticles: Int {
+        dataLoader.categories.reduce(0) { $0 + $1.totalCount }
+    }
+    
+    private var completedArticles: Int {
+        dataLoader.categories.reduce(0) { $0 + $1.completedCount }
+    }
+    
+    private var progressFraction: Double {
+        let total = totalArticles
+        return total > 0 ? Double(completedArticles) / Double(total) : 0.0
+    }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
@@ -347,6 +554,53 @@ struct LearnDashboardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
                 .padding(.top, 8)
+
+                if !dataLoader.categories.isEmpty {
+                    // Learning Progress Header Card
+                    HStack(spacing: 20) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("YOUR PROGRESS")
+                                .font(.system(.caption2, design: .rounded, weight: .black))
+                                .foregroundColor(.themePink)
+                                .tracking(1)
+                            
+                            Text("Academy Master")
+                                .font(.system(.title3, design: .rounded, weight: .heavy))
+                                .foregroundColor(.primary)
+                            
+                            Text("\(completedArticles) of \(totalArticles) topics finished")
+                                .font(.system(.subheadline, weight: .medium))
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        // Progress Circle
+                        ZStack {
+                            Circle()
+                                .stroke(Color.gray.opacity(0.1), lineWidth: 6)
+                            
+                            Circle()
+                                .trim(from: 0, to: progressFraction)
+                                .stroke(
+                                    LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom),
+                                    style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                                )
+                                .rotationEffect(.degrees(-90))
+                                .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 3)
+                            
+                            Text("\(Int(progressFraction * 100))%")
+                                .font(.system(.caption2, design: .rounded, weight: .bold))
+                                .foregroundColor(.primary)
+                        }
+                        .frame(width: 68, height: 68)
+                    }
+                    .padding(20)
+                    .background(.regularMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
+                    .padding(.horizontal)
+                }
 
                 if dataLoader.categories.isEmpty {
                     ProgressView("Loading academy...")
@@ -407,11 +661,14 @@ struct LearnCategorySection: View {
                             ArticleCardView(article: article)
                         }
                         .buttonStyle(BounceButtonStyle())
+                        .containerRelativeFrame(.horizontal, count: 2, span: 1, spacing: 16)
                     }
                 }
+                .scrollTargetLayout()
                 .padding(.horizontal)
                 .padding(.bottom, 15)
             }
+            .scrollTargetBehavior(.viewAligned)
         }
     }
 }
@@ -423,38 +680,51 @@ struct ArticleCardView: View {
         VStack(spacing: 0) {
             ZStack(alignment: .topLeading) {
                 LinearGradient(
-                    colors: [article.color1, article.color2],
+                    colors: [article.color1.opacity(0.85), article.color2],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
 
                 Image(systemName: article.iconName)
-                    .font(.system(size: 70))
-                    .foregroundColor(.white.opacity(0.25))
+                    .font(.system(size: 64))
+                    .foregroundStyle(.white.opacity(0.22))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                    .offset(x: 10, y: 15)
+                    .offset(x: 8, y: 12)
+                    .accessibilityHidden(true)
 
                 HStack(spacing: 4) {
-                    Image(systemName: "book.fill").font(.system(size: 10))
-                    Text("\(article.readTime) min").font(.system(size: 10, weight: .bold))
+                    Image(systemName: "clock.fill").font(.system(size: 9))
+                    Text("\(article.readTime) MIN").font(.system(size: 9, weight: .bold))
                 }
-                .foregroundColor(.white)
-                .padding(.horizontal, 8).padding(.vertical, 6)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 8).padding(.vertical, 5)
                 .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
                 .clipShape(Capsule()).padding(12)
             }
-            .frame(height: 120).clipped()
+            .frame(height: 115).clipped()
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(article.title).font(.system(size: 15, weight: .bold, design: .rounded)).foregroundColor(.primary).lineLimit(2).multilineTextAlignment(.leading)
-                Text(article.subtitle).font(.system(size: 12, weight: .medium)).foregroundColor(.gray).lineLimit(2).multilineTextAlignment(.leading)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(article.title)
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                Text(article.subtitle)
+                    .font(.system(.caption, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
             }
-            .padding(14).frame(maxWidth: .infinity, alignment: .leading).frame(height: 100).background(Color.white)
+            .padding(12).frame(maxWidth: .infinity, alignment: .leading).frame(height: 95)
+            .background(.regularMaterial)
         }
-        .frame(width: 180).cornerRadius(20)
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
-        .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 5)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: Color.black.opacity(0.05), radius: 10, y: 5)
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(Color.black.opacity(0.04), lineWidth: 1)
+        )
     }
 }
 
@@ -486,39 +756,48 @@ struct ArticleDetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
 
-                    ZStack(alignment: .bottomLeading) {
-                        LinearGradient(
-                            colors: [article.color1, article.color2],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                    GeometryReader { geo in
+                        let minY = geo.frame(in: .global).minY
+                        let isScrollingDown = minY > 0
 
-                        Image(systemName: article.iconName)
-                            .font(.system(size: 150))
-                            .foregroundColor(.white.opacity(0.15))
-                            .offset(x: UIScreen.main.bounds.width * 0.4, y: 30)
+                        ZStack(alignment: .bottomLeading) {
+                            LinearGradient(
+                                colors: [article.color1, article.color2],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            .frame(height: isScrollingDown ? 380 + minY : 380)
+                            .offset(y: isScrollingDown ? -minY : 0)
 
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "clock.fill")
-                                Text("\(article.readTime) min read")
+                            Image(systemName: article.iconName)
+                                .font(.system(size: 150))
+                                .foregroundStyle(.white.opacity(0.15))
+                                .offset(x: UIScreen.main.bounds.width * 0.4, y: 30)
+                                .accessibilityHidden(true)
+
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "clock.fill")
+                                    Text("\(article.readTime) min read")
+                                }
+                                .font(.caption.bold())
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(.ultraThinMaterial)
+                                .environment(\.colorScheme, .dark)
+                                .clipShape(Capsule())
+
+                                Text(article.title)
+                                    .font(.system(.largeTitle, design: .rounded, weight: .heavy))
+                                    .foregroundStyle(.white)
+                                    .lineSpacing(4)
+                                    .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
                             }
-                            .font(.caption.bold())
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(.ultraThinMaterial)
-                            .environment(\.colorScheme, .dark)
-                            .clipShape(Capsule())
-
-                            Text(article.title)
-                                .font(.system(size: 34, weight: .heavy, design: .rounded))
-                                .foregroundColor(.white)
-                                .lineSpacing(4)
-                                .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+                            .padding(.horizontal, 24)
+                            .padding(.bottom, 60)
+                            .offset(y: isScrollingDown ? -minY * 0.5 : 0)
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 60)
                     }
                     .frame(height: 380)
 

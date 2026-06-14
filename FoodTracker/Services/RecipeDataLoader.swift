@@ -13,7 +13,7 @@ class RecipeDataLoader {
     }
     
     func fetchRecipes() {
-        db.collection("premium_recipes").getDocuments { [weak self] snapshot, error in
+        db.collection("premium_recipes").addSnapshotListener { [weak self] snapshot, error in
             guard let self = self else { return }
             
             if let error = error {

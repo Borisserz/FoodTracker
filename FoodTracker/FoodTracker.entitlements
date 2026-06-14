@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.com.borisdev.FoodTracker</string>
+		<string>iCloud.com.borisdev.FoodTracker2026</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>

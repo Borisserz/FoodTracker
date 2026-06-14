@@ -145,11 +145,14 @@ struct FastingCategorySection: View {
                             PremiumFastingCard(plan: plan)
                         }
                         .buttonStyle(BounceButtonStyle())
+                        .containerRelativeFrame(.horizontal, count: 2, span: 1, spacing: 16)
                     }
                 }
+                .scrollTargetLayout()
                 .padding(.horizontal, 24)
                 .padding(.bottom, 20)
             }
+            .scrollTargetBehavior(.viewAligned)
         }
     }
 }
@@ -159,72 +162,83 @@ struct PremiumFastingCard: View {
 
     var body: some View {
         VStack(spacing: 0) {
-
             ZStack {
+                // Multi-stop gradient with glowing aesthetic
                 LinearGradient(
-                    colors: [plan.color, plan.color.opacity(0.6)],
+                    colors: [
+                        plan.color,
+                        plan.color.opacity(0.75),
+                        plan.color.opacity(0.5)
+                    ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-
+                
+                // Abstract background pattern
                 Image(systemName: plan.icon)
-                    .font(.system(size: 70))
-                    .foregroundStyle(.white.opacity(0.2))
-                    .blur(radius: 2)
-                    .offset(x: -10, y: 15)
-
+                    .font(.system(size: 80))
+                    .foregroundStyle(.white.opacity(0.15))
+                    .blur(radius: 1)
+                    .offset(x: 35, y: 20)
+                    .accessibilityHidden(true)
+                
+                // Floating center icon with double shadow for 3D depth
                 Image(systemName: plan.icon)
-                    .font(.system(size: 48, weight: .bold))
+                    .font(.system(size: 40, weight: .bold))
                     .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.2), radius: 5, y: 3)
+                    .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+                    .shadow(color: plan.color.opacity(0.4), radius: 12, x: 0, y: 6)
             }
-            .frame(height: 120)
+            .frame(height: 115)
+            .clipped()
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .center) {
                     Text(plan.title)
-                        .font(.system(size: 18, weight: .heavy, design: .rounded))
+                        .font(.system(size: 20, weight: .black, design: .rounded))
                         .foregroundColor(.primary)
 
                     Spacer()
 
                     if plan.isPopular {
-                        HStack(spacing: 4) {
-                            Image(systemName: "star.fill")
+                        HStack(spacing: 3) {
+                            Image(systemName: "star.fill").font(.system(size: 8))
                             Text("POPULAR")
                         }
-                        .font(.system(size: 10, weight: .black, design: .rounded))
+                        .font(.system(.caption2, design: .rounded, weight: .black))
                         .foregroundColor(plan.color)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(plan.color.opacity(0.15))
+                        .background(plan.color.opacity(0.12))
                         .clipShape(Capsule())
                     } else if plan.category == .expert {
                         Text("EXPERT")
-                            .font(.system(size: 10, weight: .black, design: .rounded))
-                            .foregroundColor(.gray)
+                            .font(.system(.caption2, design: .rounded, weight: .black))
+                            .foregroundColor(.secondary)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color.gray.opacity(0.15))
+                            .background(Color.gray.opacity(0.12))
                             .clipShape(Capsule())
                     }
                 }
 
                 Text(plan.description)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.gray)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
-
-                Spacer(minLength: 0)
+                    .frame(height: 38, alignment: .topLeading)
             }
-            .padding(16)
+            .padding(14)
+            .background(Color.white)
         }
-        .frame(width: 170, height: 230)
-        .background(Color.white)
-        .cornerRadius(28)
-        .shadow(color: plan.color.opacity(0.15), radius: 15, y: 8)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: plan.color.opacity(0.1), radius: 12, y: 6)
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(plan.color.opacity(0.15), lineWidth: 1)
+        )
     }
 }
 
@@ -307,7 +321,7 @@ struct PremiumFastingDetailView: View {
                                         .trim(from: 0, to: animateRing ? plan.eatingFraction : 0)
                                         .stroke(plan.color, style: StrokeStyle(lineWidth: 12, lineCap: .round))
                                         .rotationEffect(.degrees(-90))
-                                        .shadow(color: plan.color.opacity(0.4), radius: 5, y: 2)
+                                        .shadow(color: plan.color.opacity(0.8), radius: 15, y: 0) // Glow effect
 
                                     Image(systemName: "clock.fill")
                                         .font(.title)
@@ -622,6 +636,7 @@ struct ActiveFastingCard: View {
                         .trim(from: 0, to: manager.progress)
                         .stroke(manager.currentPhase.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                         .rotationEffect(.degrees(-90))
+                        .shadow(color: manager.currentPhase.color.opacity(0.6), radius: 8, y: 0)
                         .animation(.linear(duration: 1.0), value: manager.progress)
 
                     Text("\(Int(manager.progress * 100))%")

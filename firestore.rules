@@ -1,10 +1,74 @@
 rules_version = '2';
 
 // =====================================================
-// Firestore security rules for FoodTracker
+// Firestore security rules for WorkoutTracker & FoodTracker
 // =====================================================
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // =====================================================
+    // WORKOUT TRACKER RULES (Do not touch)
+    // =====================================================
+
+    // === Curated content (read-only) ===
+    match /legendary_routines/{routineId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /explore_programs/{programId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // === User-generated shared workouts ===
+    match /shared_workouts/{workoutId} {
+      // Read: only approved workouts, OR your own doc (any status)
+      allow read: if (resource.data.status == "approved")
+                  || (request.auth != null
+                      && resource.data.creatorUid == request.auth.uid);
+
+      // Create: must be authed; creatorUid must equal own UID;
+      // must start as pending with zero reports; size limits on text.
+      allow create: if request.auth != null
+                    && request.resource.data.creatorUid == request.auth.uid
+                    && request.resource.data.status == "pending"
+                    && request.resource.data.reportCount == 0
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.title.size() <= 200
+                    && (!("description" in request.resource.data)
+                        || (request.resource.data.description is string
+                            && request.resource.data.description.size() <= 2000));
+
+      // Update: server-only (no client updates — moderation function uses admin)
+      allow update: if false;
+
+      // Delete: only owner can delete their own document
+      allow delete: if request.auth != null
+                    && resource.data.creatorUid == request.auth.uid;
+    }
+
+    // === Reports ===
+    match /reports/{reportId} {
+      allow create: if request.auth != null
+                    && request.resource.data.reporterUid == request.auth.uid
+                    && request.resource.data.workoutId is string
+                    && request.resource.data.reason in
+["spam", "hate", "harassment", "sexual", "violence", "dangerous", "other"]
+                    && (!("details" in request.resource.data)
+                        || (request.resource.data.details is string
+                            && request.resource.data.details.size() <= 500));
+      allow read, update, delete: if false;
+    }
+
+    // === Per-user blocked list ===
+    match /users/{userId}/blocked/{blockedUid} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // =====================================================
+    // FOOD TRACKER RULES
+    // =====================================================
 
     // === Curated content (read-only for clients, managed by admin) ===
     match /premium_recipes/{recipeId} {

@@ -1,0 +1,1268 @@
+[
+  {
+    "title": "Maçãs Assadas com Mel e Nozes",
+    "description": "Simples de fazer, reconfortante de saborear e perfeito para noites aconchegantes. 🍂",
+    "time": "20 min",
+    "caloriesPerServing": 249,
+    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Lanche",
+      "Vegetariano"
+    ],
+    "baseServings": 4,
+    "protein": 3.0,
+    "fat": 11.0,
+    "carbs": 40.5,
+    "ingredients": [
+      {
+        "name": "Maçãs",
+        "amount": "4 médio",
+        "weightGrams": 600,
+        "calories": 312
+      },
+      {
+        "name": "Nozes",
+        "amount": "65g",
+        "weightGrams": 65,
+        "calories": 425
+      },
+      {
+        "name": "Mel",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 42,
+        "calories": 128
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 180°C (350°F).",
+      "Retire o caroço das maçãs, deixando o fundo intacto.",
+      "Misture as nozes picadas e o mel e recheie as maçãs.",
+      "Asse por 20-25 minutos até ficar macio."
+    ]
+  },
+  {
+    "title": "Ovos mexidos ricos em proteínas com abacate",
+    "description": "Um clássico alimento matinal carregado com gorduras saudáveis ​​e proteínas magras para mantê-lo energizado. 🥑",
+    "time": "10 min",
+    "caloriesPerServing": 330,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20scrambled%20eggs%20with%20avocado?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Alta proteína",
+      "Baixo teor de carboidratos",
+      "Preparado rapidamente",
+      "Fácil"
+    ],
+    "baseServings": 1,
+    "protein": 19.0,
+    "fat": 26.0,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Ovos",
+        "amount": "3 grandes",
+        "weightGrams": 150,
+        "calories": 215
+      },
+      {
+        "name": "Abacate",
+        "amount": "1/4 médio",
+        "weightGrams": 50,
+        "calories": 80
+      },
+      {
+        "name": "Manteiga",
+        "amount": "1 colher de chá",
+        "weightGrams": 5,
+        "calories": 35
+      }
+    ],
+    "directions": [
+      "Bata os ovos em uma tigela até ficar bem misturado e ligeiramente espumoso.",
+      "Derreta a manteiga em uma frigideira antiaderente em fogo médio-baixo.",
+      "Despeje os ovos e mexa delicadamente com uma espátula até firmar suavemente.",
+      "Fatie o abacate e sirva junto com os ovos mexidos quentes. Adicione sal e pimenta a gosto."
+    ]
+  },
+  {
+    "title": "Smoothie de manteiga de amendoim com chocolate vegano",
+    "description": "Rico, cremoso e repleto de proteínas vegetais. Tem gosto de sobremesa! 🍫",
+    "time": "5 min",
+    "caloriesPerServing": 414,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20peanut%20butter%20smoothie?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Batido",
+      "Vegano",
+      "Preparado rapidamente",
+      "Alta proteína",
+      "Em movimento"
+    ],
+    "baseServings": 1,
+    "protein": 28.0,
+    "fat": 18.0,
+    "carbs": 35.0,
+    "ingredients": [
+      {
+        "name": "Leite de amêndoa sem açúcar",
+        "amount": "1 xícara",
+        "weightGrams": 250,
+        "calories": 38
+      },
+      {
+        "name": "Manteiga de amendoim natural",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 177
+      },
+      {
+        "name": "Proteína em Pó de Chocolate Vegano",
+        "amount": "1 colher",
+        "weightGrams": 30,
+        "calories": 110
+      },
+      {
+        "name": "Banana",
+        "amount": "1 meio",
+        "weightGrams": 100,
+        "calories": 89
+      }
+    ],
+    "directions": [
+      "Coloque a banana descascada, a manteiga de amendoim e a proteína em pó no liquidificador.",
+      "Despeje o leite de amêndoa.",
+      "Bata em fogo alto até ficar completamente homogêneo e cremoso. Adicione gelo, se preferir."
+    ]
+  },
+  {
+    "title": "Keto Manteiga de Alho Salmão com Espargos",
+    "description": "Salmão amanteigado e escamoso combinado com aspargos torrados crocantes. Perfeito para um jantar cetônico. 🐟",
+    "time": "25 min",
+    "caloriesPerServing": 409,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20salmon%20asparagus?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Cetogênico",
+      "Alta proteína",
+      "Baixo teor de carboidratos",
+      "Cozimento"
+    ],
+    "baseServings": 2,
+    "protein": 33.0,
+    "fat": 29.0,
+    "carbs": 4.0,
+    "ingredients": [
+      {
+        "name": "Filetes de Salmão",
+        "amount": "2 filés",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Espargos",
+        "amount": "1 maço",
+        "weightGrams": 200,
+        "calories": 40
+      },
+      {
+        "name": "Manteiga",
+        "amount": "1,5 colher de sopa",
+        "weightGrams": 20,
+        "calories": 143
+      },
+      {
+        "name": "Alho picado",
+        "amount": "2 dentes",
+        "weightGrams": 10,
+        "calories": 11
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 200°C (400°F). Forre uma assadeira com papel manteiga.",
+      "Coloque os filés de salmão no centro e arrume os aspargos ao redor deles.",
+      "Derreta a manteiga, misture o alho picado e pincele generosamente o salmão e os aspargos.",
+      "Asse por 12-15 minutos até que o salmão esteja cozido e lasque facilmente com um garfo."
+    ]
+  },
+  {
+    "title": "Tigela de Frango e Quinoa",
+    "description": "Uma lancheira perfeitamente equilibrada com frango magro, carboidratos complexos e tomates frescos. 🥗",
+    "time": "20 min",
+    "caloriesPerServing": 419,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chicken%20quinoa%20bowl?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Alta proteína",
+      "Fácil"
+    ],
+    "baseServings": 2,
+    "protein": 40.0,
+    "fat": 11.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Peito de Frango",
+        "amount": "2 seios pequenos",
+        "weightGrams": 300,
+        "calories": 495
+      },
+      {
+        "name": "Quinua Cozida",
+        "amount": "1 xícara",
+        "weightGrams": 200,
+        "calories": 240
+      },
+      {
+        "name": "Tomate Cereja",
+        "amount": "1/2 xícara",
+        "weightGrams": 100,
+        "calories": 15
+      },
+      {
+        "name": "Azeite",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 88
+      }
+    ],
+    "directions": [
+      "Tempere o peito de frango com sal, pimenta e ervas de sua preferência. Grelhe ou frite com metade do azeite até ficar cozido.",
+      "Fatie o frango cozido.",
+      "Corte os tomates cereja pela metade.",
+      "Divida a quinoa quente em duas tigelas, cubra com o frango fatiado, os tomates e regue com o restante do azeite."
+    ]
+  },
+  {
+    "title": "Almôndegas de peru com baixo teor de carboidratos e macarrão de abobrinha",
+    "description": "Um jantar leve de inspiração italiana que economiza carboidratos sem sacrificar o sabor. 🍝",
+    "time": "30 min",
+    "caloriesPerServing": 232,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20turkey%20meatballs%20zucchini%20noodles?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Baixo teor de carboidratos",
+      "Alta proteína"
+    ],
+    "baseServings": 4,
+    "protein": 24.0,
+    "fat": 12.0,
+    "carbs": 7.0,
+    "ingredients": [
+      {
+        "name": "Peru moído 93%",
+        "amount": "1 libra",
+        "weightGrams": 450,
+        "calories": 680
+      },
+      {
+        "name": "Abobrinha (espiralizada)",
+        "amount": "2 grandes",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Molho Marinara Sem Açúcar",
+        "amount": "1 xícara",
+        "weightGrams": 200,
+        "calories": 100
+      },
+      {
+        "name": "Parmesão ralado",
+        "amount": "4 colheres de sopa",
+        "weightGrams": 20,
+        "calories": 80
+      }
+    ],
+    "directions": [
+      "Forme pequenas almôndegas com o peru moído e frite-as até dourar por todos os lados e ficar totalmente cozido.",
+      "Despeje o molho marinara sobre as almôndegas e deixe cozinhar em fogo baixo por 5 minutos.",
+      "Em uma frigideira separada, refogue levemente o macarrão de abobrinha por 2-3 minutos até ficar macio.",
+      "Sirva as almôndegas e o molho sobre os zoodles e cubra com o parmesão ralado."
+    ]
+  },
+  {
+    "title": "Baga de iogurte grego perfeita",
+    "description": "Um lanche rápido, doce e cheio de proteínas para conter seus desejos do meio-dia. 🍓",
+    "time": "5 min",
+    "caloriesPerServing": 292,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20greek%20yogurt%20berry%20parfait?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Vegetariano",
+      "Poucos Ingredientes",
+      "Fácil"
+    ],
+    "baseServings": 1,
+    "protein": 23.0,
+    "fat": 8.0,
+    "carbs": 32.0,
+    "ingredients": [
+      {
+        "name": "Iogurte grego sem gordura",
+        "amount": "1 xícara",
+        "weightGrams": 200,
+        "calories": 118
+      },
+      {
+        "name": "Bagas Mistas",
+        "amount": "1/2 xícara",
+        "weightGrams": 100,
+        "calories": 58
+      },
+      {
+        "name": "Mel",
+        "amount": "1/2 colher de sopa",
+        "weightGrams": 10,
+        "calories": 30
+      },
+      {
+        "name": "Amêndoas Fatiadas",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 15,
+        "calories": 86
+      }
+    ],
+    "directions": [
+      "Coloque o iogurte grego em um copo ou tigela.",
+      "Cubra com uma camada de frutas frescas misturadas.",
+      "Regue o mel uniformemente sobre as frutas.",
+      "Polvilhe amêndoas fatiadas por cima para um crocante delicioso."
+    ]
+  },
+  {
+    "title": "Mistura vegana de tofu",
+    "description": "Uma saborosa alternativa vegetal ao ovo com espinafre e açafrão antiinflamatório. 🌱",
+    "time": "10 min",
+    "caloriesPerServing": 256,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20tofu%20scramble?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Vegano",
+      "Alta proteína",
+      "Preparado rapidamente"
+    ],
+    "baseServings": 2,
+    "protein": 23.0,
+    "fat": 16.0,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Tofu firme",
+        "amount": "1 bloco",
+        "weightGrams": 280,
+        "calories": 400
+      },
+      {
+        "name": "Espinafre Fresco",
+        "amount": "2 xícaras",
+        "weightGrams": 100,
+        "calories": 23
+      },
+      {
+        "name": "Azeite",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 88
+      },
+      {
+        "name": "Cúrcuma em pó",
+        "amount": "1/2 colher de chá",
+        "weightGrams": 1,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Escorra o tofu firme e esmigalhe-o levemente com as mãos ou com um garfo.",
+      "Numa frigideira aqueça o azeite em fogo médio e acrescente o tofu esfarelado.",
+      "Polvilhe o açafrão sobre o tofu e misture bem até ficar amarelo dourado.",
+      "Adicione o espinafre à panela e cozinhe por mais 2 minutos até murchar."
+    ]
+  },
+  {
+    "title": "Bife Keto e Brócolis",
+    "description": "Um jantar pesado para recuperação muscular. Bife macio e brócolis com manteiga de alho. 🥩",
+    "time": "20 min",
+    "caloriesPerServing": 508,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20keto%20steak%20and%20broccoli?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Cetogênico",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 48.0,
+    "fat": 32.0,
+    "carbs": 7.0,
+    "ingredients": [
+      {
+        "name": "Bife de lombo de vaca",
+        "amount": "14 onças",
+        "weightGrams": 400,
+        "calories": 712
+      },
+      {
+        "name": "Florzinhas de brócolis",
+        "amount": "3 xícaras",
+        "weightGrams": 300,
+        "calories": 102
+      },
+      {
+        "name": "Azeite",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 132
+      },
+      {
+        "name": "Manteiga",
+        "amount": "1/2 colher de sopa",
+        "weightGrams": 10,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Tempere o bife do lombo com sal e pimenta preta grossa.",
+      "Aqueça o azeite em uma frigideira de ferro fundido em fogo alto e sele o bife até o ponto desejado. Deixe descansar.",
+      "Na mesma frigideira, abaixe o fogo, acrescente a manteiga e acrescente os floretes de brócolis.",
+      "Refogue o brócolis até ficar crocante. Corte o bife descansado e sirva junto."
+    ]
+  },
+  {
+    "title": "Aveia Assada com Maçã e Canela",
+    "description": "Quente, reconfortante e com gosto de torta de maçã no café da manhã. Rico em fibras! 🍎",
+    "time": "30 min",
+    "caloriesPerServing": 256,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20baked%20oats%20apple%20cinnamon?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Vegetariano",
+      "Cozimento",
+      "Fácil"
+    ],
+    "baseServings": 2,
+    "protein": 7.0,
+    "fat": 4.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Aveia em flocos",
+        "amount": "1 xícara",
+        "weightGrams": 100,
+        "calories": 379
+      },
+      {
+        "name": "Leite de Amêndoa",
+        "amount": "2/3 xícara",
+        "weightGrams": 150,
+        "calories": 22
+      },
+      {
+        "name": "Maçã (cortada em cubos)",
+        "amount": "1 meio",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Xarope de bordo",
+        "amount": "2 colheres de chá",
+        "weightGrams": 12,
+        "calories": 33
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 180°C (350°F). Unte levemente uma assadeira pequena.",
+      "Misture a aveia em flocos, o leite de amêndoa, as maçãs cortadas em cubos e uma pitada de canela em uma tigela.",
+      "Despeje a mistura na assadeira e regue uniformemente com xarope de bordo.",
+      "Asse por 25 minutos até que o topo fique dourado e o líquido seja totalmente absorvido."
+    ]
+  },
+  {
+    "title": "Tigela de queijo cottage e abacaxi",
+    "description": "Um lanche refrescante, doce e rico em proteínas, perfeito para a recuperação pós-treino. 🍍",
+    "time": "2 min",
+    "caloriesPerServing": 261,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pineapple%20bowl?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Alta proteína",
+      "Poucos Ingredientes",
+      "Preparado rapidamente"
+    ],
+    "baseServings": 1,
+    "protein": 26.0,
+    "fat": 5.0,
+    "carbs": 28.0,
+    "ingredients": [
+      {
+        "name": "Queijo cottage com baixo teor de gordura",
+        "amount": "1 xícara",
+        "weightGrams": 225,
+        "calories": 162
+      },
+      {
+        "name": "Pedaços de abacaxi",
+        "amount": "1/2 xícara",
+        "weightGrams": 100,
+        "calories": 50
+      },
+      {
+        "name": "Sementes de Chia",
+        "amount": "1 colher de sopa",
+        "weightGrams": 10,
+        "calories": 49
+      }
+    ],
+    "directions": [
+      "Coloque o queijo cottage em uma tigela.",
+      "Cubra com pedaços de abacaxi fresco ou enlatado.",
+      "Polvilhe sementes de chia por cima para obter mais fibra e crocância. Mexa antes de comer."
+    ]
+  },
+  {
+    "title": "Peito de Frango Recheado com Espinafre e Feta",
+    "description": "Frango suculento recheado com saboroso queijo feta e espinafre. Parece gourmet, mas incrivelmente fácil de fazer! 🌿",
+    "time": "35 min",
+    "caloriesPerServing": 465,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spinach%20feta%20stuffed%20chicken?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos",
+      "Cozimento"
+    ],
+    "baseServings": 2,
+    "protein": 65.0,
+    "fat": 21.0,
+    "carbs": 4.0,
+    "ingredients": [
+      {
+        "name": "Peito de Frango",
+        "amount": "2 seios grandes",
+        "weightGrams": 400,
+        "calories": 660
+      },
+      {
+        "name": "Queijo Feta",
+        "amount": "1/2 xícara esfarelada",
+        "weightGrams": 60,
+        "calories": 160
+      },
+      {
+        "name": "Espinafre Fresco",
+        "amount": "2 xícaras",
+        "weightGrams": 100,
+        "calories": 23
+      },
+      {
+        "name": "Azeite",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 88
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 190°C (375°F).",
+      "Corte um bolso na lateral de cada peito de frango, tomando cuidado para não cortar completamente.",
+      "Misture o queijo feta esfarelado e o espinafre picado em uma tigela e coloque a mistura nos bolsos do frango.",
+      "Esfregue a parte externa do frango com azeite, sal e pimenta. Asse por 25-30 minutos até ficar totalmente cozido."
+    ]
+  },
+  {
+    "title": "Lentilha Vegana e Ensopado de Legumes",
+    "description": "Um guisado à base de plantas farto, quente e rico em fibras, perfeito para preparar refeições. 🍲",
+    "time": "45 min",
+    "caloriesPerServing": 266,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20lentil%20vegetable%20stew?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Vegano",
+      "Vegetariano",
+      "Fácil"
+    ],
+    "baseServings": 4,
+    "protein": 14.0,
+    "fat": 4.5,
+    "carbs": 42.5,
+    "ingredients": [
+      {
+        "name": "Lentilhas Verdes Secas",
+        "amount": "1 xícara",
+        "weightGrams": 200,
+        "calories": 700
+      },
+      {
+        "name": "Cenouras",
+        "amount": "2 médios",
+        "weightGrams": 150,
+        "calories": 60
+      },
+      {
+        "name": "Tomates esmagados",
+        "amount": "1 lata",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Azeite",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 132
+      },
+      {
+        "name": "Cebola Amarela",
+        "amount": "1 meio",
+        "weightGrams": 100,
+        "calories": 40
+      },
+      {
+        "name": "Salsão",
+        "amount": "2 talos",
+        "weightGrams": 100,
+        "calories": 15
+      }
+    ],
+    "directions": [
+      "Corte a cebola, a cenoura e o aipo em cubos. Refogue-os em uma panela grande com azeite até ficarem macios.",
+      "Lave as lentilhas e coloque-as na panela junto com os tomates esmagados e 3 xícaras de água ou caldo de legumes.",
+      "Deixe ferver, reduza o fogo, tampe e cozinhe por 30-35 minutos até que as lentilhas estejam macias.",
+      "Tempere com sal, pimenta e uma pitada de cominho antes de servir."
+    ]
+  },
+  {
+    "title": "Biscoitos de aveia e banana com manteiga de amendoim",
+    "description": "Biscoitos em borracha e sem farinha, perfeitos para aumentar a energia antes do treino ou para um lanche doce. 🍪",
+    "time": "15 min",
+    "caloriesPerServing": 139,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20peanut%20butter%20banana%20oatmeal%20cookies?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Cozimento",
+      "Vegetariano",
+      "Em movimento"
+    ],
+    "baseServings": 8,
+    "protein": 4.5,
+    "fat": 5.0,
+    "carbs": 19.0,
+    "ingredients": [
+      {
+        "name": "Aveia em flocos",
+        "amount": "1,5 xícaras",
+        "weightGrams": 150,
+        "calories": 580
+      },
+      {
+        "name": "Banana madura demais",
+        "amount": "2 médios",
+        "weightGrams": 200,
+        "calories": 180
+      },
+      {
+        "name": "Manteiga de amendoim natural",
+        "amount": "1/4 xícara",
+        "weightGrams": 60,
+        "calories": 350
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 175°C (350°F) e forre uma assadeira com papel manteiga.",
+      "Amasse as bananas em uma tigela até ficar homogêneo e junte a manteiga de amendoim.",
+      "Junte a aveia em flocos até formar uma massa pegajosa.",
+      "Coloque 8 porções iguais na assadeira, alise levemente e leve ao forno por 10-12 minutos."
+    ]
+  },
+  {
+    "title": "Smoothie antioxidante verde de frutas vermelhas",
+    "description": "Uma refrescante mistura de verduras e frutos silvestres que esconde completamente o sabor do espinafre! 🫐",
+    "time": "5 min",
+    "caloriesPerServing": 247,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20green%20smoothie?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Batido",
+      "Vegano",
+      "Preparado rapidamente",
+      "Em movimento"
+    ],
+    "baseServings": 1,
+    "protein": 20.0,
+    "fat": 7.5,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Espinafre Fresco",
+        "amount": "1 punhado",
+        "weightGrams": 50,
+        "calories": 12
+      },
+      {
+        "name": "Bagas Mistas Congeladas",
+        "amount": "3/4 xícara",
+        "weightGrams": 100,
+        "calories": 50
+      },
+      {
+        "name": "Sementes de Chia",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 73
+      },
+      {
+        "name": "Leite de amêndoa sem açúcar",
+        "amount": "1 xícara",
+        "weightGrams": 250,
+        "calories": 38
+      },
+      {
+        "name": "Proteína Vegana em Pó de Baunilha",
+        "amount": "2/3 colher",
+        "weightGrams": 20,
+        "calories": 75
+      }
+    ],
+    "directions": [
+      "Adicione primeiro o espinafre e o leite de amêndoa ao liquidificador e bata até ficar completamente homogêneo para evitar pedaços verdes.",
+      "Adicione as frutas congeladas, as sementes de chia e a proteína em pó.",
+      "Bata em fogo alto até ficar espesso e cremoso. Despeje em um copo e saboreie gelado."
+    ]
+  },
+  {
+    "title": "Wraps de alface com camarão picante",
+    "description": "Copos de alface crocantes e frescos, recheados com camarão picante e rico em proteínas e abacate cremoso. 🍤",
+    "time": "15 min",
+    "caloriesPerServing": 269,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spicy%20shrimp%20lettuce%20wraps?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Baixo teor de carboidratos",
+      "Preparado rapidamente",
+      "Poucos Ingredientes"
+    ],
+    "baseServings": 2,
+    "protein": 32.0,
+    "fat": 13.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Camarão Cru (descascado)",
+        "amount": "10 onças",
+        "weightGrams": 300,
+        "calories": 290
+      },
+      {
+        "name": "Folhas de alface manteiga",
+        "amount": "6 folhas",
+        "weightGrams": 100,
+        "calories": 15
+      },
+      {
+        "name": "Maionese Picante (Mayo + Sriracha)",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 150
+      },
+      {
+        "name": "Abacate",
+        "amount": "1/4 médio",
+        "weightGrams": 50,
+        "calories": 80
+      }
+    ],
+    "directions": [
+      "Misture o camarão com um pouco de sal, pimenta e colorau. Refogue em uma panela em fogo médio por 3-4 minutos até ficar rosado.",
+      "Pique o camarão cozido em pedaços menores.",
+      "Divida o camarão e o abacate em cubos igualmente entre as folhas de alface-manteiga.",
+      "Regue com a maionese picante e sirva imediatamente."
+    ]
+  },
+  {
+    "title": "Pimentão Recheado com Salada de Ovo Keto",
+    "description": "Pimentões crocantes atuam como o recipiente perfeito com baixo teor de carboidratos para uma salada de ovo cremosa e rica. 🫑",
+    "time": "15 min",
+    "caloriesPerServing": 274,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20egg%20salad%20stuffed%20peppers?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Cetogênico",
+      "Alta proteína",
+      "Vegetariano"
+    ],
+    "baseServings": 2,
+    "protein": 12.0,
+    "fat": 22.5,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Ovos cozidos",
+        "amount": "4 grandes",
+        "weightGrams": 200,
+        "calories": 280
+      },
+      {
+        "name": "Maionese",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 200
+      },
+      {
+        "name": "Pimentão",
+        "amount": "2 médios",
+        "weightGrams": 240,
+        "calories": 60
+      },
+      {
+        "name": "Mostarda Dijon",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 10
+      }
+    ],
+    "directions": [
+      "Descasque e pique os ovos cozidos em pedaços pequenos.",
+      "Em uma tigela, misture os ovos picados, a maionese, a mostarda Dijon, o sal e a pimenta até ficar cremoso.",
+      "Corte os pimentões ao meio, de cima para baixo, e retire as sementes e as membranas.",
+      "Coloque generosamente a salada de ovo nas metades do pimentão e sirva fria."
+    ]
+  },
+  {
+    "title": "Salada Fiesta de Feijão Preto e Milho",
+    "description": "Uma salada vibrante e picante à base de plantas que fica perfeitamente guardada na geladeira por dias. 🌽",
+    "time": "10 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20black%20bean%20corn%20salad?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Vegano",
+      "Preparado rapidamente",
+      "Em movimento"
+    ],
+    "baseServings": 3,
+    "protein": 10.0,
+    "fat": 5.5,
+    "carbs": 32.5,
+    "ingredients": [
+      {
+        "name": "Feijão Preto Enlatado (Enxaguado)",
+        "amount": "1 lata (14 onças)",
+        "weightGrams": 400,
+        "calories": 360
+      },
+      {
+        "name": "Grãos de Milho Doce",
+        "amount": "1 xícara",
+        "weightGrams": 150,
+        "calories": 130
+      },
+      {
+        "name": "Pimentão Vermelho",
+        "amount": "1 pequeno",
+        "weightGrams": 100,
+        "calories": 30
+      },
+      {
+        "name": "Azeite",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 132
+      },
+      {
+        "name": "Suco de limão",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 8
+      }
+    ],
+    "directions": [
+      "Enxágue e escorra bem o feijão preto e o milho.",
+      "Corte o pimentão vermelho em pedaços pequenos.",
+      "Em uma tigela grande, misture o feijão, o milho e o pimentão.",
+      "Misture o azeite e o suco de limão, regue com a salada, misture bem e leve à geladeira antes de servir."
+    ]
+  },
+  {
+    "title": "Frigideira de Fajita de Bife de Flanco",
+    "description": "Tiras de bife tenras e escaldantes com cebola caramelizada e pimentão. Só falta a tortilha! 🥩",
+    "time": "20 min",
+    "caloriesPerServing": 358,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20steak%20fajita%20skillet?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Baixo teor de carboidratos",
+      "Alta proteína",
+      "Fácil"
+    ],
+    "baseServings": 3,
+    "protein": 40.0,
+    "fat": 18.0,
+    "carbs": 9.0,
+    "ingredients": [
+      {
+        "name": "Bife de Flanco",
+        "amount": "1 libra",
+        "weightGrams": 450,
+        "calories": 860
+      },
+      {
+        "name": "Pimentões mistos",
+        "amount": "2 médios",
+        "weightGrams": 200,
+        "calories": 60
+      },
+      {
+        "name": "Cebola Vermelha",
+        "amount": "1 meio",
+        "weightGrams": 150,
+        "calories": 60
+      },
+      {
+        "name": "Azeite",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 88
+      }
+    ],
+    "directions": [
+      "Corte o bife de flanco na contramão em tiras finas. Corte os pimentões e as cebolas em tiras semelhantes.",
+      "Aqueça o azeite em uma frigideira grande em fogo médio-alto.",
+      "Adicione o bife e frite por 3-4 minutos. Retire o bife e reserve.",
+      "Na mesma frigideira, refogue os pimentões e as cebolas até ficarem macios. Retorne o bife à frigideira, misture com o tempero de fajita e sirva."
+    ]
+  },
+  {
+    "title": "Panquecas proteicas de queijo cottage",
+    "description": "Panquecas fofas e douradas com um ingrediente secreto que aumenta a proteína sem esforço. 🥞",
+    "time": "15 min",
+    "caloriesPerServing": 245,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pancakes?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Alta proteína",
+      "Vegetariano",
+      "Cozimento"
+    ],
+    "baseServings": 2,
+    "protein": 22.0,
+    "fat": 9.0,
+    "carbs": 19.0,
+    "ingredients": [
+      {
+        "name": "Queijo cottage com baixo teor de gordura",
+        "amount": "1 xícara",
+        "weightGrams": 200,
+        "calories": 160
+      },
+      {
+        "name": "Ovos",
+        "amount": "2 grandes",
+        "weightGrams": 100,
+        "calories": 140
+      },
+      {
+        "name": "Aveia em flocos",
+        "amount": "1/2 xícara",
+        "weightGrams": 50,
+        "calories": 190
+      }
+    ],
+    "directions": [
+      "Coloque o queijo cottage, os ovos e a aveia em flocos no liquidificador.",
+      "Misture em fogo alto até formar uma massa lisa.",
+      "Aqueça uma frigideira antiaderente em fogo médio e borrife levemente com óleo de cozinha.",
+      "Despeje pequenos círculos de massa na panela. Cozinhe até formar bolhas na superfície, vire e cozinhe até dourar."
+    ]
+  },
+  {
+    "title": "Tigela de lanche de Edamame e Algas Marinhas",
+    "description": "Um lanche saboroso, salgado e satisfatório à base de plantas, carregado com minerais. 🥢",
+    "time": "5 min",
+    "caloriesPerServing": 245,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20seaweed%20bowl?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Vegano",
+      "Poucos ingredientes",
+      "Preparado rapidamente"
+    ],
+    "baseServings": 1,
+    "protein": 17.5,
+    "fat": 13.0,
+    "carbs": 14.5,
+    "ingredients": [
+      {
+        "name": "Edamame sem casca (descongelado)",
+        "amount": "1 xícara",
+        "weightGrams": 150,
+        "calories": 180
+      },
+      {
+        "name": "Petiscos de Algas Assadas",
+        "amount": "1 pacote pequeno",
+        "weightGrams": 5,
+        "calories": 25
+      },
+      {
+        "name": "Óleo de gergelim torrado",
+        "amount": "1 colher de chá",
+        "weightGrams": 5,
+        "calories": 40
+      }
+    ],
+    "directions": [
+      "Se estiver congelado, cozinhe brevemente no vapor ou no microondas o edamame com casca até ficar quente e macio.",
+      "Coloque o edamame quente em uma tigela e regue com óleo de gergelim torrado. Misture bem.",
+      "Esmague as folhas de algas assadas em pequenos flocos com as mãos.",
+      "Polvilhe os flocos de algas marinhas sobre o edamame junto com uma pitada de sal marinho e divirta-se."
+    ]
+  },
+  {
+    "title": "Salada de ovo com abacate ceto",
+    "description": "Um toque cremoso e com baixo teor de carboidratos na tradicional salada de ovo usando abacate rico em nutrientes em vez de excesso de maionese. 🥑",
+    "time": "10 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20avocado%20egg%20salad?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Cetogênico",
+      "Baixo teor de carboidratos",
+      "Fácil"
+    ],
+    "baseServings": 2,
+    "protein": 13.0,
+    "fat": 26.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Ovos cozidos",
+        "amount": "4 grandes",
+        "weightGrams": 200,
+        "calories": 280
+      },
+      {
+        "name": "Abacate",
+        "amount": "1 meio",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Maionese",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 100
+      }
+    ],
+    "directions": [
+      "Descasque e pique os ovos cozidos em pedaços pequenos.",
+      "Corte o abacate ao meio, retire o caroço e coloque a polpa em uma tigela.",
+      "Amasse o abacate e a maionese até ficar cremoso e, em seguida, envolva delicadamente os ovos picados.",
+      "Tempere com sal, pimenta e uma pitada de colorau. Sirva em xícaras de alface ou coma como está."
+    ]
+  },
+  {
+    "title": "Caril vegano de grão de bico e coco",
+    "description": "Um curry perfumado e quente à base de plantas que se prepara rapidamente para uma refeição aconchegante durante a semana. 🥥",
+    "time": "25 min",
+    "caloriesPerServing": 210,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chickpea%20coconut%20curry?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Vegano",
+      "Vegetariano",
+      "Fácil"
+    ],
+    "baseServings": 4,
+    "protein": 7.0,
+    "fat": 10.0,
+    "carbs": 22.0,
+    "ingredients": [
+      {
+        "name": "Grão de bico enlatado (enxaguado)",
+        "amount": "1 lata (15 onças)",
+        "weightGrams": 400,
+        "calories": 420
+      },
+      {
+        "name": "Leite de coco light",
+        "amount": "1 lata (13,5 onças)",
+        "weightGrams": 400,
+        "calories": 280
+      },
+      {
+        "name": "Espinafre Fresco",
+        "amount": "2 xícaras",
+        "weightGrams": 60,
+        "calories": 14
+      },
+      {
+        "name": "Azeite",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Aqueça o azeite em uma panela funda e refogue seu curry em pó ou pasta favorito por 1 minuto até ficar perfumado.",
+      "Despeje o leite de coco light e leve para ferver suavemente.",
+      "Adicione o grão de bico enxaguado e deixe cozinhar no molho por 15 minutos para absorver os sabores.",
+      "Junte o espinafre fresco durante os últimos 2 minutos até murchar. Sirva quente."
+    ]
+  },
+  {
+    "title": "Batata Doce Assada com Peru Moído",
+    "description": "Um almoço rico em proteínas e rico em nutrientes, carregado com carboidratos complexos para abastecer o seu dia. 🍠",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20stuffed%20sweet%20potato%20ground%20turkey?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Alta proteína",
+      "Cozimento"
+    ],
+    "baseServings": 2,
+    "protein": 24.0,
+    "fat": 9.5,
+    "carbs": 32.0,
+    "ingredients": [
+      {
+        "name": "Batata Doce",
+        "amount": "2 médios",
+        "weightGrams": 260,
+        "calories": 220
+      },
+      {
+        "name": "Turquia moída magra",
+        "amount": "8 onças",
+        "weightGrams": 225,
+        "calories": 340
+      },
+      {
+        "name": "Molho de churrasco sem açúcar",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 200°C (400°F). Fure as batatas-doces com um garfo e leve ao forno por 40-45 minutos até ficarem macias.",
+      "Enquanto as batatas assam, doure o peru moído em uma frigideira em fogo médio até ficar totalmente cozido.",
+      "Misture o molho de churrasco sem açúcar ao peru.",
+      "Corte as batatas-doces assadas e recheie generosamente com a mistura de peru para churrasco."
+    ]
+  },
+  {
+    "title": "Pudim de Sementes de Berry Chia",
+    "description": "Um café da manhã para viagem repleto de fibras e ômega-3 que se prepara durante a noite. 🍓",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20chia%20seed%20pudding?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Vegano",
+      "Em movimento",
+      "Poucos ingredientes"
+    ],
+    "baseServings": 2,
+    "protein": 5.0,
+    "fat": 9.0,
+    "carbs": 20.0,
+    "ingredients": [
+      {
+        "name": "Sementes de Chia",
+        "amount": "1/4 xícara",
+        "weightGrams": 40,
+        "calories": 240
+      },
+      {
+        "name": "Leite de amêndoa sem açúcar",
+        "amount": "1 xícara",
+        "weightGrams": 240,
+        "calories": 40
+      },
+      {
+        "name": "Framboesas",
+        "amount": "1/2 xícara",
+        "weightGrams": 60,
+        "calories": 30
+      },
+      {
+        "name": "Xarope de bordo",
+        "amount": "1 colher de sopa",
+        "weightGrams": 20,
+        "calories": 50
+      }
+    ],
+    "directions": [
+      "Em uma jarra ou recipiente, misture vigorosamente as sementes de chia, o leite de amêndoa e o xarope de bordo.",
+      "Deixe descansar por 5 minutos e bata novamente para evitar grumos.",
+      "Cubra e leve à geladeira por pelo menos 2 horas ou durante a noite.",
+      "Cubra com framboesas frescas antes de servir."
+    ]
+  },
+  {
+    "title": "Zoodles de Camarão com Manteiga de Alho",
+    "description": "Um prato de frutos do mar leve, com alho e amanteigado que mantém baixo teor de carboidratos e alto teor de proteína. 🦐",
+    "time": "15 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20shrimp%20zucchini%20noodles?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Cetogênico",
+      "Baixo teor de carboidratos",
+      "Preparado rapidamente"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 15.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Camarão Descascado",
+        "amount": "10 onças",
+        "weightGrams": 280,
+        "calories": 290
+      },
+      {
+        "name": "Manteiga",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Abobrinha (espiralizada)",
+        "amount": "2 médios",
+        "weightGrams": 400,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Derreta a manteiga em uma frigideira grande em fogo médio-alto. Adicione alho picado, se desejar.",
+      "Adicione o camarão à frigideira e cozinhe por 2-3 minutos de cada lado até ficar rosado e opaco.",
+      "Retire o camarão e reserve. Na mesma frigideira, misture o macarrão de abobrinha por 1-2 minutos até aquecer.",
+      "Retorne o camarão à frigideira, misture com o macarrão e sirva imediatamente."
+    ]
+  }
+]
