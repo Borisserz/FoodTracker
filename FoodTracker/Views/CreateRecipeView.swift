@@ -933,7 +933,9 @@ struct RecipeDetailView: View {
                 }
         }
         .fullScreenCover(isPresented: $showAICooking) {
-            InteractiveCookingView(recipe: recipe.toAIChefRecipe(), isPresented: $showAICooking, startWithAllSteps: true)
+            NavigationStack {
+                AgentCookingView(recipe: recipe.toAIChefRecipe(), isFlowPresented: $showAICooking)
+            }
         }
     }
 }

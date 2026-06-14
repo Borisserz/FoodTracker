@@ -1103,7 +1103,9 @@ struct PremiumRecipeDetailView: View {
                 .presentationDetents([.fraction(0.4)]).presentationCornerRadius(32).presentationDragIndicator(.visible)
         }
         .fullScreenCover(isPresented: $showAICooking) {
-            InteractiveCookingView(recipe: recipe.toAIChefRecipe(), isPresented: $showAICooking, startWithAllSteps: true)
+            NavigationStack {
+                AgentCookingView(recipe: recipe.toAIChefRecipe(), isFlowPresented: $showAICooking)
+            }
         }
     }
 }
