@@ -97,9 +97,6 @@ struct GoalsTabView: View {
                         // Recent Logs
                         recentLogsList
                         
-                        // Before & After Photo Comparison
-                        BeforeAfterView()
-                        
                         Spacer(minLength: 40)
                     }
                     .padding()

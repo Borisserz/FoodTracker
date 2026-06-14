@@ -43,6 +43,13 @@ struct MoreTabView: View {
                         }
                         .padding(.horizontal)
 
+                        // Visual Progress Section (Before/After Photo comparison)
+                        BeforeAfterView()
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                            .opacity(appearedItems.count >= moreItems.count ? 1 : 0)
+                            .animation(.easeIn(duration: 0.5).delay(0.25), value: appearedItems.count)
+
                         // Cross-Promo Banner
                         crossPromoBanner
                             .padding(.horizontal)
@@ -93,7 +100,7 @@ struct MoreTabView: View {
                 subtitle: "Your proactive nutritionist",
                 icon: "sparkles",
                 gradient: [Color(hex: 0x9B59B6), Color(hex: 0xF25C78)],
-                badge: "AI",
+                badge: nil,
                 destination: AnyView(AICoachDashboardView(selectedDate: Date()))
             ),
             MoreItem(
@@ -121,22 +128,6 @@ struct MoreTabView: View {
                     .foregroundStyle(themeManager.current.primaryGradient)
             }
             Spacer()
-
-            // Elegant User Avatar with theme gradient ring
-            ZStack {
-                Circle()
-                    .fill(themeManager.current.primaryGradient)
-                    .frame(width: 52, height: 52)
-                    .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 8, y: 4)
-                
-                Circle()
-                    .fill(Color.themeBg)
-                    .frame(width: 48, height: 48)
-                
-                Text(String(user?.name.first ?? "C").uppercased())
-                    .font(.system(size: 20, weight: .black, design: .rounded))
-                    .foregroundStyle(themeManager.current.primaryGradient)
-            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
@@ -287,23 +278,6 @@ private struct MoreNavCard: View {
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.white)
 
-                    // AI badge
-                    if let badge = item.badge {
-                        HStack(spacing: 3) {
-                            Circle()
-                                .fill(.white)
-                                .frame(width: 4, height: 4)
-                                .symbolEffect(.pulse)
-                            Text(badge)
-                                .font(.system(size: 8, weight: .black, design: .rounded))
-                        }
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Color.black.opacity(0.15))
-                        .clipShape(Capsule())
-                        .offset(x: 20, y: -20)
-                    }
                 }
 
                 // Text

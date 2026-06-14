@@ -54,9 +54,26 @@ struct BeforeAfterView: View {
             }
         }
         .padding()
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: .black.opacity(0.03), radius: 10, y: 5)
+        .background {
+            ZStack {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                .white.opacity(0.25),
+                                .white.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
+            .shadow(color: .black.opacity(0.04), radius: 10, y: 4)
+        }
         .onChange(of: beforeImage) { _, newValue in
             if newValue != nil && afterImage != nil {
                 triggerAnalysis()
