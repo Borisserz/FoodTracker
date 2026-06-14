@@ -137,6 +137,11 @@ struct FoodTrackerApp: App {
                 print("🚀 [setupDependencies] Attempting Anonymous Firebase sign-in...")
                 _ = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
                 print("🚀 [setupDependencies] Firebase Sign-in Complete!")
+                
+                // Trigger auto-seeding if Firestore database is empty
+                DispatchQueue.main.async {
+                    FirebaseUploader.shared.seedDatabaseIfNeeded()
+                }
             } catch {
                 print("⚠️ Anonymous auth failed: \(error)")
             }

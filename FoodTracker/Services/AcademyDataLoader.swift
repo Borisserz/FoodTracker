@@ -58,7 +58,7 @@ class AcademyDataLoader {
     }
 
     func fetchCategoriesFromFirestore() {
-        db.collection("academy_categories").getDocuments { [weak self] snapshot, error in
+        db.collection("academy_categories").addSnapshotListener { [weak self] snapshot, error in
             guard let self = self else { return }
             
             if let error = error {
@@ -88,6 +88,36 @@ import Foundation
 class FirebaseUploader {
     static let shared = FirebaseUploader()
     private let db = Firestore.firestore()
+    
+    func seedDatabaseIfNeeded() {
+        db.collection("diets").limit(to: 1).getDocuments { [weak self] snapshot, _ in
+            if let snapshot = snapshot, snapshot.documents.isEmpty {
+                print("🌱 Seeding diets...")
+                self?.uploadDiets()
+            }
+        }
+        
+        db.collection("fasting_plans").limit(to: 1).getDocuments { [weak self] snapshot, _ in
+            if let snapshot = snapshot, snapshot.documents.isEmpty {
+                print("🌱 Seeding fasting plans...")
+                self?.uploadFastingPlans()
+            }
+        }
+        
+        db.collection("premium_recipes").limit(to: 1).getDocuments { [weak self] snapshot, _ in
+            if let snapshot = snapshot, snapshot.documents.isEmpty {
+                print("🌱 Seeding premium recipes...")
+                self?.uploadRecipesFromJSON()
+            }
+        }
+        
+        db.collection("academy_categories").limit(to: 1).getDocuments { [weak self] snapshot, _ in
+            if let snapshot = snapshot, snapshot.documents.isEmpty {
+                print("🌱 Seeding academy categories...")
+                self?.uploadAcademyFromJSON()
+            }
+        }
+    }
     
     // 1. Выгрузка рецептов
     func uploadRecipesFromJSON() {
