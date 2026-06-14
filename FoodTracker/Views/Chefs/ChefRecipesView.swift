@@ -779,7 +779,7 @@ struct PremiumRecipeCard: View {
                     VStack {
                         HStack {
                             Spacer()
-                            Image(systemName: "star.fill").foregroundStyle(.themeYellow).padding(10).background(.ultraThinMaterial).clipShape(Circle()).padding(8)
+                            Image(systemName: "star.fill").foregroundStyle(Color.themeYellow).padding(10).background(.ultraThinMaterial).clipShape(Circle()).padding(8)
                         }
                         Spacer()
                     }
