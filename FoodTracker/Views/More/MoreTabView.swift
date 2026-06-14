@@ -111,13 +111,32 @@ struct MoreTabView: View {
     // MARK: - Subviews
 
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(greetingText)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.secondary)
-            Text(user?.name ?? "")
-                .font(.system(size: 28, weight: .black, design: .rounded))
-                .foregroundStyle(.primary)
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(greetingText)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundStyle(.secondary)
+                Text(user?.name ?? "Champion")
+                    .font(.system(size: 32, weight: .black, design: .rounded))
+                    .foregroundStyle(themeManager.current.primaryGradient)
+            }
+            Spacer()
+
+            // Elegant User Avatar with theme gradient ring
+            ZStack {
+                Circle()
+                    .fill(themeManager.current.primaryGradient)
+                    .frame(width: 52, height: 52)
+                    .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 8, y: 4)
+                
+                Circle()
+                    .fill(Color.themeBg)
+                    .frame(width: 48, height: 48)
+                
+                Text(String(user?.name.first ?? "C").uppercased())
+                    .font(.system(size: 20, weight: .black, design: .rounded))
+                    .foregroundStyle(themeManager.current.primaryGradient)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
@@ -156,53 +175,56 @@ struct MoreTabView: View {
             HStack(spacing: 16) {
                 // App Icon Placeholder
                 ZStack {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .fill(LinearGradient(colors: [Color.themeOrange, Color.themePink], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 64, height: 64)
+                        .frame(width: 60, height: 60)
                         .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
                     
                     Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 30))
+                        .font(.system(size: 28))
                         .foregroundStyle(.white)
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Workout Tracker")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundStyle(.primary)
                     
                     Text("Your ultimate fitness companion")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
+                        .multilineTextAlignment(.leading)
                 }
                 
                 Spacer(minLength: 0)
                 
                 // "GET" Button
-                VStack {
+                VStack(spacing: 3) {
                     Text("GET")
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.themeOrange)
-                        .padding(.horizontal, 16)
+                        .font(.system(size: 13, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 18)
                         .padding(.vertical, 8)
-                        .background(Color.themeOrange.opacity(0.15))
+                        .background(LinearGradient(colors: [Color.themeOrange, Color.themePink], startPoint: .leading, endPoint: .trailing))
                         .clipShape(Capsule())
+                        .shadow(color: Color.themePink.opacity(0.3), radius: 4, y: 2)
                     
                     Text("In-App Purchases")
-                        .font(.system(size: 8))
+                        .font(.system(size: 7, weight: .bold, design: .rounded))
                         .foregroundStyle(.secondary)
-                        .padding(.top, 2)
                 }
             }
             .padding(16)
             .background {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color(uiColor: .systemBackground))
-                    .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
-                
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(LinearGradient(colors: [.themeOrange.opacity(0.5), .themePink.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                    
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(LinearGradient(colors: [Color.themeOrange.opacity(0.4), Color.themePink.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                }
+                .shadow(color: .black.opacity(0.04), radius: 10, y: 4)
             }
         }
         .buttonStyle(BounceButtonStyle())
@@ -211,17 +233,17 @@ struct MoreTabView: View {
     @ViewBuilder
     private var decorativeBackground: some View {
         Circle()
-            .fill(Color.themePink.opacity(0.10))
-            .frame(width: 340, height: 340)
-            .blur(radius: 70)
-            .offset(x: -130, y: -280)
+            .fill(themeManager.current.primaryAccent.opacity(0.12))
+            .frame(width: 360, height: 360)
+            .blur(radius: 80)
+            .offset(x: -120, y: -260)
             .allowsHitTesting(false)
 
         Circle()
-            .fill(Color.themeOrange.opacity(0.08))
-            .frame(width: 300, height: 300)
-            .blur(radius: 80)
-            .offset(x: 160, y: 260)
+            .fill(themeManager.current.secondaryAccent.opacity(0.08))
+            .frame(width: 320, height: 320)
+            .blur(radius: 90)
+            .offset(x: 140, y: 220)
             .allowsHitTesting(false)
     }
 }
@@ -258,34 +280,40 @@ private struct MoreNavCard: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 56, height: 56)
-                        .shadow(color: item.gradient.first?.opacity(0.35) ?? .clear, radius: 10, y: 4)
+                        .frame(width: 54, height: 54)
+                        .shadow(color: item.gradient.first?.opacity(0.4) ?? .clear, radius: 8, y: 4)
 
                     Image(systemName: item.icon)
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.white)
 
                     // AI badge
                     if let badge = item.badge {
-                        Text(badge)
-                            .font(.system(size: 8, weight: .black))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 2)
-                            .background(Color.white.opacity(0.3))
-                            .clipShape(.capsule)
-                            .offset(x: 18, y: -18)
+                        HStack(spacing: 3) {
+                            Circle()
+                                .fill(.white)
+                                .frame(width: 4, height: 4)
+                                .symbolEffect(.pulse)
+                            Text(badge)
+                                .font(.system(size: 8, weight: .black, design: .rounded))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.black.opacity(0.15))
+                        .clipShape(Capsule())
+                        .offset(x: 20, y: -20)
                     }
                 }
 
                 // Text
                 VStack(alignment: .leading, spacing: 3) {
                     Text(item.title)
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.system(size: 17, weight: .black, design: .rounded))
                         .foregroundStyle(.primary)
 
                     Text(item.subtitle)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -294,23 +322,40 @@ private struct MoreNavCard: View {
 
                 // Chevron
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color.secondary.opacity(0.4))
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(item.gradient.first ?? .secondary)
+                    .offset(x: isPressed ? 4 : 0)
+                    .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 18)
+            .padding(.vertical, 16)
             .background {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color.white)
-                    .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 4)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                    
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    .white.opacity(0.25),
+                                    .white.opacity(0.05)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
+                .shadow(color: .black.opacity(0.04), radius: 10, x: 0, y: 4)
             }
-            .scaleEffect(isPressed ? 0.97 : 1.0)
+            .scaleEffect(isPressed ? 0.96 : 1.0)
         }
         .buttonStyle(.plain)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
-                    withAnimation(.easeInOut(duration: 0.12)) { isPressed = true }
+                    withAnimation(.easeInOut(duration: 0.1)) { isPressed = true }
                 }
                 .onEnded { _ in
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { isPressed = false }
