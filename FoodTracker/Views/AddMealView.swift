@@ -508,6 +508,9 @@ private struct FoodItemRowCard: View {
     let onUpdateWeight: (Double) -> Void
     let onDelete: () -> Void
     
+    @State private var localWeight: Double = 100.0
+    @State private var textInput: String = "100"
+    
     private func emojiForFood(_ name: String) -> String {
         let nameLower = name.lowercased()
         if nameLower.contains("yogurt") || nameLower.contains("йогурт") { return "🥛" }
@@ -570,42 +573,56 @@ private struct FoodItemRowCard: View {
                     .padding(.horizontal, 16)
                 
                 VStack(spacing: 16) {
-                    HStack {
-                        Text("Portion Weight")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.gray)
-                        Spacer()
-                        
-                        HStack(spacing: 14) {
-                            Button(action: {
-                                HapticManager.shared.impact(style: .light)
-                                onUpdateWeight(max(10, food.weight - 10))
-                            }) {
-                                Image(systemName: "minus.circle.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.gray.opacity(0.3))
-                            }
+                    VStack(spacing: 8) {
+                        HStack {
+                            Text("Portion Weight")
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundColor(.gray)
+                            Spacer()
                             
-                            Text("\(Int(food.weight)) g")
-                                .font(.system(size: 15, weight: .bold, design: .monospaced))
-                                .frame(width: 60)
-                            
-                            Button(action: {
-                                HapticManager.shared.impact(style: .light)
-                                onUpdateWeight(food.weight + 10)
-                            }) {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.gray.opacity(0.3))
+                            HStack(spacing: 4) {
+                                TextField("100", text: $textInput)
+                                    .keyboardType(.decimalPad)
+                                    .multilineTextAlignment(.trailing)
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .foregroundColor(.themePink)
+                                    .frame(width: 80)
+                                    .padding(.vertical, 6)
+                                    .padding(.horizontal, 10)
+                                    .background(Color.themeBg.opacity(0.5))
+                                    .cornerRadius(10)
+                                    .onChange(of: textInput) { _, newValue in
+                                        if let val = Double(newValue), val > 0 {
+                                            localWeight = val
+                                            onUpdateWeight(val)
+                                        }
+                                    }
+                                
+                                Text("g")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.gray)
                             }
                         }
+                        
+                        Slider(value: $localWeight, in: 5...1000, step: 5)
+                            .tint(.themePink)
+                            .onChange(of: localWeight) { _, newValue in
+                                let newText = String(format: "%.0f", newValue)
+                                if textInput != newText {
+                                    textInput = newText
+                                }
+                                onUpdateWeight(newValue)
+                            }
                     }
                     
                     HStack(spacing: 8) {
                         ForEach([50, 100, 150, 200], id: \.self) { amount in
                             Button(action: {
                                 HapticManager.shared.impact(style: .medium)
-                                onUpdateWeight(Double(amount))
+                                let amountDbl = Double(amount)
+                                localWeight = amountDbl
+                                textInput = "\(amount)"
+                                onUpdateWeight(amountDbl)
                             }) {
                                 Text("\(amount)g")
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
@@ -644,5 +661,15 @@ private struct FoodItemRowCard: View {
                 .stroke(isExpanded ? Color.themePink.opacity(0.2) : Color.clear, lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.02), radius: 6, x: 0, y: 3)
+        .onAppear {
+            localWeight = food.weight > 0 ? food.weight : 100.0
+            textInput = String(format: "%.0f", localWeight)
+        }
+        .onChange(of: food.weight) { _, newWeight in
+            if localWeight != newWeight {
+                localWeight = newWeight
+                textInput = String(format: "%.0f", newWeight)
+            }
+        }
     }
 }

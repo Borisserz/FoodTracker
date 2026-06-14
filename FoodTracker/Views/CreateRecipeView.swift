@@ -548,42 +548,46 @@ struct AddIngredientModalView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
 
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Basic Info").font(.headline).foregroundColor(.gray)
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Basic Info")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundColor(.gray)
+                                .padding(.horizontal, 4)
 
                             VStack(spacing: 0) {
-                                CustomTextFieldRow(title: "Name", placeholder: "e.g. Oat Milk", text: $name, isNumber: false)
-                                Divider().padding(.leading, 20)
-                                CustomTextFieldRow(title: "Weight (g)", placeholder: "100", text: $weight, isNumber: true)
+                                CustomTextFieldRow(title: "Name", placeholder: "e.g. Oat Milk", text: $name, isNumber: false, systemImage: "doc.text.fill")
+                                Divider().padding(.leading, 52)
+                                CustomTextFieldRow(title: "Weight (g)", placeholder: "100", text: $weight, isNumber: true, systemImage: "scalemass.fill")
                             }
-                            .background(Color.white)
-                            .cornerRadius(20)
-                            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+                            .ultraPremiumCardStyle()
                         }
 
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Text("Nutrition Facts").font(.headline).foregroundColor(.gray)
+                                Text("Nutrition Facts")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.gray)
                                 Spacer()
-                                Text("Optional").font(.caption).foregroundColor(.gray.opacity(0.6))
+                                Text("Optional")
+                                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.gray.opacity(0.6))
                             }
+                            .padding(.horizontal, 4)
 
                             VStack(spacing: 0) {
-                                CustomTextFieldRow(title: "Calories (kcal)", placeholder: "0", text: $calories, isNumber: true)
-                                Divider().padding(.leading, 20)
-                                CustomTextFieldRow(title: "Protein (g)", placeholder: "0", text: $protein, isNumber: true)
-                                Divider().padding(.leading, 20)
-                                CustomTextFieldRow(title: "Fats (g)", placeholder: "0", text: $fats, isNumber: true)
-                                Divider().padding(.leading, 20)
-                                CustomTextFieldRow(title: "Carbs (g)", placeholder: "0", text: $carbs, isNumber: true)
+                                CustomTextFieldRow(title: "Calories (kcal)", placeholder: "0", text: $calories, isNumber: true, systemImage: "flame.fill")
+                                Divider().padding(.leading, 52)
+                                CustomTextFieldRow(title: "Protein (g)", placeholder: "0", text: $protein, isNumber: true, systemImage: "leaf.fill")
+                                Divider().padding(.leading, 52)
+                                CustomTextFieldRow(title: "Fats (g)", placeholder: "0", text: $fats, isNumber: true, systemImage: "drop.fill")
+                                Divider().padding(.leading, 52)
+                                CustomTextFieldRow(title: "Carbs (g)", placeholder: "0", text: $carbs, isNumber: true, systemImage: "chart.bar.fill")
                             }
-                            .background(Color.white)
-                            .cornerRadius(20)
-                            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+                            .ultraPremiumCardStyle()
                         }
 
                         Text("Items created here are permanently saved to your database and can be used in your daily logs.")
-                            .font(.caption)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 20)
@@ -603,13 +607,19 @@ struct AddIngredientModalView: View {
 
                         Button(action: saveIngredient) {
                             Text("Save & Add")
-                                .font(.headline)
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(isFormValid ? Color.themePink : Color.gray.opacity(0.5))
+                                .background {
+                                    if isFormValid {
+                                        ThemeManager.shared.current.primaryGradient
+                                    } else {
+                                        LinearGradient(colors: [Color.gray.opacity(0.3)], startPoint: .top, endPoint: .bottom)
+                                    }
+                                }
                                 .cornerRadius(20)
-                                .shadow(color: isFormValid ? Color.themePink.opacity(0.4) : .clear, radius: 8, y: 4)
+                                .shadow(color: isFormValid ? ThemeManager.shared.current.primaryAccent.opacity(0.3) : .clear, radius: 8, y: 4)
                                 .padding(.horizontal, 24)
                                 .padding(.bottom, 20)
                         }
@@ -624,6 +634,7 @@ struct AddIngredientModalView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(.gray)
                 }
             }
@@ -654,21 +665,31 @@ struct CustomTextFieldRow: View {
     let placeholder: String
     @Binding var text: String
     let isNumber: Bool
+    var systemImage: String? = nil
 
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
+            if let systemImage = systemImage {
+                Image(systemName: systemImage)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.themePink)
+                    .frame(width: 32, height: 32)
+                    .background(Color.themePink.opacity(0.08))
+                    .clipShape(Circle())
+            }
+
             Text(title)
-                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(.primary)
             Spacer()
             TextField(placeholder, text: $text)
                 .multilineTextAlignment(.trailing)
                 .keyboardType(isNumber ? .decimalPad : .default)
                 .foregroundColor(.themePink)
-                .font(.headline)
+                .font(.system(size: 16, weight: .bold, design: .rounded))
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 
@@ -911,14 +932,73 @@ struct RecipeDetailView: View {
             self._summaries = Query(filter: predicate)
         }
 
+        private func mealIcon(for type: String) -> String {
+            switch type {
+            case "Breakfast": return "🍳"
+            case "Lunch": return "🥗"
+            case "Dinner": return "🥩"
+            case "Snack": return "🍎"
+            default: return "🥘"
+            }
+        }
+
         var body: some View {
             VStack(spacing: 24) {
-                Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
-                Picker("Meal", selection: $selectedMeal) {
-                    ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) }
+                VStack(alignment: .center, spacing: 8) {
+                    Capsule()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 10)
+                    
+                    Text("Add to Meal")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .padding(.top, 10)
                 }
-                .pickerStyle(.wheel).frame(height: 120)
-
+                
+                VStack(spacing: 12) {
+                    ForEach(meals, id: \.self) { meal in
+                        let isSelected = selectedMeal == meal
+                        Button(action: {
+                            HapticManager.shared.impact(style: .light)
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                selectedMeal = meal
+                            }
+                        }) {
+                            HStack(spacing: 16) {
+                                Text(mealIcon(for: meal))
+                                    .font(.system(size: 24))
+                                    .frame(width: 44, height: 44)
+                                    .background(isSelected ? Color.white.opacity(0.25) : Color.themeBg)
+                                    .clipShape(Circle())
+                                
+                                Text(LocalizedStringKey(meal))
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                
+                                Spacer()
+                                
+                                if isSelected {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity)
+                            .background(isSelected ? ThemeManager.shared.current.primaryGradient : LinearGradient(colors: [Color.white], startPoint: .top, endPoint: .bottom))
+                            .foregroundColor(isSelected ? .white : .primary)
+                            .cornerRadius(18)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18)
+                                    .stroke(isSelected ? Color.clear : Color.gray.opacity(0.12), lineWidth: 1)
+                            )
+                            .shadow(color: isSelected ? ThemeManager.shared.current.primaryAccent.opacity(0.2) : Color.black.opacity(0.015), radius: 5, y: 2)
+                        }
+                        .buttonStyle(BounceButtonStyle())
+                    }
+                }
+                .padding(.horizontal, 24)
+                
                 Button(action: {
                     HapticManager.shared.impact(style: .heavy)
                     Task {
@@ -926,13 +1006,18 @@ struct RecipeDetailView: View {
                         await MainActor.run { dismiss() }
                     }
                 }) {
-                    Text("Select")
-                        .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
-                        .padding(.vertical, 18).background(Color.themePink)
-                        .cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                    Text("Add to Diary")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(ThemeManager.shared.current.primaryGradient)
+                        .cornerRadius(20)
+                        .shadow(color: ThemeManager.shared.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
                 }
                 .buttonStyle(BounceButtonStyle())
-                .padding(.horizontal, 24).padding(.bottom, 20)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 30)
             }
             .background(Color.themeBg.ignoresSafeArea())
         }

@@ -1146,49 +1146,78 @@ struct FoodSearchResultRow: View {
             HStack(spacing: 16) {
 
                 ZStack {
-                    Circle().fill(Color.gray.opacity(0.05)).frame(width: 48, height: 48)
-                    Text("🍲").font(.system(size: 24))
+                    Circle()
+                        .fill(Color.themeBg.opacity(0.8))
+                        .frame(width: 48, height: 48)
+                    Text("🍲")
+                        .font(.system(size: 24))
 
                     if compatibility != .neutral {
                         Image(systemName: compatibility.icon)
-                            .font(.system(size: 14))
+                            .font(.system(size: 10, weight: .black))
                             .foregroundColor(compatibility.color)
-                            .background(Color.white.clipShape(Circle()))
+                            .padding(4)
+                            .background(Color.white)
+                            .clipShape(Circle())
+                            .shadow(color: Color.black.opacity(0.1), radius: 3)
                             .offset(x: 16, y: 16)
                     }
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(food.name)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(compatibility == .avoid ? .gray : .primary)
                         .strikethrough(compatibility == .avoid, color: .red.opacity(0.5))
 
-                    HStack {
+                    HStack(spacing: 6) {
                         Text("\(food.calories) kcal • 100g")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
 
                         if compatibility == .perfect {
-                            Text("• Great for \(user?.activeDietPlan?.name ?? "")")
-                                .font(.system(size: 10, weight: .bold))
+                            Text("Great option")
+                                .font(.system(size: 9, weight: .bold, design: .rounded))
                                 .foregroundColor(.green)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.green.opacity(0.08))
+                                .cornerRadius(6)
                         } else if compatibility == .avoid {
-                            Text("• Avoid on \(user?.activeDietPlan?.name ?? "")")
-                                .font(.system(size: 10, weight: .bold))
+                            Text("Avoid")
+                                .font(.system(size: 9, weight: .bold, design: .rounded))
                                 .foregroundColor(.red)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.red.opacity(0.08))
+                                .cornerRadius(6)
                         }
                     }
                 }
                 Spacer()
-                Image(systemName: "plus.circle.fill")
-                    .font(.title3)
-                    .foregroundColor(compatibility == .avoid ? .gray.opacity(0.3) : .themePink)
+                
+                ZStack {
+                    Circle()
+                        .fill(compatibility == .avoid ? Color.gray.opacity(0.1) : Color.themePink.opacity(0.1))
+                        .frame(width: 32, height: 32)
+                    
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(compatibility == .avoid ? .gray : .themePink)
+                }
             }
-            .padding(16)
-            .background(compatibility == .avoid ? Color.red.opacity(0.03) : (compatibility == .perfect ? Color.green.opacity(0.03) : Color.white))
-            .cornerRadius(20)
-            .shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
+            .padding(14)
+            .background(Color.white)
+            .cornerRadius(18)
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(
+                        compatibility == .avoid ? Color.red.opacity(0.15) :
+                        (compatibility == .perfect ? Color.green.opacity(0.15) : Color.gray.opacity(0.08)),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(color: Color.black.opacity(0.015), radius: 6, x: 0, y: 3)
         }
         .buttonStyle(BounceButtonStyle())
     }
@@ -1685,16 +1714,20 @@ struct SmartAddFoodView: View {
                             HStack(spacing: 10) {
                                 ForEach(categories, id: \.self) { category in
                                     Button(action: {
-                                        withAnimation(.spring()) { selectedCategory = category }
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { selectedCategory = category }
                                         HapticManager.shared.impact(style: .light)
                                     }) {
-                                        Text(category)
-                                            .font(.subheadline).bold()
+                                        Text(LocalizedStringKey(category))
+                                            .font(.system(size: 13, weight: .bold, design: .rounded))
                                             .padding(.horizontal, 18).padding(.vertical, 10)
-                                            .background(selectedCategory == category ? Color.themePink : Color.white)
+                                            .background(selectedCategory == category ? ThemeManager.shared.current.primaryGradient : LinearGradient(colors: [Color.white], startPoint: .top, endPoint: .bottom))
                                             .foregroundColor(selectedCategory == category ? .white : .primary)
-                                            .cornerRadius(20)
-                                            .shadow(color: selectedCategory == category ? Color.themePink.opacity(0.3) : Color.black.opacity(0.03), radius: 4, y: 2)
+                                            .cornerRadius(18)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 18)
+                                                    .stroke(selectedCategory == category ? Color.clear : Color.gray.opacity(0.12), lineWidth: 1)
+                                            )
+                                            .shadow(color: selectedCategory == category ? ThemeManager.shared.current.primaryAccent.opacity(0.2) : Color.black.opacity(0.015), radius: 5, y: 2)
                                     }
                                 }
                             }

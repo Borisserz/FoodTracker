@@ -290,51 +290,55 @@ private struct MacroColumnInfo: View {
 
 private struct ServingSizeEditor: View {
     @Binding var weight: Double
+    @State private var textInput: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Serving Size")
-                .font(.headline)
-
             HStack {
-                Button(action: { changeWeight(by: -10) }) {
-                    Image(systemName: "minus")
-                        .font(.title2.bold())
-                        .foregroundColor(.themePink)
-                        .frame(width: 50, height: 50)
-                        .background(Color.themePink.opacity(0.1))
-                        .cornerRadius(16)
-                }
-
+                Text("Serving Size")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.gray)
                 Spacer()
-
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(Int(weight))")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .contentTransition(.numericText())
+                
+                HStack(spacing: 4) {
+                    TextField("100", text: $textInput)
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.themePink)
+                        .frame(width: 80)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 10)
+                        .background(Color.themeBg.opacity(0.5))
+                        .cornerRadius(10)
+                        .onChange(of: textInput) { _, newValue in
+                            if let val = Double(newValue), val > 0 {
+                                weight = val
+                            }
+                        }
+                    
                     Text("g")
-                        .font(.title3.bold())
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.gray)
-                }
-
-                Spacer()
-
-                Button(action: { changeWeight(by: 10) }) {
-                    Image(systemName: "plus")
-                        .font(.title2.bold())
-                        .foregroundColor(.themePink)
-                        .frame(width: 50, height: 50)
-                        .background(Color.themePink.opacity(0.1))
-                        .cornerRadius(16)
                 }
             }
 
+            Slider(value: $weight, in: 5...1000, step: 5)
+                .tint(.themePink)
+                .onChange(of: weight) { _, newValue in
+                    let newText = String(format: "%.0f", newValue)
+                    if textInput != newText {
+                        textInput = newText
+                    }
+                }
+            
             HStack(spacing: 12) {
-                ForEach([50, 100, 150, 200], id: \.self) { amount in
+                ForEach([50, 100, 150, 200, 300], id: \.self) { amount in
                     Button(action: {
                         HapticManager.shared.impact(style: .medium)
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                             weight = Double(amount)
+                            textInput = "\(amount)"
                         }
                     }) {
                         Text("\(amount)g")
@@ -352,12 +356,8 @@ private struct ServingSizeEditor: View {
         .background(Color.white)
         .cornerRadius(24)
         .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
-    }
-
-    private func changeWeight(by amount: Double) {
-        HapticManager.shared.impact(style: .light)
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-            weight = max(1, weight + amount)
+        .onAppear {
+            textInput = String(format: "%.0f", weight)
         }
     }
 }
