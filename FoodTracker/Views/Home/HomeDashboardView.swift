@@ -215,12 +215,10 @@ struct HomeDashboardContentView: View {
                       .presentationDragIndicator(.visible)
               }
               .sheet(isPresented: $showingQuickAddSheet) {
-                  SmartAddFoodView(mealTitle: localizedMealType(quickAddMealType)) { selectedItems in
-                      addFoodsToMeal(title: quickAddMealType, items: selectedItems)
-                  }
-                  .presentationDetents([.fraction(0.85), .large])
-                  .presentationCornerRadius(32)
-                  .presentationDragIndicator(.hidden)
+                  AddMealView(selectedDate: selectedDate, initialMealType: quickAddMealType)
+                      .presentationDetents([.fraction(0.85), .large])
+                      .presentationCornerRadius(32)
+                      .presentationDragIndicator(.hidden)
               }
               .sheet(isPresented: $showPremiumQuickAdd) {
                   PremiumQuickAddSheet(selectedDate: selectedDate, onSelectDetailedMeal: { selectedMeal in
@@ -238,9 +236,7 @@ struct HomeDashboardContentView: View {
                       .presentationCornerRadius(32)
               }
               .fullScreenCover(item: $mealToOpenInSmartAdd) { mealInfo in
-                  SmartAddFoodView(mealTitle: mealInfo.value) { selectedItems in
-                      addFoodsToMeal(title: mealInfo.value, items: selectedItems)
-                  }
+                  AddMealView(selectedDate: selectedDate, initialMealType: mealInfo.value)
               }
           }
       }
@@ -716,11 +712,9 @@ struct MealDetailView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showingAddFood) {
-            SmartAddFoodView(mealTitle: title) { selectedItems in
-                addFoodsToMeal(items: selectedItems)
-            }
-            .presentationDetents([.fraction(0.85), .large])
-            .presentationCornerRadius(32)
+            AddMealView(selectedDate: date, initialMealType: title)
+                .presentationDetents([.fraction(0.85), .large])
+                .presentationCornerRadius(32)
         }
         .fullScreenCover(item: $selectedFoodForDetail) { food in
             FoodDetailNutritionView(food: food, mealTitle: title) { addedFood in

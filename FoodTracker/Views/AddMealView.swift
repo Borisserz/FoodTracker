@@ -8,7 +8,7 @@ struct AddMealView: View {
     @Query private var summaries: [DailySummary]
     @Query private var users: [User]
     
-    @State private var selectedMealType = "Breakfast"
+    @State private var selectedMealType: String
     @State private var selectedFoods: [FoodItem] = []
     @State private var showingAddFood = false
     @State private var expandedFoodId: UUID? = nil
@@ -16,8 +16,9 @@ struct AddMealView: View {
     let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"]
     let selectedDate: Date
     
-    init(selectedDate: Date) {
+    init(selectedDate: Date, initialMealType: String = "Breakfast") {
         self.selectedDate = selectedDate
+        self._selectedMealType = State(initialValue: initialMealType)
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
         let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
         let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
@@ -302,6 +303,20 @@ struct AddMealView: View {
                 .presentationCornerRadius(32)
             }
         }
+        .onAppear {
+            loadExistingFoods()
+        }
+        .onChange(of: selectedMealType) { _, _ in
+            loadExistingFoods()
+        }
+    }
+    
+    private func loadExistingFoods() {
+        if let existingMeal = summaries.first?.meals.first(where: { $0.title == selectedMealType }) {
+            selectedFoods = existingMeal.foodItems
+        } else {
+            selectedFoods = []
+        }
     }
     
     // Scaling helpers
@@ -342,7 +357,14 @@ struct AddMealView: View {
         }
         
         if let existingMeal = summaryToUse.meals.first(where: { $0.title == selectedMealType }) {
-            existingMeal.foodItems.append(contentsOf: selectedFoods)
+            // Delete removed items
+            let removedFoods = existingMeal.foodItems.filter { existing in
+                !selectedFoods.contains(where: { $0.id == existing.id })
+            }
+            for food in removedFoods {
+                modelContext.delete(food)
+            }
+            existingMeal.foodItems = selectedFoods
         } else {
             let newMeal = Meal(title: selectedMealType, date: selectedDate, foodItems: selectedFoods)
             summaryToUse.meals.append(newMeal)
