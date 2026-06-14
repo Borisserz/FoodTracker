@@ -268,11 +268,12 @@ struct GoalsTabView: View {
             if let startWeight = user?.weight, let target = targetWeight {
                 Divider().padding(.vertical, 4)
                 
-                JourneyTimelineView(
+                WeightFlaskView(
                     startWeight: startWeight,
                     currentWeight: currentWeight,
                     targetWeight: target,
-                    progress: progressPercentage
+                    progress: progressPercentage,
+                    themeColor: themeManager.current.primaryAccent
                 )
             }
         }
@@ -897,113 +898,360 @@ struct BMIMeterView: View {
     }
 }
 
-struct JourneyTimelineView: View {
+struct HorizontalFlaskShape: Shape {
+    let neckLength: CGFloat
+    let neckHeight: CGFloat
+    let tubeHeight: CGFloat
+    let bulbDiameter: CGFloat
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        let width = rect.width
+        let height = rect.height
+        
+        let centerY = height / 2
+        let bulbCenterX = width - bulbDiameter / 2
+        
+        let r = bulbDiameter / 2
+        let h = tubeHeight / 2
+        let dx = sqrt(max(r*r - h*h, 0.0))
+        let intersectX = bulbCenterX - dx
+        
+        let lipWidth: CGFloat = 4
+        let lipHeight: CGFloat = neckHeight + 4
+        
+        // Start at top-left of the lip: (0, centerY - lipHeight/2)
+        path.move(to: CGPoint(x: 0, y: centerY - lipHeight/2))
+        
+        // Outer face of the lip: go down to (0, centerY + lipHeight/2)
+        path.addLine(to: CGPoint(x: 0, y: centerY + lipHeight/2))
+        
+        // Bottom-left corner of the lip: (lipWidth, centerY + lipHeight/2)
+        path.addLine(to: CGPoint(x: lipWidth, y: centerY + lipHeight/2))
+        
+        // Step into the neck: (lipWidth, centerY + neckHeight/2)
+        path.addLine(to: CGPoint(x: lipWidth, y: centerY + neckHeight/2))
+        
+        // Neck bottom line: to (lipWidth + neckLength, centerY + neckHeight/2)
+        let neckEndX = lipWidth + neckLength
+        path.addLine(to: CGPoint(x: neckEndX, y: centerY + neckHeight/2))
+        
+        // Expand/flare to tube height: (neckEndX, centerY + tubeHeight/2)
+        path.addLine(to: CGPoint(x: neckEndX, y: centerY + tubeHeight/2))
+        
+        // Tube bottom line: to the intersection point with the bulb
+        path.addLine(to: CGPoint(x: intersectX, y: centerY + tubeHeight/2))
+        
+        // Arc of the bulb: from intersectX (bottom) around the right side to intersectX (top)
+        let startAngle = atan2(h, -dx)
+        let endAngle = atan2(-h, -dx)
+        
+        path.addArc(center: CGPoint(x: bulbCenterX, y: centerY),
+                    radius: r,
+                    startAngle: Angle(radians: Double(startAngle)),
+                    endAngle: Angle(radians: Double(endAngle)),
+                    clockwise: false)
+        
+        // Tube top line: back to neckEndX
+        path.addLine(to: CGPoint(x: neckEndX, y: centerY - tubeHeight/2))
+        
+        // Flare back to neck: (neckEndX, centerY - neckHeight/2)
+        path.addLine(to: CGPoint(x: neckEndX, y: centerY - neckHeight/2))
+        
+        // Neck top line: back to lipWidth
+        path.addLine(to: CGPoint(x: lipWidth, y: centerY - neckHeight/2))
+        
+        // Step to lip top: (lipWidth, centerY - lipHeight/2)
+        path.addLine(to: CGPoint(x: lipWidth, y: centerY - lipHeight/2))
+        
+        // Close path
+        path.closeSubpath()
+        
+        return path
+    }
+}
+
+struct BubblesLayer: View {
+    let fillWidth: CGFloat
+    let containerHeight: CGFloat
+    
+    var body: some View {
+        ZStack {
+            ForEach(0..<6) { i in
+                BubbleView(index: i, fillWidth: fillWidth, containerHeight: containerHeight)
+            }
+        }
+    }
+}
+
+struct BubbleView: View {
+    let index: Int
+    let fillWidth: CGFloat
+    let containerHeight: CGFloat
+    
+    @State private var bubbleY: CGFloat = 0.0
+    @State private var bubbleX: CGFloat = 0.0
+    @State private var bubbleOpacity: Double = 0.0
+    @State private var bubbleScale: CGFloat = 1.0
+    
+    var body: some View {
+        Circle()
+            .fill(Color.white.opacity(bubbleOpacity))
+            .scaleEffect(bubbleScale)
+            .frame(width: CGFloat((index % 3 == 0) ? 4 : (index % 2 == 0) ? 3 : 2))
+            .position(x: bubbleX, y: bubbleY)
+            .onAppear {
+                animateBubble()
+            }
+    }
+    
+    private func animateBubble() {
+        let initialX = CGFloat.random(in: 24...max(28, fillWidth - 12))
+        let initialY = containerHeight / 2 + CGFloat.random(in: 1...6)
+        
+        bubbleX = initialX
+        bubbleY = initialY
+        bubbleOpacity = Double.random(in: 0.2...0.6)
+        bubbleScale = 0.8
+        
+        let duration = Double.random(in: 1.8...3.2)
+        let driftX = CGFloat.random(in: -10...10)
+        let targetY = containerHeight / 2 - CGFloat.random(in: 3...8)
+        
+        withAnimation(Animation.easeInOut(duration: duration).repeatForever(autoreverses: false)) {
+            bubbleX = initialX + driftX
+            bubbleY = targetY
+            bubbleOpacity = 0.0
+            bubbleScale = 1.3
+        }
+    }
+}
+
+struct WeightFlaskView: View {
     let startWeight: Double
     let currentWeight: Double
     let targetWeight: Double
     let progress: Double
+    let themeColor: Color
+    
+    @Environment(ThemeManager.self) private var themeManager
     
     var body: some View {
         VStack(spacing: 0) {
             GeometryReader { geo in
+                let width = geo.size.width
+                let height = geo.size.height
+                
+                // Define dimensions
+                let neckLength: CGFloat = 20
+                let neckHeight: CGFloat = 16
+                let tubeHeight: CGFloat = 22
+                let bulbDiameter: CGFloat = 48
+                
+                let centerY = height / 2
+                let bulbCenterX = width - bulbDiameter / 2
+                
+                // Calculations for intersection of tube with bulb
+                let r = bulbDiameter / 2
+                let h = tubeHeight / 2
+                let dx = sqrt(max(r*r - h*h, 0.0))
+                let intersectX = bulbCenterX - dx
+                let neckEndX = 4 + neckLength
+                
+                // Calculated progress positioning for fluid fill and badge
+                let fillableLength = intersectX - 4 // From lip to bulb intersection
+                let fillWidth = max(min(fillableLength * CGFloat(progress), fillableLength), 0)
+                
                 ZStack(alignment: .leading) {
-                    // Track line
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(Color.primary.opacity(0.08))
-                            .frame(height: 6)
+                    // 1. Wood-cork stopper on the left mouth
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0.65, green: 0.45, blue: 0.30),
+                                    Color(red: 0.50, green: 0.32, blue: 0.18),
+                                    Color(red: 0.38, green: 0.24, blue: 0.12)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .frame(width: 12, height: neckHeight + 2)
+                        .offset(x: -4, y: centerY - (neckHeight + 2)/2)
+                        .shadow(color: Color.black.opacity(0.15), radius: 2, x: -1, y: 1)
+                    
+                    // 2. Glass container background
+                    HorizontalFlaskShape(
+                        neckLength: neckLength,
+                        neckHeight: neckHeight,
+                        tubeHeight: tubeHeight,
+                        bulbDiameter: bulbDiameter
+                    )
+                    .fill(Color.primary.opacity(0.04))
+                    .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 2)
+                    
+                    // 3. Scale / graduation ticks along the tube
+                    Path { path in
+                        let tickCount = 5
+                        for i in 1..<tickCount {
+                            let ratio = CGFloat(i) / CGFloat(tickCount)
+                            let tickX = neckEndX + (intersectX - neckEndX) * ratio
+                            path.move(to: CGPoint(x: tickX, y: centerY + tubeHeight/2 - 4))
+                            path.addLine(to: CGPoint(x: tickX, y: centerY + tubeHeight/2))
+                        }
+                    }
+                    .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                    
+                    // 4. Fluid overlay (masked with flask shape)
+                    if progress > 0 {
+                        ZStack(alignment: .leading) {
+                            // Fluid body
+                            Rectangle()
+                                .fill(themeManager.current.primaryGradient)
+                                .frame(width: fillWidth + 4, height: height)
+                                .shadow(color: themeManager.current.primaryAccent.opacity(0.4), radius: 8, x: 0, y: 3)
+                            
+                            // Bubble animation container
+                            BubblesLayer(fillWidth: fillWidth + 4, containerHeight: height)
+                        }
+                        .mask(
+                            HorizontalFlaskShape(
+                                neckLength: neckLength,
+                                neckHeight: neckHeight,
+                                tubeHeight: tubeHeight,
+                                bulbDiameter: bulbDiameter
+                            )
+                        )
+                        .animation(.spring(response: 0.9, dampingFraction: 0.75), value: progress)
+                    }
+                    
+                    // 5. Outer Glass Stroke & Reflection highlights
+                    HorizontalFlaskShape(
+                        neckLength: neckLength,
+                        neckHeight: neckHeight,
+                        tubeHeight: tubeHeight,
+                        bulbDiameter: bulbDiameter
+                    )
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.4),
+                                Color.primary.opacity(0.12),
+                                Color.white.opacity(0.08)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+                    
+                    // Glass shine highlight inside the tube (a thin specular stroke)
+                    Path { path in
+                        path.move(to: CGPoint(x: neckEndX + 4, y: centerY - tubeHeight/2 + 2))
+                        path.addLine(to: CGPoint(x: intersectX - 4, y: centerY - tubeHeight/2 + 2))
+                    }
+                    .stroke(Color.white.opacity(0.35), lineWidth: 1)
+                    
+                    // 6. Finish indicator inside the bulb (checkmark seal if done, checkered flag otherwise)
+                    ZStack {
+                        Circle()
+                            .fill(progress >= 1.0 ? Color.green.opacity(0.2) : Color.primary.opacity(0.03))
+                            .frame(width: 28, height: 28)
                         
-                        Capsule()
-                            .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
-                            .frame(width: max(geo.size.width * CGFloat(progress), 0), height: 6)
-                            .shadow(color: Color.themePink.opacity(0.4), radius: 4, y: 1)
+                        Image(systemName: progress >= 1.0 ? "checkmark.seal.fill" : "flag.checkered")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(progress >= 1.0 ? .green : .secondary.opacity(0.6))
                     }
-                    .offset(y: 36)
+                    .offset(x: bulbCenterX - 14, y: centerY - 14)
                     
-                    // Start Node
-                    VStack(spacing: 4) {
-                        Circle()
-                            .fill(Color.green)
-                            .frame(width: 10, height: 10)
-                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                        Text("Start")
-                            .font(.system(size: 9, weight: .bold, design: .rounded))
-                            .foregroundColor(.secondary)
-                        Text(String(format: "%.1f kg", startWeight))
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                    // 7. Dynamic sliding Current Weight badge (floats above liquid level)
+                    if progress > 0 {
+                        let badgeWidth: CGFloat = 56
+                        let badgeX = neckEndX + (bulbCenterX - neckEndX) * CGFloat(progress) - badgeWidth/2
+                        
+                        VStack(spacing: 0) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white)
+                                    .shadow(color: Color.black.opacity(0.12), radius: 4, y: 2)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(themeManager.current.primaryGradient, lineWidth: 1.5)
+                                    )
+                                
+                                Text(String(format: "%.1f kg", currentWeight))
+                                    .font(.system(size: 9, weight: .black, design: .rounded))
+                                    .foregroundColor(.primary)
+                            }
+                            .frame(width: badgeWidth, height: 24)
+                            
+                            // Tiny pointer
+                            Image(systemName: "triangle.fill")
+                                .font(.system(size: 5))
+                                .foregroundColor(themeManager.current.primaryAccent)
+                                .rotationEffect(.degrees(180))
+                                .offset(y: -1)
+                        }
+                        .offset(x: badgeX, y: centerY - tubeHeight/2 - 30)
                     }
-                    .offset(y: 24)
                     
-                    // Goal Node
-                    VStack(spacing: 4) {
-                        Circle()
-                            .fill(progress >= 1.0 ? Color.green : Color.primary.opacity(0.15))
-                            .frame(width: 10, height: 10)
-                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                        Text("Goal")
-                            .font(.system(size: 9, weight: .bold, design: .rounded))
-                            .foregroundColor(.secondary)
-                        Text(String(format: "%.1f kg", targetWeight))
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                    // 8. Hanging Start Weight label
+                    VStack(spacing: 1) {
+                        // Small hanging string
+                        Rectangle()
+                            .fill(Color.secondary.opacity(0.3))
+                            .frame(width: 1, height: 12)
+                        
+                        VStack(spacing: 0) {
+                            Text("START")
+                                .font(.system(size: 7, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                            Text(String(format: "%.1f kg", startWeight))
+                                .font(.system(size: 10, weight: .black, design: .rounded))
+                                .foregroundColor(.primary)
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(6)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 0.8)
+                        )
                     }
-                    .offset(x: geo.size.width - 50, y: 24)
+                    .offset(x: neckEndX - 10, y: centerY + tubeHeight/2)
                     
-                    // Hovering current node
-                    TimelineCurrentNode(val: currentWeight)
-                        .offset(x: max((geo.size.width - 60) * CGFloat(progress), 0), y: 14)
+                    // 9. Hanging Goal Weight label
+                    VStack(spacing: 1) {
+                        // Small hanging string
+                        Rectangle()
+                            .fill(Color.secondary.opacity(0.3))
+                            .frame(width: 1, height: 12)
+                        
+                        VStack(spacing: 0) {
+                            Text("GOAL")
+                                .font(.system(size: 7, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                            Text(String(format: "%.1f kg", targetWeight))
+                                .font(.system(size: 10, weight: .black, design: .rounded))
+                                .foregroundColor(.primary)
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(6)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 0.8)
+                        )
+                    }
+                    .offset(x: bulbCenterX - 22, y: centerY + tubeHeight/2)
                 }
             }
-            .frame(height: 75)
-            .padding(.horizontal, 10)
+            .frame(height: 100)
         }
     }
 }
 
-struct TimelineNode: View {
-    let label: String
-    let val: Double
-    let isCompleted: Bool
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Circle()
-                .fill(isCompleted ? Color.green : Color.primary.opacity(0.15))
-                .frame(width: 8, height: 8)
-            Text(String(format: "%.1f kg", val))
-                .font(.system(size: 10, weight: .bold, design: .rounded))
-                .foregroundColor(.secondary)
-        }
-    }
-}
-
-struct TimelineCurrentNode: View {
-    let val: Double
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            VStack(spacing: 2) {
-                Image(systemName: "figure.walk")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.white)
-                Text(String(format: "%.1f kg", val))
-                    .font(.system(size: 9, weight: .black, design: .rounded))
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
-            .cornerRadius(12)
-            .shadow(color: Color.themePink.opacity(0.35), radius: 6, y: 3)
-            
-            Image(systemName: "triangle.fill")
-                .font(.system(size: 8))
-                .foregroundColor(.themeOrange)
-                .rotationEffect(.degrees(180))
-                .offset(y: -2)
-        }
-        .offset(y: -30)
-    }
-}
 
