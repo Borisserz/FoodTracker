@@ -524,6 +524,19 @@ struct LearnDashboardView: View {
     @Binding var path: NavigationPath
     @State private var dataLoader = AcademyDataLoader()
 
+    private var totalArticles: Int {
+        dataLoader.categories.reduce(0) { $0 + $1.totalCount }
+    }
+    
+    private var completedArticles: Int {
+        dataLoader.categories.reduce(0) { $0 + $1.completedCount }
+    }
+    
+    private var progressFraction: Double {
+        let total = totalArticles
+        return total > 0 ? Double(completedArticles) / Double(total) : 0.0
+    }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
@@ -541,6 +554,53 @@ struct LearnDashboardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
                 .padding(.top, 8)
+
+                if !dataLoader.categories.isEmpty {
+                    // Learning Progress Header Card
+                    HStack(spacing: 20) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("YOUR PROGRESS")
+                                .font(.system(.caption2, design: .rounded, weight: .black))
+                                .foregroundColor(.themePink)
+                                .tracking(1)
+                            
+                            Text("Academy Master")
+                                .font(.system(.title3, design: .rounded, weight: .heavy))
+                                .foregroundColor(.primary)
+                            
+                            Text("\(completedArticles) of \(totalArticles) topics finished")
+                                .font(.system(.subheadline, weight: .medium))
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        // Progress Circle
+                        ZStack {
+                            Circle()
+                                .stroke(Color.gray.opacity(0.1), lineWidth: 6)
+                            
+                            Circle()
+                                .trim(from: 0, to: progressFraction)
+                                .stroke(
+                                    LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom),
+                                    style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                                )
+                                .rotationEffect(.degrees(-90))
+                                .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 3)
+                            
+                            Text("\(Int(progressFraction * 100))%")
+                                .font(.system(.caption2, design: .rounded, weight: .bold))
+                                .foregroundColor(.primary)
+                        }
+                        .frame(width: 68, height: 68)
+                    }
+                    .padding(20)
+                    .background(.regularMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
+                    .padding(.horizontal)
+                }
 
                 if dataLoader.categories.isEmpty {
                     ProgressView("Loading academy...")
@@ -620,30 +680,30 @@ struct ArticleCardView: View {
         VStack(spacing: 0) {
             ZStack(alignment: .topLeading) {
                 LinearGradient(
-                    colors: [article.color1, article.color2],
+                    colors: [article.color1.opacity(0.85), article.color2],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
 
                 Image(systemName: article.iconName)
-                    .font(.system(size: 70))
-                    .foregroundStyle(.white.opacity(0.25))
+                    .font(.system(size: 64))
+                    .foregroundStyle(.white.opacity(0.22))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                    .offset(x: 10, y: 15)
+                    .offset(x: 8, y: 12)
                     .accessibilityHidden(true)
 
                 HStack(spacing: 4) {
-                    Image(systemName: "book.fill").font(.system(size: 10))
-                    Text("\(article.readTime) min").font(.system(size: 10, weight: .bold))
+                    Image(systemName: "clock.fill").font(.system(size: 9))
+                    Text("\(article.readTime) MIN").font(.system(size: 9, weight: .bold))
                 }
                 .foregroundStyle(.white)
-                .padding(.horizontal, 8).padding(.vertical, 6)
+                .padding(.horizontal, 8).padding(.vertical, 5)
                 .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
                 .clipShape(Capsule()).padding(12)
             }
-            .frame(height: 120).clipped()
+            .frame(height: 115).clipped()
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(article.title)
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.primary)
@@ -656,11 +716,15 @@ struct ArticleCardView: View {
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
             }
-            .padding(14).frame(maxWidth: .infinity, alignment: .leading).frame(height: 100)
+            .padding(12).frame(maxWidth: .infinity, alignment: .leading).frame(height: 95)
             .background(.regularMaterial)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: Color.black.opacity(0.06), radius: 10, y: 5)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: Color.black.opacity(0.05), radius: 10, y: 5)
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(Color.black.opacity(0.04), lineWidth: 1)
+        )
     }
 }
 

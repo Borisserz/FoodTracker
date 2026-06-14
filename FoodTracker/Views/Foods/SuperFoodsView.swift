@@ -72,17 +72,29 @@ struct DietHeroCard: View {
         VStack(alignment: .leading, spacing: 0) {
 
             ZStack(alignment: .topLeading) {
-                LinearGradient(
-                    colors: [diet.color.opacity(0.8), diet.color],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                // Background Unsplash food photo
+                AsyncImage(url: URL(string: diet.imageUrl)) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        LinearGradient(
+                            colors: [diet.color.opacity(0.85), diet.color],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
+                }
+                .frame(height: 240)
+                .clipped()
 
-                Image(systemName: "leaf.fill")
-                    .font(.system(size: 150))
-                    .foregroundStyle(.white.opacity(0.2))
-                    .offset(x: 180, y: 50)
-                    .accessibilityHidden(true)
+                // Overlay gradient for readability
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.5), .black.opacity(0.85)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
 
                 VStack(alignment: .leading, spacing: 8) {
                     if isActive {
@@ -90,12 +102,12 @@ struct DietHeroCard: View {
                             Image(systemName: "checkmark.seal.fill")
                             Text("ACTIVE PLAN")
                         }
-                        .font(.system(.caption, design: .rounded, weight: .black))
+                        .font(.system(.caption2, design: .rounded, weight: .black))
                         .foregroundStyle(diet.color)
-                        .padding(.horizontal, 12).padding(.vertical, 6)
-                        .background(Color.white)
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .background(.white)
                         .clipShape(Capsule())
-                        .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+                        .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
                     }
 
                     Spacer(minLength: 80)
@@ -103,14 +115,16 @@ struct DietHeroCard: View {
                     Text(diet.name)
                         .font(.system(.largeTitle, design: .rounded, weight: .heavy))
                         .foregroundStyle(.white)
-                        .shadow(color: .black.opacity(0.2), radius: 2, y: 2)
+                        .shadow(color: .black.opacity(0.3), radius: 3, y: 2)
 
                     Text(diet.tagline)
                         .font(.headline)
-                        .foregroundStyle(.white.opacity(0.9))
+                        .foregroundStyle(.white.opacity(0.95))
+                        .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
                 }
                 .padding(24)
             }
+            .frame(height: 240)
 
             VStack(spacing: 20) {
                 HStack(spacing: 24) {
@@ -132,7 +146,7 @@ struct DietHeroCard: View {
             .background(Color.white)
         }
         .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-        .shadow(color: diet.color.opacity(0.3), radius: 20, y: 10)
+        .shadow(color: diet.color.opacity(0.18), radius: 20, y: 10)
         .padding(.horizontal, 24)
     }
 }
@@ -140,18 +154,26 @@ struct DietHeroCard: View {
 struct MacroMiniStat: View {
     let title: String; let value: Int; let color: Color
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             ZStack {
-                Circle().stroke(Color.gray.opacity(0.15), lineWidth: 4)
-                Circle().trim(from: 0, to: CGFloat(value) / 100.0)
-                    .stroke(color, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                Circle()
+                    .stroke(Color.gray.opacity(0.12), lineWidth: 5)
+                
+                Circle()
+                    .trim(from: 0, to: CGFloat(value) / 100.0)
+                    .stroke(color, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                Text("\(value)%").font(.system(.caption, design: .rounded, weight: .bold))
-            }.frame(width: 44, height: 44)
+                    .shadow(color: color.opacity(0.3), radius: 3, x: 0, y: 1)
+                
+                Text("\(value)%")
+                    .font(.system(.caption2, design: .rounded, weight: .bold))
+                    .foregroundColor(.primary)
+            }
+            .frame(width: 46, height: 46)
+            
             Text(title)
-                .font(.caption2)
+                .font(.system(.caption2, design: .rounded, weight: .bold))
                 .foregroundStyle(.secondary)
-                .bold()
         }
         .frame(maxWidth: .infinity)
     }
@@ -178,12 +200,21 @@ struct PremiumDietDetailView: View {
 
                         ZStack(alignment: .bottomLeading) {
 
-                            LinearGradient(
-                                colors: [diet.color.opacity(0.7), diet.color],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+                            AsyncImage(url: URL(string: diet.imageUrl)) { phase in
+                                if let image = phase.image {
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                } else {
+                                    LinearGradient(
+                                        colors: [diet.color.opacity(0.7), diet.color],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                }
+                            }
                             .frame(height: isScrollingDown ? 350 + minY : 350)
+                            .clipped()
                             .offset(y: isScrollingDown ? -minY : 0)
 
                             Image(systemName: "sparkles")
@@ -416,5 +447,16 @@ struct PremiumFoodCategorySection: View {
         }
         .cornerRadius(24)
         .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+    }
+}
+extension DietPlan {
+    var imageUrl: String {
+        switch key {
+        case "keto": return "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600"
+        case "vegan": return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600"
+        case "high_protein": return "https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=80&w=600"
+        case "mediterranean": return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=600"
+        default: return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600"
+        }
     }
 }
