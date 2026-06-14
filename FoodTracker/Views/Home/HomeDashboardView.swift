@@ -30,6 +30,11 @@ struct HomeDashboardContentView: View {
     @State private var allTimeCalories: Int = 0
     @State private var showXPPopup = false
     @State private var xpBreakdown: NutritionXPBreakdown? = nil
+    
+    @State private var showingScanner = false
+    @State private var showingManualAdd = false
+    @State private var selectedFoodForDetail: FoodItem? = nil
+    @State private var isMenuExpanded = false
 
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
@@ -75,7 +80,26 @@ struct HomeDashboardContentView: View {
     var body: some View {
           NavigationStack {
               ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
-                  Color.themeBg.ignoresSafeArea()
+                  ZStack {
+                      Color.themeBg.ignoresSafeArea()
+                      
+                      GeometryReader { geo in
+                          ZStack {
+                              Circle()
+                                  .fill(Color.themePink.opacity(0.12))
+                                  .frame(width: 320, height: 320)
+                                  .blur(radius: 80)
+                                  .offset(x: -80, y: -100)
+                              
+                              Circle()
+                                  .fill(Color.themeOrange.opacity(0.08))
+                                  .frame(width: 280, height: 280)
+                                  .blur(radius: 70)
+                                  .offset(x: geo.size.width - 200, y: 220)
+                          }
+                      }
+                      .ignoresSafeArea()
+                  }
 
                   // Ensure the day's summary exists via the actor-isolated repo (removes detached main-context creation).
                   .task(id: selectedDate) {
@@ -87,7 +111,7 @@ struct HomeDashboardContentView: View {
 
                   ScrollView(showsIndicators: false) {
                       VStack(spacing: 24) {
-                          HeaderView(selectedDate: selectedDate, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
+                          HeaderView(selectedDate: selectedDate, user: currentUser, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
                           CalendarCarouselView(selectedDate: $selectedDate)
                           InsightsWidget(summary: currentSummary, user: currentUser)
 
@@ -157,11 +181,71 @@ struct HomeDashboardContentView: View {
                       }
                       .padding(.bottom, 120) // Оставили место для плавающей кнопки
                   }
+                  .blur(radius: isMenuExpanded ? 4 : 0)
+                  .disabled(isMenuExpanded)
+                  
+                  if isMenuExpanded {
+                      Color.black.opacity(0.25)
+                          .ignoresSafeArea()
+                          .onTapGesture {
+                              withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                  isMenuExpanded = false
+                              }
+                          }
+                          .transition(.opacity)
+                      
+                      VStack(spacing: 14) {
+                          SpeedDialItem(
+                              icon: "barcode.viewfinder",
+                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Сканировать" : "Scan Barcode",
+                              color: .blue
+                          ) {
+                              isMenuExpanded = false
+                              showingScanner = true
+                          }
+                          
+                          SpeedDialItem(
+                              icon: "fork.knife",
+                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Записать еду" : "Log Meal",
+                              color: .themePink
+                          ) {
+                              isMenuExpanded = false
+                              self.mealToOpenInSmartAdd = IdentifiableString(value: "Breakfast")
+                          }
+                          
+                          SpeedDialItem(
+                              icon: "bolt.fill",
+                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Быстрые калории" : "Quick Calories",
+                              color: .themeOrange
+                          ) {
+                              isMenuExpanded = false
+                              showPremiumQuickAdd = true
+                          }
+                          
+                          SpeedDialItem(
+                              icon: "figure.run",
+                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Активность" : "Log Activity",
+                              color: .green
+                          ) {
+                              isMenuExpanded = false
+                              showingQuickActivitySheet = true
+                          }
+                      }
+                      .transition(.asymmetric(
+                          insertion: .scale.combined(with: .offset(y: 50)).combined(with: .opacity),
+                          removal: .scale.combined(with: .offset(y: 50)).combined(with: .opacity)
+                      ))
+                      .padding(.trailing, 24)
+                      .padding(.bottom, 100)
+                      .zIndex(99)
+                  }
                   
                   // ПЛАВАЮЩАЯ КНОПКА QUICK ADD (ПЕРЕНЕСЕНА СЮДА)
                   Button(action: {
                       HapticManager.shared.impact(style: .medium)
-                      showPremiumQuickAdd = true
+                      withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                          isMenuExpanded.toggle()
+                      }
                   }) {
                       Image(systemName: "plus")
                           .font(.system(size: 26, weight: .bold))
@@ -169,10 +253,12 @@ struct HomeDashboardContentView: View {
                           .frame(width: 64, height: 64)
                           .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
                           .clipShape(Circle())
+                          .rotationEffect(.degrees(isMenuExpanded ? 135 : 0))
                           .shadow(color: .themePink.opacity(0.4), radius: 10, y: 5)
                   }
                   .padding(.trailing, 24)
                   .padding(.bottom, 24)
+                  .zIndex(100)
                   
                   if showXPPopup, let breakdown = xpBreakdown {
                       NutritionXPBreakdownPopup(breakdown: breakdown) {
@@ -237,6 +323,25 @@ struct HomeDashboardContentView: View {
               }
               .fullScreenCover(item: $mealToOpenInSmartAdd) { mealInfo in
                   AddMealView(selectedDate: selectedDate, initialMealType: mealInfo.value)
+              }
+              .fullScreenCover(isPresented: $showingScanner) {
+                  SmartScannerView(
+                      onProductFound: { foundFood in selectedFoodForDetail = foundFood },
+                      onManualEntryRequest: { showingManualAdd = true }
+                  )
+              }
+              .fullScreenCover(item: $selectedFoodForDetail) { food in
+                  FoodDetailNutritionView(food: food, mealTitle: "Snack") { addedFood in
+                      addFoodsToMeal(title: "Snack", items: [addedFood])
+                  }
+              }
+              .sheet(isPresented: $showingManualAdd) {
+                  AddIngredientModalView { newCustomItem in
+                      addFoodsToMeal(title: "Snack", items: [newCustomItem])
+                  }
+                  .presentationDetents([.fraction(0.85), .large])
+                  .presentationCornerRadius(32)
+                  .presentationDragIndicator(.visible)
               }
           }
       }
@@ -362,59 +467,101 @@ struct HomeDashboardContentView: View {
 
 struct HeaderView: View {
     let selectedDate: Date
+    let user: User?
     var onProfileTap: () -> Void
     var onShareTap: () -> Void
 
-    private var monthYearString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: selectedDate)
+    private var greetingString: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let name = user?.name ?? "Friend"
+        let isRussian = Locale.current.language.languageCode?.identifier == "ru"
+        
+        if isRussian {
+            switch hour {
+            case 5..<12:
+                return "Доброе утро, \(name)! 🌅"
+            case 12..<18:
+                return "Добрый день, \(name)! 🥗"
+            case 18..<23:
+                return "Добрый вечер, \(name)! 🌙"
+            default:
+                return "Привет, \(name)! 🌌"
+            }
+        } else {
+            switch hour {
+            case 5..<12:
+                return "Good morning, \(name)! 🌅"
+            case 12..<18:
+                return "Good afternoon, \(name)! 🥗"
+            case 18..<23:
+                return "Good evening, \(name)! 🌙"
+            default:
+                return "Hello, \(name)! 🌌"
+            }
+        }
     }
 
     private var relativeDateString: String {
         let calendar = Calendar.current
-        if calendar.isDateInToday(selectedDate) { return "Today" }
-        if calendar.isDateInYesterday(selectedDate) { return "Yesterday" }
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: selectedDate)
+        let isRussian = Locale.current.language.languageCode?.identifier == "ru"
+        let relativeDay: String
+        if calendar.isDateInToday(selectedDate) {
+            relativeDay = isRussian ? "Сегодня" : "Today"
+        } else if calendar.isDateInYesterday(selectedDate) {
+            relativeDay = isRussian ? "Вчера" : "Yesterday"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+            formatter.locale = Locale.current
+            relativeDay = formatter.string(from: selectedDate)
+        }
+        
+        let monthFormatter = DateFormatter()
+        monthFormatter.dateFormat = "MMMM yyyy"
+        monthFormatter.locale = Locale.current
+        let monthString = monthFormatter.string(from: selectedDate)
+        
+        return "\(relativeDay) • \(monthString)"
     }
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(monthYearString).font(.title2.bold())
-                Text(relativeDateString).foregroundColor(.textGray)
+                Text(greetingString)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                Text(relativeDateString)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(.textGray)
             }
             Spacer()
 
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Button(action: {
                     HapticManager.shared.impact(style: .medium)
                     onShareTap()
                 }) {
                     Image(systemName: "square.and.arrow.up.circle.fill")
-                        .font(.system(size: 36))
+                        .font(.system(size: 34))
                         .foregroundStyle(
                             LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
-                        .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
+                        .shadow(color: Color.themePink.opacity(0.25), radius: 5, y: 2)
                 }
                 .buttonStyle(BounceButtonStyle())
 
-            Button(action: {
-                HapticManager.shared.impact(style: .medium)
-                onProfileTap()
-            }) {
-                Image(systemName: "person.crop.circle.fill")
-                    .font(.system(size: 36))
-                    .foregroundStyle(
-                        LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
-            }
-            .buttonStyle(BounceButtonStyle())
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    onProfileTap()
+                }) {
+                    Image(systemName: "person.crop.circle.fill")
+                        .font(.system(size: 34))
+                        .foregroundStyle(
+                            LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
+                        .shadow(color: Color.themePink.opacity(0.25), radius: 5, y: 2)
+                }
+                .buttonStyle(BounceButtonStyle())
             }
         }
         .padding(.horizontal)
@@ -946,6 +1093,22 @@ struct MealCardView: View {
                     } else {
                         Text("Log Meal").font(.subheadline).foregroundColor(.gray.opacity(0.7))
                     }
+                }
+                
+                if let cals = calories, cals > 0 {
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule()
+                                .fill(meta.1.opacity(0.12))
+                                .frame(height: 5)
+                            
+                            Capsule()
+                                .fill(meta.1)
+                                .frame(width: geo.size.width * min(Double(cals) / Double(max(recommendedCalories, 1)), 1.0), height: 5)
+                        }
+                    }
+                    .frame(height: 5)
+                    .padding(.top, 4)
                 }
             }
             Spacer()
@@ -1854,5 +2017,42 @@ struct SmartAddFoodView: View {
                 if !Task.isCancelled { await MainActor.run { self.isSearchingAPI = false } }
             }
         }
+    }
+}
+
+struct SpeedDialItem: View {
+    let icon: String
+    let label: String
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            HapticManager.shared.impact(style: .medium)
+            action()
+        }) {
+            HStack(spacing: 12) {
+                Text(label)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.white)
+                    .cornerRadius(12)
+                    .shadow(color: Color.black.opacity(0.08), radius: 5, y: 2)
+                
+                ZStack {
+                    Circle()
+                        .fill(color)
+                        .frame(width: 48, height: 48)
+                        .shadow(color: color.opacity(0.35), radius: 5, y: 3)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
