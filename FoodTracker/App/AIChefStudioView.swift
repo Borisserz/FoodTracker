@@ -8,27 +8,7 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - 📦 Модели Данных
-struct RecipeStep: Identifiable, Hashable {
-    let id = UUID()
-    let instruction: String
-    let imageName: String
-    let aiTip: String?
-}
 
-struct AIChefRecipe: Identifiable, Hashable {
-    let id = UUID()
-    let title: String
-    let calories: Int
-    let protein: Int
-    let heroImage: String
-    let cookTime: Int
-    let difficulty: Int
-    let history: String
-    let ingredients: [String]
-    let steps: [RecipeStep]
-    let platingTip: String
-}
 
 // MARK: - 🗄 База Данных
 let mockDatabase: [AIChefRecipe] = [
