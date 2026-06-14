@@ -220,7 +220,7 @@ struct RecipesHeroCard: View {
                             
                             Text("600+ DISHES")
                                 .font(.system(.caption2, design: .rounded, weight: .bold))
-                                .foregroundStyle(.themeYellow)
+                                .foregroundStyle(Color.themeYellow)
                         }
                         
                         Text("Explore Healthy Cooking")
