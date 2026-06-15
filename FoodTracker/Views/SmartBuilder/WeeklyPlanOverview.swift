@@ -290,12 +290,38 @@ struct GodTierMealCard: View {
     }
     
     var body: some View {
-        ZStack {
-            // Subtle ambient glow behind card based on meal type
-            RoundedRectangle(cornerRadius: 32)
-                .fill(gradientForMeal)
-                .opacity(0.05)
-                .blur(radius: 10)
+        VStack(alignment: .leading, spacing: 0) {
+            if !meal.imageUrl.isEmpty {
+                AsyncImage(url: URL(string: meal.imageUrl)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 140)
+                            .clipped()
+                    case .failure(_), .empty:
+                        ZStack {
+                            Rectangle()
+                                .fill(gradientForMeal.opacity(0.3))
+                                .frame(height: 140)
+                            Image(systemName: "fork.knife")
+                                .font(.title)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(height: 140)
+                .overlay(
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.4)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            }
             
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
@@ -358,10 +384,10 @@ struct GodTierMealCard: View {
                 }
             }
             .padding(24)
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 32))
-            .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color.white.opacity(0.5), lineWidth: 1))
         }
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 32))
+        .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color.white.opacity(0.5), lineWidth: 1))
         .shadow(color: .black.opacity(0.05), radius: 15, y: 10)
     }
 }
@@ -386,6 +412,35 @@ struct MealPlanItemDetailView: View {
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
+                        if !meal.imageUrl.isEmpty {
+                            AsyncImage(url: URL(string: meal.imageUrl)) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 220)
+                                        .clipped()
+                                case .failure(_), .empty:
+                                    ZStack {
+                                        Rectangle()
+                                            .fill(LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .frame(height: 220)
+                                        Image(systemName: "fork.knife")
+                                            .font(.system(size: 48))
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                @unknown default:
+                                    EmptyView()
+                                }
+                            }
+                            .frame(height: 220)
+                            .cornerRadius(24)
+                            .padding(.horizontal)
+                            .padding(.top, 16)
+                            .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
+                        }
+                        
                         // Header
                         VStack(alignment: .leading, spacing: 8) {
                             Text(meal.type.uppercased())
@@ -396,7 +451,6 @@ struct MealPlanItemDetailView: View {
                                 .font(.system(size: 32, weight: .heavy, design: .rounded))
                                 .foregroundColor(.primary)
                         }
-                        .padding(.top, 24)
                         .padding(.horizontal)
                         
                         // Macros

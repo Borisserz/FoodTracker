@@ -438,9 +438,9 @@ private struct AddMealSummaryCard: View {
             
             // Macro Grid/Pills
             HStack(spacing: 12) {
-                MacroSummaryMiniProgress(title: "Protein", current: protein, goal: proteinGoal, color: .themePink)
+                MacroSummaryMiniProgress(title: "Proteins", current: protein, goal: proteinGoal, color: .themePink)
                 MacroSummaryMiniProgress(title: "Carbs", current: carbs, goal: carbsGoal, color: .blue)
-                MacroSummaryMiniProgress(title: "Fat", current: fats, goal: fatsGoal, color: .orange)
+                MacroSummaryMiniProgress(title: "Fats", current: fats, goal: fatsGoal, color: .orange)
             }
         }
         .padding(20)
@@ -462,12 +462,12 @@ private struct MacroSummaryMiniProgress: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(LocalizedStringKey(title))
+                Text(title)
                     .font(.system(size: 11, weight: .bold, design: .rounded))
                     .foregroundColor(.gray)
                 Spacer()
-                Text("\(Int(current))g")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                Text(String(format: "%.1f g", current))
+                    .font(.system(size: 10, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
             }
             
@@ -529,8 +529,8 @@ private struct FoodItemRowCard: View {
                             .multilineTextAlignment(.leading)
                             .lineLimit(1)
                         
-                        Text("\(Int(food.weight))g • \(food.calories) kcal")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                        Text(String(format: "%dg • P: %.1f g • F: %.1f g • C: %.1f g", Int(food.weight), food.protein, food.fats, food.carbs))
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
                     }
                     

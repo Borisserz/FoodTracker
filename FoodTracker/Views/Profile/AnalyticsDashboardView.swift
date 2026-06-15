@@ -423,15 +423,13 @@ struct DailyAnalyticsInsightView: View {
             .opacity(animateIn ? 1 : 0)
             .offset(y: animateIn ? 0 : 30)
 
-            LazyVGrid(columns: columns, spacing: 16) {
-                MealDistributionGridCard(summary: todaySummary)
-                    .opacity(animateIn ? 1 : 0)
-                    .offset(y: animateIn ? 0 : 30)
-                
-                AIHydrationGridCard(summary: todaySummary)
-                    .opacity(animateIn ? 1 : 0)
-                    .offset(y: animateIn ? 0 : 30)
-            }
+            MealDistributionGridCard(summary: todaySummary)
+                .opacity(animateIn ? 1 : 0)
+                .offset(y: animateIn ? 0 : 30)
+            
+            AIHydrationCard(summary: todaySummary)
+                .opacity(animateIn ? 1 : 0)
+                .offset(y: animateIn ? 0 : 30)
         }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
@@ -516,7 +514,127 @@ struct MealDistributionGridCard: View {
     }
 }
 
-struct AIHydrationGridCard: View {
+struct WaveShape: Shape {
+    var progress: CGFloat
+    var waveHeight: CGFloat
+    var phase: CGFloat
+    
+    var animatableData: CGFloat {
+        get { phase }
+        set { phase = newValue }
+    }
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+        let progressHeight = height * (1.0 - progress)
+        
+        path.move(to: CGPoint(x: 0, y: progressHeight))
+        
+        for x in stride(from: 0, through: width, by: 1) {
+            let relativeX = x / width
+            let sine = sin(relativeX * 2 * .pi + phase)
+            let y = progressHeight + sine * waveHeight
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        
+        path.addLine(to: CGPoint(x: width, y: height))
+        path.addLine(to: CGPoint(x: 0, y: height))
+        path.closeSubpath()
+        
+        return path
+    }
+}
+
+struct BeakerOutline: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        
+        path.move(to: CGPoint(x: w * 0.35, y: 0))
+        path.addLine(to: CGPoint(x: w * 0.65, y: 0))
+        path.addLine(to: CGPoint(x: w * 0.65, y: h * 0.2))
+        path.addLine(to: CGPoint(x: w * 0.9, y: h * 0.85))
+        path.addQuadCurve(to: CGPoint(x: w * 0.8, y: h), control: CGPoint(x: w * 0.9, y: h))
+        path.addLine(to: CGPoint(x: w * 0.2, y: h))
+        path.addQuadCurve(to: CGPoint(x: w * 0.1, y: h * 0.85), control: CGPoint(x: w * 0.1, y: h))
+        path.addLine(to: CGPoint(x: w * 0.35, y: h * 0.2))
+        path.closeSubpath()
+        return path
+    }
+}
+
+struct BeautifulBeakerView: View {
+    var progress: Double
+    
+    @State private var phase: CGFloat = 0.0
+    @State private var bubbleOffsets: [CGSize] = (0..<6).map { _ in
+        CGSize(width: CGFloat.random(in: -15...15), height: CGFloat.random(in: 40...80))
+    }
+    
+    var body: some View {
+        ZStack {
+            BeakerOutline()
+                .fill(Color.cyan.opacity(0.1))
+                .frame(width: 80, height: 110)
+            
+            WaveShape(progress: CGFloat(progress), waveHeight: 4, phase: phase)
+                .fill(LinearGradient(colors: [.cyan.opacity(0.8), .drinkWater], startPoint: .top, endPoint: .bottom))
+                .frame(width: 80, height: 110)
+                .clipShape(BeakerOutline())
+            
+            if progress > 0.05 {
+                ForEach(0..<6, id: \.self) { i in
+                    Circle()
+                        .fill(Color.white.opacity(0.5))
+                        .frame(width: CGFloat.random(in: 3...6), height: CGFloat.random(in: 3...6))
+                        .offset(x: bubbleOffsets[i].width, y: bubbleOffsets[i].height)
+                        .onAppear {
+                            animateBubble(index: i)
+                        }
+                }
+                .clipShape(BeakerOutline())
+            }
+            
+            VStack(alignment: .trailing, spacing: 14) {
+                ForEach(0..<4) { j in
+                    HStack {
+                        Spacer()
+                        Rectangle()
+                            .fill(Color.white.opacity(0.4))
+                            .frame(width: j == 0 ? 12 : 8, height: 2)
+                    }
+                }
+            }
+            .frame(width: 80, height: 110)
+            .padding(.trailing, 10)
+            .allowsHitTesting(false)
+            
+            BeakerOutline()
+                .stroke(LinearGradient(colors: [.white.opacity(0.6), .white.opacity(0.1), .clear], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 3)
+                .frame(width: 80, height: 110)
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                phase = 2 * .pi
+            }
+        }
+    }
+    
+    private func animateBubble(index: Int) {
+        let randomDelay = Double.random(in: 0...1.5)
+        DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) {
+            withAnimation(.linear(duration: Double.random(in: 2.0...3.5)).repeatForever(autoreverses: false)) {
+                bubbleOffsets[index].height = -50
+                bubbleOffsets[index].width = CGFloat.random(in: -15...15)
+            }
+        }
+    }
+}
+
+struct AIHydrationCard: View {
     let summary: DailySummary?
     @State private var animProgress: Double = 0
     
@@ -525,35 +643,45 @@ struct AIHydrationGridCard: View {
         let goal = 2.5
         let progress = min(liters / goal, 1.0)
         
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "drop.fill")
-                    .font(.title2)
-                    .foregroundColor(.cyan)
-                Spacer()
-            }
-            Text("Hydration")
-                .font(.headline)
+        HStack(spacing: 20) {
+            BeautifulBeakerView(progress: animProgress)
+                .frame(width: 80, height: 110)
             
-            ZStack(alignment: .bottom) {
-                Capsule().fill(Color.cyan.opacity(0.1))
-                    .frame(width: 40, height: 100)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: "drop.fill")
+                        .foregroundColor(.cyan)
+                    Text("Hydration")
+                        .font(.headline)
+                    Spacer()
+                    Text("\(String(format: "%.1f", liters)) / \(String(format: "%.1f", goal)) L")
+                        .font(.subheadline.bold())
+                        .foregroundColor(.cyan)
+                }
                 
-                Capsule()
-                    .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom))
-                    .frame(width: 40, height: 100 * CGFloat(animProgress))
-                    .animation(.spring(response: 0.8, dampingFraction: 0.7), value: animProgress)
+                Text("Why It Matters")
+                    .font(.caption.bold())
+                    .foregroundColor(.gray)
+                    .textCase(.uppercase)
+                
+                Text("Water boosts metabolism, supports muscle function, aids digestion, and helps regulate appetite. Proper hydration is critical for nutrient absorption and optimal energy levels.")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .lineSpacing(4)
             }
-            .frame(maxWidth: .infinity)
-            
-            Text("\(String(format: "%.1f", liters)) / \(String(format: "%.1f", goal))L")
-                .font(.caption.bold())
-                .foregroundColor(.cyan)
-                .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(20)
         .divineCardStyle()
-        .onAppear { withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) { animProgress = progress } }
+        .onAppear {
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+                animProgress = progress
+            }
+        }
+        .onChange(of: liters) { _, nv in
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+                animProgress = min(nv / goal, 1.0)
+            }
+        }
     }
 }
 

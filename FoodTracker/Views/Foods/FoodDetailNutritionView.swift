@@ -290,43 +290,56 @@ private struct MacroColumnInfo: View {
 
 private struct ServingSizeEditor: View {
     @Binding var weight: Double
+    
+    private var weightTextBinding: Binding<String> {
+        Binding(
+            get: {
+                if weight == 0 {
+                    return ""
+                }
+                return String(format: "%.0f", weight)
+            },
+            set: { newValue in
+                let filtered = newValue.filter { "0123456789".contains($0) }
+                if let val = Double(filtered) {
+                    weight = val
+                } else if filtered.isEmpty {
+                    weight = 0
+                }
+            }
+        )
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Serving Size")
                 .font(.headline)
 
-            HStack {
-                Button(action: { changeWeight(by: -10) }) {
-                    Image(systemName: "minus")
-                        .font(.title2.bold())
-                        .foregroundColor(.themePink)
-                        .frame(width: 50, height: 50)
-                        .background(Color.themePink.opacity(0.1))
-                        .cornerRadius(16)
-                }
-
-                Spacer()
-
+            VStack(spacing: 12) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(Int(weight))")
+                    Spacer()
+                    TextField("100", text: weightTextBinding)
+                        .keyboardType(.numberPad)
                         .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .contentTransition(.numericText())
+                        .multilineTextAlignment(.center)
+                        .frame(width: 140)
+                        .padding(.vertical, 4)
+                        .background(Color.gray.opacity(0.05))
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                        )
+
                     Text("g")
-                        .font(.title3.bold())
-                        .foregroundColor(.gray)
-                }
-
-                Spacer()
-
-                Button(action: { changeWeight(by: 10) }) {
-                    Image(systemName: "plus")
                         .font(.title2.bold())
-                        .foregroundColor(.themePink)
-                        .frame(width: 50, height: 50)
-                        .background(Color.themePink.opacity(0.1))
-                        .cornerRadius(16)
+                        .foregroundColor(.gray)
+                    Spacer()
                 }
+
+                Slider(value: $weight, in: 1...500, step: 1)
+                    .tint(.themePink)
+                    .padding(.horizontal, 10)
             }
 
             HStack(spacing: 12) {
@@ -345,6 +358,7 @@ private struct ServingSizeEditor: View {
                             .foregroundColor(weight == Double(amount) ? .white : .primary)
                             .cornerRadius(12)
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
         }
@@ -352,13 +366,6 @@ private struct ServingSizeEditor: View {
         .background(Color.white)
         .cornerRadius(24)
         .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
-    }
-
-    private func changeWeight(by amount: Double) {
-        HapticManager.shared.impact(style: .light)
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-            weight = max(1, weight + amount)
-        }
     }
 }
 

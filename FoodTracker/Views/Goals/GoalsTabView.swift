@@ -67,8 +67,7 @@ struct GoalsTabView: View {
                         // Recent Logs
                         recentLogsList
                         
-                        // Before & After Photo Comparison
-                        BeforeAfterView()
+                        // Before & After Photo Comparison has been moved to AI Coach tab
                         
                         Spacer(minLength: 40)
                     }

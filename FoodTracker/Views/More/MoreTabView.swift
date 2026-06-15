@@ -88,6 +88,15 @@ struct MoreTabView: View {
                 destination: AnyView(GoalsTabView())
             ),
             MoreItem(
+                id: 3,
+                title: "Visual Progress Analysis",
+                subtitle: "Compare photos & track changes",
+                icon: "photo.on.rectangle.angled",
+                gradient: [.purple, .themePink],
+                badge: "AI",
+                destination: AnyView(AIVisualProgressView())
+            ),
+            MoreItem(
                 id: 1,
                 title: "AI Coach",
                 subtitle: "Your proactive nutritionist",

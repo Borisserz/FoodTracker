@@ -936,15 +936,15 @@ struct MealCardView: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
-            let meta = iconAndColor
+        let meta = iconAndColor
+        HStack(spacing: 12) {
             ZStack {
-                Circle().fill(meta.1.opacity(0.15)).frame(width: 50, height: 50)
-                Image(systemName: meta.0).font(.system(size: 22, weight: .semibold)).foregroundColor(meta.1)
+                Circle().fill(meta.1.opacity(0.15)).frame(width: 46, height: 46)
+                Image(systemName: meta.0).font(.system(size: 20, weight: .semibold)).foregroundColor(meta.1)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.primary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.system(size: 16, weight: .bold, design: .rounded)).foregroundColor(.primary)
                 HStack(spacing: 6) {
                     if let cals = calories, cals > 0 {
                         Text("\(cals) kcal").font(.subheadline).foregroundColor(meta.1).bold()
@@ -959,26 +959,27 @@ struct MealCardView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text("Target").font(.system(size: 10, weight: .bold)).foregroundColor(.gray.opacity(0.6))
-                Text("\(recommendedCalories)").font(.system(size: 14, weight: .bold, design: .rounded)).foregroundColor(.gray.opacity(0.8))
-                Text("kcal").font(.system(size: 8)).foregroundColor(.gray.opacity(0.5))
+                Text("Target").font(.system(size: 9, weight: .bold)).foregroundColor(.gray.opacity(0.6))
+                Text("\(recommendedCalories)").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundColor(.gray.opacity(0.8))
+                Text("kcal").font(.system(size: 7)).foregroundColor(.gray.opacity(0.5))
             }
-            .padding(.trailing, 8)
+            .padding(.trailing, 4)
 
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onQuickAdd()
             }) {
                 ZStack {
-                    Circle().fill(Color.gray.opacity(0.12)).frame(width: 36, height: 36)
-                    Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundColor(Color.gray.opacity(0.8))
+                    Circle().fill(meta.1.opacity(0.15)).frame(width: 36, height: 36)
+                    Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundColor(meta.1)
                 }
             }
         }
-        .padding(16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(Color.white)
         .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+        .shadow(color: meta.1.opacity(0.08), radius: 12, x: 0, y: 6)
         .contentShape(Rectangle())
         .onTapGesture {
             HapticManager.shared.impact(style: .light)
@@ -989,58 +990,21 @@ struct MealCardView: View {
 
 struct ActionSearchBar: View {
     @Binding var text: String
-    var onBarcodeTap: () -> Void
-    var onManualAddTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            HStack {
-                Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                TextField("Search foods...", text: $text).font(.body)
-                if !text.isEmpty {
-                    Button(action: { text = "" }) {
-                        Image(systemName: "xmark.circle.fill").foregroundColor(.gray.opacity(0.5))
-                    }
+        HStack {
+            Image(systemName: "magnifyingglass").foregroundColor(.gray)
+            TextField("Search foods...", text: $text).font(.body)
+            if !text.isEmpty {
+                Button(action: { text = "" }) {
+                    Image(systemName: "xmark.circle.fill").foregroundColor(.gray.opacity(0.5))
                 }
             }
-            .padding(12)
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
-
-            Button(action: { HapticManager.shared.impact(style: .medium) }) {
-                Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 20))
-                    .foregroundColor(.themePink)
-                    .frame(width: 44, height: 44)
-                    .background(Color.themePink.opacity(0.1))
-                    .cornerRadius(14)
-            }
-
-            Button(action: {
-                HapticManager.shared.impact(style: .medium)
-                onBarcodeTap()
-            }) {
-                Image(systemName: "barcode.viewfinder")
-                    .font(.system(size: 20))
-                    .foregroundColor(.themeOrange)
-                    .frame(width: 44, height: 44)
-                    .background(Color.themeOrange.opacity(0.1))
-                    .cornerRadius(14)
-            }
-
-            Button(action: {
-                HapticManager.shared.impact(style: .light)
-                onManualAddTap()
-            }) {
-                Image(systemName: "plus.app.fill")
-                    .font(.system(size: 20))
-                    .foregroundColor(.green)
-                    .frame(width: 44, height: 44)
-                    .background(Color.green.opacity(0.1))
-                    .cornerRadius(14)
-            }
         }
+        .padding(12)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
     }
 }
 struct InteractiveFoodRow: View {
@@ -1601,6 +1565,7 @@ struct SmartAddFoodView: View {
     @State private var selectedFoods: [FoodItem] = []
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
+    @State private var scannerMode: SmartScannerView.ScannerMode = .barcode
 
     @State private var apiSearchResults: [FoodItem] = []
     @State private var isSearchingAPI = false
@@ -1675,14 +1640,59 @@ struct SmartAddFoodView: View {
                         }
                     }.padding(.horizontal, 20)
 
-                    ActionSearchBar(
-                        text: $searchText,
-                        onBarcodeTap: { showingScanner = true },
-                        onManualAddTap: { showingManualAdd = true }
-                    )
+                    ActionSearchBar(text: $searchText)
                     .padding(.horizontal, 20)
 
                     if searchText.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                FeatureCard(
+                                    title: "Meal AI",
+                                    subtitle: "AI Photo Scan - snap a photo of food",
+                                    icon: "camera.viewfinder",
+                                    gradient: [.themePink, .themeOrange],
+                                    action: {
+                                        scannerMode = .mealAI
+                                        showingScanner = true
+                                    }
+                                )
+                                
+                                FeatureCard(
+                                    title: "Barcode",
+                                    subtitle: "Barcode Scan - scan product package",
+                                    icon: "barcode.viewfinder",
+                                    gradient: [.cyan, .blue],
+                                    action: {
+                                        scannerMode = .barcode
+                                        showingScanner = true
+                                    }
+                                )
+                                
+                                FeatureCard(
+                                    title: "Menu AI",
+                                    subtitle: "AI Menu Reader - scan restaurant menus",
+                                    icon: "text.book.closed.fill",
+                                    gradient: [.purple, .indigo],
+                                    action: {
+                                        scannerMode = .menuAI
+                                        showingScanner = true
+                                    }
+                                )
+                                
+                                FeatureCard(
+                                    title: "Manual Entry",
+                                    subtitle: "Log Manually - input custom food",
+                                    icon: "pencil.line",
+                                    gradient: [.green, .mint],
+                                    action: {
+                                        showingManualAdd = true
+                                    }
+                                )
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 8)
+                        }
+                        
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
                                 ForEach(categories, id: \.self) { category in
@@ -1786,6 +1796,7 @@ struct SmartAddFoodView: View {
         }
         .fullScreenCover(isPresented: $showingScanner) {
             SmartScannerView(
+                initialMode: scannerMode,
                 onProductFound: { foundFood in selectedFoodForDetail = foundFood },
                 onManualEntryRequest: { showingManualAdd = true }
             )
@@ -1823,5 +1834,54 @@ struct SmartAddFoodView: View {
                 if !Task.isCancelled { await MainActor.run { self.isSearchingAPI = false } }
             }
         }
+    }
+}
+
+struct FeatureCard: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let gradient: [Color]
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            HapticManager.shared.impact(style: .medium)
+            action()
+        }) {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(.white.opacity(0.25))
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 15, weight: .black, design: .rounded))
+                        .foregroundColor(.white)
+                    
+                    Text(subtitle)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.85))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(width: 220, height: 80, alignment: .leading)
+            .background(
+                LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .cornerRadius(20)
+            .shadow(color: gradient.first?.opacity(0.3) ?? .clear, radius: 8, y: 4)
+        }
+        .buttonStyle(BounceButtonStyle())
     }
 }

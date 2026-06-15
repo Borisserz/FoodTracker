@@ -286,7 +286,8 @@ class AINutritionService {
                         vitaminD: mealDTO.vitaminD,
                         ingredients: mealDTO.ingredients,
                         instructions: mealDTO.instructions,
-                        prepTimeMinutes: mealDTO.prepTimeMinutes
+                        prepTimeMinutes: mealDTO.prepTimeMinutes,
+                        imageUrl: self.imageUrlForDish(title: mealDTO.title)
                     )
                     day.meals.append(meal)
                 }
@@ -296,6 +297,47 @@ class AINutritionService {
             return plan
         }
         return nil
+    }
+
+    private func imageUrlForDish(title: String) -> String {
+        let t = title.lowercased()
+        if t.contains("oat") || t.contains("porridge") {
+            return "https://images.unsplash.com/photo-1517881917430-e70dfb3610aa?w=600&auto=format&fit=crop"
+        } else if t.contains("egg") || t.contains("omelet") || t.contains("scramble") {
+            return "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&auto=format&fit=crop"
+        } else if t.contains("pancake") || t.contains("waffle") || t.contains("crepe") {
+            return "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&auto=format&fit=crop"
+        } else if t.contains("toast") || t.contains("sandwich") || t.contains("bread") {
+            return "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&auto=format&fit=crop"
+        } else if t.contains("salad") || t.contains("green") || t.contains("caesar") {
+            return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop"
+        } else if t.contains("chicken") || t.contains("turkey") || t.contains("poultry") {
+            return "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&auto=format&fit=crop"
+        } else if t.contains("salmon") || t.contains("tuna") || t.contains("fish") || t.contains("shrimp") || t.contains("seafood") {
+            return "https://images.unsplash.com/photo-1485921325814-a5341aff6148?w=600&auto=format&fit=crop"
+        } else if t.contains("steak") || t.contains("beef") || t.contains("meat") || t.contains("pork") || t.contains("lamb") {
+            return "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop"
+        } else if t.contains("pasta") || t.contains("spaghetti") || t.contains("lasagna") || t.contains("noodle") {
+            return "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&auto=format&fit=crop"
+        } else if t.contains("soup") || t.contains("broth") || t.contains("stew") {
+            return "https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=600&auto=format&fit=crop"
+        } else if t.contains("smoothie") || t.contains("shake") || t.contains("juice") {
+            return "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&auto=format&fit=crop"
+        } else if t.contains("yogurt") || t.contains("curd") || t.contains("parfait") {
+            return "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&auto=format&fit=crop"
+        } else if t.contains("sushi") || t.contains("roll") {
+            return "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&auto=format&fit=crop"
+        } else if t.contains("wrap") || t.contains("burrito") || t.contains("taco") || t.contains("quesadilla") {
+            return "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&auto=format&fit=crop"
+        } else if t.contains("rice") || t.contains("quinoa") || t.contains("grain") {
+            return "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&auto=format&fit=crop"
+        } else if t.contains("fruit") || t.contains("apple") || t.contains("banana") || t.contains("berry") || t.contains("berries") {
+            return "https://images.unsplash.com/photo-1490818384979-93b26b26a5b4?w=600&auto=format&fit=crop"
+        } else if t.contains("nut") || t.contains("almond") || t.contains("peanut") || t.contains("cashew") {
+            return "https://images.unsplash.com/photo-1511066929037-9d698502c44d?w=600&auto=format&fit=crop"
+        } else {
+            return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&auto=format&fit=crop"
+        }
     }
 
     func sendChatMessage(prompt: String, userContext: String, activeDiet: String) async -> String? {

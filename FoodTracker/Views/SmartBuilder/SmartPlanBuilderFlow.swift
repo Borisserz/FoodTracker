@@ -214,8 +214,8 @@ struct SmartPlanBuilderFlow: View {
     }
     
     private var calorieStepView: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 8) {
+        VStack(spacing: 16) {
+            VStack(spacing: 4) {
                 Text("Daily Energy")
                     .font(.system(size: 34, weight: .heavy, design: .rounded))
                     .foregroundStyle(.primary)
@@ -223,22 +223,22 @@ struct SmartPlanBuilderFlow: View {
                     .font(.headline)
                     .foregroundColor(.gray)
             }
-            .padding(.top, 16)
+            .padding(.top, 8)
             
             ZStack {
                 Circle()
                     .fill(.ultraThinMaterial)
-                    .frame(width: 250, height: 250)
+                    .frame(width: 230, height: 230)
                     .shadow(color: .black.opacity(0.05), radius: 20, y: 10)
                 
                 Circle()
                     .stroke(themeManager.current.primaryGradient, lineWidth: 2)
-                    .frame(width: 240, height: 240)
+                    .frame(width: 220, height: 220)
                     .opacity(0.5)
                 
                 VStack(spacing: 4) {
                     Text("\(Int(targetCalories))")
-                        .font(.system(size: 64, weight: .black, design: .rounded))
+                        .font(.system(size: 58, weight: .black, design: .rounded))
                         .foregroundStyle(themeManager.current.primaryGradient)
                         .contentTransition(.numericText())
                     Text("KCAL")
@@ -255,17 +255,17 @@ struct SmartPlanBuilderFlow: View {
     }
     
     private var complexityStepView: some View {
-        VStack(spacing: 32) {
-            VStack(spacing: 12) {
+        VStack(spacing: 20) {
+            VStack(spacing: 6) {
                 Text("Cooking Time")
                     .font(.system(size: 34, weight: .heavy, design: .rounded))
                 Text("How long per meal?")
                     .font(.headline)
                     .foregroundColor(.gray)
             }
-            .padding(.top, 40)
+            .padding(.top, 8)
             
-            VStack(spacing: 20) {
+            VStack(spacing: 12) {
                 ForEach(complexities, id: \.self) { comp in
                     Button(action: {
                         HapticManager.shared.impact(style: .light)
@@ -286,7 +286,7 @@ struct SmartPlanBuilderFlow: View {
                             }
                         }
                         .padding(.horizontal, 24)
-                        .padding(.vertical, 24)
+                        .padding(.vertical, 16)
                         .background(
                             ZStack {
                                 if complexity == comp {

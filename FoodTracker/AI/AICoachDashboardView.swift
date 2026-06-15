@@ -117,10 +117,9 @@ struct AICoachDashboardView: View {
                                     )
                                 }
                                 .padding(.horizontal)
+                                fridgeToRecipeSection
 
                                 bioHackingTipsSection
-
-                                fridgeToRecipeSection
 
                                 // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
                                 Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
@@ -272,6 +271,23 @@ struct AICoachDashboardView: View {
                 }
                 Text("Fridge to Recipe")
                     .font(.title3).bold()
+                
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 10, weight: .bold))
+                    Text("AI POWERED")
+                        .font(.system(size: 9, weight: .black))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing)
+                )
+                .clipShape(Capsule())
+                .shadow(color: Color.themePink.opacity(0.4), radius: 4, x: 0, y: 2)
             }
 
             Text("Tell me what you have, and I'll generate a recipe that perfectly fits your remaining calories.")
@@ -282,6 +298,10 @@ struct AICoachDashboardView: View {
                     .padding()
                     .background(Color.gray.opacity(0.05))
                     .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                    )
 
                 Button(action: { if let u = currentUser { viewModel?.generateSmartRecipe(currentSummary: currentSummary, currentUser: u) } }) {
                     if viewModel?.isGeneratingRecipe == true {
@@ -295,6 +315,7 @@ struct AICoachDashboardView: View {
                             .padding()
                             .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
                             .cornerRadius(12)
+                            .shadow(color: Color.themePink.opacity(0.3), radius: 6, y: 3)
                     }
                 }
                 .disabled((viewModel?.fridgeInput.isEmpty ?? true) || (viewModel?.isGeneratingRecipe ?? true))
@@ -317,7 +338,23 @@ struct AICoachDashboardView: View {
                     }
                 }.transition(.move(edge: .top).combined(with: .opacity))
             }
-        }.premiumCardStyle().padding(.horizontal)
+        }
+        .padding(20)
+        .background(Color.white)
+        .cornerRadius(24)
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(
+                    LinearGradient(
+                        colors: [.themePink.opacity(0.4), .themeOrange.opacity(0.2), .themePink.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 2
+                )
+        )
+        .shadow(color: Color.black.opacity(0.04), radius: 12, y: 6)
+        .padding(.horizontal)
     }
 
 

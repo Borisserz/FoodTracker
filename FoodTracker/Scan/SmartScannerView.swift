@@ -9,14 +9,15 @@ struct SmartScannerView: View {
     var onProductFound: (FoodItem) -> Void
     var onManualEntryRequest: () -> Void
 
-    var remainingCalories: Int = 1000
-    var remainingProtein: Int = 50
+    var remainingCalories: Int
+    var remainingProtein: Int
 
     @State private var recognizedBarcode: String? = nil
     @State private var isScanning: Bool = false
     @State private var isFlashlightOn: Bool = false
 
-    @State private var selectedMode: ScannerMode = .barcode
+    @State private var selectedMode: ScannerMode
+    
     // @State for @Observable class (replaces @StateObject for the migrated LiveFoodCameraManager)
     @State private var cameraManager = LiveFoodCameraManager()
     @State private var isAnalyzingAI = false
@@ -28,6 +29,18 @@ struct SmartScannerView: View {
     @State private var notFoundError: Bool = false
 
     enum ScannerMode { case barcode, mealAI, menuAI }
+
+    init(initialMode: ScannerMode = .barcode,
+         remainingCalories: Int = 1000,
+         remainingProtein: Int = 50,
+         onProductFound: @escaping (FoodItem) -> Void,
+         onManualEntryRequest: @escaping () -> Void) {
+        self.onProductFound = onProductFound
+        self.onManualEntryRequest = onManualEntryRequest
+        self.remainingCalories = remainingCalories
+        self.remainingProtein = remainingProtein
+        self._selectedMode = State(initialValue: initialMode)
+    }
 
     var body: some View {
         ZStack {

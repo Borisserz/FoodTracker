@@ -61,12 +61,13 @@ final class MealPlanItem {
     var ingredients: String = "" // Comma separated
     var instructions: String = ""
     var prepTimeMinutes: Int = 0
+    var imageUrl: String = ""
     
     var parentDay: MealPlanDay?
     
     init(title: String, type: String, calories: Int, protein: Int, carbs: Int, fat: Int, 
          omega3: Double = 0, calcium: Double = 0, potassium: Double = 0, magnesium: Double = 0, iron: Double = 0, vitaminC: Double = 0, vitaminD: Double = 0,
-         ingredients: String, instructions: String, prepTimeMinutes: Int) {
+         ingredients: String, instructions: String, prepTimeMinutes: Int, imageUrl: String = "") {
         self.title = title
         self.type = type
         self.calories = calories
@@ -83,5 +84,6 @@ final class MealPlanItem {
         self.ingredients = ingredients
         self.instructions = instructions
         self.prepTimeMinutes = prepTimeMinutes
+        self.imageUrl = imageUrl
     }
 }
