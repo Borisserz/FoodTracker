@@ -224,9 +224,10 @@ struct MetabolicScoreCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Metabolic Health")
                         .font(.title3.bold())
+                        .foregroundColor(.primary)
                     Text("Calculated overall synergy")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(.caption.bold())
+                        .foregroundColor(.primary.opacity(0.75))
                 }
                 Spacer()
                 Image(systemName: "heart.text.square.fill")
@@ -256,7 +257,7 @@ struct MetabolicScoreCard: View {
                         .contentTransition(.numericText())
                     Text("out of 100")
                         .font(.caption.bold())
-                        .foregroundColor(.gray)
+                        .foregroundColor(.primary.opacity(0.75))
                 }
             }
             .padding(.vertical, 10)
@@ -299,11 +300,27 @@ struct MetabolicScoreCard: View {
                     MetabolicBreakdownRow(icon: "chart.bar.fill", title: "Macro & Logging Stability", value: subs.macro, total: 20, color: .green)
                 }
                 
-                Text("Your Metabolic Health score represents how efficiently your body utilizes and manages energy and fluid levels. This score is computed dynamically based on three core biomarkers: your adherence to daily calorie targets (50%), consistent hydration levels against a 2.5L daily baseline (30%), and the frequency and balance of your macronutrient logs (20%). Maintaining a score above 90 indicates an optimized, highly functional metabolic profile.")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.secondary)
-                    .lineSpacing(4)
-                    .padding(.top, 4)
+                HStack(alignment: .center, spacing: 14) {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundColor(scoreColor)
+                        .font(.system(size: 22, weight: .bold))
+                    
+                    Text("Your metabolic score shows energy & hydration efficiency. Keep it above **90** for peak performance!")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineSpacing(4)
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(scoreColor.opacity(0.08))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(scoreColor.opacity(0.4), lineWidth: 2.0)
+                )
+                .shadow(color: scoreColor.opacity(0.12), radius: 8, x: 0, y: 4)
+                .padding(.top, 8)
             }
             .padding(.top, 4)
         }
@@ -392,7 +409,7 @@ struct GlobalPeriodPicker: View {
                 }) {
                     Text(period.rawValue)
                         .font(.system(size: 15, weight: selection == period ? .bold : .medium, design: .rounded))
-                        .foregroundColor(selection == period ? .white : .gray)
+                        .foregroundColor(selection == period ? .white : .primary.opacity(0.7))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
@@ -445,8 +462,8 @@ struct AITypewriterCard: View {
             }
             
             Text(displayedText)
-                .font(.system(size: 15, weight: .medium, design: .serif))
-                .foregroundColor(.gray)
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundColor(.primary.opacity(0.95))
                 .lineSpacing(4)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .frame(minHeight: 80, alignment: .topLeading)
@@ -576,7 +593,7 @@ struct MealDistributionGridCard: View {
                 .font(.headline)
 
             if totalCals == 0 {
-                Text("No data").font(.caption).foregroundColor(.gray)
+                Text("No data").font(.caption.bold()).foregroundColor(.primary.opacity(0.7))
             } else {
                 VStack(spacing: 8) {
                     ForEach(meals, id: \.0) { meal in
@@ -588,7 +605,7 @@ struct MealDistributionGridCard: View {
                                 Spacer()
                                 Text("\(Int((Double(cals)/Double(totalCals))*100))%")
                                     .font(.caption2.bold())
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(.primary.opacity(0.8))
                             }
                         }
                     }
@@ -746,13 +763,13 @@ struct AIHydrationCard: View {
                 }
                 
                 Text("Why It Matters")
-                    .font(.caption.bold())
-                    .foregroundColor(.gray)
+                    .font(.system(size: 11, weight: .heavy, design: .rounded))
+                    .foregroundColor(.primary.opacity(0.8))
                     .textCase(.uppercase)
                 
                 Text("Water boosts metabolism, supports muscle function, aids digestion, and helps regulate appetite. Proper hydration is critical for nutrient absorption and optimal energy levels.")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.primary)
                     .lineSpacing(4)
             }
         }
@@ -787,10 +804,10 @@ struct FitnessRingsCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Daily Macros").font(.title3.bold())
-                    Text("Tap a nutrient to see top sources").font(.caption).foregroundColor(.gray)
+                    Text("Tap a nutrient to see top sources").font(.caption.bold()).foregroundColor(.primary.opacity(0.85))
                 }
                 Spacer()
-                Image(systemName: "chart.pie.fill").foregroundColor(.gray.opacity(0.5))
+                Image(systemName: "chart.pie.fill").foregroundColor(.primary.opacity(0.55))
             }
 
             HStack(spacing: 30) {
@@ -849,12 +866,12 @@ struct LegendRow: View {
                 }
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     Text("\(Int(current))").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundColor(.primary)
-                    Text("/ \(Int(target))g").font(.caption).foregroundColor(.gray)
+                    Text("/ \(Int(target))g").font(.caption.bold()).foregroundColor(.primary.opacity(0.85))
                 }
                 .padding(.leading, 14)
             }
             Spacer()
-            Image(systemName: "chevron.right").font(.caption.bold()).foregroundColor(color.opacity(0.5))
+            Image(systemName: "chevron.right").font(.caption.bold()).foregroundColor(color.opacity(0.75))
         }
         .contentShape(Rectangle())
     }
@@ -940,7 +957,7 @@ struct DivineCaloriesChart: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Energy Trend").font(.title3.bold())
-                    Text("Daily Caloric Intake").font(.caption).foregroundColor(.gray)
+                    Text("Daily Caloric Intake").font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
                 }
                 Spacer()
                 Image(systemName: "chart.xyaxis.line").font(.title2).foregroundColor(.themePink)
@@ -983,8 +1000,8 @@ struct DivineCaloriesChart: View {
                                     .font(.system(size: 14, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
                                 Text(selectedDate.formatted(.dateTime.month().day()))
-                                    .font(.caption2)
-                                    .foregroundColor(.gray)
+                                    .font(.caption2.bold())
+                                    .foregroundColor(.primary.opacity(0.75))
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
@@ -1008,7 +1025,7 @@ struct DivineCaloriesChart: View {
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) {
-                        AxisValueLabel(format: .dateTime.weekday(.abbreviated)).font(.caption2.bold()).foregroundStyle(Color.gray)
+                        AxisValueLabel(format: .dateTime.weekday(.abbreviated)).font(.caption2.bold()).foregroundStyle(Color.primary.opacity(0.75))
                     }
                 }
             }
@@ -1072,14 +1089,14 @@ struct DivineMacrosChart: View {
             .chartYScale(domain: 0...maxGrams)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
-                    if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray) }
+                    if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.primary.opacity(0.75)) }
                 }
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 4)) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.15))
+                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.25))
                     if let val = value.as(Double.self) {
-                        AxisValueLabel("\(Int(val))g").font(.caption2).foregroundStyle(Color.gray)
+                        AxisValueLabel("\(Int(val))g").font(.caption2.bold()).foregroundStyle(Color.primary.opacity(0.75))
                     }
                 }
             }
@@ -1100,7 +1117,7 @@ struct ChartLegendItem: View {
     var body: some View {
         HStack(spacing: 6) {
             Circle().fill(color).frame(width: 8, height: 8)
-            Text(text).font(.caption.bold()).foregroundColor(.gray)
+            Text(text).font(.caption.bold()).foregroundColor(.primary.opacity(0.85))
         }
     }
 }
@@ -1161,8 +1178,8 @@ struct TrendsWaterChart: View {
                                     .font(.system(size: 14, weight: .bold, design: .rounded))
                                     .foregroundColor(.cyan)
                                 Text(selectedDate.formatted(.dateTime.month().day()))
-                                    .font(.caption2)
-                                    .foregroundColor(.gray)
+                                    .font(.caption2.bold())
+                                    .foregroundColor(.primary.opacity(0.75))
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
@@ -1180,14 +1197,14 @@ struct TrendsWaterChart: View {
             .chartYScale(domain: 0...maxLiters)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
-                    if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray) }
+                    if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.primary.opacity(0.75)) }
                 }
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: [0, 1, 2, 3]) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.15))
+                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.25))
                     if let val = value.as(Double.self), val >= 0 {
-                        AxisValueLabel("\(Int(val))L").font(.caption2).foregroundStyle(Color.gray)
+                        AxisValueLabel("\(Int(val))L").font(.caption2.bold()).foregroundStyle(Color.primary.opacity(0.75))
                     }
                 }
             }
@@ -1231,7 +1248,7 @@ struct ConsistencyHeatmapCard: View {
             HStack {
                 Text("Consistency").font(.title3.bold())
                 Spacer()
-                Text("Last 14 Days").font(.caption).foregroundColor(.gray)
+                Text("Last 14 Days").font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
             }
 
             HStack(spacing: 8) {
@@ -1240,7 +1257,7 @@ struct ConsistencyHeatmapCard: View {
                     let color = colorForLevel(level)
 
                     VStack(spacing: 4) {
-                        Text(Calendar.current.component(.day, from: date).description).font(.system(size: 10, weight: .bold)).foregroundColor(.gray)
+                        Text(Calendar.current.component(.day, from: date).description).font(.system(size: 10, weight: .bold)).foregroundColor(.primary.opacity(0.8))
                         RoundedRectangle(cornerRadius: 6).fill(color.gradient).frame(width: 18, height: 36).shadow(color: level == 3 ? .green.opacity(0.4) : .clear, radius: 4, y: 2)
                     }
                 }
@@ -1262,7 +1279,7 @@ struct LegendDot: View {
     var body: some View {
         HStack(spacing: 4) {
             Circle().fill(color).frame(width: 8, height: 8)
-            Text(text).font(.caption.bold()).foregroundColor(.gray)
+            Text(text).font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
         }
     }
 }
@@ -1290,7 +1307,7 @@ struct TopSourcesSheetView: View {
 
             if topFoods.isEmpty {
                 Spacer()
-                Text("No foods logged yet.").font(.subheadline).foregroundColor(.gray)
+                Text("No foods logged yet.").font(.subheadline).foregroundColor(.primary.opacity(0.75))
                 Spacer()
             } else {
                 VStack(spacing: 16) {
@@ -1298,7 +1315,7 @@ struct TopSourcesSheetView: View {
                         HStack {
                             VStack(alignment: .leading) {
                                 Text(food.name).font(.headline)
-                                Text("\(Int(food.weight))g").font(.caption).foregroundColor(.gray)
+                                Text("\(Int(food.weight))g").font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
                             }
                             Spacer()
                             Text("\(val(for: food))g").font(.title3.bold()).foregroundColor(macro.color)
