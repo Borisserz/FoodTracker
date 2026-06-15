@@ -172,7 +172,7 @@ struct MetabolicScoreCard: View {
     @State private var tiltAngle: Double = 0
     @State private var tiltAxis: (CGFloat, CGFloat, CGFloat) = (0, 1, 0)
 
-    private var score: Int {
+    private var subScores: (cal: Double, hyd: Double, macro: Double) {
         var totalCals = 0.0
         var totalHydration = 0.0
         let days = max(1, min(summaries.count, period.daysCount))
@@ -202,7 +202,12 @@ struct MetabolicScoreCard: View {
         // Consistency/Macros (0-20)
         let macroScore = 20.0 // Simplified for performance
 
-        let finalScore = Int(calScore + hydScore + macroScore)
+        return (calScore, hydScore, macroScore)
+    }
+
+    private var score: Int {
+        let subs = subScores
+        let finalScore = Int(subs.cal + subs.hyd + subs.macro)
         return min(max(finalScore, 0), 100)
     }
 
@@ -213,6 +218,7 @@ struct MetabolicScoreCard: View {
     }
 
     var body: some View {
+        let subs = subScores
         VStack(spacing: 24) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -278,6 +284,67 @@ struct MetabolicScoreCard: View {
                         }
                     }
             )
+
+            // Detailed Breakdown
+            VStack(alignment: .leading, spacing: 14) {
+                Divider()
+                
+                Text("Как рассчитывается оценка:")
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                // Calorie component
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("🎯 Соответствие калориям")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.gray)
+                        Spacer()
+                        Text("\(Int(subs.cal))/50")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundColor(.themeOrange)
+                    }
+                    ProgressView(value: subs.cal, total: 50)
+                        .tint(.themeOrange)
+                }
+                
+                // Hydration component
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("💧 Водный баланс")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.gray)
+                        Spacer()
+                        Text("\(Int(subs.hyd))/30")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundColor(.blue)
+                    }
+                    ProgressView(value: subs.hyd, total: 30)
+                        .tint(.blue)
+                }
+                
+                // Consistency component
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("📊 Стабильность макро")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.gray)
+                        Spacer()
+                        Text("\(Int(subs.macro))/20")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundColor(.green)
+                    }
+                    ProgressView(value: subs.macro, total: 20)
+                        .tint(.green)
+                }
+                
+                Text("Метаболическое здоровье отражает, насколько эффективно ваш организм распределяет энергию и воду. Данный показатель рассчитывается автоматически на основе баланса съеденных калорий (в пределах вашей цели), регулярного питья воды (норма — 2.5 л/день) и стабильного ведения дневника питания.")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .lineSpacing(4)
+                    .padding(.top, 4)
+            }
+            .padding(.top, 4)
         }
         .divineCardStyle()
         .onAppear {
