@@ -90,19 +90,19 @@ struct SmartPlanBuilderFlow: View {
                         GeometryReader { proxy in
                             HStack(spacing: 0) {
                                 dietStepView
-                                    .frame(width: proxy.size.width)
+                                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
                                     .scaleEffect(currentStep == 0 ? 1.0 : 0.8)
                                     .opacity(currentStep == 0 ? 1.0 : 0.0)
                                     .rotation3DEffect(.degrees(currentStep > 0 ? -15 : 0), axis: (x: 0, y: 1, z: 0))
                                 
                                 calorieStepView
-                                    .frame(width: proxy.size.width)
+                                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
                                     .scaleEffect(currentStep == 1 ? 1.0 : 0.8)
                                     .opacity(currentStep == 1 ? 1.0 : 0.0)
                                     .rotation3DEffect(.degrees(currentStep < 1 ? 15 : (currentStep > 1 ? -15 : 0)), axis: (x: 0, y: 1, z: 0))
                                 
                                 complexityStepView
-                                    .frame(width: proxy.size.width)
+                                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
                                     .scaleEffect(currentStep == 2 ? 1.0 : 0.8)
                                     .opacity(currentStep == 2 ? 1.0 : 0.0)
                                     .rotation3DEffect(.degrees(currentStep < 2 ? 15 : 0), axis: (x: 0, y: 1, z: 0))
@@ -186,8 +186,8 @@ struct SmartPlanBuilderFlow: View {
     // MARK: - Steps
     
     private var dietStepView: some View {
-        VStack(spacing: 32) {
-            VStack(spacing: 12) {
+        VStack(spacing: 16) {
+            VStack(spacing: 6) {
                 Text("Select Core Diet")
                     .font(.system(size: 34, weight: .heavy, design: .rounded))
                     .foregroundStyle(.primary)
@@ -195,21 +195,23 @@ struct SmartPlanBuilderFlow: View {
                     .font(.headline)
                     .foregroundColor(.gray)
             }
-            .padding(.top, 40)
+            .padding(.top, 16)
             
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                ForEach(dietTypes, id: \.self) { diet in
-                    Button(action: {
-                        HapticManager.shared.impact(style: .light)
-                        selectedDiet = diet
-                    }) {
-                        Tilt3DCard(isSelected: selectedDiet == diet, icon: iconForDiet(diet), title: diet)
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                    ForEach(dietTypes, id: \.self) { diet in
+                        Button(action: {
+                            HapticManager.shared.impact(style: .light)
+                            selectedDiet = diet
+                        }) {
+                            DietCard(isSelected: selectedDiet == diet, title: diet)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .buttonStyle(PlainButtonStyle())
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
             }
-            .padding(.horizontal, 24)
-            Spacer()
         }
     }
     
@@ -452,6 +454,88 @@ struct Tilt3DCard: View {
                 .stroke(isSelected ? Color.white.opacity(0.5) : Color.white.opacity(0.3), lineWidth: isSelected ? 2 : 1)
         )
         .shadow(color: isSelected ? themeManager.current.primaryAccent.opacity(0.5) : .black.opacity(0.05), radius: 20, y: 10)
+    }
+}
+
+// MARK: - Diet Card
+struct DietCard: View {
+    let isSelected: Bool
+    let title: String
+    
+    @Environment(ThemeManager.self) private var themeManager
+    
+    var dietIllustration: (emoji: String, subtitle: String, gradient: [Color]) {
+        switch title {
+        case "Any":
+            return ("🍽️", "Без ограничений", [.blue, .purple])
+        case "Keto":
+            return ("🥑🥩", "Много жиров, мало угл.", [.orange, .red])
+        case "Vegan":
+            return ("🥦🌱", "100% растительная", [.green, .teal])
+        case "Vegetarian":
+            return ("🧀🥕", "Растительная без мяса", [.yellow, .green])
+        case "Paleo":
+            return ("🍖🥚", "Натуральные продукты", [.orange, .red])
+        case "Pescatarian":
+            return ("🐟🍣", "Рыба и морепродукты", [.teal, .blue])
+        case "Mediterranean":
+            return ("🫒🥗", "Оливковое масло и овощи", [.green, .blue])
+        case "High Protein":
+            return ("🍗🍤", "Много белка для мышц", [.red, .purple])
+        case "Low Carb":
+            return ("🍳🥓", "Минимум углеводов", [.pink, .orange])
+        default:
+            return ("🍽️", "Персональный выбор", [.gray, .black])
+        }
+    }
+    
+    var body: some View {
+        let details = dietIllustration
+        VStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(isSelected ? Color.white.opacity(0.25) : details.gradient.first?.opacity(0.12) ?? Color.gray.opacity(0.12))
+                    .frame(width: 54, height: 54)
+                
+                Text(details.emoji)
+                    .font(.system(size: 28))
+                    .shadow(color: .black.opacity(0.15), radius: 3, x: 1, y: 2)
+            }
+            .padding(.top, 4)
+            
+            VStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(isSelected ? .white : .primary)
+                
+                Text(details.subtitle)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(isSelected ? Color.white.opacity(0.85) : Color.gray)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .frame(height: 28, alignment: .top)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 14)
+        .background(
+            ZStack {
+                if isSelected {
+                    LinearGradient(colors: details.gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+                } else {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.ultraThinMaterial)
+                }
+            }
+        )
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(isSelected ? Color.white.opacity(0.3) : Color.white.opacity(0.5), lineWidth: 1)
+        )
+        .shadow(color: isSelected ? details.gradient.first?.opacity(0.35) ?? .clear : .black.opacity(0.03), radius: 8, y: 4)
+        .scaleEffect(isSelected ? 1.02 : 1.0)
     }
 }
 

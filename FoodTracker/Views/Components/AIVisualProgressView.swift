@@ -20,124 +20,113 @@ struct AIVisualProgressView: View {
     @State private var scannerOffset: CGFloat = 0.0
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.themeBg.ignoresSafeArea()
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
+                    
+                    // Premium Explanation Header
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(themeManager.current.primaryAccent)
+                                .font(.title2)
+                            Text("AI Visual Progress Tracker")
+                                .font(.title3.bold())
+                                .foregroundColor(.primary)
+                        }
                         
-                        // Premium Explanation Header
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "sparkles")
-                                    .foregroundColor(themeManager.current.primaryAccent)
-                                    .font(.title2)
-                                Text("AI Visual Progress Tracker")
-                                    .font(.title3.bold())
+                        Text("Tracking your progress visually is one of the most accurate ways to measure body composition changes. While scales only measure total mass (including water weight and muscle fluctuations), photos capture actual body recomposition.")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.gray)
+                            .lineSpacing(5)
+                        
+                        Divider()
+                        
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "cpu.fill")
+                                .font(.title3)
+                                .foregroundColor(themeManager.current.primaryAccent)
+                                .padding(.top, 2)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("How AI Computes Progress")
+                                    .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(.primary)
-                            }
-                            
-                            Text("Tracking your progress visually is one of the most accurate ways to measure body composition changes. While scales only measure total mass (including water weight and muscle fluctuations), photos capture actual body recomposition.")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.gray)
-                                .lineSpacing(5)
-                            
-                            Divider()
-                            
-                            HStack(alignment: .top, spacing: 12) {
-                                Image(systemName: "cpu.fill")
-                                    .font(.title3)
-                                    .foregroundColor(themeManager.current.primaryAccent)
-                                    .padding(.top, 2)
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("How AI Computes Progress")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.primary)
-                                    Text("Our neural network maps over 30 anatomical keypoints on your body silhouette. By aligning structural frames, the AI evaluates posture symmetry, waist-to-shoulder ratios, muscle definition clarity (via shadow intensity mapping), and tracking trajectory to evaluate progress independent of scale weight.")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(.secondary)
-                                        .lineSpacing(4)
-                                }
+                                Text("Our neural network maps over 30 anatomical keypoints on your body silhouette. By aligning structural frames, the AI evaluates posture symmetry, waist-to-shoulder ratios, muscle definition clarity (via shadow intensity mapping), and tracking trajectory to evaluate progress independent of scale weight.")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                    .lineSpacing(4)
                             }
                         }
-                        .padding(20)
-                        .background(Color.white)
-                        .cornerRadius(24)
-                        .shadow(color: .black.opacity(0.02), radius: 8, y: 4)
-                        
-                        // Upload Box or Slider
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack {
-                                Text("Comparison View")
-                                    .font(.headline)
-                                Spacer()
-                                if beforeImage != nil || afterImage != nil {
-                                    Button("Reset") {
-                                        withAnimation {
-                                            resetPhotos()
-                                        }
+                    }
+                    .padding(20)
+                    .background(Color.white)
+                    .cornerRadius(24)
+                    .shadow(color: .black.opacity(0.02), radius: 8, y: 4)
+                    
+                    // Upload Box or Slider
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Text("Comparison View")
+                                .font(.headline)
+                            Spacer()
+                            if beforeImage != nil || afterImage != nil {
+                                Button("Reset") {
+                                    withAnimation {
+                                        resetPhotos()
                                     }
-                                    .font(.caption.bold())
-                                    .foregroundStyle(themeManager.current.primaryAccent)
                                 }
-                            }
-                            
-                            if beforeImage != nil && afterImage != nil {
-                                comparisonSlider
-                            } else {
-                                uploadWindows
+                                .font(.caption.bold())
+                                .foregroundStyle(themeManager.current.primaryAccent)
                             }
                         }
-                        .padding(20)
-                        .background(Color.white)
-                        .cornerRadius(24)
-                        .shadow(color: .black.opacity(0.02), radius: 8, y: 4)
                         
-                        // Analysis calculations
-                        if isAnalyzing || hasAnalyzed {
-                            aiPhotoAnalysisSection
-                                .padding(20)
-                                .background(Color.white)
-                                .cornerRadius(24)
-                                .shadow(color: .black.opacity(0.02), radius: 8, y: 4)
+                        if beforeImage != nil && afterImage != nil {
+                            comparisonSlider
+                        } else {
+                            uploadWindows
                         }
-                        
-                        Spacer(minLength: 40)
                     }
-                    .padding()
-                }
-            }
-            .navigationTitle("Visual Progress")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "chevron.left")
-                            .font(.headline)
-                            .foregroundColor(.primary)
+                    .padding(20)
+                    .background(Color.white)
+                    .cornerRadius(24)
+                    .shadow(color: .black.opacity(0.02), radius: 8, y: 4)
+                    
+                    // Analysis calculations
+                    if isAnalyzing || hasAnalyzed {
+                        aiPhotoAnalysisSection
+                            .padding(20)
+                            .background(Color.white)
+                            .cornerRadius(24)
+                            .shadow(color: .black.opacity(0.02), radius: 8, y: 4)
                     }
+                    
+                    Spacer(minLength: 40)
                 }
+                .padding()
             }
-            .onAppear {
-                loadPhotosFromDisk()
+        }
+        .navigationTitle("Visual Progress")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            loadPhotosFromDisk()
+        }
+        .onChange(of: beforeImage) { _, newValue in
+            if let img = newValue {
+                saveImageToDisk(image: img, isBefore: true)
             }
-            .onChange(of: beforeImage) { _, newValue in
-                if let img = newValue {
-                    saveImageToDisk(image: img, isBefore: true)
-                }
-                if newValue != nil && afterImage != nil {
-                    triggerAnalysis()
-                }
+            if newValue != nil && afterImage != nil {
+                triggerAnalysis()
             }
-            .onChange(of: afterImage) { _, newValue in
-                if let img = newValue {
-                    saveImageToDisk(image: img, isBefore: false)
-                }
-                if newValue != nil && beforeImage != nil {
-                    triggerAnalysis()
-                }
+        }
+        .onChange(of: afterImage) { _, newValue in
+            if let img = newValue {
+                saveImageToDisk(image: img, isBefore: false)
+            }
+            if newValue != nil && beforeImage != nil {
+                triggerAnalysis()
             }
         }
     }

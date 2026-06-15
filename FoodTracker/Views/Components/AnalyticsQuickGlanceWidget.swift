@@ -62,13 +62,17 @@ struct GlanceCard: View {
         target > 0 ? min(current / target, 1.0) : 0
     }
     
+    var percentComplete: Int {
+        target > 0 ? Int((current / target) * 100) : 0
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
+            HStack(spacing: 8) {
                 ZStack {
                     Circle()
-                        .fill(color.opacity(0.2))
-                        .frame(width: 32, height: 32)
+                        .fill(color.opacity(0.12))
+                        .frame(width: 34, height: 34)
                     
                     Image(systemName: icon)
                         .foregroundColor(color)
@@ -76,44 +80,72 @@ struct GlanceCard: View {
                 }
                 
                 Text(title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 
                 Spacer()
+                
+                Text("\(percentComplete)%")
+                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                    .foregroundColor(progress >= 1.0 ? .green : color)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(progress >= 1.0 ? Color.green.opacity(0.1) : color.opacity(0.08))
+                    .cornerRadius(8)
             }
             
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text("\(Int(current))")
-                    .font(.title3.weight(.bold))
+                    .font(.system(size: 24, weight: .black, design: .rounded))
                     .foregroundColor(.primary)
                 
                 Text("/ \(Int(target)) \(unit)")
-                    .font(.caption)
-                    .foregroundColor(.textGray)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundColor(.gray.opacity(0.7))
             }
+            .padding(.top, 2)
             
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color.gray.opacity(0.15))
-                        .frame(height: 6)
+                        .fill(Color.gray.opacity(0.08))
+                        .frame(height: 8)
                     
                     Capsule()
                         .fill(
                             LinearGradient(
-                                colors: [color.opacity(0.7), color],
+                                colors: [color.opacity(0.8), color],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: max(0, geo.size.width * CGFloat(progress)), height: 6)
+                        .frame(width: max(8, geo.size.width * CGFloat(progress)), height: 8)
+                        .shadow(color: color.opacity(0.3), radius: 3, x: 0, y: 1.5)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 8)
         }
         .padding(16)
-        .background(Color.white)
-        .cornerRadius(20)
-        .shadow(color: color.opacity(0.1), radius: 8, y: 4)
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 22)
+                    .fill(Color.white)
+                
+                RoundedRectangle(cornerRadius: 22)
+                    .fill(
+                        LinearGradient(
+                            colors: [.clear, color.opacity(0.03)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22)
+                .stroke(progress >= 1.0 ? color.opacity(0.3) : Color.white.opacity(0.5), lineWidth: progress >= 1.0 ? 1.5 : 1)
+        )
+        .cornerRadius(22)
+        .shadow(color: color.opacity(0.12), radius: 10, x: 0, y: 5)
     }
 }
