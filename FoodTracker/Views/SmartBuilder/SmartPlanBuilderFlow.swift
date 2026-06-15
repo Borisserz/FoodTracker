@@ -464,78 +464,78 @@ struct DietCard: View {
     
     @Environment(ThemeManager.self) private var themeManager
     
-    var dietIllustration: (emoji: String, subtitle: String, gradient: [Color]) {
+    var dietDetails: (imageName: String, subtitle: String, gradient: [Color]) {
         switch title {
         case "Any":
-            return ("🍽️", "Без ограничений", [.blue, .purple])
+            return ("diet_bg_any", "Без ограничений", [.blue, .purple])
         case "Keto":
-            return ("🥑🥩", "Много жиров, мало угл.", [.orange, .red])
+            return ("diet_bg_keto", "Много жиров, мало угл.", [.orange, .red])
         case "Vegan":
-            return ("🥦🌱", "100% растительная", [.green, .teal])
+            return ("diet_bg_vegan", "100% растительная", [.green, .teal])
         case "Vegetarian":
-            return ("🧀🥕", "Растительная без мяса", [.yellow, .green])
+            return ("diet_bg_vegetarian", "Растительная без мяса", [.yellow, .green])
         case "Paleo":
-            return ("🍖🥚", "Натуральные продукты", [.orange, .red])
+            return ("diet_bg_paleo", "Натуральные продукты", [.orange, .red])
         case "Pescatarian":
-            return ("🐟🍣", "Рыба и морепродукты", [.teal, .blue])
+            return ("diet_bg_pescatarian", "Рыба и морепродукты", [.teal, .blue])
         case "Mediterranean":
-            return ("🫒🥗", "Оливковое масло и овощи", [.green, .blue])
+            return ("diet_bg_mediterranean", "Оливковое масло и овощи", [.green, .blue])
         case "High Protein":
-            return ("🍗🍤", "Много белка для мышц", [.red, .purple])
+            return ("diet_bg_highprotein", "Много белка для мышц", [.red, .purple])
         case "Low Carb":
-            return ("🍳🥓", "Минимум углеводов", [.pink, .orange])
+            return ("diet_bg_lowcarb", "Минимум углеводов", [.pink, .orange])
         default:
-            return ("🍽️", "Персональный выбор", [.gray, .black])
+            return ("diet_bg_any", "Персональный выбор", [.gray, .black])
         }
     }
     
     var body: some View {
-        let details = dietIllustration
-        VStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(isSelected ? Color.white.opacity(0.25) : details.gradient.first?.opacity(0.12) ?? Color.gray.opacity(0.12))
-                    .frame(width: 54, height: 54)
-                
-                Text(details.emoji)
-                    .font(.system(size: 28))
-                    .shadow(color: .black.opacity(0.15), radius: 3, x: 1, y: 2)
-            }
-            .padding(.top, 4)
+        let details = dietDetails
+        ZStack {
+            // Background Image
+            Image(details.imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(height: 120)
+                .clipped()
             
+            // Darkening overlay + selection color gradient
+            if isSelected {
+                LinearGradient(
+                    colors: [details.gradient[0].opacity(0.8), details.gradient[1].opacity(0.8)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            } else {
+                Color.black.opacity(0.55)
+            }
+            
+            // Content
             VStack(spacing: 4) {
                 Text(title)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(isSelected ? .white : .primary)
+                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.4), radius: 2, y: 1)
                 
                 Text(details.subtitle)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(isSelected ? Color.white.opacity(0.85) : Color.gray)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
-                    .frame(height: 28, alignment: .top)
+                    .padding(.horizontal, 8)
+                    .frame(height: 32, alignment: .top)
+                    .shadow(color: .black.opacity(0.4), radius: 2, y: 1)
             }
+            .padding(.vertical, 16)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 14)
-        .background(
-            ZStack {
-                if isSelected {
-                    LinearGradient(colors: details.gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-                } else {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(.ultraThinMaterial)
-                }
-            }
-        )
+        .frame(height: 120)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(isSelected ? Color.white.opacity(0.3) : Color.white.opacity(0.5), lineWidth: 1)
+                .stroke(isSelected ? Color.white : Color.white.opacity(0.15), lineWidth: isSelected ? 2 : 1)
         )
-        .shadow(color: isSelected ? details.gradient.first?.opacity(0.35) ?? .clear : .black.opacity(0.03), radius: 8, y: 4)
-        .scaleEffect(isSelected ? 1.02 : 1.0)
+        .shadow(color: isSelected ? details.gradient.first?.opacity(0.4) ?? .clear : .black.opacity(0.1), radius: 10, y: 6)
+        .scaleEffect(isSelected ? 1.03 : 1.0)
     }
 }
 
