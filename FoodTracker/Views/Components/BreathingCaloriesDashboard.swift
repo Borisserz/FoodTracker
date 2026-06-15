@@ -76,11 +76,18 @@ struct EatenCaloriesRing: View {
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring(response: 0.9, dampingFraction: 0.85)) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
                     animC = cEnd
                     animF = fEnd
                     animP = pEnd
                 }
+            }
+        }
+        .onChange(of: consumed) { _, _ in
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                animC = cEnd
+                animF = fEnd
+                animP = pEnd
             }
         }
     }
@@ -125,7 +132,12 @@ struct BurnedCaloriesRing: View {
         .frame(width: 240, height: 240)
         .padding(.top, 10)
         .onAppear {
-            withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                animProgress = progress
+            }
+        }
+        .onChange(of: burned) { _, _ in
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 animProgress = progress
             }
         }
@@ -177,7 +189,12 @@ struct NetCaloriesRing: View {
         .frame(width: 240, height: 240)
         .padding(.top, 10)
         .onAppear {
-            withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                animProgress = abs(progress)
+            }
+        }
+        .onChange(of: net) { _, _ in
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 animProgress = abs(progress)
             }
         }

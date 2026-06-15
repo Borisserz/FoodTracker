@@ -3,9 +3,9 @@ import SwiftData
 import Charts
 
 enum AnalyticsPeriod: String, CaseIterable, Identifiable {
-    case day = "Day"
-    case week = "Week"
-    case month = "Month"
+    case day = "Daily"
+    case week = "Weekly"
+    case month = "Monthly"
     var id: String { self.rawValue }
 
     var daysCount: Int {
@@ -37,14 +37,19 @@ struct DivineCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(20)
-            .background(.ultraThinMaterial)
-            .background(Color.white.opacity(0.65))
-            .cornerRadius(32)
+            .background(
+                RoundedRectangle(cornerRadius: 32, style: .continuous)
+                    .fill(Color.white.opacity(0.65))
+                    .shadow(color: Color.black.opacity(0.08), radius: 25, x: 0, y: 15)
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 32, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            )
             .overlay(
-                RoundedRectangle(cornerRadius: 32)
+                RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .stroke(LinearGradient(colors: [.white, .white.opacity(0.1), .white.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
             )
-            .shadow(color: Color.black.opacity(0.08), radius: 25, x: 0, y: 15)
     }
 }
 
@@ -84,6 +89,7 @@ struct AnalyticsTabView: View {
                         .frame(width: proxy.size.width * 1.5, height: proxy.size.height * 1.5)
                         .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
                         .blur(radius: 60)
+                        .drawingGroup()
                         .animation(.linear(duration: 40).repeatForever(autoreverses: false), value: animateIn)
                     }
                 }
@@ -175,9 +181,10 @@ struct MetabolicScoreCard: View {
     private var subScores: (cal: Double, hyd: Double, macro: Double) {
         var totalCals = 0.0
         var totalHydration = 0.0
-        let days = max(1, min(summaries.count, period.daysCount))
+        let sortedSummaries = summaries.sorted { $0.date > $1.date }
+        let days = max(1, min(sortedSummaries.count, period.daysCount))
 
-        for s in summaries.prefix(days) {
+        for s in sortedSummaries.prefix(days) {
             totalCals += Double(s.totalFoodCalories)
             totalHydration += s.totalHydrationLiters
         }
@@ -407,11 +414,14 @@ struct GlobalPeriodPicker: View {
                 Button(action: {
                     selection = period
                 }) {
-                    Text(period.rawValue)
-                        .font(.system(size: 15, weight: selection == period ? .bold : .medium, design: .rounded))
-                        .foregroundColor(selection == period ? .white : .primary.opacity(0.7))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                    ZStack {
+                        Text("Monthly").font(.system(size: 15, weight: .bold)).hidden()
+                        Text(period.rawValue)
+                            .font(.system(size: 15, weight: selection == period ? .bold : .medium, design: .rounded))
+                            .foregroundColor(selection == period ? .white : .primary.opacity(0.7))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
                         .background(
                             ZStack {
                                 if selection == period {
@@ -550,8 +560,9 @@ struct DailyAnalyticsInsightView: View {
     private func calculateScore() -> Int {
         var totalCals = 0.0
         var totalHydration = 0.0
+        let sortedSummaries = summaries.sorted { $0.date > $1.date }
         let days = 1
-        for s in summaries.prefix(days) {
+        for s in sortedSummaries.prefix(days) {
             totalCals += Double(s.totalFoodCalories)
             totalHydration += s.totalHydrationLiters
         }
@@ -573,7 +584,7 @@ struct DailyAnalyticsInsightView: View {
 struct MealDistributionGridCard: View {
     let summary: DailySummary?
     let meals = [
-        ("Break...", Color.themeYellow),
+        ("Breakfast", Color.themeYellow),
         ("Lunch", Color.green),
         ("Dinner", Color.themePink),
         ("Snack", Color.themeOrange)
@@ -595,6 +606,23 @@ struct MealDistributionGridCard: View {
             if totalCals == 0 {
                 Text("No data").font(.caption.bold()).foregroundColor(.primary.opacity(0.7))
             } else {
+                // Horizontal Bar Chart
+                GeometryReader { geo in
+                    HStack(spacing: 4) {
+                        ForEach(meals, id: \.0) { meal in
+                            let cals = summary?.meals.first(where: { $0.title.hasPrefix(meal.0.prefix(5)) })?.totalCalories ?? 0
+                            if cals > 0 {
+                                let ratio = Double(cals) / Double(totalCals)
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(meal.1)
+                                    .frame(width: max(0, geo.size.width * CGFloat(ratio) - 4))
+                            }
+                        }
+                    }
+                }
+                .frame(height: 12)
+                .padding(.bottom, 8)
+
                 VStack(spacing: 8) {
                     ForEach(meals, id: \.0) { meal in
                         let cals = summary?.meals.first(where: { $0.title.hasPrefix(meal.0.prefix(5)) })?.totalCalories ?? 0
@@ -796,9 +824,16 @@ struct FitnessRingsCard: View {
     var onMacroTap: (AnalyticsMacro) -> Void
 
     var body: some View {
-        let c = summary?.totalCarbs ?? 0; let tc = user.targetCarbs
-        let f = summary?.totalFats ?? 0;  let tf = user.targetFats
-        let p = summary?.totalProtein ?? 0; let tp = user.targetProtein
+        let tc = user.targetCarbs > 0 ? user.targetCarbs : ((Double(user.dailyCaloriesGoal) * 0.4) / 4.0)
+        let tf = user.targetFats > 0 ? user.targetFats : ((Double(user.dailyCaloriesGoal) * 0.3) / 9.0)
+        let tp = user.targetProtein > 0 ? user.targetProtein : ((Double(user.dailyCaloriesGoal) * 0.3) / 4.0)
+        let fallbackC = tc > 0 ? tc : 250.0
+        let fallbackF = tf > 0 ? tf : 70.0
+        let fallbackP = tp > 0 ? tp : 150.0
+
+        let c = summary?.totalCarbs ?? 0; let targetC = fallbackC
+        let f = summary?.totalFats ?? 0;  let targetF = fallbackF
+        let p = summary?.totalProtein ?? 0; let targetP = fallbackP
 
         VStack(spacing: 24) {
             HStack {
@@ -812,23 +847,22 @@ struct FitnessRingsCard: View {
 
             HStack(spacing: 30) {
                 ZStack {
-                    RingView(progress: p/tp, color: .themePeach, radius: 130, width: 16)
-                    RingView(progress: f/tf, color: .themeYellow, radius: 94, width: 16)
-                    RingView(progress: c/tc, color: .drinkWater, radius: 58, width: 16)
+                    RingView(progress: p/targetP, color: .themePeach, radius: 130, width: 16)
+                    RingView(progress: f/targetF, color: .themeYellow, radius: 94, width: 16)
+                    RingView(progress: c/targetC, color: .drinkWater, radius: 58, width: 16)
                 }
                 .frame(width: 130, height: 130)
 
                 VStack(alignment: .leading, spacing: 16) {
                     Button(action: { onMacroTap(.protein) }) {
-                        LegendRow(title: "Protein", current: p, target: tp, color: .themePeach)
+                        LegendRow(title: "Protein", current: p, target: targetP, color: .themePeach)
                     }.buttonStyle(PlainButtonStyle())
-
                     Button(action: { onMacroTap(.fat) }) {
-                        LegendRow(title: "Fats", current: f, target: tf, color: .themeYellow)
+                        LegendRow(title: "Fats", current: f, target: targetF, color: .themeYellow)
                     }.buttonStyle(PlainButtonStyle())
 
                     Button(action: { onMacroTap(.carbs) }) {
-                        LegendRow(title: "Carbs", current: c, target: tc, color: .drinkWater)
+                        LegendRow(title: "Carbs", current: c, target: targetC, color: .drinkWater)
                     }.buttonStyle(PlainButtonStyle())
                 }
             }
@@ -917,8 +951,9 @@ struct TrendsAnalyticsInsightView: View {
     private func calculateScore() -> Int {
         var totalCals = 0.0
         var totalHydration = 0.0
-        let days = max(1, min(summaries.count, period.daysCount))
-        for s in summaries.prefix(days) {
+        let sortedSummaries = summaries.sorted { $0.date > $1.date }
+        let days = max(1, min(sortedSummaries.count, period.daysCount))
+        for s in sortedSummaries.prefix(days) {
             totalCals += Double(s.totalFoodCalories)
             totalHydration += s.totalHydrationLiters
         }
@@ -1251,16 +1286,20 @@ struct ConsistencyHeatmapCard: View {
                 Text("Last 14 Days").font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
             }
 
-            HStack(spacing: 8) {
-                ForEach(days, id: \.self) { date in
-                    let level = completionLevel(for: date)
-                    let color = colorForLevel(level)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(days, id: \.self) { date in
+                        let level = completionLevel(for: date)
+                        let color = colorForLevel(level)
 
-                    VStack(spacing: 4) {
-                        Text(Calendar.current.component(.day, from: date).description).font(.system(size: 10, weight: .bold)).foregroundColor(.primary.opacity(0.8))
-                        RoundedRectangle(cornerRadius: 6).fill(color.gradient).frame(width: 18, height: 36).shadow(color: level == 3 ? .green.opacity(0.4) : .clear, radius: 4, y: 2)
+                        VStack(spacing: 4) {
+                            Text(Calendar.current.component(.day, from: date).description).font(.system(size: 10, weight: .bold)).foregroundColor(.primary.opacity(0.8))
+                            RoundedRectangle(cornerRadius: 6).fill(color.gradient).frame(width: 18, height: 36).shadow(color: level == 3 ? .green.opacity(0.4) : .clear, radius: 4, y: 2)
+                        }
                     }
                 }
+                .padding(.horizontal, 2)
+                .padding(.bottom, 8)
             }
             .frame(maxWidth: .infinity, alignment: .center)
 

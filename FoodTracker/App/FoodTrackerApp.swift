@@ -54,6 +54,7 @@ struct FoodTrackerApp: App {
     @State private var diContainer: DIContainer?
     @State private var databaseLoadError: Error?
     @State private var recipeDataLoader: RecipeDataLoader?
+    @State private var academyDataLoader: AcademyDataLoader?
 
     var body: some Scene {
         WindowGroup {
@@ -69,7 +70,7 @@ struct FoodTrackerApp: App {
                     }
                 } else if let error = databaseLoadError {
                     Text("Database Error: \(error.localizedDescription)")
-                } else if let di = diContainer, let recipeLoader = recipeDataLoader {
+                } else if let di = diContainer, let recipeLoader = recipeDataLoader, let academyLoader = academyDataLoader {
                     RootLaunchView()
                         .modelContainer(di.modelContainer)
                         .environment(di)
@@ -77,6 +78,7 @@ struct FoodTrackerApp: App {
                         .environment(di.authManager)
                         .environment(ThemeManager.shared)
                         .environment(recipeLoader)
+                        .environment(academyLoader)
                         .preferredColorScheme(.light)
                 } else {
                     ProgressView("Initializing...")
@@ -133,6 +135,7 @@ struct FoodTrackerApp: App {
 
             let di = DIContainer(modelContainer: container)
             self.recipeDataLoader = RecipeDataLoader()
+            self.academyDataLoader = AcademyDataLoader()
             self.diContainer = di
             print("🚀 [setupDependencies] diContainer assigned to state. Re-rendering UI...")
             
@@ -236,8 +239,15 @@ struct ContentView: View {
     private func initializeUserIfNeeded() {
         if users.isEmpty {
             let defaultUser = User(name: "Alex", weight: 75.0, height: 180.0, age: 28, gender: "Male")
+            defaultUser.dailyCaloriesGoal = 2000
+            defaultUser.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: "balanced")
             context.insert(defaultUser)
             try? context.save()
+        } else if let user = users.first {
+            if user.targetCarbs <= 0 && user.dailyCaloriesGoal > 0 {
+                user.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: user.activeDietKey.isEmpty ? "balanced" : user.activeDietKey)
+                try? context.save()
+            }
         }
     }
     
@@ -268,6 +278,7 @@ struct ContentView: View {
             existingUser.height = Double(metrics.height)
             existingUser.weight = Double(metrics.weight)
             existingUser.dailyCaloriesGoal = cals
+            existingUser.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: existingUser.activeDietKey.isEmpty ? "balanced" : existingUser.activeDietKey)
         } else {
             let newUser = User(
                 name: "Champion",
@@ -277,6 +288,7 @@ struct ContentView: View {
                 gender: "Male"
             )
             newUser.dailyCaloriesGoal = cals
+            newUser.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: "balanced")
             context.insert(newUser)
         }
         try? context.save()

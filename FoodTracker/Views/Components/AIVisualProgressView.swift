@@ -233,8 +233,8 @@ struct AIVisualProgressView: View {
                         .clipped()
                         .mask(
                             HStack(spacing: 0) {
-                                Rectangle().frame(width: dividerX)
                                 Spacer(minLength: 0)
+                                Rectangle().frame(width: width - dividerX)
                             }
                         )
                 }
@@ -428,6 +428,12 @@ struct AIVisualProgressView: View {
                             icon: "target",
                             color: .orange
                         )
+                    }
+                    
+                    HStack(spacing: 12) {
+                        FakeMetricCard(title: String(localized: "Est. Body Fat"), value: "-2.4%", isPositive: true)
+                        FakeMetricCard(title: String(localized: "Est. Weight"), value: "-1.8 kg", isPositive: true)
+                        FakeMetricCard(title: String(localized: "Muscle Mass"), value: "+0.5 kg", isPositive: true)
                     }
                     
                     AIPerceptionFeedbackCard()

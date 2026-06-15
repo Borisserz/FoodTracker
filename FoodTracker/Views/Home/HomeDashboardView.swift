@@ -597,9 +597,9 @@ struct MealDetailView: View {
                                 let targetF = (user?.targetFats ?? 70.0) / 3
                                 let targetC = (user?.targetCarbs ?? 250.0) / 3
 
-                                MiniProgressView(title: "Protein", progress: meal.totalProtein / max(targetP, 1), color: .themePeach)
-                                MiniProgressView(title: "Fats", progress: meal.totalFats / max(targetF, 1), color: .themeYellow)
-                                MiniProgressView(title: "Carbs", progress: meal.totalCarbs / max(targetC, 1), color: .drinkWater)
+                                MiniProgressView(title: "Protein", progress: meal.totalProtein / max(targetP, 1), value: meal.totalProtein, color: .themePeach)
+                                MiniProgressView(title: "Fats", progress: meal.totalFats / max(targetF, 1), value: meal.totalFats, color: .themeYellow)
+                                MiniProgressView(title: "Carbs", progress: meal.totalCarbs / max(targetC, 1), value: meal.totalCarbs, color: .drinkWater)
                             }
                         }
                         .ultraPremiumCardStyle()
@@ -902,7 +902,7 @@ private struct ActivityRing: View {
                 .rotationEffect(.degrees(-90))
         }
         .frame(width: radius * 2, height: radius * 2)
-        .animation(.spring(response: 0.8), value: progress)
+        .animation(.spring(response: 0.3), value: progress)
     }
 }
 

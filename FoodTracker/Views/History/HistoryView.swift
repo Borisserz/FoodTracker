@@ -157,7 +157,6 @@ struct FoodsDashboardView: View {
                 }
             }
         }
-        // .environment(dataLoader) is now injected from app level
     }
 
     private func deleteMeal(_ meal: Meal) {
@@ -522,7 +521,7 @@ struct FrequentMealRow: View {
 
 struct LearnDashboardView: View {
     @Binding var path: NavigationPath
-    @State private var dataLoader = AcademyDataLoader()
+    @Environment(AcademyDataLoader.self) private var dataLoader
 
     private var totalArticles: Int {
         dataLoader.categories.reduce(0) { $0 + $1.totalCount }

@@ -53,10 +53,14 @@ struct MacroSummaryView: View {
     let targetProtein: Double; let targetFats: Double; let targetCarbs: Double
 
     var body: some View {
-        HStack(spacing: 15) {
-            MacroBatteryView(title: "Protein", current: Int(protein), total: Int(targetProtein), color: .themePeach)
-            MacroBatteryView(title: "Fats", current: Int(fats), total: Int(targetFats), color: .themeYellow)
-            MacroBatteryView(title: "Carbs", current: Int(carbs), total: Int(targetCarbs), color: .drinkWater)
+        let tp = targetProtein > 0 ? targetProtein : 150.0
+        let tf = targetFats > 0 ? targetFats : 70.0
+        let tc = targetCarbs > 0 ? targetCarbs : 250.0
+
+        HStack(spacing: 8) {
+            MacroBatteryView(title: "Protein", current: Int(protein), total: Int(tp), color: .themePeach)
+            MacroBatteryView(title: "Fats", current: Int(fats), total: Int(tf), color: .themeYellow)
+            MacroBatteryView(title: "Carbs", current: Int(carbs), total: Int(tc), color: .drinkWater)
         }
     }
 }
@@ -64,11 +68,17 @@ struct MacroSummaryView: View {
 struct MiniProgressView: View {
     let title: String
     let progress: Double
+    var value: Double? = nil
     let color: Color
 
     var body: some View {
         VStack(spacing: 6) {
-            Text(title).font(.caption).bold().foregroundColor(.textGray)
+            HStack(spacing: 4) {
+                Text(title).font(.caption).bold().foregroundColor(.textGray)
+                if let val = value {
+                    Text("\(Int(val))g").font(.caption).bold().foregroundColor(color)
+                }
+            }
 
             ProgressView(value: min(max(progress, 0.0), 1.0)).tint(color)
         }
@@ -651,7 +661,7 @@ struct DetailedMacroRingsCard: View {
     private var smartInsight: (title: String, text: String, icon: String, color: Color) {
         let p = summary.totalProtein; let targetP = user?.targetProtein ?? 150
         let f = summary.totalFats; let targetF = user?.targetFats ?? 70
-        let c = summary.totalCarbs; let targetC = user?.targetCarbs ?? 250
+        let c = summary.totalCarbs; let targetC = (user?.targetCarbs ?? 250) > 0 ? (user?.targetCarbs ?? 250) : 250
 
         if summary.totalFoodCalories == 0 {
             return ("Fresh Start", "Log your first meal to see your macro balance.", "leaf.fill", .green)
@@ -669,7 +679,7 @@ struct DetailedMacroRingsCard: View {
     var body: some View {
         let targetP = user?.targetProtein ?? 150
         let targetF = user?.targetFats ?? 70
-        let targetC = user?.targetCarbs ?? 250
+        let targetC = (user?.targetCarbs ?? 250) > 0 ? (user?.targetCarbs ?? 250) : 250
 
         VStack(spacing: 24) {
             Text("Macronutrients")
@@ -1050,7 +1060,7 @@ struct EatenRingCard: View {
                 carbs: summary.totalCarbs,
                 targetProtein: user?.targetProtein ?? 150,
                 targetFats: user?.targetFats ?? 70,
-                targetCarbs: user?.targetCarbs ?? 250
+                targetCarbs: (user?.targetCarbs ?? 250) > 0 ? (user?.targetCarbs ?? 250) : 250
             )
             .padding(.top, 8)
         }

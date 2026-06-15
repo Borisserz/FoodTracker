@@ -27,21 +27,11 @@ struct RootOnboardingView: View {
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             } else if currentStage == 1 {
-                ActivityScreen(metrics: $metrics, onNext: {
+                OnboardingGoalScreen(metrics: $metrics, onNext: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 2 }
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             } else if currentStage == 2 {
-                OnboardingGoalScreen(metrics: $metrics, onNext: {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 3 }
-                })
-                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-            } else if currentStage == 3 {
-                FinishScreen(onCalculationComplete: {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 4 }
-                })
-                .transition(.opacity)
-            } else if currentStage == 4 {
                 OnboardingFeaturesView(onNext: {
                     onFinish(metrics)
                 })

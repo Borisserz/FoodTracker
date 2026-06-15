@@ -47,7 +47,7 @@ struct AIChefStudioView: View {
     @Environment(ThemeManager.self) private var themeManager
     @Environment(RecipeDataLoader.self) private var dataLoader
     @Query private var customRecipes: [CustomRecipe]
-    @Query private var weeklyPlans: [WeeklyMealPlan]
+    @Query(sort: \WeeklyMealPlan.createdDate, order: .reverse) private var weeklyPlans: [WeeklyMealPlan]
     
     @State private var remainingCalories: Int = 450
     @State private var remainingProtein: Int = 32
@@ -57,7 +57,7 @@ struct AIChefStudioView: View {
     @State private var searchText = ""
     @State private var showAIAssistantFlow = false
     @State private var showSmartBuilder = false
-    @State private var showActivePlan = false
+    @State private var selectedPlanToView: WeeklyMealPlan?
     
     var allPreviews: [UnifiedRecipePreview] {
         var list = [UnifiedRecipePreview]()
@@ -147,27 +147,31 @@ struct AIChefStudioView: View {
                         .buttonStyle(BounceButtonStyle())
                         .padding(.horizontal)
                         
-                        // Active 7-Day Plan Preview
-                        if let activePlan = weeklyPlans.first(where: { $0.isCurrentPlan }) {
-                            Button(action: {
-                                HapticManager.shared.impact(style: .light)
-                                showActivePlan = true
-                            }) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text("Current 7-Day Protocol").font(.caption.bold()).foregroundColor(themeManager.current.primaryAccent)
-                                        Text("View Active Plan").font(.title3.bold()).foregroundColor(.primary)
-                                        Text("\(activePlan.targetCalories) kcal • \(activePlan.dietType)").font(.subheadline).foregroundColor(.gray)
+                        // Active 7-Day Plan Previews
+                        if !weeklyPlans.isEmpty {
+                            VStack(spacing: 12) {
+                                ForEach(weeklyPlans.prefix(3)) { plan in
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .light)
+                                        selectedPlanToView = plan
+                                    }) {
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                Text(String(localized: "7-Day Protocol")).font(.caption.bold()).foregroundColor(themeManager.current.primaryAccent)
+                                                Text(plan.createdDate.formatted(date: .abbreviated, time: .shortened)).font(.title3.bold()).foregroundColor(.primary)
+                                                Text("\(plan.targetCalories) kcal • \(String(localized: String.LocalizationValue(plan.dietType)))").font(.subheadline).foregroundColor(.gray)
+                                            }
+                                            Spacer()
+                                            Image(systemName: "chevron.right.circle.fill").font(.title).foregroundColor(themeManager.current.primaryAccent)
+                                        }
+                                        .padding(20)
+                                        .background(Color.white)
+                                        .cornerRadius(24)
+                                        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
                                     }
-                                    Spacer()
-                                    Image(systemName: "chevron.right.circle.fill").font(.title).foregroundColor(themeManager.current.primaryAccent)
+                                    .buttonStyle(PlainButtonStyle())
                                 }
-                                .padding(20)
-                                .background(Color.white)
-                                .cornerRadius(24)
-                                .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
                             }
-                            .buttonStyle(PlainButtonStyle())
                             .padding(.horizontal)
                         }
                         
@@ -177,7 +181,7 @@ struct AIChefStudioView: View {
                         // 3. ПОИСК
                         HStack {
                             Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                            TextField("Найти блюдо в базе...", text: $searchText)
+                            TextField("Search dish in database...", text: $searchText)
                             if !searchText.isEmpty {
                                 Button(action: { searchText = "" }) { Image(systemName: "xmark.circle.fill").foregroundColor(.gray) }
                             }
@@ -192,11 +196,11 @@ struct AIChefStudioView: View {
                                         SearchResultRow(recipe: recipe)
                                     }.buttonStyle(PlainButtonStyle())
                                 }
-                                if filteredRecipes.isEmpty { Text("Блюдо не найдено").foregroundColor(.gray).padding() }
+                                if filteredRecipes.isEmpty { Text("Dish not found").foregroundColor(.gray).padding() }
                             }.padding(.horizontal)
                         } else {
                             VStack(alignment: .leading, spacing: 16) {
-                                Text("ИИ подобрал под твои макросы:")
+                                Text("AI selected for your macros:")
                                     .font(.title3.bold())
                                     .padding(.horizontal)
                                 ScrollView(.horizontal, showsIndicators: false) {
@@ -232,11 +236,9 @@ struct AIChefStudioView: View {
             .fullScreenCover(isPresented: $showSmartBuilder) {
                 SmartPlanBuilderFlow()
             }
-            .fullScreenCover(isPresented: $showActivePlan) {
-                if let plan = weeklyPlans.first(where: { $0.isCurrentPlan }) {
-                    WeeklyPlanOverview(plan: plan) {
-                        showActivePlan = false
-                    }
+            .fullScreenCover(item: $selectedPlanToView) { plan in
+                WeeklyPlanOverview(plan: plan) {
+                    selectedPlanToView = nil
                 }
             }
         }
@@ -265,14 +267,14 @@ struct DailyMacroWidget: View {
         VStack(spacing: 20) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Осталось на сегодня")
+                    Text("Remaining today")
                         .font(.subheadline.weight(.medium))
                         .foregroundColor(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(calories)")
                             .font(.system(size: 36, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
-                        Text("ккал")
+                        Text("kcal")
                             .font(.headline)
                             .foregroundColor(.secondary)
                     }
@@ -285,9 +287,9 @@ struct DailyMacroWidget: View {
             }
             
             HStack(spacing: 12) {
-                MacroPillView(title: "Белки", value: "\(protein)г", color: .themePeach)
-                MacroPillView(title: "Жиры", value: "\(fat)г", color: .themeYellow)
-                MacroPillView(title: "Углеводы", value: "\(carbs)г", color: .drinkWater)
+                MacroPillView(title: "Protein", value: "\(protein)g", color: .themePeach)
+                MacroPillView(title: "Fats", value: "\(fat)g", color: .themeYellow)
+                MacroPillView(title: "Carbs", value: "\(carbs)g", color: .drinkWater)
             }
         }
         .ultraPremiumCardStyle()
@@ -323,7 +325,7 @@ struct SearchResultRow: View {
             }
             VStack(alignment: .leading) {
                 Text(recipe.title).font(.headline)
-                Text("\(recipe.calories) ккал").font(.caption).foregroundColor(.gray)
+                Text("\(recipe.calories) kcal").font(.caption).foregroundColor(.gray)
             }
             Spacer()
             Image(systemName: "chevron.right").foregroundColor(.gray.opacity(0.5))
@@ -346,7 +348,7 @@ struct RecipeCardView: View {
                 }
             }.frame(width: 180, height: 120).cornerRadius(16)
             Text(recipe.title).font(.headline).lineLimit(1).padding(.top, 8)
-            Text("\(recipe.calories) ккал • \(recipe.cookTime) мин").font(.caption).foregroundColor(.gray)
+            Text("\(recipe.calories) kcal • \(recipe.cookTime) min").font(.caption).foregroundColor(.gray)
         }.frame(width: 180)
     }
 }
@@ -365,20 +367,20 @@ struct RecipeDetailAIView: View {
                 Text(recipe.title).font(.title.bold()).multilineTextAlignment(.center)
                 
                 HStack(spacing: 40) {
-                    VStack { Image(systemName: "clock.fill").foregroundColor(.gray); Text("\(recipe.cookTime) мин").font(.subheadline.bold()) }
+                    VStack { Image(systemName: "clock.fill").foregroundColor(.gray); Text("\(recipe.cookTime) min").font(.subheadline.bold()) }
                     VStack {
                         HStack(spacing: 2) { ForEach(1...5, id: \.self) { star in Image(systemName: star <= recipe.difficulty ? "star.fill" : "star").foregroundColor(.themeYellow).font(.caption) } }
-                        Text("Сложность").font(.caption).foregroundColor(.gray)
+                        Text("Difficulty").font(.caption).foregroundColor(.gray)
                     }
                 }.padding().background(Color.white).cornerRadius(16)
                 
                 Button(action: { HapticManager.shared.impact(style: .medium); isCookingModeActive = true }) {
-                    HStack { Image(systemName: "play.circle.fill"); Text("Начать пошаговую готовку") }
+                    HStack { Image(systemName: "play.circle.fill"); Text("Start step-by-step cooking") }
                         .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding().background(Color.themePink).cornerRadius(16)
                 }.padding(.horizontal, 24)
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "list.bullet.clipboard.fill").foregroundColor(.themePink); Text("Ингредиенты").font(.title3.bold()) }
+                    HStack { Image(systemName: "list.bullet.clipboard.fill").foregroundColor(.themePink); Text("Ingredients").font(.title3.bold()) }
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(recipe.ingredients, id: \.self) { ingredient in
                             HStack(alignment: .top) { Circle().fill(Color.themePink).frame(width: 6, height: 6).padding(.top, 6); Text(ingredient).font(.body) }
@@ -387,13 +389,13 @@ struct RecipeDetailAIView: View {
                 }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.white).cornerRadius(16).padding(.horizontal)
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "book.pages.fill").foregroundColor(.themePink); Text("История и Факты").font(.title3.bold()) }
+                    HStack { Image(systemName: "book.pages.fill").foregroundColor(.themePink); Text("History & Facts").font(.title3.bold()) }
                     Text(recipe.history).font(.body).lineSpacing(6).foregroundColor(.secondary)
                 }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.white).cornerRadius(16).padding(.horizontal)
                 
                 // 🌟 СЕРВИРОВКА
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Искусство подачи").font(.title3.bold()) }
+                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Art of Plating").font(.title3.bold()) }
                     Text(recipe.platingTip)
                         .font(.body.italic())
                         .lineSpacing(6)
@@ -404,7 +406,7 @@ struct RecipeDetailAIView: View {
             }.padding(.bottom, 40)
         }
         .background(Color.themeBg.ignoresSafeArea())
-        .navigationTitle("Рецепт")
+        .navigationTitle("Recipe")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $isCookingModeActive) {
             InteractiveCookingView(recipe: recipe, isPresented: $isCookingModeActive)
@@ -424,7 +426,7 @@ struct InteractiveCookingView: View {
             VStack(spacing: 0) {
                 HStack {
                     Button(action: { isPresented = false }) { Image(systemName: "xmark.circle.fill").font(.title).foregroundColor(.gray.opacity(0.5)) }
-                    Spacer(); Text("Готовка: \(recipe.title)").font(.headline); Spacer()
+                    Spacer(); Text("Cooking: \(recipe.title)").font(.headline); Spacer()
                     Image(systemName: "eye.fill").foregroundColor(.themePink.opacity(0.6))
                 }.padding()
                 
@@ -437,7 +439,7 @@ struct InteractiveCookingView: View {
                             
                             if visibleStepsCount == recipe.steps.count {
                                 VStack(alignment: .leading, spacing: 12) {
-                                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Финальный штрих: Подача").font(.headline) }
+                                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Final Touch: Plating").font(.headline) }
                                     Text(recipe.platingTip).font(.body.italic()).foregroundColor(.primary).lineSpacing(4)
                                 }
                                 .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeOrange.opacity(0.1)).cornerRadius(16).padding(.horizontal)
@@ -460,7 +462,7 @@ struct InteractiveCookingView: View {
                 Spacer()
                 Button(action: nextStep) {
                     HStack {
-                        Text(visibleStepsCount == recipe.steps.count ? "Завершить и съесть!" : "Следующий шаг")
+                        Text(visibleStepsCount == recipe.steps.count ? "Finish & Eat!" : "Next step")
                         if visibleStepsCount < recipe.steps.count { Image(systemName: "arrow.down") }
                     }.font(.title3.bold()).foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 20).background(Color.themePink).cornerRadius(24)
                 }.padding(.horizontal).padding(.bottom, 20)
@@ -519,10 +521,10 @@ struct AIAssistantFlowView: View {
             ZStack {
                 Color.themeBg.ignoresSafeArea()
                 VStack(spacing: 20) {
-                    Text("Что приготовим с ИИ?").font(.largeTitle.bold()).padding(.top)
+                    Text("What shall we cook with AI?").font(.largeTitle.bold()).padding(.top)
                     HStack {
                         Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                        TextField("Например: Рибай...", text: $searchAgentText)
+                        TextField("e.g. Ribeye...", text: $searchAgentText)
                     }.padding().background(Color.white).cornerRadius(16).padding(.horizontal)
                     
                     ScrollView {
@@ -552,7 +554,7 @@ struct AIAssistantFlowView: View {
                         ProgressView()
                             .scaleEffect(2.0)
                             .tint(.themePink)
-                        Text("Шеф-повар ИИ готовит...")
+                        Text("AI Chef is cooking...")
                             .font(.headline)
                             .foregroundColor(.primary)
                     }
@@ -563,7 +565,7 @@ struct AIAssistantFlowView: View {
                     .transition(.opacity.combined(with: .scale))
                 }
             }
-            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Отмена") { isPresented = false }.foregroundColor(.themePink).disabled(isGenerating) } }
+            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Cancel") { isPresented = false }.foregroundColor(.themePink).disabled(isGenerating) } }
             .navigationDestination(isPresented: $isPrepPhase) { if let r = selectedRecipe { PrepChecklistView(recipe: r, isFlowPresented: $isPresented) } }
         }
     }
@@ -876,8 +878,8 @@ struct AICameraScannerView: View {
     @State private var isSuccess = true
     @State private var laserOffset: CGFloat = -180
     
-    let successPhrases = ["Идеально! Температура и цвет то что нужно.", "Специи легли отлично. Продолжай!", "Корочка схватилась правильно. Переходи к следующему шагу."]
-    let errorPhrases = ["Маловато соли. Добавь еще щепотку!", "Сковорода недостаточно раскалена. Подожди 30 секунд.", "Цвет бледноват, дай блюду еще немного времени."]
+    let successPhrases = [String(localized: "Perfect! Temperature and color are spot on."), String(localized: "Spices look great. Keep going!"), String(localized: "The crust is searing perfectly. Move to the next step.")]
+    let errorPhrases = [String(localized: "A bit low on salt. Add a pinch!"), String(localized: "The pan is not hot enough. Wait 30 seconds."), String(localized: "Color is a bit pale, give it a bit more time.")]
     
     var body: some View {
         ZStack {
@@ -932,7 +934,7 @@ struct AICameraScannerView: View {
                     }
                     
                     if !isAnalyzing && !showResult {
-                        Text("Наведи камеру на блюдо")
+                        Text("Point camera at the dish")
                             .font(.headline)
                             .foregroundColor(.white.opacity(0.8))
                             .padding(.horizontal, 20)

@@ -176,8 +176,8 @@ struct BeforeAfterView: View {
                         .clipped()
                         .mask(
                             HStack(spacing: 0) {
-                                Rectangle().frame(width: dividerX)
                                 Spacer(minLength: 0)
+                                Rectangle().frame(width: width - dividerX)
                             }
                         )
                 }
@@ -379,6 +379,14 @@ struct BeforeAfterView: View {
                         )
                     }
                     
+                    HStack(spacing: 12) {
+                        FakeMetricCard(title: String(localized: "Est. Body Fat"), value: "-2.4%", isPositive: true)
+                        FakeMetricCard(title: String(localized: "Est. Weight"), value: "-1.8 kg", isPositive: true)
+                        FakeMetricCard(title: String(localized: "Muscle Mass"), value: "+0.5 kg", isPositive: true)
+                    }
+                    
+
+                    
                     AIPerceptionFeedbackCard()
                 }
                 .transition(.asymmetric(
@@ -487,5 +495,37 @@ struct AIPerceptionFeedbackCard: View {
                 HapticManager.shared.impact(style: .rigid)
             }
         }
+    }
+}
+
+struct FakeMetricCard: View {
+    let title: String
+    let value: String
+    let isPositive: Bool
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(title)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+            
+            HStack(spacing: 4) {
+                Image(systemName: isPositive ? "arrow.down.right" : "arrow.up.right")
+                    .font(.system(size: 12, weight: .bold))
+                Text(value)
+                    .font(.system(size: 18, weight: .heavy, design: .rounded))
+            }
+            .foregroundColor(isPositive ? .green : .red)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 4)
+        .background(Color.gray.opacity(0.04))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+        )
     }
 }

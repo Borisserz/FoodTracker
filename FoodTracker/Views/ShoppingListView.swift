@@ -103,6 +103,16 @@ struct ShoppingListView: View {
                     Spacer()
                     
                     if !activeItems.isEmpty {
+                        Button(action: clearActiveItems) {
+                            Image(systemName: "trash")
+                                .font(.title3.bold())
+                                .foregroundColor(.red)
+                                .frame(width: 44, height: 44)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+                        }
+                        
                         ShareLink(item: shareText) {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.title3.bold())
@@ -317,6 +327,16 @@ struct ShoppingListView: View {
         HapticManager.shared.impact(style: .heavy)
         withAnimation {
             for item in completedItems {
+                context.delete(item)
+            }
+            try? context.save()
+        }
+    }
+
+    private func clearActiveItems() {
+        HapticManager.shared.impact(style: .heavy)
+        withAnimation {
+            for item in activeItems {
                 context.delete(item)
             }
             try? context.save()

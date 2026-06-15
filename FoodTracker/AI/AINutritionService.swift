@@ -40,31 +40,31 @@ struct AIFoodItemDTO: Codable {
 }
 
 struct AIWeeklyPlanItemDTO: Codable {
-    let title: String
-    let type: String
-    let calories: Int
-    let protein: Int
-    let carbs: Int
-    let fat: Int
-    let omega3: Double
-    let calcium: Double
-    let potassium: Double
-    let magnesium: Double
-    let iron: Double
-    let vitaminC: Double
-    let vitaminD: Double
-    let ingredients: String
-    let instructions: String
-    let prepTimeMinutes: Int
+    let title: String?
+    let type: String?
+    let calories: Int?
+    let protein: Int?
+    let carbs: Int?
+    let fat: Int?
+    let omega3: Double?
+    let calcium: Double?
+    let potassium: Double?
+    let magnesium: Double?
+    let iron: Double?
+    let vitaminC: Double?
+    let vitaminD: Double?
+    let ingredients: String?
+    let instructions: String?
+    let prepTimeMinutes: Int?
 }
 
 struct AIWeeklyPlanDayDTO: Codable {
-    let dayIndex: Int
-    let totalCalories: Int
-    let totalProtein: Int
-    let totalCarbs: Int
-    let totalFat: Int
-    let meals: [AIWeeklyPlanItemDTO]
+    let dayIndex: Int?
+    let totalCalories: Int?
+    let totalProtein: Int?
+    let totalCarbs: Int?
+    let totalFat: Int?
+    let meals: [AIWeeklyPlanItemDTO]?
 }
 
 struct AIWeeklyPlanDTO: Codable {
@@ -262,32 +262,32 @@ class AINutritionService {
             
             for dayDTO in dto.days {
                 let day = MealPlanDay(
-                    dayIndex: dayDTO.dayIndex,
-                    totalCalories: dayDTO.totalCalories,
-                    totalProtein: dayDTO.totalProtein,
-                    totalCarbs: dayDTO.totalCarbs,
-                    totalFat: dayDTO.totalFat
+                    dayIndex: dayDTO.dayIndex ?? 0,
+                    totalCalories: dayDTO.totalCalories ?? 0,
+                    totalProtein: dayDTO.totalProtein ?? 0,
+                    totalCarbs: dayDTO.totalCarbs ?? 0,
+                    totalFat: dayDTO.totalFat ?? 0
                 )
                 
-                for mealDTO in dayDTO.meals {
+                for mealDTO in dayDTO.meals ?? [] {
                     let meal = MealPlanItem(
-                        title: mealDTO.title,
-                        type: mealDTO.type,
-                        calories: mealDTO.calories,
-                        protein: mealDTO.protein,
-                        carbs: mealDTO.carbs,
-                        fat: mealDTO.fat,
-                        omega3: mealDTO.omega3,
-                        calcium: mealDTO.calcium,
-                        potassium: mealDTO.potassium,
-                        magnesium: mealDTO.magnesium,
-                        iron: mealDTO.iron,
-                        vitaminC: mealDTO.vitaminC,
-                        vitaminD: mealDTO.vitaminD,
-                        ingredients: mealDTO.ingredients,
-                        instructions: mealDTO.instructions,
-                        prepTimeMinutes: mealDTO.prepTimeMinutes,
-                        imageUrl: self.imageUrlForDish(title: mealDTO.title)
+                        title: mealDTO.title ?? "Tasty Meal",
+                        type: mealDTO.type ?? "Snack",
+                        calories: mealDTO.calories ?? 0,
+                        protein: mealDTO.protein ?? 0,
+                        carbs: mealDTO.carbs ?? 0,
+                        fat: mealDTO.fat ?? 0,
+                        omega3: mealDTO.omega3 ?? 0.0,
+                        calcium: mealDTO.calcium ?? 0.0,
+                        potassium: mealDTO.potassium ?? 0.0,
+                        magnesium: mealDTO.magnesium ?? 0.0,
+                        iron: mealDTO.iron ?? 0.0,
+                        vitaminC: mealDTO.vitaminC ?? 0.0,
+                        vitaminD: mealDTO.vitaminD ?? 0.0,
+                        ingredients: mealDTO.ingredients ?? "",
+                        instructions: mealDTO.instructions ?? "",
+                        prepTimeMinutes: mealDTO.prepTimeMinutes ?? 15,
+                        imageUrl: self.imageUrlForDish(title: mealDTO.title ?? "")
                     )
                     day.meals.append(meal)
                 }

@@ -345,6 +345,13 @@ struct SmartPlanBuilderFlow: View {
                 complexity: complexity
             ) {
                 await MainActor.run {
+                    if let existingPlans = try? context.fetch(FetchDescriptor<WeeklyMealPlan>(sortBy: [SortDescriptor(\.createdDate, order: .reverse)])) {
+                        if existingPlans.count >= 3 {
+                            for plan in existingPlans.dropFirst(2) {
+                                context.delete(plan)
+                            }
+                        }
+                    }
                     context.insert(newPlan)
                     try? context.save()
                     
@@ -467,25 +474,25 @@ struct DietCard: View {
     var dietDetails: (imageName: String, subtitle: String, gradient: [Color]) {
         switch title {
         case "Any":
-            return ("diet_bg_any", "Без ограничений", [.blue, .purple])
+            return ("diet_bg_any", "No restrictions", [.blue, .purple])
         case "Keto":
-            return ("diet_bg_keto", "Много жиров, мало угл.", [.orange, .red])
+            return ("diet_bg_keto", "High fat, low carb", [.orange, .red])
         case "Vegan":
-            return ("diet_bg_vegan", "100% растительная", [.green, .teal])
+            return ("diet_bg_vegan", "100% plant-based", [.green, .teal])
         case "Vegetarian":
-            return ("diet_bg_vegetarian", "Растительная без мяса", [.yellow, .green])
+            return ("diet_bg_vegetarian", "Plant-based, no meat", [.yellow, .green])
         case "Paleo":
-            return ("diet_bg_paleo", "Натуральные продукты", [.orange, .red])
+            return ("diet_bg_paleo", "Natural whole foods", [.orange, .red])
         case "Pescatarian":
-            return ("diet_bg_pescatarian", "Рыба и морепродукты", [.teal, .blue])
+            return ("diet_bg_pescatarian", "Fish and seafood", [.teal, .blue])
         case "Mediterranean":
-            return ("diet_bg_mediterranean", "Оливковое масло и овощи", [.green, .blue])
+            return ("diet_bg_mediterranean", "Olive oil and veggies", [.green, .blue])
         case "High Protein":
-            return ("diet_bg_highprotein", "Много белка для мышц", [.red, .purple])
+            return ("diet_bg_highprotein", "High protein for muscles", [.red, .purple])
         case "Low Carb":
-            return ("diet_bg_lowcarb", "Минимум углеводов", [.pink, .orange])
+            return ("diet_bg_lowcarb", "Minimum carbs", [.pink, .orange])
         default:
-            return ("diet_bg_any", "Персональный выбор", [.gray, .black])
+            return ("diet_bg_any", "Personal choice", [.gray, .black])
         }
     }
     
