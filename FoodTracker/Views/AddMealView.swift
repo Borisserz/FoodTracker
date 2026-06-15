@@ -350,6 +350,15 @@ struct AddMealView: View {
         
         do {
             try modelContext.save()
+            
+            if let user = users.first, user.isHealthKitEnabled {
+                let caloriesToSave = totalMealCalories
+                let dateToSave = selectedDate
+                Task {
+                    await HealthKitManager.shared.saveDietaryEnergy(calories: caloriesToSave, date: dateToSave)
+                }
+            }
+            
             dismiss()
         } catch {
             print("Failed to save meal: \(error.localizedDescription)")

@@ -33,6 +33,8 @@ final class FastingManager {
         HapticManager.shared.impact(style: .heavy)
 
         scheduleFastingNotifications(target: plan.fastingHours)
+        
+        FastingLiveActivityManager.shared.startActivity(planName: plan.title, targetHours: plan.fastingHours, startTime: now)
     }
 
     func endFast() {
@@ -46,6 +48,8 @@ final class FastingManager {
         HapticManager.shared.impact(style: .rigid)
 
         cancelFastingNotifications()
+        
+        FastingLiveActivityManager.shared.endActivity()
     }
 
     var currentPhase: (name: String, icon: String, color: Color) {
@@ -108,6 +112,8 @@ final class FastingManager {
 
         let totalTargetSeconds = Double(targetHours * 3600)
         progress = min(elapsedTime / totalTargetSeconds, 1.0)
+        
+        FastingLiveActivityManager.shared.updateActivity(currentStage: currentPhase.name, progressPct: progress)
     }
 
     private func saveState() {

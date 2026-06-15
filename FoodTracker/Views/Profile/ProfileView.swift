@@ -338,7 +338,7 @@ struct SettingsView: View {
                     VStack(spacing: 24) {
 
                         VStack(spacing: 0) {
-                            NavigationLink(destination: AccountSettingsView(user: user)) {
+                            NavigationLink(destination: AccountSettingsView(user: user, loggedDaysCount: summaries.count)) {
                                 SettingsRowView(icon: "person.fill", iconColor: themeManager.current.primaryAccent, title: "Account")
                             }
                             Divider().padding(.leading, 56)
@@ -381,15 +381,20 @@ struct SettingsView: View {
                             }
                             Divider().padding(.leading, 56)
 
+                            Button(action: { openPrivacyPolicy() }) {
+                                SettingsRowView(icon: "hand.raised.fill", iconColor: .gray, title: "Privacy Policy")
+                            }
+                            Divider().padding(.leading, 56)
+
                             Button(action: { openTerms() }) {
-                                SettingsRowView(icon: "doc.text.fill", iconColor: .gray, title: "Terms of Service & Privacy")
+                                SettingsRowView(icon: "doc.text.fill", iconColor: .gray, title: "Terms of Service")
                             }
                         }
                         .premiumCardStyle()
                         .padding(.horizontal, 20)
 
                         VStack(spacing: 4) {
-                            Text("version 1.0.0 global")
+                            Text("version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0") global")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .textCase(.lowercase)
@@ -449,26 +454,28 @@ struct SettingsView: View {
 
     private func rateApp() {
         HapticManager.shared.impact(style: .medium)
-        if let url = URL(string: "itms-apps://itunes.apple.com/app/id6445831998?action=write-review") {
+        if let url = URL(string: "itms-apps://itunes.apple.com/app/id6778506345?action=write-review") {
             UIApplication.shared.open(url)
         }
     }
 
     private func contactSupport() {
         HapticManager.shared.impact(style: .medium)
-        let subject = "Help Needed - FoodTracker"
-        let body = "Please describe your issue here...\n\n\n--- App Info ---\nVersion: 1.0.0"
-        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        if let url = URL(string: "https://borisserz.github.io/workouttracker-privacy/Support-%20FoodTracker.html") {
+            UIApplication.shared.open(url)
+        }
+    }
 
-        if let url = URL(string: "mailto:support@foodtracker.app?subject=\(encodedSubject)&body=\(encodedBody)") {
+    private func openPrivacyPolicy() {
+        HapticManager.shared.impact(style: .light)
+        if let url = URL(string: "https://borisserz.github.io/workouttracker-privacy/Privacy%20Policy%20-%20FoodTracker.html") {
             UIApplication.shared.open(url)
         }
     }
 
     private func openTerms() {
         HapticManager.shared.impact(style: .light)
-        if let url = URL(string: "https://foodtracker.app/privacy") {
+        if let url = URL(string: "https://borisserz.github.io/workouttracker-privacy/Terms%20of%20Use%20-%20FoodTracker.html") {
             UIApplication.shared.open(url)
         }
     }
@@ -516,6 +523,7 @@ struct SettingsRowView: View {
 struct AccountSettingsView: View {
     @Environment(AuthManager.self) private var authManager
     let user: User
+    let loggedDaysCount: Int
 
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -535,7 +543,7 @@ struct AccountSettingsView: View {
                     if !authManager.isAnonymous, let email = authManager.currentUserEmail {
                         AccountInfoRow(title: "Email", value: email)
                     } else {
-                        AccountInfoRow(title: "Total logged days", value: "42")
+                        AccountInfoRow(title: "Total logged days", value: "\(loggedDaysCount)")
                     }
                 }
                 .padding(20)

@@ -1,0 +1,747 @@
+[
+  {
+    "title": "Keto Avocado Salmon Boat",
+    "description": "Rich in omega-3s and healthy fats, this simple yet elegant salmon boat is perfect for a keto dinner. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dinner",
+      "Keto",
+      "High Protein",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Salmon Fillet",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Olive Oil",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Lemon Juice",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Preheat your oven to 400°F (200°C).",
+      "Slice the avocado in half and remove the pit.",
+      "Place a small piece of salmon into the hollowed avocado half.",
+      "Drizzle with olive oil, lemon juice, salt, and pepper.",
+      "Bake for 15-20 minutes until the salmon is cooked through."
+    ]
+  },
+  {
+    "title": "Protein-Packed Blueberry Pancakes",
+    "description": "Start your morning with these fluffy, high-protein pancakes packed with fresh antioxidants. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Breakfast",
+      "High Protein",
+      "Vegetarian"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Oat Flour",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Protein Powder (Vanilla)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Almond Milk",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Blueberries",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "In a bowl, mix oat flour and protein powder.",
+      "Gradually whisk in the almond milk until a smooth batter forms.",
+      "Gently fold in the fresh blueberries.",
+      "Cook on a non-stick skillet over medium heat until bubbles form, then flip.",
+      "Serve hot with a drizzle of sugar-free syrup."
+    ]
+  },
+  {
+    "title": "Mediterranean Quinoa Bowl",
+    "description": "A vibrant, refreshing bowl loaded with fiber and healthy fats, perfect for a sunny afternoon lunch. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Lunch",
+      "Vegan",
+      "Mediterranean"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Cooked Quinoa",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Cherry Tomatoes",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Cucumber",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Kalamata Olives",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Hummus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Place the cooked quinoa at the base of your bowl.",
+      "Halve the cherry tomatoes and slice the cucumbers.",
+      "Arrange the tomatoes, cucumbers, and olives over the quinoa.",
+      "Top with a generous scoop of hummus and a drizzle of olive oil."
+    ]
+  },
+  {
+    "title": "Spicy Lean Turkey Chili",
+    "description": "Warm your soul and hit your protein goals with this rich and spicy turkey chili. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dinner",
+      "High Protein",
+      "Low Fat"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Lean Ground Turkey",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Kidney Beans",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Crushed Tomatoes",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Chili Powder",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Brown the ground turkey in a large pot over medium heat.",
+      "Stir in the chili powder and cook for 1 minute until fragrant.",
+      "Add the crushed tomatoes and kidney beans (drained and rinsed).",
+      "Simmer for 30 minutes to let the flavors meld together.",
+      "Garnish with a sprinkle of low-fat cheese or cilantro before serving."
+    ]
+  },
+  {
+    "title": "Refreshing Green Detox Smoothie",
+    "description": "A quick hit of vitamins and hydration, excellent for a post-workout recovery or a fresh morning start. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Breakfast",
+      "Snack",
+      "Vegan",
+      "Raw"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Spinach",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Green Apple",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Coconut Water",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Core and chop the green apple.",
+      "Add spinach, apple, banana, and coconut water into a blender.",
+      "Blend on high until completely smooth.",
+      "Pour into a chilled glass and enjoy immediately!"
+    ]
+  },
+  {
+    "title": "Low-Carb Zucchini Noodles with Pesto",
+    "description": "A light and flavorful alternative to pasta, tossed in a rich basil pesto sauce. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dinner",
+      "Keto",
+      "Vegetarian",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Zucchini",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Basil Pesto",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Parmesan Cheese",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Cherry Tomatoes",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Spiralize the zucchini into thin noodles.",
+      "Heat a pan over medium heat and lightly sauté the noodles for 2-3 minutes.",
+      "Remove from heat and toss with basil pesto until evenly coated.",
+      "Top with halved cherry tomatoes and grated parmesan cheese."
+    ]
+  },
+  {
+    "title": "Classic Chicken Caesar Salad",
+    "description": "Crisp romaine, tender grilled chicken, and a creamy, tangy dressing make this a timeless favorite. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Lunch",
+      "High Protein"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Chicken Breast",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Romaine Lettuce",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Caesar Dressing",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Croutons",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Season the chicken breast and grill until fully cooked. Let it rest, then slice.",
+      "Chop the romaine lettuce and place in a large bowl.",
+      "Toss the lettuce with Caesar dressing.",
+      "Top with sliced chicken and a handful of croutons."
+    ]
+  },
+  {
+    "title": "Overnight Chia Pudding",
+    "description": "Wake up to a ready-to-eat, creamy and nutritious chia pudding topped with fresh fruit. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Breakfast",
+      "Vegan",
+      "Gluten Free"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Chia Seeds",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Almond Milk",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Maple Syrup",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Fresh Berries",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "In a jar, whisk together chia seeds, almond milk, and maple syrup.",
+      "Let sit for 5 minutes, then whisk again to prevent clumping.",
+      "Cover and refrigerate overnight (or at least 2 hours).",
+      "Top with fresh berries before serving."
+    ]
+  },
+  {
+    "title": "Roasted Chickpea Snack Bowl",
+    "description": "Crunchy, salty, and incredibly satisfying. A high-fiber snack that keeps you full. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Snack",
+      "Vegan",
+      "High Fiber"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Chickpeas (Canned)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Olive Oil",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Smoked Paprika",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sea Salt",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Preheat oven to 400°F (200°C).",
+      "Drain, rinse, and thoroughly dry the chickpeas with a paper towel.",
+      "Toss the chickpeas with olive oil, paprika, and salt.",
+      "Spread evenly on a baking sheet and roast for 20-25 minutes until crunchy."
+    ]
+  },
+  {
+    "title": "Garlic Butter Steak Bites",
+    "description": "Tender, juicy, and packed with flavor. These steak bites are the ultimate high-protein dinner. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dinner",
+      "Keto",
+      "High Protein"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Sirloin Steak",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Butter",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Garlic Cloves",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Fresh Parsley",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Cut the steak into bite-sized cubes and season with salt and pepper.",
+      "Heat a skillet over high heat and sear the steak pieces for 3-4 minutes.",
+      "Reduce heat, add butter and minced garlic, and toss to coat the steak.",
+      "Garnish with chopped fresh parsley and serve immediately."
+    ]
+  },
+  {
+    "title": "Vegan Sweet Potato Curry",
+    "description": "A comforting, creamy coconut curry loaded with sweet potatoes and warm spices. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dinner",
+      "Vegan",
+      "Gluten Free"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Sweet Potato",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Coconut Milk (Lite)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Curry Paste",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Spinach",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Peel and dice the sweet potatoes into small cubes.",
+      "In a large pot, gently fry the curry paste until fragrant.",
+      "Add the sweet potatoes and coconut milk. Simmer for 20 minutes until tender.",
+      "Stir in the spinach and let it wilt before serving."
+    ]
+  },
+  {
+    "title": "Egg Muffin Breakfast Cups",
+    "description": "Portable, protein-packed egg muffins you can make ahead for busy mornings. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Breakfast",
+      "Keto",
+      "High Protein"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Eggs",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Cheddar Cheese",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Bell Pepper",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Spinach",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Preheat oven to 350°F (175°C) and grease a muffin tin.",
+      "Whisk eggs in a bowl and season with salt and pepper.",
+      "Divide chopped bell pepper, spinach, and cheese among the muffin cups.",
+      "Pour the egg mixture over the fillings and bake for 15-20 minutes."
+    ]
+  },
+  {
+    "title": "Tuna Avocado Salad",
+    "description": "A mayo-free tuna salad using creamy avocado for healthy fats and incredible texture. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Lunch",
+      "Keto",
+      "High Protein"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Canned Tuna",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Red Onion",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Lemon Juice",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Drain the tuna and place it in a bowl.",
+      "Add the avocado and mash it together with the tuna using a fork.",
+      "Stir in finely diced red onion, lemon juice, salt, and pepper.",
+      "Serve on cucumber slices or whole grain toast."
+    ]
+  },
+  {
+    "title": "Chocolate Peanut Butter Smoothie",
+    "description": "Tastes like dessert but is packed with muscle-building protein and healthy fats. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Snack",
+      "High Protein",
+      "Vegetarian"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Chocolate Protein Powder",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Peanut Butter",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banana",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Almond Milk",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Add all ingredients to a blender.",
+      "Add a handful of ice cubes.",
+      "Blend on high until smooth and creamy."
+    ]
+  },
+  {
+    "title": "Shrimp Stir-Fry with Broccoli",
+    "description": "A quick, savory, and high-protein dinner that comes together in one pan. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dinner",
+      "High Protein",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Shrimp (Peeled)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Broccoli Florets",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Soy Sauce",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Sesame Oil",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Heat sesame oil in a large pan or wok over medium-high heat.",
+      "Add broccoli florets and stir-fry for 4-5 minutes until tender-crisp.",
+      "Add shrimp and cook for 2-3 minutes until they turn pink.",
+      "Drizzle with soy sauce, toss well, and serve hot."
+    ]
+  }
+]

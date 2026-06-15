@@ -608,7 +608,6 @@ struct FastingTimelineRow: View {
 
 struct ActiveFastingCard: View {
     var manager = FastingManager.shared
-    @State private var showEndAlert = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -660,17 +659,7 @@ struct ActiveFastingCard: View {
 
                 Spacer()
 
-                Button(action: { showEndAlert = true }) {
-                    Text("End Fast")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .background(Color.red)
-                        .clipShape(Capsule())
-                        .shadow(color: .red.opacity(0.3), radius: 5, y: 2)
-                }
-                .buttonStyle(BounceButtonStyle())
+                EndFastButton()
             }
         }
         .padding(20)
@@ -682,7 +671,28 @@ struct ActiveFastingCard: View {
                 .stroke(manager.currentPhase.color.opacity(0.3), lineWidth: 2)
                 .opacity(manager.progress >= 1.0 ? 1 : 0)
                 .animation(.easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
+                .allowsHitTesting(false)
         )
+    }
+}
+
+struct EndFastButton: View {
+    var manager = FastingManager.shared
+    @State private var showEndAlert = false
+    
+    var body: some View {
+        Button(action: { showEndAlert = true }) {
+            Text("End Fast")
+                .font(.subheadline.bold())
+                .foregroundColor(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(Color.red)
+                .clipShape(Capsule())
+                .shadow(color: .red.opacity(0.3), radius: 5, y: 2)
+                .contentShape(Capsule())
+        }
+        .buttonStyle(BounceButtonStyle())
         .alert("End Fast?", isPresented: $showEndAlert) {
             Button("Cancel", role: .cancel) { }
             Button("End Fast", role: .destructive) {

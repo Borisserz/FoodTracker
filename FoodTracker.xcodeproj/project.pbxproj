@@ -356,7 +356,7 @@
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you and improve analytics.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to analyze app usage and improve personalized recommendations.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -396,7 +396,7 @@
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you and improve analytics.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to analyze app usage and improve personalized recommendations.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

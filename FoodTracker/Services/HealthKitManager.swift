@@ -97,10 +97,9 @@ import Observation
             activityType: activityType,
             start: date.addingTimeInterval(-duration),
             end: date,
-            duration: duration,
+            workoutEvents: nil,
             totalEnergyBurned: energyBurned,
             totalDistance: nil,
-            device: nil,
             metadata: nil
         )
 

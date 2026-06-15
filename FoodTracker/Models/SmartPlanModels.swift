@@ -51,19 +51,35 @@ final class MealPlanItem {
     var protein: Int = 0
     var carbs: Int = 0
     var fat: Int = 0
+    var omega3: Double = 0.0
+    var calcium: Double = 0.0
+    var potassium: Double = 0.0
+    var magnesium: Double = 0.0
+    var iron: Double = 0.0
+    var vitaminC: Double = 0.0
+    var vitaminD: Double = 0.0
     var ingredients: String = "" // Comma separated
     var instructions: String = ""
     var prepTimeMinutes: Int = 0
     
     var parentDay: MealPlanDay?
     
-    init(title: String, type: String, calories: Int, protein: Int, carbs: Int, fat: Int, ingredients: String, instructions: String, prepTimeMinutes: Int) {
+    init(title: String, type: String, calories: Int, protein: Int, carbs: Int, fat: Int, 
+         omega3: Double = 0, calcium: Double = 0, potassium: Double = 0, magnesium: Double = 0, iron: Double = 0, vitaminC: Double = 0, vitaminD: Double = 0,
+         ingredients: String, instructions: String, prepTimeMinutes: Int) {
         self.title = title
         self.type = type
         self.calories = calories
         self.protein = protein
         self.carbs = carbs
         self.fat = fat
+        self.omega3 = omega3
+        self.calcium = calcium
+        self.potassium = potassium
+        self.magnesium = magnesium
+        self.iron = iron
+        self.vitaminC = vitaminC
+        self.vitaminD = vitaminD
         self.ingredients = ingredients
         self.instructions = instructions
         self.prepTimeMinutes = prepTimeMinutes

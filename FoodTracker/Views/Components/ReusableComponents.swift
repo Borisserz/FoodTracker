@@ -269,13 +269,20 @@ struct BurnedDetailsCard: View {
 
             VStack(spacing: 0) {
 
-                ActivitySourceRow(
-                    icon: "dumbbell.fill",
-                    iconColor: .themeOrange,
-                    title: "Workouts",
-                    subtitle: "Workout Tracker",
-                    calories: appWorkoutCalories
-                )
+                Button(action: {
+                    if let url = URL(string: "https://apps.apple.com/app/id6774895106") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    ActivitySourceRow(
+                        icon: "dumbbell.fill",
+                        iconColor: .themeOrange,
+                        title: "Workouts",
+                        subtitle: "Workout Tracker",
+                        calories: appWorkoutCalories
+                    )
+                }
+                .buttonStyle(.plain)
 
                 Divider().padding(.leading, 80)
 

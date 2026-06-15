@@ -131,7 +131,7 @@
       {
         "id": "art-11",
         "title": "Alcol e perdita di peso",
-        "subtitle": "Si può bere vino e perdere comunque grasso?",
+        "subtitle": "Puoi bere vino e perdere peso comunque?",
         "readTime": 3,
         "isLocked": false,
         "colorHex1": "#9C27B0",
@@ -177,7 +177,7 @@
         "colorHex1": "#795548",
         "colorHex2": "#212121",
         "iconName": "clock.badge.exclamationmark",
-        "content": "## Il mito delle 18:00\n\nUno dei miti più persistenti nel fitness è che mangiare carboidrati dopo le 18 si trasformerà magicamente in grasso perché il metabolismo \"rallenta\" di notte.\n\n**Questo è falso al 100%.**\n\nIl tuo corpo non ha un orologio che reindirizza il cibo alle cellule adipose dopo il tramonto. La perdita di peso è dettata dall’apporto calorico giornaliero totale.\n\nSe le tue calorie di mantenimento sono 2.000 e mangi 1.500 calorie di pura pasta alle 23:00 subito prima di andare a letto... **perderai comunque peso.**\n\nMangia i tuoi carboidrati ogni volta che si adatta al tuo stile di vita e ti aiuta a ottenere risultati migliori!"
+        "content": "## Il mito delle 18:00\n\nUno dei miti più persistenti nel fitness è che mangiare carboidrati dopo le 18:00 si trasformerà magicamente in grasso perché il metabolismo \"rallenta\" di notte.\n\n**Questo è falso al 100%.**\n\nIl tuo corpo non ha un orologio che reindirizza il cibo alle cellule adipose dopo il tramonto. La perdita di peso è dettata dall’apporto calorico giornaliero totale.\n\nSe le tue calorie di mantenimento sono 2.000 e mangi 1.500 calorie di pura pasta alle 23:00 subito prima di andare a letto... **perderai comunque peso.**\n\nMangia i tuoi carboidrati ogni volta che si adatta al tuo stile di vita e ti aiuta a ottenere risultati migliori!"
       },
       {
         "id": "art-15",
@@ -228,7 +228,7 @@
         "colorHex1": "#3F51B5",
         "colorHex2": "#00BCD4",
         "iconName": "figure.run",
-        "content": "## Rifornimento della macchina\n\nCiò che mangi prima di un allenamento determina i tuoi livelli di energia, forza e resistenza.\n\n### Il pasto pre-allenamento perfetto\nVuoi una combinazione di **Carboidrati** (per ottenere energia velocemente) e **Proteine** (per proteggere i muscoli).\n\n* **Tempistica:** Mangiare 1 o 2 ore prima dell'allenamento.\n* **Evita:** pasti ricchi di grassi subito prima dell'allenamento. Il grasso rallenta la digestione e può farti sentire lento e nauseato durante l’esercizio intenso.\n\n**Ottimi snack pre-allenamento:**\n* Una banana e un misurino di proteine del siero di latte.\n* Farina d'avena con una manciata di frutti di bosco.\n* Yogurt greco con miele."
+        "content": "## Rifornimento della macchina\n\nCiò che mangi prima di un allenamento determina i tuoi livelli di energia, forza e resistenza.\n\n### Il pasto pre-allenamento perfetto\nVuoi una combinazione di **Carboidrati** (per ottenere energia velocemente) e **Proteine** (per proteggere i muscoli).\n\n* **Tempistica:** Mangiare da 1 a 2 ore prima dell'allenamento.\n* **Evitare:** Pasti ricchi di grassi subito prima dell'allenamento. Il grasso rallenta la digestione e può farti sentire lento e nauseato durante l’esercizio intenso.\n\n**Ottimi snack pre-allenamento:**\n* Una banana e un misurino di proteine del siero di latte.\n* Farina d'avena con una manciata di frutti di bosco.\n*Yogurt greco con miele."
       },
       {
         "id": "art-19",
@@ -306,7 +306,7 @@
       {
         "id": "art-25",
         "title": "Integratori che funzionano davvero",
-        "subtitle": "Smettila di sprecare soldi in pubblicità pubblicitaria.",
+        "subtitle": "Smetti di sprecare soldi in pubblicità pubblicitaria.",
         "readTime": 4,
         "isLocked": false,
         "colorHex1": "#9C27B0",

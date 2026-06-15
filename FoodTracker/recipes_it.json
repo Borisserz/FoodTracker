@@ -1,0 +1,3818 @@
+[
+  {
+    "title": "Mele al forno con miele e noci",
+    "description": "Semplice da realizzare, confortante da gustare e perfetto per serate intime. 🍂",
+    "time": "20 min",
+    "caloriesPerServing": 249,
+    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Spuntino",
+      "Vegetariano"
+    ],
+    "baseServings": 4,
+    "protein": 3.0,
+    "fat": 11.0,
+    "carbs": 40.5,
+    "ingredients": [
+      {
+        "name": "Mele",
+        "amount": "4 medium",
+        "weightGrams": 600,
+        "calories": 312
+      },
+      {
+        "name": "Noci",
+        "amount": "65 g",
+        "weightGrams": 65,
+        "calories": 425
+      },
+      {
+        "name": "Miele",
+        "amount": "2 tbsp",
+        "weightGrams": 42,
+        "calories": 128
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 180°C (350°F).",
+      "Togliere il torsolo alle mele, lasciando intatto il fondo.",
+      "Mescolare le noci tritate e il miele, quindi farcire le mele.",
+      "Cuocere per 20-25 minuti finché sono teneri."
+    ]
+  },
+  {
+    "title": "Uova strapazzate ad alto contenuto proteico con avocado",
+    "description": "Un classico alimento mattutino ricco di grassi sani e proteine ​​magre per mantenerti pieno di energia. 🥑",
+    "time": "10 min",
+    "caloriesPerServing": 330,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20scrambled%20eggs%20with%20avocado?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati",
+      "Preparato rapidamente",
+      "Facile"
+    ],
+    "baseServings": 1,
+    "protein": 19.0,
+    "fat": 26.0,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Uova",
+        "amount": "3 large",
+        "weightGrams": 150,
+        "calories": 215
+      },
+      {
+        "name": "Avocado",
+        "amount": "1/4 medium",
+        "weightGrams": 50,
+        "calories": 80
+      },
+      {
+        "name": "Burro",
+        "amount": "1 tsp",
+        "weightGrams": 5,
+        "calories": 35
+      }
+    ],
+    "directions": [
+      "Sbattere le uova in una ciotola fino a quando saranno perfettamente amalgamate e leggermente schiumose.",
+      "Sciogliere il burro in una padella antiaderente a fuoco medio-basso.",
+      "Versare le uova e mescolare delicatamente con una spatola fino a quando non si saranno solidificate.",
+      "Tagliare l'avocado e servire insieme alle uova strapazzate calde. Aggiungere sale e pepe a piacere."
+    ]
+  },
+  {
+    "title": "Frullato vegano al burro di arachidi e cioccolato",
+    "description": "Ricco, cremoso e ricco di proteine ​​vegetali. Ha il sapore del dessert! 🍫",
+    "time": "5 min",
+    "caloriesPerServing": 414,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20peanut%20butter%20smoothie?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Frullato",
+      "Vegano",
+      "Preparato rapidamente",
+      "Alto contenuto proteico",
+      "In movimento"
+    ],
+    "baseServings": 1,
+    "protein": 28.0,
+    "fat": 18.0,
+    "carbs": 35.0,
+    "ingredients": [
+      {
+        "name": "Latte di mandorle non zuccherato",
+        "amount": "1 cup",
+        "weightGrams": 250,
+        "calories": 38
+      },
+      {
+        "name": "Burro di arachidi naturale",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 177
+      },
+      {
+        "name": "Polvere proteica di cioccolato vegano",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 110
+      },
+      {
+        "name": "Banana",
+        "amount": "1 medium",
+        "weightGrams": 100,
+        "calories": 89
+      }
+    ],
+    "directions": [
+      "Metti la banana sbucciata, il burro di arachidi e le proteine ​​in polvere in un frullatore.",
+      "Versare il latte di mandorle.",
+      "Frullare a velocità alta fino a ottenere un composto liscio e cremoso. Aggiungi ghiaccio se preferisci."
+    ]
+  },
+  {
+    "title": "Salmone al burro all'aglio Keto con asparagi",
+    "description": "Salmone traballante e burroso abbinato a croccanti asparagi arrostiti. Perfetto per una cena cheto. 🐟",
+    "time": "25 min",
+    "caloriesPerServing": 409,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20salmon%20asparagus?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Chetogenico",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati",
+      "Cottura al forno"
+    ],
+    "baseServings": 2,
+    "protein": 33.0,
+    "fat": 29.0,
+    "carbs": 4.0,
+    "ingredients": [
+      {
+        "name": "Filetti Di Salmone",
+        "amount": "2 fillets",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Asparago",
+        "amount": "1 bunch",
+        "weightGrams": 200,
+        "calories": 40
+      },
+      {
+        "name": "Burro",
+        "amount": "1.5 tbsp",
+        "weightGrams": 20,
+        "calories": 143
+      },
+      {
+        "name": "Aglio tritato",
+        "amount": "2 cloves",
+        "weightGrams": 10,
+        "calories": 11
+      }
+    ],
+    "directions": [
+      "Preriscalda il forno a 200°C (400°F). Foderare una teglia con carta da forno.",
+      "Disponete al centro i filetti di salmone e attorno disponete gli asparagi.",
+      "Sciogliere il burro, aggiungere l'aglio tritato e spennellare generosamente il salmone e gli asparagi.",
+      "Cuocere per 12-15 minuti fino a quando il salmone sarà completamente cotto e si sfalderà facilmente con una forchetta."
+    ]
+  },
+  {
+    "title": "Ciotola di pollo e quinoa",
+    "description": "Una ciotola per il pranzo perfettamente bilanciata con pollo magro, carboidrati complessi e pomodori freschi. 🥗",
+    "time": "20 min",
+    "caloriesPerServing": 419,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chicken%20quinoa%20bowl?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico",
+      "Facile"
+    ],
+    "baseServings": 2,
+    "protein": 40.0,
+    "fat": 11.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Petto di pollo",
+        "amount": "2 small breasts",
+        "weightGrams": 300,
+        "calories": 495
+      },
+      {
+        "name": "Quinoa cotta",
+        "amount": "1 cup",
+        "weightGrams": 200,
+        "calories": 240
+      },
+      {
+        "name": "Pomodorini",
+        "amount": "1/2 cup",
+        "weightGrams": 100,
+        "calories": 15
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 88
+      }
+    ],
+    "directions": [
+      "Condire il petto di pollo con sale, pepe ed erbe aromatiche a scelta. Grigliare o scottare in padella con metà dell'olio d'oliva fino a cottura ultimata.",
+      "Tagliare il pollo cotto.",
+      "Dimezzare i pomodorini.",
+      "Dividere la quinoa calda in due ciotole, guarnire con il pollo a fette, i pomodori e irrorare con l'olio d'oliva rimanente."
+    ]
+  },
+  {
+    "title": "Polpette di tacchino a basso contenuto di carboidrati con tagliatelle di zucchine",
+    "description": "Una cena leggera di ispirazione italiana che risparmia carboidrati senza sacrificare il sapore. 🍝",
+    "time": "30 min",
+    "caloriesPerServing": 232,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20turkey%20meatballs%20zucchini%20noodles?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Basso contenuto di carboidrati",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 4,
+    "protein": 24.0,
+    "fat": 12.0,
+    "carbs": 7.0,
+    "ingredients": [
+      {
+        "name": "Macinato di tacchino 93%",
+        "amount": "1 lb",
+        "weightGrams": 450,
+        "calories": 680
+      },
+      {
+        "name": "Zucchine (a spirale)",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Salsa Marinara Senza Zucchero",
+        "amount": "1 cup",
+        "weightGrams": 200,
+        "calories": 100
+      },
+      {
+        "name": "Parmigiano grattugiato",
+        "amount": "4 tbsp",
+        "weightGrams": 20,
+        "calories": 80
+      }
+    ],
+    "directions": [
+      "Con il macinato di tacchino formate delle piccole polpette e fatele saltare in padella finché non saranno dorate su tutti i lati e completamente cotte.",
+      "Versare la salsa marinara sulle polpette e lasciar cuocere a fuoco basso per 5 minuti.",
+      "In una padella separata, rosolare leggermente le tagliatelle di zucchine per 2-3 minuti fino a quando saranno tenere.",
+      "Servire le polpette e la salsa sugli zoodles e guarnire con parmigiano grattugiato."
+    ]
+  },
+  {
+    "title": "Parfait ai frutti di bosco allo yogurt greco",
+    "description": "Uno spuntino veloce, dolce e ricco di proteine ​​per frenare le voglie di metà giornata. 🍓",
+    "time": "5 min",
+    "caloriesPerServing": 292,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20greek%20yogurt%20berry%20parfait?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Vegetariano",
+      "Pochi ingredienti",
+      "Facile"
+    ],
+    "baseServings": 1,
+    "protein": 23.0,
+    "fat": 8.0,
+    "carbs": 32.0,
+    "ingredients": [
+      {
+        "name": "Yogurt greco magro",
+        "amount": "1 cup",
+        "weightGrams": 200,
+        "calories": 118
+      },
+      {
+        "name": "Bacche Miste",
+        "amount": "1/2 cup",
+        "weightGrams": 100,
+        "calories": 58
+      },
+      {
+        "name": "Miele",
+        "amount": "1/2 tbsp",
+        "weightGrams": 10,
+        "calories": 30
+      },
+      {
+        "name": "Mandorle A Lamelle",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 86
+      }
+    ],
+    "directions": [
+      "Versare lo yogurt greco in un bicchiere o in una ciotola.",
+      "Ricoprire con uno strato di frutti di bosco freschi.",
+      "Cospargere uniformemente il miele sulle bacche.",
+      "Cospargere le mandorle a fette sulla parte superiore per una deliziosa croccantezza."
+    ]
+  },
+  {
+    "title": "Strapazzata di tofu vegano",
+    "description": "Un'alternativa salata all'uovo a base vegetale con spinaci e curcuma antinfiammatoria. 🌱",
+    "time": "10 min",
+    "caloriesPerServing": 256,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20tofu%20scramble?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Vegano",
+      "Alto contenuto proteico",
+      "Preparato rapidamente"
+    ],
+    "baseServings": 2,
+    "protein": 23.0,
+    "fat": 16.0,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Tofu solido",
+        "amount": "1 block",
+        "weightGrams": 280,
+        "calories": 400
+      },
+      {
+        "name": "Spinaci freschi",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 23
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 88
+      },
+      {
+        "name": "Polvere di curcuma",
+        "amount": "1/2 tsp",
+        "weightGrams": 1,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Scolate il tofu sodo e sbriciolatelo leggermente con le mani o con una forchetta.",
+      "Scaldare l'olio d'oliva in una padella a fuoco medio e aggiungere il tofu sbriciolato.",
+      "Cospargere la curcuma sul tofu e mescolare bene finché non diventa giallo dorato.",
+      "Aggiungere gli spinaci nella padella e cuocere per altri 2 minuti finché non saranno appassiti."
+    ]
+  },
+  {
+    "title": "Bistecca e broccoli Keto",
+    "description": "Una cena intensa per il recupero muscolare. Bistecca tenera e broccoli al burro all'aglio. 🥩",
+    "time": "20 min",
+    "caloriesPerServing": 508,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20keto%20steak%20and%20broccoli?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Chetogenico",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 48.0,
+    "fat": 32.0,
+    "carbs": 7.0,
+    "ingredients": [
+      {
+        "name": "Bistecca di controfiletto di manzo",
+        "amount": "14 oz",
+        "weightGrams": 400,
+        "calories": 712
+      },
+      {
+        "name": "Cimette di broccoli",
+        "amount": "3 cups",
+        "weightGrams": 300,
+        "calories": 102
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 132
+      },
+      {
+        "name": "Burro",
+        "amount": "1/2 tbsp",
+        "weightGrams": 10,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Condire la bistecca di controfiletto con sale e pepe nero grosso.",
+      "Scaldare l'olio d'oliva in una padella di ghisa a fuoco alto e rosolare la bistecca fino alla cottura desiderata. Lascia riposare.",
+      "Nella stessa padella, abbassa il fuoco, aggiungi il burro e aggiungi le cimette di broccoli.",
+      "Rosolare i broccoli finché diventano teneri e croccanti. Tagliare la bistecca riposata e servire insieme."
+    ]
+  },
+  {
+    "title": "Avena al forno con mela e cannella",
+    "description": "Caldo, confortante e sa di torta di mele a colazione. Alto contenuto di fibre! 🍎",
+    "time": "30 min",
+    "caloriesPerServing": 256,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20baked%20oats%20apple%20cinnamon?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Vegetariano",
+      "Cottura al forno",
+      "Facile"
+    ],
+    "baseServings": 2,
+    "protein": 7.0,
+    "fat": 4.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Fiocchi d'avena",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 379
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "2/3 cup",
+        "weightGrams": 150,
+        "calories": 22
+      },
+      {
+        "name": "Mela (a cubetti)",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Sciroppo d'acero",
+        "amount": "2 tsp",
+        "weightGrams": 12,
+        "calories": 33
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 180°C (350°F). Ungere leggermente una piccola teglia.",
+      "Mescolare in una ciotola i fiocchi d'avena, il latte di mandorle, le mele tagliate a cubetti e un pizzico di cannella.",
+      "Versare il composto nella teglia e irrorare uniformemente lo sciroppo d'acero.",
+      "Cuocere per 25 minuti finché la superficie non sarà dorata e il liquido sarà completamente assorbito."
+    ]
+  },
+  {
+    "title": "Ciotola di ricotta e ananas",
+    "description": "Uno spuntino rinfrescante, dolce e ricco di proteine, perfetto per il recupero post-allenamento. 🍍",
+    "time": "2 min",
+    "caloriesPerServing": 261,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pineapple%20bowl?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Alto contenuto proteico",
+      "Pochi ingredienti",
+      "Preparato rapidamente"
+    ],
+    "baseServings": 1,
+    "protein": 26.0,
+    "fat": 5.0,
+    "carbs": 28.0,
+    "ingredients": [
+      {
+        "name": "Ricotta a basso contenuto di grassi",
+        "amount": "1 cup",
+        "weightGrams": 225,
+        "calories": 162
+      },
+      {
+        "name": "Pezzi di ananas",
+        "amount": "1/2 cup",
+        "weightGrams": 100,
+        "calories": 50
+      },
+      {
+        "name": "Semi di Chia",
+        "amount": "1 tbsp",
+        "weightGrams": 10,
+        "calories": 49
+      }
+    ],
+    "directions": [
+      "Raccogli la ricotta in una ciotola da portata.",
+      "Completare con pezzi di ananas fresco o in scatola.",
+      "Cospargere i semi di chia sopra per fibre extra e croccantezza. Mescolare prima di mangiare."
+    ]
+  },
+  {
+    "title": "Petto di pollo ripieno di spinaci e feta",
+    "description": "Pollo succoso ripieno di gustosa feta e spinaci. Sembra gourmet, ma incredibilmente facile da preparare! 🌿",
+    "time": "35 min",
+    "caloriesPerServing": 465,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spinach%20feta%20stuffed%20chicken?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati",
+      "Cottura al forno"
+    ],
+    "baseServings": 2,
+    "protein": 65.0,
+    "fat": 21.0,
+    "carbs": 4.0,
+    "ingredients": [
+      {
+        "name": "Petto di pollo",
+        "amount": "2 large breasts",
+        "weightGrams": 400,
+        "calories": 660
+      },
+      {
+        "name": "Formaggio Feta",
+        "amount": "1/2 cup crumbled",
+        "weightGrams": 60,
+        "calories": 160
+      },
+      {
+        "name": "Spinaci freschi",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 23
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 88
+      }
+    ],
+    "directions": [
+      "Preriscalda il forno a 190°C (375°F).",
+      "Taglia una tasca sul lato di ciascun petto di pollo, facendo attenzione a non tagliarla completamente.",
+      "Mescolare in una ciotola la feta sbriciolata e gli spinaci tritati, quindi versare il composto nelle tasche del pollo.",
+      "Strofina l'esterno del pollo con olio d'oliva, sale e pepe. Cuocere per 25-30 minuti fino a completa cottura."
+    ]
+  },
+  {
+    "title": "Spezzatino Vegano Di Lenticchie E Verdure",
+    "description": "Uno stufato a base vegetale abbondante, riscaldante e ricco di fibre, perfetto per la preparazione dei pasti. 🍲",
+    "time": "45 min",
+    "caloriesPerServing": 266,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20lentil%20vegetable%20stew?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Vegano",
+      "Vegetariano",
+      "Facile"
+    ],
+    "baseServings": 4,
+    "protein": 14.0,
+    "fat": 4.5,
+    "carbs": 42.5,
+    "ingredients": [
+      {
+        "name": "Lenticchie Verdi Secche",
+        "amount": "1 cup",
+        "weightGrams": 200,
+        "calories": 700
+      },
+      {
+        "name": "Carote",
+        "amount": "2 medium",
+        "weightGrams": 150,
+        "calories": 60
+      },
+      {
+        "name": "Pomodori schiacciati",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 132
+      },
+      {
+        "name": "Cipolla Gialla",
+        "amount": "1 medium",
+        "weightGrams": 100,
+        "calories": 40
+      },
+      {
+        "name": "Sedano",
+        "amount": "2 stalks",
+        "weightGrams": 100,
+        "calories": 15
+      }
+    ],
+    "directions": [
+      "Tagliate a dadini la cipolla, le carote e il sedano. Fateli rosolare in una pentola capiente con olio d'oliva fino a quando saranno morbidi.",
+      "Sciacquate le lenticchie e aggiungetele nella pentola insieme ai pomodorini schiacciati e 3 bicchieri di acqua o brodo vegetale.",
+      "Portare a ebollizione, quindi abbassare la fiamma, coprire e cuocere a fuoco lento per 30-35 minuti finché le lenticchie saranno tenere.",
+      "Condire con sale, pepe e un pizzico di cumino prima di servire."
+    ]
+  },
+  {
+    "title": "Biscotti di farina d'avena e banane al burro di arachidi",
+    "description": "Biscotti gommosi e senza farina, perfetti per una sferzata di energia prima dell'allenamento o per uno spuntino dolce. 🍪",
+    "time": "15 min",
+    "caloriesPerServing": 139,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20peanut%20butter%20banana%20oatmeal%20cookies?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Cottura al forno",
+      "Vegetariano",
+      "In movimento"
+    ],
+    "baseServings": 8,
+    "protein": 4.5,
+    "fat": 5.0,
+    "carbs": 19.0,
+    "ingredients": [
+      {
+        "name": "Fiocchi d'avena",
+        "amount": "1.5 cups",
+        "weightGrams": 150,
+        "calories": 580
+      },
+      {
+        "name": "Banana troppo matura",
+        "amount": "2 medium",
+        "weightGrams": 200,
+        "calories": 180
+      },
+      {
+        "name": "Burro di arachidi naturale",
+        "amount": "1/4 cup",
+        "weightGrams": 60,
+        "calories": 350
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 175°C (350°F) e rivestire una teglia con carta da forno.",
+      "Schiacciare le banane in una ciotola fino ad ottenere un composto omogeneo, quindi aggiungere il burro di arachidi.",
+      "Piegare i fiocchi d'avena fino a formare un impasto appiccicoso.",
+      "Raccogliere 8 porzioni uguali sulla teglia, appiattirle leggermente e cuocere per 10-12 minuti."
+    ]
+  },
+  {
+    "title": "Frullato antiossidante ai frutti di bosco verdi",
+    "description": "Una miscela rinfrescante di verdure e frutti di bosco che nasconde completamente il gusto degli spinaci! 🫐",
+    "time": "5 min",
+    "caloriesPerServing": 247,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20green%20smoothie?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Frullato",
+      "Vegano",
+      "Preparato rapidamente",
+      "In movimento"
+    ],
+    "baseServings": 1,
+    "protein": 20.0,
+    "fat": 7.5,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Spinaci freschi",
+        "amount": "1 handful",
+        "weightGrams": 50,
+        "calories": 12
+      },
+      {
+        "name": "Frutti Di Bosco Misti Congelati",
+        "amount": "3/4 cup",
+        "weightGrams": 100,
+        "calories": 50
+      },
+      {
+        "name": "Semi di Chia",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 73
+      },
+      {
+        "name": "Latte di mandorle non zuccherato",
+        "amount": "1 cup",
+        "weightGrams": 250,
+        "calories": 38
+      },
+      {
+        "name": "Polvere proteica vegana alla vaniglia",
+        "amount": "2/3 scoop",
+        "weightGrams": 20,
+        "calories": 75
+      }
+    ],
+    "directions": [
+      "Aggiungere prima gli spinaci e il latte di mandorle nel frullatore e frullare fino a ottenere un composto completamente liscio per evitare pezzi verdi.",
+      "Aggiungi i frutti di bosco congelati, i semi di chia e le proteine ​​in polvere.",
+      "Frullare a velocità alta fino a ottenere un composto denso e cremoso. Versare in un bicchiere e gustare freddo."
+    ]
+  },
+  {
+    "title": "Involtini piccanti di lattuga e gamberi",
+    "description": "Coppe di lattuga fresche e croccanti ripiene di gamberi saporiti e ad alto contenuto proteico e avocado cremoso. 🍤",
+    "time": "15 min",
+    "caloriesPerServing": 269,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spicy%20shrimp%20lettuce%20wraps?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Basso contenuto di carboidrati",
+      "Preparato rapidamente",
+      "Pochi ingredienti"
+    ],
+    "baseServings": 2,
+    "protein": 32.0,
+    "fat": 13.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Gamberetti Crudi (Sgusciati)",
+        "amount": "10 oz",
+        "weightGrams": 300,
+        "calories": 290
+      },
+      {
+        "name": "Foglie Di Lattuga Al Burro",
+        "amount": "6 leaves",
+        "weightGrams": 100,
+        "calories": 15
+      },
+      {
+        "name": "Maionese piccante (Maionese + Sriracha)",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 150
+      },
+      {
+        "name": "Avocado",
+        "amount": "1/4 medium",
+        "weightGrams": 50,
+        "calories": 80
+      }
+    ],
+    "directions": [
+      "Condire i gamberetti con un po' di sale, pepe e paprika. Rosolare in padella a fuoco medio per 3-4 minuti fino a quando diventano rosa.",
+      "Tritare i gamberi cotti in pezzetti più piccoli.",
+      "Dividere uniformemente i gamberi e l'avocado tagliato a dadini tra le foglie di lattuga al burro.",
+      "Versare sopra la maionese piccante e servire immediatamente."
+    ]
+  },
+  {
+    "title": "Peperoni ripieni di insalata di uova cheto",
+    "description": "I peperoni croccanti fungono da perfetto contenitore a basso contenuto di carboidrati per un'insalata di uova cremosa e ricca. 🫑",
+    "time": "15 min",
+    "caloriesPerServing": 274,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20egg%20salad%20stuffed%20peppers?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Chetogenico",
+      "Alto contenuto proteico",
+      "Vegetariano"
+    ],
+    "baseServings": 2,
+    "protein": 12.0,
+    "fat": 22.5,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Uova sode",
+        "amount": "4 large",
+        "weightGrams": 200,
+        "calories": 280
+      },
+      {
+        "name": "Maionese",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 200
+      },
+      {
+        "name": "Peperoni",
+        "amount": "2 medium",
+        "weightGrams": 240,
+        "calories": 60
+      },
+      {
+        "name": "Senape di Digione",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 10
+      }
+    ],
+    "directions": [
+      "Sbucciare e tagliare a pezzetti le uova sode.",
+      "In una ciotola, mescolare le uova tritate, la maionese, la senape di Digione, il sale e il pepe fino ad ottenere una crema.",
+      "Tagliate i peperoni a metà dall'alto verso il basso ed eliminate i semi e le membrane.",
+      "Versare generosamente l'insalata di uova nelle metà dei peperoni e servire fredda."
+    ]
+  },
+  {
+    "title": "Insalata Fiesta di fagioli neri e mais",
+    "description": "Un'insalata vegetale vivace e piccante che resiste perfettamente in frigorifero per giorni. 🌽",
+    "time": "10 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20black%20bean%20corn%20salad?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Vegano",
+      "Preparato rapidamente",
+      "In movimento"
+    ],
+    "baseServings": 3,
+    "protein": 10.0,
+    "fat": 5.5,
+    "carbs": 32.5,
+    "ingredients": [
+      {
+        "name": "Fagioli Neri in Scatola (Sciacquati)",
+        "amount": "1 can (14oz)",
+        "weightGrams": 400,
+        "calories": 360
+      },
+      {
+        "name": "Chicchi di mais dolce",
+        "amount": "1 cup",
+        "weightGrams": 150,
+        "calories": 130
+      },
+      {
+        "name": "Peperone Rosso",
+        "amount": "1 small",
+        "weightGrams": 100,
+        "calories": 30
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 132
+      },
+      {
+        "name": "Succo di lime",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 8
+      }
+    ],
+    "directions": [
+      "Sciacquare e scolare accuratamente i fagioli neri e il mais.",
+      "Tagliare il peperone rosso a pezzetti.",
+      "In una grande ciotola, unisci i fagioli, il mais e il peperone.",
+      "Sbattere insieme l'olio d'oliva e il succo di lime, versare sull'insalata, mescolare bene e raffreddare prima di servire."
+    ]
+  },
+  {
+    "title": "Padella Fajita Di Bistecca Di Fianco",
+    "description": "Straccetti di bistecca sfrigolanti e teneri con cipolle e peperoni caramellati. Manca solo la tortilla! 🥩",
+    "time": "20 min",
+    "caloriesPerServing": 358,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20steak%20fajita%20skillet?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Basso contenuto di carboidrati",
+      "Alto contenuto proteico",
+      "Facile"
+    ],
+    "baseServings": 3,
+    "protein": 40.0,
+    "fat": 18.0,
+    "carbs": 9.0,
+    "ingredients": [
+      {
+        "name": "Bistecca di fianco",
+        "amount": "1 lb",
+        "weightGrams": 450,
+        "calories": 860
+      },
+      {
+        "name": "Peperoni Misti",
+        "amount": "2 medium",
+        "weightGrams": 200,
+        "calories": 60
+      },
+      {
+        "name": "Cipolla Rossa",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 60
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 88
+      }
+    ],
+    "directions": [
+      "Tagliare la bistecca di fianco contro la venatura a strisce sottili. Tagliate i peperoni e le cipolle a listarelle simili.",
+      "Scaldare l'olio d'oliva in una padella capiente a fuoco medio-alto.",
+      "Aggiungere la bistecca e rosolarla per 3-4 minuti. Togliere la bistecca e metterla da parte.",
+      "Nella stessa padella, rosolare i peperoni e le cipolle fino a renderli morbidi. Riporta la bistecca nella padella, condiscila con il condimento per fajita e servi."
+    ]
+  },
+  {
+    "title": "Pancake proteici alla ricotta",
+    "description": "Pancake soffici e dorati con un ingrediente segreto che aumenta le proteine ​​senza sforzo. 🥞",
+    "time": "15 min",
+    "caloriesPerServing": 245,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pancakes?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Alto contenuto proteico",
+      "Vegetariano",
+      "Cottura al forno"
+    ],
+    "baseServings": 2,
+    "protein": 22.0,
+    "fat": 9.0,
+    "carbs": 19.0,
+    "ingredients": [
+      {
+        "name": "Ricotta a basso contenuto di grassi",
+        "amount": "1 cup",
+        "weightGrams": 200,
+        "calories": 160
+      },
+      {
+        "name": "Uova",
+        "amount": "2 large",
+        "weightGrams": 100,
+        "calories": 140
+      },
+      {
+        "name": "Fiocchi d'avena",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 190
+      }
+    ],
+    "directions": [
+      "Metti la ricotta, le uova e i fiocchi d'avena in un frullatore.",
+      "Frullare a velocità alta fino a formare una pastella liscia.",
+      "Scaldare una padella antiaderente a fuoco medio e ungerla leggermente con olio da cucina.",
+      "Versare piccoli cerchi di pastella nella padella. Cuocere fino a quando non si formeranno delle bollicine in superficie, girare e cuocere fino a doratura."
+    ]
+  },
+  {
+    "title": "Ciotola per snack edamame e alghe",
+    "description": "Uno spuntino a base vegetale saporito, salato e soddisfacente, ricco di oligoelementi. 🥢",
+    "time": "5 min",
+    "caloriesPerServing": 245,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20seaweed%20bowl?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Vegano",
+      "Pochi ingredienti",
+      "Preparato rapidamente"
+    ],
+    "baseServings": 1,
+    "protein": 17.5,
+    "fat": 13.0,
+    "carbs": 14.5,
+    "ingredients": [
+      {
+        "name": "Edamame sgusciato (scongelato)",
+        "amount": "1 cup",
+        "weightGrams": 150,
+        "calories": 180
+      },
+      {
+        "name": "Snack alle alghe arrostite",
+        "amount": "1 small pack",
+        "weightGrams": 5,
+        "calories": 25
+      },
+      {
+        "name": "Olio di sesamo tostato",
+        "amount": "1 tsp",
+        "weightGrams": 5,
+        "calories": 40
+      }
+    ],
+    "directions": [
+      "Se congelato, cuocere brevemente a vapore o nel microonde l'edamame sgusciato fino a quando diventa caldo e tenero.",
+      "Mettete l'edamame caldo in una ciotola e conditelo con olio di sesamo tostato. Mescolare per ricoprire.",
+      "Schiacciare con le mani le sfoglie di alghe arrostite fino a ridurle in piccole scaglie.",
+      "Cospargi i fiocchi di alghe sull'edamame insieme a un pizzico di sale marino e buon appetito."
+    ]
+  },
+  {
+    "title": "Insalata di uova di avocado Keto",
+    "description": "Una versione cremosa e a basso contenuto di carboidrati della tradizionale insalata di uova, utilizzando avocado ricco di nutrienti al posto della maionese in eccesso. 🥑",
+    "time": "10 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20avocado%20egg%20salad?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Chetogenico",
+      "Basso contenuto di carboidrati",
+      "Facile"
+    ],
+    "baseServings": 2,
+    "protein": 13.0,
+    "fat": 26.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Uova sode",
+        "amount": "4 large",
+        "weightGrams": 200,
+        "calories": 280
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Maionese",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 100
+      }
+    ],
+    "directions": [
+      "Sbucciare e tagliare a pezzetti le uova sode.",
+      "Tagliare a metà l'avocado, eliminare il nocciolo e raccogliere la polpa in una ciotola.",
+      "Schiacciare insieme l'avocado e la maionese fino ad ottenere una crema, quindi incorporare delicatamente le uova tritate.",
+      "Condire con sale, pepe e un pizzico di paprika. Servire in tazze di lattuga o mangiare così com'è."
+    ]
+  },
+  {
+    "title": "Curry vegano di ceci e cocco",
+    "description": "Un curry fragrante e riscaldante a base vegetale che si prepara rapidamente per un accogliente pasto notturno. 🥥",
+    "time": "25 min",
+    "caloriesPerServing": 210,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chickpea%20coconut%20curry?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Vegano",
+      "Vegetariano",
+      "Facile"
+    ],
+    "baseServings": 4,
+    "protein": 7.0,
+    "fat": 10.0,
+    "carbs": 22.0,
+    "ingredients": [
+      {
+        "name": "Ceci in Scatola (Sciacquati)",
+        "amount": "1 can (15oz)",
+        "weightGrams": 400,
+        "calories": 420
+      },
+      {
+        "name": "Latte di cocco leggero",
+        "amount": "1 can (13.5oz)",
+        "weightGrams": 400,
+        "calories": 280
+      },
+      {
+        "name": "Spinaci freschi",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Scalda l'olio d'oliva in una padella profonda e fai rosolare il tuo curry in polvere o pasta preferito per 1 minuto finché non diventa fragrante.",
+      "Versare il latte di cocco leggero e portare a ebollizione dolce.",
+      "Aggiungete i ceci sciacquati e lasciateli cuocere nella salsa per 15 minuti affinché assorbano i sapori.",
+      "Negli ultimi 2 minuti aggiungete gli spinaci freschi finché non saranno appassiti. Servire caldo."
+    ]
+  },
+  {
+    "title": "Patate dolci al forno con tacchino macinato",
+    "description": "Un pranzo ricco di proteine ​​e ricco di nutrienti ricco di carboidrati complessi per alimentare la tua giornata. 🍠",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20stuffed%20sweet%20potato%20ground%20turkey?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico",
+      "Cottura al forno"
+    ],
+    "baseServings": 2,
+    "protein": 24.0,
+    "fat": 9.5,
+    "carbs": 32.0,
+    "ingredients": [
+      {
+        "name": "Patate dolci",
+        "amount": "2 medium",
+        "weightGrams": 260,
+        "calories": 220
+      },
+      {
+        "name": "Tacchino macinato magro",
+        "amount": "8 oz",
+        "weightGrams": 225,
+        "calories": 340
+      },
+      {
+        "name": "Salsa BBQ senza zucchero",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 200°C (400°F). Forare le patate dolci con una forchetta e infornare per 40-45 minuti finché saranno tenere.",
+      "Mentre le patate cuociono, rosolare il macinato di tacchino in una padella a fuoco medio fino a cottura completa.",
+      "Mescolare la salsa BBQ senza zucchero nel tacchino.",
+      "Tagliare le patate dolci al forno e farcirle generosamente con il composto di tacchino barbecue."
+    ]
+  },
+  {
+    "title": "Budino di semi di chia ai frutti di bosco",
+    "description": "Una colazione da asporto ricca di fibre e omega-3 che si prepara da sola durante la notte. 🍓",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20chia%20seed%20pudding?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Vegano",
+      "In movimento",
+      "Pochi ingredienti"
+    ],
+    "baseServings": 2,
+    "protein": 5.0,
+    "fat": 9.0,
+    "carbs": 20.0,
+    "ingredients": [
+      {
+        "name": "Semi di Chia",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 240
+      },
+      {
+        "name": "Latte di mandorle non zuccherato",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 40
+      },
+      {
+        "name": "Lamponi",
+        "amount": "1/2 cup",
+        "weightGrams": 60,
+        "calories": 30
+      },
+      {
+        "name": "Sciroppo d'acero",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 50
+      }
+    ],
+    "directions": [
+      "In un barattolo o contenitore, sbatti vigorosamente insieme i semi di chia, il latte di mandorle e lo sciroppo d'acero.",
+      "Lasciare riposare per 5 minuti, quindi frullare nuovamente per evitare la formazione di grumi.",
+      "Coprire e conservare in frigorifero per almeno 2 ore o durante la notte.",
+      "Completare con lamponi freschi prima di servire."
+    ]
+  },
+  {
+    "title": "Zoodles di gamberetti al burro e aglio",
+    "description": "Un piatto di pesce leggero, burroso e con aglio che mantiene bassi i carboidrati e alte le proteine. 🦐",
+    "time": "15 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20shrimp%20zucchini%20noodles?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Chetogenico",
+      "Basso contenuto di carboidrati",
+      "Preparato rapidamente"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 15.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Gamberetti Sgusciati",
+        "amount": "10 oz",
+        "weightGrams": 280,
+        "calories": 290
+      },
+      {
+        "name": "Burro",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Zucchine (a spirale)",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Sciogliere il burro in una padella capiente a fuoco medio-alto. Se lo si desidera, aggiungere l'aglio tritato.",
+      "Aggiungere i gamberi nella padella e cuocerli per 2-3 minuti per lato fino a quando saranno rosa e opachi.",
+      "Togliere i gamberetti e metterli da parte. Nella stessa padella, gettare le tagliatelle di zucchine per 1-2 minuti fino a quando saranno appena calde.",
+      "Riporta i gamberi nella padella, condisci con gli zoodles e servi immediatamente."
+    ]
+  },
+  {
+    "title": "Frullato proteico al tè verde Matcha",
+    "description": "Un frullato ricco di antiossidanti e caffeina, perfetto per un rapido inizio mattutino o per un carburante pre-allenamento. 🍵",
+    "time": "5 min",
+    "caloriesPerServing": 205,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20matcha%20green%20tea%20smoothie?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Frullato",
+      "Vegetariano",
+      "Preparato rapidamente",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 1,
+    "protein": 26.0,
+    "fat": 3.0,
+    "carbs": 18.0,
+    "ingredients": [
+      {
+        "name": "Proteine ​​del siero di latte alla vaniglia",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Latte di mandorle non zuccherato",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 40
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 medium",
+        "weightGrams": 50,
+        "calories": 45
+      },
+      {
+        "name": "Polvere di matcha",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 5
+      }
+    ],
+    "directions": [
+      "Aggiungi prima il latte di mandorle nel frullatore per evitare che la polvere si attacchi al fondo.",
+      "Aggiungi le proteine ​​del siero di latte, il matcha in polvere e mezza banana.",
+      "Aggiungi una manciata di cubetti di ghiaccio.",
+      "Frullare a velocità alta fino a ottenere un composto liscio e schiumoso."
+    ]
+  },
+  {
+    "title": "Padella Di Pollo Alla Caprese",
+    "description": "Mozzarella fusa, glassa balsamica dolce e pomodori succosi su petti di pollo magri. 🍅",
+    "time": "20 min",
+    "caloriesPerServing": 375,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20caprese%20chicken%20skillet?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Basso contenuto di carboidrati",
+      "Alto contenuto proteico",
+      "Facile"
+    ],
+    "baseServings": 2,
+    "protein": 44.0,
+    "fat": 18.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Petto di pollo",
+        "amount": "12 oz",
+        "weightGrams": 340,
+        "calories": 560
+      },
+      {
+        "name": "Mozzarella fresca",
+        "amount": "2 oz",
+        "weightGrams": 56,
+        "calories": 140
+      },
+      {
+        "name": "Pomodorini",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 15
+      },
+      {
+        "name": "Glassa Balsamica",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 35
+      }
+    ],
+    "directions": [
+      "Condire i petti di pollo con sale, pepe e condimento italiano.",
+      "Cuocere in padella a fuoco medio per 6-7 minuti per lato fino a completa cottura.",
+      "Ricoprire ogni petto con fette di mozzarella e pomodorini tagliati a metà. Coprire la padella per 2 minuti per far sciogliere il formaggio.",
+      "Irrorare con glassa balsamica e guarnire con basilico fresco prima di servire."
+    ]
+  },
+  {
+    "title": "Ceci Arrostiti Croccanti",
+    "description": "Uno spuntino croccante e saporito che sostituisce le patatine e racchiude una bella dose di proteine ​​vegetali. 🌶️",
+    "time": "35 min",
+    "caloriesPerServing": 183,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20roasted%20chickpeas?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Vegano",
+      "Pochi ingredienti",
+      "Cottura al forno"
+    ],
+    "baseServings": 3,
+    "protein": 7.0,
+    "fat": 7.5,
+    "carbs": 22.0,
+    "ingredients": [
+      {
+        "name": "Ceci in scatola",
+        "amount": "1 can (15oz)",
+        "weightGrams": 400,
+        "calories": 420
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 120
+      },
+      {
+        "name": "Paprica affumicata",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 5
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 200°C (400°F). Scolate, sciacquate e asciugate bene i ceci con carta assorbente.",
+      "Mettete i ceci secchi in una ciotola con olio d'oliva, paprika affumicata, sale e pepe.",
+      "Distribuiteli in un unico strato su una teglia foderata con carta da forno.",
+      "Cuocere per 25-30 minuti, scuotendo la padella a metà, fino a quando diventano croccanti. Lasciare raffreddare leggermente per renderla ulteriormente croccante."
+    ]
+  },
+  {
+    "title": "Avocado ripieni di insalata di tonno",
+    "description": "Un pranzo veloce, senza cottura, che fornisce grassi e proteine ​​incredibilmente salutari senza pane. 🥑",
+    "time": "10 min",
+    "caloriesPerServing": 235,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20tuna%20salad%20stuffed%20avocado?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Basso contenuto di carboidrati",
+      "Chetogenico",
+      "Preparato rapidamente"
+    ],
+    "baseServings": 2,
+    "protein": 16.0,
+    "fat": 16.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Tonno in Scatola (In Acqua)",
+        "amount": "1 can (5oz)",
+        "weightGrams": 140,
+        "calories": 130
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Maionese",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 100
+      }
+    ],
+    "directions": [
+      "Scolate completamente il tonno e trasferitelo in una piccola ciotola.",
+      "Mescolare la maionese con il tonno, aggiungendo sale, pepe e, se lo si desidera, una spruzzata di succo di limone.",
+      "Tagliare a metà l'avocado e rimuovere il nocciolo. Se necessario, puoi raccogliere un po' di polpa di avocado in più per fare spazio.",
+      "Riempire le metà dell'avocado con l'insalata di tonno e mangiarle con un cucchiaio."
+    ]
+  },
+  {
+    "title": "Anelli di mela al burro di mandorle",
+    "description": "Uno snack divertente, croccante e dolce che richiede due minuti per essere assemblato. Perfetto per bambini e adulti! 🍏",
+    "time": "5 min",
+    "caloriesPerServing": 296,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20apple%20slices%20almond%20butter?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Vegano",
+      "Pochi ingredienti",
+      "Preparato rapidamente"
+    ],
+    "baseServings": 1,
+    "protein": 8.0,
+    "fat": 16.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Mela",
+        "amount": "1 medium",
+        "weightGrams": 180,
+        "calories": 95
+      },
+      {
+        "name": "Burro Di Mandorle",
+        "amount": "2 tbsp",
+        "weightGrams": 32,
+        "calories": 190
+      },
+      {
+        "name": "Semi di canapa",
+        "amount": "1 tsp",
+        "weightGrams": 3,
+        "calories": 15
+      }
+    ],
+    "directions": [
+      "Togliere il torsolo alla mela e affettarla orizzontalmente per creare degli \"anelli\" piatti e rotondi.",
+      "Distribuire uniformemente il burro di mandorle sulla parte superiore degli anelli di mela.",
+      "Cospargi i semi di canapa sul burro di mandorle per un leggero scricchiolio di nocciole.",
+      "Servire subito per evitare che le mele anneriscano."
+    ]
+  },
+  {
+    "title": "Mac e formaggio Keto cavolfiore",
+    "description": "Un classico comfort food ricco e formaggioso completamente reinventato senza carboidrati. 🧀",
+    "time": "25 min",
+    "caloriesPerServing": 266,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20keto%20cauliflower%20mac%20and%20cheese?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Chetogenico",
+      "Vegetariano"
+    ],
+    "baseServings": 4,
+    "protein": 12.0,
+    "fat": 22.0,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Cimette di cavolfiore",
+        "amount": "4 cups",
+        "weightGrams": 400,
+        "calories": 100
+      },
+      {
+        "name": "Formaggio Cheddar",
+        "amount": "1.5 cups grated",
+        "weightGrams": 150,
+        "calories": 600
+      },
+      {
+        "name": "Crema pesante",
+        "amount": "1/2 cup",
+        "weightGrams": 100,
+        "calories": 340
+      }
+    ],
+    "directions": [
+      "Cuocere a vapore o far bollire le cimette di cavolfiore fino a quando saranno tenere, quindi scolarle bene.",
+      "In una casseruola a fuoco medio, scaldare delicatamente la panna.",
+      "Mescolare gradualmente il formaggio cheddar nella panna fino a quando non sarà sciolto e liscio.",
+      "Incorporate il cavolfiore cotto alla salsa di formaggio fino a ricoprirlo completamente e servitelo caldo."
+    ]
+  },
+  {
+    "title": "Peperoncino di tacchino ad alto contenuto proteico",
+    "description": "Un peperoncino robusto e riscaldante che racchiude una potente dose di proteine ​​per il recupero muscolare. 🌶️",
+    "time": "40 min",
+    "caloriesPerServing": 305,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20turkey%20chili?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico",
+      "Facile"
+    ],
+    "baseServings": 4,
+    "protein": 32.0,
+    "fat": 4.0,
+    "carbs": 35.0,
+    "ingredients": [
+      {
+        "name": "Tacchino macinato magro",
+        "amount": "1 lb",
+        "weightGrams": 450,
+        "calories": 680
+      },
+      {
+        "name": "Fagioli in scatola",
+        "amount": "1 can (15oz)",
+        "weightGrams": 400,
+        "calories": 400
+      },
+      {
+        "name": "Pomodori schiacciati",
+        "amount": "1 can (15oz)",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Cipolla A Dadini",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "In una pentola capiente, rosolare il tacchino macinato e la cipolla tagliata a dadini a fuoco medio-alto fino a completa cottura.",
+      "Sciacquare e scolare i fagioli rossi.",
+      "Aggiungi i fagioli e i pomodori tritati nella pentola, condendo con peperoncino in polvere, cumino e sale.",
+      "Portare a ebollizione, quindi abbassare la fiamma e lasciare cuocere per 20-30 minuti per far fondere i sapori."
+    ]
+  },
+  {
+    "title": "Tempeh Teriyaki vegano saltato in padella",
+    "description": "Una frittura veloce e gustosa a base vegetale, ricca di proteine ​​della soia fermentata e broccoli croccanti. 🥢",
+    "time": "15 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20tempeh%20teriyaki%20stir%20fry?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Vegano",
+      "Alto contenuto proteico",
+      "Preparato rapidamente"
+    ],
+    "baseServings": 2,
+    "protein": 20.0,
+    "fat": 14.0,
+    "carbs": 18.0,
+    "ingredients": [
+      {
+        "name": "Tempeh",
+        "amount": "1 package",
+        "weightGrams": 200,
+        "calories": 380
+      },
+      {
+        "name": "Cimette di broccoli",
+        "amount": "1.5 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Salsa Teriyaki",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Olio di sesamo",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 90
+      }
+    ],
+    "directions": [
+      "Tagliate il tempeh a cubetti o a striscioline sottili.",
+      "Scaldare l'olio di sesamo in un wok o in una padella larga a fuoco medio-alto e far rosolare il tempeh per 5 minuti.",
+      "Aggiungete le cimette di broccoli e fatele soffriggere per altri 3-4 minuti fino a quando saranno morbide e croccanti.",
+      "Versare la salsa teriyaki, mescolare per ricoprire il tutto in modo uniforme e servire caldo."
+    ]
+  },
+  {
+    "title": "Budino proteico al cioccolato e avocado",
+    "description": "Un dessert delizioso e vellutato che fornisce segretamente grassi sani e una solida dose di proteine. 🍫",
+    "time": "5 min",
+    "caloriesPerServing": 237,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20avocado%20pudding?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Vegano",
+      "Pochi ingredienti",
+      "Facile"
+    ],
+    "baseServings": 2,
+    "protein": 13.0,
+    "fat": 12.0,
+    "carbs": 19.0,
+    "ingredients": [
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Polvere di cacao",
+        "amount": "3 tbsp",
+        "weightGrams": 20,
+        "calories": 45
+      },
+      {
+        "name": "Sciroppo d'acero",
+        "amount": "1.5 tbsp",
+        "weightGrams": 30,
+        "calories": 80
+      },
+      {
+        "name": "Proteine ​​vegetali del cioccolato",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 110
+      }
+    ],
+    "directions": [
+      "Tagliare a metà l'avocado, rimuovere il nocciolo e raccogliere la polpa in un robot da cucina.",
+      "Aggiungere il cacao in polvere, lo sciroppo d'acero e le proteine ​​in polvere.",
+      "Frullare fino a ottenere un composto completamente liscio e cremoso. Se risultasse troppo densa aggiungete un goccio di latte di mandorla.",
+      "Lasciare raffreddare in frigorifero per 30 minuti prima di servire per ottenere la migliore consistenza."
+    ]
+  },
+  {
+    "title": "Avena notturna ad alto contenuto proteico",
+    "description": "Preparalo la sera prima per una colazione senza stress e per la costruzione muscolare in corsa. 🥣",
+    "time": "5 min",
+    "caloriesPerServing": 330,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20high%20protein%20overnight%20oats?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Alto contenuto proteico",
+      "In movimento",
+      "Vegetariano"
+    ],
+    "baseServings": 1,
+    "protein": 28.0,
+    "fat": 4.0,
+    "carbs": 45.0,
+    "ingredients": [
+      {
+        "name": "Fiocchi d'avena",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 190
+      },
+      {
+        "name": "Yogurt greco magro",
+        "amount": "1/2 cup",
+        "weightGrams": 100,
+        "calories": 60
+      },
+      {
+        "name": "Latte di mandorle non zuccherato",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 20
+      },
+      {
+        "name": "Proteine ​​del siero di latte alla vaniglia",
+        "amount": "1/2 scoop",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "In un barattolo di vetro o in un contenitore sigillabile, mescolare i fiocchi d'avena e le proteine ​​del siero di latte in polvere.",
+      "Aggiungete lo yogurt greco e il latte di mandorle, mescolando energicamente fino a quando non saranno completamente amalgamati.",
+      "Sigillare il contenitore e lasciarlo in frigorifero per una notte.",
+      "Prendilo al mattino, mescola velocemente e gustalo freddo."
+    ]
+  },
+  {
+    "title": "Cod. Erbe Di Limone Al Forno",
+    "description": "Una ricetta di pesce bianco incredibilmente magra e friabile che sembra leggera ma saziante. 🍋",
+    "time": "20 min",
+    "caloriesPerServing": 193,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20baked%20lemon%20cod?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Basso contenuto di carboidrati",
+      "Alto contenuto proteico",
+      "Cottura al forno"
+    ],
+    "baseServings": 2,
+    "protein": 27.0,
+    "fat": 8.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Filetti Di Merluzzo",
+        "amount": "2 fillets",
+        "weightGrams": 300,
+        "calories": 246
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 135
+      },
+      {
+        "name": "Succo Di Limone",
+        "amount": "1 tbsp",
+        "weightGrams": 10,
+        "calories": 5
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 200°C (400°F). Foderare una teglia con carta da forno.",
+      "Disporre i filetti di merluzzo nella pirofila. Condire con olio d'oliva e succo di limone fresco.",
+      "Cospargere con sale, pepe e aneto secco o prezzemolo.",
+      "Cuocere per 12-15 minuti fino a quando il pesce sarà opaco e si sfalderà facilmente con una forchetta."
+    ]
+  },
+  {
+    "title": "Insalata vegana di edamame e quinoa",
+    "description": "Un pranzo vegano croccante e ricco di proteine, con un gustoso condimento alle arachidi. 🥗",
+    "time": "15 min",
+    "caloriesPerServing": 300,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20quinoa%20salad?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Vegano",
+      "In movimento",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 15.0,
+    "fat": 10.0,
+    "carbs": 37.0,
+    "ingredients": [
+      {
+        "name": "Edamame sgusciato",
+        "amount": "1 cup",
+        "weightGrams": 150,
+        "calories": 180
+      },
+      {
+        "name": "Quinoa cotta",
+        "amount": "1 cup",
+        "weightGrams": 200,
+        "calories": 240
+      },
+      {
+        "name": "Cavolo rosso tritato",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 30
+      },
+      {
+        "name": "Condimento alle arachidi",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 150
+      }
+    ],
+    "directions": [
+      "Scongelare l'edamame se congelato.",
+      "In una grande ciotola, unisci la quinoa cotta, l'edamame e il cavolo rosso sminuzzato.",
+      "Irrorare la salsa di arachidi sull'insalata e mescolare bene per ricoprire tutti gli ingredienti.",
+      "Servire immediatamente o confezionare in contenitori per un pranzo freddo e rinfrescante."
+    ]
+  },
+  {
+    "title": "Pollo in crosta di parmigiano cheto",
+    "description": "Un petto di pollo croccante e dorato, cotto al forno e senza pangrattato. 🍗",
+    "time": "30 min",
+    "caloriesPerServing": 405,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20parmesan%20crusted%20chicken?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Chetogenico",
+      "Alto contenuto proteico",
+      "Cottura al forno"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 25.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Petto di pollo",
+        "amount": "2 medium",
+        "weightGrams": 300,
+        "calories": 495
+      },
+      {
+        "name": "Parmigiano grattugiato",
+        "amount": "1/3 cup",
+        "weightGrams": 35,
+        "calories": 140
+      },
+      {
+        "name": "Maionese",
+        "amount": "1.5 tbsp",
+        "weightGrams": 25,
+        "calories": 175
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 200°C (400°F).",
+      "Distribuire uniformemente uno strato sottile di maionese sulla parte superiore di ciascun petto di pollo.",
+      "Premere bene il parmigiano grattugiato nella maionese in modo che aderisca.",
+      "Cuocere per 25 minuti fino a quando il pollo sarà cotto e il formaggio sarà dorato e croccante."
+    ]
+  },
+  {
+    "title": "Frullato tropicale di mango e spinaci",
+    "description": "Un frullato verde idratante e vibrante che sa di una vacanza su un'isola tropicale. 🥭",
+    "time": "5 min",
+    "caloriesPerServing": 197,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20mango%20spinach%20smoothie?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Frullato",
+      "Vegano",
+      "In movimento",
+      "Pochi ingredienti"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 7.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Pezzi di mango congelati",
+        "amount": "3/4 cup",
+        "weightGrams": 100,
+        "calories": 60
+      },
+      {
+        "name": "Spinaci freschi",
+        "amount": "1 handful",
+        "weightGrams": 50,
+        "calories": 12
+      },
+      {
+        "name": "Acqua di cocco",
+        "amount": "1 cup",
+        "weightGrams": 200,
+        "calories": 40
+      },
+      {
+        "name": "Semi di canapa",
+        "amount": "1.5 tbsp",
+        "weightGrams": 15,
+        "calories": 85
+      }
+    ],
+    "directions": [
+      "Aggiungi gli spinaci e l'acqua di cocco in un frullatore.",
+      "Frullare fino a ottenere un composto omogeneo per assicurarsi che non rimangano pezzi verdi.",
+      "Aggiungere il mango congelato e i semi di canapa.",
+      "Frullare a velocità alta fino a ottenere un composto perfettamente liscio e cremoso."
+    ]
+  },
+  {
+    "title": "Peperoni ripieni di carne macinata",
+    "description": "Una classica cena abbondante e a basso contenuto di carboidrati, cotta al forno fino a quando i peperoni saranno dolci e teneri. 🫑",
+    "time": "45 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20ground%20beef%20stuffed%20peppers?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Basso contenuto di carboidrati",
+      "Cottura al forno"
+    ],
+    "baseServings": 4,
+    "protein": 22.0,
+    "fat": 12.0,
+    "carbs": 16.0,
+    "ingredients": [
+      {
+        "name": "Carne macinata magra",
+        "amount": "14 oz",
+        "weightGrams": 400,
+        "calories": 850
+      },
+      {
+        "name": "Peperoni",
+        "amount": "4 medium",
+        "weightGrams": 400,
+        "calories": 80
+      },
+      {
+        "name": "Riso Al Cavolfiore",
+        "amount": "1.5 cups",
+        "weightGrams": 200,
+        "calories": 50
+      },
+      {
+        "name": "Salsa Di Pomodoro",
+        "amount": "1/2 cup",
+        "weightGrams": 150,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 190°C (375°F). Tagliare la parte superiore dei peperoni ed eliminare i semi.",
+      "In una padella fate rosolare la carne macinata. Incorporare il riso al cavolfiore e la salsa di pomodoro, cuocendo per 3 minuti.",
+      "Farcite i peperoni scavati con il composto di carne e metteteli in posizione verticale in una pirofila.",
+      "Coprire con la pellicola e cuocere per 30 minuti, quindi rimuovere la pellicola e cuocere altri 5 minuti."
+    ]
+  },
+  {
+    "title": "Capesante scottate in padella con purea di cavolfiore allo zafferano e tartufo nero",
+    "description": "Capesante stagionate a secco, arrostite in padella fino a formare una crosta dorata, adagiate su una vellutata emulsione infusa allo zafferano con scaglie di tartufo nero. ✨",
+    "time": "30 min",
+    "caloriesPerServing": 403,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20pan%20seared%20scallops%20cauliflower%20puree%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 23.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Capesante di mare U10 secche",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 333
+      },
+      {
+        "name": "Cimette di cavolfiore",
+        "amount": "400g",
+        "weightGrams": 400,
+        "calories": 100
+      },
+      {
+        "name": "Crema pesante",
+        "amount": "3 tbsp",
+        "weightGrams": 50,
+        "calories": 170
+      },
+      {
+        "name": "Burro coltivato",
+        "amount": "1.5 tbsp",
+        "weightGrams": 20,
+        "calories": 143
+      },
+      {
+        "name": "Olio al Tartufo Nero",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 80
+      }
+    ],
+    "directions": [
+      "Preparare la purea: cuocere sottovuoto o cuocere a vapore il cavolfiore fino a quando sarà completamente tenero. Trasferire in un frullatore ad alta velocità con lo zafferano macerato, la panna e metà del burro. Frullare a velocità alta fino a formare un'emulsione vellutata. Passare al chinois fine.",
+      "Incidere leggermente le capesante. Scaldare una padella di acciaio al carbonio fino a farla fumare. Aggiungere un olio ad alto punto di fumo, quindi rosolare le capesante intatte per 90 secondi esatti finché non si forma una crosta di Maillard marrone dorata.",
+      "Girare le capesante, abbassare la fiamma e ungerle rapidamente con il burro rimanente e un rametto di timo per 30 secondi. Rimuovere e riposare su un tovagliolo di carta.",
+      "Per impiattare: versare un cerchio perfetto di purea calda. Disporre le capesante in modo asimmetrico. Terminare con gocce di olio al tartufo nero e microerbe."
+    ]
+  },
+  {
+    "title": "Petto d'anatra sottovuoto con riduzione di balsamico alle ciliegie",
+    "description": "Petto d'anatra cucinato con precisione con pelle resa e croccante abbinata a un demi-glace acido e lucido di ciliegia. 🦆",
+    "time": "90 min",
+    "caloriesPerServing": 520,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20sous%20vide%20duck%20breast%20cherry%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 35.5,
+    "fat": 32.0,
+    "carbs": 22.5,
+    "ingredients": [
+      {
+        "name": "Petto d'anatra (con la pelle)",
+        "amount": "2 breasts",
+        "weightGrams": 350,
+        "calories": 700
+      },
+      {
+        "name": "Sedano rapa (radice di sedano)",
+        "amount": "1 medium",
+        "weightGrams": 300,
+        "calories": 126
+      },
+      {
+        "name": "Ciliegie snocciolate",
+        "amount": "1/2 cup",
+        "weightGrams": 100,
+        "calories": 50
+      },
+      {
+        "name": "Aceto Balsamico Invecchiato",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 26
+      },
+      {
+        "name": "Grasso d'anatra reso",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 135
+      }
+    ],
+    "directions": [
+      "Incidere la pelle dell'anatra con uno schema a tratteggio incrociato stretto senza forare la carne. Mettere sottovuoto con timo e cuocere sottovuoto a 54°C per 1,5 ore.",
+      "Nel frattempo ricavare dei cilindri dal sedano rapa. Scottare le estremità nel grasso d'anatra, quindi brasare delicatamente nel brodo finché diventano teneri come se fossero fondenti.",
+      "In un pentolino far ridurre le ciliegie e l'aceto balsamico invecchiato fino a ottenere uno sciroppo, montando con una piccola noce di burro freddo per una finitura lucida.",
+      "Rimuovere l'anatra dal sacchetto e asciugarla accuratamente. Metti la pelle rivolta verso il basso in una padella fredda, regolando la fiamma a una temperatura media per rendere il grasso fino a renderlo vetroso e croccante. Affettare e impiattare elegantemente."
+    ]
+  },
+  {
+    "title": "Carré d'agnello in crosta di erbe con purea di piselli alla menta",
+    "description": "Carrè di agnello alla francese ricoperto da una vivace crosta di erbe e pistacchi, servito su una purea di piselli intensamente dolce e brillante. 🥩",
+    "time": "45 min",
+    "caloriesPerServing": 687,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20herb%20crusted%20lamb%20rack%20mint%20puree%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 49.5,
+    "fat": 45.0,
+    "carbs": 21.0,
+    "ingredients": [
+      {
+        "name": "Carré d'agnello alla francese",
+        "amount": "1 rack",
+        "weightGrams": 400,
+        "calories": 850
+      },
+      {
+        "name": "Piselli verdi",
+        "amount": "1.5 cups",
+        "weightGrams": 200,
+        "calories": 160
+      },
+      {
+        "name": "Briciola Di Pistacchio Ed Erbe",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 170
+      },
+      {
+        "name": "Consigli sugli asparagi",
+        "amount": "1 cup",
+        "weightGrams": 150,
+        "calories": 30
+      },
+      {
+        "name": "Olio Extravergine Di Oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 135
+      }
+    ],
+    "directions": [
+      "Sbollentare rapidamente i piselli in acqua salata, scioccandoli immediatamente in un bagno di ghiaccio per preservare la vibrante clorofilla. Frullare con menta fresca e un tocco di brodo, passando al tamis per una perfetta morbidezza.",
+      "Condisci il carré di agnello in modo aggressivo. Rosolare in una padella ben calda finché non sarà ben dorata su tutti i lati. Spennellate con senape di Digione e arrotolate bene la mollica di pistacchi ed erbe aromatiche.",
+      "Arrostire l'agnello a 200°C (400°F) per 12-14 minuti per una perfetta cottura media-al sangue. Riposare per almeno 10 minuti prima di scolpire.",
+      "Scottare le punte degli asparagi con un cannello o una padella di ghisa. Versare la purea di piselli su un piatto caldo, disporre le costolette di agnello ad incastro e guarnire."
+    ]
+  },
+  {
+    "title": "Branzino cileno glassato al miso con consommé di shiitake",
+    "description": "Branzino burroso marinato nel miso saikyo, arrostito lentamente e servito su un brodo di funghi cristallino e ricco di umami. 🐟",
+    "time": "40 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20miso%20glazed%20seabass%20consomme%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 35.5,
+    "fat": 9.5,
+    "carbs": 13.0,
+    "ingredients": [
+      {
+        "name": "Filetto Di Branzino Cileno",
+        "amount": "2 fillets",
+        "weightGrams": 350,
+        "calories": 340
+      },
+      {
+        "name": "Funghi Shiitake",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Pasta di miso Saikyo bianca",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 60
+      },
+      {
+        "name": "Ravanello Daikon",
+        "amount": "1 medium",
+        "weightGrams": 200,
+        "calories": 36
+      },
+      {
+        "name": "Olio di sesamo tostato",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 90
+      }
+    ],
+    "directions": [
+      "Marinare la spigola nel miso bianco, una spruzzata di sakè e mirin per almeno 24 ore. Eliminare la marinata in eccesso prima della cottura per evitare che si bruci.",
+      "Prepara il consommé: fai sobbollire i funghi shiitake, il kombu e gli aromi per 2 ore. Chiarire il brodo con la tecnica della zattera di albume fino a completa trasparenza.",
+      "Tagliare a julienne il ravanello daikon in delicati noodles utilizzando una mandolina. Sbollentare leggermente nel consommé caldo.",
+      "Cuocere la spigola sotto una salamandra alta o su una griglia da forno finché gli zuccheri nel miso non si caramellano e si carbonizzano leggermente. Versare il consommé caldo al tavolo."
+    ]
+  },
+  {
+    "title": "Tartare di Manzo Wagyu con Uovo di Quaglia ed Emulsione di Capperi",
+    "description": "Filetto di Wagyu A5 tagliato a mano e legato con un'emulsione aerata di senape e capperi, servito con tuorlo d'uovo di quaglia crudo e tuile di semi di lino. 🥩",
+    "time": "20 min",
+    "caloriesPerServing": 488,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20wagyu%20beef%20tartare%20quail%20egg%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico",
+      "Chetogenico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 29.5,
+    "fat": 38.0,
+    "carbs": 7.0,
+    "ingredients": [
+      {
+        "name": "Filetto Wagyu magro",
+        "amount": "250g",
+        "weightGrams": 250,
+        "calories": 600
+      },
+      {
+        "name": "Uova Di Quaglia",
+        "amount": "2 yolks",
+        "weightGrams": 18,
+        "calories": 28
+      },
+      {
+        "name": "Capperi in salamoia",
+        "amount": "1.5 tbsp",
+        "weightGrams": 20,
+        "calories": 5
+      },
+      {
+        "name": "Pasto di semi di lino",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 210
+      },
+      {
+        "name": "Emulsione di Digione e olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Preparare la tuile di semi di lino mescolando la farina di lino con acqua, stendendola sottilissima su un silpat e disidratando in forno fino a quando non sarà perfettamente croccante.",
+      "Usando un coltello affilato chirurgicamente, taglia a dadini a mano il filetto di wagyu in una brunoise di 3 mm. Non usare mai un tritacarne.",
+      "Piegare delicatamente la carne su un bagno di ghiaccio con scalogno tritato, erba cipollina, capperi ed emulsione di Digione per preservare la struttura del grasso.",
+      "Plasmare utilizzando uno stampo ad anello. Separare con attenzione il tuorlo dell'uovo di quaglia e posizionarlo perfettamente al centro. Guarnire con micro-senape e tuile croccante."
+    ]
+  },
+  {
+    "title": "Coda di aragosta affogata nel burro con risotto allo zafferano",
+    "description": "Tenera coda di aragosta cotta a fuoco lento nel beurre monté, servita su un vivace risotto allo zafferano giallo al dente. 🦞",
+    "time": "45 min",
+    "caloriesPerServing": 525,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20butter%20poached%20lobster%20saffron%20risotto%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 36.5,
+    "fat": 20.5,
+    "carbs": 48.5,
+    "ingredients": [
+      {
+        "name": "Code di aragosta",
+        "amount": "2 medium",
+        "weightGrams": 300,
+        "calories": 270
+      },
+      {
+        "name": "Riso Arborio",
+        "amount": "3/4 cup",
+        "weightGrams": 120,
+        "calories": 420
+      },
+      {
+        "name": "Burro coltivato",
+        "amount": "3 tbsp",
+        "weightGrams": 40,
+        "calories": 285
+      },
+      {
+        "name": "Parmigiano-Reggiano",
+        "amount": "1/4 cup grated",
+        "weightGrams": 20,
+        "calories": 80
+      },
+      {
+        "name": "Zafferano e vino bianco",
+        "amount": "1/4 cup",
+        "weightGrams": 50,
+        "calories": 40
+      }
+    ],
+    "directions": [
+      "Preparare il beurre monté sbattendo i cubetti di burro freddo in un cucchiaio di acqua bollente finché non si emulsiona. Conservare esattamente a 65°C (150°F).",
+      "Togliere la carne dell'aragosta dal guscio e immergerla nel beurre monté per 6-8 minuti fino a quando sarà perfettamente opaca e tenera.",
+      "Tostare il riso arborio a secco, sfumare con vino bianco infuso con fili di zafferano pregiato. Versare lentamente il brodo di pesce caldo, mescolando continuamente per rilasciare gli amidi.",
+      "Terminare il risotto fuori dal fuoco (mantecatura) con il parmigiano e una noce di burro freddo. Impiattare il risotto, guarnire con l'aragosta affettata e guarnire con foglia d'oro o micro-verdure."
+    ]
+  },
+  {
+    "title": "Lombo di cervo con succo di more e ginepro",
+    "description": "Selvaggina, carne di cervo incredibilmente magra, arrostita alla perfezione, equilibrata con un succo di bacche scure e ginepro intensamente ridotto. 🌲",
+    "time": "45 min",
+    "caloriesPerServing": 407,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20venison%20loin%20blackberry%20jus%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 60.5,
+    "fat": 13.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Lombo di cervo",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 530
+      },
+      {
+        "name": "broccolini",
+        "amount": "1 bunch",
+        "weightGrams": 200,
+        "calories": 70
+      },
+      {
+        "name": "More fresche",
+        "amount": "3/4 cup",
+        "weightGrams": 100,
+        "calories": 43
+      },
+      {
+        "name": "Demi-Glace di osso di vitello",
+        "amount": "1/3 cup",
+        "weightGrams": 100,
+        "calories": 40
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 135
+      }
+    ],
+    "directions": [
+      "Schiacciare le bacche di ginepro e strofinarle sul lombo di cervo. Lasciar temperare a temperatura ambiente. Scottare in una padella calda, cuocendo non più di una cottura medio-rara per evitare che si secchi. Riposati completamente.",
+      "Nella stessa padella sfumare con una spruzzata di gin o vino rosso. Aggiungete le more e pestatele leggermente. Versare il demi-glace di vitello e far restringere fino a ricoprire il dorso di un cucchiaio.",
+      "Sbollentare i broccolini, quindi rosolarli rapidamente su una griglia di ghisa fino a renderli affumicati.",
+      "Tagliare la carne di cervo in spessi medaglioni. Versare il succo lucido di more sul piatto e disporre la carne accanto ai broccolini carbonizzati."
+    ]
+  },
+  {
+    "title": "Halibut in crosta di macadamia con vellutata alla citronella",
+    "description": "Ippoglosso bianco incontaminato ricoperto da una crosta dorata di macadamia, immerso in una salsa aromatica e vellutata al cocco e alla citronella. 🥥",
+    "time": "35 min",
+    "caloriesPerServing": 455,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20macadamia%20crusted%20halibut%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 42.5,
+    "fat": 29.5,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Filetto di ippoglosso",
+        "amount": "2 thick fillets",
+        "weightGrams": 350,
+        "calories": 385
+      },
+      {
+        "name": "Noci di macadamia tritate",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 285
+      },
+      {
+        "name": "Latte di cocco intero",
+        "amount": "1/3 cup",
+        "weightGrams": 100,
+        "calories": 230
+      },
+      {
+        "name": "Citronella e zenzero",
+        "amount": "2 tbsp minced",
+        "weightGrams": 30,
+        "calories": 10
+      }
+    ],
+    "directions": [
+      "Trasforma le noci di macadamia in una mollica grossolana. Spennellare leggermente l'ippoglosso con un legante (come un tocco di albume) e premere le noci sulla parte superiore.",
+      "Arrostire l'ippoglosso con la crosta rivolta verso il basso in una padella antiaderente per tostare le noci, quindi girarlo e terminare la cottura delicatamente in forno a 180°C (350°F).",
+      "Far sudare la citronella e lo zenzero ammaccati in una casseruola senza colorare. Aggiungere il latte di cocco e una spruzzata di brodo di pesce. Ridurre, filtrare e montare con il frullatore ad immersione per la vellutata.",
+      "Versare la vellutata schiumosa in una ciotola poco profonda e posizionare con cura l'ippoglosso in crosta al centro."
+    ]
+  },
+  {
+    "title": "Confit di funghi selvatici e aglio nero su toast Keto artigianale",
+    "description": "Funghi esotici cotti lentamente in camicia bagnati in olio d'oliva, purea di aglio nero profondamente umami e un uovo sottovuoto perfettamente liquido. 🍳",
+    "time": "40 min",
+    "caloriesPerServing": 426,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20wild%20mushroom%20confit%20poached%20egg%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Vegetariano",
+      "Basso contenuto di carboidrati",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 15.5,
+    "fat": 35.5,
+    "carbs": 11.0,
+    "ingredients": [
+      {
+        "name": "Funghi Maitake e Finferli",
+        "amount": "2.5 cups",
+        "weightGrams": 250,
+        "calories": 55
+      },
+      {
+        "name": "Olio Extravergine Di Oliva",
+        "amount": "3 tbsp",
+        "weightGrams": 40,
+        "calories": 350
+      },
+      {
+        "name": "Pane con farina di mandorle Keto",
+        "amount": "2 thick slices",
+        "weightGrams": 100,
+        "calories": 260
+      },
+      {
+        "name": "Purea di aglio nero",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 25
+      },
+      {
+        "name": "Uova fresche di fattoria",
+        "amount": "2 large",
+        "weightGrams": 100,
+        "calories": 140
+      }
+    ],
+    "directions": [
+      "Pulite i funghi porcini con una spazzola (non lavateli mai). Immergerli in olio d'oliva di alta qualità con un rametto di rosmarino e spicchi d'aglio. Confit delicatamente a 85°C (185°F) per 45 minuti.",
+      "Cuocere le uova sottovuoto esattamente a 63°C (145,4°F) per 45 minuti per ottenere un tuorlo simile a una crema pasticcera e un bianco tenero.",
+      "Tostare il pane cheto in una padella asciutta fino a renderlo croccante. Spalmare generosamente con la purea di aglio nero fermentato.",
+      "Metti uno strato di funghi confit sgocciolati sul pane tostato, rompi con cura l'uovo a 63 gradi sopra e finisci con sale marino Maldon in scaglie."
+    ]
+  },
+  {
+    "title": "Tonno Ahi scottato con sfera di Yuzu-Ponzu e purea di Edamame",
+    "description": "Ahi di qualità sushi scottato per pochi secondi, accompagnato da una vibrante seta edamame e caviale molecolare yuzu-ponzu. 🍣",
+    "time": "25 min",
+    "caloriesPerServing": 317,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20seared%20ahi%20tuna%20yuzu%20edamame%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 45.5,
+    "fat": 10.5,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Tonno Ahi di qualità sushi",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 325
+      },
+      {
+        "name": "Edamame sgusciato",
+        "amount": "1 cup",
+        "weightGrams": 150,
+        "calories": 180
+      },
+      {
+        "name": "Salsa Yuzu-Ponzu",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 25
+      },
+      {
+        "name": "Olio di avocado",
+        "amount": "2 tsp",
+        "weightGrams": 10,
+        "calories": 90
+      },
+      {
+        "name": "Micro-coriandolo e ravanello",
+        "amount": "1 small handful",
+        "weightGrams": 20,
+        "calories": 5
+      }
+    ],
+    "directions": [
+      "Creare la purea di edamame: sbollentare l'edamame in acqua molto salata. Trasferire in un frullatore con una spruzzata di dashi e frullare fino a ottenere un composto completamente setoso. Passare al setaccio fine.",
+      "Utilizzando l'alginato di sodio e il cloruro di calcio (sferificazione), trasformare la salsa yuzu-ponzu in piccole sfere che scoppiano in bocca.",
+      "Rivestire il blocco di tonno con semi di sesamo nero. Scaldare una padella di ghisa fino a renderla incandescente. Scottare il tonno per 10 secondi esatti per lato, mantenendo la parte centrale completamente cruda.",
+      "Affettare il tonno in modo pulito con un coltello da sashimi. Passare la purea di edamame verde brillante sul piatto, smazzare il tonno e guarnire con le sfere di yuzu e il micro-coriandolo."
+    ]
+  },
+  {
+    "title": "Salmone Ora King impanato al burro con vellutata di Sunchoke e caviale Ossetra",
+    "description": "Salmone Ora King ultra premium imbevuto lentamente di burro coltivato, adagiato su una vellutata setosa di topinambur, coronato da una quenelle di caviale nero. 🐟",
+    "time": "40 min",
+    "caloriesPerServing": 430,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20ora%20king%20salmon%20sunchoke%20veloute%20caviar%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 32.0,
+    "fat": 30.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filetto Di Salmone Ora King",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 600
+      },
+      {
+        "name": "Sunchokes (topinambur)",
+        "amount": "150g",
+        "weightGrams": 150,
+        "calories": 110
+      },
+      {
+        "name": "Burro coltivato",
+        "amount": "1.5 tbsp",
+        "weightGrams": 15,
+        "calories": 100
+      },
+      {
+        "name": "Caviale Ossetra",
+        "amount": "10g",
+        "weightGrams": 10,
+        "calories": 30
+      },
+      {
+        "name": "Crema pesante",
+        "amount": "1 tbsp",
+        "weightGrams": 10,
+        "calories": 35
+      }
+    ],
+    "directions": [
+      "Preparare la vellutata: far sudare delicatamente i sunchokes sbucciati e tagliati a dadini in un tocco di burro senza colore. Sfumare con vino bianco, cuocere a fuoco lento con brodo vegetale finché diventa tenero, quindi sfumare con panna fino a quando il passaggio attraverso uno chinois fine produce una consistenza vetrosa.",
+      "Incidere la pelle del salmone Ora King per evitare che si arricci. Disporre la carne in una padella fredda di acciaio al carbonio con il lato della pelle rivolto verso il basso, portando il fuoco a un livello medio-basso per sciogliere meticolosamente il grasso e rendere croccante la pelle per 8-10 minuti.",
+      "Capovolgi brevemente il pesce, spegni il fuoco e ungilo continuamente con burro fermentato schiumoso e timo per ottenere un nucleo medio-raro impeccabile.",
+      "Versare la vellutata calda di sunchoke in una ciotola poco profonda, adagiare il salmone con la pelle rivolta verso l'alto e terminare con una precisa quenelle di caviale Ossetra e micro-aneto."
+    ]
+  },
+  {
+    "title": "Filetto di vitello sottovuoto con salsa all'aglio nero e asparagi carbonizzati",
+    "description": "Vitello incredibilmente tenero, nutrito con latte, cotto con precisione sottovuoto, glassato con una riduzione di aglio nero profondamente fermentata e bomba umami. 🥩",
+    "time": "90 min",
+    "caloriesPerServing": 328,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20sous%20vide%20veal%20tenderloin%20black%20garlic%20jus%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 12.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Filetto Di Vitello",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 385
+      },
+      {
+        "name": "Lance di asparagi verdi",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 40
+      },
+      {
+        "name": "Demi-glace di vitello",
+        "amount": "1/4 cup",
+        "weightGrams": 50,
+        "calories": 45
+      },
+      {
+        "name": "Aglio Nero Fermentato",
+        "amount": "3 cloves",
+        "weightGrams": 15,
+        "calories": 40
+      },
+      {
+        "name": "Olio di vinaccioli",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 135
+      }
+    ],
+    "directions": [
+      "Tagliare il filetto di vitello dalla pelle argentata. Sigillare sottovuoto con aromi e cuocere sottovuoto a 56°C (133°F) per 1 ora esatta per una perfezione da bordo a bordo.",
+      "Frullare l'aglio nero fermentato nel ricco demi-glace di vitello. Cuocere a fuoco lento il sugo finché non ricopre intensamente il dorso di un cucchiaio (consistenza nappé).",
+      "Togliere la carne di vitello dal sacchetto e asciugarla completamente. Rosolare in modo aggressivo in una padella rovente con olio di vinaccioli per 30 secondi per lato per innescare la reazione di Maillard. Lascia riposare.",
+      "Scottare gli asparagi su una fiamma libera o sotto una griglia. Tagliare la carne di vitello in spessi medaglioni e unire il sugo lucido di aglio nero attorno alla carne."
+    ]
+  },
+  {
+    "title": "Coda di scampo affogata con emulsione alla citronella e fondente Daikon",
+    "description": "Scampi dolci e delicati delicatamente affogati in burro aromatico, esaltati da un etereo e schiumoso brodo di cocco e citronella. 🦐",
+    "time": "45 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20poached%20langoustine%20lemongrass%20emulsion%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Code di scampi crudi",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 260
+      },
+      {
+        "name": "Latte di cocco intero",
+        "amount": "3 tbsp",
+        "weightGrams": 50,
+        "calories": 115
+      },
+      {
+        "name": "Ravanello Daikon",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 36
+      },
+      {
+        "name": "Burro chiarificato (Ghee)",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 135
+      },
+      {
+        "name": "Citronella e zenzero fresco",
+        "amount": "2 tbsp minced",
+        "weightGrams": 20,
+        "calories": 10
+      }
+    ],
+    "directions": [
+      "Tagliare il ravanello daikon in cilindri uniformi. Brasare lentamente in un brodo di corte finché non diventa tenero ma mantiene la struttura (stile fondente).",
+      "Spezzettare la citronella e lo zenzero, immergendoli delicatamente nel latte di cocco. Filtrare il liquido infuso e aerare con un frullatore ad immersione fino a creare una schiuma stabile e profumata.",
+      "Portare il burro chiarificato esattamente a 60°C (140°F). Immergere le code di scampi sgusciate e cuocere delicatamente per 3-4 minuti fino a quando diventano perlescenti. Non cuocere troppo.",
+      "Disporre i cilindri di daikon, adagiarvi sopra gli scampi burrosi e spalmare generosamente l'emulsione aerata di citronella attorno al piatto."
+    ]
+  },
+  {
+    "title": "Rombo in padella con asparagi bianchi e champagne Beurre Blanc",
+    "description": "Il re dei pesci, il rombo, arrostito con l'osso per il massimo del sapore, avvolto in una lussuosa e acida salsa al burro di champagne. 🥂",
+    "time": "40 min",
+    "caloriesPerServing": 355,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20pan%20roasted%20turbot%20white%20asparagus%20beurre%20blanc%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 35.0,
+    "fat": 22.0,
+    "carbs": 4.0,
+    "ingredients": [
+      {
+        "name": "Filetto Di Rombo",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 330
+      },
+      {
+        "name": "Asparagi bianchi",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 40
+      },
+      {
+        "name": "Champagne Brut",
+        "amount": "1/4 cup",
+        "weightGrams": 50,
+        "calories": 40
+      },
+      {
+        "name": "Burro Non Salato (Freddo)",
+        "amount": "40g",
+        "weightGrams": 40,
+        "calories": 285
+      },
+      {
+        "name": "Scalogno tritato",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 15
+      }
+    ],
+    "directions": [
+      "Sbucciare meticolosamente gli asparagi bianchi da sotto la punta fino alla base. Sbollentarle in acqua salata con una spruzzata di limone per preservarne il colore avorio.",
+      "Ridurre lo champagne, l'aceto di vino bianco e lo scalogno tritato in un pentolino fino a quando saranno quasi asciutti (au sec). Fuori dal fuoco, sbatti uno per uno i cubetti di burro estremamente freddo per montare un beurre blanc stabile e lucido. Stai al caldo.",
+      "Scalda una padella pesante. Rosolare il filetto di rombo in un filo d'olio finché non si forma una crosticina dorata. Capovolgere, ungere con il sugo della padella e cuocere fino a quando non cede a un tester per torte.",
+      "Disporre gli asparagi bianchi in modo lineare, affiancare delicatamente il rombo e versare il delizioso beurre blanc in modo che si spacchi leggermente sul piatto."
+    ]
+  },
+  {
+    "title": "Merluzzo nero marinato al miso con brodo Dashi e funghi Shimeji",
+    "description": "Pesce zibellino marinato in miso bianco dolce, che produce un esterno caramellato che lascia il posto a scaglie burrose che si sciolgono in bocca in un umami dashi. 🍄",
+    "time": "30 min",
+    "caloriesPerServing": 377,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20miso%20cured%20black%20cod%20dashi%20shimeji%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 25.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filetto di merluzzo nero (pesce nero).",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 580
+      },
+      {
+        "name": "Miso Saikyo Bianco",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 60
+      },
+      {
+        "name": "Brodo Dashi Kombu",
+        "amount": "1 cup",
+        "weightGrams": 200,
+        "calories": 10
+      },
+      {
+        "name": "Funghi Shimeji",
+        "amount": "100g",
+        "weightGrams": 100,
+        "calories": 15
+      },
+      {
+        "name": "Miscela di mirin e sake",
+        "amount": "1.5 tbsp",
+        "weightGrams": 20,
+        "calories": 80
+      }
+    ],
+    "directions": [
+      "Sbattere il miso bianco, il mirin e il sakè. Rivestire completamente i filetti di merluzzo nero e farli riposare in frigorifero per 24-48 ore. L'alto contenuto di grassi del pesce impedisce che si secchi.",
+      "Pulisci delicatamente il pesce dalla marinata di miso in eccesso per evitare che si bruci. Cuocere il merluzzo nero a fuoco vivace finché gli zuccheri non si caramellano formando una crosta color mogano e il pesce si sfalda senza sforzo.",
+      "Riscaldare il brodo dashi kombu, lasciando in infusione i delicati funghi shimeji finché non saranno appena ammorbiditi. Non bollire.",
+      "Metti il ​​merluzzo glassato in una ciotola profonda e scura. Versare il dashi fumante sul tavolo, guarnendo con scalogno affettato finemente o una scaglia dorata commestibile."
+    ]
+  },
+  {
+    "title": "Secreto di Maiale Iberico con Salsa Romesco e Porri Scottati",
+    "description": "Il pregiato taglio \"segreto\" di maiale iberico alimentato con ghiande, fortemente marmorizzato, abbinato a una purea affumicata di mandorle e peperoni spagnola. 🥩",
+    "time": "35 min",
+    "caloriesPerServing": 518,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20iberico%20pork%20secreto%20romesco%20charred%20leeks%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 38.0,
+    "fat": 38.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Segreto di maiale iberico",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 750
+      },
+      {
+        "name": "Peperoni Rossi Arrostiti",
+        "amount": "100g",
+        "weightGrams": 100,
+        "calories": 30
+      },
+      {
+        "name": "Mandorle Marcona",
+        "amount": "20g",
+        "weightGrams": 20,
+        "calories": 140
+      },
+      {
+        "name": "Olio Extravergine Di Oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 10,
+        "calories": 90
+      },
+      {
+        "name": "Baby Porri",
+        "amount": "100g",
+        "weightGrams": 100,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Prepara il Romesco: unisci peperoni rossi arrostiti, mandorle Marcona tostate, una spruzzata di aceto di sherry, paprika affumicata e olio d'oliva fino a ottenere una pasta ruvida e vibrante.",
+      "Tagliare i porri, condirli con una goccia d'olio e farli rosolare in modo aggressivo su una fiamma libera o in una padella di ghisa asciutta finché gli strati esterni non saranno anneriti. Rimuovere la parte esterna bruciata per rivelare strati di cipolla teneri e dolci.",
+      "Condire l'Iberico Secreto con sale marino in scaglie. A causa della sua intensa marezzatura, cuocere in padella asciutta a fuoco vivace, facendo sciogliere il grasso intramuscolare fino a formare una crosta scura. Servire da medio-raro a medio.",
+      "Versare la salsa Romesco su un piatto di ardesia, tagliare il maiale contro la grana e adagiarvi sopra i porri affumicati e carbonizzati."
+    ]
+  },
+  {
+    "title": "Filetto di struzzo scottato con gastrique di more e purea di pastinaca affumicata",
+    "description": "Carne rossa ultra magra di filetto di struzzo di prima qualità, completata da una riduzione di frutti di bosco in agrodolce e pastinaca terrosa affumicata a legna. 🍖",
+    "time": "45 min",
+    "caloriesPerServing": 312,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20seared%20ostrich%20blackberry%20gastrique%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Filetto di struzzo",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 385
+      },
+      {
+        "name": "Pastinaca",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 150
+      },
+      {
+        "name": "More fresche",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 22
+      },
+      {
+        "name": "Brodo Di Manzo (Demi-glace)",
+        "amount": "1/4 cup",
+        "weightGrams": 50,
+        "calories": 20
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tsp",
+        "weightGrams": 5,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Pastinaca sbucciata affumicata a freddo con trucioli di melo per 20 minuti. Far bollire finché saranno teneri, quindi frullarli fino a ottenere un composto setoso, aggiustando la consistenza con un tocco del liquido di cottura.",
+      "Prepara la gastrique: caramella una piccola quantità di dolcificante, sfuma con aceto di vino rosso, aggiungi le more pestate e il brodo di manzo. Fare ridurre fino ad ottenere un composto sciropposo ed intenso.",
+      "Condire il filetto di struzzo. Trattatelo come il filetto mignon più magro: rosolatelo rapidamente a fuoco molto alto. DEVE essere servito al sangue o medio-raro per evitare la durezza. Riposa per 10 minuti.",
+      "Versare la purea di pastinaca affumicata sul piatto. Tagliare lo struzzo a medaglioni, disporli a ventaglio e irrorare con la crostata gastrique alle more."
+    ]
+  },
+  {
+    "title": "Quaglia confit con semi di senape sott'aceto e indivia caramellata",
+    "description": "Piccoli uccelli selvatici cotti lentamente nel loro stesso grasso fuso per una tenerezza suprema, sminuzzata dall'acidità del \"caviale di senape\" e dell'indivia amara. 🪶",
+    "time": "120 min",
+    "caloriesPerServing": 370,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20confit%20quail%20pickled%20mustard%20seeds%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 26.0,
+    "carbs": 4.0,
+    "ingredients": [
+      {
+        "name": "Quaglia semidisossata",
+        "amount": "2 birds",
+        "weightGrams": 300,
+        "calories": 400
+      },
+      {
+        "name": "Grasso d'anatra (per confit, residuo)",
+        "amount": "2 tbsp absorbed",
+        "weightGrams": 30,
+        "calories": 270
+      },
+      {
+        "name": "Indivia belga",
+        "amount": "2 heads",
+        "weightGrams": 150,
+        "calories": 25
+      },
+      {
+        "name": "Semi di senape gialla",
+        "amount": "1 tbsp",
+        "weightGrams": 10,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Preparare il caviale di senape: sbollentare i semi di senape in acqua bollente tre volte per eliminare l'amarezza. Cuocere a fuoco lento in una salamoia di aceto di vino bianco, acqua e sale fino a quando saranno morbidi e teneri.",
+      "Cura la quaglia durante la notte con sale, timo e ginepro tritato. Immergere completamente nel grasso d'anatra fuso e cuocere a fuoco basso e lento (confit) a 90°C (195°F) per 2 ore finché la carne non cede ad una leggera pressione.",
+      "Tagliare a metà l'indivia e rosolarla in una padella asciutta con la parte tagliata rivolta verso il basso fino a quando sarà completamente caramellata. Sfumare con un po' d'acqua per renderli teneri al vapore.",
+      "Rimuovere con attenzione la quaglia dal grasso e rosolarla con la pelle rivolta verso il basso per renderla croccante. Servire insieme all'indivia caramellata, guarnita con i semi di senape sott'aceto."
+    ]
+  },
+  {
+    "title": "Halibut affogato all'olio d'oliva con brodo di finocchio allo zafferano e fagioli di mare",
+    "description": "Ippoglosso bianco perlato cotto delicatamente immerso in olio d'oliva di prima qualità, riposato in un profumato brodo dorato con fagioli di mare croccanti e salati. 🐟",
+    "time": "45 min",
+    "caloriesPerServing": 334,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20olive%20oil%20poached%20halibut%20saffron%20fennel%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati",
+      "Chetogenico"
+    ],
+    "baseServings": 2,
+    "protein": 38.0,
+    "fat": 18.0,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Filetto di ippoglosso",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 385
+      },
+      {
+        "name": "Bulbo Di Finocchio",
+        "amount": "1/2 medium bulb",
+        "weightGrams": 150,
+        "calories": 47
+      },
+      {
+        "name": "Olio Extravergine Di Oliva",
+        "amount": "Absorbed volume",
+        "weightGrams": 20,
+        "calories": 180
+      },
+      {
+        "name": "Fumetto di pesce allo zafferano",
+        "amount": "1/2 cup",
+        "weightGrams": 100,
+        "calories": 10
+      },
+      {
+        "name": "Fagioli Di Mare (Salicornia)",
+        "amount": "1 handful",
+        "weightGrams": 50,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "Radere finemente il bulbo del finocchio utilizzando una mandolina. Rosolare i rifili in una padella, aggiungere il fumetto di pesce e un pizzico abbondante di stimmi di zafferano. Cuocere a fuoco lento e filtrare per un brodo vivace e dorato.",
+      "Portare una padella profonda di olio extravergine di oliva di alta qualità fino a una temperatura precisa di 55°C (131°F). Immergere completamente i filetti di halibut conditi. Cuocere per 15-20 minuti fino a quando il pesce diventa opaco e inizia a separarsi in scaglie spesse.",
+      "Sbollentare rapidamente i fagioli di mare in acqua bollente non salata per 30 secondi, quindi immergerli in acqua ghiacciata per mantenere la loro vivida croccantezza verde.",
+      "Sollevare con attenzione il fragile ippoglosso dall'olio e scolarlo brevemente. Disporre in una ciotola poco profonda, adagiare accanto ai finocchi rasati e ai fagioli di mare e versare il brodo caldo allo zafferano attorno al pesce."
+    ]
+  },
+  {
+    "title": "Medaglioni di alce con riduzione di porto al ginepro e fondente al sedano rapa",
+    "description": "Lombo di alce selvatico e robusto esaltato da una riduzione appiccicosa di vino di Porto rubino e ginepro di pino, macinato da radice di sedano terrosa. 🦌",
+    "time": "50 min",
+    "caloriesPerServing": 321,
+    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20elk%20medallions%20juniper%20port%20reduction%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 48.0,
+    "fat": 9.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Lombo di alce",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 390
+      },
+      {
+        "name": "Sedano rapa (radice di sedano)",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 84
+      },
+      {
+        "name": "Vino di Porto Rubino",
+        "amount": "1/4 cup",
+        "weightGrams": 50,
+        "calories": 70
+      },
+      {
+        "name": "Burro freddo non salato",
+        "amount": "1 tbsp",
+        "weightGrams": 10,
+        "calories": 70
+      },
+      {
+        "name": "Bacche di ginepro schiacciate",
+        "amount": "1 tsp",
+        "weightGrams": 5,
+        "calories": 15
+      }
+    ],
+    "directions": [
+      "Tagliare il sedano rapa a dischi spessi. Rosolare pesantemente un lato in una padella fino a quando sarà profondamente caramellato. Aggiungere il brodo, coprire e brasare lentamente finché la radice non sarà abbastanza tenera da poter essere tagliata con un cucchiaio (fondente).",
+      "Tostare le bacche di ginepro tritate in una padella asciutta finché non diventano fragranti. Sfumare con Ruby Port e ridurre di due terzi. Sbattere il burro freddo fuori dal fuoco (monter au beurre) per ottenere una salsa setosa.",
+      "Condire generosamente i medaglioni di alce con sale grosso. Rosolarli in una padella di ghisa rovente per 2 minuti esatti per lato. Bagnare brevemente con i succhi di padella. L'alce è estremamente magro e non deve essere cotto oltre il medio-raro.",
+      "Fate riposare la carne per 5 minuti. Tagliare contropelo, disporli elegantemente sul fondente di sedano rapa e ricoprire i medaglioni con la riduzione lucida di porto al ginepro."
+    ]
+  },
+  {
+    "title": "Barchetta di salmone con avocado Keto",
+    "description": "Ricca di omega-3 e grassi sani, questa semplice ma elegante barchetta per salmone è perfetta per una cena cheto. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filetto Di Salmone",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Succo Di Limone",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Preriscalda il forno a 200°C (400°F).",
+      "Tagliare l'avocado a metà ed eliminare il nocciolo.",
+      "Metti un pezzetto di salmone nella metà scavata dell'avocado.",
+      "Condire con olio d'oliva, succo di limone, sale e pepe.",
+      "Cuocere per 15-20 minuti fino a quando il salmone sarà cotto."
+    ]
+  },
+  {
+    "title": "Pancake ai mirtilli ricchi di proteine",
+    "description": "Inizia la giornata con questi soffici pancake ad alto contenuto proteico ricchi di freschi antiossidanti. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Alto contenuto proteico",
+      "Vegetariano"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Farina d'Avena",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Proteine ​​in Polvere (Vaniglia)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Mirtilli",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "In una ciotola, mescolare la farina d'avena e le proteine ​​in polvere.",
+      "Aggiungete poco alla volta il latte di mandorle fino ad ottenere una pastella liscia.",
+      "Incorporate delicatamente i mirtilli freschi.",
+      "Cuocere su una padella antiaderente a fuoco medio finché non si formano le bolle, quindi girare.",
+      "Servire caldo con un filo di sciroppo senza zucchero."
+    ]
+  },
+  {
+    "title": "Ciotola di quinoa mediterranea",
+    "description": "Una ciotola vivace e rinfrescante ricca di fibre e grassi sani, perfetta per un pranzo pomeridiano soleggiato. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Vegano",
+      "mediterraneo"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Quinoa cotta",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Pomodorini",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Cetriolo",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Olive Kalamata",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Hummus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Metti la quinoa cotta alla base della ciotola.",
+      "Tagliate a metà i pomodorini e affettate i cetrioli.",
+      "Disporre i pomodori, i cetrioli e le olive sopra la quinoa.",
+      "Completare con una generosa cucchiaiata di hummus e un filo d'olio d'oliva."
+    ]
+  },
+  {
+    "title": "Peperoncino piccante di tacchino magro",
+    "description": "Riscalda la tua anima e raggiungi i tuoi obiettivi proteici con questo peperoncino di tacchino ricco e piccante. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di grassi"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Tacchino macinato magro",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Fagioli rossi",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Pomodori schiacciati",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Polvere di peperoncino",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Rosolare il tacchino macinato in una pentola capiente a fuoco medio.",
+      "Aggiungere il peperoncino in polvere e cuocere per 1 minuto finché non diventa fragrante.",
+      "Aggiungere i pomodori schiacciati e i fagioli rossi (scolati e sciacquati).",
+      "Cuocere a fuoco lento per 30 minuti per consentire ai sapori di fondersi insieme.",
+      "Guarnire con una spolverata di formaggio magro o coriandolo prima di servire."
+    ]
+  },
+  {
+    "title": "Frullato rinfrescante verde disintossicante",
+    "description": "Un rapido apporto di vitamine e idratazione, ottimo per il recupero post-allenamento o per un nuovo inizio mattutino. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Spuntino",
+      "Vegano",
+      "Crudo"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Spinaci",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Mela Verde",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Acqua di cocco",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Togliere il torsolo e tritare la mela verde.",
+      "Aggiungi gli spinaci, la mela, la banana e l'acqua di cocco in un frullatore.",
+      "Frullare a velocità alta fino a ottenere un composto completamente liscio.",
+      "Versare in un bicchiere ghiacciato e gustare subito!"
+    ]
+  },
+  {
+    "title": "Tagliatelle di zucchine a basso contenuto di carboidrati con pesto",
+    "description": "Un'alternativa leggera e saporita alla pasta, condita con un ricco pesto al basilico. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Vegetariano",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Zucchine",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Pesto Al Basilico",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Parmigiano",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Pomodorini",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Spiralizzare le zucchine in tagliatelle sottili.",
+      "Scaldate una padella a fuoco medio e fate rosolare leggermente le tagliatelle per 2-3 minuti.",
+      "Togliere dal fuoco e condire con il pesto di basilico fino a ricoprirlo uniformemente.",
+      "Completare con pomodorini tagliati a metà e parmigiano grattugiato."
+    ]
+  },
+  {
+    "title": "Insalata Caesar classica di pollo",
+    "description": "La romana croccante, il tenero pollo alla griglia e un condimento cremoso e piccante lo rendono uno dei piatti preferiti senza tempo. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Petto di pollo",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Lattuga romana",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Condimento di Cesare",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Crostini",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Condire il petto di pollo e grigliarlo fino a cottura completa. Lasciare riposare, quindi affettare.",
+      "Tritate la lattuga romana e mettetela in una ciotola capiente.",
+      "Condisci la lattuga con la salsa Caesar.",
+      "Completare con il pollo a fette e una manciata di crostini."
+    ]
+  },
+  {
+    "title": "Budino di Chia durante la notte",
+    "description": "Svegliati con un budino di chia pronto da mangiare, cremoso e nutriente, condito con frutta fresca. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Vegano",
+      "Senza glutine"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Semi di Chia",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Sciroppo d'acero",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Bacche fresche",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "In un barattolo, sbatti insieme i semi di chia, il latte di mandorle e lo sciroppo d'acero.",
+      "Lasciare riposare per 5 minuti, quindi frullare nuovamente per evitare la formazione di grumi.",
+      "Coprire e conservare in frigorifero durante la notte (o almeno 2 ore).",
+      "Completare con frutti di bosco freschi prima di servire."
+    ]
+  },
+  {
+    "title": "Ciotola per snack di ceci arrostiti",
+    "description": "Croccante, salato e incredibilmente soddisfacente. Uno spuntino ricco di fibre che ti mantiene sazio. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Vegano",
+      "Alto contenuto di fibre"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Ceci (in scatola)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Paprica affumicata",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sale marino",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 200°C (400°F).",
+      "Scolate, sciacquate e asciugate bene i ceci con carta assorbente.",
+      "Condire i ceci con olio d'oliva, paprika e sale.",
+      "Distribuire uniformemente su una teglia e arrostire per 20-25 minuti fino a quando diventa croccante."
+    ]
+  },
+  {
+    "title": "Bocconcini di bistecca al burro e aglio",
+    "description": "Tenero, succoso e ricco di sapore. Questi bocconcini di bistecca sono la cena ad alto contenuto proteico per eccellenza. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Lombata",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Burro",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Spicchi d'aglio",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Prezzemolo fresco",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Tagliare la bistecca a cubetti di piccole dimensioni e condire con sale e pepe.",
+      "Scaldare una padella a fuoco alto e rosolare i pezzi di bistecca per 3-4 minuti.",
+      "Ridurre il fuoco, aggiungere il burro e l'aglio tritato e mescolare per ricoprire la bistecca.",
+      "Decorare con prezzemolo fresco tritato e servire subito."
+    ]
+  },
+  {
+    "title": "Curry vegano di patate dolci",
+    "description": "Un curry al cocco confortante e cremoso, ricco di patate dolci e spezie calde. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Vegano",
+      "Senza glutine"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Patata dolce",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Latte di cocco (leggero)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Pasta Di Curry",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Spinaci",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Sbucciare e tagliare a cubetti le patate dolci.",
+      "In una pentola capiente, friggi delicatamente la pasta di curry finché non diventa fragrante.",
+      "Aggiungere le patate dolci e il latte di cocco. Cuocere a fuoco lento per 20 minuti finché sono teneri.",
+      "Unire gli spinaci e lasciarli appassire prima di servire."
+    ]
+  },
+  {
+    "title": "Tazze da colazione per muffin all'uovo",
+    "description": "Muffin all'uovo portatili e ricchi di proteine ​​che puoi preparare in anticipo per le mattine impegnative. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Uova",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Formaggio Cheddar",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Peperone",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Spinaci",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 175°C (350°F) e ungere uno stampo per muffin.",
+      "Sbattere le uova in una ciotola e condire con sale e pepe.",
+      "Dividere i peperoni tritati, gli spinaci e il formaggio nelle tazze da muffin.",
+      "Versare il composto di uova sul ripieno e infornare per 15-20 minuti."
+    ]
+  },
+  {
+    "title": "Insalata Di Tonno E Avocado",
+    "description": "Un'insalata di tonno senza maionese con avocado cremoso per grassi sani e consistenza incredibile. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Tonno in scatola",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Cipolla Rossa",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Succo Di Limone",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Scolate il tonno e mettetelo in una ciotola.",
+      "Aggiungete l'avocado e schiacciatelo insieme al tonno con una forchetta.",
+      "Mescolare la cipolla rossa tagliata finemente, il succo di limone, sale e pepe.",
+      "Servire su fette di cetriolo o toast integrali."
+    ]
+  },
+  {
+    "title": "Frullato al burro di arachidi e cioccolato",
+    "description": "Ha il sapore di un dessert ma è ricco di proteine ​​per la costruzione muscolare e grassi sani. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Alto contenuto proteico",
+      "Vegetariano"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Polvere proteica del cioccolato",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Burro di arachidi",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banana",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Aggiungi tutti gli ingredienti a un frullatore.",
+      "Aggiungi una manciata di cubetti di ghiaccio.",
+      "Frullare a velocità alta fino a ottenere un composto liscio e cremoso."
+    ]
+  },
+  {
+    "title": "Gamberetti saltati in padella con broccoli",
+    "description": "Una cena veloce, gustosa e ricca di proteine, riunita in un'unica padella. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Gamberetti (Sgusciati)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Cimette di broccoli",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Salsa di soia",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Olio di sesamo",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Scaldare l'olio di sesamo in una padella larga o nel wok a fuoco medio-alto.",
+      "Aggiungete le cimette di broccoli e fatele soffriggere per 4-5 minuti fino a quando saranno morbide e croccanti.",
+      "Aggiungere i gamberi e cuocere per 2-3 minuti finché non diventano rosa.",
+      "Condire con salsa di soia, mescolare bene e servire caldo."
+    ]
+  }
+]

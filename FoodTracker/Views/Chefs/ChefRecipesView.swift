@@ -35,36 +35,6 @@ struct NutritionFact: Hashable {
     let isSubItem: Bool
 }
 
-var mockRecipesData: [PremiumRecipe] = [
-    PremiumRecipe(
-        title: "Baked Apples with Honey & Walnuts",
-        description: "Simple to make, comforting to enjoy, and perfect for cozy evenings. 🍂",
-        time: "20 min", caloriesPerServing: 249,
-        imageUrl: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
-        isFavorite: true, tags: ["Breakfast", "Snack", "Vegetarian"], baseServings: 4,
-        protein: 3.0, fat: 11.0, carbs: 40.5,
-        ingredients: [RecipeIngredient(name: "Walnuts", amount: "65 g", weightGrams: 65, calories: 425)],
-        directions: ["Core apples.", "Bake at 180°C."]
-    ),
-    PremiumRecipe(
-        title: "Creamy Pumpkin Risotto with Gorgonzola",
-        description: "A rich and creamy autumn classic.",
-        time: "40 min", caloriesPerServing: 441,
-        imageUrl: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?q=80&w=800&auto=format&fit=crop",
-        isFavorite: false, tags: ["Dinner", "Vegetarian"], baseServings: 2,
-        protein: 14.0, fat: 18.0, carbs: 55.0,
-        ingredients: [], directions: []
-    ),
-    PremiumRecipe(
-        title: "Chicken and Wild Rice Bowl",
-        description: "High protein, low calorie perfect lunch.",
-        time: "25 min", caloriesPerServing: 504,
-        imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
-        isFavorite: true, tags: ["Lunch", "High Protein"], baseServings: 2,
-        protein: 38.8, fat: 8.6, carbs: 66.5,
-        ingredients: [], directions: []
-    )
-]
 
 struct RecipesContainerView: View {
     @Binding var path: NavigationPath
@@ -878,6 +848,10 @@ struct PremiumRecipeDetailView: View {
     @State var recipe: PremiumRecipe
     @State private var servings: Int
     @State private var showMealSheet = false
+    @State private var isGeneratingRecipe = false
+    @State private var generatedRecipe: AIChefRecipe? = nil
+    @State private var showAIFlow = false
+    @State private var showAddedToast = false
     @Environment(RecipeDataLoader.self) private var dataLoader
     init(recipe: PremiumRecipe) { self._recipe = State(initialValue: recipe); self._servings = State(initialValue: recipe.baseServings) }
 
@@ -886,6 +860,37 @@ struct PremiumRecipeDetailView: View {
     private var dynamicProtein: Int { Int(recipe.protein * Double(recipe.baseServings) * multiplier) }
     private var dynamicFat: Int { Int(recipe.fat * Double(recipe.baseServings) * multiplier) }
     private var dynamicCarbs: Int { Int(recipe.carbs * Double(recipe.baseServings) * multiplier) }
+
+    private func generateAI() {
+        guard !isGeneratingRecipe else { return }
+        isGeneratingRecipe = true
+        HapticManager.shared.impact(style: .medium)
+        
+        Task {
+            let ingredientsList = recipe.ingredients.map { "\($0.name) (\($0.amount))" }
+            if let dto = await AINutritionService.shared.generateCookingSteps(for: recipe.title, ingredients: ingredientsList) {
+                let ai = AIChefRecipe(
+                    title: dto.title,
+                    calories: dto.calories,
+                    protein: dto.protein,
+                    heroImage: recipe.imageUrl.isEmpty ? "sparkles" : "fork.knife",
+                    cookTime: dto.cookTime,
+                    difficulty: dto.difficulty,
+                    history: dto.history,
+                    ingredients: dto.ingredients,
+                    steps: dto.steps.map { RecipeStep(instruction: $0.instruction, imageName: "sparkles", aiTip: $0.aiTip) },
+                    platingTip: dto.platingTip
+                )
+                await MainActor.run {
+                    self.generatedRecipe = ai
+                    self.isGeneratingRecipe = false
+                    self.showAIFlow = true
+                }
+            } else {
+                await MainActor.run { self.isGeneratingRecipe = false }
+            }
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -963,6 +968,13 @@ struct PremiumRecipeDetailView: View {
                                                                     context.insert(item)
                                                                 }
                                                                 try? context.save()
+                                                                
+                                                                withAnimation(.spring()) {
+                                                                    showAddedToast = true
+                                                                }
+                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                                    withAnimation(.spring()) { showAddedToast = false }
+                                                                }
 
                                                             }) {
                                                                 HStack(spacing: 4) {
@@ -995,7 +1007,25 @@ struct PremiumRecipeDetailView: View {
 
                         if !recipe.directions.isEmpty {
                             VStack(alignment: .leading, spacing: 20) {
-                                Text("Directions").font(.title2).bold()
+                                HStack {
+                                    Text("Directions").font(.title2).bold()
+                                    Spacer()
+                                    Button(action: {
+                                        generateAI()
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "sparkles")
+                                            Text(isGeneratingRecipe ? "Chef is thinking..." : "Cook with AI")
+                                        }
+                                        .font(.caption.bold())
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(isGeneratingRecipe ? Color.gray : Color.themeOrange)
+                                        .clipShape(Capsule())
+                                    }
+                                    .disabled(isGeneratingRecipe)
+                                }
                                 VStack(alignment: .leading, spacing: 24) {
                                     ForEach(Array(recipe.directions.enumerated()), id: \.offset) { index, step in
                                         HStack(alignment: .top, spacing: 16) {
@@ -1075,11 +1105,39 @@ struct PremiumRecipeDetailView: View {
                 }
             }.ignoresSafeArea(edges: .bottom)
         }
+        .overlay(
+            VStack {
+                if showAddedToast {
+                    HStack(spacing: 12) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Added to Grocery List!")
+                            .font(.subheadline.bold())
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 14)
+                    .background(Color.white)
+                    .clipShape(Capsule())
+                    .shadow(color: Color.black.opacity(0.15), radius: 10, y: 5)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .padding(.top, 100)
+                }
+                Spacer()
+            }
+        )
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showMealSheet) {
             ChooseMealSheet(recipe: recipe, calories: dynamicCalories, p: Double(dynamicProtein), f: Double(dynamicFat), c: Double(dynamicCarbs))
                 .presentationDetents([.fraction(0.4)]).presentationCornerRadius(32).presentationDragIndicator(.visible)
+        }
+        .fullScreenCover(isPresented: $showAIFlow) {
+            if let ai = generatedRecipe {
+                NavigationStack {
+                    PrepChecklistView(recipe: ai, isFlowPresented: $showAIFlow)
+                }
+            }
         }
     }
 }
@@ -1212,6 +1270,10 @@ struct ChooseMealSheet: View {
             summary.meals.append(newMeal)
         }
         try? context.save()
+        
+        if let user = try? context.fetch(FetchDescriptor<User>()).first, user.isHealthKitEnabled {
+            await HealthKitManager.shared.saveDietaryEnergy(calories: calories, date: .now)
+        }
     }
 }
 

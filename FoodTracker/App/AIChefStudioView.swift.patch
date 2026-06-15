@@ -1,0 +1,244 @@
+--- FoodTracker/App/AIChefStudioView.swift
++++ FoodTracker/App/AIChefStudioView.swift
+@@ -31,31 +31,16 @@
+ 
+-// MARK: - 🗄 База Данных
+-let mockDatabase: [AIChefRecipe] = [
+-    AIChefRecipe(
+-        title: "Лосось с киноа", calories: 420, protein: 35, heroImage: "fish.fill", cookTime: 25, difficulty: 2,
+-        history: "Киноа — это не просто крупа, а подлинное «золото инков». Более трех тысяч лет назад высоко в горах Анд древние племена называли её «чизия мама» (матерь всех семян). Лосось же даст тебе премиальный белок и полезные жиры Омега-3.",
+-        ingredients: ["Филе лосося (200г)", "Киноа (50г сухой)", "Спаржа (100г)", "Лимон (30г / половинка)", "Оливковое масло (10мл)", "Морская соль (2г)", "Белый перец", "Сушеный чеснок"],
+-        steps: [
+-            RecipeStep(instruction: "Подготовка рыбы. Тщательно промокни филе лосося бумажным полотенцем. Лишняя влага — враг корочки! Вотри каплю масла в рыбу массажными движениями.", imageName: "hand.draw.fill", aiTip: "Масло поможет специям раскрыться и проникнуть в волокна."),
+-            RecipeStep(instruction: "Магия специй. Возьми крупную морскую соль, щепотку белого перца и немного сушеного чеснока. Равномерно посыпь филе со всех сторон.", imageName: "sparkles", aiTip: "Не используй черный перец, он перебьет нежный вкус лосося!"),
+-            RecipeStep(instruction: "Запекание. Разогрей духовку до 200°C. Выложи лосось на пергамент кожей вниз. Рядом брось спаржу, слегка сбрызнув её лимоном. Запекай ровно 12-15 минут.", imageName: "flame.fill", aiTip: "Сделай фото для ИИ через 10 минут, чтобы мы проверили цвет корочки!"),
+-            RecipeStep(instruction: "Варка киноа. Пока рыба в духовке, промой киноа кипятком. Вари 15 минут в пропорции 1:2 на слабом огне.", imageName: "drop.fill", aiTip: "Промывка кипятком убивает сапонины — вещества, дающие горечь.")
+-        ],
+-        platingTip: "Выложи киноа через кулинарное кольцо в центр тарелки. Сверху аккуратно помести лосось. Спаржу уложи рядом, скрестив стебли. Сбрызни всё каплей оливкового масла экстра-класса и укрась долькой лимона."
+-    ),
+-    AIChefRecipe(
+-        title: "Стейк Рибай", calories: 550, protein: 50, heroImage: "fork.knife", cookTime: 15, difficulty: 4,
+-        history: "Рибай — неоспоримый король среди стейков. Его мраморность тает при жарке, пропитывая мясо изнутри. Сегодня ты научишься готовить его как шеф-повар мишленовского ресторана.",
+-        ingredients: ["Стейк Рибай (250г)", "Сливочное масло (20г)", "Чеснок (2 зубчика)", "Розмарин (1 свежая веточка)", "Крупная морская соль (4г)", "Черный перец горошком"],
+-        steps: [
+-            RecipeStep(instruction: "Адаптация мяса. Достань стейк из холодильника минимум за 30 минут до жарки. Он должен стать комнатной температуры. Насухо вытри его полотенцем.", imageName: "thermometer.sun", aiTip: "Холодное мясо на сковороде просто сварится в собственном соку."),
+-            RecipeStep(instruction: "Соль и Перец. Забудь про мелкую соль! Возьми крупную морскую соль и свежемолотый черный перец. Щедро обсыпь стейк с обеих сторон и впечатай специи руками.", imageName: "hand.tap.fill", aiTip: "Крупная соль создаст ту самую хрустящую карамельную корочку."),
+-            RecipeStep(instruction: "Шоковая жарка. Раскали чугунную сковороду до легкого дымка. Капни масло. Бросай стейк! Жарь ровно 2 минуты, не трогая и не двигая его.", imageName: "flame", aiTip: "Сделай фото! ИИ проверит, достаточно ли дымится сковорода."),
+-            RecipeStep(instruction: "Ароматная ванна (Бастинг). Переверни стейк. Сразу кинь сливочное масло, чеснок и розмарин. Наклони сковороду и ложкой поливай стейк кипящим маслом!", imageName: "drop.fill", aiTip: "Розмарин отдаст эфирные масла, это изменит вкус блюда на 100%."),
+-            RecipeStep(instruction: "Отдых. Сними стейк и положи на доску. Не режь! Дай ему отдохнуть 5 минут.", imageName: "clock.fill", aiTip: "За это время соки распределятся от центра к краям.")
+-        ],
+-        platingTip: "Обязательно подавай стейк на предварительно подогретой теплой тарелке или деревянной доске. Нарежь его поперек волокон на слайсы толщиной 1.5 см. Посыпь срез крупными хлопьями морской соли — это даст невероятный визуальный и вкусовой хруст."
+-    )
+-]
++struct UnifiedRecipePreview: Identifiable, Hashable {
++    let id = UUID()
++    let title: String
++    let calories: Int
++    let protein: Int
++    let heroImage: String
++    let cookTime: Int
++    let ingredients: [String]
++    let premiumRecipe: PremiumRecipe?
++    let customRecipe: CustomRecipe?
++}
+ 
+@@ -63,14 +48,42 @@
+ struct AIChefStudioView: View {
+     @Environment(ThemeManager.self) private var themeManager
++    @Environment(RecipeDataLoader.self) private var dataLoader
++    @Query private var customRecipes: [CustomRecipe]
++    
+     @State private var remainingCalories: Int = 450
+     @State private var remainingProtein: Int = 32
+     @State private var remainingFat: Int = 18
+     @State private var remainingCarbs: Int = 45
+     
+     @State private var searchText = ""
+     @State private var showAIAssistantFlow = false
+     @State private var showSmartBuilder = false
+     
+-    var filteredRecipes: [AIChefRecipe] { mockDatabase.filter { $0.title.localizedCaseInsensitiveContains(searchText) } }
+-    var suggestedRecipes: [AIChefRecipe] { mockDatabase.filter { $0.calories <= remainingCalories + 150 } }
++    var allPreviews: [UnifiedRecipePreview] {
++        var list = [UnifiedRecipePreview]()
++        for pr in dataLoader.recipes {
++            list.append(UnifiedRecipePreview(
++                title: pr.title,
++                calories: pr.caloriesPerServing,
++                protein: Int(pr.protein),
++                heroImage: pr.imageUrl,
++                cookTime: Int(pr.time.replacingOccurrences(of: "m", with: "")) ?? 20,
++                ingredients: pr.ingredients.map { "\($0.name) (\($0.amount))" },
++                premiumRecipe: pr,
++                customRecipe: nil
++            ))
++        }
++        for cr in customRecipes {
++            list.append(UnifiedRecipePreview(
++                title: cr.name,
++                calories: Int(cr.calories) ?? 0,
++                protein: 0,
++                heroImage: "fork.knife",
++                cookTime: Int(cr.cookingTime ?? "20") ?? 20,
++                ingredients: cr.ingredients.map { $0.name },
++                premiumRecipe: nil,
++                customRecipe: cr
++            ))
++        }
++        return list
++    }
++    
++    var filteredRecipes: [UnifiedRecipePreview] { allPreviews.filter { $0.title.localizedCaseInsensitiveContains(searchText) } }
++    var suggestedRecipes: [UnifiedRecipePreview] { allPreviews.filter { $0.calories <= remainingCalories + 150 }.shuffled().prefix(5).map { $0 } }
+ 
+@@ -148,6 +161,6 @@
+                             VStack(spacing: 12) {
+                                 ForEach(filteredRecipes) { recipe in
+-                                    NavigationLink(destination: RecipeDetailAIView(recipe: recipe)) {
++                                    NavigationLink(destination: getDetailView(for: recipe)) {
+                                         SearchResultRow(recipe: recipe)
+                                     }.buttonStyle(PlainButtonStyle())
+                                 }
+@@ -162,6 +175,6 @@
+                                     HStack(spacing: 16) {
+                                         ForEach(suggestedRecipes) { recipe in
+-                                            NavigationLink(destination: RecipeDetailAIView(recipe: recipe)) {
++                                            NavigationLink(destination: getDetailView(for: recipe)) {
+                                                 RecipeCardView(recipe: recipe)
+                                             }.buttonStyle(PlainButtonStyle())
+                                         }
+@@ -194,4 +207,13 @@
+         }
+     }
++    
++    @ViewBuilder
++    private func getDetailView(for preview: UnifiedRecipePreview) -> some View {
++        if let pr = preview.premiumRecipe {
++            PremiumRecipeDetailView(recipe: pr)
++        } else if let cr = preview.customRecipe {
++            // CustomRecipeDetailView does not exist yet, fallback
++            Text("Custom Recipe Details: \(cr.name)")
++        } else {
++            Text("Recipe not found")
++        }
++    }
+ }
+@@ -252,26 +274,48 @@
+ 
+ struct SearchResultRow: View {
+-    let recipe: AIChefRecipe
++    let recipe: UnifiedRecipePreview
+     var body: some View {
+         HStack {
+-            Image(systemName: recipe.heroImage).foregroundColor(.themePink).frame(width: 40, height: 40).background(Color.themePink.opacity(0.1)).cornerRadius(10)
++            if recipe.heroImage.starts(with: "http") {
++                AsyncImage(url: URL(string: recipe.heroImage)) { phase in
++                    if let image = phase.image { image.resizable().scaledToFill() } else { Color.gray.opacity(0.3) }
++                }
++                .frame(width: 40, height: 40).cornerRadius(10)
++            } else {
++                Image(systemName: recipe.heroImage).foregroundColor(.themePink).frame(width: 40, height: 40).background(Color.themePink.opacity(0.1)).cornerRadius(10)
++            }
+             VStack(alignment: .leading) {
+                 Text(recipe.title).font(.headline)
+                 Text("\(recipe.calories) ккал").font(.caption).foregroundColor(.gray)
+             }
+             Spacer()
+             Image(systemName: "chevron.right").foregroundColor(.gray.opacity(0.5))
+         }.padding().background(Color.white).cornerRadius(16)
+     }
+ }
+ 
+ struct RecipeCardView: View {
+-    let recipe: AIChefRecipe
++    let recipe: UnifiedRecipePreview
+     var body: some View {
+         VStack(alignment: .leading) {
+             ZStack {
+                 Color.themePink.opacity(0.15)
+-                Image(systemName: recipe.heroImage).resizable().scaledToFit().frame(width: 50, height: 50).foregroundColor(.themePink)
++                if recipe.heroImage.starts(with: "http") {
++                    AsyncImage(url: URL(string: recipe.heroImage)) { phase in
++                        if let image = phase.image { image.resizable().scaledToFill() } else { Color.gray.opacity(0.3) }
++                    }
++                } else {
++                    Image(systemName: recipe.heroImage).resizable().scaledToFit().frame(width: 50, height: 50).foregroundColor(.themePink)
++                }
+             }.frame(width: 180, height: 120).cornerRadius(16)
+             Text(recipe.title).font(.headline).lineLimit(1).padding(.top, 8)
+             Text("\(recipe.calories) ккал • \(recipe.cookTime) мин").font(.caption).foregroundColor(.gray)
+         }.frame(width: 180)
+     }
+ }
+@@ -428,10 +472,13 @@
+ struct AIAssistantFlowView: View {
+     @Binding var isPresented: Bool
++    @Environment(RecipeDataLoader.self) private var dataLoader
++    @Query private var customRecipes: [CustomRecipe]
++    
+     @State private var searchAgentText = ""
+     @State private var selectedRecipe: AIChefRecipe? = nil
+     @State private var isPrepPhase = false
++    @State private var isGenerating = false
+     
+-    var agentResults: [AIChefRecipe] { searchAgentText.isEmpty ? mockDatabase : mockDatabase.filter { $0.title.localizedCaseInsensitiveContains(searchAgentText) } }
++    // Generate allPreviews locally to avoid repeating code
++    var agentResults: [UnifiedRecipePreview] {
++        var list = [UnifiedRecipePreview]()
++        for pr in dataLoader.recipes { list.append(UnifiedRecipePreview(title: pr.title, calories: pr.caloriesPerServing, protein: Int(pr.protein), heroImage: pr.imageUrl, cookTime: Int(pr.time.replacingOccurrences(of: "m", with: "")) ?? 20, ingredients: pr.ingredients.map { "\($0.name) (\($0.amount))" }, premiumRecipe: pr, customRecipe: nil)) }
++        for cr in customRecipes { list.append(UnifiedRecipePreview(title: cr.name, calories: Int(cr.calories) ?? 0, protein: 0, heroImage: "fork.knife", cookTime: Int(cr.cookingTime ?? "20") ?? 20, ingredients: cr.ingredients.map { $0.name }, premiumRecipe: nil, customRecipe: cr)) }
++        if searchAgentText.isEmpty { return list }
++        return list.filter { $0.title.localizedCaseInsensitiveContains(searchAgentText) }
++    }
+     
+     var body: some View {
+@@ -448,10 +495,31 @@
+                             ForEach(agentResults) { recipe in
+                                 Button(action: {
++                                    generateAI(from: recipe)
+-                                    HapticManager.shared.impact(style: .medium)
+-                                    selectedRecipe = recipe; isPrepPhase = true
+                                 }) { SearchResultRow(recipe: recipe) }.buttonStyle(PlainButtonStyle())
+                             }
++                            if isGenerating {
++                                VStack(spacing: 12) {
++                                    ProgressView().scaleEffect(1.5).tint(.themePink)
++                                    Text("Шеф пишет рецепт...").font(.headline).foregroundColor(.themePink)
++                                }.padding(.top, 40)
++                            }
+                         }.padding(.horizontal)
+@@ -467,4 +535,31 @@
+             .navigationDestination(isPresented: $isPrepPhase) { if let r = selectedRecipe { PrepChecklistView(recipe: r, isFlowPresented: $isPresented) } }
+         }
+     }
++    
++    private func generateAI(from preview: UnifiedRecipePreview) {
++        guard !isGenerating else { return }
++        isGenerating = true
++        HapticManager.shared.impact(style: .medium)
++        
++        Task {
++            if let dto = await AINutritionService.shared.generateCookingSteps(for: preview.title, ingredients: preview.ingredients) {
++                let ai = AIChefRecipe(
++                    title: dto.title,
++                    calories: dto.calories,
++                    protein: dto.protein,
++                    heroImage: preview.heroImage,
++                    cookTime: dto.cookTime,
++                    difficulty: dto.difficulty,
++                    history: dto.history,
++                    ingredients: dto.ingredients,
++                    steps: dto.steps.map { RecipeStep(instruction: $0.instruction, imageName: "sparkles", aiTip: $0.aiTip) },
++                    platingTip: dto.platingTip
++                )
++                await MainActor.run {
++                    self.selectedRecipe = ai
++                    self.isGenerating = false
++                    self.isPrepPhase = true
++                }
++            } else {
++                await MainActor.run { self.isGenerating = false }
++            }
++        }
++    }
+ }

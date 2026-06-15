@@ -32,6 +32,7 @@ enum AnalyticsMacro: String, Identifiable {
     }
 }
 
+// MARK: - Glassmorphism 2.0
 struct DivineCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -41,9 +42,9 @@ struct DivineCardModifier: ViewModifier {
             .cornerRadius(32)
             .overlay(
                 RoundedRectangle(cornerRadius: 32)
-                    .stroke(LinearGradient(colors: [.white, .white.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                    .stroke(LinearGradient(colors: [.white, .white.opacity(0.1), .white.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
             )
-            .shadow(color: Color.black.opacity(0.05), radius: 20, x: 0, y: 10)
+            .shadow(color: Color.black.opacity(0.08), radius: 25, x: 0, y: 15)
     }
 }
 
@@ -60,58 +61,54 @@ struct AnalyticsTabView: View {
     @State private var viewModel: AnalyticsViewModel?
     @State private var globalPeriod: AnalyticsPeriod = .day
 
+    @State private var animateIn = false
+
     var body: some View {
         NavigationStack {
-            ZStack {
-
+            ZStack(alignment: .top) {
                 Color.themeBg.ignoresSafeArea()
 
-                Circle()
-                    .fill(Color.themePink.opacity(0.15))
-                    .frame(width: 300, height: 300)
-                    .blur(radius: 60)
-                    .offset(x: -100, y: -200)
-
-                Circle()
-                    .fill(Color.themeOrange.opacity(0.15))
-                    .frame(width: 300, height: 300)
-                    .blur(radius: 60)
-                    .offset(x: 150, y: 300)
+                // Dynamic background
+                GeometryReader { proxy in
+                    ZStack {
+                        AngularGradient(
+                            gradient: Gradient(colors: [
+                                Color.themePink.opacity(0.2),
+                                Color.themeOrange.opacity(0.15),
+                                Color.blue.opacity(0.1),
+                                Color.themePink.opacity(0.2)
+                            ]),
+                            center: .center,
+                            angle: .degrees(animateIn ? 360 : 0)
+                        )
+                        .frame(width: proxy.size.width * 1.5, height: proxy.size.height * 1.5)
+                        .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                        .blur(radius: 60)
+                        .animation(.linear(duration: 40).repeatForever(autoreverses: false), value: animateIn)
+                    }
+                }
+                .ignoresSafeArea()
 
                 if let user = users.first {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 24) {
+                            
+                            // Spacer for Sticky Header
+                            Spacer().frame(height: 120)
 
-                            HStack {
-                                Text("Analytics")
-                                    .font(.system(size: 38, weight: .heavy, design: .rounded))
-                                Spacer()
-                                Image(systemName: "chart.bar.xaxis")
-                                    .font(.title2.bold())
-                                    .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
-                            }
-                            .padding(.horizontal, 24)
-                            .padding(.top, 10)
-
-                            GlobalPeriodPicker(selection: $globalPeriod)
+                            MetabolicScoreCard(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
                                 .padding(.horizontal, 20)
-                                .onChange(of: globalPeriod) { _, newValue in
-                                    viewModel?.loadData(for: newValue)
-                                }
-
-                            AIWeeklyInsightCard(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
-                                .padding(.horizontal, 20)
+                                .opacity(animateIn ? 1 : 0)
+                                .offset(y: animateIn ? 0 : 30)
+                                .zIndex(2)
 
                             if globalPeriod == .day {
-                                DailyAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user)
+                                DailyAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
                                     .padding(.horizontal, 20)
                             } else {
                                 TrendsAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
                                     .padding(.horizontal, 20)
                             }
-
-                            ConsistencyHeatmapCard(summaries: viewModel?.summaries ?? [], user: user)
-                                .padding(.horizontal, 20)
 
                         }
                         .padding(.bottom, 120)
@@ -120,8 +117,42 @@ struct AnalyticsTabView: View {
                                 viewModel = di.makeAnalyticsViewModel()
                             }
                             viewModel?.loadData(for: globalPeriod)
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                animateIn = true
+                            }
                         }
                     }
+                    
+                    // Sticky Header
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Dashboard")
+                                .font(.system(size: 38, weight: .heavy, design: .rounded))
+                            Spacer()
+                            Image(systemName: "chart.bar.xaxis")
+                                .font(.title2.bold())
+                                .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
+                        }
+                        .padding(.horizontal, 24)
+                        
+                        GlobalPeriodPicker(selection: $globalPeriod)
+                            .padding(.horizontal, 20)
+                            .onChange(of: globalPeriod) { _, newValue in
+                                HapticManager.shared.impact(style: .medium)
+                                viewModel?.loadData(for: newValue)
+                            }
+                    }
+                    .padding(.top, 10)
+                    .padding(.bottom, 16)
+                    .background(
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .mask(LinearGradient(colors: [.black, .black, .black.opacity(0.8), .clear], startPoint: .top, endPoint: .bottom))
+                    )
+                    .opacity(animateIn ? 1 : 0)
+                    .offset(y: animateIn ? 0 : -20)
+                    .zIndex(10)
+                    
                 } else {
                     EmptyStateView(imageName: "chart.bar.xaxis", title: "No Data", description: "User data not found.")
                 }
@@ -131,6 +162,138 @@ struct AnalyticsTabView: View {
     }
 }
 
+// MARK: - Metabolic Score Hero
+struct MetabolicScoreCard: View {
+    let summaries: [DailySummary]
+    let user: User
+    let period: AnalyticsPeriod
+
+    @State private var animScore: Double = 0
+    @State private var tiltAngle: Double = 0
+    @State private var tiltAxis: (CGFloat, CGFloat, CGFloat) = (0, 1, 0)
+
+    private var score: Int {
+        var totalCals = 0.0
+        var totalHydration = 0.0
+        let days = max(1, min(summaries.count, period.daysCount))
+
+        for s in summaries.prefix(days) {
+            totalCals += Double(s.totalFoodCalories)
+            totalHydration += s.totalHydrationLiters
+        }
+
+        let avgCals = days > 0 ? totalCals / Double(days) : 0
+        let avgHydration = days > 0 ? totalHydration / Double(days) : 0
+
+        // Calorie Score (0-50)
+        let targetCals = user.dailyCaloriesGoal
+        let calRatio = targetCals > 0 ? min(avgCals / Double(targetCals), 1.5) : 0
+        var calScore = 0.0
+        if calRatio <= 1.0 {
+            calScore = calRatio * 50
+        } else {
+            calScore = max(0, 50 - ((calRatio - 1.0) * 100))
+        }
+
+        // Hydration Score (0-30)
+        let hydRatio = min(avgHydration / 2.5, 1.0)
+        let hydScore = hydRatio * 30
+
+        // Consistency/Macros (0-20)
+        let macroScore = 20.0 // Simplified for performance
+
+        let finalScore = Int(calScore + hydScore + macroScore)
+        return min(max(finalScore, 0), 100)
+    }
+
+    private var scoreColor: Color {
+        if score >= 90 { return .green }
+        if score >= 70 { return .themeOrange }
+        return .themePink
+    }
+
+    var body: some View {
+        VStack(spacing: 24) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Metabolic Health")
+                        .font(.title3.bold())
+                    Text("Calculated overall synergy")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                Image(systemName: "heart.text.square.fill")
+                    .font(.title2)
+                    .foregroundColor(scoreColor)
+            }
+
+            ZStack {
+                Circle()
+                    .stroke(scoreColor.opacity(0.1), lineWidth: 20)
+                    .frame(width: 200, height: 200)
+
+                Circle()
+                    .trim(from: 0, to: CGFloat(animScore / 100.0))
+                    .stroke(
+                        AngularGradient(gradient: Gradient(colors: [scoreColor.opacity(0.5), scoreColor, scoreColor.opacity(0.5)]), center: .center),
+                        style: StrokeStyle(lineWidth: 20, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 200, height: 200)
+                    .shadow(color: scoreColor.opacity(0.6), radius: 15, x: 0, y: 0)
+
+                VStack(spacing: -5) {
+                    Text("\(Int(animScore))")
+                        .font(.system(size: 64, weight: .heavy, design: .rounded))
+                        .foregroundColor(.primary)
+                        .contentTransition(.numericText())
+                    Text("out of 100")
+                        .font(.caption.bold())
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.vertical, 10)
+            .rotation3DEffect(.degrees(tiltAngle), axis: tiltAxis)
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        let maxTilt: CGFloat = 20
+                        let w = 200.0
+                        let h = 200.0
+                        let x = min(max(value.location.x, 0), w) - (w / 2)
+                        let y = min(max(value.location.y, 0), h) - (h / 2)
+                        
+                        let pctX = x / (w / 2)
+                        let pctY = y / (h / 2)
+                        
+                        tiltAxis = (-pctY, pctX, 0)
+                        withAnimation(.interactiveSpring) {
+                            tiltAngle = maxTilt * sqrt(pctX*pctX + pctY*pctY)
+                        }
+                    }
+                    .onEnded { _ in
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.5)) {
+                            tiltAngle = 0
+                        }
+                    }
+            )
+        }
+        .divineCardStyle()
+        .onAppear {
+            withAnimation(.spring(response: 1.5, dampingFraction: 0.7)) {
+                animScore = Double(score)
+            }
+        }
+        .onChange(of: score) { _, nv in
+            withAnimation(.spring(response: 1.0, dampingFraction: 0.7)) {
+                animScore = Double(nv)
+            }
+        }
+    }
+}
+
+// MARK: - Period Picker
 struct GlobalPeriodPicker: View {
     @Binding var selection: AnalyticsPeriod
     @Namespace private var animation
@@ -139,10 +302,7 @@ struct GlobalPeriodPicker: View {
         HStack(spacing: 0) {
             ForEach(AnalyticsPeriod.allCases) { period in
                 Button(action: {
-                    HapticManager.shared.impact(style: .light)
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                        selection = period
-                    }
+                    selection = period
                 }) {
                     Text(period.rawValue)
                         .font(.system(size: 15, weight: selection == period ? .bold : .medium, design: .rounded))
@@ -169,56 +329,77 @@ struct GlobalPeriodPicker: View {
     }
 }
 
-struct AIWeeklyInsightCard: View {
-    let summaries: [DailySummary]
-    let user: User
+// MARK: - Typewriter AI Text
+struct AITypewriterCard: View {
+    let score: Int
     let period: AnalyticsPeriod
-
-    private var insight: (title: String, text: String, color: Color) {
-        if period == .day {
-            return ("Daily Focus", "Keep an eye on your hydration today. You're doing great with proteins!", .themePink)
+    
+    @State private var displayedText: String = ""
+    @State private var currentIndex: String.Index?
+    
+    private var fullText: String {
+        if score >= 90 {
+            return "Your metabolic synergy is absolutely flawless. You are consistently hitting calorie goals while maintaining perfect hydration and macro balance. Maintain this protocol."
+        } else if score >= 70 {
+            return "You are on a strong path. Your macros are decent, but there's room for optimization in your hydration or caloric adherence. Keep pushing."
         } else {
-            let validSummaries = summaries.prefix(period.daysCount).filter { $0.totalFoodCalories > 0 }
-            let avg = validSummaries.isEmpty ? 0 : validSummaries.reduce(0) { $0 + $1.totalFoodCalories } / validSummaries.count
-
-            if avg == 0 {
-                return ("Start Tracking", "Log your meals to see advanced analytics and AI recommendations.", .gray)
-            } else if avg > user.dailyCaloriesGoal {
-                return ("Trend Alert", "Your average is \(avg) kcal. Slightly above your goal. Try reducing evening snacks.", .themeOrange)
-            } else {
-                return ("Perfect Streak", "Your average is \(avg) kcal. You are perfectly hitting your goals! Keep it up.", .green)
-            }
+            return "Your protocol requires recalibration. Focus on hitting your daily targets more consistently. Start by prioritizing protein and drinking at least 2 liters of water."
         }
     }
-
+    
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
-            ZStack {
-                Circle().fill(insight.color.opacity(0.2)).frame(width: 48, height: 48)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 6) {
                 Image(systemName: "sparkles")
-                    .font(.title2)
-                    .foregroundStyle(insight.color)
+                    .foregroundColor(.themePink)
                     .symbolEffect(.pulse)
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(insight.title)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                Text("AI Synthesis")
+                    .font(.subheadline.bold())
                     .foregroundColor(.primary)
-                Text(insight.text)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                    .lineSpacing(4)
             }
-            Spacer()
+            
+            Text(displayedText)
+                .font(.system(size: 15, weight: .medium, design: .serif))
+                .foregroundColor(.gray)
+                .lineSpacing(4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(minHeight: 80, alignment: .topLeading)
         }
         .divineCardStyle()
+        .onAppear {
+            startTypewriter()
+        }
+        .onChange(of: period) { _, _ in
+            startTypewriter()
+        }
+    }
+    
+    private func startTypewriter() {
+        displayedText = ""
+        currentIndex = fullText.startIndex
+        
+        Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { timer in
+            guard let idx = currentIndex, idx < fullText.endIndex else {
+                timer.invalidate()
+                return
+            }
+            
+            displayedText.append(fullText[idx])
+            currentIndex = fullText.index(after: idx)
+            
+            if displayedText.count % 4 == 0 {
+                HapticManager.shared.impact(style: .rigid)
+            }
+        }
     }
 }
 
+// MARK: - Daily Insight
 struct DailyAnalyticsInsightView: View {
     let summaries: [DailySummary]
     let user: User
+    let period: AnalyticsPeriod
+    @State private var animateIn = false
 
     @State private var selectedMacroForTop: AnalyticsMacro? = nil
 
@@ -227,19 +408,36 @@ struct DailyAnalyticsInsightView: View {
         return summaries.first(where: { calendar.isDateInToday($0.date) })
     }
 
+    let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
+
     var body: some View {
         VStack(spacing: 24) {
+            
+            AITypewriterCard(score: calculateScore(), period: period)
+                .opacity(animateIn ? 1 : 0)
+                .offset(y: animateIn ? 0 : 30)
 
             FitnessRingsCard(summary: todaySummary, user: user) { macro in
                 selectedMacroForTop = macro
             }
+            .opacity(animateIn ? 1 : 0)
+            .offset(y: animateIn ? 0 : 30)
 
-            MealDistributionCard(summary: todaySummary)
-
-            AIHydrationAnalyticsCard(summary: todaySummary)
+            LazyVGrid(columns: columns, spacing: 16) {
+                MealDistributionGridCard(summary: todaySummary)
+                    .opacity(animateIn ? 1 : 0)
+                    .offset(y: animateIn ? 0 : 30)
+                
+                AIHydrationGridCard(summary: todaySummary)
+                    .opacity(animateIn ? 1 : 0)
+                    .offset(y: animateIn ? 0 : 30)
+            }
         }
-        .transition(.asymmetric(insertion: .move(edge: .leading).combined(with: .opacity), removal: .opacity))
-
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
+                animateIn = true
+            }
+        }
         .sheet(item: $selectedMacroForTop) { macro in
             TopSourcesSheetView(macro: macro, summary: todaySummary)
                 .presentationDetents([.height(400)])
@@ -247,8 +445,120 @@ struct DailyAnalyticsInsightView: View {
                 .presentationDragIndicator(.visible)
         }
     }
+    
+    private func calculateScore() -> Int {
+        var totalCals = 0.0
+        var totalHydration = 0.0
+        let days = 1
+        for s in summaries.prefix(days) {
+            totalCals += Double(s.totalFoodCalories)
+            totalHydration += s.totalHydrationLiters
+        }
+        let avgCals = days > 0 ? totalCals / Double(days) : 0
+        let avgHydration = days > 0 ? totalHydration / Double(days) : 0
+        let targetCals = user.dailyCaloriesGoal
+        let calRatio = targetCals > 0 ? min(avgCals / Double(targetCals), 1.5) : 0
+        var calScore = 0.0
+        if calRatio <= 1.0 { calScore = calRatio * 50 } else { calScore = max(0, 50 - ((calRatio - 1.0) * 100)) }
+        let hydRatio = min(avgHydration / 2.5, 1.0)
+        let hydScore = hydRatio * 30
+        let macroScore = 20.0
+        let finalScore = Int(calScore + hydScore + macroScore)
+        return min(max(finalScore, 0), 100)
+    }
 }
 
+// MARK: - Daily Grid Cards
+struct MealDistributionGridCard: View {
+    let summary: DailySummary?
+    let meals = [
+        ("Break...", Color.themeYellow),
+        ("Lunch", Color.green),
+        ("Dinner", Color.themePink),
+        ("Snack", Color.themeOrange)
+    ]
+
+    var body: some View {
+        let totalCals = summary?.totalFoodCalories ?? 0
+
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "fork.knife.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.themeOrange)
+                Spacer()
+            }
+            Text("Distribution")
+                .font(.headline)
+
+            if totalCals == 0 {
+                Text("No data").font(.caption).foregroundColor(.gray)
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(meals, id: \.0) { meal in
+                        let cals = summary?.meals.first(where: { $0.title.hasPrefix(meal.0.prefix(5)) })?.totalCalories ?? 0
+                        if cals > 0 {
+                            HStack {
+                                Circle().fill(meal.1).frame(width: 8, height: 8)
+                                Text(meal.0).font(.caption.bold()).lineLimit(1)
+                                Spacer()
+                                Text("\(Int((Double(cals)/Double(totalCals))*100))%")
+                                    .font(.caption2.bold())
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .divineCardStyle()
+    }
+}
+
+struct AIHydrationGridCard: View {
+    let summary: DailySummary?
+    @State private var animProgress: Double = 0
+    
+    var body: some View {
+        let liters = summary?.totalHydrationLiters ?? 0
+        let goal = 2.5
+        let progress = min(liters / goal, 1.0)
+        
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "drop.fill")
+                    .font(.title2)
+                    .foregroundColor(.cyan)
+                Spacer()
+            }
+            Text("Hydration")
+                .font(.headline)
+            
+            ZStack(alignment: .bottom) {
+                Capsule().fill(Color.cyan.opacity(0.1))
+                    .frame(width: 40, height: 100)
+                
+                Capsule()
+                    .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom))
+                    .frame(width: 40, height: 100 * CGFloat(animProgress))
+                    .animation(.spring(response: 0.8, dampingFraction: 0.7), value: animProgress)
+            }
+            .frame(maxWidth: .infinity)
+            
+            Text("\(String(format: "%.1f", liters)) / \(String(format: "%.1f", goal))L")
+                .font(.caption.bold())
+                .foregroundColor(.cyan)
+                .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .divineCardStyle()
+        .onAppear { withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) { animProgress = progress } }
+    }
+}
+
+
+// MARK: - Fitness Rings Card
 struct FitnessRingsCard: View {
     let summary: DailySummary?
     let user: User
@@ -270,11 +580,10 @@ struct FitnessRingsCard: View {
             }
 
             HStack(spacing: 30) {
-
                 ZStack {
-                    RingView(progress: p/tp, color: .themePeach, radius: 130, width: 14)
-                    RingView(progress: f/tf, color: .themeYellow, radius: 98, width: 14)
-                    RingView(progress: c/tc, color: .drinkWater, radius: 66, width: 14)
+                    RingView(progress: p/tp, color: .themePeach, radius: 130, width: 16)
+                    RingView(progress: f/tf, color: .themeYellow, radius: 94, width: 16)
+                    RingView(progress: c/tc, color: .drinkWater, radius: 58, width: 16)
                 }
                 .frame(width: 130, height: 130)
 
@@ -337,178 +646,70 @@ struct LegendRow: View {
     }
 }
 
-struct MealDistributionCard: View {
-    let summary: DailySummary?
-    let meals = [
-        ("Breakfast", Color.themeYellow),
-        ("Lunch", Color.green),
-        ("Dinner", Color.themePink),
-        ("Snack", Color.themeOrange)
-    ]
-
-    @State private var showAnim = false
-
-    var body: some View {
-        let totalCals = summary?.totalFoodCalories ?? 0
-
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Meal Distribution").font(.title3.bold())
-
-            if totalCals == 0 {
-                Text("Log food to see distribution.").font(.subheadline).foregroundColor(.gray)
-            } else {
-
-                GeometryReader { geo in
-                    HStack(spacing: 2) {
-                        ForEach(meals, id: \.0) { meal in
-                            let cals = summary?.meals.first(where: { $0.title == meal.0 })?.totalCalories ?? 0
-                            if cals > 0 {
-                                let width = geo.size.width * CGFloat(Double(cals) / Double(totalCals))
-                                Rectangle()
-                                    .fill(meal.1)
-                                    .frame(width: showAnim ? width : 0)
-                            }
-                        }
-                    }
-                    .clipShape(Capsule())
-                }
-                .frame(height: 16)
-                .onAppear { withAnimation(.spring()) { showAnim = true } }
-
-                VStack(spacing: 12) {
-                    ForEach(meals, id: \.0) { meal in
-                        let cals = summary?.meals.first(where: { $0.title == meal.0 })?.totalCalories ?? 0
-                        if cals > 0 {
-                            HStack {
-                                HStack(spacing: 8) {
-                                    Circle().fill(meal.1).frame(width: 8, height: 8)
-                                    Text(meal.0).font(.subheadline.bold())
-                                }
-                                Spacer()
-                                Text("\(cals) kcal").font(.subheadline).foregroundColor(.gray)
-                                Text("(\(Int((Double(cals)/Double(totalCals))*100))%)").font(.caption.bold()).foregroundColor(meal.1).frame(width: 45, alignment: .trailing)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .divineCardStyle()
-    }
-}
-
-struct AIHydrationAnalyticsCard: View {
-    let summary: DailySummary?
-    @State private var animProgress: Double = 0
-    
-    var body: some View {
-        let liters = summary?.totalHydrationLiters ?? 0
-        let goal = 2.5
-        let progress = min(liters / goal, 1.0)
-        
-        let advice = generateMockAdvice(liters: liters)
-        
-        VStack(alignment: .leading, spacing: 20) {
-            // Header
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("AI Hydration Coach").font(.title3.bold())
-                    Text("Optimizing your pH & metabolism").font(.caption).foregroundColor(.gray)
-                }
-                Spacer()
-                ZStack {
-                    Circle().fill(Color.cyan.opacity(0.15)).frame(width: 40, height: 40)
-                    Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title3)
-                }
-            }
-            
-            // Progress Section
-            HStack(spacing: 20) {
-                // Liquid capsule
-                ZStack(alignment: .bottom) {
-                    Capsule().fill(Color.cyan.opacity(0.1))
-                        .frame(width: 30, height: 110)
-                    
-                    Capsule()
-                        .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom))
-                        .frame(width: 30, height: 110 * CGFloat(animProgress))
-                        .animation(.spring(response: 0.8, dampingFraction: 0.7), value: animProgress)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text("\(String(format: "%.2f", liters)) L")
-                            .font(.system(size: 32, weight: .heavy, design: .rounded))
-                            .foregroundColor(.cyan)
-                            .contentTransition(.numericText())
-                        Text("/ \(String(format: "%.2f", goal)) L")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    // Advice Box
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 6) {
-                            Image(systemName: advice.icon)
-                                .foregroundColor(advice.color)
-                            Text(advice.title)
-                                .font(.subheadline.bold())
-                                .foregroundColor(.primary)
-                        }
-                        Text(advice.message)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .lineLimit(3)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(12)
-                    .background(advice.color.opacity(0.1))
-                    .cornerRadius(12)
-                }
-            }
-            
-            // Educational Nudge
-            HStack(spacing: 12) {
-                Image(systemName: "info.circle.fill")
-                    .foregroundColor(.gray.opacity(0.5))
-                Text("Water maintains blood volume, flushes out excess sodium, and keeps your body's pH perfectly balanced.")
-                    .font(.caption2)
-                    .foregroundColor(.gray)
-            }
-        }
-        .divineCardStyle()
-        .onAppear { withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) { animProgress = progress } }
-        .onChange(of: progress) { _, nv in withAnimation { animProgress = nv } }
-    }
-    
-    private func generateMockAdvice(liters: Double) -> (title: String, message: String, color: Color, icon: String) {
-        if liters < 1.0 {
-            return ("Dehydration Risk", "Drink water now to stabilize your blood pH and prevent sodium retention.", .themeOrange, "exclamationmark.triangle.fill")
-        } else if liters < 2.0 {
-            return ("Keep Hydrating", "You're on track. A bit more water will help flush excess salt.", .themeYellow, "drop.circle.fill")
-        } else {
-            return ("Perfect Balance", "Your hydration is optimal! Your body's pH and sodium levels are perfectly balanced.", .green, "checkmark.seal.fill")
-        }
-    }
-}
-
+// MARK: - Trends Insight
 struct TrendsAnalyticsInsightView: View {
     let summaries: [DailySummary]
     let user: User
     let period: AnalyticsPeriod
+    @State private var animateIn = false
 
     var body: some View {
         VStack(spacing: 24) {
+            
+            AITypewriterCard(score: calculateScore(), period: period)
+                .opacity(animateIn ? 1 : 0)
+                .offset(y: animateIn ? 0 : 30)
+
             DivineCaloriesChart(summaries: summaries, user: user, period: period)
+                .opacity(animateIn ? 1 : 0)
+                .offset(y: animateIn ? 0 : 30)
+
             DivineMacrosChart(summaries: summaries, period: period)
+                .opacity(animateIn ? 1 : 0)
+                .offset(y: animateIn ? 0 : 30)
+
+            ConsistencyHeatmapCard(summaries: summaries, user: user)
+                .opacity(animateIn ? 1 : 0)
+                .offset(y: animateIn ? 0 : 30)
+                
             TrendsWaterChart(summaries: summaries, period: period)
+                .opacity(animateIn ? 1 : 0)
+                .offset(y: animateIn ? 0 : 30)
         }
-        .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
+                animateIn = true
+            }
+        }
+    }
+    
+    private func calculateScore() -> Int {
+        var totalCals = 0.0
+        var totalHydration = 0.0
+        let days = max(1, min(summaries.count, period.daysCount))
+        for s in summaries.prefix(days) {
+            totalCals += Double(s.totalFoodCalories)
+            totalHydration += s.totalHydrationLiters
+        }
+        let avgCals = days > 0 ? totalCals / Double(days) : 0
+        let avgHydration = days > 0 ? totalHydration / Double(days) : 0
+        let targetCals = user.dailyCaloriesGoal
+        let calRatio = targetCals > 0 ? min(avgCals / Double(targetCals), 1.5) : 0
+        var calScore = 0.0
+        if calRatio <= 1.0 { calScore = calRatio * 50 } else { calScore = max(0, 50 - ((calRatio - 1.0) * 100)) }
+        let hydRatio = min(avgHydration / 2.5, 1.0)
+        let hydScore = hydRatio * 30
+        let macroScore = 20.0
+        let finalScore = Int(calScore + hydScore + macroScore)
+        return min(max(finalScore, 0), 100)
     }
 }
 
+// MARK: - Interactive Calories Chart
 struct DivineCaloriesChart: View {
     let summaries: [DailySummary]; let user: User; let period: AnalyticsPeriod
+    
+    @State private var selectedDate: Date?
 
     private var chartData: [(date: Date, eaten: Double)] {
         let calendar = Calendar.current
@@ -547,7 +748,7 @@ struct DivineCaloriesChart: View {
                     .interpolationMethod(.catmullRom)
                     .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
                     .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
-                    .symbol { Circle().fill(.white).overlay(Circle().stroke(Color.themePink, lineWidth: 2)).frame(width: 8, height: 8) }
+                    .symbol { Circle().fill(.white).overlay(Circle().stroke(Color.themePink, lineWidth: 2)).frame(width: 8, height: 8).shadow(color: .themePink, radius: 5) }
 
                     AreaMark(
                         x: .value("Date", point.date),
@@ -556,6 +757,39 @@ struct DivineCaloriesChart: View {
                     .interpolationMethod(.catmullRom)
                     .foregroundStyle(LinearGradient(colors: [Color.themePink.opacity(0.4), Color.clear], startPoint: .top, endPoint: .bottom))
                 }
+                
+                // Scrubbing Overlay
+                if let selectedDate, let point = chartData.first(where: { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }) {
+                    RuleMark(x: .value("Date", selectedDate))
+                        .foregroundStyle(Color.gray.opacity(0.5))
+                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                        .annotation(position: .top, alignment: .center, spacing: 0) {
+                            VStack(spacing: 4) {
+                                Text("\(Int(point.eaten)) kcal")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                Text(selectedDate.formatted(.dateTime.month().day()))
+                                    .font(.caption2)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Capsule())
+                            .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1))
+                            .shadow(radius: 5)
+                        }
+                    
+                    PointMark(
+                        x: .value("Date", point.date),
+                        y: .value("Eaten", point.eaten)
+                    )
+                    .symbol { Circle().fill(Color.themePink).frame(width: 12, height: 12).shadow(color: .themePink, radius: 10) }
+                }
+            }
+            .chartXSelection(value: $selectedDate)
+            .onChange(of: selectedDate) { _, _ in
+                if selectedDate != nil { HapticManager.shared.impact(style: .light) }
             }
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
@@ -608,17 +842,14 @@ struct DivineMacrosChart: View {
             Chart {
                 ForEach(chartData) { item in
                     BarMark(
-
                         x: .value("Date", item.date, unit: .day),
                         y: .value("Grams", item.value),
                         width: .fixed(16)
                     )
-
                     .foregroundStyle(by: .value("Type", item.type))
                     .cornerRadius(4)
                 }
             }
-
             .chartForegroundStyleScale([
                 "Carbs": Color.drinkWater.gradient,
                 "Fats": Color.themeYellow.gradient,
@@ -649,8 +880,21 @@ struct DivineMacrosChart: View {
         .divineCardStyle()
     }
 }
+
+struct ChartLegendItem: View {
+    let color: Color; let text: String
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle().fill(color).frame(width: 8, height: 8)
+            Text(text).font(.caption.bold()).foregroundColor(.gray)
+        }
+    }
+}
+
+// MARK: - Interactive Water Chart
 struct TrendsWaterChart: View {
     let summaries: [DailySummary]; let period: AnalyticsPeriod
+    @State private var selectedDate: Date?
 
     private var chartData: [(date: Date, liters: Double)] {
         let calendar = Calendar.current
@@ -670,7 +914,7 @@ struct TrendsWaterChart: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Fluid Intake Trend").font(.title3.bold())
+                Text("Fluid Intake").font(.title3.bold())
                 Spacer()
                 Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title2)
             }
@@ -685,7 +929,6 @@ struct TrendsWaterChart: View {
 
                 ForEach(chartData, id: \.date) { point in
                     BarMark(
-
                         x: .value("Date", point.date, unit: .day),
                         y: .value("Liters", point.liters),
                         width: .fixed(16)
@@ -693,6 +936,32 @@ struct TrendsWaterChart: View {
                     .foregroundStyle(Color.cyan.gradient)
                     .cornerRadius(6)
                 }
+                
+                if let selectedDate, let point = chartData.first(where: { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }) {
+                    RuleMark(x: .value("Date", selectedDate))
+                        .foregroundStyle(Color.cyan.opacity(0.5))
+                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                        .annotation(position: .top, alignment: .center, spacing: 0) {
+                            VStack(spacing: 4) {
+                                Text("\(String(format: "%.1f", point.liters)) L")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.cyan)
+                                Text(selectedDate.formatted(.dateTime.month().day()))
+                                    .font(.caption2)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Capsule())
+                            .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1))
+                            .shadow(radius: 5)
+                        }
+                }
+            }
+            .chartXSelection(value: $selectedDate)
+            .onChange(of: selectedDate) { _, _ in
+                if selectedDate != nil { HapticManager.shared.impact(style: .light) }
             }
             .chartYScale(domain: 0...maxLiters)
             .chartXAxis {
@@ -774,6 +1043,16 @@ struct ConsistencyHeatmapCard: View {
     }
 }
 
+struct LegendDot: View {
+    let color: Color; let text: String
+    var body: some View {
+        HStack(spacing: 4) {
+            Circle().fill(color).frame(width: 8, height: 8)
+            Text(text).font(.caption.bold()).foregroundColor(.gray)
+        }
+    }
+}
+
 struct TopSourcesSheetView: View {
     @Environment(\.dismiss) private var dismiss
     let macro: AnalyticsMacro
@@ -801,68 +1080,31 @@ struct TopSourcesSheetView: View {
                 Spacer()
             } else {
                 VStack(spacing: 16) {
-                    ForEach(topFoods.indices, id: \.self) { index in
-                        let food = topFoods[index]
-                        let value = getValue(for: food)
-
-                        HStack(spacing: 16) {
-                            Text("\(index + 1)")
-                                .font(.headline.bold()).foregroundColor(.white)
-                                .frame(width: 32, height: 32)
-                                .background(macro.color.opacity(index == 0 ? 1.0 : (index == 1 ? 0.7 : 0.4)))
-                                .clipShape(Circle())
-
-                            Text(food.name).font(.system(size: 16, weight: .bold, design: .rounded)).lineLimit(1)
+                    ForEach(topFoods) { food in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(food.name).font(.headline)
+                                Text("\(Int(food.weight))g").font(.caption).foregroundColor(.gray)
+                            }
                             Spacer()
-                            Text("\(value, specifier: "%.1f") g").font(.headline).foregroundColor(macro.color)
+                            Text("\(val(for: food))g").font(.title3.bold()).foregroundColor(macro.color)
                         }
-                        .padding(16)
-                        .background(Color.white)
-                        .cornerRadius(20)
-                        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+                        .padding()
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(16)
                     }
                 }
                 .padding(.horizontal, 24)
-                Spacer(minLength: 0)
+                Spacer()
             }
-
-            Button(action: { dismiss() }) {
-                Text("Close")
-                    .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
-                    .padding(.vertical, 16).background(macro.color).cornerRadius(20)
-            }
-            .buttonStyle(BounceButtonStyle())
-            .padding(.horizontal, 24)
-            .padding(.bottom, 20)
         }
-        .background(Color.themeBg.ignoresSafeArea())
     }
 
-    private func getValue(for food: FoodItem) -> Double {
+    private func val(for food: FoodItem) -> Int {
         switch macro {
-        case .protein: return food.protein
-        case .fat: return food.fats
-        case .carbs: return food.carbs
-        }
-    }
-}
-
-struct LegendDot: View {
-    let color: Color; let text: String
-    var body: some View {
-        HStack(spacing: 4) {
-            Circle().fill(color).frame(width: 8, height: 8)
-            Text(text).font(.caption2.bold()).foregroundColor(.gray)
-        }
-    }
-}
-
-struct ChartLegendItem: View {
-    let color: Color; let text: String
-    var body: some View {
-        HStack(spacing: 6) {
-            Circle().fill(color).frame(width: 8, height: 8).shadow(color: color.opacity(0.5), radius: 2)
-            Text(text).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundColor(.gray)
+        case .protein: return Int(food.protein)
+        case .fat: return Int(food.fats)
+        case .carbs: return Int(food.carbs)
         }
     }
 }

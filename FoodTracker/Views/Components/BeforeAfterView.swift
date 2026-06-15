@@ -16,6 +16,8 @@ struct BeforeAfterView: View {
     @State private var isAnalyzing = false
     @State private var hasAnalyzed = false
     
+    @State private var scannerOffset: CGFloat = 0.0
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -180,7 +182,27 @@ struct BeforeAfterView: View {
                         )
                 }
                 
-                // 3. Labels
+                // 3. Laser Scanner Animation
+                if isAnalyzing {
+                    VStack {
+                        Rectangle()
+                            .fill(LinearGradient(colors: [.clear, themeManager.current.primaryAccent, .clear], startPoint: .top, endPoint: .bottom))
+                            .frame(height: 20)
+                            .blur(radius: 5)
+                            .shadow(color: themeManager.current.primaryAccent, radius: 10)
+                            .offset(y: scannerOffset)
+                            .onAppear {
+                                scannerOffset = -height/2
+                                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                                    scannerOffset = height/2
+                                }
+                            }
+                    }
+                    .frame(width: width, height: height)
+                    .clipped()
+                }
+                
+                // 4. Labels
                 VStack {
                     HStack {
                         Text("Before")
@@ -205,7 +227,7 @@ struct BeforeAfterView: View {
                     Spacer()
                 }
                 
-                // 4. Slider Handle and Line
+                // 5. Slider Handle and Line
                 ZStack {
                     Rectangle()
                         .fill(Color.white)
@@ -251,7 +273,7 @@ struct BeforeAfterView: View {
         
         Task { @MainActor in
             HapticManager.shared.impact(style: .medium)
-            try? await Task.sleep(for: .seconds(2.5))
+            try? await Task.sleep(for: .seconds(3.0))
             HapticManager.shared.notification(type: .success)
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                 isAnalyzing = false
@@ -275,6 +297,7 @@ struct BeforeAfterView: View {
                     Image(systemName: "sparkles")
                         .font(.subheadline)
                         .foregroundStyle(themeManager.current.primaryAccent)
+                        .symbolEffect(.pulse, isActive: isAnalyzing)
                 }
                 
                 Text("AI Fitness Scanner")
@@ -309,7 +332,7 @@ struct BeforeAfterView: View {
                         .scaleEffect(1.2)
                         .padding(.top, 10)
                     
-                    Text("Aligning frames & estimating body fat composition...")
+                    Text("Aligning frames & evaluating physical recomposition pace...")
                         .font(.caption)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
@@ -323,53 +346,40 @@ struct BeforeAfterView: View {
             } else if hasAnalyzed {
                 VStack(alignment: .leading, spacing: 16) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        MetricDeltaCard(
-                            label: "Waist / Abs",
-                            delta: "-4.2 cm",
-                            desc: "Fat Reduction",
-                            color: themeManager.current.primaryAccent,
-                            isLoss: true
+                        AIVisualInsightCard(
+                            label: "Progress Pace",
+                            value: "Optimal",
+                            desc: "Safe & steady",
+                            icon: "speedometer",
+                            color: .green
                         )
                         
-                        MetricDeltaCard(
-                            label: "Shoulders / Back",
-                            delta: "+1.8 cm",
-                            desc: "Muscle Gained",
-                            color: .green,
-                            isLoss: false
+                        AIVisualInsightCard(
+                            label: "Muscle Tone",
+                            value: "Enhanced",
+                            desc: "Visible definition",
+                            icon: "figure.strengthtraining.traditional",
+                            color: themeManager.current.primaryAccent
                         )
                         
-                        MetricDeltaCard(
-                            label: "Upper Arms",
-                            delta: "+0.6 cm",
-                            desc: "Tone Gained",
-                            color: .green,
-                            isLoss: false
+                        AIVisualInsightCard(
+                            label: "Posture Symmetry",
+                            value: "Improved",
+                            desc: "Better alignment",
+                            icon: "figure.mind.and.body",
+                            color: .cyan
                         )
                         
-                        MetricDeltaCard(
-                            label: "Est. Body Fat",
-                            delta: "-3.4%",
-                            desc: "Overall Lean",
-                            color: themeManager.current.primaryAccent,
-                            isLoss: true
+                        AIVisualInsightCard(
+                            label: "Trajectory",
+                            value: "On Track",
+                            desc: "Hitting visual goals",
+                            icon: "target",
+                            color: .orange
                         )
                     }
                     
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("AI Feedback:")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundStyle(.primary)
-                        
-                        Text("AI analysis detected noticeable chest and shoulder hypertrophy (+1.8cm). The abdominal region shows significant tightening (-4.2cm waist), corresponding to a fat reduction of ~3.4%. Posture alignment is also visibly improved, indicating stronger core stabilization. Keep up the high-protein pacing!")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.gray)
-                            .lineSpacing(3)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(14)
-                    .background(Color.gray.opacity(0.04))
-                    .cornerRadius(14)
+                    AIPerceptionFeedbackCard()
                 }
                 .transition(.asymmetric(
                     insertion: .move(edge: .bottom).combined(with: .opacity),
@@ -380,43 +390,102 @@ struct BeforeAfterView: View {
     }
 }
 
-struct MetricDeltaCard: View {
+// MARK: - Premium UI Components
+
+struct AIVisualInsightCard: View {
     let label: String
-    let delta: String
+    let value: String
     let desc: String
+    let icon: String
     let color: Color
-    let isLoss: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(label)
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(.gray)
-            
-            HStack(alignment: .bottom, spacing: 4) {
-                Text(delta)
-                    .font(.system(size: 20, weight: .black, design: .rounded))
-                    .foregroundColor(isLoss ? .orange : .green)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundColor(color)
+                    .padding(6)
+                    .background(color.opacity(0.15))
+                    .clipShape(Circle())
                 
-                Image(systemName: isLoss ? "arrow.down.forward" : "arrow.up.forward")
-                    .font(.caption2.bold())
-                    .foregroundColor(isLoss ? .orange : .green)
-                    .padding(.bottom, 3)
+                Text(label)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.gray)
             }
             
-            Text(desc)
-                .font(.system(size: 10, weight: .medium))
-                .foregroundColor(.gray.opacity(0.8))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.system(size: 16, weight: .heavy, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Text(desc)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.gray.opacity(0.8))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
-        .background(Color.gray.opacity(0.03))
-        .cornerRadius(12)
+        .background(Color.gray.opacity(0.04))
+        .cornerRadius(16)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isLoss ? Color.orange.opacity(0.15) : Color.green.opacity(0.15), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
         )
     }
 }
 
-
+struct AIPerceptionFeedbackCard: View {
+    @State private var displayedText: String = ""
+    @State private var currentIndex: String.Index?
+    
+    private let fullText = "Based on the visual comparison, your rate of body recomposition is optimal. There is a noticeable enhancement in muscle definition and a visible improvement in posture alignment. This pace of visual change is highly sustainable and indicates that your current caloric deficit and protein intake are perfectly dialed in. Keep following your current protocol."
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("AI Perception Feedback:")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(.primary)
+            
+            Text(displayedText)
+                .font(.system(size: 14, weight: .medium, design: .serif))
+                .foregroundColor(.gray)
+                .lineSpacing(4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(minHeight: 90, alignment: .topLeading)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+                .background(Color.white.opacity(0.5))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(LinearGradient(colors: [.white, .clear, .white.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+        )
+        .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+        .onAppear {
+            startTypewriter()
+        }
+    }
+    
+    private func startTypewriter() {
+        displayedText = ""
+        currentIndex = fullText.startIndex
+        
+        Timer.scheduledTimer(withTimeInterval: 0.015, repeats: true) { timer in
+            guard let idx = currentIndex, idx < fullText.endIndex else {
+                timer.invalidate()
+                return
+            }
+            
+            displayedText.append(fullText[idx])
+            currentIndex = fullText.index(after: idx)
+            
+            if displayedText.count % 5 == 0 {
+                HapticManager.shared.impact(style: .rigid)
+            }
+        }
+    }
+}

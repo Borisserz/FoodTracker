@@ -90,6 +90,7 @@ class FirebaseUploader {
     private let db = Firestore.firestore()
     
     func seedDatabaseIfNeeded() {
+#if DEBUG
         db.collection("diets").limit(to: 1).getDocuments { [weak self] snapshot, _ in
             if let snapshot = snapshot, snapshot.documents.isEmpty {
                 print("🌱 Seeding diets...")
@@ -117,6 +118,7 @@ class FirebaseUploader {
                 self?.uploadAcademyFromJSON()
             }
         }
+#endif
     }
     
     // 1. Выгрузка рецептов
@@ -141,6 +143,29 @@ class FirebaseUploader {
             print("✅ Все рецепты успешно загружены в Firestore!")
         } catch {
             print("Ошибка чтения recipes.json: \(error)")
+        }
+    }
+    
+    // Временная функция для выгрузки 15 новых рецептов
+    func uploadNewRecipesFromJSON() {
+        guard let url = Bundle.main.url(forResource: "new_recipes", withExtension: "json") else { return }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            let newRecipes = try JSONDecoder().decode([PremiumRecipe].self, from: data)
+            
+            for recipe in newRecipes {
+                do {
+                    let docRef = db.collection("premium_recipes").document()
+                    try docRef.setData(from: recipe)
+                    print("⬆️ Загружен НОВЫЙ рецепт: \(recipe.title)")
+                } catch {
+                    print("Ошибка при загрузке нового рецепта: \(error)")
+                }
+            }
+            print("✅ Все НОВЫЕ рецепты успешно добавлены в Firestore!")
+        } catch {
+            print("Ошибка чтения new_recipes.json: \(error)")
         }
     }
     // Выгрузка диет

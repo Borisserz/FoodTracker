@@ -14,6 +14,13 @@ struct AIRecipeDTO: Codable {
     let protein: Double
     let fats: Double
     let carbs: Double
+    let omega3: Double
+    let calcium: Double
+    let potassium: Double
+    let magnesium: Double
+    let iron: Double
+    let vitaminC: Double
+    let vitaminD: Double
     let cookingTime: Int
 }
 
@@ -23,6 +30,13 @@ struct AIFoodItemDTO: Codable {
     let protein: Double
     let fats: Double
     let carbs: Double
+    let omega3: Double
+    let calcium: Double
+    let potassium: Double
+    let magnesium: Double
+    let iron: Double
+    let vitaminC: Double
+    let vitaminD: Double
 }
 
 struct AIWeeklyPlanItemDTO: Codable {
@@ -32,6 +46,13 @@ struct AIWeeklyPlanItemDTO: Codable {
     let protein: Int
     let carbs: Int
     let fat: Int
+    let omega3: Double
+    let calcium: Double
+    let potassium: Double
+    let magnesium: Double
+    let iron: Double
+    let vitaminC: Double
+    let vitaminD: Double
     let ingredients: String
     let instructions: String
     let prepTimeMinutes: Int
@@ -162,7 +183,14 @@ class AINutritionService {
           "calories": Int,
           "protein": Double,
           "fats": Double,
-          "carbs": Double
+          "carbs": Double,
+          "omega3": Double,
+          "calcium": Double,
+          "potassium": Double,
+          "magnesium": Double,
+          "iron": Double,
+          "vitaminC": Double,
+          "vitaminD": Double
         }
         """
         
@@ -173,7 +201,14 @@ class AINutritionService {
                 calories: dto.calories,
                 protein: dto.protein,
                 fats: dto.fats,
-                carbs: dto.carbs
+                carbs: dto.carbs,
+                omega3: dto.omega3,
+                calcium: dto.calcium,
+                potassium: dto.potassium,
+                magnesium: dto.magnesium,
+                iron: dto.iron,
+                vitaminC: dto.vitaminC,
+                vitaminD: dto.vitaminD
             )
         }
         return nil
@@ -204,6 +239,13 @@ class AINutritionService {
                     "protein": Int,
                     "carbs": Int,
                     "fat": Int,
+                    "omega3": Double,
+                    "calcium": Double,
+                    "potassium": Double,
+                    "magnesium": Double,
+                    "iron": Double,
+                    "vitaminC": Double,
+                    "vitaminD": Double,
                     "ingredients": "String",
                     "instructions": "String",
                     "prepTimeMinutes": Int
@@ -235,6 +277,13 @@ class AINutritionService {
                         protein: mealDTO.protein,
                         carbs: mealDTO.carbs,
                         fat: mealDTO.fat,
+                        omega3: mealDTO.omega3,
+                        calcium: mealDTO.calcium,
+                        potassium: mealDTO.potassium,
+                        magnesium: mealDTO.magnesium,
+                        iron: mealDTO.iron,
+                        vitaminC: mealDTO.vitaminC,
+                        vitaminD: mealDTO.vitaminD,
                         ingredients: mealDTO.ingredients,
                         instructions: mealDTO.instructions,
                         prepTimeMinutes: mealDTO.prepTimeMinutes

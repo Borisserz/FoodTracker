@@ -53,6 +53,7 @@ struct FoodTrackerApp: App {
 
     @State private var diContainer: DIContainer?
     @State private var databaseLoadError: Error?
+    @State private var recipeDataLoader: RecipeDataLoader?
 
     var body: some Scene {
         WindowGroup {
@@ -68,13 +69,14 @@ struct FoodTrackerApp: App {
                     }
                 } else if let error = databaseLoadError {
                     Text("Database Error: \(error.localizedDescription)")
-                } else if let di = diContainer {
+                } else if let di = diContainer, let recipeLoader = recipeDataLoader {
                     RootLaunchView()
                         .modelContainer(di.modelContainer)
                         .environment(di)
                         .environment(di.appState)
                         .environment(di.authManager)
                         .environment(ThemeManager.shared)
+                        .environment(recipeLoader)
                         .preferredColorScheme(.light)
                 } else {
                     ProgressView("Initializing...")
@@ -130,6 +132,7 @@ struct FoodTrackerApp: App {
             }
 
             let di = DIContainer(modelContainer: container)
+            self.recipeDataLoader = RecipeDataLoader()
             self.diContainer = di
             print("🚀 [setupDependencies] diContainer assigned to state. Re-rendering UI...")
             
@@ -141,6 +144,7 @@ struct FoodTrackerApp: App {
                 // Trigger auto-seeding if Firestore database is empty
                 DispatchQueue.main.async {
                     FirebaseUploader.shared.seedDatabaseIfNeeded()
+                    FirebaseUploader.shared.uploadNewRecipesFromJSON()
                 }
             } catch {
                 print("⚠️ Anonymous auth failed: \(error)")

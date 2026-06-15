@@ -36,7 +36,15 @@ struct Achievement: Identifiable {
         Achievement(id: "first_log", title: String(localized: "First Step"), description: String(localized: "Log your first meal"), icon: "flag.fill", color: .themePink),
         Achievement(id: "streak_3", title: String(localized: "On Fire"), description: String(localized: "Reach a 3-day streak"), icon: "flame.fill", color: .themeOrange),
         Achievement(id: "streak_7", title: String(localized: "Unstoppable"), description: String(localized: "Reach a 7-day streak"), icon: "bolt.fill", color: .themeYellow),
-        Achievement(id: "water_pro", title: String(localized: "Hydro Homie"), description: String(localized: "Drink 2.5L in a day"), icon: "drop.fill", color: .blue)
+        Achievement(id: "streak_30", title: String(localized: "Legend"), description: String(localized: "Reach a 30-day streak"), icon: "crown.fill", color: .yellow),
+        Achievement(id: "water_pro", title: String(localized: "Hydro Homie"), description: String(localized: "Drink 2.5L in a day"), icon: "drop.fill", color: .blue),
+        Achievement(id: "water_king", title: String(localized: "Aqua King"), description: String(localized: "Drink 3L of water in a day"), icon: "drop.triangle.fill", color: .cyan),
+        Achievement(id: "protein_beast", title: String(localized: "Protein Beast"), description: String(localized: "Hit protein goal 5 times"), icon: "figure.strengthtraining.traditional", color: .red),
+        Achievement(id: "perfect_week", title: String(localized: "Perfect Week"), description: String(localized: "Hit macros for 7 days"), icon: "medal.fill", color: .indigo),
+        Achievement(id: "early_bird", title: String(localized: "Early Bird"), description: String(localized: "Log breakfast before 9 AM"), icon: "sunrise.fill", color: .orange),
+        Achievement(id: "ai_chef_1", title: String(localized: "Sous-Chef"), description: String(localized: "Cook 1 recipe with AI"), icon: "sparkles", color: .purple),
+        Achievement(id: "ai_chef_10", title: String(localized: "Master Chef"), description: String(localized: "Cook 10 recipes with AI"), icon: "star.fill", color: .themeOrange),
+        Achievement(id: "recipe_creator", title: String(localized: "Creator"), description: String(localized: "Add a custom recipe"), icon: "book.fill", color: .themePink)
     ]
 }
 
@@ -262,6 +270,13 @@ extension CustomRecipe {
         let totalProtein = foodItems.reduce(0) { $0 + $1.protein }
         let totalFats = foodItems.reduce(0) { $0 + $1.fats }
         let totalCarbs = foodItems.reduce(0) { $0 + $1.carbs }
+        let totalOmega3 = foodItems.reduce(0) { $0 + $1.omega3 }
+        let totalCalcium = foodItems.reduce(0) { $0 + $1.calcium }
+        let totalPotassium = foodItems.reduce(0) { $0 + $1.potassium }
+        let totalMagnesium = foodItems.reduce(0) { $0 + $1.magnesium }
+        let totalIron = foodItems.reduce(0) { $0 + $1.iron }
+        let totalVitaminC = foodItems.reduce(0) { $0 + $1.vitaminC }
+        let totalVitaminD = foodItems.reduce(0) { $0 + $1.vitaminD }
 
         return FoodItem(
             name: self.name,
@@ -269,7 +284,14 @@ extension CustomRecipe {
             calories: self.totalCalories,
             protein: totalProtein,
             fats: totalFats,
-            carbs: totalCarbs
+            carbs: totalCarbs,
+            omega3: totalOmega3,
+            calcium: totalCalcium,
+            potassium: totalPotassium,
+            magnesium: totalMagnesium,
+            iron: totalIron,
+            vitaminC: totalVitaminC,
+            vitaminD: totalVitaminD
         )
     }
 }

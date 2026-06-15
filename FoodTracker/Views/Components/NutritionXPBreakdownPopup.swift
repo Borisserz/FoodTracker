@@ -41,7 +41,7 @@ struct NutritionXPBreakdownPopup: View {
                 
                 Text("Great job hitting your targets today!")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.primary.opacity(0.8))
                     .opacity(showContent ? 1 : 0)
                     .animation(.easeIn.delay(0.4), value: showContent)
                 
@@ -56,12 +56,12 @@ struct NutritionXPBreakdownPopup: View {
                         xpRow(title: "Calorie Match Bonus", value: animatedCalories, color: .themeOrange)
                     }
                     
-                    Divider().background(Color.white.opacity(0.3))
+                    Divider().background(Color.black.opacity(0.1))
                     
                     HStack {
                         Text("Total XP Earned")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                         Spacer()
                         Text("+\(animatedTotal) XP")
                             .font(.title3.bold().monospacedDigit())
@@ -69,7 +69,7 @@ struct NutritionXPBreakdownPopup: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.05))
+                .background(Color.black.opacity(0.03))
                 .cornerRadius(16)
                 .opacity(showContent ? 1 : 0)
                 
@@ -103,7 +103,7 @@ struct NutritionXPBreakdownPopup: View {
         }
     }
     
-    private func xpRow(title: String, value: Int, color: Color = .white) -> some View {
+    private func xpRow(title: String, value: Int, color: Color = .primary) -> some View {
         HStack {
             Text(title)
                 .font(.subheadline)

@@ -30,38 +30,25 @@ struct AIChefRecipe: Identifiable, Hashable {
     let platingTip: String
 }
 
-// MARK: - 🗄 База Данных
-let mockDatabase: [AIChefRecipe] = [
-    AIChefRecipe(
-        title: "Лосось с киноа", calories: 420, protein: 35, heroImage: "fish.fill", cookTime: 25, difficulty: 2,
-        history: "Киноа — это не просто крупа, а подлинное «золото инков». Более трех тысяч лет назад высоко в горах Анд древние племена называли её «чизия мама» (матерь всех семян). Лосось же даст тебе премиальный белок и полезные жиры Омега-3.",
-        ingredients: ["Филе лосося (200г)", "Киноа (50г сухой)", "Спаржа (100г)", "Лимон (30г / половинка)", "Оливковое масло (10мл)", "Морская соль (2г)", "Белый перец", "Сушеный чеснок"],
-        steps: [
-            RecipeStep(instruction: "Подготовка рыбы. Тщательно промокни филе лосося бумажным полотенцем. Лишняя влага — враг корочки! Вотри каплю масла в рыбу массажными движениями.", imageName: "hand.draw.fill", aiTip: "Масло поможет специям раскрыться и проникнуть в волокна."),
-            RecipeStep(instruction: "Магия специй. Возьми крупную морскую соль, щепотку белого перца и немного сушеного чеснока. Равномерно посыпь филе со всех сторон.", imageName: "sparkles", aiTip: "Не используй черный перец, он перебьет нежный вкус лосося!"),
-            RecipeStep(instruction: "Запекание. Разогрей духовку до 200°C. Выложи лосось на пергамент кожей вниз. Рядом брось спаржу, слегка сбрызнув её лимоном. Запекай ровно 12-15 минут.", imageName: "flame.fill", aiTip: "Сделай фото для ИИ через 10 минут, чтобы мы проверили цвет корочки!"),
-            RecipeStep(instruction: "Варка киноа. Пока рыба в духовке, промой киноа кипятком. Вари 15 минут в пропорции 1:2 на слабом огне.", imageName: "drop.fill", aiTip: "Промывка кипятком убивает сапонины — вещества, дающие горечь.")
-        ],
-        platingTip: "Выложи киноа через кулинарное кольцо в центр тарелки. Сверху аккуратно помести лосось. Спаржу уложи рядом, скрестив стебли. Сбрызни всё каплей оливкового масла экстра-класса и укрась долькой лимона."
-    ),
-    AIChefRecipe(
-        title: "Стейк Рибай", calories: 550, protein: 50, heroImage: "fork.knife", cookTime: 15, difficulty: 4,
-        history: "Рибай — неоспоримый король среди стейков. Его мраморность тает при жарке, пропитывая мясо изнутри. Сегодня ты научишься готовить его как шеф-повар мишленовского ресторана.",
-        ingredients: ["Стейк Рибай (250г)", "Сливочное масло (20г)", "Чеснок (2 зубчика)", "Розмарин (1 свежая веточка)", "Крупная морская соль (4г)", "Черный перец горошком"],
-        steps: [
-            RecipeStep(instruction: "Адаптация мяса. Достань стейк из холодильника минимум за 30 минут до жарки. Он должен стать комнатной температуры. Насухо вытри его полотенцем.", imageName: "thermometer.sun", aiTip: "Холодное мясо на сковороде просто сварится в собственном соку."),
-            RecipeStep(instruction: "Соль и Перец. Забудь про мелкую соль! Возьми крупную морскую соль и свежемолотый черный перец. Щедро обсыпь стейк с обеих сторон и впечатай специи руками.", imageName: "hand.tap.fill", aiTip: "Крупная соль создаст ту самую хрустящую карамельную корочку."),
-            RecipeStep(instruction: "Шоковая жарка. Раскали чугунную сковороду до легкого дымка. Капни масло. Бросай стейк! Жарь ровно 2 минуты, не трогая и не двигая его.", imageName: "flame", aiTip: "Сделай фото! ИИ проверит, достаточно ли дымится сковорода."),
-            RecipeStep(instruction: "Ароматная ванна (Бастинг). Переверни стейк. Сразу кинь сливочное масло, чеснок и розмарин. Наклони сковороду и ложкой поливай стейк кипящим маслом!", imageName: "drop.fill", aiTip: "Розмарин отдаст эфирные масла, это изменит вкус блюда на 100%."),
-            RecipeStep(instruction: "Отдых. Сними стейк и положи на доску. Не режь! Дай ему отдохнуть 5 минут.", imageName: "clock.fill", aiTip: "За это время соки распределятся от центра к краям.")
-        ],
-        platingTip: "Обязательно подавай стейк на предварительно подогретой теплой тарелке или деревянной доске. Нарежь его поперек волокон на слайсы толщиной 1.5 см. Посыпь срез крупными хлопьями морской соли — это даст невероятный визуальный и вкусовой хруст."
-    )
-]
+struct UnifiedRecipePreview: Identifiable, Hashable {
+    let id = UUID()
+    let title: String
+    let calories: Int
+    let protein: Int
+    let heroImage: String
+    let cookTime: Int
+    let ingredients: [String]
+    let premiumRecipe: PremiumRecipe?
+    let customRecipe: CustomRecipe?
+}
 
 // MARK: - 👨‍🍳 Главный Экран
 struct AIChefStudioView: View {
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(RecipeDataLoader.self) private var dataLoader
+    @Query private var customRecipes: [CustomRecipe]
+    @Query private var weeklyPlans: [WeeklyMealPlan]
+    
     @State private var remainingCalories: Int = 450
     @State private var remainingProtein: Int = 32
     @State private var remainingFat: Int = 18
@@ -70,9 +57,39 @@ struct AIChefStudioView: View {
     @State private var searchText = ""
     @State private var showAIAssistantFlow = false
     @State private var showSmartBuilder = false
+    @State private var showActivePlan = false
     
-    var filteredRecipes: [AIChefRecipe] { mockDatabase.filter { $0.title.localizedCaseInsensitiveContains(searchText) } }
-    var suggestedRecipes: [AIChefRecipe] { mockDatabase.filter { $0.calories <= remainingCalories + 150 } }
+    var allPreviews: [UnifiedRecipePreview] {
+        var list = [UnifiedRecipePreview]()
+        for pr in dataLoader.recipes {
+            list.append(UnifiedRecipePreview(
+                title: pr.title,
+                calories: pr.caloriesPerServing,
+                protein: Int(pr.protein),
+                heroImage: pr.imageUrl,
+                cookTime: Int(pr.time.replacingOccurrences(of: "m", with: "")) ?? 20,
+                ingredients: pr.ingredients.map { "\($0.name) (\($0.amount))" },
+                premiumRecipe: pr,
+                customRecipe: nil
+            ))
+        }
+        for cr in customRecipes {
+            list.append(UnifiedRecipePreview(
+                title: cr.name,
+                calories: cr.totalCalories,
+                protein: Int(cr.foodItems.reduce(0) { $0 + $1.protein }),
+                heroImage: "fork.knife",
+                cookTime: cr.cookingTime,
+                ingredients: cr.foodItems.map { "\($0.name) (\($0.weight)g)" },
+                premiumRecipe: nil,
+                customRecipe: cr
+            ))
+        }
+        return list
+    }
+    
+    var filteredRecipes: [UnifiedRecipePreview] { allPreviews.filter { $0.title.localizedCaseInsensitiveContains(searchText) } }
+    var suggestedRecipes: [UnifiedRecipePreview] { allPreviews.filter { $0.calories <= remainingCalories + 150 }.shuffled().prefix(5).map { $0 } }
 
     var body: some View {
         NavigationStack {
@@ -130,6 +147,30 @@ struct AIChefStudioView: View {
                         .buttonStyle(BounceButtonStyle())
                         .padding(.horizontal)
                         
+                        // Active 7-Day Plan Preview
+                        if let activePlan = weeklyPlans.first(where: { $0.isCurrentPlan }) {
+                            Button(action: {
+                                HapticManager.shared.impact(style: .light)
+                                showActivePlan = true
+                            }) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text("Current 7-Day Protocol").font(.caption.bold()).foregroundColor(themeManager.current.primaryAccent)
+                                        Text("View Active Plan").font(.title3.bold()).foregroundColor(.primary)
+                                        Text("\(activePlan.targetCalories) kcal • \(activePlan.dietType)").font(.subheadline).foregroundColor(.gray)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right.circle.fill").font(.title).foregroundColor(themeManager.current.primaryAccent)
+                                }
+                                .padding(20)
+                                .background(Color.white)
+                                .cornerRadius(24)
+                                .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.horizontal)
+                        }
+                        
                         // 2. ВИДЖЕТ МАКРОСОВ
                         DailyMacroWidget(calories: remainingCalories, protein: remainingProtein, fat: remainingFat, carbs: remainingCarbs)
                         
@@ -147,7 +188,7 @@ struct AIChefStudioView: View {
                         if !searchText.isEmpty {
                             VStack(spacing: 12) {
                                 ForEach(filteredRecipes) { recipe in
-                                    NavigationLink(destination: RecipeDetailAIView(recipe: recipe)) {
+                                    NavigationLink(destination: getDetailView(for: recipe)) {
                                         SearchResultRow(recipe: recipe)
                                     }.buttonStyle(PlainButtonStyle())
                                 }
@@ -161,7 +202,7 @@ struct AIChefStudioView: View {
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 16) {
                                         ForEach(suggestedRecipes) { recipe in
-                                            NavigationLink(destination: RecipeDetailAIView(recipe: recipe)) {
+                                            NavigationLink(destination: getDetailView(for: recipe)) {
                                                 RecipeCardView(recipe: recipe)
                                             }.buttonStyle(PlainButtonStyle())
                                         }
@@ -188,9 +229,27 @@ struct AIChefStudioView: View {
             .fullScreenCover(isPresented: $showAIAssistantFlow) {
                 AIAssistantFlowView(isPresented: $showAIAssistantFlow)
             }
-            .sheet(isPresented: $showSmartBuilder) {
+            .fullScreenCover(isPresented: $showSmartBuilder) {
                 SmartPlanBuilderFlow()
             }
+            .fullScreenCover(isPresented: $showActivePlan) {
+                if let plan = weeklyPlans.first(where: { $0.isCurrentPlan }) {
+                    WeeklyPlanOverview(plan: plan) {
+                        showActivePlan = false
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func getDetailView(for preview: UnifiedRecipePreview) -> some View {
+        if let pr = preview.premiumRecipe {
+            PremiumRecipeDetailView(recipe: pr)
+        } else if let cr = preview.customRecipe {
+            Text("Custom Recipe Details: \(cr.name)")
+        } else {
+            Text("Recipe not found")
         }
     }
 }
@@ -251,10 +310,17 @@ struct MacroPillView: View {
 }
 
 struct SearchResultRow: View {
-    let recipe: AIChefRecipe
+    let recipe: UnifiedRecipePreview
     var body: some View {
         HStack {
-            Image(systemName: recipe.heroImage).foregroundColor(.themePink).frame(width: 40, height: 40).background(Color.themePink.opacity(0.1)).cornerRadius(10)
+            if recipe.heroImage.starts(with: "http") {
+                AsyncImage(url: URL(string: recipe.heroImage)) { phase in
+                    if let image = phase.image { image.resizable().scaledToFill() } else { Color.gray.opacity(0.3) }
+                }
+                .frame(width: 40, height: 40).cornerRadius(10)
+            } else {
+                Image(systemName: recipe.heroImage).foregroundColor(.themePink).frame(width: 40, height: 40).background(Color.themePink.opacity(0.1)).cornerRadius(10)
+            }
             VStack(alignment: .leading) {
                 Text(recipe.title).font(.headline)
                 Text("\(recipe.calories) ккал").font(.caption).foregroundColor(.gray)
@@ -266,12 +332,18 @@ struct SearchResultRow: View {
 }
 
 struct RecipeCardView: View {
-    let recipe: AIChefRecipe
+    let recipe: UnifiedRecipePreview
     var body: some View {
         VStack(alignment: .leading) {
             ZStack {
                 Color.themePink.opacity(0.15)
-                Image(systemName: recipe.heroImage).resizable().scaledToFit().frame(width: 50, height: 50).foregroundColor(.themePink)
+                if recipe.heroImage.starts(with: "http") {
+                    AsyncImage(url: URL(string: recipe.heroImage)) { phase in
+                        if let image = phase.image { image.resizable().scaledToFill() } else { Color.gray.opacity(0.3) }
+                    }
+                } else {
+                    Image(systemName: recipe.heroImage).resizable().scaledToFit().frame(width: 50, height: 50).foregroundColor(.themePink)
+                }
             }.frame(width: 180, height: 120).cornerRadius(16)
             Text(recipe.title).font(.headline).lineLimit(1).padding(.top, 8)
             Text("\(recipe.calories) ккал • \(recipe.cookTime) мин").font(.caption).foregroundColor(.gray)
@@ -426,11 +498,21 @@ struct CookingStepRow: View {
 // ==========================================
 struct AIAssistantFlowView: View {
     @Binding var isPresented: Bool
+    @Environment(RecipeDataLoader.self) private var dataLoader
+    @Query private var customRecipes: [CustomRecipe]
+    
     @State private var searchAgentText = ""
     @State private var selectedRecipe: AIChefRecipe? = nil
     @State private var isPrepPhase = false
+    @State private var isGenerating = false
     
-    var agentResults: [AIChefRecipe] { searchAgentText.isEmpty ? mockDatabase : mockDatabase.filter { $0.title.localizedCaseInsensitiveContains(searchAgentText) } }
+    var agentResults: [UnifiedRecipePreview] {
+        var list = [UnifiedRecipePreview]()
+        for pr in dataLoader.recipes { list.append(UnifiedRecipePreview(title: pr.title, calories: pr.caloriesPerServing, protein: Int(pr.protein), heroImage: pr.imageUrl, cookTime: Int(pr.time.replacingOccurrences(of: "m", with: "")) ?? 20, ingredients: pr.ingredients.map { "\($0.name) (\($0.amount))" }, premiumRecipe: pr, customRecipe: nil)) }
+        for cr in customRecipes { list.append(UnifiedRecipePreview(title: cr.name, calories: cr.totalCalories, protein: Int(cr.foodItems.reduce(0) { $0 + $1.protein }), heroImage: "fork.knife", cookTime: cr.cookingTime, ingredients: cr.foodItems.map { "\($0.name) (\($0.weight)g)" }, premiumRecipe: nil, customRecipe: cr)) }
+        if searchAgentText.isEmpty { return list }
+        return list.filter { $0.title.localizedCaseInsensitiveContains(searchAgentText) }
+    }
     
     var body: some View {
         NavigationStack {
@@ -447,8 +529,7 @@ struct AIAssistantFlowView: View {
                         VStack(spacing: 12) {
                             ForEach(agentResults) { recipe in
                                 Button(action: {
-                                    HapticManager.shared.impact(style: .medium)
-                                    selectedRecipe = recipe; isPrepPhase = true
+                                    generateAI(from: recipe)
                                 }) { SearchResultRow(recipe: recipe) }.buttonStyle(PlainButtonStyle())
                             }
                         }.padding(.horizontal)
@@ -463,9 +544,57 @@ struct AIAssistantFlowView: View {
                             .padding(.bottom, 24)
                     }
                 }
+                .disabled(isGenerating)
+                
+                if isGenerating {
+                    Color.black.opacity(0.3).ignoresSafeArea()
+                    VStack(spacing: 24) {
+                        ProgressView()
+                            .scaleEffect(2.0)
+                            .tint(.themePink)
+                        Text("Шеф-повар ИИ готовит...")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                    }
+                    .padding(40)
+                    .background(Color.white)
+                    .cornerRadius(24)
+                    .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
+                    .transition(.opacity.combined(with: .scale))
+                }
             }
-            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Отмена") { isPresented = false }.foregroundColor(.themePink) } }
+            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Отмена") { isPresented = false }.foregroundColor(.themePink).disabled(isGenerating) } }
             .navigationDestination(isPresented: $isPrepPhase) { if let r = selectedRecipe { PrepChecklistView(recipe: r, isFlowPresented: $isPresented) } }
+        }
+    }
+
+    private func generateAI(from preview: UnifiedRecipePreview) {
+        guard !isGenerating else { return }
+        isGenerating = true
+        HapticManager.shared.impact(style: .medium)
+        
+        Task {
+            if let dto = await AINutritionService.shared.generateCookingSteps(for: preview.title, ingredients: preview.ingredients) {
+                let ai = AIChefRecipe(
+                    title: dto.title,
+                    calories: dto.calories,
+                    protein: dto.protein,
+                    heroImage: preview.heroImage.isEmpty ? "fork.knife" : preview.heroImage,
+                    cookTime: dto.cookTime,
+                    difficulty: dto.difficulty,
+                    history: dto.history,
+                    ingredients: dto.ingredients,
+                    steps: dto.steps.map { RecipeStep(instruction: $0.instruction, imageName: "sparkles", aiTip: $0.aiTip) },
+                    platingTip: dto.platingTip
+                )
+                await MainActor.run {
+                    self.selectedRecipe = ai
+                    self.isGenerating = false
+                    self.isPrepPhase = true
+                }
+            } else {
+                await MainActor.run { self.isGenerating = false }
+            }
         }
     }
 }
@@ -478,32 +607,105 @@ struct PrepChecklistView: View {
     var allChecked: Bool { checkedItems.count == recipe.ingredients.count }
     
     var body: some View {
-        VStack {
-            Text("Подготовка продуктов").font(.title2.bold()).padding()
-            List {
-                Section(header: Text("Отметь, что у тебя есть на столе")) {
-                    ForEach(recipe.ingredients, id: \.self) { item in
-                        HStack {
-                            Text(item).font(.body); Spacer()
-                            Image(systemName: checkedItems.contains(item) ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(checkedItems.contains(item) ? .green : .gray).font(.title2)
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            HapticManager.shared.impact(style: .light)
-                            if checkedItems.contains(item) { checkedItems.remove(item) } else { checkedItems.insert(item) }
+        ZStack(alignment: .bottom) {
+            Color.themeBg.ignoresSafeArea()
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Mise en place").font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        Text("Gather these ingredients before starting.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 16)
+                    
+                    // Progress Indicator
+                    HStack {
+                        ProgressView(value: Double(checkedItems.count), total: Double(max(1, recipe.ingredients.count)))
+                            .tint(.themePink)
+                            .scaleEffect(x: 1, y: 1.5, anchor: .center)
+                        Text("\(checkedItems.count)/\(recipe.ingredients.count)")
+                            .font(.caption.bold())
+                            .foregroundColor(.secondary)
+                            .padding(.leading, 8)
+                    }
+                    .padding(.horizontal)
+                    
+                    VStack(spacing: 12) {
+                        ForEach(recipe.ingredients, id: \.self) { item in
+                            let isChecked = checkedItems.contains(item)
+                            HStack {
+                                Text(item)
+                                    .font(.system(size: 16, weight: isChecked ? .regular : .semibold, design: .rounded))
+                                    .strikethrough(isChecked, color: .gray)
+                                    .foregroundColor(isChecked ? .gray : .primary)
+                                Spacer()
+                                Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(isChecked ? .green : .gray.opacity(0.3))
+                                    .scaleEffect(isChecked ? 1.1 : 1.0)
+                                    .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isChecked)
+                            }
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(isChecked ? Color.green.opacity(0.05) : Color.white)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(isChecked ? Color.green.opacity(0.5) : Color.clear, lineWidth: 1)
+                            )
+                            .shadow(color: Color.black.opacity(isChecked ? 0 : 0.03), radius: 5, y: 2)
+                            .opacity(isChecked ? 0.7 : 1.0)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                HapticManager.shared.impact(style: .light)
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    if checkedItems.contains(item) { checkedItems.remove(item) } else { checkedItems.insert(item) }
+                                }
+                            }
                         }
                     }
+                    .padding(.horizontal)
+                    .padding(.bottom, 120) // padding for the bottom bar
                 }
-            }.listStyle(InsetGroupedListStyle())
+            }
             
-            Button(action: { HapticManager.shared.impact(style: .medium); isCookingPhase = true }) {
-                Text(allChecked ? "Все готово, начинаем!" : "Продолжить")
-                    .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
-                    .padding().background(allChecked ? Color.green : Color.themePink).cornerRadius(16)
-            }.padding()
+            // Sticky Bottom Bar
+            VStack {
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    isCookingPhase = true
+                }) {
+                    HStack {
+                        Text(allChecked ? "Start Cooking!" : "Skip Checklist")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                        if allChecked {
+                            Image(systemName: "flame.fill")
+                        }
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(
+                        allChecked ?
+                        AnyShapeStyle(LinearGradient(colors: [.green, .themePink], startPoint: .topLeading, endPoint: .bottomTrailing)) :
+                        AnyShapeStyle(Color.gray.opacity(0.8))
+                    )
+                    .clipShape(Capsule())
+                    .shadow(color: allChecked ? .green.opacity(0.3) : .clear, radius: 10, y: 5)
+                    .scaleEffect(allChecked ? 1.02 : 1.0)
+                    .animation(allChecked ? .easeInOut(duration: 1.0).repeatForever(autoreverses: true) : .default, value: allChecked)
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
+            }
+            .background(.ultraThinMaterial)
+            .ignoresSafeArea(edges: .bottom)
         }
-        .background(Color.themeBg.ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $isCookingPhase) { AgentCookingView(recipe: recipe, isFlowPresented: $isFlowPresented) }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -525,60 +727,127 @@ struct AgentCookingView: View {
     @Binding var isFlowPresented: Bool
     @State private var showCameraScanner = false
     @State private var currentStepForCamera: RecipeStep? = nil
+    @State private var currentStepIndex = 0
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                ForEach(Array(recipe.steps.enumerated()), id: \.offset) { index, step in
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Circle().fill(Color.themePink.opacity(0.2)).frame(width: 36, height: 36)
-                                .overlay(Text("\(index + 1)").font(.headline).foregroundColor(.themePink))
-                            Text("Инструкция от ИИ").font(.headline).foregroundColor(.secondary)
-                            Spacer()
-                        }
-                        
-                        Text(step.instruction).font(.body.weight(.medium)).lineSpacing(6)
-                        
-                        if let tip = step.aiTip {
-                            HStack(alignment: .top) {
-                                Image(systemName: "sparkles").foregroundColor(.themeOrange).padding(.top, 2)
-                                Text(tip).font(.subheadline).foregroundColor(.secondary)
-                            }.padding(12).background(Color.themeOrange.opacity(0.1)).cornerRadius(12)
-                        }
-                        
-                        Divider().padding(.vertical, 4)
-                        
-                        Button(action: {
-                            HapticManager.shared.impact(style: .medium); currentStepForCamera = step; showCameraScanner = true
-                        }) {
-                            HStack {
-                                Image(systemName: "camera.viewfinder")
-                                Text("Проверить этот шаг через камеру")
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Progress Bar
+                ProgressView(value: Double(currentStepIndex), total: Double(max(1, recipe.steps.count)))
+                    .tint(.themePink)
+                    .background(Color.gray.opacity(0.2))
+                    .padding(.horizontal)
+                    .padding(.top, 10)
+                
+                TabView(selection: $currentStepIndex) {
+                    ForEach(Array(recipe.steps.enumerated()), id: \.offset) { index, step in
+                        VStack(spacing: 0) {
+                            ScrollView(.vertical, showsIndicators: false) {
+                                VStack(alignment: .leading, spacing: 24) {
+                                    HStack(alignment: .top) {
+                                        Text(String(format: "%02d", index + 1))
+                                            .font(.system(size: 64, weight: .heavy, design: .rounded))
+                                            .foregroundColor(.themePink.opacity(0.3))
+                                        Spacer()
+                                        Image(systemName: "sparkles")
+                                            .font(.title)
+                                            .foregroundColor(.themeOrange)
+                                    }
+                                    
+                                    Text(step.instruction)
+                                        .font(.system(size: 24, weight: .medium, design: .serif))
+                                        .lineSpacing(8)
+                                        .foregroundColor(.primary)
+                                        
+                                    if let tip = step.aiTip {
+                                        HStack(alignment: .top, spacing: 16) {
+                                            Image(systemName: "lightbulb.fill")
+                                                .foregroundColor(.yellow)
+                                                .font(.title2)
+                                            Text(tip)
+                                                .font(.subheadline)
+                                                .foregroundColor(.primary)
+                                        }
+                                        .padding(20)
+                                        .background(Color.yellow.opacity(0.15))
+                                        .cornerRadius(16)
+                                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.yellow.opacity(0.3), lineWidth: 1))
+                                    }
+                                    
+                                    Spacer(minLength: 40)
+                                    
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .medium)
+                                        currentStepForCamera = step
+                                        showCameraScanner = true
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "viewfinder")
+                                                .font(.title2)
+                                            Text("AI Camera Check")
+                                                .font(.headline)
+                                        }
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 18)
+                                        .background(
+                                            LinearGradient(colors: [.themePink, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                        )
+                                        .clipShape(Capsule())
+                                        .shadow(color: .themePink.opacity(0.4), radius: 10, y: 5)
+                                    }
+                                }
+                                .padding(24)
                             }
-                            .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding(14).background(Color.themePink).cornerRadius(16)
                         }
-                    }.padding().background(Color.white).cornerRadius(20).padding(.horizontal)
+                        .tag(index)
+                    }
+                    
+                    // Plating step
+                    VStack {
+                        ScrollView {
+                            VStack(alignment: .center, spacing: 24) {
+                                Image(systemName: "star.circle.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.themeOrange)
+                                    .padding(.top, 40)
+                                
+                                Text("Final Touch")
+                                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                                
+                                Text(recipe.platingTip)
+                                    .font(.system(size: 20, weight: .regular, design: .serif))
+                                    .lineSpacing(8)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                    
+                                Spacer(minLength: 60)
+                                
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .rigid)
+                                    isFlowPresented = false
+                                }) {
+                                    Text("Bon Appétit!")
+                                        .font(.title3.bold())
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 20)
+                                        .background(Color.green)
+                                        .clipShape(Capsule())
+                                        .shadow(color: .green.opacity(0.4), radius: 10, y: 5)
+                                }
+                            }
+                            .padding(24)
+                        }
+                    }
+                    .tag(recipe.steps.count)
                 }
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Финальный штрих: Подача").font(.title3.bold()) }
-                    Text(recipe.platingTip)
-                        .font(.body.italic())
-                        .lineSpacing(6)
-                        .foregroundColor(.primary)
-                }
-                .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeOrange.opacity(0.1)).cornerRadius(20).padding(.horizontal)
-                
-                Button("Завершить готовку") {
-                    HapticManager.shared.impact(style: .rigid)
-                    isFlowPresented = false
-                }
-                .foregroundColor(.gray).padding(.top, 20).padding(.bottom, 40)
-            }.padding(.top, 16)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+            }
         }
-        .background(Color.themeBg.ignoresSafeArea())
-        .navigationTitle("ИИ Шеф следит")
+        .navigationTitle("AI Chef")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $showCameraScanner) {
             if let step = currentStepForCamera { AICameraScannerView(step: step, isPresented: $showCameraScanner) }
@@ -605,45 +874,139 @@ struct AICameraScannerView: View {
     @State private var showResult = false
     @State private var aiVerdict = ""
     @State private var isSuccess = true
+    @State private var laserOffset: CGFloat = -180
     
     let successPhrases = ["Идеально! Температура и цвет то что нужно.", "Специи легли отлично. Продолжай!", "Корочка схватилась правильно. Переходи к следующему шагу."]
     let errorPhrases = ["Маловато соли. Добавь еще щепотку!", "Сковорода недостаточно раскалена. Подожди 30 секунд.", "Цвет бледноват, дай блюду еще немного времени."]
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-            VStack {
-                HStack { Button("Закрыть") { isPresented = false }.foregroundColor(.white).padding(); Spacer() }
-                Spacer()
-                ZStack {
-                    RoundedRectangle(cornerRadius: 24).stroke(Color.white.opacity(0.3), lineWidth: 2).frame(width: 300, height: 400)
-                    if isAnalyzing {
-                        VStack { ProgressView().tint(.white).scaleEffect(2); Text("ИИ анализирует...").foregroundColor(.white).padding(.top) }
-                    } else if showResult {
-                        VStack(spacing: 16) {
-                            Image(systemName: isSuccess ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                                .foregroundColor(isSuccess ? .green : .yellow).font(.system(size: 60))
-                            Text(aiVerdict).font(.title3.bold()).foregroundColor(.white).multilineTextAlignment(.center).padding()
-                            Button("Понял") { isPresented = false }.padding().background(Color.white.opacity(0.2)).cornerRadius(12).foregroundColor(.white)
-                        }
-                    } else { Text("Наведи камеру на блюдо").foregroundColor(.white.opacity(0.6)) }
+            // Blurred background mocking a live camera feed
+            ZStack {
+                Color.black.ignoresSafeArea()
+                LinearGradient(colors: [.black, .themePink.opacity(0.3), .black], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .ignoresSafeArea()
+                    .blur(radius: 20)
+                
+                // Grid overlay
+                VStack(spacing: 40) {
+                    ForEach(0..<10, id: \.self) { _ in
+                        Rectangle().fill(Color.white.opacity(0.05)).frame(height: 1)
+                    }
                 }
+            }
+            
+            VStack {
+                HStack { 
+                    Button(action: { isPresented = false }) {
+                        Image(systemName: "xmark")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Circle().fill(Color.black.opacity(0.5)))
+                    }
+                    Spacer() 
+                }
+                .padding()
+                
                 Spacer()
+                
+                // Scanner Box
+                ZStack {
+                    RoundedRectangle(cornerRadius: 32)
+                        .stroke(Color.white.opacity(0.5), style: StrokeStyle(lineWidth: 2, dash: [10, 10]))
+                        .frame(width: 320, height: 400)
+                    
+                    // Laser Animation
+                    if isAnalyzing {
+                        Rectangle()
+                            .fill(LinearGradient(colors: [.clear, .themePink, .clear], startPoint: .top, endPoint: .bottom))
+                            .frame(width: 320, height: 40)
+                            .offset(y: laserOffset)
+                            .shadow(color: .themePink, radius: 20)
+                            .onAppear {
+                                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                                    laserOffset = 180
+                                }
+                            }
+                    }
+                    
+                    if !isAnalyzing && !showResult {
+                        Text("Наведи камеру на блюдо")
+                            .font(.headline)
+                            .foregroundColor(.white.opacity(0.8))
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Capsule().fill(Color.black.opacity(0.6)))
+                    }
+                }
+                
+                Spacer()
+                
                 if !isAnalyzing && !showResult {
                     Button(action: takePhoto) {
-                        Circle().stroke(Color.white, lineWidth: 4).frame(width: 70, height: 70)
-                            .overlay(Circle().fill(Color.white).frame(width: 60, height: 60))
-                    }.padding(.bottom, 40)
+                        ZStack {
+                            Circle().stroke(Color.white.opacity(0.8), lineWidth: 6).frame(width: 80, height: 80)
+                            Circle().fill(Color.white).frame(width: 66, height: 66)
+                        }
+                    }
+                    .padding(.bottom, 50)
                 }
+            }
+            
+            // Result Bottom Sheet
+            if showResult {
+                VStack {
+                    Spacer()
+                    VStack(spacing: 24) {
+                        HStack {
+                            Image(systemName: isSuccess ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
+                                .font(.system(size: 40))
+                                .foregroundColor(isSuccess ? .green : .themeOrange)
+                            Spacer()
+                        }
+                        
+                        Text(aiVerdict)
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Button(action: { isPresented = false }) {
+                            Text(isSuccess ? "Понял" : "Ясно")
+                                .font(.headline.bold())
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(isSuccess ? Color.green : Color.themeOrange)
+                                .clipShape(Capsule())
+                        }
+                        .padding(.top, 10)
+                    }
+                    .padding(32)
+                    .background(Color.themeBg)
+                    .cornerRadius(32)
+                    .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 40)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                .zIndex(2)
             }
         }
     }
     
     func takePhoto() {
-        HapticManager.shared.impact(style: .rigid); isAnalyzing = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isAnalyzing = false; showResult = true; isSuccess = Bool.random()
-            aiVerdict = isSuccess ? successPhrases.randomElement()! : errorPhrases.randomElement()!
+        HapticManager.shared.impact(style: .rigid)
+        withAnimation(.easeInOut) {
+            isAnalyzing = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                isAnalyzing = false
+                showResult = true
+                isSuccess = Bool.random()
+                aiVerdict = isSuccess ? successPhrases.randomElement()! : errorPhrases.randomElement()!
+            }
             HapticManager.shared.impact(style: .medium)
         }
     }

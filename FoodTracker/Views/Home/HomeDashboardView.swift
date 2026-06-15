@@ -90,6 +90,8 @@ struct HomeDashboardContentView: View {
                           HeaderView(selectedDate: selectedDate, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
                           CalendarCarouselView(selectedDate: $selectedDate)
                           InsightsWidget(summary: currentSummary, user: currentUser)
+                          
+                          AnalyticsQuickGlanceWidget(summary: currentSummary, user: currentUser)
 
                           DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
                               .padding(.bottom, 8)
@@ -143,7 +145,7 @@ struct HomeDashboardContentView: View {
                                   Text("Finish Day")
                               }
                               .font(.headline)
-                              .foregroundColor(.white)
+                              .foregroundColor(.black)
                               .frame(maxWidth: .infinity)
                               .padding()
                               .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))

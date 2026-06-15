@@ -19,7 +19,7 @@ enum FoodsRoute: Hashable {
 struct FoodsDashboardView: View {
     @Environment(\.modelContext) private var context
     @State private var path = NavigationPath()
-    @State private var dataLoader = RecipeDataLoader()
+    @Environment(RecipeDataLoader.self) private var dataLoader
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
 
     @State private var selectedFilter: String = "All"
@@ -157,7 +157,7 @@ struct FoodsDashboardView: View {
                 }
             }
         }
-        .environment(dataLoader)
+        // .environment(dataLoader) is now injected from app level
     }
 
     private func deleteMeal(_ meal: Meal) {
