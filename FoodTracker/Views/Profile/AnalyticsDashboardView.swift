@@ -289,56 +289,17 @@ struct MetabolicScoreCard: View {
             VStack(alignment: .leading, spacing: 14) {
                 Divider()
                 
-                Text("Как рассчитывается оценка:")
+                Text("Metabolic Health Breakdown")
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 
-                // Calorie component
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("🎯 Соответствие калориям")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text("\(Int(subs.cal))/50")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.themeOrange)
-                    }
-                    ProgressView(value: subs.cal, total: 50)
-                        .tint(.themeOrange)
+                VStack(spacing: 10) {
+                    MetabolicBreakdownRow(icon: "flame.fill", title: "Caloric Adherence", value: subs.cal, total: 50, color: .themeOrange)
+                    MetabolicBreakdownRow(icon: "drop.fill", title: "Hydration Status", value: subs.hyd, total: 30, color: .blue)
+                    MetabolicBreakdownRow(icon: "chart.bar.fill", title: "Macro & Logging Stability", value: subs.macro, total: 20, color: .green)
                 }
                 
-                // Hydration component
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("💧 Водный баланс")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text("\(Int(subs.hyd))/30")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.blue)
-                    }
-                    ProgressView(value: subs.hyd, total: 30)
-                        .tint(.blue)
-                }
-                
-                // Consistency component
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("📊 Стабильность макро")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text("\(Int(subs.macro))/20")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.green)
-                    }
-                    ProgressView(value: subs.macro, total: 20)
-                        .tint(.green)
-                }
-                
-                Text("Метаболическое здоровье отражает, насколько эффективно ваш организм распределяет энергию и воду. Данный показатель рассчитывается автоматически на основе баланса съеденных калорий (в пределах вашей цели), регулярного питья воды (норма — 2.5 л/день) и стабильного ведения дневника питания.")
+                Text("Your Metabolic Health score represents how efficiently your body utilizes and manages energy and fluid levels. This score is computed dynamically based on three core biomarkers: your adherence to daily calorie targets (50%), consistent hydration levels against a 2.5L daily baseline (30%), and the frequency and balance of your macronutrient logs (20%). Maintaining a score above 90 indicates an optimized, highly functional metabolic profile.")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.secondary)
                     .lineSpacing(4)
@@ -357,6 +318,64 @@ struct MetabolicScoreCard: View {
                 animScore = Double(nv)
             }
         }
+    }
+}
+
+// MARK: - Metabolic Breakdown Row
+struct MetabolicBreakdownRow: View {
+    let icon: String
+    let title: String
+    let value: Double
+    let total: Double
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                HStack(spacing: 8) {
+                    Image(systemName: icon)
+                        .foregroundColor(color)
+                        .font(.system(size: 12, weight: .bold))
+                    Text(title)
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                }
+                
+                Spacer()
+                
+                Text("\(Int(value)) / \(Int(total)) pts")
+                    .font(.system(size: 11, weight: .black, design: .rounded))
+                    .foregroundColor(color)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(color.opacity(0.1))
+                    .cornerRadius(8)
+            }
+            
+            // Custom premium progress bar
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.gray.opacity(0.06))
+                        .frame(height: 6)
+                    
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [color.opacity(0.8), color],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: max(6, geo.size.width * CGFloat(value / total)), height: 6)
+                        .shadow(color: color.opacity(0.2), radius: 2, y: 1)
+                }
+            }
+            .frame(height: 6)
+        }
+        .padding(12)
+        .background(Color.gray.opacity(0.03))
+        .cornerRadius(14)
     }
 }
 
