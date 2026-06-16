@@ -8,7 +8,7 @@ struct SmartScannerView: View {
     @Environment(\.dismiss) private var dismiss
 
     var onProductFound: (FoodItem) -> Void
-    var onManualEntryRequest: () -> Void
+    var onManualEntryRequest: (String?) -> Void
 
     var remainingCalories: Int
     var remainingProtein: Int
@@ -40,7 +40,7 @@ struct SmartScannerView: View {
          remainingCalories: Int = 1000,
          remainingProtein: Int = 50,
          onProductFound: @escaping (FoodItem) -> Void,
-         onManualEntryRequest: @escaping () -> Void) {
+         onManualEntryRequest: @escaping (String?) -> Void) {
         self.onProductFound = onProductFound
         self.onManualEntryRequest = onManualEntryRequest
         self.remainingCalories = remainingCalories
@@ -225,35 +225,61 @@ struct SmartScannerView: View {
                         .font(.headline)
                         .foregroundColor(.white)
 
-                    HStack(spacing: 12) {
-                        // Retry — reset and re-scan
-                        Button(action: retryBarcodeScan) {
-                            Label("Try Again", systemImage: "arrow.counterclockwise")
-                                .font(.subheadline.bold())
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
-                                .background(Color.white.opacity(0.2))
-                                .clipShape(Capsule())
-                        }
+                    Text("Scan the package or nutrition label with AI instead!")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 8)
 
-                        // Manual entry fallback
+                    VStack(spacing: 12) {
                         Button(action: {
-                            HapticManager.shared.impact(style: .medium)
-                            dismiss()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                onManualEntryRequest()
+                            HapticManager.shared.impact(style: .heavy)
+                            withAnimation(.spring()) {
+                                selectedMode = .mealAI
+                                notFoundError = false
                             }
                         }) {
-                            Text("Enter Manually")
-                                .font(.subheadline.bold())
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
-                                .background(Color.white)
+                            Label("Scan with AI", systemImage: "sparkles")
+                                .font(.headline.bold())
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(LinearGradient(colors: [.themePink, .blue], startPoint: .topLeading, endPoint: .bottomTrailing))
                                 .clipShape(Capsule())
                         }
+                        
+                        HStack(spacing: 12) {
+                            // Retry — reset and re-scan
+                            Button(action: retryBarcodeScan) {
+                                Label("Try Again", systemImage: "arrow.counterclockwise")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 10)
+                                    .background(Color.white.opacity(0.2))
+                                    .clipShape(Capsule())
+                            }
+
+                            // Manual entry fallback
+                            Button(action: {
+                                HapticManager.shared.impact(style: .medium)
+                                dismiss()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    onManualEntryRequest(recognizedBarcode)
+                                }
+                            }) {
+                                Text("Enter Manually")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 10)
+                                    .background(Color.white)
+                                    .clipShape(Capsule())
+                            }
+                        }
                     }
+                    .padding(.horizontal, 32)
                 }
 
             } else if !barcodeAvailable {
@@ -311,7 +337,7 @@ struct SmartScannerView: View {
                     HapticManager.shared.impact(style: .medium)
                     dismiss()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        onManualEntryRequest()
+                        onManualEntryRequest(recognizedBarcode)
                     }
                 }
 
@@ -436,8 +462,17 @@ struct SmartScannerView: View {
 
     private func checkCameraPermission() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
-        if status == .denied || status == .restricted {
+        switch status {
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if !granted { self.cameraPermissionDenied = true }
+                }
+            }
+        case .denied, .restricted:
             cameraPermissionDenied = true
+        default:
+            break
         }
     }
 
@@ -610,6 +645,7 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
 
     private let photoOutput = AVCapturePhotoOutput()
     private var isConfigured = false
+    private let sessionQueue = DispatchQueue(label: "com.foodtracker.camera.sessionQueue")
 
     func checkPermissionAndStart() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -618,63 +654,65 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
                 if granted {
-                    DispatchQueue.main.async { self?.setupAndStart() }
+                    self?.setupAndStart()
                 }
             }
-        default:
+        case .denied, .restricted:
+            break
+        @unknown default:
             break
         }
     }
 
     private func setupAndStart() {
-        guard !isConfigured else {
-            if !session.isRunning {
-                DispatchQueue.global(qos: .userInitiated).async { self.session.startRunning() }
+        sessionQueue.async {
+            guard !self.isConfigured else {
+                if !self.session.isRunning {
+                    self.session.startRunning()
+                }
+                return
             }
-            return
-        }
 
-        session.beginConfiguration()
-        session.sessionPreset = .photo
+            self.session.beginConfiguration()
+            self.session.sessionPreset = .photo
 
-        guard
-            let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-            let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
-            session.canAddInput(videoInput)
-        else {
-            session.commitConfiguration()
-            return
-        }
+            guard
+                let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+                let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
+                self.session.canAddInput(videoInput)
+            else {
+                self.session.commitConfiguration()
+                return
+            }
 
-        session.addInput(videoInput)
+            self.session.addInput(videoInput)
 
-        if session.canAddOutput(photoOutput) {
-            session.addOutput(photoOutput)
-        }
+            if self.session.canAddOutput(self.photoOutput) {
+                self.session.addOutput(self.photoOutput)
+            }
 
-        session.commitConfiguration()
-        isConfigured = true
-
-        DispatchQueue.global(qos: .userInitiated).async {
+            self.session.commitConfiguration()
+            self.isConfigured = true
             self.session.startRunning()
         }
     }
 
     func stop() {
-        if session.isRunning {
-            DispatchQueue.global(qos: .userInitiated).async {
+        sessionQueue.async {
+            if self.session.isRunning {
                 self.session.stopRunning()
             }
         }
     }
 
     func takePhoto() {
-        let settings = AVCapturePhotoSettings()
-        // Use highest quality for better AI analysis
-        if let connection = photoOutput.connection(with: .video) {
-            connection.videoRotationAngle = 90 // portrait orientation
+        sessionQueue.async {
+            let settings = AVCapturePhotoSettings()
+            if let connection = self.photoOutput.connection(with: .video) {
+                connection.videoRotationAngle = 90 // portrait orientation
+            }
+            self.photoOutput.capturePhoto(with: settings, delegate: self)
         }
-        photoOutput.capturePhoto(with: settings, delegate: self)
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {

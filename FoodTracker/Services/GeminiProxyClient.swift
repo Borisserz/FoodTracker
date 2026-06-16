@@ -14,8 +14,8 @@ final class GeminiProxyClient {
     // MARK: - Public API (used by services)
 
     /// Sends a text-only prompt expecting a JSON response. Returns decoded type.
-    func fetchJSON<T: Decodable>(prompt: String, responseType: T.Type) async throws -> T {
-        let raw = try await performRequest(prompt: prompt, includeImage: nil, forceJSON: true)
+    func fetchJSON<T: Decodable>(prompt: String, responseType: T.Type, schema: [String: Any]? = nil, temperature: Double? = nil) async throws -> T {
+        let raw = try await performRequest(prompt: prompt, includeImage: nil, forceJSON: true, responseSchema: schema, temperature: temperature)
         let cleaned = cleanJSONResponse(raw)
         return try decode(cleaned, as: T.self, rawForLogging: cleaned)
     }
@@ -30,23 +30,31 @@ final class GeminiProxyClient {
         prompt: String,
         base64Image: String,
         mimeType: String = "image/jpeg",
-        responseType: T.Type
+        responseType: T.Type,
+        schema: [String: Any]? = nil,
+        temperature: Double? = nil
     ) async throws -> T {
-        let raw = try await performRequest(prompt: prompt, includeImage: (base64Image, mimeType), forceJSON: true)
+        let raw = try await performRequest(prompt: prompt, includeImage: (base64Image, mimeType), forceJSON: true, responseSchema: schema, temperature: temperature)
         let cleaned = cleanJSONResponse(raw)
         return try decode(cleaned, as: T.self, rawForLogging: cleaned)
     }
 
     // MARK: - Core Request
 
-    private func performRequest(prompt: String, includeImage: (base64: String, mime: String)?, forceJSON: Bool) async throws -> String {
+    private func performRequest(prompt: String, includeImage: (base64: String, mime: String)?, forceJSON: Bool, responseSchema: [String: Any]? = nil, temperature: Double? = nil) async throws -> String {
         let (authToken, appCheckToken) = try await getFirebaseTokens()
 
         guard let url = URL(string: proxyUrl) else {
             throw GeminiProxyError.invalidURL
         }
 
-        var parts: [[String: Any]] = [["text": prompt]]
+        var localizedPrompt = prompt
+        if let preferredLang = Locale.preferredLanguages.first {
+            let langName = Locale.current.localizedString(forIdentifier: preferredLang) ?? preferredLang
+            localizedPrompt += "\n\nIMPORTANT: You MUST respond in \(langName) (\(preferredLang)) unless instructed otherwise. Maintain JSON keys in English if a JSON schema is requested."
+        }
+
+        var parts: [[String: Any]] = [["text": localizedPrompt]]
 
         if let image = includeImage {
             parts.append([
@@ -58,10 +66,13 @@ final class GeminiProxyClient {
         }
 
         var generationConfig: [String: Any] = [
-            "temperature": includeImage == nil ? 0.7 : 0.4   // slightly more deterministic for vision
+            "temperature": temperature ?? (includeImage == nil ? 0.7 : 0.4)   // slightly more deterministic for vision
         ]
         if forceJSON {
             generationConfig["responseMimeType"] = "application/json"
+        }
+        if let schema = responseSchema {
+            generationConfig["responseSchema"] = schema
         }
 
         let requestBody: [String: Any] = [

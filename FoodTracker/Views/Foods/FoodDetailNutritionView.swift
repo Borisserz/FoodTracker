@@ -8,19 +8,34 @@ struct FoodDetailNutritionView: View {
     var onAdd: (FoodItem) -> Void
 
     @State private var weight: Double
+    
+    // Editable base properties
+    @State private var editedName: String
+    @State private var baseCalories: Int
+    @State private var baseProtein: Double
+    @State private var baseFats: Double
+    @State private var baseCarbs: Double
+    
+    @State private var showAdjustSheet = false
 
     init(food: FoodItem, mealTitle: String, onAdd: @escaping (FoodItem) -> Void) {
         self.food = food
         self.mealTitle = mealTitle
         self.onAdd = onAdd
         self._weight = State(initialValue: food.weight > 0 ? food.weight : 100.0)
+        
+        self._editedName = State(initialValue: food.name)
+        self._baseCalories = State(initialValue: food.calories)
+        self._baseProtein = State(initialValue: food.protein)
+        self._baseFats = State(initialValue: food.fats)
+        self._baseCarbs = State(initialValue: food.carbs)
     }
 
     private var multiplier: Double { weight / max(food.weight, 1.0) }
-    private var currentCals: Int { Int(Double(food.calories) * multiplier) }
-    private var currentP: Double { food.protein * multiplier }
-    private var currentF: Double { food.fats * multiplier }
-    private var currentC: Double { food.carbs * multiplier }
+    private var currentCals: Int { Int(Double(baseCalories) * multiplier) }
+    private var currentP: Double { baseProtein * multiplier }
+    private var currentF: Double { baseFats * multiplier }
+    private var currentC: Double { baseCarbs * multiplier }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -30,7 +45,10 @@ struct FoodDetailNutritionView: View {
                 VStack(spacing: 20) {
 
                     VStack(spacing: 0) {
-                        FoodDetailHeader(name: food.name)
+                        FoodDetailHeader(name: editedName) {
+                            HapticManager.shared.impact(style: .medium)
+                            showAdjustSheet = true
+                        }
 
                         MacroDonutChartCard(
                             calories: currentCals,
@@ -91,7 +109,7 @@ struct FoodDetailNutritionView: View {
                     Button(action: {
                         HapticManager.shared.impact(style: .heavy)
                         let addedFood = FoodItem(
-                            name: food.name,
+                            name: editedName,
                             weight: weight,
                             calories: currentCals,
                             protein: currentP,
@@ -130,6 +148,18 @@ struct FoodDetailNutritionView: View {
             .ignoresSafeArea(edges: .bottom)
         }
         .navigationBarHidden(true)
+        .sheet(isPresented: $showAdjustSheet) {
+            AdjustMacrosSheet(
+                name: $editedName,
+                calories: $baseCalories,
+                protein: $baseProtein,
+                fats: $baseFats,
+                carbs: $baseCarbs
+            )
+            .presentationDetents([.fraction(0.7), .large])
+            .presentationCornerRadius(32)
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 
@@ -138,6 +168,7 @@ private struct FoodDetailHeader: View {
     @State private var isFavorite = false
 
     let name: String
+    var onAdjust: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -159,6 +190,14 @@ private struct FoodDetailHeader: View {
                     Image(systemName: isFavorite ? "star.fill" : "star")
                         .font(.title3)
                         .foregroundColor(isFavorite ? .themeYellow : .white)
+                        .frame(width: 40, height: 40)
+                        .background(Color.black.opacity(0.2))
+                        .clipShape(Circle())
+                }
+                Button(action: onAdjust) {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.title3)
+                        .foregroundColor(.white)
                         .frame(width: 40, height: 40)
                         .background(Color.black.opacity(0.2))
                         .clipShape(Circle())
@@ -419,5 +458,123 @@ struct RoundedCorner: Shape {
     func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         return Path(path.cgPath)
+    }
+}
+
+// MARK: - AdjustMacrosSheet
+struct AdjustMacrosSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var name: String
+    @Binding var calories: Int
+    @Binding var protein: Double
+    @Binding var fats: Double
+    @Binding var carbs: Double
+
+    var body: some View {
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+                .onTapGesture { hideKeyboard() }
+                
+            VStack(spacing: 24) {
+                Capsule()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 40, height: 5)
+                    .padding(.top, 10)
+
+                HStack {
+                    Text(String(localized: "Adjust Results"))
+                        .font(.title2.bold())
+                    Spacer()
+                    Button(String(localized: "Done")) {
+                        hideKeyboard()
+                        HapticManager.shared.impact(style: .medium)
+                        dismiss()
+                    }
+                    .font(.headline)
+                    .foregroundColor(.themePink)
+                }
+                .padding(.horizontal, 24)
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        AdjustInputField(title: String(localized: "Food Name"), icon: "pencil", text: $name)
+                        
+                        HStack(spacing: 16) {
+                            AdjustNumberField(title: String(localized: "Calories"), icon: "flame.fill", color: .themeOrange, value: Binding(get: { Double(calories) }, set: { calories = Int($0) }))
+                            AdjustNumberField(title: String(localized: "Protein"), icon: "bolt.fill", color: .themePeach, value: $protein)
+                        }
+                        
+                        HStack(spacing: 16) {
+                            AdjustNumberField(title: String(localized: "Fats"), icon: "drop.fill", color: .themeYellow, value: $fats)
+                            AdjustNumberField(title: String(localized: "Carbs"), icon: "leaf.fill", color: .drinkWater, value: $carbs)
+                        }
+                        
+                        Spacer().frame(height: 40)
+                    }
+                    .padding(.horizontal, 24)
+                }
+                .scrollDismissesKeyboard(.interactively)
+            }
+        }
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
+struct AdjustInputField: View {
+    let title: String
+    let icon: String
+    @Binding var text: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.subheadline.bold()).foregroundColor(.gray)
+            HStack {
+                Image(systemName: icon).foregroundColor(.themePink)
+                TextField(title, text: $text)
+                    .font(.headline)
+            }
+            .padding()
+            .background(Color(uiColor: .secondarySystemGroupedBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+        }
+    }
+}
+
+struct AdjustNumberField: View {
+    let title: String
+    let icon: String
+    let color: Color
+    @Binding var value: Double
+    
+    private var textBinding: Binding<String> {
+        Binding(
+            get: { value == 0 ? "" : (value.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", value) : String(format: "%.1f", value)) },
+            set: {
+                let filtered = $0.filter { "0123456789.".contains($0) }
+                if let val = Double(filtered) { value = val }
+                else if filtered.isEmpty { value = 0 }
+            }
+        )
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.subheadline.bold()).foregroundColor(.gray)
+            HStack {
+                Image(systemName: icon).foregroundColor(color)
+                TextField("0", text: textBinding)
+                    .keyboardType(.decimalPad)
+                    .font(.headline.bold())
+                    .multilineTextAlignment(.trailing)
+            }
+            .padding()
+            .background(Color(uiColor: .secondarySystemGroupedBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+        }
     }
 }

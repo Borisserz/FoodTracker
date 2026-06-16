@@ -88,6 +88,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // === Custom Barcodes (Shared Crowdsourced DB) ===
+    match /custom_barcodes/{barcode} {
+      allow read, create: if true;
+      allow update, delete: if false;
+    }
+
     // === Default deny for everything else ===
     match /{document=**} {
       allow read, write: if false;

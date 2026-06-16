@@ -526,8 +526,10 @@ struct AddIngredientModalView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
 
+    var failedBarcode: String? = nil
     var onSave: (FoodItem) -> Void
 
+    @State private var showingLabelScanner = false
     @State private var name: String = ""
     @State private var weight: String = "100"
 
@@ -547,6 +549,39 @@ struct AddIngredientModalView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
+                    
+                        if let barcode = failedBarcode {
+                            VStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.themeOrange)
+                                Text("Barcode \(barcode) not found")
+                                    .font(.headline)
+                                Text("Please enter the details manually or use AI to scan the nutrition label.")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 10)
+                        }
+                        
+                        Button(action: {
+                            HapticManager.shared.impact(style: .medium)
+                            showingLabelScanner = true
+                        }) {
+                            Label("Scan Label with AI", systemImage: "sparkles")
+                                .font(.headline.bold())
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(LinearGradient(colors: [.purple, .indigo], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .cornerRadius(20)
+                                .shadow(color: Color.purple.opacity(0.3), radius: 8, y: 4)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, failedBarcode == nil ? 10 : 0)
+                        .buttonStyle(BounceButtonStyle())
 
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Basic Info").font(.headline).foregroundColor(.gray)
@@ -628,6 +663,20 @@ struct AddIngredientModalView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showingLabelScanner) {
+            SmartScannerView(
+                initialMode: .mealAI,
+                onProductFound: { item in
+                    self.name = item.name
+                    self.calories = "\(item.calories)"
+                    self.protein = "\(item.protein)"
+                    self.fats = "\(item.fats)"
+                    self.carbs = "\(item.carbs)"
+                    self.weight = "\(Int(item.weight))"
+                },
+                onManualEntryRequest: { _ in }
+            )
+        }
     }
 
     private func saveIngredient() {
@@ -643,6 +692,10 @@ struct AddIngredientModalView: View {
 
         context.insert(newFood)
         try? context.save()
+
+        if let barcode = failedBarcode {
+            BarcodeDatabaseService.shared.saveCustomBarcode(barcode: barcode, item: newFood)
+        }
 
         onSave(newFood)
         dismiss()

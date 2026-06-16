@@ -54,6 +54,11 @@ class NetworkManager {
 
     func fetchProduct(barcode: String) async -> FoodItem? {
         print("🔍 Ищем штрихкод \(barcode)...")
+        if let customProduct = await BarcodeDatabaseService.shared.fetchCustomBarcode(barcode: barcode) {
+            print("✅ Нашли в Custom Barcodes DB: \(customProduct.name)")
+            return customProduct
+        }
+
         if let offProduct = await fetchBarcodeFromOFF(barcode: barcode) {
             print("✅ Нашли в Open Food Facts: \(offProduct.name)")
             return offProduct

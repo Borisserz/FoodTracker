@@ -1566,6 +1566,7 @@ struct SmartAddFoodView: View {
 
     @State private var showingScanner = false
     @State private var showingManualAdd = false
+    @State private var failedBarcodeForManualAdd: String? = nil
     @State private var selectedFoods: [FoodItem] = []
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
@@ -1802,11 +1803,14 @@ struct SmartAddFoodView: View {
             SmartScannerView(
                 initialMode: scannerMode,
                 onProductFound: { foundFood in selectedFoodForDetail = foundFood },
-                onManualEntryRequest: { showingManualAdd = true }
+                onManualEntryRequest: { barcode in
+                    failedBarcodeForManualAdd = barcode
+                    showingManualAdd = true
+                }
             )
         }
         .sheet(isPresented: $showingManualAdd) {
-            AddIngredientModalView { newCustomItem in
+            AddIngredientModalView(failedBarcode: failedBarcodeForManualAdd) { newCustomItem in
                 withAnimation(.spring()) { selectedFoods.append(newCustomItem) }
             }
             .presentationDetents([.fraction(0.85), .large])

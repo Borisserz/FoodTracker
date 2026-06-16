@@ -239,15 +239,8 @@ class AINutritionService {
                     "protein": Int,
                     "carbs": Int,
                     "fat": Int,
-                    "omega3": Double,
-                    "calcium": Double,
-                    "potassium": Double,
-                    "magnesium": Double,
-                    "iron": Double,
-                    "vitaminC": Double,
-                    "vitaminD": Double,
-                    "ingredients": "String",
-                    "instructions": "String",
+                    "ingredients": "String (comma-separated list)",
+                    "instructions": "String (1 brief sentence)",
                     "prepTimeMinutes": Int
                   }
                ]
@@ -257,7 +250,7 @@ class AINutritionService {
         Do not include markdown tags. Only output the raw JSON. Ensure all arrays have 7 items for days, and 4 items for meals.
         """
         
-        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self) {
+        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self, temperature: 0.2) {
             let plan = WeeklyMealPlan(targetCalories: targetCalories, dietType: diet)
             
             for dayDTO in dto.days {
@@ -454,9 +447,9 @@ class AINutritionService {
         }
     }
 
-    private func fetchFromGemini<T: Codable>(prompt: String, responseType: T.Type) async -> T? {
+    private func fetchFromGemini<T: Codable>(prompt: String, responseType: T.Type, schema: [String: Any]? = nil, temperature: Double? = nil) async -> T? {
         do {
-            return try await client.fetchJSON(prompt: prompt, responseType: responseType)
+            return try await client.fetchJSON(prompt: prompt, responseType: responseType, schema: schema, temperature: temperature)
         } catch {
             // The client already logs detailed decode/raw info on failure.
             print("❌ AI Service Exception: \(error.localizedDescription)")

@@ -137,6 +137,8 @@ struct WaterGridTrackerView: View {
                context.insert(newBeverage)
                summary.beverages = (summary.beverages ?? []) + [newBeverage]
                try? context.save()
+               let updatedLiters = ((summary.beverages ?? []).filter { $0.name == "Water" }.reduce(0) { $0 + $1.volumeMl }) / 1000.0
+               WorkoutSyncManager.shared.syncWater(updatedLiters, for: Date())
            }
 
            if let user = users.first, user.isHealthKitEnabled {
@@ -156,6 +158,8 @@ struct WaterGridTrackerView: View {
                 summary.beverages = bevs
                 context.delete(lastWater)
                 try? context.save()
+                let updatedLiters = ((summary.beverages ?? []).filter { $0.name == "Water" }.reduce(0) { $0 + $1.volumeMl }) / 1000.0
+                WorkoutSyncManager.shared.syncWater(updatedLiters, for: Date())
             }
         }
     }

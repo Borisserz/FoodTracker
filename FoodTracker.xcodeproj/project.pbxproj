@@ -21,6 +21,7 @@
 		AC6A96632F8FF42600905EA9 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = AC6A96622F8FF42600905EA9 /* SwiftJWT */; };
 		AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */; };
 		ACE3AC9A2FE13D86000A0564 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = ACE3AC992FE13D86000A0564 /* FirebaseCore */; };
+		ACEDE6B92FE1846300283E1C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = ACEDE6392FE1846300283E1C /* PrivacyInfo.xcprivacy */; };
 		ACF45AA92F9E4A4C00206681 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AA82F9E4A4C00206681 /* FirebaseAnalytics */; };
 		ACF45AAB2F9E4A4C00206681 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAA2F9E4A4C00206681 /* FirebaseFirestore */; };
 		ACF45AAD2F9E4A4C00206681 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAC2F9E4A4C00206681 /* FirebaseRemoteConfig */; };
@@ -66,6 +67,7 @@
 		AB07AB497C9BEAD74F622C56 /* SharedModelContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedModelContainer.swift; path = FoodTracker/Models/SharedModelContainer.swift; sourceTree = "<group>"; };
 		AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		ACD93EFF2F8AC7E200868265 /* FoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		ACEDE6392FE1846300283E1C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C44C0ADF6D4FF58EA8ECD7E9 /* WidgetViews.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
 		DAB29E7F1966EC006FE3E74E /* DataModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataModels.swift; path = FoodTracker/Models/DataModels.swift; sourceTree = "<group>"; };
 		FC00383639427959FB24E438 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -153,6 +155,7 @@
 		ACD93EF62F8AC7E200868265 = {
 			isa = PBXGroup;
 			children = (
+				ACEDE6392FE1846300283E1C /* PrivacyInfo.xcprivacy */,
 				AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */,
 				ACD93F012F8AC7E200868265 /* FoodTracker */,
 				ACD93F002F8AC7E200868265 /* Products */,
@@ -287,6 +290,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ACEDE6B92FE1846300283E1C /* PrivacyInfo.xcprivacy in Resources */,
 				AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

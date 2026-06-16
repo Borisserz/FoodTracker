@@ -10,13 +10,14 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.667537183554-d61rbgt3boe1s91uh12hth1o53vgp901</string>
+				<string>foodtracker</string>
 			</array>
 		</dict>
 	</array>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>FoodTracker needs access to your camera to let the AI Chef analyze your cooking techniques in real-time.</string>
+	<string>FoodTracker needs access to your camera to scan barcodes, analyze your meals, and evaluate your cooking techniques in real-time.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

@@ -3547,6 +3547,9 @@
         }
       }
     },
+    "0" : {
+
+    },
     "1.8 L" : {
       "localizations" : {
         "de" : {
@@ -5466,6 +5469,9 @@
           }
         }
       }
+    },
+    "Adjust Results" : {
+
     },
     "Adjust to 100%" : {
       "comment" : "A text that appears when the user's macro percentages are not 100%. It prompts them to adjust them.",
@@ -8398,6 +8404,9 @@
       }
     },
     "Barcode" : {
+
+    },
+    "Barcode %@ not found" : {
 
     },
     "Barcode Scan" : {
@@ -14137,6 +14146,9 @@
         }
       }
     },
+    "Done" : {
+
+    },
     "Drink 2.5L in a day" : {
       "localizations" : {
         "de" : {
@@ -16822,6 +16834,9 @@
           }
         }
       }
+    },
+    "Food Name" : {
+
     },
     "Foods" : {
       "comment" : "The tab label for the \"Foods\" tab in the main view.",
@@ -26772,6 +26787,9 @@
         }
       }
     },
+    "Please enter the details manually or use AI to scan the nutrition label." : {
+
+    },
     "Please update to the latest version to continue." : {
       "localizations" : {
         "de" : {
@@ -29039,6 +29057,15 @@
           }
         }
       }
+    },
+    "Scan Label with AI" : {
+
+    },
+    "Scan the package or nutrition label with AI instead!" : {
+
+    },
+    "Scan with AI" : {
+
     },
     "Scanner Not Available" : {
       "localizations" : {
