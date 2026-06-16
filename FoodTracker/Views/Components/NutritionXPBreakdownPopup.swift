@@ -46,14 +46,14 @@ struct NutritionXPBreakdownPopup: View {
                     .animation(.easeIn.delay(0.4), value: showContent)
                 
                 VStack(spacing: 16) {
-                    xpRow(title: "Base Logging XP", value: animatedBase)
+                    xpRow(title: String(localized: "Base Logging XP"), value: animatedBase)
                     
                     if breakdown.proteinGoalXP > 0 {
-                        xpRow(title: "Protein Goal Bonus", value: animatedProtein, color: .themePink)
+                        xpRow(title: String(localized: "Protein Goal Bonus"), value: animatedProtein, color: .themePink)
                     }
                     
                     if breakdown.calorieGoalXP > 0 {
-                        xpRow(title: "Calorie Match Bonus", value: animatedCalories, color: .themeOrange)
+                        xpRow(title: String(localized: "Calorie Match Bonus"), value: animatedCalories, color: .themeOrange)
                     }
                     
                     Divider().background(Color.black.opacity(0.1))

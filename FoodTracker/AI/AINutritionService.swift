@@ -301,43 +301,88 @@ class AINutritionService {
 
     private func imageUrlForDish(title: String) -> String {
         let t = title.lowercased()
-        if t.contains("oat") || t.contains("porridge") {
-            return "https://images.unsplash.com/photo-1517881917430-e70dfb3610aa?w=600&auto=format&fit=crop"
-        } else if t.contains("egg") || t.contains("omelet") || t.contains("scramble") {
-            return "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&auto=format&fit=crop"
-        } else if t.contains("pancake") || t.contains("waffle") || t.contains("crepe") {
-            return "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&auto=format&fit=crop"
-        } else if t.contains("toast") || t.contains("sandwich") || t.contains("bread") {
-            return "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&auto=format&fit=crop"
-        } else if t.contains("salad") || t.contains("green") || t.contains("caesar") {
-            return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop"
-        } else if t.contains("chicken") || t.contains("turkey") || t.contains("poultry") {
-            return "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&auto=format&fit=crop"
-        } else if t.contains("salmon") || t.contains("tuna") || t.contains("fish") || t.contains("shrimp") || t.contains("seafood") {
-            return "https://images.unsplash.com/photo-1485921325814-a5341aff6148?w=600&auto=format&fit=crop"
-        } else if t.contains("steak") || t.contains("beef") || t.contains("meat") || t.contains("pork") || t.contains("lamb") {
-            return "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop"
-        } else if t.contains("pasta") || t.contains("spaghetti") || t.contains("lasagna") || t.contains("noodle") {
-            return "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&auto=format&fit=crop"
-        } else if t.contains("soup") || t.contains("broth") || t.contains("stew") {
-            return "https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=600&auto=format&fit=crop"
-        } else if t.contains("smoothie") || t.contains("shake") || t.contains("juice") {
-            return "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&auto=format&fit=crop"
-        } else if t.contains("yogurt") || t.contains("curd") || t.contains("parfait") {
-            return "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&auto=format&fit=crop"
-        } else if t.contains("sushi") || t.contains("roll") {
-            return "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&auto=format&fit=crop"
-        } else if t.contains("wrap") || t.contains("burrito") || t.contains("taco") || t.contains("quesadilla") {
-            return "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&auto=format&fit=crop"
-        } else if t.contains("rice") || t.contains("quinoa") || t.contains("grain") {
-            return "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&auto=format&fit=crop"
-        } else if t.contains("fruit") || t.contains("apple") || t.contains("banana") || t.contains("berry") || t.contains("berries") {
-            return "https://images.unsplash.com/photo-1490818384979-93b26b26a5b4?w=600&auto=format&fit=crop"
-        } else if t.contains("nut") || t.contains("almond") || t.contains("peanut") || t.contains("cashew") {
-            return "https://images.unsplash.com/photo-1511066929037-9d698502c44d?w=600&auto=format&fit=crop"
-        } else {
-            return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&auto=format&fit=crop"
+        
+        let mappings: [([String], [String])] = [
+            (["oat", "porridge"], [
+                "1517881917430-e70dfb3610aa", "1511690656020-366021647eb6", "1614548483733-4f9389ea8731"
+            ]),
+            (["egg", "omelet", "scramble", "frittata"], [
+                "1525351484163-7529414344d8", "1533089860892-a7c6f0a88666", "1482049142969-95758d11c41b"
+            ]),
+            (["pancake", "waffle", "crepe"], [
+                "1567620905732-2d1ec7ab7445", "1506084868230-f61b0c05763d", "1558961363-6311ce97ee94"
+            ]),
+            (["toast", "sandwich", "bread", "bagel", "burger"], [
+                "1481070555726-e2883cdf38bd", "1550508443-400f6825c04b", "1528735602780-2552fd46c7af", "1568901346375-23c9450c58cd"
+            ]),
+            (["salad", "green", "caesar", "lettuce", "spinach", "kale"], [
+                "1512621776951-a57141f2eefd", "1540189549336-e6e99c3679fe", "1505253716362-afaea1d3d1af", "1550304943-4f24f54bcde4"
+            ]),
+            (["chicken", "turkey", "poultry", "wing"], [
+                "1532550907401-a500c9a57435", "1604908176997-125f25cc6f3d", "1598514982205-f36b96d1e8d4", "1604908176997-125f25cc6f3d"
+            ]),
+            (["salmon", "tuna", "fish", "shrimp", "seafood", "prawn"], [
+                "1485921325814-a5341aff6148", "1519708227418-c8fd9a32b7a2", "1546069901-ba9599a7e63c", "1615141982309-847fb6f6f966"
+            ]),
+            (["steak", "beef", "meat", "pork", "lamb", "rib", "brisket"], [
+                "1544025162-d76694265947", "1529692236671-f1f6cf9683ba", "1555939594-58d7cb561ad1", "1600891964092-4b16e16ac6f5"
+            ]),
+            (["pasta", "spaghetti", "lasagna", "noodle", "macaroni", "ramen"], [
+                "1563379091339-03b21ab4a4f8", "1473093295043-cdd812d0e601", "1555949258-eb67b1ef0ceb", "1595295333158-4742f28fbd85"
+            ]),
+            (["soup", "broth", "stew", "chili", "chowder"], [
+                "1547592165-e1d17fed6005", "1548943487-a2e4f43b4850", "1604152002344-bd0d9e262de6", "1576402244246-3b6920fdf94f"
+            ]),
+            (["smoothie", "shake", "juice", "drink", "cocktail"], [
+                "1553530666-ba11a7da3888", "1505253716362-afaea1d3d1af", "1557004396-6b21bc598eb4", "1623065422902-30a5d29cfa28"
+            ]),
+            (["yogurt", "curd", "parfait", "pudding"], [
+                "1488477181946-6428a0291777", "1572449043416-55f4685c9bb7", "1495287342676-e1704da8845c"
+            ]),
+            (["sushi", "roll", "sashimi"], [
+                "1579871494447-9811cf80d66c", "1553621042-f6e147245754", "1583623025817-d180a2221d05"
+            ]),
+            (["wrap", "burrito", "taco", "quesadilla", "fajita"], [
+                "1565299585323-38d6b0865b47", "1551504734-b46ec60e58f0", "1564834724105-918b73d1b9e0", "1584988018301-3e47087f9788"
+            ]),
+            (["rice", "quinoa", "grain", "bowl", "couscous"], [
+                "1512058564366-18510be2db19", "1546069901-ba9599a7e63c", "1514326640561-12c5b0c95aeb", "1551244465-ee53154e17b3"
+            ]),
+            (["fruit", "apple", "banana", "berry", "berries", "melon", "orange"], [
+                "1490818384979-93b26b26a5b4", "1481349518771-20055b2a7b24", "1610832958506-aa56368176cf", "1519996434828-991510d9fb6a"
+            ]),
+            (["nut", "almond", "peanut", "cashew", "walnut"], [
+                "1511066929037-9d698502c44d", "1610437435136-1e66ce93f9c6", "1599595562725-d72b53b8110b"
+            ]),
+            (["vegan", "plant-based", "tofu", "tempeh", "veggie"], [
+                "1512621776951-a57141f2eefd", "1490645935980-d698a21133ab", "1546069901-ba9599a7e63c"
+            ]),
+            (["cake", "cookie", "pie", "dessert", "sweet", "chocolate"], [
+                "1550617931-e17a7b70dce2", "1488477181946-6428a0291777", "1578985545062-69928b1d9587", "1551024601-bec78aea704b"
+            ])
+        ]
+        
+        // Find matching category
+        for (keywords, ids) in mappings {
+            if keywords.contains(where: { t.contains($0) }) {
+                if let photoId = ids.randomElement() {
+                    return "https://images.unsplash.com/photo-\(photoId)?w=600&auto=format&fit=crop"
+                }
+            }
         }
+        
+        // Powerful Fallback
+        let fallbackIds = [
+            "1498837167922-ddd27525d352",
+            "1476224203421-9ce132453550",
+            "1482049142969-95758d11c41b",
+            "1504674900247-0877df9cc836",
+            "1490645935980-d698a21133ab",
+            "1493770348161-369560ae357d"
+        ]
+        
+        let randomFallback = fallbackIds.randomElement() ?? "1498837167922-ddd27525d352"
+        return "https://images.unsplash.com/photo-\(randomFallback)?w=600&auto=format&fit=crop"
     }
 
     func sendChatMessage(prompt: String, userContext: String, activeDiet: String) async -> String? {

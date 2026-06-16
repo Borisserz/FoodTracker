@@ -136,14 +136,14 @@ struct AIVisualProgressView: View {
     private var uploadWindows: some View {
         HStack(spacing: 16) {
             photoUploadBox(
-                title: "Before",
+                title: String(localized: "Before"),
                 item: $beforeItem,
                 image: beforeImage,
                 gradient: [.gray.opacity(0.15), .gray.opacity(0.05)]
             )
             
             photoUploadBox(
-                title: "After",
+                title: String(localized: "After"),
                 item: $afterItem,
                 image: afterImage,
                 gradient: [themeManager.current.primaryAccent.opacity(0.2), themeManager.current.primaryAccent.opacity(0.05)]
@@ -398,33 +398,33 @@ struct AIVisualProgressView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         AIVisualInsightCard(
-                            label: "Progress Pace",
+                            label: String(localized: "Progress Pace"),
                             value: "Optimal",
-                            desc: "Safe & steady",
+                            desc: String(localized: "Safe & steady"),
                             icon: "speedometer",
                             color: .green
                         )
                         
                         AIVisualInsightCard(
-                            label: "Muscle Tone",
+                            label: String(localized: "Muscle Tone"),
                             value: "Enhanced",
-                            desc: "Visible definition",
+                            desc: String(localized: "Visible definition"),
                             icon: "figure.strengthtraining.traditional",
                             color: themeManager.current.primaryAccent
                         )
                         
                         AIVisualInsightCard(
-                            label: "Posture Symmetry",
+                            label: String(localized: "Posture Symmetry"),
                             value: "Improved",
-                            desc: "Better alignment",
+                            desc: String(localized: "Better alignment"),
                             icon: "figure.mind.and.body",
                             color: .cyan
                         )
                         
                         AIVisualInsightCard(
-                            label: "Trajectory",
+                            label: String(localized: "Trajectory"),
                             value: "On Track",
-                            desc: "Hitting visual goals",
+                            desc: String(localized: "Hitting visual goals"),
                             icon: "target",
                             color: .orange
                         )

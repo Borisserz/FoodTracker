@@ -337,7 +337,7 @@ struct Step2IngredientsView: View {
                     .padding(.horizontal, 20)
                     .shadow(color: Color.black.opacity(0.03), radius: 10, y: 4)
                 } else {
-                    EmptyStateView(imageName: "cart.badge.plus", title: "No ingredients", description: "Tap the buttons above to add food.")
+                    EmptyStateView(imageName: "cart.badge.plus", title: String(localized: "No ingredients"), description: String(localized: "Tap the buttons above to add food."))
                         .frame(height: 200)
                 }
             }
@@ -552,9 +552,9 @@ struct AddIngredientModalView: View {
                             Text("Basic Info").font(.headline).foregroundColor(.gray)
 
                             VStack(spacing: 0) {
-                                CustomTextFieldRow(title: "Name", placeholder: "e.g. Oat Milk", text: $name, isNumber: false)
+                                CustomTextFieldRow(title: String(localized: "Name"), placeholder: "e.g. Oat Milk", text: $name, isNumber: false)
                                 Divider().padding(.leading, 20)
-                                CustomTextFieldRow(title: "Weight (g)", placeholder: "100", text: $weight, isNumber: true)
+                                CustomTextFieldRow(title: String(localized: "Weight (g)"), placeholder: "100", text: $weight, isNumber: true)
                             }
                             .background(Color.white)
                             .cornerRadius(20)
@@ -569,13 +569,13 @@ struct AddIngredientModalView: View {
                             }
 
                             VStack(spacing: 0) {
-                                CustomTextFieldRow(title: "Calories (kcal)", placeholder: "0", text: $calories, isNumber: true)
+                                CustomTextFieldRow(title: String(localized: "Calories (kcal)"), placeholder: "0", text: $calories, isNumber: true)
                                 Divider().padding(.leading, 20)
-                                CustomTextFieldRow(title: "Protein (g)", placeholder: "0", text: $protein, isNumber: true)
+                                CustomTextFieldRow(title: String(localized: "Protein (g)"), placeholder: "0", text: $protein, isNumber: true)
                                 Divider().padding(.leading, 20)
-                                CustomTextFieldRow(title: "Fats (g)", placeholder: "0", text: $fats, isNumber: true)
+                                CustomTextFieldRow(title: String(localized: "Fats (g)"), placeholder: "0", text: $fats, isNumber: true)
                                 Divider().padding(.leading, 20)
-                                CustomTextFieldRow(title: "Carbs (g)", placeholder: "0", text: $carbs, isNumber: true)
+                                CustomTextFieldRow(title: String(localized: "Carbs (g)"), placeholder: "0", text: $carbs, isNumber: true)
                             }
                             .background(Color.white)
                             .cornerRadius(20)
@@ -693,9 +693,9 @@ struct RecipeMacroDonutView: View {
                 }.frame(width: 90, height: 90)
                 Spacer()
                 HStack(spacing: 16) {
-                    MacroStatColumn(percent: cPct, grams: carbs, title: "Carbs", color: .drinkWater)
-                    MacroStatColumn(percent: fPct, grams: fat, title: "Fat", color: .themeYellow)
-                    MacroStatColumn(percent: pPct, grams: protein, title: "Protein", color: .themePeach)
+                    MacroStatColumn(percent: cPct, grams: carbs, title: String(localized: "Carbs"), color: .drinkWater)
+                    MacroStatColumn(percent: fPct, grams: fat, title: String(localized: "Fat"), color: .themeYellow)
+                    MacroStatColumn(percent: pPct, grams: protein, title: String(localized: "Protein"), color: .themePeach)
                 }
             }
         }.padding(20).background(Color.white).cornerRadius(24).shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)

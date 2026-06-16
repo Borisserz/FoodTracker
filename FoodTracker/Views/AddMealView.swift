@@ -438,9 +438,9 @@ private struct AddMealSummaryCard: View {
             
             // Macro Grid/Pills
             HStack(spacing: 12) {
-                MacroSummaryMiniProgress(title: "Proteins", current: protein, goal: proteinGoal, color: .themePink)
-                MacroSummaryMiniProgress(title: "Carbs", current: carbs, goal: carbsGoal, color: .blue)
-                MacroSummaryMiniProgress(title: "Fats", current: fats, goal: fatsGoal, color: .orange)
+                MacroSummaryMiniProgress(title: String(localized: "Proteins"), current: protein, goal: proteinGoal, color: .themePink)
+                MacroSummaryMiniProgress(title: String(localized: "Carbs"), current: carbs, goal: carbsGoal, color: .blue)
+                MacroSummaryMiniProgress(title: String(localized: "Fats"), current: fats, goal: fatsGoal, color: .orange)
             }
         }
         .padding(20)

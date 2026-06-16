@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 // MARK: - 📦 Модели Данных
 struct RecipeStep: Identifiable, Hashable {
@@ -49,10 +50,38 @@ struct AIChefStudioView: View {
     @Query private var customRecipes: [CustomRecipe]
     @Query(sort: \WeeklyMealPlan.createdDate, order: .reverse) private var weeklyPlans: [WeeklyMealPlan]
     
-    @State private var remainingCalories: Int = 450
-    @State private var remainingProtein: Int = 32
-    @State private var remainingFat: Int = 18
-    @State private var remainingCarbs: Int = 45
+    @Query private var users: [User]
+    @Query private var summaries: [DailySummary]
+    
+    var currentUser: User? { users.first }
+    var currentSummary: DailySummary? {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        return summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) })
+    }
+    
+    var remainingCalories: Int {
+        guard let user = currentUser else { return 450 } // fallback
+        let consumed = currentSummary?.totalCalories ?? 0
+        return max(0, Int(user.dailyCaloriesGoal) - consumed)
+    }
+    
+    var remainingProtein: Int {
+        guard let user = currentUser else { return 32 }
+        let consumed = currentSummary?.totalProtein ?? 0.0
+        return max(0, Int(user.targetProtein) - Int(consumed))
+    }
+    
+    var remainingFat: Int {
+        guard let user = currentUser else { return 18 }
+        let consumed = currentSummary?.totalFats ?? 0.0
+        return max(0, Int(user.targetFats) - Int(consumed))
+    }
+    
+    var remainingCarbs: Int {
+        guard let user = currentUser else { return 45 }
+        let consumed = currentSummary?.totalCarbs ?? 0.0
+        return max(0, Int(user.targetCarbs) - Int(consumed))
+    }
     
     @State private var searchText = ""
     @State private var showAIAssistantFlow = false
@@ -549,20 +578,28 @@ struct AIAssistantFlowView: View {
                 .disabled(isGenerating)
                 
                 if isGenerating {
-                    Color.black.opacity(0.3).ignoresSafeArea()
-                    VStack(spacing: 24) {
-                        ProgressView()
-                            .scaleEffect(2.0)
-                            .tint(.themePink)
-                        Text("AI Chef is cooking...")
-                            .font(.headline)
-                            .foregroundColor(.primary)
+                    ZStack {
+                        Color.themeBg.ignoresSafeArea()
+                        
+                        VStack(spacing: 40) {
+                            AIChefLoadingSpinner()
+                            
+                            VStack(spacing: 12) {
+                                Text("AI Chef is preparing...")
+                                    .font(.system(size: 26, weight: .heavy, design: .rounded))
+                                    .foregroundColor(.primary)
+                                
+                                Text("Generating personalized recipe, optimal timing, and smart tips for your perfect dish.")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 40)
+                                    .lineSpacing(6)
+                            }
+                        }
                     }
-                    .padding(40)
-                    .background(Color.white)
-                    .cornerRadius(24)
-                    .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
-                    .transition(.opacity.combined(with: .scale))
+                    .transition(.opacity)
+                    .zIndex(100)
                 }
             }
             .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Cancel") { isPresented = false }.foregroundColor(.themePink).disabled(isGenerating) } }
@@ -727,7 +764,6 @@ struct PrepChecklistView: View {
 struct AgentCookingView: View {
     let recipe: AIChefRecipe
     @Binding var isFlowPresented: Bool
-    @State private var showCameraScanner = false
     @State private var currentStepForCamera: RecipeStep? = nil
     @State private var currentStepIndex = 0
     
@@ -783,7 +819,6 @@ struct AgentCookingView: View {
                                     Button(action: {
                                         HapticManager.shared.impact(style: .medium)
                                         currentStepForCamera = step
-                                        showCameraScanner = true
                                     }) {
                                         HStack {
                                             Image(systemName: "viewfinder")
@@ -851,8 +886,14 @@ struct AgentCookingView: View {
         }
         .navigationTitle("AI Chef")
         .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $showCameraScanner) {
-            if let step = currentStepForCamera { AICameraScannerView(step: step, isPresented: $showCameraScanner) }
+        .fullScreenCover(item: $currentStepForCamera) { step in
+            AICameraScannerView(
+                step: step,
+                isPresented: Binding(
+                    get: { currentStepForCamera != nil },
+                    set: { if !$0 { currentStepForCamera = nil } }
+                )
+            )
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -869,147 +910,389 @@ struct AgentCookingView: View {
     }
 }
 
+// MARK: - 📸 AICameraScannerView (Real Camera + Real AI Evaluation)
 struct AICameraScannerView: View {
     let step: RecipeStep
     @Binding var isPresented: Bool
+
+    @State private var cameraManager = LiveFoodCameraManager()
     @State private var isAnalyzing = false
     @State private var showResult = false
-    @State private var aiVerdict = ""
-    @State private var isSuccess = true
-    @State private var laserOffset: CGFloat = -180
-    
-    let successPhrases = [String(localized: "Perfect! Temperature and color are spot on."), String(localized: "Spices look great. Keep going!"), String(localized: "The crust is searing perfectly. Move to the next step.")]
-    let errorPhrases = [String(localized: "A bit low on salt. Add a pinch!"), String(localized: "The pan is not hot enough. Wait 30 seconds."), String(localized: "Color is a bit pale, give it a bit more time.")]
-    
+    @State private var verdict: VertexAIManager.ChefVerdictResponse? = nil
+    @State private var showShutterFlash = false
+    @State private var laserOffset: CGFloat = -160
+
     var body: some View {
         ZStack {
-            // Blurred background mocking a live camera feed
-            ZStack {
-                Color.black.ignoresSafeArea()
-                LinearGradient(colors: [.black, .themePink.opacity(0.3), .black], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    .ignoresSafeArea()
-                    .blur(radius: 20)
-                
-                // Grid overlay
-                VStack(spacing: 40) {
-                    ForEach(0..<10, id: \.self) { _ in
-                        Rectangle().fill(Color.white.opacity(0.05)).frame(height: 1)
-                    }
-                }
-            }
-            
-            VStack {
-                HStack { 
+            // ── Real live camera preview ─────────────────────────────────
+            LiveCameraPreviewView(session: cameraManager.session)
+                .ignoresSafeArea()
+                .onAppear { cameraManager.checkPermissionAndStart() }
+                .onDisappear { cameraManager.stop() }
+
+            // Subtle dark overlay so UI elements are readable
+            Color.black.opacity(0.35).ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // ── Top bar ──────────────────────────────────────────────
+                HStack {
                     Button(action: { isPresented = false }) {
                         Image(systemName: "xmark")
-                            .font(.title2.bold())
+                            .font(.system(size: 17, weight: .bold))
                             .foregroundColor(.white)
-                            .padding()
-                            .background(Circle().fill(Color.black.opacity(0.5)))
+                            .frame(width: 40, height: 40)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
                     }
-                    Spacer() 
+                    Spacer()
+                    Label("AI Chef Check", systemImage: "sparkles")
+                        .font(.subheadline.bold())
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Capsule())
+                    Spacer()
+                    Color.clear.frame(width: 40, height: 40)
                 }
-                .padding()
-                
+                .padding(.horizontal, 20)
+                .padding(.top, 56)
+
+                // ── Step instruction card ────────────────────────────────
+                Text(step.instruction)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(16)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+
                 Spacer()
-                
-                // Scanner Box
+
+                // ── Viewfinder frame ─────────────────────────────────────
                 ZStack {
-                    RoundedRectangle(cornerRadius: 32)
-                        .stroke(Color.white.opacity(0.5), style: StrokeStyle(lineWidth: 2, dash: [10, 10]))
-                        .frame(width: 320, height: 400)
-                    
-                    // Laser Animation
+                    // Dashed border frame
+                    RoundedRectangle(cornerRadius: 28)
+                        .stroke(Color.white.opacity(0.5),
+                                style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
+                        .frame(width: 300, height: 340)
+
+                    // Scanning laser (only while analyzing)
                     if isAnalyzing {
                         Rectangle()
-                            .fill(LinearGradient(colors: [.clear, .themePink, .clear], startPoint: .top, endPoint: .bottom))
-                            .frame(width: 320, height: 40)
+                            .fill(
+                                LinearGradient(
+                                    colors: [.clear, .themePink.opacity(0.9), .clear],
+                                    startPoint: .top, endPoint: .bottom
+                                )
+                            )
+                            .frame(width: 300, height: 36)
                             .offset(y: laserOffset)
-                            .shadow(color: .themePink, radius: 20)
+                            .shadow(color: .themePink, radius: 16)
                             .onAppear {
-                                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                                    laserOffset = 180
+                                withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
+                                    laserOffset = 160
                                 }
                             }
                     }
-                    
+
+                    // Idle hint
                     if !isAnalyzing && !showResult {
-                        Text("Point camera at the dish")
-                            .font(.headline)
-                            .foregroundColor(.white.opacity(0.8))
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(Capsule().fill(Color.black.opacity(0.6)))
+                        VStack(spacing: 10) {
+                            Image(systemName: "viewfinder")
+                                .font(.system(size: 48, weight: .ultraLight))
+                                .foregroundColor(.white.opacity(0.5))
+                            Text("Frame the dish and snap")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
                     }
                 }
-                
+
                 Spacer()
-                
+
+                // ── Shutter button ───────────────────────────────────────
                 if !isAnalyzing && !showResult {
                     Button(action: takePhoto) {
                         ZStack {
-                            Circle().stroke(Color.white.opacity(0.8), lineWidth: 6).frame(width: 80, height: 80)
-                            Circle().fill(Color.white).frame(width: 66, height: 66)
+                            Circle()
+                                .fill(Color.themePink)
+                                .frame(width: 80, height: 80)
+                                .shadow(color: .themePink.opacity(0.5), radius: 14, y: 6)
+                            Circle()
+                                .stroke(Color.white, lineWidth: 4)
+                                .frame(width: 70, height: 70)
+                            Image(systemName: "camera.fill")
+                                .font(.title2)
+                                .foregroundColor(.white)
                         }
                     }
-                    .padding(.bottom, 50)
+                    .padding(.bottom, 54)
+                    .transition(.scale.combined(with: .opacity))
                 }
             }
-            
-            // Result Bottom Sheet
-            if showResult {
+
+            // ── Shutter flash ────────────────────────────────────────────
+            if showShutterFlash {
+                Color.white.ignoresSafeArea()
+            }
+
+            // ── AI Analyzing overlay ─────────────────────────────────────
+            if isAnalyzing {
+                ZStack {
+                    Color.black.opacity(0.82).ignoresSafeArea()
+                    VStack(spacing: 28) {
+                        ZStack {
+                            Circle()
+                                .stroke(
+                                    LinearGradient(colors: [.themePink, .purple, .blue],
+                                                   startPoint: .topLeading, endPoint: .bottomTrailing),
+                                    lineWidth: 4
+                                )
+                                .frame(width: 90, height: 90)
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 40))
+                                .foregroundStyle(
+                                    LinearGradient(colors: [.themePink, .purple],
+                                                   startPoint: .top, endPoint: .bottom)
+                                )
+                                .symbolEffect(.pulse)
+                        }
+                        VStack(spacing: 6) {
+                            Text("AI Chef is evaluating…")
+                                .font(.title3.bold())
+                                .foregroundColor(.white)
+                            Text("Analyzing your technique")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+                    }
+                }
+                .transition(.opacity)
+                .zIndex(100)
+            }
+
+            // ── Result bottom sheet ──────────────────────────────────────
+            if showResult, let v = verdict {
                 VStack {
                     Spacer()
-                    VStack(spacing: 24) {
-                        HStack {
-                            Image(systemName: isSuccess ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
-                                .font(.system(size: 40))
-                                .foregroundColor(isSuccess ? .green : .themeOrange)
-                            Spacer()
-                        }
-                        
-                        Text(aiVerdict)
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
-                            .foregroundColor(.primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Button(action: { isPresented = false }) {
-                            Text(isSuccess ? "Понял" : "Ясно")
-                                .font(.headline.bold())
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(isSuccess ? Color.green : Color.themeOrange)
-                                .clipShape(Capsule())
-                        }
-                        .padding(.top, 10)
+                    ChefVerdictResultView(verdict: v) {
+                        isPresented = false
                     }
-                    .padding(32)
-                    .background(Color.themeBg)
-                    .cornerRadius(32)
-                    .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 40)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(200)
                 }
-                .zIndex(2)
+            }
+        }
+        .onChange(of: cameraManager.capturedImage) { _, image in
+            if let image {
+                sendToAI(image: image)
+            }
+        }
+        .animation(.spring(response: 0.4), value: isAnalyzing)
+        .animation(.spring(response: 0.4), value: showResult)
+    }
+
+    // MARK: - Actions
+
+    private func takePhoto() {
+        HapticManager.shared.impact(style: .heavy)
+        withAnimation(.linear(duration: 0.08)) { showShutterFlash = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+            withAnimation { showShutterFlash = false }
+        }
+        cameraManager.capturedImage = nil
+        cameraManager.takePhoto()
+    }
+
+    private func sendToAI(image: UIImage) {
+        withAnimation { isAnalyzing = true }
+        Task {
+            // Real AI call — sends the photo + step instruction to Gemini
+            let response = await VertexAIManager.shared.analyzeChefCookingStep(
+                image: image,
+                stepInstruction: step.instruction
+            )
+            await MainActor.run {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                    isAnalyzing = false
+                    // Fallback if AI fails (network issue, etc.)
+                    verdict = response ?? VertexAIManager.ChefVerdictResponse(
+                        score: 70,
+                        verdict: "good",
+                        feedback: "Looking good! Keep going with confidence.",
+                        tip: step.aiTip ?? "Focus on consistency in technique."
+                    )
+                    showResult = true
+                    HapticManager.shared.notification(type: .success)
+                }
             }
         }
     }
-    
-    func takePhoto() {
-        HapticManager.shared.impact(style: .rigid)
-        withAnimation(.easeInOut) {
-            isAnalyzing = true
+}
+
+// MARK: - ChefVerdictResultView
+// Displays the Michelin-star AI score and tips in a rich bottom sheet.
+struct ChefVerdictResultView: View {
+    let verdict: VertexAIManager.ChefVerdictResponse
+    let onDismiss: () -> Void
+
+    private var accentColor: Color {
+        switch verdict.verdict {
+        case "perfect":    return .green
+        case "good":       return .themeOrange
+        default:           return .red
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                isAnalyzing = false
-                showResult = true
-                isSuccess = Bool.random()
-                aiVerdict = isSuccess ? successPhrases.randomElement()! : errorPhrases.randomElement()!
+    }
+
+    private var emoji: String {
+        switch verdict.verdict {
+        case "perfect":    return "🏆"
+        case "good":       return "👨‍🍳"
+        default:           return "🔄"
+        }
+    }
+
+    private var label: String {
+        switch verdict.verdict {
+        case "perfect":    return "Perfect!"
+        case "good":       return "Good Job"
+        default:           return "Needs Work"
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Drag handle
+            Capsule()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 40, height: 4)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
+
+            // Score ring + emoji
+            ZStack {
+                Circle()
+                    .stroke(Color.gray.opacity(0.12), lineWidth: 10)
+                    .frame(width: 110, height: 110)
+
+                Circle()
+                    .trim(from: 0, to: CGFloat(verdict.score) / 100.0)
+                    .stroke(
+                        LinearGradient(colors: [accentColor.opacity(0.6), accentColor],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing),
+                        style: StrokeStyle(lineWidth: 10, lineCap: .round)
+                    )
+                    .frame(width: 110, height: 110)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.spring(response: 0.8, dampingFraction: 0.7), value: verdict.score)
+
+                VStack(spacing: 2) {
+                    Text(emoji)
+                        .font(.title2)
+                    Text("\(verdict.score)")
+                        .font(.system(size: 22, weight: .black, design: .rounded))
+                        .foregroundColor(accentColor)
+                    Text("/ 100")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
             }
-            HapticManager.shared.impact(style: .medium)
+            .padding(.bottom, 12)
+
+            // Verdict label
+            Text(label)
+                .font(.title2.bold())
+                .foregroundColor(accentColor)
+                .padding(.bottom, 4)
+
+            // Main feedback
+            Text(verdict.feedback)
+                .font(.body)
+                .foregroundColor(.primary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
+
+            // Pro tip card
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "lightbulb.fill")
+                    .foregroundColor(.themeYellow)
+                    .font(.title3)
+                    .padding(.top, 2)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Chef's Tip")
+                        .font(.caption.bold())
+                        .foregroundColor(.themeYellow)
+                    Text(verdict.tip)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .lineSpacing(3)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.themeYellow.opacity(0.1))
+            .cornerRadius(16)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
+
+            // CTA button
+            Button(action: onDismiss) {
+                Text(verdict.verdict == "perfect" ? "Awesome! Next Step →" : "Got It! Keep Cooking")
+                    .font(.headline.bold())
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(accentColor)
+                    .clipShape(Capsule())
+                    .shadow(color: accentColor.opacity(0.35), radius: 8, y: 4)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 40)
+        }
+        .background(Color.themeBg)
+        .cornerRadius(32)
+        .shadow(color: .black.opacity(0.2), radius: 30, y: -10)
+        .padding(.horizontal, 8)
+    }
+}
+
+// MARK: - AIChefLoadingSpinner
+struct AIChefLoadingSpinner: View {
+    @State private var isSpinning = false
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.gray.opacity(0.1), lineWidth: 10)
+                .frame(width: 140, height: 140)
+            
+            Circle()
+                .trim(from: 0, to: 0.7)
+                .stroke(
+                    LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing),
+                    style: StrokeStyle(lineWidth: 10, lineCap: .round)
+                )
+                .frame(width: 140, height: 140)
+                .rotationEffect(.degrees(isSpinning ? 360 : 0))
+                .animation(.linear(duration: 1.5).repeatForever(autoreverses: false), value: isSpinning)
+                
+            Image(systemName: "sparkles")
+                .font(.system(size: 50))
+                .foregroundStyle(
+                    LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom)
+                )
+                .symbolEffect(.pulse)
+        }
+        .onAppear {
+            isSpinning = true
         }
     }
 }

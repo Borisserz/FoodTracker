@@ -128,9 +128,9 @@ struct DietHeroCard: View {
 
             VStack(spacing: 20) {
                 HStack(spacing: 24) {
-                    MacroMiniStat(title: "Fat", value: diet.macroBreakdown.fat, color: .themeYellow)
-                    MacroMiniStat(title: "Protein", value: diet.macroBreakdown.protein, color: .themePeach)
-                    MacroMiniStat(title: "Carbs", value: diet.macroBreakdown.carbs, color: .drinkWater)
+                    MacroMiniStat(title: String(localized: "Fat"), value: diet.macroBreakdown.fat, color: .themeYellow)
+                    MacroMiniStat(title: String(localized: "Protein"), value: diet.macroBreakdown.protein, color: .themePeach)
+                    MacroMiniStat(title: String(localized: "Carbs"), value: diet.macroBreakdown.carbs, color: .drinkWater)
                 }
 
                 HStack {
@@ -245,11 +245,11 @@ struct PremiumDietDetailView: View {
                     VStack(spacing: 24) {
 
                         HStack(spacing: 0) {
-                            MacroDonutStat(title: "Fat", percent: diet.macroBreakdown.fat, color: .themeYellow)
+                            MacroDonutStat(title: String(localized: "Fat"), percent: diet.macroBreakdown.fat, color: .themeYellow)
                             Divider().frame(height: 50)
-                            MacroDonutStat(title: "Protein", percent: diet.macroBreakdown.protein, color: .themePeach)
+                            MacroDonutStat(title: String(localized: "Protein"), percent: diet.macroBreakdown.protein, color: .themePeach)
                             Divider().frame(height: 50)
-                            MacroDonutStat(title: "Carbs", percent: diet.macroBreakdown.carbs, color: .drinkWater)
+                            MacroDonutStat(title: String(localized: "Carbs"), percent: diet.macroBreakdown.carbs, color: .drinkWater)
                         }
                         .padding(20)
                         .background(Color.white)
@@ -270,9 +270,9 @@ struct PremiumDietDetailView: View {
                                 .padding(.horizontal, 24)
 
                             VStack(spacing: 12) {
-                                DietFeatureRow(icon: "chart.pie.fill", color: .themePink, text: "Auto-adjusts your daily Protein, Fat, and Carbs targets.")
-                                DietFeatureRow(icon: "magnifyingglass", color: .green, text: "Highlights compatible & forbidden foods while searching.")
-                                DietFeatureRow(icon: "sparkles", color: .blue, text: "AI Coach adapts its advice strictly to the \(diet.name) rules.")
+                                DietFeatureRow(icon: "chart.pie.fill", color: .themePink, text: String(localized: "Auto-adjusts your daily Protein, Fat, and Carbs targets."))
+                                DietFeatureRow(icon: "magnifyingglass", color: .green, text: String(localized: "Highlights compatible & forbidden foods while searching."))
+                                DietFeatureRow(icon: "sparkles", color: .blue, text: String(localized: "AI Coach adapts its advice strictly to the \(diet.name) rules."))
                             }
                             .padding(.horizontal, 24)
                         }

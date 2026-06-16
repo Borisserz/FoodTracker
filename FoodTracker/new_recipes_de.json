@@ -1,0 +1,747 @@
+[
+  {
+    "title": "Keto-Avocado-Lachsboot",
+    "description": "Dieses einfache, aber elegante Lachsboot ist reich an Omega-3-Fettsäuren und gesunden Fetten und eignet sich perfekt für ein Keto-Abendessen. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Keto",
+      "Hoher Proteingehalt",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Lachsfilet",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Olivenöl",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Zitronensaft",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Heizen Sie Ihren Backofen auf 400 °F (200 °C) vor.",
+      "Die Avocado halbieren und den Kern entfernen.",
+      "Legen Sie ein kleines Stück Lachs in die ausgehöhlte Avocadohälfte.",
+      "Mit Olivenöl, Zitronensaft, Salz und Pfeffer beträufeln.",
+      "15–20 Minuten backen, bis der Lachs gar ist."
+    ]
+  },
+  {
+    "title": "Proteinreiche Blaubeerpfannkuchen",
+    "description": "Beginnen Sie Ihren Morgen mit diesen flauschigen, proteinreichen Pfannkuchen voller frischer Antioxidantien. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Frühstück",
+      "Hoher Proteingehalt",
+      "Vegetarier"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Hafermehl",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Proteinpulver (Vanille)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Mandelmilch",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Blaubeeren",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "In einer Schüssel Hafermehl und Proteinpulver vermischen.",
+      "Nach und nach die Mandelmilch unterrühren, bis ein glatter Teig entsteht.",
+      "Die frischen Blaubeeren vorsichtig unterheben.",
+      "In einer beschichteten Pfanne bei mittlerer Hitze kochen, bis sich Blasen bilden, dann wenden.",
+      "Heiß mit einem Schuss zuckerfreiem Sirup servieren."
+    ]
+  },
+  {
+    "title": "Mediterrane Quinoa-Bowl",
+    "description": "Eine lebendige, erfrischende Schüssel voller Ballaststoffe und gesunder Fette, perfekt für ein sonniges Mittagessen am Nachmittag. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Mittagessen",
+      "Vegan",
+      "Mittelmeer"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Gekochte Quinoa",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Kirschtomaten",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Gurke",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Kalamata-Oliven",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Hummus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Legen Sie die gekochte Quinoa auf den Boden Ihrer Schüssel.",
+      "Die Kirschtomaten halbieren und die Gurken in Scheiben schneiden.",
+      "Tomaten, Gurken und Oliven auf dem Quinoa anrichten.",
+      "Mit einer großzügigen Kugel Hummus und einem Schuss Olivenöl belegen."
+    ]
+  },
+  {
+    "title": "Scharfes, mageres Puten-Chili",
+    "description": "Wärmen Sie Ihre Seele und erreichen Sie Ihre Proteinziele mit diesem reichhaltigen und würzigen Truthahn-Chili. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Hoher Proteingehalt",
+      "Wenig Fett"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Lean Ground Turkey",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Kidneybohnen",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Zerkleinerte Tomaten",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Chilipulver",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Das Putenhackfleisch in einem großen Topf bei mittlerer Hitze anbraten.",
+      "Das Chilipulver einrühren und 1 Minute kochen lassen, bis es duftet.",
+      "Die zerkleinerten Tomaten und Kidneybohnen (abgetropft und abgespült) hinzufügen.",
+      "30 Minuten köcheln lassen, damit sich die Aromen vermischen.",
+      "Vor dem Servieren mit einer Prise fettarmem Käse oder Koriander garnieren."
+    ]
+  },
+  {
+    "title": "Erfrischender grüner Detox-Smoothie",
+    "description": "Ein schneller Vitamin- und Feuchtigkeitsschub, hervorragend für die Erholung nach dem Training oder einen frischen Start in den Morgen. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Frühstück",
+      "Snack",
+      "Vegan",
+      "Roh"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Spinat",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Grüner Apfel",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banane",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Kokoswasser",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Den grünen Apfel entkernen und hacken.",
+      "Spinat, Apfel, Banane und Kokoswasser in einen Mixer geben.",
+      "Auf höchster Stufe mixen, bis eine vollkommen glatte Masse entsteht.",
+      "In ein gekühltes Glas füllen und sofort genießen!"
+    ]
+  },
+  {
+    "title": "Low-Carb-Zucchininudeln mit Pesto",
+    "description": "Eine leichte und geschmackvolle Alternative zu Nudeln, verfeinert mit einer reichhaltigen Basilikum-Pesto-Sauce. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Keto",
+      "Vegetarier",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Zucchini",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Basilikumpesto",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Parmesankäse",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Kirschtomaten",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Aus der Zucchini dünne Nudeln formen.",
+      "Eine Pfanne bei mittlerer Hitze erhitzen und die Nudeln 2–3 Minuten leicht anbraten.",
+      "Vom Herd nehmen und mit Basilikumpesto vermengen, bis es gleichmäßig bedeckt ist.",
+      "Mit halbierten Kirschtomaten und geriebenem Parmesan belegen."
+    ]
+  },
+  {
+    "title": "Klassischer Hähnchen-Caesar-Salat",
+    "description": "Knusprige Römersalat, zartes gegrilltes Hähnchen und ein cremig-würziges Dressing machen dies zu einem zeitlosen Favoriten. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Mittagessen",
+      "Hoher Proteingehalt"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Hühnerbrust",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Römersalat",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Caesar-Dressing",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Croutons",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Die Hähnchenbrust würzen und grillen, bis sie vollständig gar ist. Lassen Sie es ruhen und schneiden Sie es dann in Scheiben.",
+      "Den Römersalat hacken und in eine große Schüssel geben.",
+      "Den Salat mit Caesar-Dressing vermengen.",
+      "Mit Hähnchenscheiben und einer Handvoll Croutons belegen."
+    ]
+  },
+  {
+    "title": "Chia-Pudding über Nacht",
+    "description": "Wachen Sie mit einem verzehrfertigen, cremigen und nahrhaften Chia-Pudding mit frischen Früchten auf. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Frühstück",
+      "Vegan",
+      "Glutenfrei"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Chia-Samen",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Mandelmilch",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Ahornsirup",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Frische Beeren",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "In einem Glas Chiasamen, Mandelmilch und Ahornsirup verrühren.",
+      "5 Minuten ruhen lassen und dann erneut verquirlen, um ein Verklumpen zu verhindern.",
+      "Abdecken und über Nacht (oder mindestens 2 Stunden) im Kühlschrank lagern.",
+      "Vor dem Servieren mit frischen Beeren belegen."
+    ]
+  },
+  {
+    "title": "Snackschale mit gerösteten Kichererbsen",
+    "description": "Knusprig, salzig und unglaublich sättigend. Ein ballaststoffreicher Snack, der satt hält. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Snack",
+      "Vegan",
+      "Hoher Ballaststoffgehalt"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Kichererbsen (Konserviert)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Olivenöl",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Geräucherter Paprika",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Meersalz",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Den Ofen auf 200 °C (400 °F) vorheizen.",
+      "Die Kichererbsen abtropfen lassen, abspülen und gründlich mit einem Papiertuch trocknen.",
+      "Die Kichererbsen mit Olivenöl, Paprika und Salz vermengen.",
+      "Gleichmäßig auf einem Backblech verteilen und 20–25 Minuten knusprig rösten."
+    ]
+  },
+  {
+    "title": "Steakhäppchen mit Knoblauchbutter",
+    "description": "Zart, saftig und voller Geschmack. Diese Steakhäppchen sind das ultimative proteinreiche Abendessen. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Keto",
+      "Hoher Proteingehalt"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Lendensteak",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Butter",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Knoblauchzehen",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Frische Petersilie",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Das Steak in mundgerechte Würfel schneiden und mit Salz und Pfeffer würzen.",
+      "Erhitzen Sie eine Pfanne bei starker Hitze und braten Sie die Steakstücke 3-4 Minuten lang an.",
+      "Hitze reduzieren, Butter und gehackten Knoblauch hinzufügen und vermengen, um das Steak zu bedecken.",
+      "Mit gehackter frischer Petersilie garnieren und sofort servieren."
+    ]
+  },
+  {
+    "title": "Veganes Süßkartoffel-Curry",
+    "description": "Ein wohltuendes, cremiges Kokos-Curry mit Süßkartoffeln und warmen Gewürzen. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Vegan",
+      "Glutenfrei"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Süßkartoffel",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Kokosmilch (Lite)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Currypaste",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Spinat",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Die Süßkartoffeln schälen und in kleine Würfel schneiden.",
+      "In einem großen Topf die Currypaste vorsichtig anbraten, bis sie duftet.",
+      "Süßkartoffeln und Kokosmilch hinzufügen. 20 Minuten köcheln lassen, bis es weich ist.",
+      "Den Spinat unterrühren und vor dem Servieren zusammenfallen lassen."
+    ]
+  },
+  {
+    "title": "Eier-Muffin-Frühstücksbecher",
+    "description": "Tragbare, proteinreiche Eiermuffins, die Sie für geschäftige Morgen vorbereiten können. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Frühstück",
+      "Keto",
+      "Hoher Proteingehalt"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Eier",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Cheddar-Käse",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Paprika",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Spinat",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Den Backofen auf 175 °C (350 °F) vorheizen und eine Muffinform einfetten.",
+      "Eier in einer Schüssel verquirlen und mit Salz und Pfeffer würzen.",
+      "Gehackte Paprika, Spinat und Käse auf die Muffinförmchen verteilen.",
+      "Die Eiermischung über die Füllungen gießen und 15–20 Minuten backen."
+    ]
+  },
+  {
+    "title": "Thunfisch-Avocado-Salat",
+    "description": "Ein Mayonnaise-freier Thunfischsalat mit cremiger Avocado für gesunde Fette und eine unglaubliche Textur. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Mittagessen",
+      "Keto",
+      "Hoher Proteingehalt"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Thunfischkonserven",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Rote Zwiebel",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Zitronensaft",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Den Thunfisch abtropfen lassen und in eine Schüssel geben.",
+      "Die Avocado dazugeben und zusammen mit dem Thunfisch mit einer Gabel zerdrücken.",
+      "Fein gewürfelte rote Zwiebeln, Zitronensaft, Salz und Pfeffer unterrühren.",
+      "Auf Gurkenscheiben oder Vollkorntoast servieren."
+    ]
+  },
+  {
+    "title": "Schokoladen-Erdnussbutter-Smoothie",
+    "description": "Schmeckt wie ein Nachtisch, ist aber voller muskelaufbauender Proteine ​​und gesunder Fette. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Snack",
+      "Hoher Proteingehalt",
+      "Vegetarier"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Schokoladenproteinpulver",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Erdnussbutter",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banane",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Mandelmilch",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Alle Zutaten in einen Mixer geben.",
+      "Eine Handvoll Eiswürfel hinzufügen.",
+      "Auf höchster Stufe mixen, bis eine glatte und cremige Masse entsteht."
+    ]
+  },
+  {
+    "title": "Garnelenpfanne mit Brokkoli",
+    "description": "Ein schnelles, herzhaftes und proteinreiches Abendessen, das in einer Pfanne zubereitet wird. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Hoher Proteingehalt",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Garnelen (geschält)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Brokkoliröschen",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Sojasauce",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Sesamöl",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Sesamöl in einer großen Pfanne oder im Wok bei mittlerer bis hoher Hitze erhitzen.",
+      "Brokkoliröschen dazugeben und unter Rühren 4-5 Minuten braten, bis sie zart-knusprig sind.",
+      "Garnelen hinzufügen und 2-3 Minuten kochen lassen, bis sie rosa werden.",
+      "Mit Sojasauce beträufeln, gut umrühren und heiß servieren."
+    ]
+  }
+]

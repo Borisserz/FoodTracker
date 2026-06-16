@@ -144,7 +144,6 @@ struct AnalyticsTabView: View {
                         GlobalPeriodPicker(selection: $globalPeriod)
                             .padding(.horizontal, 20)
                             .onChange(of: globalPeriod) { _, newValue in
-                                HapticManager.shared.impact(style: .medium)
                                 viewModel?.loadData(for: newValue)
                             }
                     }
@@ -160,7 +159,7 @@ struct AnalyticsTabView: View {
                     .zIndex(10)
                     
                 } else {
-                    EmptyStateView(imageName: "chart.bar.xaxis", title: "No Data", description: "User data not found.")
+                    EmptyStateView(imageName: "chart.bar.xaxis", title: String(localized: "No Data"), description: String(localized: "User data not found."))
                 }
             }
             .navigationBarHidden(true)
@@ -207,7 +206,29 @@ struct MetabolicScoreCard: View {
         let hydScore = hydRatio * 30
 
         // Consistency/Macros (0-20)
-        let macroScore = 20.0 // Simplified for performance
+        var macroScore = 0.0
+        if days > 0 {
+            var totalP = 0.0, totalF = 0.0, totalC = 0.0
+            for s in sortedSummaries.prefix(days) {
+                totalP += s.totalProtein
+                totalF += s.totalFats
+                totalC += s.totalCarbs
+            }
+            let avgP = totalP / Double(days)
+            let avgF = totalF / Double(days)
+            let avgC = totalC / Double(days)
+            
+            let targetP = user.targetProtein > 0 ? user.targetProtein : 1
+            let targetF = user.targetFats > 0 ? user.targetFats : 1
+            let targetC = user.targetCarbs > 0 ? user.targetCarbs : 1
+            
+            let pRatio = min(avgP / Double(targetP), 1.0)
+            let fRatio = min(avgF / Double(targetF), 1.0)
+            let cRatio = min(avgC / Double(targetC), 1.0)
+            
+            let avgMacroRatio = (pRatio + fRatio + cRatio) / 3.0
+            macroScore = avgMacroRatio * 20.0
+        }
 
         return (calScore, hydScore, macroScore)
     }
@@ -302,9 +323,9 @@ struct MetabolicScoreCard: View {
                     .foregroundColor(.primary)
                 
                 VStack(spacing: 10) {
-                    MetabolicBreakdownRow(icon: "flame.fill", title: "Caloric Adherence", value: subs.cal, total: 50, color: .themeOrange)
-                    MetabolicBreakdownRow(icon: "drop.fill", title: "Hydration Status", value: subs.hyd, total: 30, color: .blue)
-                    MetabolicBreakdownRow(icon: "chart.bar.fill", title: "Macro & Logging Stability", value: subs.macro, total: 20, color: .green)
+                    MetabolicBreakdownRow(icon: "flame.fill", title: String(localized: "Caloric Adherence"), value: subs.cal, total: 50, color: .themeOrange)
+                    MetabolicBreakdownRow(icon: "drop.fill", title: String(localized: "Hydration Status"), value: subs.hyd, total: 30, color: .blue)
+                    MetabolicBreakdownRow(icon: "chart.bar.fill", title: String(localized: "Macro & Logging Stability"), value: subs.macro, total: 20, color: .green)
                 }
                 
                 HStack(alignment: .center, spacing: 14) {
@@ -501,7 +522,7 @@ struct AITypewriterCard: View {
             currentIndex = fullText.index(after: idx)
             
             if displayedText.count % 4 == 0 {
-                HapticManager.shared.impact(style: .rigid)
+                // Removed haptic feedback
             }
         }
     }
@@ -855,14 +876,14 @@ struct FitnessRingsCard: View {
 
                 VStack(alignment: .leading, spacing: 16) {
                     Button(action: { onMacroTap(.protein) }) {
-                        LegendRow(title: "Protein", current: p, target: targetP, color: .themePeach)
+                        LegendRow(title: String(localized: "Protein"), current: p, target: targetP, color: .themePeach)
                     }.buttonStyle(PlainButtonStyle())
                     Button(action: { onMacroTap(.fat) }) {
-                        LegendRow(title: "Fats", current: f, target: targetF, color: .themeYellow)
+                        LegendRow(title: String(localized: "Fats"), current: f, target: targetF, color: .themeYellow)
                     }.buttonStyle(PlainButtonStyle())
 
                     Button(action: { onMacroTap(.carbs) }) {
-                        LegendRow(title: "Carbs", current: c, target: targetC, color: .drinkWater)
+                        LegendRow(title: String(localized: "Carbs"), current: c, target: targetC, color: .drinkWater)
                     }.buttonStyle(PlainButtonStyle())
                 }
             }
@@ -1055,7 +1076,7 @@ struct DivineCaloriesChart: View {
             }
             .chartXSelection(value: $selectedDate)
             .onChange(of: selectedDate) { _, _ in
-                if selectedDate != nil { HapticManager.shared.impact(style: .light) }
+                // No haptics on chart drag
             }
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
@@ -1138,9 +1159,9 @@ struct DivineMacrosChart: View {
             .frame(height: 200)
 
             HStack(spacing: 20) {
-                ChartLegendItem(color: .themePeach, text: "Protein")
-                ChartLegendItem(color: .themeYellow, text: "Fats")
-                ChartLegendItem(color: .drinkWater, text: "Carbs")
+                ChartLegendItem(color: .themePeach, text: String(localized: "Protein"))
+                ChartLegendItem(color: .themeYellow, text: String(localized: "Fats"))
+                ChartLegendItem(color: .drinkWater, text: String(localized: "Carbs"))
             }
         }
         .divineCardStyle()
@@ -1227,7 +1248,7 @@ struct TrendsWaterChart: View {
             }
             .chartXSelection(value: $selectedDate)
             .onChange(of: selectedDate) { _, _ in
-                if selectedDate != nil { HapticManager.shared.impact(style: .light) }
+                // No haptics on chart drag
             }
             .chartYScale(domain: 0...maxLiters)
             .chartXAxis {
@@ -1304,9 +1325,9 @@ struct ConsistencyHeatmapCard: View {
             .frame(maxWidth: .infinity, alignment: .center)
 
             HStack(spacing: 12) {
-                LegendDot(color: .green, text: "Perfect")
-                LegendDot(color: .themeOrange, text: "Over")
-                LegendDot(color: .themeYellow, text: "Under")
+                LegendDot(color: .green, text: String(localized: "Perfect"))
+                LegendDot(color: .themeOrange, text: String(localized: "Over"))
+                LegendDot(color: .themeYellow, text: String(localized: "Under"))
             }.padding(.top, 8)
         }
         .divineCardStyle()

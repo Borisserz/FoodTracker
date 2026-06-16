@@ -327,7 +327,7 @@ struct HomeDashboardContentView: View {
     
     private func shareDailySummary() {
         let card = MealShareCard(summary: currentSummary)
-        ShareSheetManager.renderAndShare(view: card, title: "My Nutrition Day")
+        ShareSheetManager.renderAndShare(view: card, title: String(localized: "My Nutrition Day"))
     }
     
     private func finishDayAndCalculateXP() {
@@ -597,9 +597,9 @@ struct MealDetailView: View {
                                 let targetF = (user?.targetFats ?? 70.0) / 3
                                 let targetC = (user?.targetCarbs ?? 250.0) / 3
 
-                                MiniProgressView(title: "Protein", progress: meal.totalProtein / max(targetP, 1), value: meal.totalProtein, color: .themePeach)
-                                MiniProgressView(title: "Fats", progress: meal.totalFats / max(targetF, 1), value: meal.totalFats, color: .themeYellow)
-                                MiniProgressView(title: "Carbs", progress: meal.totalCarbs / max(targetC, 1), value: meal.totalCarbs, color: .drinkWater)
+                                MiniProgressView(title: String(localized: "Protein"), progress: meal.totalProtein / max(targetP, 1), value: meal.totalProtein, color: .themePeach)
+                                MiniProgressView(title: String(localized: "Fats"), progress: meal.totalFats / max(targetF, 1), value: meal.totalFats, color: .themeYellow)
+                                MiniProgressView(title: String(localized: "Carbs"), progress: meal.totalCarbs / max(targetC, 1), value: meal.totalCarbs, color: .drinkWater)
                             }
                         }
                         .ultraPremiumCardStyle()
@@ -687,8 +687,8 @@ struct MealDetailView: View {
                     } else {
                         EmptyStateView(
                             imageName: "fork.knife.circle",
-                            title: "No Food Logged",
-                            description: "Tap 'Add Food' below to log your \(title)."
+                            title: String(localized: "No Food Logged"),
+                            description: String(localized: "Tap 'Add Food' below to log your \(title).")
                         )
                         .frame(height: 300)
                         .ultraPremiumCardStyle()
@@ -856,9 +856,9 @@ struct MicronutrientRingsView: View {
             .frame(width: 112, height: 112)
 
             VStack(alignment: .leading, spacing: 16) {
-                RingLegendRow(color: .themePink, title: "Omega-3", value: meal.totalOmega3, unit: "g", target: targetOmega3)
-                RingLegendRow(color: .themeYellow, title: "Potassium", value: meal.totalPotassium, unit: "mg", target: targetPotassium)
-                RingLegendRow(color: .themeOrange, title: "Magnesium", value: meal.totalMagnesium, unit: "mg", target: targetMagnesium)
+                RingLegendRow(color: .themePink, title: String(localized: "Omega-3"), value: meal.totalOmega3, unit: "g", target: targetOmega3)
+                RingLegendRow(color: .themeYellow, title: String(localized: "Potassium"), value: meal.totalPotassium, unit: "mg", target: targetPotassium)
+                RingLegendRow(color: .themeOrange, title: String(localized: "Magnesium"), value: meal.totalMagnesium, unit: "mg", target: targetMagnesium)
             }
             Spacer(minLength: 0)
         }
@@ -1434,7 +1434,7 @@ struct DailyLogDetailView: View {
                     let activeMeals = summary.meals.filter { !$0.foodItems.isEmpty }
 
                     if activeMeals.isEmpty {
-                        EmptyStateView(imageName: "doc.text.magnifyingglass", title: "No Food Logged", description: "You haven't logged any food for this day yet.")
+                        EmptyStateView(imageName: "doc.text.magnifyingglass", title: String(localized: "No Food Logged"), description: String(localized: "You haven't logged any food for this day yet."))
                             .padding(.top, 40)
                     } else {
                         ForEach(activeMeals) { meal in
@@ -1647,8 +1647,8 @@ struct SmartAddFoodView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 FeatureCard(
-                                    title: "Meal AI",
-                                    subtitle: "AI Photo Scan - snap a photo of food",
+                                    title: String(localized: "Meal AI"),
+                                    subtitle: String(localized: "AI Photo Scan - snap a photo of food"),
                                     icon: "camera.viewfinder",
                                     gradient: [.themePink, .themeOrange],
                                     action: {
@@ -1658,8 +1658,8 @@ struct SmartAddFoodView: View {
                                 )
                                 
                                 FeatureCard(
-                                    title: "Barcode",
-                                    subtitle: "Barcode Scan - scan product package",
+                                    title: String(localized: "Barcode"),
+                                    subtitle: String(localized: "Barcode Scan - scan product package"),
                                     icon: "barcode.viewfinder",
                                     gradient: [.cyan, .blue],
                                     action: {
@@ -1669,8 +1669,8 @@ struct SmartAddFoodView: View {
                                 )
                                 
                                 FeatureCard(
-                                    title: "Menu AI",
-                                    subtitle: "AI Menu Reader - scan restaurant menus",
+                                    title: String(localized: "Menu AI"),
+                                    subtitle: String(localized: "AI Menu Reader - scan restaurant menus"),
                                     icon: "text.book.closed.fill",
                                     gradient: [.purple, .indigo],
                                     action: {
@@ -1680,8 +1680,8 @@ struct SmartAddFoodView: View {
                                 )
                                 
                                 FeatureCard(
-                                    title: "Manual Entry",
-                                    subtitle: "Log Manually - input custom food",
+                                    title: String(localized: "Manual Entry"),
+                                    subtitle: String(localized: "Log Manually - input custom food"),
                                     icon: "pencil.line",
                                     gradient: [.green, .mint],
                                     action: {
@@ -1764,7 +1764,7 @@ struct SmartAddFoodView: View {
                             }
                         } else {
                             if filteredLocalFoods.isEmpty {
-                                EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
+                                EmptyStateView(imageName: "tray", title: String(localized: "No history"), description: String(localized: "Your recent meals will appear here."))
                                     .padding(.top, 60)
                             } else {
                                 ForEach(filteredLocalFoods, id: \.self) { food in

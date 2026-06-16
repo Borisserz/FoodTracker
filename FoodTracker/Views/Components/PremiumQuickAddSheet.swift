@@ -23,10 +23,10 @@ struct PremiumQuickAddSheet: View {
     @State private var quickCalories: Double = 300.0
 
     let mealOptions = [
-        ("Breakfast", "sunrise.fill", Color.themeYellow),
-        ("Lunch", "sun.max.fill", Color.green),
-        ("Snack", "cup.and.saucer.fill", Color.themeOrange),
-        ("Dinner", "moon.fill", Color.themePink)
+        (String(localized: "Breakfast"), "sunrise.fill", Color.themeYellow),
+        (String(localized: "Lunch"), "sun.max.fill", Color.green),
+        (String(localized: "Snack"), "cup.and.saucer.fill", Color.themeOrange),
+        (String(localized: "Dinner"), "moon.fill", Color.themePink)
     ]
 
     var body: some View {
@@ -81,10 +81,10 @@ struct PremiumQuickAddSheet: View {
                         .tint(.themePink)
 
                         HStack(spacing: 12) {
-                            QuickPresetButton(label: "-50", color: .gray) { adjustCalories(by: -50) }
-                            QuickPresetButton(label: "+50", color: .gray) { adjustCalories(by: 50) }
-                            QuickPresetButton(label: "+100", color: .themePink) { adjustCalories(by: 100) }
-                            QuickPresetButton(label: "+300", color: .themePink) { adjustCalories(by: 300) }
+                            QuickPresetButton(label: String(localized: "-50"), color: .gray) { adjustCalories(by: -50) }
+                            QuickPresetButton(label: String(localized: "+50"), color: .gray) { adjustCalories(by: 50) }
+                            QuickPresetButton(label: String(localized: "+100"), color: .themePink) { adjustCalories(by: 100) }
+                            QuickPresetButton(label: String(localized: "+300"), color: .themePink) { adjustCalories(by: 300) }
                         }
 
                         Button(action: saveQuickCalories) {
@@ -192,13 +192,13 @@ struct PremiumQuickAddSheet: View {
             context.insert(summary)
         }
 
-        let quickFood = FoodItem(name: "Quick Entry", weight: 0, calories: Int(quickCalories), protein: 0, fats: 0, carbs: 0)
+        let quickFood = FoodItem(name: String(localized: "Quick Entry"), weight: 0, calories: Int(quickCalories), protein: 0, fats: 0, carbs: 0)
         context.insert(quickFood)
 
-        if let snackMeal = summary.meals.first(where: { $0.title == "Snack" }) {
+        if let snackMeal = summary.meals.first(where: { $0.title == String(localized: "Snack") || $0.title == "Snack" }) {
             snackMeal.foodItems.append(quickFood)
         } else {
-            let newMeal = Meal(title: "Snack", date: selectedDate, foodItems: [quickFood])
+            let newMeal = Meal(title: String(localized: "Snack"), date: selectedDate, foodItems: [quickFood])
             context.insert(newMeal)
             summary.meals.append(newMeal)
         }

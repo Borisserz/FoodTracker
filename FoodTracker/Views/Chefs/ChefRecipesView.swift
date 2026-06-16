@@ -52,8 +52,8 @@ struct RecipesContainerView: View {
         VStack(spacing: 0) {
 
             HStack {
-                TabButton(title: "Discover", tabIndex: 0, selectedTab: $selectedTab, animation: animation)
-                TabButton(title: "My Recipes", tabIndex: 1, selectedTab: $selectedTab, animation: animation)
+                TabButton(title: String(localized: "Discover"), tabIndex: 0, selectedTab: $selectedTab, animation: animation)
+                TabButton(title: String(localized: "My Recipes"), tabIndex: 1, selectedTab: $selectedTab, animation: animation)
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 10)
@@ -186,17 +186,17 @@ struct DiscoverTabView: View {
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            MealTypeCard(title: "Breakfast", subtitle: "Start your day right", imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=400", color: .themeYellow) {
-                                openFiltered(title: "Breakfast", tags: ["Breakfast"])
+                            MealTypeCard(title: String(localized: "Breakfast"), subtitle: String(localized: "Start your day right"), imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=400", color: .themeYellow) {
+                                openFiltered(title: String(localized: "Breakfast"), tags: ["Breakfast"])
                             }
-                            MealTypeCard(title: "Lunch", subtitle: "Healthy & filling", imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400", color: .green) {
-                                openFiltered(title: "Lunch", tags: ["Lunch"])
+                            MealTypeCard(title: String(localized: "Lunch"), subtitle: String(localized: "Healthy & filling"), imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400", color: .green) {
+                                openFiltered(title: String(localized: "Lunch"), tags: ["Lunch"])
                             }
-                            MealTypeCard(title: "Dinner", subtitle: "Cozy evenings", imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400", color: .themePink) {
-                                openFiltered(title: "Dinner", tags: ["Dinner"])
+                            MealTypeCard(title: String(localized: "Dinner"), subtitle: String(localized: "Cozy evenings"), imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400", color: .themePink) {
+                                openFiltered(title: String(localized: "Dinner"), tags: ["Dinner"])
                             }
-                            MealTypeCard(title: "Snack", subtitle: "Quick bites", imageUrl: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?q=80&w=400", color: .themeOrange) {
-                                openFiltered(title: "Snack", tags: ["Snack"])
+                            MealTypeCard(title: String(localized: "Snack"), subtitle: String(localized: "Quick bites"), imageUrl: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?q=80&w=400", color: .themeOrange) {
+                                openFiltered(title: String(localized: "Snack"), tags: ["Snack"])
                             }
                         }
                         .padding(.horizontal, 20)
@@ -229,19 +229,19 @@ struct DiscoverTabView: View {
                 }
 
                 if !highProtein.isEmpty {
-                    RecipeHorizontalSection(title: "High Protein Power", recipes: highProtein, path: $path)
+                    RecipeHorizontalSection(title: String(localized: "High Protein Power"), recipes: highProtein, path: $path)
                 }
                 if !ketoLowCarb.isEmpty {
-                    RecipeHorizontalSection(title: "Low Carb & Keto", recipes: ketoLowCarb, path: $path)
+                    RecipeHorizontalSection(title: String(localized: "Low Carb & Keto"), recipes: ketoLowCarb, path: $path)
                 }
                 if !quickEasy.isEmpty {
-                    RecipeHorizontalSection(title: "Quick & Easy", recipes: quickEasy, path: $path)
+                    RecipeHorizontalSection(title: String(localized: "Quick & Easy"), recipes: quickEasy, path: $path)
                 }
                 if !plantBased.isEmpty {
-                    RecipeHorizontalSection(title: "Plant-Based", recipes: plantBased, path: $path)
+                    RecipeHorizontalSection(title: String(localized: "Plant-Based"), recipes: plantBased, path: $path)
                 }
                 if !chefsSpecials.isEmpty {
-                    RecipeHorizontalSection(title: "Chef's Specials", recipes: chefsSpecials, path: $path)
+                    RecipeHorizontalSection(title: String(localized: "Chef's Specials"), recipes: chefsSpecials, path: $path)
                 }
 
             }
@@ -415,8 +415,8 @@ struct MyRecipesTabView: View {
                     if customRecipes.isEmpty {
                         EmptyStateView(
                             imageName: "frying.pan",
-                            title: "No custom recipes yet",
-                            description: "Your culinary masterpieces will appear here."
+                            title: String(localized: "No custom recipes yet"),
+                            description: String(localized: "Your culinary masterpieces will appear here.")
                         )
                         .frame(height: 150)
                     } else {
@@ -526,9 +526,9 @@ struct CustomRecipePremiumCard: View {
             Divider().padding(.horizontal, 20)
 
             HStack(spacing: 20) {
-                MacroPill(title: "Carbs", value: macros.carbs, color: .drinkWater)
-                MacroPill(title: "Fat", value: macros.fats, color: .themeYellow)
-                MacroPill(title: "Protein", value: macros.protein, color: .themePeach)
+                MacroPill(title: String(localized: "Carbs"), value: macros.carbs, color: .drinkWater)
+                MacroPill(title: String(localized: "Fat"), value: macros.fats, color: .themeYellow)
+                MacroPill(title: String(localized: "Protein"), value: macros.protein, color: .themePeach)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
@@ -601,9 +601,9 @@ struct AdvancedRecipeFilterSheet: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 32) {
-                        FilterIconSection(title: "Meals", items: meals, selection: $selectedTags)
-                        FilterIconSection(title: "Preparation Method", items: prep, selection: $selectedTags)
-                        FilterColoredSection(title: "Diets", items: diets, selection: $selectedTags)
+                        FilterIconSection(title: String(localized: "Meals"), items: meals, selection: $selectedTags)
+                        FilterIconSection(title: String(localized: "Preparation Method"), items: prep, selection: $selectedTags)
+                        FilterColoredSection(title: String(localized: "Diets"), items: diets, selection: $selectedTags)
                     }
                     .padding(20)
                     .padding(.bottom, 100)
@@ -1068,7 +1068,10 @@ struct PremiumRecipeDetailView: View {
                     Spacer(); Text("Recipe Info").font(.headline).foregroundColor(.white).shadow(radius: 2); Spacer()
                     HStack(spacing: 12) {
 
-                        Button(action: {  }) {
+                        ShareLink(
+                            item: "Check out this recipe on FoodTracker: \(recipe.title)! It has \(recipe.caloriesPerServing) kcal per serving and takes \(recipe.time).",
+                            subject: Text(recipe.title)
+                        ) {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.title3)
                                 .foregroundColor(.white)
@@ -1187,8 +1190,8 @@ struct FilteredRecipesListView: View {
 
                     EmptyStateView(
                         imageName: "magnifyingglass",
-                        title: "No Recipes Found",
-                        description: "Try adjusting your filters to see more results."
+                        title: String(localized: "No Recipes Found"),
+                        description: String(localized: "Try adjusting your filters to see more results.")
                     )
                     .padding(.top, 80)
                 } else {

@@ -94,7 +94,7 @@ struct FoodsDashboardView: View {
 
                         if filteredMeals.isEmpty {
                             let message = selectedFilter == "All" ? "Your logged meals will appear here." : "No meals logged for \(selectedFilter)."
-                            EmptyStateView(imageName: "fork.knife", title: "No History", description: message)
+                            EmptyStateView(imageName: "fork.knife", title: String(localized: "No History"), description: message)
                                 .frame(height: 200).premiumCardStyle()
                                 .padding(.horizontal)
                         } else {

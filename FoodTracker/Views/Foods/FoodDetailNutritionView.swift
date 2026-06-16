@@ -53,19 +53,19 @@ struct FoodDetailNutritionView: View {
                             .padding(.bottom, 12)
 
                         VStack(spacing: 0) {
-                            NutritionRow(title: "Proteins", value: currentP, unit: "g")
-                            NutritionRow(title: "Total Fat", value: currentF, unit: "g")
-                            NutritionRow(title: "Carbs", value: currentC, unit: "g")
+                            NutritionRow(title: String(localized: "Proteins"), value: currentP, unit: "g")
+                            NutritionRow(title: String(localized: "Total Fat"), value: currentF, unit: "g")
+                            NutritionRow(title: String(localized: "Carbs"), value: currentC, unit: "g")
 
-                            NutritionSectionHeader(title: "Vitamins & Minerals")
+                            NutritionSectionHeader(title: String(localized: "Vitamins & Minerals"))
 
-                            NutritionRow(title: "Vitamin C", value: food.vitaminC * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Vitamin D", value: food.vitaminD * multiplier, unit: "mcg", isPro: true)
-                            NutritionRow(title: "Calcium", value: food.calcium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Iron", value: food.iron * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Magnesium", value: food.magnesium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Potassium", value: food.potassium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Omega-3", value: food.omega3 * multiplier, unit: "g", isPro: true)
+                            NutritionRow(title: String(localized: "Vitamin C"), value: food.vitaminC * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: String(localized: "Vitamin D"), value: food.vitaminD * multiplier, unit: "mcg", isPro: true)
+                            NutritionRow(title: String(localized: "Calcium"), value: food.calcium * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: String(localized: "Iron"), value: food.iron * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: String(localized: "Magnesium"), value: food.magnesium * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: String(localized: "Potassium"), value: food.potassium * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: String(localized: "Omega-3"), value: food.omega3 * multiplier, unit: "g", isPro: true)
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
@@ -237,9 +237,9 @@ private struct MacroDonutChartCard: View {
             Spacer()
 
             HStack(spacing: 16) {
-                MacroColumnInfo(percent: cPercent, grams: c, title: "Carbs", color: .drinkWater)
-                MacroColumnInfo(percent: fPercent, grams: f, title: "Fat", color: .themeYellow)
-                MacroColumnInfo(percent: pPercent, grams: p, title: "Protein", color: .themePeach)
+                MacroColumnInfo(percent: cPercent, grams: c, title: String(localized: "Carbs"), color: .drinkWater)
+                MacroColumnInfo(percent: fPercent, grams: f, title: String(localized: "Fat"), color: .themeYellow)
+                MacroColumnInfo(percent: pPercent, grams: p, title: String(localized: "Protein"), color: .themePeach)
             }
         }
         .padding(20)

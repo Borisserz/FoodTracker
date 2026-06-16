@@ -26,9 +26,9 @@ struct MicronutrientsView: View {
                 .padding(.top, 20)
 
                 HStack(spacing: 20) {
-                    RingLegend(color: .themePink, title: "Omega-3", value: meal.totalOmega3, unit: "g")
-                    RingLegend(color: .themeYellow, title: "Potassium", value: meal.totalPotassium, unit: "mg")
-                    RingLegend(color: .themeOrange, title: "Magnesium", value: meal.totalMagnesium, unit: "mg")
+                    RingLegend(color: .themePink, title: String(localized: "Omega-3"), value: meal.totalOmega3, unit: "g")
+                    RingLegend(color: .themeYellow, title: String(localized: "Potassium"), value: meal.totalPotassium, unit: "mg")
+                    RingLegend(color: .themeOrange, title: String(localized: "Magnesium"), value: meal.totalMagnesium, unit: "mg")
                 }
 
                 Divider()
@@ -36,10 +36,10 @@ struct MicronutrientsView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Minerals & Vitamins").font(.title3).bold()
 
-                    NutrientRow(icon: "bone.fill", title: "Calcium", value: meal.totalCalcium, unit: "mg", color: .drinkWater)
-                    NutrientRow(icon: "drop.degreesign.fill", title: "Iron", value: meal.totalIron, unit: "mg", color: .red.opacity(0.7))
-                    NutrientRow(icon: "sun.max.fill", title: "Vitamin C", value: meal.totalVitaminC, unit: "mg", color: .themeOrange)
-                    NutrientRow(icon: "sun.haze.fill", title: "Vitamin D", value: meal.totalVitaminD, unit: "mcg", color: .themeYellow)
+                    NutrientRow(icon: "bone.fill", title: String(localized: "Calcium"), value: meal.totalCalcium, unit: "mg", color: .drinkWater)
+                    NutrientRow(icon: "drop.degreesign.fill", title: String(localized: "Iron"), value: meal.totalIron, unit: "mg", color: .red.opacity(0.7))
+                    NutrientRow(icon: "sun.max.fill", title: String(localized: "Vitamin C"), value: meal.totalVitaminC, unit: "mg", color: .themeOrange)
+                    NutrientRow(icon: "sun.haze.fill", title: String(localized: "Vitamin D"), value: meal.totalVitaminD, unit: "mcg", color: .themeYellow)
                 }
                 .premiumCardStyle()
 

@@ -135,9 +135,9 @@ struct OnboardingMetricsScreen: View {
                 Spacer()
                 
                 HStack(spacing: 0) {
-                    OnboardingWheelColumn(title: "Age", range: 14...100, suffix: "yo", selection: $metrics.age)
-                    OnboardingWheelColumn(title: "Height", range: 140...230, suffix: "cm", selection: $metrics.height)
-                    OnboardingWheelColumn(title: "Weight", range: 40...200, suffix: "kg", selection: $metrics.weight)
+                    OnboardingWheelColumn(title: String(localized: "Age"), range: 14...100, suffix: String(localized: "yo"), selection: $metrics.age)
+                    OnboardingWheelColumn(title: String(localized: "Height"), range: 140...230, suffix: String(localized: "cm"), selection: $metrics.height)
+                    OnboardingWheelColumn(title: String(localized: "Weight"), range: 40...200, suffix: String(localized: "kg"), selection: $metrics.weight)
                 }
                 .frame(height: 220)
                 .background(
@@ -149,7 +149,7 @@ struct OnboardingMetricsScreen: View {
                 
                 Spacer()
                 
-                OnboardingButton(title: "Continue", action: onNext)
+                OnboardingButton(title: String(localized: "Continue"), action: onNext)
                     .padding(.horizontal, 30)
                     .padding(.bottom, 40)
             }
@@ -590,9 +590,9 @@ struct OnboardingGoalScreen: View {
     @State private var motionManager = MotionManager.shared
     
     let goals = [
-        (title: "Lose Weight", desc: "Burn fat, optimize metabolism, and feel lighter", color: Color.themePink),
-        (title: "Maintain", desc: "Keep your current shape, feel active, and sustain energy", color: Color.green),
-        (title: "Build Muscle", desc: "Build strength, increase density, and grow lean muscle", color: Color.cyan)
+        (title: String(localized: "Lose Weight"), id: "Lose Weight", desc: String(localized: "Burn fat, optimize metabolism, and feel lighter"), color: Color.themePink),
+        (title: String(localized: "Maintain"), id: "Maintain", desc: String(localized: "Keep your current shape, feel active, and sustain energy"), color: Color.green),
+        (title: String(localized: "Build Muscle"), id: "Build Muscle", desc: String(localized: "Build strength, increase density, and grow lean muscle"), color: Color.cyan)
     ]
 
     var selectedGoalColor: Color {
@@ -634,10 +634,10 @@ struct OnboardingGoalScreen: View {
                             title: goal.title,
                             description: goal.desc,
                             color: goal.color,
-                            isSelected: metrics.goal == goal.title,
+                            isSelected: metrics.goal == goal.id,
                             action: {
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
-                                    metrics.goal = goal.title
+                                    metrics.goal = goal.id
                                 }
                             },
                             motion: motionManager
@@ -649,7 +649,7 @@ struct OnboardingGoalScreen: View {
                 Spacer()
                 
                 CosmicContinueButton(
-                    title: "Confirm Goal",
+                    title: String(localized: "Confirm Goal"),
                     themeColor: selectedGoalColor,
                     action: onNext
                 )
@@ -708,7 +708,7 @@ struct OnboardingWarpScreen: View {
                 
                 Spacer()
                 
-                OnboardingButton(title: "Enter FoodTracker") {
+                OnboardingButton(title: String(localized: "Enter FoodTracker")) {
                     startExtendedHyperspaceJump()
                 }
                 .padding(.horizontal, 30)

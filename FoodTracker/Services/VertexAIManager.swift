@@ -33,6 +33,14 @@ final class VertexAIManager {
         let avoid: MenuRecommendation
     }
 
+    /// AI verdict for chef cooking step evaluation
+    struct ChefVerdictResponse: Codable {
+        let score: Int           // 0–100, how well the step is being done
+        let verdict: String      // "perfect" | "good" | "needs_work"
+        let feedback: String     // Main evaluation message
+        let tip: String          // One specific pro chef tip
+    }
+
     func analyzeFoodImage(_ image: UIImage) async -> FoodItem? {
         guard let imageData = image.jpegData(compressionQuality: 0.3) else { return nil }
         let base64Image = imageData.base64EncodedString()
@@ -97,6 +105,43 @@ final class VertexAIManager {
             )
         } catch {
             print("❌ Menu AI Error: \(error)")
+            return nil
+        }
+    }
+
+    /// Evaluates how well the user is executing a specific cooking step using real AI vision.
+    func analyzeChefCookingStep(image: UIImage, stepInstruction: String) async -> ChefVerdictResponse? {
+        guard let imageData = image.jpegData(compressionQuality: 0.4) else { return nil }
+        let base64Image = imageData.base64EncodedString()
+
+        let prompt = """
+        You are a Michelin-star AI Chef conducting a live cooking evaluation.
+        The cooking step being evaluated is: "\(stepInstruction)"
+
+        Look at the image carefully and evaluate how well this cooking step is being executed.
+
+        Scoring guide:
+        - 85-100: Perfect execution → verdict = "perfect"
+        - 60-84: Good, minor improvements possible → verdict = "good"
+        - 0-59: Needs attention → verdict = "needs_work"
+
+        Respond ONLY with a raw JSON object. No Markdown. Format exactly:
+        {
+          "score": Int (0-100),
+          "verdict": "perfect" or "good" or "needs_work",
+          "feedback": "Short encouraging evaluation of what you see in the image (1-2 sentences)",
+          "tip": "One specific actionable pro tip for this step"
+        }
+        """
+
+        do {
+            return try await client.fetchJSONWithImage(
+                prompt: prompt,
+                base64Image: base64Image,
+                responseType: ChefVerdictResponse.self
+            )
+        } catch {
+            print("❌ Chef Step AI Error: \(error)")
             return nil
         }
     }

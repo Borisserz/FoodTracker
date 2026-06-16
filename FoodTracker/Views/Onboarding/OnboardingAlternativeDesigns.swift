@@ -129,13 +129,13 @@ struct NeumorphicCard: View {
 
 // MARK: - Previews for Xcode
 #Preview("Option A: Cyberpunk") {
-    CyberGlassCard(title: "AI Nutrition Coach", description: "Chat with your personal AI coach. Get macro advice and daily verdicts.", icon: "sparkles", color: .pink)
+    CyberGlassCard(title: String(localized: "AI Nutrition Coach"), description: String(localized: "Chat with your personal AI coach. Get macro advice and daily verdicts."), icon: "sparkles", color: .pink)
 }
 
 #Preview("Option B: Clean HIG") {
-    CleanHIGCard(title: "AI Nutrition Coach", description: "Chat with your personal AI coach. Get macro advice and daily verdicts.", icon: "sparkles", color: .pink)
+    CleanHIGCard(title: String(localized: "AI Nutrition Coach"), description: String(localized: "Chat with your personal AI coach. Get macro advice and daily verdicts."), icon: "sparkles", color: .pink)
 }
 
 #Preview("Option C: Neumorphism") {
-    NeumorphicCard(title: "AI Nutrition Coach", description: "Chat with your personal AI coach. Get macro advice and daily verdicts.", icon: "sparkles", color: .pink)
+    NeumorphicCard(title: String(localized: "AI Nutrition Coach"), description: String(localized: "Chat with your personal AI coach. Get macro advice and daily verdicts."), icon: "sparkles", color: .pink)
 }

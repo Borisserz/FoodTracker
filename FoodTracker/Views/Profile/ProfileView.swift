@@ -78,11 +78,11 @@ struct ProfileView: View {
                     .buttonStyle(BounceButtonStyle())
 
                     HStack(spacing: 0) {
-                        ProfileStatItem(value: "\(String(format: "%.1f", user.weight))", unit: "kg", title: "Weight")
+                        ProfileStatItem(value: "\(String(format: "%.1f", user.weight))", unit: "kg", title: String(localized: "Weight"))
                         Divider().frame(height: 40)
-                        ProfileStatItem(value: "\(Int(user.height))", unit: "cm", title: "Height")
+                        ProfileStatItem(value: "\(Int(user.height))", unit: "cm", title: String(localized: "Height"))
                         Divider().frame(height: 40)
-                        ProfileStatItem(value: "\(user.age)", unit: "y.o", title: "Age")
+                        ProfileStatItem(value: "\(user.age)", unit: "y.o", title: String(localized: "Age"))
                     }
                     .padding(.top, 8)
                 }
@@ -100,9 +100,9 @@ struct ProfileView: View {
                                 .foregroundColor(.primary)
 
                             HStack(spacing: 12) {
-                                MacroDotLabel(color: .themePeach, title: "P: \(Int(user.targetProtein))g")
-                                MacroDotLabel(color: .themeYellow, title: "F: \(Int(user.targetFats))g")
-                                MacroDotLabel(color: .drinkWater, title: "C: \(Int(user.targetCarbs))g")
+                                MacroDotLabel(color: .themePeach, title: String(localized: "P: \(Int(user.targetProtein))g"))
+                                MacroDotLabel(color: .themeYellow, title: String(localized: "F: \(Int(user.targetFats))g"))
+                                MacroDotLabel(color: .drinkWater, title: String(localized: "C: \(Int(user.targetCarbs))g"))
                             }
                         }
                         Spacer()
@@ -278,9 +278,9 @@ struct NutritionSettingsEditor: View {
                         }.frame(height: 220)
 
                         VStack(spacing: 24) {
-                            MacroAdjusterRow(title: "Protein", color: .themePeach, pct: $pPct, grams: calculateGrams(pct: pPct, multiplier: 4), onAdjust: { adjustMacros(changed: .protein) })
-                            MacroAdjusterRow(title: "Fat", color: .themeYellow, pct: $fPct, grams: calculateGrams(pct: fPct, multiplier: 9), onAdjust: { adjustMacros(changed: .fat) })
-                            MacroAdjusterRow(title: "Carbs", color: .drinkWater, pct: $cPct, grams: calculateGrams(pct: cPct, multiplier: 4), onAdjust: { adjustMacros(changed: .carbs) })
+                            MacroAdjusterRow(title: String(localized: "Protein"), color: .themePeach, pct: $pPct, grams: calculateGrams(pct: pPct, multiplier: 4), onAdjust: { adjustMacros(changed: .protein) })
+                            MacroAdjusterRow(title: String(localized: "Fat"), color: .themeYellow, pct: $fPct, grams: calculateGrams(pct: fPct, multiplier: 9), onAdjust: { adjustMacros(changed: .fat) })
+                            MacroAdjusterRow(title: String(localized: "Carbs"), color: .drinkWater, pct: $cPct, grams: calculateGrams(pct: cPct, multiplier: 4), onAdjust: { adjustMacros(changed: .carbs) })
                         }.padding(20).background(Color.white).cornerRadius(24).shadow(color: .black.opacity(0.04), radius: 10, y: 5).padding(.horizontal, 20)
 
                         Spacer().frame(height: 100)
@@ -339,32 +339,32 @@ struct SettingsView: View {
 
                         VStack(spacing: 0) {
                             NavigationLink(destination: AccountSettingsView(user: user, loggedDaysCount: summaries.count)) {
-                                SettingsRowView(icon: "person.fill", iconColor: themeManager.current.primaryAccent, title: "Account")
+                                SettingsRowView(icon: "person.fill", iconColor: themeManager.current.primaryAccent, title: String(localized: "Account"))
                             }
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: RemindersSettingsView()) {
-                                SettingsRowView(icon: "bell.fill", iconColor: .themeYellow, title: "Reminders")
+                                SettingsRowView(icon: "bell.fill", iconColor: .themeYellow, title: String(localized: "Reminders"))
                             }
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: AppleHealthSettingsView(user: user)) {
-                                SettingsRowView(icon: "heart.fill", iconColor: .red, title: "Apple Health")
+                                SettingsRowView(icon: "heart.fill", iconColor: .red, title: String(localized: "Apple Health"))
                             }
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: UnitsSettingsView(useMetric: $useMetricSystem)) {
-                                SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: "Units settings", value: useMetricSystem ? "Metric" : "Imperial")
+                                SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: String(localized: "Units settings"), value: useMetricSystem ? "Metric" : "Imperial")
                             }
                             Divider().padding(.leading, 56)
                             
                             NavigationLink(destination: ThemeSettingsView()) {
-                                SettingsRowView(icon: "paintpalette.fill", iconColor: themeManager.current.secondaryAccent, title: "App Theme", value: themeManager.current.name)
+                                SettingsRowView(icon: "paintpalette.fill", iconColor: themeManager.current.secondaryAccent, title: String(localized: "App Theme"), value: themeManager.current.name)
                             }
                             Divider().padding(.leading, 56)
 
                             Button(action: { exportData() }) {
-                                SettingsRowView(icon: "square.and.arrow.up.fill", iconColor: .green, title: "Export Data to CSV")
+                                SettingsRowView(icon: "square.and.arrow.up.fill", iconColor: .green, title: String(localized: "Export Data to CSV"))
                             }
                         }
                         .premiumCardStyle()
@@ -372,22 +372,22 @@ struct SettingsView: View {
 
                         VStack(spacing: 0) {
                             Button(action: { rateApp() }) {
-                                SettingsRowView(icon: "star.fill", iconColor: .themeOrange, title: "Rate the app")
+                                SettingsRowView(icon: "star.fill", iconColor: .themeOrange, title: String(localized: "Rate the app"))
                             }
                             Divider().padding(.leading, 56)
 
                             Button(action: { contactSupport() }) {
-                                SettingsRowView(icon: "questionmark.circle.fill", iconColor: .green, title: "Help")
+                                SettingsRowView(icon: "questionmark.circle.fill", iconColor: .green, title: String(localized: "Help"))
                             }
                             Divider().padding(.leading, 56)
 
                             Button(action: { openPrivacyPolicy() }) {
-                                SettingsRowView(icon: "hand.raised.fill", iconColor: .gray, title: "Privacy Policy")
+                                SettingsRowView(icon: "hand.raised.fill", iconColor: .gray, title: String(localized: "Privacy Policy"))
                             }
                             Divider().padding(.leading, 56)
 
                             Button(action: { openTerms() }) {
-                                SettingsRowView(icon: "doc.text.fill", iconColor: .gray, title: "Terms of Service")
+                                SettingsRowView(icon: "doc.text.fill", iconColor: .gray, title: String(localized: "Terms of Service"))
                             }
                         }
                         .premiumCardStyle()
@@ -536,14 +536,14 @@ struct AccountSettingsView: View {
             VStack(spacing: 24) {
 
                 VStack(alignment: .leading, spacing: 16) {
-                    AccountInfoRow(title: "User ID", value: String(authManager.currentUserId.prefix(8)))
+                    AccountInfoRow(title: String(localized: "User ID"), value: String(authManager.currentUserId.prefix(8)))
                     Divider()
-                    AccountInfoRow(title: "Account type", value: authManager.isAnonymous ? "Guest" : "Registered", valueColor: authManager.isAnonymous ? .gray : .themePink)
+                    AccountInfoRow(title: String(localized: "Account type"), value: authManager.isAnonymous ? "Guest" : "Registered", valueColor: authManager.isAnonymous ? .gray : .themePink)
                     Divider()
                     if !authManager.isAnonymous, let email = authManager.currentUserEmail {
-                        AccountInfoRow(title: "Email", value: email)
+                        AccountInfoRow(title: String(localized: "Email"), value: email)
                     } else {
-                        AccountInfoRow(title: "Total logged days", value: "\(loggedDaysCount)")
+                        AccountInfoRow(title: String(localized: "Total logged days"), value: "\(loggedDaysCount)")
                     }
                 }
                 .padding(20)

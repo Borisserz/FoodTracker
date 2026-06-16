@@ -1,0 +1,747 @@
+[
+  {
+    "title": "Barco Keto De Salmón Y Aguacate",
+    "description": "Rico en omega-3 y grasas saludables, este sencillo pero elegante barco de salmón es perfecto para una cena cetogénica. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "cetogénico",
+      "Alta proteína",
+      "Bajo en carbohidratos"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filete De Salmón",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Palta",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Aceite de oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Zumo de limón",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Precalienta tu horno a 400°F (200°C).",
+      "Cortar el aguacate por la mitad y quitarle el hueso.",
+      "Coloque un pequeño trozo de salmón en la mitad ahuecada del aguacate.",
+      "Rocíe con aceite de oliva, jugo de limón, sal y pimienta.",
+      "Hornee durante 15-20 minutos hasta que el salmón esté bien cocido."
+    ]
+  },
+  {
+    "title": "Panqueques de arándanos llenos de proteínas",
+    "description": "Comience el día con estos panqueques esponjosos y ricos en proteínas y repletos de antioxidantes frescos. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Desayuno",
+      "Alta proteína",
+      "Vegetariano"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "harina de avena",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Proteína en polvo (vainilla)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Leche De Almendras",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "arándanos",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "En un bol, mezcle la harina de avena y la proteína en polvo.",
+      "Incorpora poco a poco la leche de almendras hasta que se forme una masa suave.",
+      "Incorpora suavemente los arándanos frescos.",
+      "Cocine en una sartén antiadherente a fuego medio hasta que se formen burbujas, luego voltee.",
+      "Servir caliente con un chorrito de almíbar sin azúcar."
+    ]
+  },
+  {
+    "title": "Tazón de quinua mediterránea",
+    "description": "Un plato vibrante y refrescante cargado de fibra y grasas saludables, perfecto para un almuerzo soleado por la tarde. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almuerzo",
+      "vegano",
+      "mediterráneo"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Quinua Cocida",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "tomates cherry",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Pepino",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Aceitunas de Kalamata",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Hummus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Coloca la quinua cocida en la base de tu bol.",
+      "Corta los tomates cherry por la mitad y corta los pepinos en rodajas.",
+      "Coloca los tomates, los pepinos y las aceitunas sobre la quinua.",
+      "Cubra con una generosa cucharada de hummus y un chorrito de aceite de oliva."
+    ]
+  },
+  {
+    "title": "Chile de pavo magro picante",
+    "description": "Calienta tu alma y alcanza tus objetivos de proteínas con este rico y picante chile de pavo. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alta proteína",
+      "Bajo en grasa"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Pavo molido magro",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Frijoles",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Tomates triturados",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Chile en polvo",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Dora el pavo molido en una olla grande a fuego medio.",
+      "Agregue el chile en polvo y cocine por 1 minuto hasta que esté fragante.",
+      "Agregue los tomates triturados y los frijoles (escurridos y enjuagados).",
+      "Cocine a fuego lento durante 30 minutos para que los sabores se mezclen.",
+      "Adorne con una pizca de queso bajo en grasa o cilantro antes de servir."
+    ]
+  },
+  {
+    "title": "Batido Detox Verde Refrescante",
+    "description": "Una dosis rápida de vitaminas e hidratación, excelente para una recuperación post-entrenamiento o para un nuevo comienzo por la mañana. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Desayuno",
+      "Bocadillo",
+      "vegano",
+      "Crudo"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Espinaca",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "manzana verde",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Agua de coco",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Descorazona y pica la manzana verde.",
+      "Agrega las espinacas, la manzana, el plátano y el agua de coco en una licuadora.",
+      "Licue a velocidad alta hasta que esté completamente suave.",
+      "¡Vierta en un vaso frío y disfrútelo de inmediato!"
+    ]
+  },
+  {
+    "title": "Fideos de calabacín bajos en carbohidratos con pesto",
+    "description": "Una alternativa ligera y sabrosa a la pasta, mezclada con una rica salsa pesto de albahaca. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "cetogénico",
+      "Vegetariano",
+      "Bajo en carbohidratos"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Calabacín",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Pesto de albahaca",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Queso parmesano",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "tomates cherry",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Haga espirales de calabacín en fideos finos.",
+      "Calienta una sartén a fuego medio y saltea ligeramente los fideos durante 2-3 minutos.",
+      "Retire del fuego y mezcle con pesto de albahaca hasta que esté cubierto uniformemente.",
+      "Cubra con tomates cherry cortados por la mitad y queso parmesano rallado."
+    ]
+  },
+  {
+    "title": "Ensalada César De Pollo Clásica",
+    "description": "La lechuga romana crujiente, el tierno pollo asado y un aderezo cremoso y picante hacen de este un favorito atemporal. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almuerzo",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Pechuga de pollo",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Lechuga romana",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Aderezo César",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Crutones",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Sazone la pechuga de pollo y cocine a la parrilla hasta que esté completamente cocida. Déjelo reposar y luego córtelo.",
+      "Pica la lechuga romana y colócala en un bol grande.",
+      "Mezcle la lechuga con el aderezo César.",
+      "Cubra con pollo en rodajas y un puñado de picatostes."
+    ]
+  },
+  {
+    "title": "Pudín de chía durante la noche",
+    "description": "Despiértese con un pudín de chía nutritivo, cremoso y listo para comer, cubierto con fruta fresca. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Desayuno",
+      "vegano",
+      "Sin gluten"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Semillas de chía",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Leche De Almendras",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Jarabe de arce",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "bayas frescas",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "En un frasco, mezcle las semillas de chía, la leche de almendras y el jarabe de arce.",
+      "Deje reposar durante 5 minutos, luego bata nuevamente para evitar que se formen grumos.",
+      "Cubra y refrigere durante la noche (o al menos 2 horas).",
+      "Cubra con bayas frescas antes de servir."
+    ]
+  },
+  {
+    "title": "Tazón de snack de garbanzos asados",
+    "description": "Crujiente, salado e increíblemente satisfactorio. Un refrigerio rico en fibra que te mantiene lleno. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Bocadillo",
+      "vegano",
+      "Alto contenido de fibra"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Garbanzos (enlatados)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Aceite de oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "pimentón ahumado",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sal marina",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Precalienta el horno a 400°F (200°C).",
+      "Escurrir, enjuagar y secar bien los garbanzos con una toalla de papel.",
+      "Mezcle los garbanzos con aceite de oliva, pimentón y sal.",
+      "Extienda uniformemente sobre una bandeja para hornear y ase durante 20-25 minutos hasta que esté crujiente."
+    ]
+  },
+  {
+    "title": "Bocaditos de filete con mantequilla de ajo",
+    "description": "Tierno, jugoso y lleno de sabor. Estos bocados de carne son la mejor cena rica en proteínas. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "cetogénico",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Solomillo",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Manteca",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "dientes de ajo",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Perejil fresco",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Corta el bistec en cubos del tamaño de un bocado y sazona con sal y pimienta.",
+      "Calienta una sartén a fuego alto y dora los trozos de carne durante 3-4 minutos.",
+      "Reduzca el fuego, agregue la mantequilla y el ajo picado y revuelva para cubrir el bistec.",
+      "Adorne con perejil fresco picado y sirva inmediatamente."
+    ]
+  },
+  {
+    "title": "Curry vegano de camote",
+    "description": "Un reconfortante y cremoso curry de coco cargado de batatas y especias calientes. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "vegano",
+      "Sin gluten"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Batata",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Leche de coco (lite)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Pasta de curry",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Espinaca",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Pelar y cortar los boniatos en cubos pequeños.",
+      "En una olla grande, sofreír la pasta de curry hasta que esté fragante.",
+      "Agrega las batatas y la leche de coco. Cocine a fuego lento durante 20 minutos hasta que estén tiernos.",
+      "Agregue las espinacas y deje que se ablanden antes de servir."
+    ]
+  },
+  {
+    "title": "Tazas de desayuno para muffins de huevo",
+    "description": "Muffins de huevo portátiles y llenos de proteínas que puedes preparar con anticipación para las mañanas ocupadas. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Desayuno",
+      "cetogénico",
+      "Alta proteína"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Huevos",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Queso Cheddar",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Pimiento morrón",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Espinaca",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Precalienta el horno a 350°F (175°C) y engrasa un molde para muffins.",
+      "Batir los huevos en un bol y sazonar con sal y pimienta.",
+      "Divida el pimiento morrón picado, las espinacas y el queso entre los moldes para muffins.",
+      "Vierta la mezcla de huevo sobre los rellenos y hornee por 15-20 minutos."
+    ]
+  },
+  {
+    "title": "Ensalada De Atún Y Aguacate",
+    "description": "Una ensalada de atún sin mayonesa con aguacate cremoso para obtener grasas saludables y una textura increíble. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almuerzo",
+      "cetogénico",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Atún Enlatado",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Palta",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Cebolla Roja",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Zumo de limón",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Escurre el atún y colócalo en un bol.",
+      "Agrega el aguacate y tritúralo junto con el atún con un tenedor.",
+      "Agregue la cebolla morada finamente picada, el jugo de limón, la sal y la pimienta.",
+      "Sirva sobre rodajas de pepino o tostadas integrales."
+    ]
+  },
+  {
+    "title": "Batido de chocolate y mantequilla de maní",
+    "description": "Sabe a postre, pero está repleto de proteínas para desarrollar músculos y grasas saludables. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Bocadillo",
+      "Alta proteína",
+      "Vegetariano"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Polvo de proteína de chocolate",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Manteca de cacahuete",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banana",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Leche De Almendras",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Agrega todos los ingredientes a una licuadora.",
+      "Agrega un puñado de cubitos de hielo.",
+      "Licue a fuego alto hasta que quede suave y cremoso."
+    ]
+  },
+  {
+    "title": "Salteado De Camarones Con Brócoli",
+    "description": "Una cena rápida, sabrosa y rica en proteínas que viene en una sola sartén. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alta proteína",
+      "Bajo en carbohidratos"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Camarones (Pelados)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Floretes de brócoli",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Salsa de soja",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Aceite de sésamo",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Calienta el aceite de sésamo en una sartén grande o en un wok a fuego medio-alto.",
+      "Agregue los floretes de brócoli y saltee durante 4-5 minutos hasta que estén tiernos y crujientes.",
+      "Agregue los camarones y cocine durante 2-3 minutos hasta que se pongan rosados.",
+      "Rocíe con salsa de soja, revuelva bien y sirva caliente."
+    ]
+  }
+]

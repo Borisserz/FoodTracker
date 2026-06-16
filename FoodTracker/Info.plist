@@ -15,5 +15,7 @@
 	</array>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>FoodTracker needs access to your camera to let the AI Chef analyze your cooking techniques in real-time.</string>
 </dict>
 </plist>

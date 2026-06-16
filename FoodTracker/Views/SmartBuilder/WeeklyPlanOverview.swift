@@ -125,13 +125,13 @@ struct WeeklyPlanOverview: View {
                         VStack(spacing: 24) {
                             // Day Summary (Macronutrients)
                             HStack {
-                                macroGodView(title: "Energy", value: "\(day.totalCalories)", icon: "flame.fill", color: themeManager.current.primaryAccent)
+                                macroGodView(title: String(localized: "Energy"), value: "\(day.totalCalories)", icon: "flame.fill", color: themeManager.current.primaryAccent)
                                 Spacer()
-                                macroGodView(title: "Protein", value: "\(day.totalProtein)g", icon: "bolt.fill", color: .red)
+                                macroGodView(title: String(localized: "Protein"), value: "\(day.totalProtein)g", icon: "bolt.fill", color: .red)
                                 Spacer()
-                                macroGodView(title: "Carbs", value: "\(day.totalCarbs)g", icon: "leaf.fill", color: .blue)
+                                macroGodView(title: String(localized: "Carbs"), value: "\(day.totalCarbs)g", icon: "leaf.fill", color: .blue)
                                 Spacer()
-                                macroGodView(title: "Fats", value: "\(day.totalFat)g", icon: "drop.fill", color: .orange)
+                                macroGodView(title: String(localized: "Fats"), value: "\(day.totalFat)g", icon: "drop.fill", color: .orange)
                             }
                             .padding(20)
                             .background(.ultraThinMaterial)
@@ -455,13 +455,13 @@ struct MealPlanItemDetailView: View {
                         
                         // Macros
                         HStack {
-                            macroGodView(title: "Energy", value: "\(meal.calories)", icon: "flame.fill", color: themeManager.current.primaryAccent)
+                            macroGodView(title: String(localized: "Energy"), value: "\(meal.calories)", icon: "flame.fill", color: themeManager.current.primaryAccent)
                             Spacer()
-                            macroGodView(title: "Protein", value: "\(meal.protein)g", icon: "bolt.fill", color: .red)
+                            macroGodView(title: String(localized: "Protein"), value: "\(meal.protein)g", icon: "bolt.fill", color: .red)
                             Spacer()
-                            macroGodView(title: "Carbs", value: "\(meal.carbs)g", icon: "leaf.fill", color: .blue)
+                            macroGodView(title: String(localized: "Carbs"), value: "\(meal.carbs)g", icon: "leaf.fill", color: .blue)
                             Spacer()
-                            macroGodView(title: "Fats", value: "\(meal.fat)g", icon: "drop.fill", color: .orange)
+                            macroGodView(title: String(localized: "Fats"), value: "\(meal.fat)g", icon: "drop.fill", color: .orange)
                         }
                         .padding(20)
                         .background(.ultraThinMaterial)
@@ -521,9 +521,9 @@ struct MealPlanItemDetailView: View {
                                 .padding(.bottom, 12)
 
                             VStack(spacing: 0) {
-                                MealPlanNutritionRow(title: "Proteins", value: Double(meal.protein), unit: "g")
-                                MealPlanNutritionRow(title: "Total Fat", value: Double(meal.fat), unit: "g")
-                                MealPlanNutritionRow(title: "Carbs", value: Double(meal.carbs), unit: "g")
+                                MealPlanNutritionRow(title: String(localized: "Proteins"), value: Double(meal.protein), unit: "g")
+                                MealPlanNutritionRow(title: String(localized: "Total Fat"), value: Double(meal.fat), unit: "g")
+                                MealPlanNutritionRow(title: String(localized: "Carbs"), value: Double(meal.carbs), unit: "g")
 
                                 Text("Vitamins & Minerals")
                                     .font(.headline)
@@ -532,13 +532,13 @@ struct MealPlanItemDetailView: View {
                                     .padding(.bottom, 8)
                                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                                MealPlanNutritionRow(title: "Vitamin C", value: meal.vitaminC, unit: "mg")
-                                MealPlanNutritionRow(title: "Vitamin D", value: meal.vitaminD, unit: "mcg")
-                                MealPlanNutritionRow(title: "Calcium", value: meal.calcium, unit: "mg")
-                                MealPlanNutritionRow(title: "Iron", value: meal.iron, unit: "mg")
-                                MealPlanNutritionRow(title: "Magnesium", value: meal.magnesium, unit: "mg")
-                                MealPlanNutritionRow(title: "Potassium", value: meal.potassium, unit: "mg")
-                                MealPlanNutritionRow(title: "Omega-3", value: meal.omega3, unit: "g")
+                                MealPlanNutritionRow(title: String(localized: "Vitamin C"), value: meal.vitaminC, unit: "mg")
+                                MealPlanNutritionRow(title: String(localized: "Vitamin D"), value: meal.vitaminD, unit: "mcg")
+                                MealPlanNutritionRow(title: String(localized: "Calcium"), value: meal.calcium, unit: "mg")
+                                MealPlanNutritionRow(title: String(localized: "Iron"), value: meal.iron, unit: "mg")
+                                MealPlanNutritionRow(title: String(localized: "Magnesium"), value: meal.magnesium, unit: "mg")
+                                MealPlanNutritionRow(title: String(localized: "Potassium"), value: meal.potassium, unit: "mg")
+                                MealPlanNutritionRow(title: String(localized: "Omega-3"), value: meal.omega3, unit: "g")
                             }
                             .padding(.horizontal, 20)
                             .padding(.vertical, 8)

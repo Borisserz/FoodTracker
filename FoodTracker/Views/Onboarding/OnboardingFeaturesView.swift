@@ -24,53 +24,53 @@ struct OnboardingFeaturesView: View {
     private let features: [OnboardingFeatureItem] = [
         OnboardingFeatureItem(
             iconName: "sparkles",
-            title: "AI Nutrition Coach",
-            description: "Chat with your personal AI coach. Get macro advice, daily verdicts, and personalized health guidance.",
+            title: String(localized: "AI Nutrition Coach"),
+            description: String(localized: "Chat with your personal AI coach. Get macro advice, daily verdicts, and personalized health guidance."),
             color: .themePink,
             leftIcon: "message.fill",
-            leftLabel: "24/7 AI Chat",
+            leftLabel: String(localized: "24/7 AI Chat"),
             rightIcon: "brain.head.profile",
-            rightLabel: "Macro Verdicts"
+            rightLabel: String(localized: "Macro Verdicts")
         ),
         OnboardingFeatureItem(
             iconName: "camera.viewfinder",
-            title: "Smart Food Vision",
-            description: "Simply snap a photo of your meal or scan a barcode. Our AI instantly calculates your calories, protein, fats, and carbs.",
+            title: String(localized: "Smart Food Vision"),
+            description: String(localized: "Simply snap a photo of your meal or scan a barcode. Our AI instantly calculates your calories, protein, fats, and carbs."),
             color: .themeOrange,
             leftIcon: "camera.viewfinder",
-            leftLabel: "Photo Scan",
+            leftLabel: String(localized: "Photo Scan"),
             rightIcon: "barcode.viewfinder",
-            rightLabel: "Barcode Scan"
+            rightLabel: String(localized: "Barcode Scan")
         ),
         OnboardingFeatureItem(
             iconName: "frying.pan.fill",
-            title: "AI Chef Studio",
-            description: "Input ingredients from your fridge and get diet-matched recipes. Plus, use your camera so the AI can monitor and guide your cooking process!",
+            title: String(localized: "AI Chef Studio"),
+            description: String(localized: "Input ingredients from your fridge and get diet-matched recipes. Plus, use your camera so the AI can monitor and guide your cooking process!"),
             color: .themeYellow,
             leftIcon: "frying.pan.fill",
-            leftLabel: "Diet Recipes",
+            leftLabel: String(localized: "Diet Recipes"),
             rightIcon: "camera.fill",
-            rightLabel: "Cook Monitor"
+            rightLabel: String(localized: "Cook Monitor")
         ),
         OnboardingFeatureItem(
             iconName: "person.crop.circle.badge.clock",
-            title: "Visual Progress",
-            description: "Upload Before & After photos to visually compare your transformation and let AI analyze your physical progress.",
+            title: String(localized: "Visual Progress"),
+            description: String(localized: "Upload Before & After photos to visually compare your transformation and let AI analyze your physical progress."),
             color: .green,
             leftIcon: "photo.stack.fill",
-            leftLabel: "Before & After",
+            leftLabel: String(localized: "Before & After"),
             rightIcon: "chart.line.uptrend.xyaxis",
-            rightLabel: "AI Analysis"
+            rightLabel: String(localized: "AI Analysis")
         ),
         OnboardingFeatureItem(
             iconName: "chart.bar.xaxis",
-            title: "Intelligent Analytics",
-            description: "Deep insights into your consistency and habits, featuring an AI Hydration Coach that optimizes your water and pH balance.",
+            title: String(localized: "Intelligent Analytics"),
+            description: String(localized: "Deep insights into your consistency and habits, featuring an AI Hydration Coach that optimizes your water and pH balance."),
             color: .cyan,
             leftIcon: "drop.fill",
-            leftLabel: "Hydration Coach",
+            leftLabel: String(localized: "Hydration Coach"),
             rightIcon: "chart.bar.xaxis",
-            rightLabel: "pH Balance"
+            rightLabel: String(localized: "pH Balance")
         )
     ]
 

@@ -1,0 +1,747 @@
+[
+  {
+    "title": "Barchetta di salmone con avocado Keto",
+    "description": "Ricca di omega-3 e grassi sani, questa semplice ma elegante barchetta per salmone è perfetta per una cena cheto. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filetto Di Salmone",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Succo Di Limone",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Preriscalda il forno a 200°C (400°F).",
+      "Tagliare l'avocado a metà ed eliminare il nocciolo.",
+      "Metti un pezzetto di salmone nella metà scavata dell'avocado.",
+      "Condire con olio d'oliva, succo di limone, sale e pepe.",
+      "Cuocere per 15-20 minuti fino a quando il salmone sarà cotto."
+    ]
+  },
+  {
+    "title": "Pancake ai mirtilli ricchi di proteine",
+    "description": "Inizia la giornata con questi soffici pancake ad alto contenuto proteico ricchi di freschi antiossidanti. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Alto contenuto proteico",
+      "Vegetariano"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Farina d'Avena",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Proteine ​​in Polvere (Vaniglia)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Mirtilli",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "In una ciotola, mescolare la farina d'avena e le proteine ​​in polvere.",
+      "Aggiungete poco alla volta il latte di mandorle fino ad ottenere una pastella liscia.",
+      "Incorporate delicatamente i mirtilli freschi.",
+      "Cuocere su una padella antiaderente a fuoco medio finché non si formano le bolle, quindi girare.",
+      "Servire caldo con un filo di sciroppo senza zucchero."
+    ]
+  },
+  {
+    "title": "Ciotola di quinoa mediterranea",
+    "description": "Una ciotola vivace e rinfrescante ricca di fibre e grassi sani, perfetta per un pranzo pomeridiano soleggiato. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Vegano",
+      "mediterraneo"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Quinoa cotta",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Pomodorini",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Cetriolo",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Olive Kalamata",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Hummus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Metti la quinoa cotta alla base della ciotola.",
+      "Tagliate a metà i pomodorini e affettate i cetrioli.",
+      "Disporre i pomodori, i cetrioli e le olive sopra la quinoa.",
+      "Completare con una generosa cucchiaiata di hummus e un filo d'olio d'oliva."
+    ]
+  },
+  {
+    "title": "Peperoncino piccante di tacchino magro",
+    "description": "Riscalda la tua anima e raggiungi i tuoi obiettivi proteici con questo peperoncino di tacchino ricco e piccante. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di grassi"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Tacchino macinato magro",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Fagioli rossi",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Pomodori schiacciati",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Polvere di peperoncino",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Rosolare il tacchino macinato in una pentola capiente a fuoco medio.",
+      "Aggiungere il peperoncino in polvere e cuocere per 1 minuto finché non diventa fragrante.",
+      "Aggiungere i pomodori schiacciati e i fagioli rossi (scolati e sciacquati).",
+      "Cuocere a fuoco lento per 30 minuti per consentire ai sapori di fondersi insieme.",
+      "Guarnire con una spolverata di formaggio magro o coriandolo prima di servire."
+    ]
+  },
+  {
+    "title": "Frullato rinfrescante verde disintossicante",
+    "description": "Un rapido apporto di vitamine e idratazione, ottimo per il recupero post-allenamento o per un nuovo inizio mattutino. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Spuntino",
+      "Vegano",
+      "Crudo"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Spinaci",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Mela Verde",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Acqua di cocco",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Togliere il torsolo e tritare la mela verde.",
+      "Aggiungi gli spinaci, la mela, la banana e l'acqua di cocco in un frullatore.",
+      "Frullare a velocità alta fino a ottenere un composto completamente liscio.",
+      "Versare in un bicchiere ghiacciato e gustare subito!"
+    ]
+  },
+  {
+    "title": "Tagliatelle di zucchine a basso contenuto di carboidrati con pesto",
+    "description": "Un'alternativa leggera e saporita alla pasta, condita con un ricco pesto al basilico. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Vegetariano",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Zucchine",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Pesto Al Basilico",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Parmigiano",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Pomodorini",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Spiralizzare le zucchine in tagliatelle sottili.",
+      "Scaldate una padella a fuoco medio e fate rosolare leggermente le tagliatelle per 2-3 minuti.",
+      "Togliere dal fuoco e condire con il pesto di basilico fino a ricoprirlo uniformemente.",
+      "Completare con pomodorini tagliati a metà e parmigiano grattugiato."
+    ]
+  },
+  {
+    "title": "Insalata Caesar classica di pollo",
+    "description": "La romana croccante, il tenero pollo alla griglia e un condimento cremoso e piccante lo rendono uno dei piatti preferiti senza tempo. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Petto di pollo",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Lattuga romana",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Condimento di Cesare",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Crostini",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Condire il petto di pollo e grigliarlo fino a cottura completa. Lasciare riposare, quindi affettare.",
+      "Tritate la lattuga romana e mettetela in una ciotola capiente.",
+      "Condisci la lattuga con la salsa Caesar.",
+      "Completare con il pollo a fette e una manciata di crostini."
+    ]
+  },
+  {
+    "title": "Budino di Chia durante la notte",
+    "description": "Svegliati con un budino di chia pronto da mangiare, cremoso e nutriente, condito con frutta fresca. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Vegano",
+      "Senza glutine"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Semi di Chia",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Sciroppo d'acero",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Bacche fresche",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "In un barattolo, sbatti insieme i semi di chia, il latte di mandorle e lo sciroppo d'acero.",
+      "Lasciare riposare per 5 minuti, quindi frullare nuovamente per evitare la formazione di grumi.",
+      "Coprire e conservare in frigorifero durante la notte (o almeno 2 ore).",
+      "Completare con frutti di bosco freschi prima di servire."
+    ]
+  },
+  {
+    "title": "Ciotola per snack di ceci arrostiti",
+    "description": "Croccante, salato e incredibilmente soddisfacente. Uno spuntino ricco di fibre che ti mantiene sazio. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Vegano",
+      "Alto contenuto di fibre"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Ceci (in scatola)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Paprica affumicata",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sale marino",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 200°C (400°F).",
+      "Scolate, sciacquate e asciugate bene i ceci con carta assorbente.",
+      "Condire i ceci con olio d'oliva, paprika e sale.",
+      "Distribuire uniformemente su una teglia e arrostire per 20-25 minuti fino a quando diventa croccante."
+    ]
+  },
+  {
+    "title": "Bocconcini di bistecca al burro e aglio",
+    "description": "Tenero, succoso e ricco di sapore. Questi bocconcini di bistecca sono la cena ad alto contenuto proteico per eccellenza. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Lombata",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Burro",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Spicchi d'aglio",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Prezzemolo fresco",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Tagliare la bistecca a cubetti di piccole dimensioni e condire con sale e pepe.",
+      "Scaldare una padella a fuoco alto e rosolare i pezzi di bistecca per 3-4 minuti.",
+      "Ridurre il fuoco, aggiungere il burro e l'aglio tritato e mescolare per ricoprire la bistecca.",
+      "Decorare con prezzemolo fresco tritato e servire subito."
+    ]
+  },
+  {
+    "title": "Curry vegano di patate dolci",
+    "description": "Un curry al cocco confortante e cremoso, ricco di patate dolci e spezie calde. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Vegano",
+      "Senza glutine"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Patata dolce",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Latte di cocco (leggero)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Pasta Di Curry",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Spinaci",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Sbucciare e tagliare a cubetti le patate dolci.",
+      "In una pentola capiente, friggi delicatamente la pasta di curry finché non diventa fragrante.",
+      "Aggiungere le patate dolci e il latte di cocco. Cuocere a fuoco lento per 20 minuti finché sono teneri.",
+      "Unire gli spinaci e lasciarli appassire prima di servire."
+    ]
+  },
+  {
+    "title": "Tazze da colazione per muffin all'uovo",
+    "description": "Muffin all'uovo portatili e ricchi di proteine ​​che puoi preparare in anticipo per le mattine impegnative. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Uova",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Formaggio Cheddar",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Peperone",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Spinaci",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 175°C (350°F) e ungere uno stampo per muffin.",
+      "Sbattere le uova in una ciotola e condire con sale e pepe.",
+      "Dividere i peperoni tritati, gli spinaci e il formaggio nelle tazze da muffin.",
+      "Versare il composto di uova sul ripieno e infornare per 15-20 minuti."
+    ]
+  },
+  {
+    "title": "Insalata Di Tonno E Avocado",
+    "description": "Un'insalata di tonno senza maionese con avocado cremoso per grassi sani e consistenza incredibile. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Tonno in scatola",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Cipolla Rossa",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Succo Di Limone",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Scolate il tonno e mettetelo in una ciotola.",
+      "Aggiungete l'avocado e schiacciatelo insieme al tonno con una forchetta.",
+      "Mescolare la cipolla rossa tagliata finemente, il succo di limone, sale e pepe.",
+      "Servire su fette di cetriolo o toast integrali."
+    ]
+  },
+  {
+    "title": "Frullato al burro di arachidi e cioccolato",
+    "description": "Ha il sapore di un dessert ma è ricco di proteine ​​per la costruzione muscolare e grassi sani. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Alto contenuto proteico",
+      "Vegetariano"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Polvere proteica del cioccolato",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Burro di arachidi",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banana",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Aggiungi tutti gli ingredienti a un frullatore.",
+      "Aggiungi una manciata di cubetti di ghiaccio.",
+      "Frullare a velocità alta fino a ottenere un composto liscio e cremoso."
+    ]
+  },
+  {
+    "title": "Gamberetti saltati in padella con broccoli",
+    "description": "Una cena veloce, gustosa e ricca di proteine, riunita in un'unica padella. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Gamberetti (Sgusciati)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Cimette di broccoli",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Salsa di soia",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Olio di sesamo",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Scaldare l'olio di sesamo in una padella larga o nel wok a fuoco medio-alto.",
+      "Aggiungete le cimette di broccoli e fatele soffriggere per 4-5 minuti fino a quando saranno morbide e croccanti.",
+      "Aggiungere i gamberi e cuocere per 2-3 minuti finché non diventano rosa.",
+      "Condire con salsa di soia, mescolare bene e servire caldo."
+    ]
+  }
+]

@@ -81,7 +81,7 @@ struct ShoppingListView: View {
 
             VStack(spacing: 0) {
                 // Custom Hero Header
-                HStack(spacing: 20) {
+                HStack(spacing: 16) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "chevron.left")
                             .font(.title2.bold())
@@ -95,51 +95,57 @@ struct ShoppingListView: View {
                         Text("Smart Cart")
                             .font(.system(size: 28, weight: .heavy, design: .rounded))
                             .foregroundStyle(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                         Text(allItems.isEmpty ? "Ready for ingredients" : "\(activeItems.count) remaining")
                             .font(.subheadline)
                             .foregroundColor(.gray)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                     
-                    Spacer()
+                    Spacer(minLength: 4)
                     
-                    if !activeItems.isEmpty {
-                        Button(action: clearActiveItems) {
-                            Image(systemName: "trash")
-                                .font(.title3.bold())
-                                .foregroundColor(.red)
-                                .frame(width: 44, height: 44)
-                                .background(Color.white)
-                                .clipShape(Circle())
-                                .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+                    HStack(spacing: 10) {
+                        if !activeItems.isEmpty {
+                            Button(action: clearActiveItems) {
+                                Image(systemName: "trash")
+                                    .font(.title3.bold())
+                                    .foregroundColor(.red)
+                                    .frame(width: 40, height: 40)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+                            }
+                            
+                            ShareLink(item: shareText) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.title3.bold())
+                                    .foregroundColor(themeManager.current.primaryAccent)
+                                    .frame(width: 40, height: 40)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+                            }
                         }
                         
-                        ShareLink(item: shareText) {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.title3.bold())
-                                .foregroundColor(themeManager.current.primaryAccent)
-                                .frame(width: 44, height: 44)
-                                .background(Color.white)
-                                .clipShape(Circle())
-                                .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+                        // Circular Progress Ring
+                        ZStack {
+                            Circle()
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 4)
+                                .frame(width: 46, height: 46)
+                            
+                            Circle()
+                                .trim(from: 0, to: CGFloat(progress))
+                                .stroke(themeManager.current.primaryGradient, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                .frame(width: 46, height: 46)
+                                .rotationEffect(.degrees(-90))
+                                .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progress)
+                            
+                            Text("\(Int(progress * 100))%")
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
                         }
-                    }
-                    
-                    // Circular Progress Ring
-                    ZStack {
-                        Circle()
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 4)
-                            .frame(width: 50, height: 50)
-                        
-                        Circle()
-                            .trim(from: 0, to: CGFloat(progress))
-                            .stroke(themeManager.current.primaryGradient, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                            .frame(width: 50, height: 50)
-                            .rotationEffect(.degrees(-90))
-                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progress)
-                        
-                        Text("\(Int(progress * 100))%")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
                     }
                 }
                 .padding(.horizontal, 24)
@@ -151,8 +157,8 @@ struct ShoppingListView: View {
                         if allItems.isEmpty {
                             EmptyStateView(
                                 imageName: "cart",
-                                title: "Your cart is empty",
-                                description: "Add items manually or export ingredients directly from recipes."
+                                title: String(localized: "Your cart is empty"),
+                                description: String(localized: "Add items manually or export ingredients directly from recipes.")
                             )
                             .padding(.top, 80)
                         } else {

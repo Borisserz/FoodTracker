@@ -18,7 +18,7 @@ enum MacroType: String, Identifiable {
 
     var color: Color {
         switch self {
-        case .protein: return .themePink
+        case .protein: return .pink
         case .fat: return .orange
         case .carbs: return .blue
         }
@@ -33,9 +33,9 @@ struct Achievement: Identifiable {
     let color: Color
 
     static let all: [Achievement] = [
-        Achievement(id: "first_log", title: String(localized: "First Step"), description: String(localized: "Log your first meal"), icon: "flag.fill", color: .themePink),
-        Achievement(id: "streak_3", title: String(localized: "On Fire"), description: String(localized: "Reach a 3-day streak"), icon: "flame.fill", color: .themeOrange),
-        Achievement(id: "streak_7", title: String(localized: "Unstoppable"), description: String(localized: "Reach a 7-day streak"), icon: "bolt.fill", color: .themeYellow),
+        Achievement(id: "first_log", title: String(localized: "First Step"), description: String(localized: "Log your first meal"), icon: "flag.fill", color: .pink),
+        Achievement(id: "streak_3", title: String(localized: "On Fire"), description: String(localized: "Reach a 3-day streak"), icon: "flame.fill", color: .orange),
+        Achievement(id: "streak_7", title: String(localized: "Unstoppable"), description: String(localized: "Reach a 7-day streak"), icon: "bolt.fill", color: .yellow),
         Achievement(id: "streak_30", title: String(localized: "Legend"), description: String(localized: "Reach a 30-day streak"), icon: "crown.fill", color: .yellow),
         Achievement(id: "water_pro", title: String(localized: "Hydro Homie"), description: String(localized: "Drink 2.5L in a day"), icon: "drop.fill", color: .blue),
         Achievement(id: "water_king", title: String(localized: "Aqua King"), description: String(localized: "Drink 3L of water in a day"), icon: "drop.triangle.fill", color: .cyan),
@@ -43,8 +43,8 @@ struct Achievement: Identifiable {
         Achievement(id: "perfect_week", title: String(localized: "Perfect Week"), description: String(localized: "Hit macros for 7 days"), icon: "medal.fill", color: .indigo),
         Achievement(id: "early_bird", title: String(localized: "Early Bird"), description: String(localized: "Log breakfast before 9 AM"), icon: "sunrise.fill", color: .orange),
         Achievement(id: "ai_chef_1", title: String(localized: "Sous-Chef"), description: String(localized: "Cook 1 recipe with AI"), icon: "sparkles", color: .purple),
-        Achievement(id: "ai_chef_10", title: String(localized: "Master Chef"), description: String(localized: "Cook 10 recipes with AI"), icon: "star.fill", color: .themeOrange),
-        Achievement(id: "recipe_creator", title: String(localized: "Creator"), description: String(localized: "Add a custom recipe"), icon: "book.fill", color: .themePink)
+        Achievement(id: "ai_chef_10", title: String(localized: "Master Chef"), description: String(localized: "Cook 10 recipes with AI"), icon: "star.fill", color: .orange),
+        Achievement(id: "recipe_creator", title: String(localized: "Creator"), description: String(localized: "Add a custom recipe"), icon: "book.fill", color: .pink)
     ]
 }
 
@@ -301,8 +301,8 @@ enum HealthGrade {
     var color: Color {
         switch self {
         case .clean: return Color.green
-        case .balanced: return Color.themeYellow
-        case .treat: return Color.themePink
+        case .balanced: return Color.yellow
+        case .treat: return Color.pink
         }
     }
 
@@ -368,5 +368,36 @@ extension FoodItem {
         self.id = id
         self.date = date
         self.weight = weight
+    }
+}
+
+@Model public final class AIChatSession {
+    public var id: UUID = UUID()
+    public var title: String = ""
+    public var date: Date = Date()
+    public var messages: [AIChatMessage] = []
+
+    public init(title: String = "New Chat", date: Date = Date(), messages: [AIChatMessage] = []) {
+        self.title = title
+        self.date = date
+        self.messages = messages
+    }
+}
+
+public struct AIChatMessage: Identifiable, Codable, Equatable {
+    public var id = UUID()
+    public let isUser: Bool
+    public var text: String
+    public var isAnimating: Bool = false
+
+    public init(id: UUID = UUID(), isUser: Bool, text: String, isAnimating: Bool = false) {
+        self.id = id
+        self.isUser = isUser
+        self.text = text
+        self.isAnimating = isAnimating
+    }
+
+    public static func == (lhs: AIChatMessage, rhs: AIChatMessage) -> Bool {
+        lhs.id == rhs.id
     }
 }

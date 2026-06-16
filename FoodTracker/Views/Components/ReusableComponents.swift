@@ -58,9 +58,9 @@ struct MacroSummaryView: View {
         let tc = targetCarbs > 0 ? targetCarbs : 250.0
 
         HStack(spacing: 8) {
-            MacroBatteryView(title: "Protein", current: Int(protein), total: Int(tp), color: .themePeach)
-            MacroBatteryView(title: "Fats", current: Int(fats), total: Int(tf), color: .themeYellow)
-            MacroBatteryView(title: "Carbs", current: Int(carbs), total: Int(tc), color: .drinkWater)
+            MacroBatteryView(title: String(localized: "Protein"), current: Int(protein), total: Int(tp), color: .themePeach)
+            MacroBatteryView(title: String(localized: "Fats"), current: Int(fats), total: Int(tf), color: .themeYellow)
+            MacroBatteryView(title: String(localized: "Carbs"), current: Int(carbs), total: Int(tc), color: .drinkWater)
         }
     }
 }
@@ -287,8 +287,8 @@ struct BurnedDetailsCard: View {
                     ActivitySourceRow(
                         icon: "dumbbell.fill",
                         iconColor: .themeOrange,
-                        title: "Workouts",
-                        subtitle: "Workout Tracker",
+                        title: String(localized: "Workouts"),
+                        subtitle: String(localized: "Workout Tracker"),
                         calories: appWorkoutCalories
                     )
                 }
@@ -299,8 +299,8 @@ struct BurnedDetailsCard: View {
                 ActivitySourceRow(
                     icon: "applewatch",
                     iconColor: .themePink,
-                    title: "Apple Fitness",
-                    subtitle: "System & Other Apps",
+                    title: String(localized: "Apple Fitness"),
+                    subtitle: String(localized: "System & Other Apps"),
                     calories: appleFitnessCalories
                 )
 
@@ -309,8 +309,8 @@ struct BurnedDetailsCard: View {
                 ActivitySourceRow(
                     icon: "figure.walk",
                     iconColor: .green,
-                    title: "Daily Activity",
-                    subtitle: "\(summary.stepsCount) steps",
+                    title: String(localized: "Daily Activity"),
+                    subtitle: String(localized: "\(summary.stepsCount) steps"),
                     calories: stepCalories
                 )
             }
@@ -443,9 +443,9 @@ struct NetDetailsCard: View {
             }
 
             HStack(spacing: 12) {
-                EquationBlock(title: "Eaten", value: summary.totalCalories, color: .themePink, icon: "fork.knife")
+                EquationBlock(title: String(localized: "Eaten"), value: summary.totalCalories, color: .themePink, icon: "fork.knife")
                 Text("–").font(.title.bold()).foregroundColor(.gray.opacity(0.3))
-                EquationBlock(title: "Burned", value: summary.activeCaloriesBurned, color: .themeOrange, icon: "flame.fill")
+                EquationBlock(title: String(localized: "Burned"), value: summary.activeCaloriesBurned, color: .themeOrange, icon: "flame.fill")
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -687,9 +687,9 @@ struct DetailedMacroRingsCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 15) {
-                IndividualMacroRing(title: "Carbs", current: summary.totalCarbs, target: targetC, color: .drinkWater)
-                IndividualMacroRing(title: "Fat", current: summary.totalFats, target: targetF, color: .themeYellow)
-                IndividualMacroRing(title: "Protein", current: summary.totalProtein, target: targetP, color: .themePeach)
+                IndividualMacroRing(title: String(localized: "Carbs"), current: summary.totalCarbs, target: targetC, color: .drinkWater)
+                IndividualMacroRing(title: String(localized: "Fat"), current: summary.totalFats, target: targetF, color: .themeYellow)
+                IndividualMacroRing(title: String(localized: "Protein"), current: summary.totalProtein, target: targetP, color: .themePeach)
             }
             .padding(.vertical, 4)
 
@@ -792,10 +792,10 @@ struct MicronutrientsFocusCard: View {
             }
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                CompactMicroCard(title: "Omega-3", icon: "fish.fill", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
-                CompactMicroCard(title: "Magnesium", icon: "bolt.heart.fill", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
-                CompactMicroCard(title: "Calcium", icon: "bone.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
-                CompactMicroCard(title: "Iron", icon: "drop.fill", current: totalIron, target: 18, unit: "mg", color: .red.opacity(0.8))
+                CompactMicroCard(title: String(localized: "Omega-3"), icon: "fish.fill", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
+                CompactMicroCard(title: String(localized: "Magnesium"), icon: "bolt.heart.fill", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
+                CompactMicroCard(title: String(localized: "Calcium"), icon: "bone.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
+                CompactMicroCard(title: String(localized: "Iron"), icon: "drop.fill", current: totalIron, target: 18, unit: "mg", color: .red.opacity(0.8))
             }
 
             HStack {
@@ -960,13 +960,13 @@ struct MealBreakdownCard: View {
             let currentMealData = summary.meals.first(where: { $0.title == selectedMeal })
 
             VStack(spacing: 16) {
-                MealMacroRow(title: "Calories", value: Double(currentMealData?.totalCalories ?? 0), unit: "kcal", color: .themePink)
+                MealMacroRow(title: String(localized: "Calories"), value: Double(currentMealData?.totalCalories ?? 0), unit: "kcal", color: .themePink)
                 Divider()
-                MealMacroRow(title: "Carbs", value: currentMealData?.totalCarbs ?? 0, unit: "g", color: .drinkWater)
+                MealMacroRow(title: String(localized: "Carbs"), value: currentMealData?.totalCarbs ?? 0, unit: "g", color: .drinkWater)
                 Divider()
-                MealMacroRow(title: "Protein", value: currentMealData?.totalProtein ?? 0, unit: "g", color: .themePeach)
+                MealMacroRow(title: String(localized: "Protein"), value: currentMealData?.totalProtein ?? 0, unit: "g", color: .themePeach)
                 Divider()
-                MealMacroRow(title: "Fat", value: currentMealData?.totalFats ?? 0, unit: "g", color: .themeYellow)
+                MealMacroRow(title: String(localized: "Fat"), value: currentMealData?.totalFats ?? 0, unit: "g", color: .themeYellow)
             }
             .padding(20)
             .background(
@@ -1187,9 +1187,9 @@ struct ActivityIntensityCard: View {
             Text("Burn Intensity").font(.headline)
 
             HStack(alignment: .bottom, spacing: 20) {
-                IntensityBar(title: "Steps", value: stepCals, total: totalActive, color: .green)
-                IntensityBar(title: "Apple", value: appleCals, total: totalActive, color: .themePink)
-                IntensityBar(title: "Workout", value: workoutCals, total: totalActive, color: .themeOrange)
+                IntensityBar(title: String(localized: "Steps"), value: stepCals, total: totalActive, color: .green)
+                IntensityBar(title: String(localized: "Apple"), value: appleCals, total: totalActive, color: .themePink)
+                IntensityBar(title: String(localized: "Workout"), value: workoutCals, total: totalActive, color: .themeOrange)
             }
             .frame(height: 150)
             .padding(.vertical, 10)

@@ -1,0 +1,747 @@
+[
+  {
+    "title": "Bateau de saumon Keto avocat",
+    "description": "Riche en oméga-3 et en graisses saines, ce bateau au saumon simple mais élégant est parfait pour un dîner céto. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Céto",
+      "Riche en protéines",
+      "Faible teneur en glucides"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filet De Saumon",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Avocat",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Huile d'Olive",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Jus de Citron",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Préchauffez votre four à 400°F (200°C).",
+      "Coupez l'avocat en deux et retirez le noyau.",
+      "Placez un petit morceau de saumon dans la moitié d'avocat évidée.",
+      "Arroser d'huile d'olive, de jus de citron, de sel et de poivre.",
+      "Cuire au four pendant 15 à 20 minutes jusqu'à ce que le saumon soit bien cuit."
+    ]
+  },
+  {
+    "title": "Crêpes aux myrtilles riches en protéines",
+    "description": "Commencez votre journée avec ces crêpes moelleuses et riches en protéines, remplies d'antioxydants frais. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Petit-déjeuner",
+      "Riche en protéines",
+      "Végétarien"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Farine d'Avoine",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Poudre de protéines (vanille)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Lait d'amande",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Bleuets",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "Dans un bol, mélanger la farine d'avoine et la poudre de protéines.",
+      "Incorporez progressivement le lait d'amande jusqu'à obtenir une pâte lisse.",
+      "Incorporez délicatement les myrtilles fraîches.",
+      "Cuire dans une poêle antiadhésive à feu moyen jusqu'à formation de bulles, puis retourner.",
+      "Servir chaud avec un filet de sirop sans sucre."
+    ]
+  },
+  {
+    "title": "Bol de quinoa méditerranéen",
+    "description": "Un bol vibrant et rafraîchissant chargé de fibres et de graisses saines, parfait pour un déjeuner ensoleillé l'après-midi. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Déjeuner",
+      "Végétalien",
+      "méditerranéen"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Quinoa cuit",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Tomates cerises",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Concombre",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Olives de Kalamata",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Houmous",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Placez le quinoa cuit au fond de votre bol.",
+      "Coupez les tomates cerises en deux et tranchez les concombres.",
+      "Disposez les tomates, les concombres et les olives sur le quinoa.",
+      "Garnir d’une généreuse boule de houmous et d’un filet d’huile d’olive."
+    ]
+  },
+  {
+    "title": "Chili maigre et épicé à la dinde",
+    "description": "Réchauffez votre âme et atteignez vos objectifs en matière de protéines avec ce chili à la dinde riche et épicé. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Riche en protéines",
+      "Faible en gras"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Dinde hachée maigre",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Haricots rouges",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Tomates concassées",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Poudre de piment",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Faire dorer la dinde hachée dans une grande casserole à feu moyen.",
+      "Incorporer la poudre de chili et cuire 1 minute jusqu'à ce qu'elle soit parfumée.",
+      "Ajouter les tomates concassées et les haricots rouges (égouttés et rincés).",
+      "Laisser mijoter 30 minutes pour que les saveurs se mélangent.",
+      "Garnir d'une pincée de fromage faible en gras ou de coriandre avant de servir."
+    ]
+  },
+  {
+    "title": "Smoothie détox vert rafraîchissant",
+    "description": "Une dose rapide de vitamines et d'hydratation, excellente pour une récupération après l'entraînement ou pour un nouveau départ le matin. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Petit-déjeuner",
+      "Collation",
+      "Végétalien",
+      "Brut"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Épinard",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Pomme verte",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banane",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Eau de coco",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Épépinez et hachez la pomme verte.",
+      "Ajoutez les épinards, la pomme, la banane et l'eau de coco dans un mélangeur.",
+      "Mélanger à puissance élevée jusqu'à ce qu'il soit complètement lisse.",
+      "Versez dans un verre bien frais et dégustez immédiatement !"
+    ]
+  },
+  {
+    "title": "Nouilles de courgettes faibles en glucides avec pesto",
+    "description": "Une alternative légère et savoureuse aux pâtes, mélangée à une riche sauce pesto au basilic. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Céto",
+      "Végétarien",
+      "Faible teneur en glucides"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Courgettes",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Pesto au basilic",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Fromage Parmesan",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Tomates cerises",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Spiralisez les courgettes en fines nouilles.",
+      "Faites chauffer une poêle à feu moyen et faites revenir légèrement les nouilles pendant 2-3 minutes.",
+      "Retirer du feu et mélanger avec le pesto de basilic jusqu'à ce qu'il soit uniformément enrobé.",
+      "Garnir de tomates cerises coupées en deux et de parmesan râpé."
+    ]
+  },
+  {
+    "title": "Salade César au Poulet Classique",
+    "description": "De la romaine croustillante, du poulet grillé tendre et une vinaigrette crémeuse et piquante en font un favori intemporel. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Déjeuner",
+      "Riche en protéines"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Blanc de poulet",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Laitue romaine",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Vinaigrette César",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Croûtons",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Assaisonner la poitrine de poulet et la faire griller jusqu'à ce qu'elle soit complètement cuite. Laissez reposer, puis tranchez.",
+      "Hachez la laitue romaine et placez-la dans un grand bol.",
+      "Mélangez la laitue avec la vinaigrette César.",
+      "Garnir de tranches de poulet et d'une poignée de croûtons."
+    ]
+  },
+  {
+    "title": "Pudding au chia du jour au lendemain",
+    "description": "Réveillez-vous avec un pudding au chia prêt à manger, crémeux et nutritif, garni de fruits frais. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Petit-déjeuner",
+      "Végétalien",
+      "Sans gluten"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Graines de Chia",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Lait d'amande",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Sirop d'érable",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Baies fraîches",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "Dans un bocal, mélanger les graines de chia, le lait d'amande et le sirop d'érable.",
+      "Laissez reposer 5 minutes, puis fouettez à nouveau pour éviter les grumeaux.",
+      "Couvrir et réfrigérer toute la nuit (ou au moins 2 heures).",
+      "Garnir de baies fraîches avant de servir."
+    ]
+  },
+  {
+    "title": "Bol de collation aux pois chiches rôtis",
+    "description": "Croquant, salé et incroyablement satisfaisant. Une collation riche en fibres qui vous rassasie. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Collation",
+      "Végétalien",
+      "Haute teneur en fibres"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Pois chiches (en conserve)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Huile d'Olive",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Paprika Fumé",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sel de mer",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Préchauffer le four à 400°F (200°C).",
+      "Égouttez, rincez et séchez soigneusement les pois chiches avec une serviette en papier.",
+      "Mélangez les pois chiches avec l'huile d'olive, le paprika et le sel.",
+      "Étaler uniformément sur une plaque à pâtisserie et rôtir pendant 20 à 25 minutes jusqu'à ce qu'il soit croustillant."
+    ]
+  },
+  {
+    "title": "Bouchées de steak au beurre d’ail",
+    "description": "Tendre, juteux et plein de saveurs. Ces bouchées de steak constituent le dîner riche en protéines par excellence. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Céto",
+      "Riche en protéines"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Bifteck de surlonge",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Beurre",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Gousses d'ail",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Persil frais",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Coupez le steak en petits cubes et assaisonnez de sel et de poivre.",
+      "Faites chauffer une poêle à feu vif et saisissez les morceaux de steak pendant 3 à 4 minutes.",
+      "Réduire le feu, ajouter le beurre et l'ail émincé et remuer pour enrober le steak.",
+      "Garnir de persil frais haché et servir aussitôt."
+    ]
+  },
+  {
+    "title": "Curry végétalien de patates douces",
+    "description": "Un curry de noix de coco réconfortant et crémeux chargé de patates douces et d'épices chaudes. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Végétalien",
+      "Sans gluten"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Patate douce",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Lait de coco (léger)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Pâte De Curry",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Épinard",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Épluchez et coupez les patates douces en petits cubes.",
+      "Dans une grande casserole, faire revenir doucement la pâte de curry jusqu'à ce qu'elle soit parfumée.",
+      "Ajoutez les patates douces et le lait de coco. Laisser mijoter pendant 20 minutes jusqu'à tendreté.",
+      "Incorporez les épinards et laissez-les ramollir avant de servir."
+    ]
+  },
+  {
+    "title": "Coupes de petit-déjeuner aux muffins aux œufs",
+    "description": "Des muffins aux œufs portables et riches en protéines que vous pouvez préparer à l'avance pour les matins chargés. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Petit-déjeuner",
+      "Céto",
+      "Riche en protéines"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Œufs",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Fromage Cheddar",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Poivron",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Épinard",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Préchauffer le four à 350°F (175°C) et graisser un moule à muffins.",
+      "Battre les œufs dans un bol et assaisonner de sel et de poivre.",
+      "Répartir le poivron haché, les épinards et le fromage dans les moules à muffins.",
+      "Versez le mélange d'œufs sur la garniture et enfournez pendant 15 à 20 minutes."
+    ]
+  },
+  {
+    "title": "Salade Thon Avocat",
+    "description": "Une salade de thon sans mayonnaise à base d'avocat crémeux pour des graisses saines et une texture incroyable. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Déjeuner",
+      "Céto",
+      "Riche en protéines"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Thon en conserve",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Avocat",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Oignon rouge",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Jus de Citron",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Égouttez le thon et placez-le dans un bol.",
+      "Ajoutez l'avocat et écrasez-le avec le thon à l'aide d'une fourchette.",
+      "Incorporer l'oignon rouge finement coupé, le jus de citron, le sel et le poivre.",
+      "Servir sur des tranches de concombre ou des toasts de grains entiers."
+    ]
+  },
+  {
+    "title": "Smoothie au chocolat et au beurre de cacahuète",
+    "description": "Il a le goût d'un dessert, mais il regorge de protéines qui renforcent les muscles et de graisses saines. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Collation",
+      "Riche en protéines",
+      "Végétarien"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Poudre de protéines de chocolat",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Beurre de cacahuète",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banane",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Lait d'amande",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Ajoutez tous les ingrédients dans un mixeur.",
+      "Ajoutez une poignée de glaçons.",
+      "Mélanger à puissance élevée jusqu'à consistance lisse et crémeuse."
+    ]
+  },
+  {
+    "title": "Sauté de crevettes au brocoli",
+    "description": "Un dîner rapide, savoureux et riche en protéines réuni dans une seule poêle. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Riche en protéines",
+      "Faible teneur en glucides"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Crevettes (Décalées)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Fleurons de brocoli",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Sauce de soja",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Huile de sésame",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Faites chauffer l'huile de sésame dans une grande poêle ou un wok à feu moyen-vif.",
+      "Ajouter les fleurons de brocoli et faire sauter pendant 4 à 5 minutes jusqu'à ce qu'ils soient tendres et croustillants.",
+      "Ajouter les crevettes et cuire 2-3 minutes jusqu'à ce qu'elles deviennent roses.",
+      "Arroser de sauce soja, bien mélanger et servir chaud."
+    ]
+  }
+]

@@ -3,7 +3,8 @@ import SwiftData
 import FirebaseCore
 import FirebaseAppCheck
 import GoogleSignIn
-import AppTrackingTransparency
+import UserNotifications
+import WidgetKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -20,33 +21,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
-@Model final class AIChatSession {
-    var id: UUID = UUID()
-    var title: String = ""
-    var date: Date = Date()
-    var messages: [AIChatMessage] = []
-
-    init(title: String = "New Chat", date: Date = Date(), messages: [AIChatMessage] = []) {
-        self.title = title
-        self.date = date
-        self.messages = messages
-    }
-}
-
-struct AIChatMessage: Identifiable, Codable, Equatable {
-    var id = UUID()
-    let isUser: Bool
-    var text: String
-    var isAnimating: Bool = false
-
-    static func == (lhs: AIChatMessage, rhs: AIChatMessage) -> Bool {
-        lhs.id == rhs.id
-    }
-}
 
 @main
 struct FoodTrackerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @Environment(\.scenePhase) var scenePhase
 
     // Migrated from @StateObject/ObservableObject to @Observable per system-rules and swiftui-pro
     @State private var versionManager = VersionManager.shared
@@ -99,6 +78,13 @@ struct FoodTrackerApp: App {
             .onAppear {
                 TrackingManager.shared.track(.appOpened(source: "launch"))
             }
+            .onChange(of: scenePhase) { oldPhase, newPhase in
+                if newPhase == .background {
+                    WidgetCenter.shared.reloadAllTimelines()
+                } else if newPhase == .active {
+                    PromoManager.shared.checkAndShowWidgetPromo()
+                }
+            }
         }
     }
 
@@ -106,32 +92,8 @@ struct FoodTrackerApp: App {
     private func setupDependencies() async {
         print("🚀 [setupDependencies] Starting initialization...")
         do {
-            let schema = Schema([
-                User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
-                WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
-            ])
-            
-            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
-            let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
-            print("🚀 [setupDependencies] dbURL resolved: \(dbURL)")
-            
-            let cloudConfig = ModelConfiguration(
-                schema: schema,
-                url: dbURL,
-                cloudKitDatabase: .private("iCloud.com.borisdev.FoodTracker2026")
-            )
-
-            let container: ModelContainer
-            do {
-                print("🚀 [setupDependencies] Initializing ModelContainer with CloudKit...")
-                container = try ModelContainer(for: schema, configurations: [cloudConfig])
-                print("🚀 [setupDependencies] ModelContainer successfully initialized with CloudKit!")
-            } catch {
-                print("⚠️ CloudKit init failed, falling back to local: \(error)")
-                let localConfig = ModelConfiguration(schema: schema, url: dbURL, cloudKitDatabase: .none)
-                container = try ModelContainer(for: schema, configurations: [localConfig])
-                print("🚀 [setupDependencies] ModelContainer successfully initialized on Local Storage fallback!")
-            }
+            let container = SharedModelContainer.shared.container
+            print("🚀 [setupDependencies] ModelContainer successfully initialized via SharedModelContainer!")
 
             let di = DIContainer(modelContainer: container)
             self.recipeDataLoader = RecipeDataLoader()
@@ -183,6 +145,8 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @AppStorage("hasCompletedOnboarding_v2") private var hasCompletedOnboarding = false
+    
+    @State private var promoManager = PromoManager.shared
 
     var body: some View {
         Group {
@@ -193,6 +157,13 @@ struct ContentView: View {
                     completeOnboarding(metrics: metrics)
                 }
             }
+        }
+        .sheet(isPresented: $promoManager.showWidgetPromo) {
+            WidgetPromoView()
+                .presentationDetents([.fraction(0.85)])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(32)
+                .interactiveDismissDisabled(true) // Force users to interact with buttons
         }
     }
 
@@ -227,11 +198,6 @@ struct ContentView: View {
                 Task {
                     try? await HealthKitManager.shared.requestAuthorization()
                 }
-            }
-            
-            Task {
-                try? await Task.sleep(nanoseconds: 1_500_000_000)
-                _ = await ATTrackingManager.requestTrackingAuthorization()
             }
         }
     }

@@ -78,7 +78,7 @@ struct MoreTabView: View {
         [
             MoreItem(
                 id: 0,
-                title: "Goals & Progress",
+                title: String(localized: "Goals & Progress"),
                 subtitle: weightLogs.isEmpty
                     ? "Set your weight goal"
                     : String(format: "Current: %.1f kg", currentWeight),
@@ -89,8 +89,8 @@ struct MoreTabView: View {
             ),
             MoreItem(
                 id: 3,
-                title: "Visual Progress Analysis",
-                subtitle: "Compare photos & track changes",
+                title: String(localized: "Visual Progress Analysis"),
+                subtitle: String(localized: "Compare photos & track changes"),
                 icon: "photo.on.rectangle.angled",
                 gradient: [.purple, .themePink],
                 badge: "AI",
@@ -98,8 +98,8 @@ struct MoreTabView: View {
             ),
             MoreItem(
                 id: 1,
-                title: "AI Coach",
-                subtitle: "Your proactive nutritionist",
+                title: String(localized: "AI Coach"),
+                subtitle: String(localized: "Your proactive nutritionist"),
                 icon: "sparkles",
                 gradient: [Color(hex: 0x9B59B6), Color(hex: 0xF25C78)],
                 badge: "AI",
@@ -107,7 +107,7 @@ struct MoreTabView: View {
             ),
             MoreItem(
                 id: 2,
-                title: "Profile & Settings",
+                title: String(localized: "Profile & Settings"),
                 subtitle: user.map { "Hello, \($0.name)!" } ?? "Edit your profile",
                 icon: "person.crop.circle.fill",
                 gradient: [Color(hex: 0x3498DB), Color(hex: 0x6BB8F2)],

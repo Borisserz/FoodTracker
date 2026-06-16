@@ -86,12 +86,12 @@ struct MealShareCard: View {
     private var statsGridSection: some View {
         VStack(spacing: 16) {
             HStack(spacing: 16) {
-                statGlassCard(title: "PROTEIN", value: "\(Int(summary.totalProtein))g", icon: "bolt.fill", color: .themePink)
-                statGlassCard(title: "CARBS", value: "\(Int(summary.totalCarbs))g", icon: "leaf.fill", color: .themeOrange)
+                statGlassCard(title: String(localized: "PROTEIN"), value: "\(Int(summary.totalProtein))g", icon: "bolt.fill", color: .themePink)
+                statGlassCard(title: String(localized: "CARBS"), value: "\(Int(summary.totalCarbs))g", icon: "leaf.fill", color: .themeOrange)
             }
             HStack(spacing: 16) {
-                statGlassCard(title: "FATS", value: "\(Int(summary.totalFats))g", icon: "drop.fill", color: .themeYellow)
-                statGlassCard(title: "MEALS", value: "\(summary.meals.count)", icon: "fork.knife", color: .green)
+                statGlassCard(title: String(localized: "FATS"), value: "\(Int(summary.totalFats))g", icon: "drop.fill", color: .themeYellow)
+                statGlassCard(title: String(localized: "MEALS"), value: "\(summary.meals.count)", icon: "fork.knife", color: .green)
             }
         }
         .padding(.horizontal, 24)

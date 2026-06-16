@@ -69,8 +69,35 @@ def translate_academy(lang_code, dt_code):
     with open(out_file, 'w', encoding='utf-8') as f:
         json.dump(academy, f, indent=2, ensure_ascii=False)
 
+def translate_new_recipes(lang_code, dt_code):
+    print(f"--- Translating new_recipes to {lang_code} ---")
+    translator = GoogleTranslator(source='en', target=dt_code)
+    
+    if not os.path.exists('FoodTracker/new_recipes.json'): return
+    with open('FoodTracker/new_recipes.json', 'r', encoding='utf-8') as f:
+        recipes = json.load(f)
+        
+    for i, r in enumerate(recipes):
+        print(f"New Recipe {i+1}/{len(recipes)}...")
+        r['title'] = trans(r.get('title'), translator)
+        r['description'] = trans(r.get('description'), translator)
+        
+        tags = r.get('tags', [])
+        r['tags'] = [trans(t, translator) for t in tags]
+        
+        for ing in r.get('ingredients', []):
+            ing['name'] = trans(ing.get('name'), translator)
+            
+        dirs = r.get('directions', [])
+        r['directions'] = [trans(d, translator) for d in dirs]
+        
+    out_file = f'FoodTracker/new_recipes_{lang_code}.json'
+    with open(out_file, 'w', encoding='utf-8') as f:
+        json.dump(recipes, f, indent=2, ensure_ascii=False)
+
 for lang_code, dt_code in langs.items():
-    translate_recipes(lang_code, dt_code)
-    translate_academy(lang_code, dt_code)
+    # translate_recipes(lang_code, dt_code)
+    translate_new_recipes(lang_code, dt_code)
+    # translate_academy(lang_code, dt_code)
     
 print("All JSON translations complete!")
