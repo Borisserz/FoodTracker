@@ -174,23 +174,74 @@ struct EditProfileSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Personal Details") {
-                    HStack {
-                        Text("Name")
-                        Spacer()
-                        TextField("Name", text: $name).multilineTextAlignment(.trailing).foregroundColor(.gray)
+            ZStack {
+                Color.themeBg.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        
+                        // Personal Details Card
+                        VStack(spacing: 16) {
+                            HStack {
+                                Text("Name")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                Spacer()
+                                TextField("Name", text: $name)
+                                    .multilineTextAlignment(.trailing)
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: 16, weight: .regular, design: .rounded))
+                            }
+                            
+                            Divider()
+                            
+                            PremiumMetricSlider(
+                                title: "Age",
+                                value: Binding(get: { Double(age) }, set: { age = Int($0) }),
+                                range: 10...100,
+                                step: 1,
+                                unit: "y.o.",
+                                icon: "calendar",
+                                color: .themeOrange
+                            )
+                        }
+                        .premiumCardStyle()
+                        .padding(.horizontal, 20)
+                        .padding(.top, 24)
+                        
+                        // Body Metrics Card
+                        VStack(spacing: 16) {
+                            PremiumMetricSlider(
+                                title: "Height",
+                                value: $height,
+                                range: 100...250,
+                                step: 1,
+                                unit: "cm",
+                                icon: "ruler.fill",
+                                color: .blue
+                            )
+                            
+                            Divider()
+                            
+                            PremiumMetricSlider(
+                                title: "Weight",
+                                value: $weight,
+                                range: 30...250,
+                                step: 0.1,
+                                unit: "kg",
+                                icon: "scalemass.fill",
+                                color: .themePink
+                            )
+                        }
+                        .premiumCardStyle()
+                        .padding(.horizontal, 20)
+                        
+                        Text("Updating these metrics will automatically recalculate your recommended daily calorie goal.")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
                     }
-                    Stepper("Age: \(age) years", value: $age, in: 10...100)
-                }
-
-                Section {
-                    Stepper("Height: \(Int(height)) cm", value: $height, in: 100...250)
-                    Stepper("Weight: \(String(format: "%.1f", weight)) kg", value: $weight, in: 30...250, step: 0.1)
-                } header: {
-                    Text("Body Metrics")
-                } footer: {
-                    Text("Updating these metrics will automatically recalculate your recommended daily calorie goal.")
+                    .padding(.bottom, 40)
                 }
             }
             .navigationTitle("Edit Profile")
@@ -223,6 +274,53 @@ struct EditProfileSheet: View {
         user.applyDietBreakdown(fatPercent: Int(fRatio * 100), proteinPercent: Int(pRatio * 100), carbsPercent: Int(cRatio * 100), dietKey: user.activeDietKey)
 
         try? context.save()
+    }
+}
+
+struct PremiumMetricSlider: View {
+    let title: String
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let step: Double
+    let unit: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.15))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: icon)
+                        .foregroundColor(color)
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                
+                Text(title)
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(String(format: step == 1 ? "%.0f" : "%.1f", value))
+                        .font(.system(size: 24, weight: .heavy, design: .rounded))
+                        .foregroundColor(color)
+                        .contentTransition(.numericText(value: value))
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: value)
+                    
+                    Text(unit)
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            Slider(value: $value, in: range, step: step)
+                .tint(color)
+        }
+        .padding(.vertical, 4)
     }
 }
 

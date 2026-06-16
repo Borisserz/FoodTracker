@@ -2,6 +2,10 @@ import Foundation
 
 class NetworkManager {
     static let shared = NetworkManager()
+    
+    // For testing purposes
+    var session: URLSession = .shared
+    
     private init() {}
 
     private var fatSecretAccessToken: String?
@@ -83,7 +87,7 @@ class NetworkManager {
         request.setValue("FoodTrackerApp - iOS - Version 1.0", forHTTPHeaderField: "User-Agent")
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await session.data(for: request)
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return [] }
 
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -118,7 +122,7 @@ class NetworkManager {
         request.setValue("FoodTrackerApp/1.0", forHTTPHeaderField: "User-Agent")
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, _) = try await session.data(for: request)
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let status = json["status"] as? Int, status == 1,
                   let p = json["product"] as? [String: Any],
@@ -158,7 +162,7 @@ class NetworkManager {
         request.httpBody = "grant_type=client_credentials&scope=basic".data(using: .utf8)
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await session.data(for: request)
             if let http = response as? HTTPURLResponse, http.statusCode != 200 { return nil }
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let token = json["access_token"] as? String else { return nil }
@@ -179,7 +183,7 @@ class NetworkManager {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await session.data(for: request)
             if let http = response as? HTTPURLResponse, http.statusCode != 200 { return [] }
 
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -227,7 +231,7 @@ class NetworkManager {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, _) = try await session.data(for: request)
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let food = json["food"] as? [String: Any],
                   let name = food["food_name"] as? String,

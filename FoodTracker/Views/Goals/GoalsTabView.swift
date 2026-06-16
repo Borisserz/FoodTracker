@@ -322,15 +322,15 @@ struct AddWeightLogSheet: View {
         NavigationStack {
             Form {
                 Section(header: Text("Weight Entry")) {
-                    HStack {
-                        Text("Weight")
-                        Spacer()
-                        TextField("kg", value: $weight, format: .number)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .foregroundColor(themeManager.current.primaryAccent)
-                            .font(.headline)
-                    }
+                    PremiumMetricSlider(
+                        title: "Weight",
+                        value: $weight,
+                        range: 30...250,
+                        step: 0.1,
+                        unit: "kg",
+                        icon: "scalemass",
+                        color: themeManager.current.primaryAccent
+                    )
                     
                     DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
                 }
@@ -393,15 +393,15 @@ struct SetGoalSheet: View {
                 
                 if goalType != "maintain" {
                     Section(header: Text("Target Weight")) {
-                        HStack {
-                            Text("Target")
-                            Spacer()
-                            TextField("kg", value: $targetWeight, format: .number)
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
-                                .foregroundColor(themeManager.current.primaryAccent)
-                                .font(.headline)
-                        }
+                            PremiumMetricSlider(
+                                title: "Target Weight",
+                                value: $targetWeight,
+                                range: 30...250,
+                                step: 0.1,
+                                unit: "kg",
+                                icon: "target",
+                                color: themeManager.current.primaryAccent
+                            )
                     }
                 }
             }

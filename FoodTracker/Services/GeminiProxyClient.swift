@@ -7,6 +7,10 @@ import FirebaseAppCheck
 /// Handles auth (Firebase ID + AppCheck), request construction, and response cleaning.
 final class GeminiProxyClient {
     static let shared = GeminiProxyClient()
+    
+    // For testing purposes
+    var session: URLSession = .shared
+    
     private init() {}
 
     private let proxyUrl = "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/vertexProxy"
@@ -92,7 +96,7 @@ final class GeminiProxyClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             if httpResponse.statusCode == 429 {

@@ -69,24 +69,6 @@ struct AICoachDashboardView: View {
                                             .foregroundColor(.gray)
                                     }
                                     Spacer()
-
-                                    NavigationLink(destination: AICoachChatView(
-                                        userGoal: currentUser?.dailyCaloriesGoal ?? 2000,
-                                        consumed: currentSummary.totalCalories,
-                                        activeDiet: currentUser?.activeDietPlan?.name ?? String(localized: "Balanced")
-                                    )) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                                .frame(width: 50, height: 50)
-                                                .opacity(viewModel.isAnalyzing || viewModel.isGeneratingRecipe ? 0.5 : 1.0)
-                                                .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: viewModel.isAnalyzing || viewModel.isGeneratingRecipe)
-
-                                            Image(systemName: "message.fill")
-                                                .font(.title3)
-                                                .foregroundColor(.white)
-                                        }
-                                    }
                                 }
                                 .padding(.horizontal)
 
@@ -99,24 +81,7 @@ struct AICoachDashboardView: View {
                                     onAnalyze: { if let u = currentUser { viewModel.runDailyAnalysis(currentSummary: currentSummary, currentUser: u) } }
                                 )
 
-                                HStack(spacing: 16) {
-                                    AIFixCard(
-                                        title: "Fix Macros",
-                                        icon: "chart.pie.fill",
-                                        color: .themeYellow,
-                                        isLoading: viewModel.isFixingMacros,
-                                        action: { if let u = currentUser { viewModel.analyzeMacros(currentSummary: currentSummary, currentUser: u) } }
-                                    )
-
-                                    AIFixCard(
-                                        title: "Hydration",
-                                        icon: "drop.fill",
-                                        color: .cyan,
-                                        isLoading: viewModel.isFixingHydration,
-                                        action: { viewModel.analyzeHydration(currentSummary: currentSummary) }
-                                    )
-                                }
-                                .padding(.horizontal)
+                                AIChatPromptRow(currentUser: currentUser, currentSummary: currentSummary)
                                 fridgeToRecipeSection
 
                                 bioHackingTipsSection
@@ -424,61 +389,60 @@ struct DailyVerdictGlassCard: View {
     }
 }
 
-struct AIFixCard: View {
-    let title: String
-    let icon: String
-    let color: Color
-    let isLoading: Bool
-    let action: () -> Void
-
+struct AIChatPromptRow: View {
+    let currentUser: User?
+    let currentSummary: DailySummary
+    
+    @State private var isAnimating = false
+    
     var body: some View {
-        Button(action: {
-            if !isLoading { action() }
-        }) {
-            VStack(alignment: .leading, spacing: 16) {
+        NavigationLink(destination: AICoachChatView(
+            userGoal: currentUser?.dailyCaloriesGoal ?? 2000,
+            consumed: currentSummary.totalCalories,
+            activeDiet: currentUser?.activeDietPlan?.name ?? String(localized: "Balanced")
+        )) {
+            HStack(spacing: 16) {
                 ZStack {
                     Circle()
-                        .fill(color.opacity(0.15))
+                        .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .frame(width: 44, height: 44)
-                    Image(systemName: icon)
-                        .foregroundColor(color)
-                        .font(.system(size: 20, weight: .semibold))
+                        .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                        
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                        .rotationEffect(.degrees(isAnimating ? 10 : -10))
+                        .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: isAnimating)
                 }
-
+                
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
+                    Text("Ask AI Coach")
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
-
-                    HStack {
-                        Text(isLoading ? "Analyzing..." : "Auto-analyze")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
-                        Spacer()
-
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: color))
-                                .scaleEffect(0.8)
-                        } else {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(color)
-                        }
-                    }
+                    Text("Get instant diet advice...")
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(.gray)
                 }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(.themePink)
+                    .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
+            .padding(14)
             .background(Color.white)
             .cornerRadius(24)
-            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
-
             .overlay(
                 RoundedRectangle(cornerRadius: 24)
-                    .stroke(isLoading ? color.opacity(0.3) : Color.clear, lineWidth: 2)
-                    .animation(.easeInOut(duration: 1).repeatForever(), value: isLoading)
+                    .stroke(LinearGradient(colors: [Color.themePink.opacity(0.3), Color.clear], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
             )
+            .shadow(color: Color.black.opacity(0.04), radius: 12, y: 6)
+            .padding(.horizontal)
+            .onAppear {
+                isAnimating = true
+            }
         }
         .buttonStyle(BounceButtonStyle())
     }

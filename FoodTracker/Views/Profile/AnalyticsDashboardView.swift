@@ -1131,10 +1131,10 @@ struct DivineMacrosChart: View {
                     BarMark(
                         x: .value("Date", item.date, unit: .day),
                         y: .value("Grams", item.value),
-                        width: .fixed(16)
+                        width: .ratio(0.6)
                     )
                     .foregroundStyle(by: .value("Type", item.type))
-                    .cornerRadius(4)
+                    .cornerRadius(6)
                 }
             }
             .chartForegroundStyleScale([
@@ -1142,6 +1142,7 @@ struct DivineMacrosChart: View {
                 "Fats": Color.themeYellow.gradient,
                 "Protein": Color.themePeach.gradient
             ])
+            .chartLegend(.hidden)
             .chartYScale(domain: 0...maxGrams)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
@@ -1218,7 +1219,7 @@ struct TrendsWaterChart: View {
                     BarMark(
                         x: .value("Date", point.date, unit: .day),
                         y: .value("Liters", point.liters),
-                        width: .fixed(16)
+                        width: .ratio(0.6)
                     )
                     .foregroundStyle(Color.cyan.gradient)
                     .cornerRadius(6)

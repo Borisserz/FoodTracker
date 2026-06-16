@@ -14,13 +14,13 @@ struct AIRecipeDTO: Codable {
     let protein: Double
     let fats: Double
     let carbs: Double
-    let omega3: Double
-    let calcium: Double
-    let potassium: Double
-    let magnesium: Double
-    let iron: Double
-    let vitaminC: Double
-    let vitaminD: Double
+    let omega3: Double?
+    let calcium: Double?
+    let potassium: Double?
+    let magnesium: Double?
+    let iron: Double?
+    let vitaminC: Double?
+    let vitaminD: Double?
     let cookingTime: Int
 }
 

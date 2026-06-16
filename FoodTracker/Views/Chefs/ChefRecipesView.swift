@@ -1069,7 +1069,7 @@ struct PremiumRecipeDetailView: View {
                     HStack(spacing: 12) {
 
                         ShareLink(
-                            item: "Check out this recipe on FoodTracker: \(recipe.title)! It has \(recipe.caloriesPerServing) kcal per serving and takes \(recipe.time).",
+                            item: "Check out this recipe on FoodTracker: \(recipe.title)! It has \(recipe.caloriesPerServing) kcal per serving and takes \(recipe.time).\n\nGet the FoodTracker app: https://apps.apple.com/app/foodtracker",
                             subject: Text(recipe.title)
                         ) {
                             Image(systemName: "square.and.arrow.up")

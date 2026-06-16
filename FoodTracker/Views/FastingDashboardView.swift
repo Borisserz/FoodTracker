@@ -607,72 +607,103 @@ struct FastingTimelineRow: View {
 }
 
 struct ActiveFastingCard: View {
-    var manager = FastingManager.shared
-
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Current Fast: \(manager.planName)")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-
-                    HStack(spacing: 6) {
-                        Image(systemName: manager.currentPhase.icon)
-                        Text(manager.currentPhase.name)
-                    }
-                    .font(.caption.bold())
-                    .foregroundColor(manager.currentPhase.color)
-                    .padding(.horizontal, 10).padding(.vertical, 4)
-                    .background(manager.currentPhase.color.opacity(0.15))
-                    .clipShape(Capsule())
-                }
+                ActiveFastingPhaseHeader()
                 Spacer()
-
-                ZStack {
-                    Circle().stroke(Color.gray.opacity(0.15), lineWidth: 6)
-                    Circle()
-                        .trim(from: 0, to: manager.progress)
-                        .stroke(manager.currentPhase.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                        .shadow(color: manager.currentPhase.color.opacity(0.6), radius: 8, y: 0)
-                        .animation(.linear(duration: 1.0), value: manager.progress)
-
-                    Text("\(Int(manager.progress * 100))%")
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
-                }
-                .frame(width: 50, height: 50)
+                ActiveFastingProgressCircle()
             }
 
             HStack(alignment: .firstTextBaseline) {
-                Text(manager.elapsedTimeString)
-                    .font(.system(size: 38, weight: .heavy, design: .rounded))
-                    .foregroundColor(.primary)
-                    .contentTransition(.numericText())
+                ActiveFastingTimerText()
                 Spacer()
             }
 
             HStack {
-                Text(manager.remainingTimeString)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-
+                ActiveFastingRemainingText()
                 Spacer()
-
                 EndFastButton()
             }
         }
         .padding(20)
         .background(Color.white)
         .cornerRadius(24)
-        .shadow(color: manager.currentPhase.color.opacity(0.15), radius: 15, y: 8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(manager.currentPhase.color.opacity(0.3), lineWidth: 2)
-                .opacity(manager.progress >= 1.0 ? 1 : 0)
-                .animation(.easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
-                .allowsHitTesting(false)
-        )
+        .modifier(ActiveFastingCardOverlay())
+    }
+}
+
+struct ActiveFastingPhaseHeader: View {
+    var manager = FastingManager.shared
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Current Fast: \(manager.planName)")
+                .font(.headline)
+                .foregroundColor(.primary)
+
+            HStack(spacing: 6) {
+                Image(systemName: manager.currentPhase.icon)
+                Text(manager.currentPhase.name)
+            }
+            .font(.caption.bold())
+            .foregroundColor(manager.currentPhase.color)
+            .padding(.horizontal, 10).padding(.vertical, 4)
+            .background(manager.currentPhase.color.opacity(0.15))
+            .clipShape(Capsule())
+        }
+    }
+}
+
+struct ActiveFastingProgressCircle: View {
+    var manager = FastingManager.shared
+    var body: some View {
+        ZStack {
+            Circle().stroke(Color.gray.opacity(0.15), lineWidth: 6)
+            Circle()
+                .trim(from: 0, to: manager.progress)
+                .stroke(manager.currentPhase.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .shadow(color: manager.currentPhase.color.opacity(0.6), radius: 8, y: 0)
+                .animation(.linear(duration: 1.0), value: manager.progress)
+
+            Text("\(Int(manager.progress * 100))%")
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+        }
+        .frame(width: 50, height: 50)
+    }
+}
+
+struct ActiveFastingTimerText: View {
+    var manager = FastingManager.shared
+    var body: some View {
+        Text(manager.elapsedTimeString)
+            .font(.system(size: 38, weight: .heavy, design: .rounded))
+            .foregroundColor(.primary)
+            .contentTransition(.numericText())
+    }
+}
+
+struct ActiveFastingRemainingText: View {
+    var manager = FastingManager.shared
+    var body: some View {
+        Text(manager.remainingTimeString)
+            .font(.subheadline)
+            .foregroundColor(.gray)
+    }
+}
+
+struct ActiveFastingCardOverlay: ViewModifier {
+    var manager = FastingManager.shared
+    func body(content: Content) -> some View {
+        content
+            .shadow(color: manager.currentPhase.color.opacity(0.15), radius: 15, y: 8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(manager.currentPhase.color.opacity(0.3), lineWidth: 2)
+                    .opacity(manager.progress >= 1.0 ? 1 : 0)
+                    .animation(.easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
+                    .allowsHitTesting(false)
+            )
     }
 }
 
