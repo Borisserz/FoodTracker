@@ -341,11 +341,11 @@ struct AddMealView: View {
             modelContext.insert(summaryToUse)
         }
         
-        if let existingMeal = summaryToUse.meals.first(where: { $0.title == selectedMealType }) {
-            existingMeal.foodItems.append(contentsOf: selectedFoods)
+        if let existingMeal = (summaryToUse.meals ?? []).first(where: { $0.title == selectedMealType }) {
+            existingMeal.foodItems = (existingMeal.foodItems ?? []) + selectedFoods
         } else {
             let newMeal = Meal(title: selectedMealType, date: selectedDate, foodItems: selectedFoods)
-            summaryToUse.meals.append(newMeal)
+            summaryToUse.meals = (summaryToUse.meals ?? []) + [newMeal]
         }
         
         do {

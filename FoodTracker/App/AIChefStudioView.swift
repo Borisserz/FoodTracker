@@ -106,10 +106,10 @@ struct AIChefStudioView: View {
             list.append(UnifiedRecipePreview(
                 title: cr.name,
                 calories: cr.totalCalories,
-                protein: Int(cr.foodItems.reduce(0) { $0 + $1.protein }),
+                protein: Int((cr.foodItems ?? []).reduce(0) { $0 + $1.protein }),
                 heroImage: "fork.knife",
                 cookTime: cr.cookingTime,
-                ingredients: cr.foodItems.map { "\($0.name) (\($0.weight)g)" },
+                ingredients: (cr.foodItems ?? []).map { "\($0.name) (\($0.weight)g)" },
                 premiumRecipe: nil,
                 customRecipe: cr
             ))
@@ -540,7 +540,7 @@ struct AIAssistantFlowView: View {
     var agentResults: [UnifiedRecipePreview] {
         var list = [UnifiedRecipePreview]()
         for pr in dataLoader.recipes { list.append(UnifiedRecipePreview(title: pr.title, calories: pr.caloriesPerServing, protein: Int(pr.protein), heroImage: pr.imageUrl, cookTime: Int(pr.time.replacingOccurrences(of: "m", with: "")) ?? 20, ingredients: pr.ingredients.map { "\($0.name) (\($0.amount))" }, premiumRecipe: pr, customRecipe: nil)) }
-        for cr in customRecipes { list.append(UnifiedRecipePreview(title: cr.name, calories: cr.totalCalories, protein: Int(cr.foodItems.reduce(0) { $0 + $1.protein }), heroImage: "fork.knife", cookTime: cr.cookingTime, ingredients: cr.foodItems.map { "\($0.name) (\($0.weight)g)" }, premiumRecipe: nil, customRecipe: cr)) }
+        for cr in customRecipes { list.append(UnifiedRecipePreview(title: cr.name, calories: cr.totalCalories, protein: Int((cr.foodItems ?? []).reduce(0) { $0 + $1.protein }), heroImage: "fork.knife", cookTime: cr.cookingTime, ingredients: (cr.foodItems ?? []).map { "\($0.name) (\($0.weight)g)" }, premiumRecipe: nil, customRecipe: cr)) }
         if searchAgentText.isEmpty { return list }
         return list.filter { $0.title.localizedCaseInsensitiveContains(searchAgentText) }
     }

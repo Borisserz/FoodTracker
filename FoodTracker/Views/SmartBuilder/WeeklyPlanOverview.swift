@@ -16,7 +16,7 @@ struct WeeklyPlanOverview: View {
     @Namespace private var daySelectionAnimation
     
     var selectedDay: MealPlanDay? {
-        plan.days.first(where: { $0.dayIndex == selectedDayIndex })
+        (plan.days ?? []).first(where: { $0.dayIndex == selectedDayIndex })
     }
     
     let dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -140,7 +140,7 @@ struct WeeklyPlanOverview: View {
                             .shadow(color: .black.opacity(0.04), radius: 10, y: 5)
                             
                             VStack(spacing: 20) {
-                                ForEach(day.meals.sorted(by: { typePriority($0.type) < typePriority($1.type) })) { meal in
+                                ForEach((day.meals ?? []).sorted(by: { typePriority($0.type) < typePriority($1.type) })) { meal in
                                     Button(action: {
                                         HapticManager.shared.impact(style: .light)
                                         selectedMealForDetails = meal
@@ -243,14 +243,14 @@ struct WeeklyPlanOverview: View {
         }
         
         if let day = selectedDay {
-            for planMeal in day.meals {
+            for planMeal in (day.meals ?? []) {
                 let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: Int(planMeal.calories), protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs), omega3: planMeal.omega3, calcium: planMeal.calcium, potassium: planMeal.potassium, magnesium: planMeal.magnesium, iron: planMeal.iron, vitaminC: planMeal.vitaminC, vitaminD: planMeal.vitaminD)
                 
-                if let existingMeal = currentSummary.meals.first(where: { $0.title == planMeal.type }) {
-                    existingMeal.foodItems.append(foodItem)
+                if let existingMeal = (currentSummary.meals ?? []).first(where: { $0.title == planMeal.type }) {
+                    existingMeal.foodItems = (existingMeal.foodItems ?? []) + [foodItem]
                 } else {
                     let newMeal = Meal(title: planMeal.type, date: Date(), foodItems: [foodItem])
-                    currentSummary.meals.append(newMeal)
+                    currentSummary.meals = (currentSummary.meals ?? []) + [newMeal]
                 }
             }
         }
@@ -646,11 +646,11 @@ struct MealPlanItemDetailView: View {
         
         let foodItem = FoodItem(name: meal.title, weight: 100.0, calories: Int(meal.calories), protein: Double(meal.protein), fats: Double(meal.fat), carbs: Double(meal.carbs), omega3: meal.omega3, calcium: meal.calcium, potassium: meal.potassium, magnesium: meal.magnesium, iron: meal.iron, vitaminC: meal.vitaminC, vitaminD: meal.vitaminD)
         
-        if let existingMeal = currentSummary.meals.first(where: { $0.title == meal.type }) {
-            existingMeal.foodItems.append(foodItem)
+        if let existingMeal = (currentSummary.meals ?? []).first(where: { $0.title == meal.type }) {
+            existingMeal.foodItems = (existingMeal.foodItems ?? []) + [foodItem]
         } else {
             let newMeal = Meal(title: meal.type, date: Date(), foodItems: [foodItem])
-            currentSummary.meals.append(newMeal)
+            currentSummary.meals = (currentSummary.meals ?? []) + [newMeal]
         }
         
         try? context.save()

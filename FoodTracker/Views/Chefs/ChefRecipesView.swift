@@ -1265,12 +1265,12 @@ struct ChooseMealSheet: View {
 
         let newFood = FoodItem(name: recipe.title, weight: 100, calories: calories, protein: p, fats: f, carbs: c)
         // Attach via relationship; explicit insert for the item/meal is kept for safety with current cascades
-        if let meal = summary.meals.first(where: { $0.title == selectedMeal }) {
-            meal.foodItems.append(newFood)
+        if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
+            meal.foodItems = (meal.foodItems ?? []) + [newFood]
         } else {
             let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
             context.insert(newMeal)
-            summary.meals.append(newMeal)
+            summary.meals = (summary.meals ?? []) + [newMeal]
         }
         try? context.save()
         

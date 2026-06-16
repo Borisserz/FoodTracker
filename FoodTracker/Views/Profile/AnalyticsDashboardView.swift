@@ -631,7 +631,7 @@ struct MealDistributionGridCard: View {
                 GeometryReader { geo in
                     HStack(spacing: 4) {
                         ForEach(meals, id: \.0) { meal in
-                            let cals = summary?.meals.first(where: { $0.title.hasPrefix(meal.0.prefix(5)) })?.totalCalories ?? 0
+                            let cals = summary?.meals?.first(where: { $0.title.hasPrefix(meal.0.prefix(5)) })?.totalCalories ?? 0
                             if cals > 0 {
                                 let ratio = Double(cals) / Double(totalCals)
                                 RoundedRectangle(cornerRadius: 4)
@@ -646,7 +646,7 @@ struct MealDistributionGridCard: View {
 
                 VStack(spacing: 8) {
                     ForEach(meals, id: \.0) { meal in
-                        let cals = summary?.meals.first(where: { $0.title.hasPrefix(meal.0.prefix(5)) })?.totalCalories ?? 0
+                        let cals = summary?.meals?.first(where: { $0.title.hasPrefix(meal.0.prefix(5)) })?.totalCalories ?? 0
                         if cals > 0 {
                             HStack {
                                 Circle().fill(meal.1).frame(width: 8, height: 8)
@@ -1351,7 +1351,7 @@ struct TopSourcesSheetView: View {
 
     private var topFoods: [FoodItem] {
         guard let summary = summary else { return [] }
-        let allFoods = summary.meals.flatMap { $0.foodItems }
+        let allFoods = (summary.meals ?? []).flatMap { $0.foodItems ?? [] }
         switch macro {
         case .protein: return Array(allFoods.filter { $0.protein > 0 }.sorted { $0.protein > $1.protein }.prefix(3))
         case .fat: return Array(allFoods.filter { $0.fats > 0 }.sorted { $0.fats > $1.fats }.prefix(3))

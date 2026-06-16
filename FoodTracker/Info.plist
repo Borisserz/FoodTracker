@@ -17,5 +17,9 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>FoodTracker needs access to your camera to let the AI Chef analyze your cooking techniques in real-time.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

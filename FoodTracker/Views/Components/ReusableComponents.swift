@@ -776,10 +776,10 @@ struct IndividualMacroRing: View {
 struct MicronutrientsFocusCard: View {
     let summary: DailySummary
 
-    private var totalOmega3: Double { summary.meals.reduce(0) { $0 + $1.totalOmega3 } }
-    private var totalMagnesium: Double { summary.meals.reduce(0) { $0 + $1.totalMagnesium } }
-    private var totalCalcium: Double { summary.meals.reduce(0) { $0 + $1.totalCalcium } }
-    private var totalIron: Double { summary.meals.reduce(0) { $0 + $1.totalIron } }
+    private var totalOmega3: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalOmega3 } }
+    private var totalMagnesium: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalMagnesium } }
+    private var totalCalcium: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalCalcium } }
+    private var totalIron: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalIron } }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -957,7 +957,7 @@ struct MealBreakdownCard: View {
                 }
             }
 
-            let currentMealData = summary.meals.first(where: { $0.title == selectedMeal })
+            let currentMealData = (summary.meals ?? []).first(where: { $0.title == selectedMeal })
 
             VStack(spacing: 16) {
                 MealMacroRow(title: String(localized: "Calories"), value: Double(currentMealData?.totalCalories ?? 0), unit: "kcal", color: .themePink)

@@ -12,7 +12,7 @@ struct WaterGridTrackerView: View {
     let gridColumns = 6
 
     var waterBeverages: [Beverage] {
-        summary.beverages.filter { $0.name == "Water" }.sorted { $0.date < $1.date }
+        (summary.beverages ?? []).filter { $0.name == "Water" }.sorted { $0.date < $1.date }
     }
 
     var waterLiters: Double {
@@ -135,7 +135,7 @@ struct WaterGridTrackerView: View {
                    context.insert(summary)
                }
                context.insert(newBeverage)
-               summary.beverages.append(newBeverage)
+               summary.beverages = (summary.beverages ?? []) + [newBeverage]
                try? context.save()
            }
 
@@ -149,12 +149,14 @@ struct WaterGridTrackerView: View {
         HapticManager.shared.impact(style: .light)
         guard let lastWater = waterBeverages.last else { return }
 
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
-            if let index = summary.beverages.firstIndex(of: lastWater) {
-                summary.beverages.remove(at: index)
+        withAnimation {
+            if let index = (summary.beverages ?? []).firstIndex(of: lastWater) {
+                var bevs = summary.beverages ?? []
+                bevs.remove(at: index)
+                summary.beverages = bevs
+                context.delete(lastWater)
+                try? context.save()
             }
-            context.delete(lastWater)
-            try? context.save()
         }
     }
 }
@@ -167,7 +169,7 @@ struct WaterPresetButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.system(size: 18))
                     .foregroundColor(.cyan)
@@ -176,17 +178,21 @@ struct WaterPresetButton: View {
                     Text(title)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                     Text(volume)
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
-                Spacer()
+                Spacer(minLength: 4)
 
                 Image(systemName: "plus.circle.fill")
                     .foregroundColor(.cyan.opacity(0.8))
                     .font(.system(size: 20))
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.vertical, 12)
             .background(Color.cyan.opacity(0.08))
             .cornerRadius(16)

@@ -289,10 +289,10 @@ class AINutritionService {
                         prepTimeMinutes: mealDTO.prepTimeMinutes ?? 15,
                         imageUrl: self.imageUrlForDish(title: mealDTO.title ?? "")
                     )
-                    day.meals.append(meal)
+                    day.meals = (day.meals ?? []) + [meal]
                 }
                 
-                plan.days.append(day)
+                plan.days = (plan.days ?? []) + [day]
             }
             return plan
         }

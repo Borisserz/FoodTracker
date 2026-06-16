@@ -91,7 +91,7 @@ struct MealShareCard: View {
             }
             HStack(spacing: 16) {
                 statGlassCard(title: String(localized: "FATS"), value: "\(Int(summary.totalFats))g", icon: "drop.fill", color: .themeYellow)
-                statGlassCard(title: String(localized: "MEALS"), value: "\(summary.meals.count)", icon: "fork.knife", color: .green)
+                statGlassCard(title: String(localized: "MEALS"), value: "\((summary.meals ?? []).count)", icon: "fork.knife", color: .green)
             }
         }
         .padding(.horizontal, 24)

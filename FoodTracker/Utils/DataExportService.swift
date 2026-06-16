@@ -14,7 +14,7 @@ final class DataExportService {
         
         for summary in summaries.sorted(by: { $0.date > $1.date }) {
             let dateStr = formatter.string(from: summary.date)
-            let line = "\(dateStr),\(summary.totalCalories),\(Int(summary.totalProtein)),\(Int(summary.totalCarbs)),\(Int(summary.totalFats)),\(summary.meals.count)\n"
+            let line = "\(dateStr),\(summary.totalCalories),\(Int(summary.totalProtein)),\(Int(summary.totalCarbs)),\(Int(summary.totalFats)),\((summary.meals ?? []).count)\n"
             csvString.append(line)
         }
         

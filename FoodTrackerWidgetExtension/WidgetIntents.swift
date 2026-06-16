@@ -27,14 +27,14 @@ struct AddWaterIntent: AppIntent {
                 if let todaySummary = try context.fetch(descriptor).first {
                     // Add a beverage entry (250ml)
                     let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250.0)
-                    todaySummary.beverages.append(newBeverage)
+                    todaySummary.beverages = (todaySummary.beverages ?? []) + [newBeverage]
                     
                     try context.save()
                 } else {
                     // Create new summary if it doesn't exist
                     let newSummary = DailySummary(date: Date())
                     let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250.0)
-                    newSummary.beverages.append(newBeverage)
+                    newSummary.beverages = (newSummary.beverages ?? []) + [newBeverage]
                     context.insert(newSummary)
                     try context.save()
                 }

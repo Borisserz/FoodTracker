@@ -830,9 +830,9 @@ struct RecipeDetailView: View {
         try? context.save()
         dismiss()
     }
-    var totalProtein: Double { recipe.foodItems.reduce(0) { $0 + $1.protein } }
-    var totalFat: Double { recipe.foodItems.reduce(0) { $0 + $1.fats } }
-    var totalCarbs: Double { recipe.foodItems.reduce(0) { $0 + $1.carbs } }
+    var totalProtein: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.protein } }
+    var totalFat: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.fats } }
+    var totalCarbs: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.carbs } }
 
     private func generateAI() {
         guard !isGeneratingRecipe else { return }
@@ -840,7 +840,7 @@ struct RecipeDetailView: View {
         HapticManager.shared.impact(style: .medium)
         
         Task {
-            let ingredientsList = recipe.foodItems.map { "\($0.name) (\(Int($0.weight))g)" }
+            let ingredientsList = (recipe.foodItems ?? []).map { "\($0.name) (\(Int($0.weight))g)" }
             if let dto = await AINutritionService.shared.generateCookingSteps(for: recipe.name, ingredients: ingredientsList) {
                 let ai = AIChefRecipe(
                     title: dto.title,
@@ -916,11 +916,11 @@ struct RecipeDetailView: View {
                         )
                         .padding(.horizontal, 20)
 
-                        if !recipe.foodItems.isEmpty {
+                        if !(recipe.foodItems ?? []).isEmpty {
                             VStack(alignment: .leading, spacing: 16) {
                                 Text("Ingredients").font(.title2).bold()
                                 VStack(spacing: 16) {
-                                    ForEach(recipe.foodItems) { item in
+                                    ForEach(recipe.foodItems ?? []) { item in
                                         HStack {
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(item.name).font(.headline)
@@ -929,7 +929,7 @@ struct RecipeDetailView: View {
                                             }
                                             Spacer()
                                         }
-                                        if item.id != recipe.foodItems.last?.id {
+                                        if item.id != (recipe.foodItems ?? []).last?.id {
                                             Divider()
                                         }
                                     }
@@ -1037,6 +1037,7 @@ struct RecipeDetailView: View {
             .ignoresSafeArea(edges: .bottom)
         }
         .navigationBarHidden(true)
+        .toolbar(.hidden, for: .tabBar)
         .fullScreenCover(isPresented: $showAIFlow) {
             if let ai = generatedRecipe {
                 NavigationStack {
@@ -1104,12 +1105,12 @@ struct CustomChooseMealSheet: View {
             guard let summary = summaries.first else { return }
 
             let newFood = recipe.toFoodItem()
-            if let meal = summary.meals.first(where: { $0.title == selectedMeal }) {
-                meal.foodItems.append(newFood)
+            if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
+                meal.foodItems = (meal.foodItems ?? []) + [newFood]
             } else {
                 let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
                 context.insert(newMeal)
-                summary.meals.append(newMeal)
+                summary.meals = (summary.meals ?? []) + [newMeal]
             }
             try? context.save()
         }

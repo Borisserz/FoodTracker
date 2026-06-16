@@ -116,7 +116,7 @@ struct HomeDashboardContentView: View {
                               .padding(.horizontal, 20)
 
                               ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
-                                  let meal = currentSummary.meals.first(where: { $0.title == mealType })
+                                  let meal = (currentSummary.meals ?? []).first(where: { $0.title == mealType })
 
                                   MealCardView(
                                       title: localizedMealType(mealType),
@@ -308,13 +308,13 @@ struct HomeDashboardContentView: View {
             newFoodItems.append(copiedItem)
         }
 
-        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
-            existingMeal.foodItems.append(contentsOf: newFoodItems)
+        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == title }) {
+            existingMeal.foodItems = (existingMeal.foodItems ?? []) + newFoodItems
             existingMeal.date = .now
         } else {
             let newMeal = Meal(title: title, date: .now, foodItems: newFoodItems)
             context.insert(newMeal)
-            summary.meals.append(newMeal)
+            summary.meals = (summary.meals ?? []) + [newMeal]
         }
 
         // Ensured via repo task; save on main context for live @Query updates.
@@ -499,13 +499,15 @@ struct MealDetailView: View {
     @Environment(DIContainer.self) private var di
 
     private var meal: Meal? {
-        return summaries.first?.meals.first { $0.title == title }
+        return summaries.first?.meals?.first { $0.title == title }
     }
 
     private func deleteFoodItem(_ food: FoodItem) {
-        if let meal = meal, let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
+        if let meal = meal, let index = (meal.foodItems ?? []).firstIndex(where: { $0.id == food.id }) {
             withAnimation {
-                meal.foodItems.remove(at: index)
+                var items = meal.foodItems ?? []
+                items.remove(at: index)
+                meal.foodItems = items
                 context.delete(food)
                 try? context.save()
             }
@@ -514,7 +516,7 @@ struct MealDetailView: View {
     
     private func generateRecipe(from meal: Meal) {
         let mealName = title
-        let ingredients = meal.foodItems.map { $0.name }
+        let ingredients = (meal.foodItems ?? []).map { $0.name }
         isGeneratingRecipe = true
         HapticManager.shared.impact(style: .medium)
         
@@ -585,7 +587,7 @@ struct MealDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
 
-                    if let meal = meal, !meal.foodItems.isEmpty {
+                    if let meal = meal, !(meal.foodItems ?? []).isEmpty {
                         VStack(spacing: 16) {
                             Text("\(meal.totalCalories) kcal")
                                 .font(.system(size: 48, weight: .heavy, design: .rounded))
@@ -613,7 +615,7 @@ struct MealDetailView: View {
 
                             VStack(spacing: 0) {
 
-                                ForEach(meal.foodItems) { food in
+                                ForEach(meal.foodItems ?? []) { food in
                                     FoodItemDetailedRow(food: food, onDelete: {
                                         deleteFoodItem(food)
                                     })
@@ -630,7 +632,7 @@ struct MealDetailView: View {
                                         }
                                     }
 
-                                    if food.id != meal.foodItems.last?.id {
+                                    if food.id != (meal.foodItems ?? []).last?.id {
                                         Divider().padding(.leading, 20)
                                     }
                                 }
@@ -641,7 +643,7 @@ struct MealDetailView: View {
                         }
                         .padding(.horizontal)
                         
-                        if meal.foodItems.count > 2 {
+                        if (meal.foodItems ?? []).count > 2 {
                             Button(action: {
                                 generateRecipe(from: meal)
                             }) {
@@ -773,13 +775,13 @@ struct MealDetailView: View {
             newFoodItems.append(copiedItem)
         }
 
-        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
-            existingMeal.foodItems.append(contentsOf: newFoodItems)
+        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == title }) {
+            existingMeal.foodItems = (existingMeal.foodItems ?? []) + newFoodItems
             existingMeal.date = .now
         } else {
             let newMeal = Meal(title: title, date: .now, foodItems: newFoodItems)
             context.insert(newMeal)
-            summary.meals.append(newMeal)
+            summary.meals = (summary.meals ?? []) + [newMeal]
         }
 
         // Ensured via repo task; save on main context for live @Query updates.
@@ -1406,9 +1408,11 @@ struct DailyLogDetailView: View {
     let summary: DailySummary
 
     private func deleteFoodItem(_ food: FoodItem, from meal: Meal) {
-        if let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
+        if let index = (meal.foodItems ?? []).firstIndex(where: { $0.id == food.id }) {
             withAnimation {
-                meal.foodItems.remove(at: index)
+                var items = meal.foodItems ?? []
+                items.remove(at: index)
+                meal.foodItems = items
                 context.delete(food)
                 try? context.save()
             }
@@ -1431,7 +1435,7 @@ struct DailyLogDetailView: View {
                     }
                     .padding(.vertical, 20)
 
-                    let activeMeals = summary.meals.filter { !$0.foodItems.isEmpty }
+                    let activeMeals = (summary.meals ?? []).filter { !($0.foodItems ?? []).isEmpty }
 
                     if activeMeals.isEmpty {
                         EmptyStateView(imageName: "doc.text.magnifyingglass", title: String(localized: "No Food Logged"), description: String(localized: "You haven't logged any food for this day yet."))
@@ -1453,7 +1457,7 @@ struct DailyLogDetailView: View {
                                 .padding(.bottom, 12)
 
                                 VStack(spacing: 0) {
-                                    ForEach(meal.foodItems) { food in
+                                    ForEach(meal.foodItems ?? []) { food in
                                         HStack(spacing: 16) {
                                             ZStack {
                                                 Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
@@ -1491,7 +1495,7 @@ struct DailyLogDetailView: View {
                                         .padding(.horizontal, 20)
                                         .padding(.vertical, 12)
 
-                                        if food.id != meal.foodItems.last?.id {
+                                        if food.id != (meal.foodItems ?? []).last?.id {
                                             Divider().padding(.leading, 70)
                                         }
                                     }
@@ -1576,7 +1580,7 @@ struct SmartAddFoodView: View {
     var allAvailableFoods: [FoodItem] {
         var uniqueItems: [String: FoodItem] = [:]
         for meal in pastMeals {
-            for item in meal.foodItems {
+            for item in (meal.foodItems ?? []) {
                 if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
             }
         }
@@ -1598,7 +1602,7 @@ struct SmartAddFoodView: View {
         var foodCounts: [String: Int] = [:]
 
         for meal in pastMeals {
-            for food in meal.foodItems { foodCounts[food.name, default: 0] += 1 }
+            for food in (meal.foodItems ?? []) { foodCounts[food.name, default: 0] += 1 }
         }
 
         switch selectedCategory {

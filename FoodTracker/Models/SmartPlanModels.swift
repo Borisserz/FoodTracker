@@ -9,8 +9,8 @@ final class WeeklyMealPlan {
     var dietType: String = ""
     var isCurrentPlan: Bool = true
     
-    @Relationship(deleteRule: .cascade)
-    var days: [MealPlanDay] = []
+    @Relationship(deleteRule: .cascade, inverse: \MealPlanDay.parentPlan)
+    var days: [MealPlanDay]? = []
     
     init(targetCalories: Int, dietType: String, isCurrentPlan: Bool = true) {
         self.targetCalories = targetCalories
@@ -28,8 +28,8 @@ final class MealPlanDay {
     var totalCarbs: Int = 0
     var totalFat: Int = 0
     
-    @Relationship(deleteRule: .cascade)
-    var meals: [MealPlanItem] = []
+    @Relationship(deleteRule: .cascade, inverse: \MealPlanItem.parentDay)
+    var meals: [MealPlanItem]? = []
     
     var parentPlan: WeeklyMealPlan?
     

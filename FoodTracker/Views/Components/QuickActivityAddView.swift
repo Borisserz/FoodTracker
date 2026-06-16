@@ -159,7 +159,7 @@ struct QuickActivityAddView: View {
         
         let log = ActivityLog(title: activity.name, icon: activity.icon, durationMinutes: duration, calories: cals)
         context.insert(log)
-        summary.activities.append(log)
+        summary.activities = (summary.activities ?? []) + [log]
         try? context.save()
         
         Task {
