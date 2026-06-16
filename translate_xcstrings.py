@@ -1,85 +1,75 @@
 import json
-import time
+import urllib.request
+import urllib.parse
 import re
-from deep_translator import GoogleTranslator
+import time
 
-file_path = 'Localizable.xcstrings'
+TARGET_LANGS = ['ru', 'de', 'es', 'fr', 'it', 'pt-PT']
+FILE_PATH = "Localizable.xcstrings"
 
-langs = {
-    'fr': 'fr',
-    'de': 'de',
-    'it': 'it',
-    'pt-PT': 'pt',
-    'ru': 'ru',
-    'es': 'es'
+# Map pt-PT to pt for Google Translate
+LANG_MAP = {
+    'pt-PT': 'pt'
 }
 
-def clean_placeholder(text):
-    # Just standard translation, deep_translator handles %lld okay generally, 
-    # but we can try to leave placeholders as is. 
-    return text
-
-print("Loading xcstrings...")
-with open(file_path, 'r', encoding='utf-8') as f:
-    data = json.load(f)
-
-strings = data.get('strings', {})
-total_keys = len(strings)
-print(f"Found {total_keys} keys.")
-
-# To track progress
-for lang_code, dt_code in langs.items():
-    print(f"--- Translating to {lang_code} ---")
-    translator = GoogleTranslator(source='en', target=dt_code)
+def translate(text, target_lang):
+    gt_lang = LANG_MAP.get(target_lang, target_lang)
     
-    # We will gather things to translate
-    to_translate = []
-    keys_to_translate = []
-    
-    for key, val in strings.items():
-        if key.strip() == "":
-            continue
-            
-        localizations = val.get('localizations', {})
-        if lang_code not in localizations:
-            to_translate.append(key)
-            keys_to_translate.append(key)
-        elif localizations[lang_code].get('stringUnit', {}).get('state') != 'translated':
-            to_translate.append(key)
-            keys_to_translate.append(key)
-            
-    if not to_translate:
-        print(f"All strings already translated for {lang_code}.")
-        continue
+    # Extract placeholders like %@, %lld, %.1f, %1$@
+    placeholders = re.findall(r'%[0-9\$]*[\.\d]*[a-zA-Z@]', text)
+    temp_text = text
+    for i, p in enumerate(placeholders):
+        temp_text = temp_text.replace(p, f"__{i}__")
         
-    print(f"Need to translate {len(to_translate)} items for {lang_code}.")
+    url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl={gt_lang}&dt=t&q={urllib.parse.quote(temp_text)}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     
-    # Translate one by one with a small sleep to show progress and avoid ban
-    for i, (key, text) in enumerate(zip(keys_to_translate, to_translate)):
-        if i % 20 == 0:
-            print(f"Progress: [{i}/{len(to_translate)}] translated for {lang_code}...")
-            time.sleep(1) # save rate limits
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            res = json.loads(response.read().decode())
+            translated_text = "".join([t[0] for t in res[0] if t[0]])
             
-        try:
-            translated_text = translator.translate(text)
-            if not translated_text:
-                translated_text = text
-        except Exception as e:
-            print(f"Error translating '{text}': {e}")
-            translated_text = text
-            time.sleep(2)
-            
-        if 'localizations' not in strings[key]:
-            strings[key]['localizations'] = {}
-            
-        strings[key]['localizations'][lang_code] = {
-            "stringUnit": {
-                "state": "translated",
-                "value": translated_text
-            }
-        }
+            # Restore placeholders
+            for i, p in enumerate(placeholders):
+                translated_text = translated_text.replace(f"__{i}__", p)
+            return translated_text
+    except Exception as e:
+        print(f"Error translating '{text}': {e}")
+        return text
 
-print("Saving Localizable.xcstrings...")
-with open(file_path, 'w', encoding='utf-8') as f:
-    json.dump(data, f, indent=2, ensure_ascii=False)
-print("Done with xcstrings!")
+def main():
+    with open(FILE_PATH, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        
+    strings = data.get("strings", {})
+    count = 0
+    
+    # Process only a subset of strings if it's too large, but here we process all missing
+    for key, val in strings.items():
+        if not key.strip() or len(key) < 2 and not key.isalpha():
+            continue # skip empty or very short symbol-only keys
+            
+        localizations = val.get("localizations", {})
+        
+        for lang in TARGET_LANGS:
+            if lang not in localizations:
+                print(f"Translating for {lang}: '{key}'")
+                translated = translate(key, lang)
+                if translated:
+                    localizations[lang] = {
+                        "stringUnit": {
+                            "state": "translated",
+                            "value": translated
+                        }
+                    }
+                    count += 1
+                    time.sleep(0.2) # small delay to prevent rate limit
+        val["localizations"] = localizations
+        
+    with open(FILE_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        
+    print(f"\nDone! Translated {count} missing strings.")
+
+if __name__ == '__main__':
+    main()

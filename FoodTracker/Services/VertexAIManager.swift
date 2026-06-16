@@ -49,8 +49,8 @@ final class VertexAIManager {
         let prompt = """
         You are an elite AI nutritionist. Analyze the image.
         1. Check if the image contains food, a drink, a nutrition label, or food packaging. If it DOES NOT, set "isFood" to false and write a funny "errorMessage" in the language code: '\(language)' (e.g., "That's a keyboard, not a sandwich!").
-        2. If it IS a nutrition label or packaging, you MUST extract the macros from the visible text. If you cannot clearly read the nutrition facts, set "isFood" to false and return an errorMessage in language code '\(language)': "Could not read the nutrition facts clearly. Please enter manually." DO NOT guess macros for packaging.
-        3. If it IS a meal (not packaging), set "isFood" to true and estimate the food name in language code '\(language)', total weight or serving size in grams, total calories, and macros.
+        2. If it is a nutrition label, extract the exact macros from the text. If it is a food package or wrapper (like a chocolate bar, snack, etc.) but the exact nutrition label is NOT visible, DO NOT reject it. Instead, read the product name from the package and estimate the calories and macronutrients per 100 grams based on your knowledge of this specific product or product type.
+        3. If it IS a meal, food item, or food packaging, set "isFood" to true and provide the food name in language code '\(language)', total weight or serving size in grams (default to 100 if unknown), total calories, and macros.
         """
 
         let schema: [String: Any] = [

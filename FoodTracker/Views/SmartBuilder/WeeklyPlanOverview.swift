@@ -300,7 +300,7 @@ struct GodTierMealCard: View {
                             .scaledToFill()
                             .frame(height: 140)
                             .clipped()
-                    case .failure(_), .empty:
+                    case .failure(_):
                         ZStack {
                             Rectangle()
                                 .fill(gradientForMeal.opacity(0.3))
@@ -308,6 +308,14 @@ struct GodTierMealCard: View {
                             Image(systemName: "fork.knife")
                                 .font(.title)
                                 .foregroundColor(.white.opacity(0.8))
+                        }
+                    case .empty:
+                        ZStack {
+                            Rectangle()
+                                .fill(gradientForMeal.opacity(0.3))
+                                .frame(height: 140)
+                            ProgressView()
+                                .tint(.white)
                         }
                     @unknown default:
                         EmptyView()
@@ -421,7 +429,7 @@ struct MealPlanItemDetailView: View {
                                         .scaledToFill()
                                         .frame(height: 220)
                                         .clipped()
-                                case .failure(_), .empty:
+                                case .failure(_):
                                     ZStack {
                                         Rectangle()
                                             .fill(LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -429,6 +437,14 @@ struct MealPlanItemDetailView: View {
                                         Image(systemName: "fork.knife")
                                             .font(.system(size: 48))
                                             .foregroundColor(.white.opacity(0.8))
+                                    }
+                                case .empty:
+                                    ZStack {
+                                        Rectangle()
+                                            .fill(LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .frame(height: 220)
+                                        ProgressView()
+                                            .tint(.white)
                                     }
                                 @unknown default:
                                     EmptyView()

@@ -359,7 +359,7 @@ class AINutritionService {
         for (keywords, ids) in mappings {
             if keywords.contains(where: { t.contains($0) }) {
                 if let photoId = ids.randomElement() {
-                    return "https://images.unsplash.com/photo-\(photoId)?w=600&auto=format&fit=crop"
+                    return "https://images.unsplash.com/photo-\(photoId)?w=400&q=50&auto=format&fit=crop"
                 }
             }
         }
@@ -375,7 +375,7 @@ class AINutritionService {
         ]
         
         let randomFallback = fallbackIds.randomElement() ?? "1498837167922-ddd27525d352"
-        return "https://images.unsplash.com/photo-\(randomFallback)?w=600&auto=format&fit=crop"
+        return "https://images.unsplash.com/photo-\(randomFallback)?w=400&q=50&auto=format&fit=crop"
     }
 
     func sendChatMessage(prompt: String, userContext: String, activeDiet: String) async -> String? {
