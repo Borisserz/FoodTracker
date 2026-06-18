@@ -98,7 +98,7 @@ struct HomeDashboardContentView: View {
 
                           VStack(spacing: 16) {
                               HStack {
-                                  Text("Nutrition")
+                                  Text(LocalizedStringKey("Nutrition"))
                                       .font(.title2).bold()
                                   Spacer()
                                   Button(action: {
@@ -106,7 +106,7 @@ struct HomeDashboardContentView: View {
                                       showDailyLog = true
                                   }) {
                                       HStack(spacing: 4) {
-                                          Text("Daily Log")
+                                          Text(LocalizedStringKey("Daily Log"))
                                           Image(systemName: "list.bullet.clipboard")
                                       }
                                       .font(.subheadline.bold())
@@ -142,7 +142,7 @@ struct HomeDashboardContentView: View {
                           }) {
                               HStack {
                                   Image(systemName: "flag.checkered")
-                                  Text("Finish Day")
+                                  Text(LocalizedStringKey("Finish Day"))
                               }
                               .font(.headline)
                               .foregroundColor(.black)
@@ -379,8 +379,8 @@ struct HeaderView: View {
 
     private var relativeDateString: String {
         let calendar = Calendar.current
-        if calendar.isDateInToday(selectedDate) { return "Today" }
-        if calendar.isDateInYesterday(selectedDate) { return "Yesterday" }
+        if calendar.isDateInToday(selectedDate) { return String(localized: "Today") }
+        if calendar.isDateInYesterday(selectedDate) { return String(localized: "Yesterday") }
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
@@ -432,7 +432,7 @@ struct InsightsWidget: View {
     let summary: DailySummary
     let user: User?
 
-    private var insightData: (message: String, icon: String, color: Color) {
+    private var insightData: (message: LocalizedStringKey, icon: String, color: Color) {
         let baseGoal = user?.dailyCaloriesGoal ?? 2400
         let remaining = (baseGoal + summary.activeCaloriesBurned) - summary.totalCalories
 
@@ -579,7 +579,7 @@ struct MealDetailView: View {
                             .font(.subheadline)
                             .foregroundColor(.themeOrange)
                         } else {
-                            Text("No foods logged yet")
+                            Text(LocalizedStringKey("No foods logged yet"))
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
@@ -608,7 +608,7 @@ struct MealDetailView: View {
                         .padding(.horizontal)
 
                         VStack(alignment: .leading, spacing: 0) {
-                            Text("What you ate")
+                            Text(LocalizedStringKey("What you ate"))
                                 .font(.title3.bold())
                                 .padding(.horizontal)
                                 .padding(.bottom, 12)
@@ -654,7 +654,7 @@ struct MealDetailView: View {
                                     } else {
                                         Image(systemName: "sparkles")
                                     }
-                                    Text(isGeneratingRecipe ? "Chef is writing recipe..." : "Cook with Chef")
+                                    Text(isGeneratingRecipe ? LocalizedStringKey("Chef is writing recipe...") : LocalizedStringKey("Cook with Chef"))
                                 }
                                 .font(.headline)
                                 .foregroundColor(.white)
@@ -679,7 +679,7 @@ struct MealDetailView: View {
                         }
 
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Key Micronutrients")
+                            Text(LocalizedStringKey("Key Micronutrients"))
                                 .font(.title3.bold())
                                 .padding(.horizontal)
 
@@ -703,7 +703,7 @@ struct MealDetailView: View {
             Button(action: { showingAddFood.toggle() }) {
                 HStack {
                     Image(systemName: "plus.circle.fill")
-                    Text("Add Food")
+                    Text(LocalizedStringKey("Add Food"))
                 }
                 .font(.headline)
                 .foregroundColor(.white)
@@ -744,9 +744,9 @@ struct MealDetailView: View {
         }
         .alert(isPresented: $showingRecipeError) {
             Alert(
-                title: Text("Generation Failed"),
-                message: Text(recipeGenerationError ?? "Unknown error"),
-                dismissButton: .default(Text("OK"))
+                title: Text(LocalizedStringKey("Generation Failed")),
+                message: Text(LocalizedStringKey(recipeGenerationError ?? "Unknown error")),
+                dismissButton: .default(Text(LocalizedStringKey("OK")))
             )
         }
     }
@@ -954,14 +954,14 @@ struct MealCardView: View {
                             Text("• \(logTime.formatted(date: .omitted, time: .shortened))").font(.caption2).foregroundColor(.gray)
                         }
                     } else {
-                        Text("Log Meal").font(.subheadline).foregroundColor(.gray.opacity(0.7))
+                        Text(LocalizedStringKey("Add Meal")).font(.subheadline).foregroundColor(.gray.opacity(0.7))
                     }
                 }
             }
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text("Target").font(.system(size: 9, weight: .bold)).foregroundColor(.gray.opacity(0.6))
+                Text(LocalizedStringKey("Target")).font(.system(size: 9, weight: .bold)).foregroundColor(.gray.opacity(0.6))
                 Text("\(recommendedCalories)").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundColor(.gray.opacity(0.8))
                 Text("kcal").font(.system(size: 7)).foregroundColor(.gray.opacity(0.5))
             }
@@ -1084,8 +1084,8 @@ struct FloatingCartButton: View {
             Button(action: action) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(count) items selected").font(.caption).foregroundColor(.white.opacity(0.8))
-                        Text("Add • \(calories) kcal").font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
+                        Text(String(format: String(localized: "%d items selected"), count)).font(.caption).foregroundColor(.white.opacity(0.8))
+                        Text(String(format: String(localized: "Add • %d kcal"), calories)).font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
                     }
                     Spacer()
                     Image(systemName: "checkmark.circle.fill").font(.title).foregroundColor(.white)
@@ -1169,8 +1169,8 @@ struct AllTimeStatsCardView: View {
             HStack(spacing: 12) {
                 Image(systemName: "flame.circle.fill").font(.largeTitle).foregroundStyle(LinearGradient(colors: [.white, .white.opacity(0.7)], startPoint: .top, endPoint: .bottom))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("All-Time Total").font(.headline).foregroundColor(.white)
-                    Text("Since your first entry").font(.caption).foregroundColor(.white.opacity(0.8))
+                    Text(LocalizedStringKey("All-Time Total")).font(.headline).foregroundColor(.white)
+                    Text(LocalizedStringKey("Since your first entry")).font(.caption).foregroundColor(.white.opacity(0.8))
                 }
             }
             Spacer(minLength: 20)
@@ -1275,10 +1275,10 @@ struct DailyNoteSheet: View {
                 .padding(.top, 10)
 
             HStack {
-                Text("Your Day")
+                Text(LocalizedStringKey("Your Day"))
                     .font(.title2.bold())
                 Spacer()
-                Button("Save") {
+                Button(String(localized: "Save")) {
                     HapticManager.shared.impact(style: .heavy)
                     try? context.save()
                     clearAIMoodStates()
@@ -1289,7 +1289,7 @@ struct DailyNoteSheet: View {
             }
             .padding(.horizontal, 24)
 
-            TextField("Write about your meals, feelings, or workouts...", text: $summary.dayNote, axis: .vertical)
+            TextField(String(localized: "Write about your meals, feelings, or workouts..."), text: $summary.dayNote, axis: .vertical)
                 .lineLimit(4...8)
                 .padding(16)
                 .background(Color.gray.opacity(0.05))
@@ -1299,7 +1299,7 @@ struct DailyNoteSheet: View {
                 .accessibilityLabel("Daily note")
 
             VStack(alignment: .leading, spacing: 12) {
-                Text("Tags & Mood")
+                Text(LocalizedStringKey("Tags & Mood"))
                     .font(.headline)
                     .padding(.horizontal, 24)
 
@@ -1337,7 +1337,7 @@ struct DailyNoteSheet: View {
                                         )
                                         .cornerRadius(20)
 
-                                    Text(mood.1)
+                                    Text(LocalizedStringKey(mood.1))
                                         .font(.caption)
                                         .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
                                         .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
@@ -1777,7 +1777,7 @@ struct SmartAddFoodView: View {
                                         withAnimation(.spring()) { selectedCategory = category }
                                         HapticManager.shared.impact(style: .light)
                                     }) {
-                                        Text(category)
+                                        Text(LocalizedStringKey(category))
                                             .font(.subheadline).bold()
                                             .padding(.horizontal, 18).padding(.vertical, 10)
                                             .background(selectedCategory == category ? Color.themePink : Color.white)

@@ -30,7 +30,7 @@ struct WeeklyPlanOverview: View {
                 // Header & AI Summary
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        Text("AI Weekly Protocol")
+                        Text(LocalizedStringKey("AI Weekly Protocol"))
                             .font(.system(size: 32, weight: .black, design: .rounded))
                         Spacer()
                         Button(action: onDismiss) {
@@ -46,12 +46,12 @@ struct WeeklyPlanOverview: View {
                     // AI Summary Card
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Optimal Synergy Reached")
+                            Text(LocalizedStringKey("Optimal Synergy Reached"))
                                 .font(.caption.bold())
                                 .foregroundColor(themeManager.current.primaryAccent)
                                 .textCase(.uppercase)
                             
-                            Text("A perfect 7-day alignment tailored to your metabolic goals.")
+                            Text(LocalizedStringKey("A perfect 7-day alignment tailored to your metabolic goals."))
                                 .font(.subheadline)
                                 .foregroundColor(.primary)
                                 .lineLimit(2)
@@ -86,12 +86,12 @@ struct WeeklyPlanOverview: View {
                                 }
                             }) {
                                 VStack(spacing: 6) {
-                                    Text(dayNames[index])
+                                    Text(LocalizedStringKey(dayNames[index]))
                                         .font(.caption)
                                         .fontWeight(.heavy)
                                         .foregroundColor(selectedDayIndex == index ? .white : .gray)
                                     
-                                    Text("D\(index + 1)")
+                                    Text(LocalizedStringKey("D\(index + 1)"))
                                         .font(.title3)
                                         .fontWeight(.black)
                                         .foregroundColor(selectedDayIndex == index ? .white : .primary)
@@ -288,14 +288,9 @@ struct GodTierMealCard: View {
     }
     
     var body: some View {
-        // Always resolve a URL: use the stored one, or generate one on-the-fly from the title.
-        let effectiveUrl = meal.imageUrl.isEmpty
-            ? AINutritionService.shared.imageUrl(forMealTitle: meal.title)
-            : meal.imageUrl
-
         VStack(alignment: .leading, spacing: 0) {
             QueuedAsyncImageView(
-                url: URL(string: effectiveUrl),
+                mealTitle: meal.title,
                 fallbackImageName: AINutritionService.shared.fallbackLocalImage(for: meal.title),
                 gradientForMeal: gradientForMeal
             )
@@ -399,13 +394,8 @@ struct MealPlanItemDetailView: View {
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
-                        // Always show image — use stored URL or generate from title.
-                        let effectiveDetailUrl = meal.imageUrl.isEmpty
-                            ? AINutritionService.shared.imageUrl(forMealTitle: meal.title)
-                            : meal.imageUrl
-
                         QueuedAsyncImageView(
-                            url: URL(string: effectiveDetailUrl),
+                            mealTitle: meal.title,
                             fallbackImageName: AINutritionService.shared.fallbackLocalImage(for: meal.title),
                             gradientForMeal: LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
@@ -530,7 +520,7 @@ struct MealPlanItemDetailView: View {
                 // Bottom Action Buttons
                 VStack(spacing: 12) {
                     if showSuccessToast {
-                        Text("✅ Added to \(meal.type)")
+                        Text("✅ \(String(localized: "Added to")) \(String(localized: String.LocalizationValue(meal.type)))")
                             .font(.headline.bold())
                             .foregroundColor(.green)
                             .padding(.horizontal, 24)
@@ -546,7 +536,7 @@ struct MealPlanItemDetailView: View {
                         Button(action: logToMeal) {
                             HStack {
                                 Image(systemName: "plus.circle.fill")
-                                Text("Add to \(meal.type)")
+                                Text("\(String(localized: "Add to")) \(String(localized: String.LocalizationValue(meal.type)))")
                             }
                             .font(.headline.bold())
                             .foregroundColor(.white)
@@ -718,13 +708,13 @@ private struct MealPlanNutritionRow: View {
 }
 
 struct QueuedAsyncImageView: View {
-    let url: URL?
+    let mealTitle: String          // теперь принимаем название блюда, а не готовый URL
     let fallbackImageName: String
     let gradientForMeal: LinearGradient
-    
+
     enum LoadState { case empty, success(Image), failure }
     @State private var state: LoadState = .empty
-    
+
     var body: some View {
         Group {
             switch state {
@@ -745,25 +735,31 @@ struct QueuedAsyncImageView: View {
                     .scaledToFill()
             }
         }
-        .task {
-            guard let url = url else {
-                state = .failure
-                return
+        .task(id: mealTitle) {
+            await load()
+        }
+    }
+
+    private func load() async {
+        // 1) Pexels — точное совпадение по блюду
+        if let url = await AINutritionService.shared.resolveImageURL(forMealTitle: mealTitle),
+           let img = try? await PollinationsImageLoader.shared.fetchImage(url: url) {
+            if !Task.isCancelled {
+                await MainActor.run { state = .success(Image(uiImage: img)) }
             }
-            do {
-                let uiImage = try await PollinationsImageLoader.shared.fetchImage(url: url)
-                await MainActor.run {
-                    state = .success(Image(uiImage: uiImage))
-                }
-            } catch {
-                if Task.isCancelled || (error as? URLError)?.code == .cancelled {
-                    // Just cancelled because user scrolled away, do not show mock image
-                    return
-                }
-                await MainActor.run {
-                    state = .failure
-                }
+            return
+        }
+        // 2) Fallback — стоковое фото по ключевым словам
+        if let url = URL(string: AINutritionService.shared.imageUrl(forMealTitle: mealTitle)),
+           let img = try? await PollinationsImageLoader.shared.fetchImage(url: url) {
+            if !Task.isCancelled {
+                await MainActor.run { state = .success(Image(uiImage: img)) }
             }
+            return
+        }
+        // 3) Финальный fallback — локальная картинка из ассетов
+        if !Task.isCancelled {
+            await MainActor.run { state = .failure }
         }
     }
 }

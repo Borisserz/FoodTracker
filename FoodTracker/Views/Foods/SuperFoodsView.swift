@@ -119,12 +119,15 @@ struct DietHeroCard: View {
 
                     Spacer(minLength: 80)
 
-                    Text(diet.name)
+                    Text(LocalizedStringKey(diet.name))
                         .font(.system(.largeTitle, design: .rounded, weight: .heavy))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.5)
+                        .multilineTextAlignment(.leading)
                         .foregroundStyle(.white)
                         .shadow(color: .black.opacity(0.3), radius: 3, y: 2)
 
-                    Text(diet.tagline)
+                    Text(LocalizedStringKey(diet.tagline))
                         .font(.headline)
                         .foregroundStyle(.white.opacity(0.95))
                         .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
@@ -141,7 +144,7 @@ struct DietHeroCard: View {
                 }
 
                 HStack {
-                    Text("Learn more")
+                    Text(LocalizedStringKey("Learn more"))
                         .font(.headline)
                     Spacer()
                     Image(systemName: "arrow.right.circle.fill")
@@ -239,14 +242,14 @@ struct PremiumDietDetailView: View {
                                 .offset(x: 150, y: -40)
 
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(diet.name)
+                                Text(LocalizedStringKey(diet.name))
                                     .font(.system(size: 48, weight: .heavy, design: .rounded))
                                     .foregroundColor(.white)
                                     .shadow(color: .black.opacity(0.3), radius: 4, y: 2)
                                     .lineLimit(2)
                                     .minimumScaleFactor(0.8)
 
-                                Text(diet.tagline)
+                                Text(LocalizedStringKey(diet.tagline))
                                     .font(.title3.bold())
                                     .foregroundColor(.white.opacity(0.95))
                                     .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
@@ -274,7 +277,7 @@ struct PremiumDietDetailView: View {
                         .offset(y: -40)
                         .padding(.bottom, -40)
 
-                        Text(diet.description)
+                        Text(LocalizedStringKey(diet.description))
                             .font(.body)
                             .lineSpacing(6)
                             .foregroundColor(.primary.opacity(0.8))
@@ -435,7 +438,7 @@ struct PremiumFoodCategorySection: View {
         VStack(spacing: 0) {
             Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
                 HStack {
-                    Text(category.title).font(.headline).foregroundColor(.primary)
+                    Text(LocalizedStringKey(category.title)).font(.headline).foregroundColor(.primary)
                     Spacer()
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
@@ -451,7 +454,7 @@ struct PremiumFoodCategorySection: View {
                     ForEach(category.items) { item in
                         HStack(spacing: 16) {
                             Text(item.icon).font(.title2).frame(width: 40, height: 40).background(dietColor.opacity(0.1)).clipShape(Circle())
-                            Text(item.name).font(.system(size: 16, weight: .medium, design: .rounded))
+                            Text(LocalizedStringKey(item.name)).font(.system(size: 16, weight: .medium, design: .rounded))
                             Spacer()
                             Text("\(item.calories) kcal").font(.subheadline.bold()).foregroundColor(dietColor)
                         }

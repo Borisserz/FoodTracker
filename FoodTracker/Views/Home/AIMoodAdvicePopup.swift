@@ -10,23 +10,23 @@ struct AIMoodAdvicePopup: View {
     
     var aiAdviceTitle: String {
         switch moodEmoji {
-        case "🚀": return "Riding the Wave!"
-        case "😊": return "Keep It Up!"
-        case "😐": return "Finding Balance"
-        case "🥲": return "Need a Boost?"
-        case "😫": return "Let's De-stress"
-        default: return "AI Coach Insights"
+        case "🚀": return String(localized: "Riding the Wave!")
+        case "😊": return String(localized: "Keep It Up!")
+        case "😐": return String(localized: "Finding Balance")
+        case "🥲": return String(localized: "Need a Boost?")
+        case "😫": return String(localized: "Let's De-stress")
+        default: return String(localized: "AI Coach Insights")
         }
     }
     
     var aiAdviceMessage: String {
         switch moodEmoji {
-        case "🚀": return "You're full of energy! This is a great time to tackle a heavy workout. Make sure you're getting enough protein to support that drive."
-        case "😊": return "Feeling good? A balanced plate will keep your mood stable. Stay hydrated and stick to your plan."
-        case "😐": return "It's a neutral day. Sometimes taking a quick 10-minute walk or drinking a glass of cold water can naturally elevate your baseline."
-        case "🥲": return "I see you're feeling a bit down. A small, healthy snack with complex carbs (like a banana or oats) can trigger a natural serotonin release!"
-        case "😫": return "Stress can cause cortisol spikes which leads to cravings. Try drinking some herbal tea and taking deep breaths. I'm here if you want to talk."
-        default: return "Your mood impacts your digestion and cravings. Tracking it helps us find patterns over time!"
+        case "🚀": return String(localized: "You're full of energy! This is a great time to tackle a heavy workout. Make sure you're getting enough protein to support that drive.")
+        case "😊": return String(localized: "Feeling good? A balanced plate will keep your mood stable. Stay hydrated and stick to your plan.")
+        case "😐": return String(localized: "It's a neutral day. Sometimes taking a quick 10-minute walk or drinking a glass of cold water can naturally elevate your baseline.")
+        case "🥲": return String(localized: "I see you're feeling a bit down. A small, healthy snack with complex carbs (like a banana or oats) can trigger a natural serotonin release!")
+        case "😫": return String(localized: "Stress can cause cortisol spikes which leads to cravings. Try drinking some herbal tea and taking deep breaths. I'm here if you want to talk.")
+        default: return String(localized: "Your mood impacts your digestion and cravings. Tracking it helps us find patterns over time.")
         }
     }
     
@@ -79,7 +79,7 @@ struct AIMoodAdvicePopup: View {
                 }) {
                     HStack {
                         Image(systemName: "message.fill")
-                        Text("Chat with AI Coach")
+                        Text(LocalizedStringKey("Chat with AI Coach"))
                     }
                     .font(.headline)
                     .foregroundColor(.white)
@@ -91,7 +91,7 @@ struct AIMoodAdvicePopup: View {
                 }
                 
                 Button(action: { dismiss() }) {
-                    Text("Got it")
+                    Text(LocalizedStringKey("Got it"))
                         .font(.headline)
                         .foregroundColor(.gray)
                 }

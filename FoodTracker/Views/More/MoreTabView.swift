@@ -80,8 +80,8 @@ struct MoreTabView: View {
                 id: 0,
                 title: String(localized: "Goals & Progress"),
                 subtitle: weightLogs.isEmpty
-                    ? "Set your weight goal"
-                    : String(format: "Current: %.1f kg", currentWeight),
+                    ? String(localized: "Set your weight goal")
+                    : String(format: String(localized: "Current: %.1f kg"), currentWeight),
                 icon: "target",
                 gradient: [.themePink, .themeOrange],
                 badge: nil,
@@ -108,7 +108,7 @@ struct MoreTabView: View {
             MoreItem(
                 id: 2,
                 title: String(localized: "Profile & Settings"),
-                subtitle: user.map { "Hello, \($0.name)!" } ?? "Edit your profile",
+                subtitle: user.map { String(format: String(localized: "Hello, %@!"), $0.name) } ?? String(localized: "Edit your profile"),
                 icon: "person.crop.circle.fill",
                 gradient: [Color(hex: 0x3498DB), Color(hex: 0x6BB8F2)],
                 badge: nil,
@@ -121,7 +121,7 @@ struct MoreTabView: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(greetingText)
+            Text(LocalizedStringKey(greetingText))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(.secondary)
             Text(user?.name ?? "")
@@ -144,10 +144,10 @@ struct MoreTabView: View {
 
     private var footerSection: some View {
         VStack(spacing: 6) {
-            Text("FoodTracker")
+            Text(LocalizedStringKey("FoodTracker"))
                 .font(.caption.bold())
                 .foregroundStyle(.secondary)
-            Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
+            Text("\(String(localized: "Version")) \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
                 .font(.caption2)
                 .foregroundStyle(Color.secondary.opacity(0.6))
         }
@@ -176,11 +176,11 @@ struct MoreTabView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Workout Tracker")
+                    Text(LocalizedStringKey("Workout Tracker"))
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundStyle(.primary)
                     
-                    Text("Your ultimate fitness companion")
+                    Text(LocalizedStringKey("Your ultimate fitness companion"))
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -190,15 +190,18 @@ struct MoreTabView: View {
                 
                 // "GET" Button
                 VStack {
-                    Text("GET")
+                    Text(LocalizedStringKey("GET"))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .fixedSize(horizontal: true, vertical: false)
                         .foregroundStyle(Color.themeOrange)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .background(Color.themeOrange.opacity(0.15))
                         .clipShape(Capsule())
                     
-                    Text("In-App Purchases")
+                    Text(LocalizedStringKey("In-App Purchases"))
                         .font(.system(size: 8))
                         .foregroundStyle(.secondary)
                         .padding(.top, 2)

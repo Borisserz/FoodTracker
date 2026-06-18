@@ -195,15 +195,9 @@ struct SmartPlanBuilderFlow: View {
                     targetCalories = Double(user.dailyCaloriesGoal)
                 }
             }
-            .fullScreenCover(isPresented: .init(
-                get: { planService.readyPlan != nil },
-                set: { if !$0 { planService.acknowledge(); dismiss() } }
-            )) {
-                if let plan = planService.readyPlan {
-                    WeeklyPlanOverview(plan: plan) {
-                        planService.acknowledge()
-                        dismiss()
-                    }
+            .onChange(of: planService.readyPlan) { _, plan in
+                if plan != nil {
+                    dismiss()
                 }
             }
         }
@@ -297,12 +291,12 @@ struct SmartPlanBuilderFlow: View {
                 ForEach(complexities, id: \.self) { comp in
                     Button(action: {
                         HapticManager.shared.impact(style: .light)
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                             complexity = comp
                         }
                     }) {
                         HStack {
-                            Text(comp)
+                            Text(LocalizedStringKey(comp))
                                 .font(.title3.bold())
                                 .foregroundColor(complexity == comp ? .white : .primary)
                             Spacer()
@@ -330,8 +324,6 @@ struct SmartPlanBuilderFlow: View {
                         )
                         .shadow(color: complexity == comp ? themeManager.current.primaryAccent.opacity(0.4) : .black.opacity(0.05), radius: 15, y: 8)
                         .scaleEffect(complexity == comp ? 1.02 : 1.0)
-                        // Adding a subtle 3d tilt to the selected row
-                        .rotation3DEffect(.degrees(complexity == comp ? 5 : 0), axis: (x: 1, y: 0, z: 0))
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -522,12 +514,12 @@ struct DietCard: View {
             
             // Content
             VStack(spacing: 4) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.system(size: 18, weight: .black, design: .rounded))
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.4), radius: 2, y: 1)
                 
-                Text(details.subtitle)
+                Text(LocalizedStringKey(details.subtitle))
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
@@ -647,7 +639,7 @@ struct GodTierLoadingView: View {
                 }
 
                 VStack(spacing: 12) {
-                    Text(isImagePhase ? "LOADING PHOTOS" : "AI CHEF AWAKENED")
+                    Text(isImagePhase ? LocalizedStringKey("LOADING PHOTOS") : LocalizedStringKey("AI CHEF AWAKENED"))
                         .font(.system(size: 22, weight: .black, design: .rounded))
                         .foregroundColor(.white)
                         .tracking(4)
@@ -655,7 +647,7 @@ struct GodTierLoadingView: View {
 
                     if isImagePhase {
                         // Real progress text
-                        Text("Caching photo \(imageDone) of \(imageTotal)")
+                        Text("Caching photo \(imageDone) of \(imageTotal)", comment: "Progress info")
                             .font(.headline)
                             .foregroundColor(.white.opacity(0.7))
                             .transition(.opacity)
@@ -675,7 +667,7 @@ struct GodTierLoadingView: View {
                         .frame(height: 6)
                         .padding(.horizontal, 40)
                     } else {
-                        Text(aiStatuses[min(statusIndex, aiStatuses.count - 1)])
+                        Text(LocalizedStringKey(aiStatuses[min(statusIndex, aiStatuses.count - 1)]))
                             .font(.headline)
                             .foregroundColor(.white.opacity(0.7))
                             .id(statusIndex)
@@ -685,7 +677,7 @@ struct GodTierLoadingView: View {
                             ))
                     }
 
-                    Text("This may take 1–2 minutes.\nWe're building your entire week, including meal photos.")
+                    Text(LocalizedStringKey("This may take 1–2 minutes.\nWe're building your entire week, including meal photos."))
                         .font(.footnote)
                         .foregroundColor(.white.opacity(0.35))
                         .multilineTextAlignment(.center)

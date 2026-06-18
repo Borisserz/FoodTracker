@@ -78,11 +78,11 @@ struct ProfileView: View {
                     .buttonStyle(BounceButtonStyle())
 
                     HStack(spacing: 0) {
-                        ProfileStatItem(value: "\(String(format: "%.1f", user.weight))", unit: "kg", title: String(localized: "Weight"))
+                        ProfileStatItem(value: "\(String(format: "%.1f", user.weight))", unit: String(localized: "kg"), title: String(localized: "Body Weight"))
                         Divider().frame(height: 40)
-                        ProfileStatItem(value: "\(Int(user.height))", unit: "cm", title: String(localized: "Height"))
+                        ProfileStatItem(value: "\(Int(user.height))", unit: String(localized: "cm"), title: String(localized: "Body Height"))
                         Divider().frame(height: 40)
-                        ProfileStatItem(value: "\(user.age)", unit: "y.o", title: String(localized: "Age"))
+                        ProfileStatItem(value: "\(user.age)", unit: String(localized: "y.o"), title: String(localized: "Age"))
                     }
                     .padding(.top, 8)
                 }
@@ -211,7 +211,7 @@ struct EditProfileSheet: View {
                         // Body Metrics Card
                         VStack(spacing: 16) {
                             PremiumMetricSlider(
-                                title: "Height",
+                                title: "Body Height",
                                 value: $height,
                                 range: 100...250,
                                 step: 1,
@@ -223,7 +223,7 @@ struct EditProfileSheet: View {
                             Divider()
                             
                             PremiumMetricSlider(
-                                title: "Weight",
+                                title: "Body Weight",
                                 value: $weight,
                                 range: 30...250,
                                 step: 0.1,
@@ -298,7 +298,7 @@ struct PremiumMetricSlider: View {
                         .font(.system(size: 16, weight: .semibold))
                 }
                 
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.system(size: 16, weight: .medium, design: .rounded))
                     .foregroundColor(.primary)
                 
@@ -341,12 +341,13 @@ struct NutritionSettingsEditor: View {
         let totalCals = Double(cals > 0 ? cals : 1)
         let p = (user.targetProtein * 4 / totalCals) * 100
         let f = (user.targetFats * 9 / totalCals) * 100
+        let c = (user.targetCarbs * 4 / totalCals) * 100
         _pPct = State(initialValue: p)
         _fPct = State(initialValue: f)
-        _cPct = State(initialValue: 100 - p - f)
+        _cPct = State(initialValue: c)
     }
 
-    private var isBalanced: Bool { Int(pPct + fPct + cPct) == 100 }
+    private var isBalanced: Bool { Int(round(pPct)) + Int(round(fPct)) + Int(round(cPct)) == 100 }
 
     var body: some View {
         NavigationStack {
@@ -370,7 +371,7 @@ struct NutritionSettingsEditor: View {
                                 SectorMark(angle: .value("Protein", pPct), innerRadius: .ratio(0.75), angularInset: 2).foregroundStyle(Color.themePeach.gradient)
                             }
                             VStack {
-                                Text("\(Int(pPct + fPct + cPct))%").font(.title.bold()).foregroundColor(isBalanced ? .primary : .red)
+                                Text("\(Int(round(pPct)) + Int(round(fPct)) + Int(round(cPct)))%").font(.title.bold()).foregroundColor(isBalanced ? .primary : .red)
                                 Text(isBalanced ? "Balanced" : "Adjust to 100%").font(.caption).foregroundColor(isBalanced ? .gray : .red)
                             }
                         }.frame(height: 220)
@@ -412,7 +413,7 @@ struct NutritionSettingsEditor: View {
     private func saveSettings() {
         user.dailyCaloriesGoal = dailyCals
 
-        user.applyDietBreakdown(fatPercent: Int(fPct), proteinPercent: Int(pPct), carbsPercent: Int(cPct), dietKey: "custom")
+        user.applyDietBreakdown(fatPercent: Int(round(fPct)), proteinPercent: Int(round(pPct)), carbsPercent: Int(round(cPct)), dietKey: "custom")
         try? context.save()
         dismiss()
     }
@@ -453,12 +454,12 @@ struct SettingsView: View {
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: UnitsSettingsView(useMetric: $useMetricSystem)) {
-                                SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: String(localized: "Units settings"), value: useMetricSystem ? "Metric" : "Imperial")
+                                SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: String(localized: "Units settings"), value: useMetricSystem ? String(localized: "Metric") : String(localized: "Imperial"))
                             }
                             Divider().padding(.leading, 56)
                             
                             NavigationLink(destination: ThemeSettingsView()) {
-                                SettingsRowView(icon: "paintpalette.fill", iconColor: themeManager.current.secondaryAccent, title: String(localized: "App Theme"), value: themeManager.current.name)
+                                SettingsRowView(icon: "paintpalette.fill", iconColor: themeManager.current.secondaryAccent, title: String(localized: "App Theme"), value: String(localized: String.LocalizationValue(themeManager.current.name)))
                             }
                             Divider().padding(.leading, 56)
 
@@ -1015,11 +1016,11 @@ struct StreakCardView: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("\(streak) Day Streak!")
+                Text("^[\(streak) Day Streak!](inflect: true)")
                     .font(.title3)
                     .bold()
 
-                Text(streak > 0 ? "Keep it up! You're doing great." : "Start logging meals to build your streak.")
+                Text(streak > 0 ? LocalizedStringKey("Keep it up! You're doing great.") : LocalizedStringKey("Start logging meals to build your streak."))
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
@@ -1153,15 +1154,13 @@ struct BMICardView: View {
             HStack(spacing: 6) {
                 Image(systemName: "info.circle.fill")
                     .foregroundColor(category.color)
-                Text("Your BMI indicates you are ")
+                Text("Your BMI indicates: ")
                     .font(.subheadline)
                     .foregroundColor(.gray)
                 + Text(category.text)
                     .font(.subheadline).bold()
                     .foregroundColor(category.color)
-                + Text(".")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+
             }
         }
         .premiumCardStyle()

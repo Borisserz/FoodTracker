@@ -13,22 +13,23 @@ class RecipeDataLoader {
     }
     
     func fetchRecipes() {
-        db.collection("premium_recipes").addSnapshotListener { [weak self] snapshot, error in
-            guard let self = self else { return }
-            
-            if let error = error {
-                print("❌ Error loading recipes: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let documents = snapshot?.documents else { return }
-            
-            do {
-                self.recipes = try documents.compactMap { try $0.data(as: PremiumRecipe.self) }
-                print("✅ All recipes loaded! Total: \(self.recipes.count)")
-            } catch {
-                print("❌ Error parsing recipes: \(error)")
-            }
+        let langCode = Locale.current.language.languageCode?.identifier ?? "en"
+        var fileName = "recipes_\(langCode)"
+        
+        var url = Bundle.main.url(forResource: fileName, withExtension: "json")
+        if url == nil {
+            fileName = "recipes"
+            url = Bundle.main.url(forResource: fileName, withExtension: "json")
+        }
+        
+        guard let url = url else { return }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            self.recipes = try JSONDecoder().decode([PremiumRecipe].self, from: data)
+            print("✅ All recipes loaded from JSON! Total: \(self.recipes.count)")
+        } catch {
+            print("❌ Error parsing recipes JSON: \(error)")
         }
     }
     

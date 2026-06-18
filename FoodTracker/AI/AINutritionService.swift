@@ -377,13 +377,32 @@ class AINutritionService {
     }
 
     private func imageUrlForDish(title: String) -> String {
-        // ──────────────────────────────────────────────────────────────────────
-        // Strategy: pollinations.ai is blocked on some mobile ISPs (error 50).
-        // We use loremflickr with generic food tags to ensure instant, reliable
-        // loading without network errors, and without falling back to cats.
-        // ──────────────────────────────────────────────────────────────────────
+        // Fallback-источник: реальное стоковое фото по ключевым словам блюда.
+        let keywords = extractFoodKeywords(from: title).joined(separator: ",")
+        let encoded = keywords.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "food,meal"
         let sig = abs(title.lowercased().hashValue % 9999) + 1
-        return "https://loremflickr.com/800/500/food,meal,dish?lock=\(sig)"
+        return "https://loremflickr.com/800/500/\(encoded)?lock=\(sig)"
+    }
+
+    // Кэш найденных URL в памяти — чтобы не дёргать функцию при прокрутке.
+    private let resolvedURLCache = NSCache<NSString, NSURL>()
+
+    /// Точное фото под блюдо через серверный imageProxy. nil → fallback.
+    func resolveImageURL(forMealTitle title: String) async -> URL? {
+        let cacheKey = title as NSString
+        if let cached = resolvedURLCache.object(forKey: cacheKey) {
+            return cached as URL
+        }
+
+        let keywords = extractFoodKeywords(from: title)
+        guard let url = await MealImageService.shared.resolveImageURL(
+            keywords: keywords, title: title
+        ) else {
+            return nil
+        }
+
+        resolvedURLCache.setObject(url as NSURL, forKey: cacheKey)
+        return url
     }
 
     /// Extracts up to 4 food-relevant nouns from a dish title for image search.

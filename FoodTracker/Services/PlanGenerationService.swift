@@ -74,10 +74,12 @@ final class PlanGenerationService {
                 diet: diet,
                 complexity: complexity
             ) else {
-                phase = .failed
+                if !Task.isCancelled { phase = .failed }
                 return
             }
 
+            if Task.isCancelled { return }
+            
             // ── Phase 2: Show plan immediately ──────────────────────────
             // The text generation is the only blocking part. We show the plan immediately.
             phase = .ready(plan)

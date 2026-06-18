@@ -194,7 +194,7 @@ struct PremiumFastingCard: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center) {
-                    Text(plan.title)
+                    Text(LocalizedStringKey(plan.title))
                         .font(.system(size: 20, weight: .black, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -222,7 +222,7 @@ struct PremiumFastingCard: View {
                     }
                 }
 
-                Text(plan.description)
+                Text(LocalizedStringKey(plan.description))
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundColor(.secondary)
                     .lineLimit(2)
@@ -289,7 +289,7 @@ struct PremiumFastingDetailView: View {
                                     .foregroundColor(.white.opacity(0.8))
                                     .tracking(2)
 
-                                Text(plan.title)
+                                Text(LocalizedStringKey(plan.title))
                                     .font(.system(size: 56, weight: .heavy, design: .rounded))
                                     .foregroundColor(.white)
                                     .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
@@ -350,7 +350,7 @@ struct PremiumFastingDetailView: View {
                             .padding(.bottom, -30)
                         }
 
-                        Text(plan.description)
+                        Text(LocalizedStringKey(plan.description))
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .lineSpacing(6)
                             .foregroundColor(.primary.opacity(0.8))
@@ -365,7 +365,7 @@ struct PremiumFastingDetailView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: benefit.icon)
                                             .foregroundColor(plan.color)
-                                        Text(benefit.text)
+                                        Text(LocalizedStringKey(benefit.text))
                                             .font(.caption.bold())
                                             .foregroundColor(.primary)
                                         Spacer()
@@ -421,7 +421,7 @@ struct PremiumFastingDetailView: View {
                                     .font(.headline)
                             }
 
-                            Text(plan.breakFastTip)
+                            Text(LocalizedStringKey(plan.breakFastTip))
                                 .font(.subheadline)
                                 .foregroundColor(.primary.opacity(0.8))
                                 .lineSpacing(4)
@@ -456,7 +456,7 @@ struct PremiumFastingDetailView: View {
                     }) {
                         HStack {
                             Image(systemName: "timer")
-                            Text("Start \(plan.title) Protocol")
+                            Text(String(localized: "Start \(plan.title) Protocol"))
                         }
                         .font(.headline)
                         .foregroundColor(.white)
@@ -593,9 +593,9 @@ struct FastingTimelineRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(hour).font(.system(size: 16, weight: .black, design: .rounded)).foregroundColor(color)
-                    Text(title).font(.headline).foregroundColor(.primary)
+                    Text(LocalizedStringKey(title)).font(.headline).foregroundColor(.primary)
                 }
-                Text(desc)
+                Text(LocalizedStringKey(desc))
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .lineSpacing(2)

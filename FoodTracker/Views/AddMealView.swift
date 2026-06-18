@@ -291,7 +291,7 @@ struct AddMealView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
-            .navigationTitle("Log Meal")
+            .navigationTitle("Add Meal")
             .navigationBarTitleDisplayMode(.inline)
             .tint(.themePink)
             .sheet(isPresented: $showingAddFood) {

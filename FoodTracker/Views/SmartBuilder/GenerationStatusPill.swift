@@ -33,6 +33,7 @@ struct GenerationStatusPill: View {
         .onChange(of: planService.readyPlan) { _, plan in
             guard let plan else { return }
             savePlan(plan)
+            showPlan = true
         }
         // Warn user if they background the app during generation
         .onChange(of: scenePhase) { _, newPhase in

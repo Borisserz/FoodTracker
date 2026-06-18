@@ -137,9 +137,9 @@ struct AIChefStudioView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     HStack {
                                         Image(systemName: "sparkles.tv")
-                                        Text("AI Assistant")
+                                        Text(LocalizedStringKey("AI Assistant"))
                                     }.font(.caption.bold()).foregroundColor(.white.opacity(0.8))
-                                    Text("Try AI Cooking").font(.title3.bold()).foregroundColor(.white)
+                                    Text(LocalizedStringKey("Try AI Cooking")).font(.title3.bold()).foregroundColor(.white)
                                 }
                                 Spacer()
                                 Image(systemName: "camera.macro.circle.fill").font(.system(size: 40)).foregroundColor(.white).symbolEffect(.pulse)
@@ -161,9 +161,9 @@ struct AIChefStudioView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     HStack {
                                         Image(systemName: "calendar.badge.clock")
-                                        Text("AI Menu Builder")
+                                        Text(LocalizedStringKey("AI Menu Builder"))
                                     }.font(.caption.bold()).foregroundColor(.white.opacity(0.8))
-                                    Text("Build a 7-Day Plan").font(.title3.bold()).foregroundColor(.white)
+                                    Text(LocalizedStringKey("Build a 7-Day Plan")).font(.title3.bold()).foregroundColor(.white)
                                 }
                                 Spacer()
                                 Image(systemName: "wand.and.stars").font(.system(size: 32)).foregroundColor(.white)
@@ -245,7 +245,7 @@ struct AIChefStudioView: View {
                         }
                         
                         // 5. МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
-                        Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
+                        Text(LocalizedStringKey("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment."))
                             .font(.caption2)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
@@ -361,7 +361,7 @@ struct SearchResultRow: View {
             }
             .frame(width: 40, height: 40).cornerRadius(10)
             VStack(alignment: .leading) {
-                Text(recipe.title).font(.headline)
+                Text(LocalizedStringKey(recipe.title)).font(.headline)
                 Text("\(recipe.calories) kcal").font(.caption).foregroundColor(.gray)
             }
             Spacer()
@@ -391,7 +391,7 @@ struct RecipeCardView: View {
                     }
                 }
             }.frame(width: 180, height: 120).cornerRadius(16).clipped()
-            Text(recipe.title).font(.headline).lineLimit(1).padding(.top, 8)
+            Text(LocalizedStringKey(recipe.title)).font(.headline).lineLimit(1).padding(.top, 8)
             Text("\(recipe.calories) kcal • \(recipe.cookTime) min").font(.caption).foregroundColor(.gray)
         }.frame(width: 180)
     }
@@ -408,23 +408,23 @@ struct RecipeDetailAIView: View {
                 Circle().fill(Color.themePink.opacity(0.2)).frame(width: 120, height: 120)
                     .overlay(Image(systemName: recipe.heroImage).font(.system(size: 50)).foregroundColor(.themePink)).padding(.top, 20)
                 
-                Text(recipe.title).font(.title.bold()).multilineTextAlignment(.center)
+                Text(LocalizedStringKey(recipe.title)).font(.title.bold()).multilineTextAlignment(.center)
                 
                 HStack(spacing: 40) {
                     VStack { Image(systemName: "clock.fill").foregroundColor(.gray); Text("\(recipe.cookTime) min").font(.subheadline.bold()) }
                     VStack {
                         HStack(spacing: 2) { ForEach(1...5, id: \.self) { star in Image(systemName: star <= recipe.difficulty ? "star.fill" : "star").foregroundColor(.themeYellow).font(.caption) } }
-                        Text("Difficulty").font(.caption).foregroundColor(.gray)
+                        Text(LocalizedStringKey("Difficulty")).font(.caption).foregroundColor(.gray)
                     }
                 }.padding().background(Color.white).cornerRadius(16)
                 
                 Button(action: { HapticManager.shared.impact(style: .medium); isCookingModeActive = true }) {
-                    HStack { Image(systemName: "play.circle.fill"); Text("Start step-by-step cooking") }
+                    HStack { Image(systemName: "play.circle.fill"); Text(LocalizedStringKey("Start step-by-step cooking")) }
                         .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding().background(Color.themePink).cornerRadius(16)
                 }.padding(.horizontal, 24)
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "list.bullet.clipboard.fill").foregroundColor(.themePink); Text("Ingredients").font(.title3.bold()) }
+                    HStack { Image(systemName: "list.bullet.clipboard.fill").foregroundColor(.themePink); Text(LocalizedStringKey("Ingredients")).font(.title3.bold()) }
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(recipe.ingredients, id: \.self) { ingredient in
                             HStack(alignment: .top) { Circle().fill(Color.themePink).frame(width: 6, height: 6).padding(.top, 6); Text(ingredient).font(.body) }
@@ -544,6 +544,7 @@ struct CookingStepRow: View {
 // ==========================================
 struct AIAssistantFlowView: View {
     @Binding var isPresented: Bool
+    @Environment(\.dismiss) var dismiss
     @Environment(RecipeDataLoader.self) private var dataLoader
     @Query private var customRecipes: [CustomRecipe]
     
@@ -567,10 +568,10 @@ struct AIAssistantFlowView: View {
             ZStack {
                 Color.themeBg.ignoresSafeArea()
                 VStack(spacing: 20) {
-                    Text("What shall we cook with AI?").font(.largeTitle.bold()).padding(.top)
+                    Text(LocalizedStringKey("What shall we cook with AI?")).font(.largeTitle.bold()).padding(.top)
                     HStack {
                         Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                        TextField("e.g. Ribeye...", text: $searchAgentText)
+                        TextField(String(localized: "e.g. Ribeye..."), text: $searchAgentText)
                     }.padding().background(Color.white).cornerRadius(16).padding(.horizontal)
                     
                     ScrollView {
@@ -583,7 +584,7 @@ struct AIAssistantFlowView: View {
                         }.padding(.horizontal)
                         
                         // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
-                        Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
+                        Text(LocalizedStringKey("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment."))
                             .font(.caption2)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
@@ -602,11 +603,11 @@ struct AIAssistantFlowView: View {
                             AIChefLoadingSpinner()
                             
                             VStack(spacing: 12) {
-                                Text("AI Chef is preparing...")
+                                Text(LocalizedStringKey("AI Chef is preparing..."))
                                     .font(.system(size: 26, weight: .heavy, design: .rounded))
                                     .foregroundColor(.primary)
                                 
-                                Text("Generating personalized recipe, optimal timing, and smart tips for your perfect dish.")
+                                Text(LocalizedStringKey("Generating personalized recipe, optimal timing, and smart tips for your perfect dish."))
                                     .font(.system(size: 16, weight: .medium, design: .rounded))
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.center)
@@ -621,10 +622,13 @@ struct AIAssistantFlowView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
+                    Button(action: {
                         generateTask?.cancel()
                         isGenerating = false
+                        dismiss()
                         isPresented = false
+                    }) {
+                        Text(LocalizedStringKey("Cancel"))
                     }
                     .foregroundColor(.themePink)
                 }

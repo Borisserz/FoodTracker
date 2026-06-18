@@ -84,10 +84,10 @@ struct WaterGridTrackerView: View {
             }
 
             HStack(spacing: 12) {
-                WaterPresetButton(icon: "drop.fill", title: String(localized: "Glass"), volume: "+250 ml") {
+                WaterPresetButton(icon: "drop.fill", title: String(localized: "Water glass"), volume: "+250 ml") {
                     addWater(ml: 250)
                 }
-                WaterPresetButton(icon: "waterbottle.fill", title: String(localized: "Bottle"), volume: "+500 ml") {
+                WaterPresetButton(icon: "waterbottle.fill", title: String(localized: "Water bottle"), volume: "+500 ml") {
                     addWater(ml: 500)
                 }
             }

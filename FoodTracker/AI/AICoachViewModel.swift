@@ -14,8 +14,8 @@ class AICoachViewModel {
 
     var isAnalyzing = false
     var hasAnalyzedToday = false
-    var verdictTitle: String = "AI Daily Review"
-    var verdictMessage: String = "Tap the button below to analyze your calories, macros, and get a personalized summary for today."
+    var verdictTitle: String = String(localized: "AI Daily Review")
+    var verdictMessage: String = String(localized: "Tap the button below to analyze your calories, macros, and get a personalized summary for today.")
     var verdictMood: String = "neutral"
 
     var fridgeInput: String = ""
@@ -49,8 +49,8 @@ class AICoachViewModel {
             } else {
                 withAnimation(.spring()) {
                     if cals > goal { self.verdictMood = "danger" } else if cals < goal / 2 { self.verdictMood = "warning" } else { self.verdictMood = "perfect" }
-                    self.verdictTitle = "Data Collected"
-                    self.verdictMessage = "You've eaten \(cals) kcal out of \(goal)."
+                    self.verdictTitle = String(localized: "Data Collected")
+                    self.verdictMessage = String(format: String(localized: "You've eaten %d kcal out of %d."), cals, goal)
                     self.hasAnalyzedToday = true
                     self.isAnalyzing = false
                 }

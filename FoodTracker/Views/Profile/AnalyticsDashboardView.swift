@@ -99,8 +99,27 @@ struct AnalyticsTabView: View {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 24) {
                             
-                            // Spacer for Sticky Header
-                            Spacer().frame(height: 120)
+                            // Header
+                            VStack(spacing: 16) {
+                                HStack {
+                                    Text(LocalizedStringKey("Dashboard"))
+                                        .font(.system(size: 38, weight: .heavy, design: .rounded))
+                                    Spacer()
+                                    Image(systemName: "chart.bar.xaxis")
+                                        .font(.title2.bold())
+                                        .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
+                                }
+                                .padding(.horizontal, 24)
+                                
+                                GlobalPeriodPicker(selection: $globalPeriod)
+                                    .padding(.horizontal, 20)
+                                    .onChange(of: globalPeriod) { _, newValue in
+                                        viewModel?.loadData(for: newValue)
+                                    }
+                            }
+                            .padding(.top, 10)
+                            .opacity(animateIn ? 1 : 0)
+                            .offset(y: animateIn ? 0 : -20)
 
                             MetabolicScoreCard(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
                                 .padding(.horizontal, 20)
@@ -128,35 +147,6 @@ struct AnalyticsTabView: View {
                             }
                         }
                     }
-                    
-                    // Sticky Header
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("Dashboard")
-                                .font(.system(size: 38, weight: .heavy, design: .rounded))
-                            Spacer()
-                            Image(systemName: "chart.bar.xaxis")
-                                .font(.title2.bold())
-                                .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
-                        }
-                        .padding(.horizontal, 24)
-                        
-                        GlobalPeriodPicker(selection: $globalPeriod)
-                            .padding(.horizontal, 20)
-                            .onChange(of: globalPeriod) { _, newValue in
-                                viewModel?.loadData(for: newValue)
-                            }
-                    }
-                    .padding(.top, 10)
-                    .padding(.bottom, 16)
-                    .background(
-                        Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .mask(LinearGradient(colors: [.black, .black, .black.opacity(0.8), .clear], startPoint: .top, endPoint: .bottom))
-                    )
-                    .opacity(animateIn ? 1 : 0)
-                    .offset(y: animateIn ? 0 : -20)
-                    .zIndex(10)
                     
                 } else {
                     EmptyStateView(imageName: "chart.bar.xaxis", title: String(localized: "No Data"), description: String(localized: "User data not found."))
@@ -437,7 +427,7 @@ struct GlobalPeriodPicker: View {
                 }) {
                     ZStack {
                         Text("Monthly").font(.system(size: 15, weight: .bold)).hidden()
-                        Text(period.rawValue)
+                        Text(LocalizedStringKey(period.rawValue))
                             .font(.system(size: 15, weight: selection == period ? .bold : .medium, design: .rounded))
                             .foregroundColor(selection == period ? .white : .primary.opacity(0.7))
                     }
@@ -477,7 +467,7 @@ struct AITypewriterCard: View {
         } else if score >= 70 {
             return "You are on a strong path. Your macros are decent, but there's room for optimization in your hydration or caloric adherence. Keep pushing."
         } else {
-            return "Your protocol requires recalibration. Focus on hitting your daily targets more consistently. Start by prioritizing protein and drinking at least 2 liters of water."
+            return String(localized: "Your protocol requires recalibration. Focus on hitting your daily targets more consistently. Start by prioritizing protein and drinking at least 2 liters of water.")
         }
     }
     
@@ -1012,8 +1002,8 @@ struct DivineCaloriesChart: View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Energy Trend").font(.title3.bold())
-                    Text("Daily Caloric Intake").font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
+                    Text(LocalizedStringKey("Energy Trend")).font(.title3.bold())
+                    Text(LocalizedStringKey("Daily Caloric Intake")).font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
                 }
                 Spacer()
                 Image(systemName: "chart.xyaxis.line").font(.title2).foregroundColor(.themePink)
@@ -1024,7 +1014,7 @@ struct DivineCaloriesChart: View {
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
                     .foregroundStyle(Color.themeOrange.opacity(0.8))
                     .annotation(position: .top, alignment: .leading) {
-                        Text("GOAL").font(.system(size: 10, weight: .black)).foregroundColor(.themeOrange)
+                        Text(LocalizedStringKey("GOAL")).font(.system(size: 10, weight: .black)).foregroundColor(.themeOrange)
                     }
 
                 ForEach(chartData, id: \.date) { point in
@@ -1118,13 +1108,15 @@ struct DivineMacrosChart: View {
     }
 
     private var maxGrams: Double {
-        let maxData = chartData.map { $0.value }.max() ?? 0
-        return max(200.0, maxData * 1.5)
+        let maxDailySum = chartData.reduce(into: [Date: Double]()) { dict, item in
+            dict[item.date, default: 0] += item.value
+        }.values.max() ?? 0
+        return max(200.0, maxDailySum * 1.2)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Macros Balance").font(.title3.bold())
+            Text(LocalizedStringKey("Macros Balance")).font(.title3.bold())
 
             Chart {
                 ForEach(chartData) { item in
@@ -1202,7 +1194,7 @@ struct TrendsWaterChart: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Fluid Intake").font(.title3.bold())
+                Text(LocalizedStringKey("Fluid Intake")).font(.title3.bold())
                 Spacer()
                 Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title2)
             }
@@ -1212,7 +1204,7 @@ struct TrendsWaterChart: View {
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
                     .foregroundStyle(Color.cyan.opacity(0.8))
                     .annotation(position: .top, alignment: .leading) {
-                        Text("GOAL").font(.system(size: 10, weight: .black)).foregroundColor(.cyan)
+                        Text(LocalizedStringKey("GOAL")).font(.system(size: 10, weight: .black)).foregroundColor(.cyan)
                     }
 
                 ForEach(chartData, id: \.date) { point in
@@ -1362,7 +1354,7 @@ struct TopSourcesSheetView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            Text("Top \(macro.rawValue) Sources")
+            Text(String(localized: "Top \(macro.rawValue) Sources"))
                 .font(.system(size: 24, weight: .heavy, design: .rounded))
                 .padding(.top, 24)
 

@@ -53,7 +53,7 @@ struct WeightTrackerCardView: View {
         VStack(alignment: .leading, spacing: 16) {
 
             HStack {
-                Text("Weight Progress")
+                Text(LocalizedStringKey("Weight Progress"))
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 Spacer()
@@ -75,7 +75,7 @@ struct WeightTrackerCardView: View {
                                 .foregroundColor(.gray.opacity(0.8))
                         }
                     } else {
-                        Text("Log Weight")
+                        Text(LocalizedStringKey("Record Weight"))
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundColor(.gray.opacity(0.6))
                     }
@@ -164,9 +164,9 @@ struct WeightTrackerCardView: View {
                     user.weight = newlyLoggedWeight
                     
                     let totalCals = Double(user.dailyCaloriesGoal)
-                    let pPct = totalCals > 0 ? Int((user.targetProtein * 4.0) / totalCals * 100) : 30
-                    let cPct = totalCals > 0 ? Int((user.targetCarbs * 4.0) / totalCals * 100) : 40
-                    let fPct = totalCals > 0 ? Int((user.targetFats * 9.0) / totalCals * 100) : 30
+                    let pPct = totalCals > 0 ? Int(round((user.targetProtein * 4.0) / totalCals * 100)) : 30
+                    let cPct = totalCals > 0 ? Int(round((user.targetCarbs * 4.0) / totalCals * 100)) : 40
+                    let fPct = totalCals > 0 ? Int(round((user.targetFats * 9.0) / totalCals * 100)) : 30
                     
                     user.calculateGoals()
                     user.applyDietBreakdown(fatPercent: fPct, proteinPercent: pPct, carbsPercent: cPct, dietKey: user.activeDietKey)
@@ -206,7 +206,7 @@ private struct WeightInputSheet: View {
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 40, height: 5)
 
-            Text("Enter Today's Weight")
+            Text(LocalizedStringKey("Enter Today's Weight"))
                 .font(.headline)
 
             HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -229,7 +229,7 @@ private struct WeightInputSheet: View {
                 onSave(weightValue)
                 dismiss()
             }) {
-                Text("Save Weight")
+                Text(LocalizedStringKey("Save Weight"))
                     .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
                     .padding().background(Color.themeOrange).cornerRadius(16)
             }

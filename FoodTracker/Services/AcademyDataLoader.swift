@@ -4,7 +4,7 @@ import Observation
 import FirebaseFirestore
 
 struct ArticleCategory: Identifiable, Codable, Hashable {
-    @DocumentID var id: String?
+    var id: String?
     let title: String
     var completedCount: Int = 0
     let articles: [Article]
@@ -58,27 +58,28 @@ class AcademyDataLoader {
     }
 
     func fetchCategoriesFromFirestore() {
-        db.collection("academy_categories").addSnapshotListener { [weak self] snapshot, error in
-            guard let self = self else { return }
+        let langCode = Locale.current.language.languageCode?.identifier ?? "en"
+        var fileName = "academy_\(langCode)"
+        
+        var url = Bundle.main.url(forResource: fileName, withExtension: "json")
+        if url == nil {
+            fileName = "academy"
+            url = Bundle.main.url(forResource: fileName, withExtension: "json")
+        }
+        
+        guard let url = url else { return }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            let fetchedCategories = try JSONDecoder().decode([ArticleCategory].self, from: data)
             
-            if let error = error {
-                print("❌ Error loading Academy: \(error.localizedDescription)")
-                return
+            DispatchQueue.main.async {
+                self.categories = fetchedCategories.sorted { $0.title < $1.title } 
+                self.recalculateProgress()
+                print("✅ Academy loaded from JSON: \(self.categories.count) categories.")
             }
-            
-            guard let documents = snapshot?.documents else { return }
-            
-            do {
-                let fetchedCategories = try documents.compactMap { try $0.data(as: ArticleCategory.self) }
-                
-                DispatchQueue.main.async {
-                    self.categories = fetchedCategories.sorted { $0.title < $1.title } 
-                    self.recalculateProgress()
-                    print("✅ Academy loaded: \(self.categories.count) categories.")
-                }
-            } catch {
-                print("❌ Error parsing Academy: \(error)")
-            }
+        } catch {
+            print("❌ Error parsing Academy JSON: \(error)")
         }
     }
 }

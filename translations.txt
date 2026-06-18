@@ -1,0 +1,1513 @@
+ / %lldg ->  / %lldг
+- -> -
+-50 -> -50
+– -> –
+. -> .
+(%lld%%) -> (%lld%%)
+/ %.2f L -> / %.2f л
+/ %@ L -> / %@ Л
+/ %lld %@ -> / %lld %@
+/ %lld kcal -> / %lld ккал
+/ %lldg -> / %lldг
+/ 100 -> / 100
+%.1f -> %.1f
+%.1f / %lld %@ -> %.1f / %lld %@
+%.1f %@ -> %.1f %@
+%.1f g -> %.1f г
+%.1f%@ -> %.1f%@
+%.2f -> %.2f
+%@ / %@ L -> %@ / %@ Л
+%@ kcal -> %@ ккал
+%@ kg left to %@ -> %@ кг осталось до %@
+%@ L -> %@ л
+%@ mood -> %@ настроение
+%lld -> %lld
+%lld / %lld pts -> %lld / %lld баллов
+%lld %@ -> %lld %@
+%lld Cal -> %lld Кал.
+%lld Cal — %@ -> %lld Калибровка — %@
+%lld Cal — %lld g -> %lld Cal — %lld г
+%lld calories burned, goal %ll -> %lld calories burned, гoal %lld
+%lld calories eaten out of %ll -> %lld calories eaten out of %lld гoal
+%lld Day Streak! -> %lld дневная серия!
+%lld g -> %lld г
+%lld Hours Eating -> %lld Hours Eatinг
+%lld Hours Fasting -> %lld Hours Fastinг
+%lld items -> %lld элементов
+%lld items selected -> Выбрано %lld элементов
+%lld kcal -> %lld ккал
+%lld kcal — %lld g -> %lld ккал — %lld г
+%lld kcal — %lldg -> %lld ккал — %lldг
+%lld kcal • %@ -> %lld ккал • %@
+%lld kcal • %@  -> %lld ккал • %@
+%lld kcal • %lld min -> %lld ккал • %lld min
+%lld kcal • %lldg -> %lld ккал • %lldг
+%lld kcal • 100g -> %lld ккал • 100г
+%lld left -> %lld осталось
+%lld min -> %lld мин
+%lld MIN -> %lld МИН
+%lld min read -> %lld минут чтения
+%lld of %lld -> %lld из %lld
+%lld of %lld completed -> %lld из %lld завершено
+%lld of %lld topics finished -> %lld из %lld тем завершено
+%lld over -> %lld закончился
+%lld remaining -> %lld remaininг
+%lld servings -> %lld порций
+%lld steps -> %lld шагов
+%lld Unlocked -> %lld разблокирован
+%lld XP -> %1лд опыта
+%lld ккал -> %lld ккал
+%lld ккал • %lld мин -> %lld ккал • %lld мин
+%lld мин -> %lld мин
+%lld/%lld -> %lld/%lld
+%lld/%lldg -> %lld/%lldг
+%lld%% -> %lld%%
+%lld%% of Total -> %lld%% от общего количества
+%lldg -> %lldг
+%lldg P -> %lldg П
+%lldL -> %lldL
+%lldm -> %lldm
+• -> •
+• %@ -> • %@
+• Avoid on %@ -> • Избегайте %@
+• Great for %@ -> • Отлично подходит для %@
+• P:%lld F:%lld C:%lld -> • P:%lld F:%lld C:%lld
++%lld -> +%ллд
++%lld XP -> +%lld опыта
++50 -> +50
++100 -> +100
++300 -> +300
+~ %lld kcal -> ~ %lld ккал
+☀️ -> ☀️
+✅ Added to %@ -> ✅ Добавлено в %@
+✅ Applied to Today's Log! -> ✅ Применено к сегодняшнему журналу!
+✅ Synced with Daily Log -> ✅ Синхронизировано с ежедневным журналом
+🌧️ -> 🌧️
+🍲 -> 🍲
+🥘 -> 🥘
+🛒 Ingredients added to Grocery -> 🛒 Ингредиенты добавлены в список продуктов!
+1.8 L -> 1,8 л
+5 normal days, 2 days under 50 -> 5 normal days, 2 days under 500 ккал.
+5:2 Diet -> 5:2 Диета
+7-Day Burn Trend -> 7-дневная тенденция ожогов
+7-Day Protocol -> 7-дневный план
+12:12 -> 12:12
+14:10 -> 14:10
+16:8 -> 16:8
+16:8, OMAD -> 16:8, ОМАД
+18:6 -> 18:6
+20:4 -> 20:4
+23:1 (OMAD) -> 23:1 (ОМАД)
+24/7 AI Chat -> Круглосуточный чат с искусственным интеллектом
+36-Hour -> 36 часов
+92 -> 92
+100 -> 100
+100% Animal Products -> 100% продукты животного происхождения
+100% Plant-Based -> 100% растительного происхождения
+250 ml -> 250 мл
+600+ DISHES -> 600+ БЛЮД
+A new version of FoodTracker i -> Доступна новая версия FoodTracker.
+A perfect 7-day alignment tail -> Идеальный план на 7 дней, созданный для ваших целе
+A plant-based diet that includ -> Растительная диета, включающая рыбу и морепродукты
+A simple balanced breakfast li -> Простой сбалансированный завтрак, такой как яйца и
+Academy -> Академия
+Academy Master -> Мастер Академии
+Academy: Nutrition Guides. -> Академия: Путеводители по питанию.
+Account -> Счет
+Account type -> Тип аккаунта
+Accumulated Deficit -> Накопленный дефицит
+ACTIVE -> АКТИВНЫЙ
+Active Calories -> Активные калории
+Active Goal: %lld kcal -> Цель активности: %lld ккал
+ACTIVE PLAN -> АКТИВНЫЙ ПЛАН
+Activity Sources -> Источники активности
+Add -> Добавлять
+Add • %lld kcal -> Добавить • %lld ккал
+Add a custom recipe -> Добавить индивидуальный рецепт
+Add an item (e.g. Milk)... -> Добавить предмет (например, Молоко)...
+Add an item... -> Добавить элемент...
+Add Another Food -> Добавить еще еду
+Add basic information about th -> Добавьте основную информацию о рецепте.
+Add Food -> Добавить еду
+Add Food Item -> Добавить продукт питания
+Add FoodTracker widgets to you -> Добавьте виджеты FoodTracker на главный экран, что
+Add items manually or export i -> Добавляйте предметы вручную или экспортируйте ингр
+Add more weight entries to see -> Добавьте больше записей о весе, чтобы увидеть дина
+Add spinach, nuts, or salmon t -> Add spinach, nuts, or salmon to your next meal to 
+Add step -> Добавить шаг
+Add step-by-step directions fo -> Добавьте пошаговые инструкции процесса приготовлен
+Add to %@ -> Добавить в %@
+Add to Home Screen -> Добавить на главный экран
+Add to List -> Добавить в список
+Add to meal -> Добавить в еду
+Add your favorite widget size -> Добавьте свой любимый размер виджета
+Added to Grocery List! -> Добавлено в список покупок!
+Adjust Results -> Корректировать результаты
+Adjust to 100% -> Отрегулируйте до 100 %
+After -> После
+AFTER -> ПОСЛЕ
+Age -> Возраст
+Age: %lld years -> Возраст: %lld лет
+AI Analysis -> ИИ-анализ
+AI analysis detected noticeabl -> AI-анализ выявил заметную гипертрофию груди и плеч
+AI Builder -> ИИ-строитель
+AI Camera Check -> Проверка камеры AI
+AI Chef -> ИИ-шеф
+AI CHEF AWAKENED -> ИИ-ПОВАР ПРОБУДИЛСЯ
+AI Chef Check -> Проверка ИИ-повара
+AI Chef is cooking... -> AI Шеф готовит...
+AI Chef is evaluating… -> AI Chef оценивает…
+AI Chef is preparing... -> AI Chef готовит...
+AI Chef Studio -> Студия шеф-повара AI
+AI Coach -> ИИ-тренер
+AI Coach adapts its advice str -> AI Coach адаптирует свои советы строго к правилам 
+AI Coach Recommendation -> Рекомендация тренера по искусственному интеллекту
+AI Feedback: -> Обратная связь с ИИ:
+AI Fitness Scanner -> Фитнес-сканер с искусственным интеллектом
+AI Hydration Coach -> AI-тренер по гидратации
+AI is analyzing your meal...
+C -> ИИ анализирует вашу еду...
+Вычисление макросов 🪄
+AI is reading the menu...
+Find -> ИИ читает меню...
+Находим лучшие варианты 🕵️‍♂️
+AI Menu Analysis -> Анализ меню AI
+AI Menu Builder -> Конструктор ИИ
+AI Menu Reader - scan restaura -> AI Menu Reader — сканирование меню ресторана
+AI Nutrition Coach -> AI-тренер по питанию
+AI Perception Feedback: -> Обратная связь по восприятию ИИ:
+AI Photo Scan - snap a photo o -> Умный сканер - сфотографируйте еду
+AI POWERED -> С ИИ
+AI selected for your macros: -> ИИ подобрал для ваших макросов:
+AI Synthesis -> Синтез искусственного интеллекта
+AI tailors ingredients perfect -> ИИ идеально адаптирует ингредиенты.
+AI Visual Progress Tracker -> Визуальный трекер прогресса с использованием искус
+AI Weekly Protocol -> Еженедельный протокол AI
+AI Шеф -> ИИ Шеф
+Align barcode or QR code
+insid -> Выровняйте штрих-код или QR-код
+внутри кадра
+Aligning frames & estimating b -> Выравнивание рамок и оценка состава жировых отложе
+Aligning frames & evaluating p -> Выравнивание кадров и оценка темпов физической рек
+All -> Все
+All done! 🎉 -> Все готово! 🎉
+All your steps, gym sessions,  -> All your steps, гym sessions, and Apple Watch work
+All-Time Total -> Всего за все время
+Allowed During Fast -> Разрешено во время поста
+Almonds -> Миндаль
+Alternate Day -> Альтернативный день
+An extreme elimination diet co -> Экстремальная исключающая диета, состоящая полност
+Analysis Complete -> Анализ завершен
+Analytics -> Аналитика
+Analyze My Day -> Анализируйте мой день
+Analyzing your technique -> Анализ вашей техники
+Analyzing... -> Анализ...
+Animal Fats -> Животные жиры
+Animal Protein -> Животный белок
+Anti-Aging -> Антивозрастной
+App Theme -> Тема приложения
+Apple -> Яблоко
+Apple Fitness -> Яблоко Фитнес
+Apple Health -> Apple Здоровье
+Apples -> Яблоки
+Apply to Today -> Подать заявку сегодня
+Approved Foods -> Разрешенные продукты
+Aqua King -> Аква Кинг
+Are you sure you want to break -> Are you sure you want to break your fast? You've d
+Art of Plating -> Искусство покрытия
+Ask AI Coach -> Спросить ИИ-тренера
+Ask your Coach -> Спросите своего тренера
+Auto-adjusts your daily Protei -> Автоматически корректирует ежедневные целевые пока
+Auto-analyze -> Автоматический анализ
+Autophagy Starts -> Аутофагия начинается
+Avocado -> Авокадо
+Avocados -> Авокадо
+Awards -> Награды
+Awesome! Next Step → -> Потрясающий! Следующий шаг →
+B12 deficiency risk -> Риск дефицита B12
+Back -> Назад
+Bacon -> Бекон
+Balance Equation -> Баланс калорий
+Balanced -> Сбалансированный
+Banana -> Банан
+Barcode -> Штрих-код
+Barcode %@ not found -> Штрихкод %@ не найден
+Barcode Scan -> Сканирование штрих-кода
+Barcode Scan - scan product pa -> Сканирование штрих-кода - сканирование упаковки пр
+Base Logging XP -> Базовый опыт ведения журнала
+Based on your remaining macros -> На основе оставшихся макросов
+Basic Info -> Основная информация
+Beef -> Говядина
+Before -> До
+BEFORE -> ДО
+Before & After -> До и После
+Beginner -> Новичок
+Berries -> Ягоды
+Best for muscle building -> Лучшее для наращивания мышечной массы
+Better alignment -> Лучшее выравнивание
+Better Sleep -> Лучший сон
+Bio-hacking Tips -> Советы по биохакингу
+Black Coffee -> Черный кофе
+Blueberries -> Черника
+BMI: %@ -> ИМТ: %@
+Body Mass Index -> Индекс массы тела
+Body Metrics -> Метрики тела
+Bon Appétit! -> Приятного аппетита!
+Bone Broth -> Костный бульон
+Bone broth or a light salad fi -> Bone broth or a light salad first. Your digestive 
+Boost your minerals -> Повысьте уровень минералов
+Bottle -> Бутылка
+Break it with lean protein (ch -> Добавьте в него нежирный белок (курица/рыба) и ово
+Break-Fast Foods -> Фаст-фуд для завтрака
+Breakfast -> Завтрак
+Breaks Plateaus -> Ломает плато
+Broccoli -> Брокколи
+Brown Rice -> Коричневый рис
+Browse by Calories -> Просмотр по калориям
+Build a 7-Day Plan -> Создать план на 7 дней
+Build healthy habits, understa -> Build healthy habits, understand your body, and ac
+Build Muscle -> Наращивание мышечной массы
+Build strength, increase densi -> Build strength, increase density, and гrow lean mu
+Burn fat, optimize metabolism, -> Сжигайте жир, оптимизируйте обмен веществ и почувс
+Burn Intensity -> Интенсивность ожога
+Burned -> Сожжено
+Butter -> Масло
+C: %lldg -> У: %lldг
+cal -> кал
+Calcium -> Кальций
+Calculated overall synergy -> Рассчитанная общая синергия
+Calculating your optimal macro -> Рассчитываем ваши идеальные макросы...
+Готовим ваш
+Caloric Adherence -> Соблюдение калорийности
+Calorie Match Bonus -> Бонус за соответствие калорий
+Calories -> Калории
+Calories (kcal) -> Calories (ккал)
+Calories Burned -> Калории сожжены
+Calories Left: **%@** -> Осталось калорий: **%@**
+Calories Left: **%lld** -> Осталось калорий: **%lld**
+Camera Access Required -> Требуется доступ к камере
+Can I eat pizza tonight? How t -> Can I eat pizza tonight? How to гet more protein? 
+Can't find '%@'? -> Не можете найти «%@»?
+Cancel -> Отмена
+Carbs -> Углеводы
+CARBS -> УГЛЕВОДЫ
+Carbs (g) -> Углеводы (г)
+Carnivore -> Хищник
+Casein -> Казеин
+Category -> Категория
+Cellular Repair -> Ремонт сотовой связи
+Chat History -> История чата
+Chat with AI Coach -> Чат с AI-тренером
+Chat with your personal AI coa -> Общайтесь с персональным ИИ-тренером. Получайте со
+Chat with your personal AI coa -> Chat with your personal AI coach. Get macro advice
+Cheese -> Сыр
+Chef is thinking... -> Шеф думает...
+Chef is writing recipe... -> Шеф-повар пишет рецепт...
+Chef's Specials -> Выбор шеф-повара
+Chef's Tip -> Совет от шеф-повара
+Chia Seeds -> Семена Чиа
+Chicken -> Курица
+Chicken & Veggies -> Курица и овощи
+Chicken Breast -> Куриная Грудка
+Chicken Thighs -> Куриные бедра
+Chickpeas -> Нут
+Choose a meal -> Выберите еду
+Choose a schedule to optimize  -> Choose a schedule to optimize your metabolism and 
+Choose your path to success -> Выберите свой путь к успеху
+Circadian rhythm fast. Great f -> Циркадный ритм быстрый. Отлично подходит для нович
+Clean -> Чистый
+Clear All -> Очистить все
+Close -> Закрывать
+cm -> см
+Coconut Oil -> Кокосовое масло
+Cod -> Треска
+Combine ingredients & calculat -> Комбинируйте ингредиенты и рассчитывайте макросы
+Compare photos & track changes -> Сравнивайте фотографии и отслеживайте изменения
+Comparison View -> Сравнение
+Completed -> Завершенный
+Confirm Goal -> Подтвердить цель
+Connect -> Соединять
+Consistency -> Последовательность
+Continue -> Продолжать
+Cook 1 recipe with AI -> Приготовьте 1 рецепт с помощью ИИ
+Cook 10 recipes with AI -> Приготовьте 10 рецептов с помощью ИИ
+Cook Monitor -> Монитор повара
+Cook with AI -> Готовьте с ИИ
+Cook with AI Chef -> Готовьте с AI Chef
+Cook with Chef -> Готовить с шеф-поваром
+Cooking Instructions -> Инструкции по приготовлению
+Cooking instructions are not a -> Инструкции по приготовлению для этого рецепта пока
+Cooking time -> Время приготовления
+Cooking Time -> Время приготовления
+Cooking: %@ -> Готовка: %@
+Cottage Cheese -> Творог
+Cozy evenings -> Уютные вечера
+Create Custom Food -> Создать собственную еду
+Create Custom Recipe -> Создать собственный рецепт
+Creator -> Создатель
+Current 7-Day Protocol -> Текущий 7-дневный протокол
+Current Fast: %@ -> Текущее голодание: %@
+Current Weight -> Текущий вес
+Current: %@ • %@ elapsed -> Текущее: %@ • прошло %@
+Custom -> Обычай
+Custom Ingredient -> Пользовательский ингредиент
+Custom meals, step-by-step vid -> Нестандартные блюда, пошаговые видеоролики и творе
+Custom Recipe Details: %@ -> Подробности индивидуального рецепта: %@
+D%lld -> D%lld
+Daily Activity -> Ежедневная активность
+Daily Average -> Среднедневное среднее значение
+Daily Caloric Intake -> Ежедневная норма калорий
+Daily Calories -> Ежедневные калории
+Daily Energy -> Ежедневная энергия
+Daily Log -> Дневник
+Daily Macros -> Ежедневные макросы
+Daily note -> Ежедневная заметка
+Daily Notes -> Ежедневные заметки
+Daily Verdict -> Ежедневный вердикт
+Dairy & Eggs -> Молочные продукты и яйца
+Dairy/egg allergies -> Аллергия на молочные продукты/яйца
+DANGER: Do not break with heav -> ОПАСНО: Не злоупотребляйте тяжелыми углеводами. На
+DASH Diet -> ДЭШ-диета
+Dashboard -> Панель управления
+Database Error: %@ -> Ошибка базы данных: %@
+Date -> Дата
+Day -> День
+Day %lld -> День %lld
+DAY COMPLETE! -> ДЕНЬ ЗАВЕРШЕН!
+DAY LOGGED -> ДЕНЬ ЗАРЕГИСТРИРОВАН
+Deactivate Plan -> Деактивировать план
+Deep Autophagy -> Глубокая аутофагия
+Deep Fat Burn -> Глубокое сжигание жира
+Deep insights into your consis -> Глубокое понимание вашей последовательности и прив
+Delete -> Удалить
+Delete account -> Удалить аккаунт
+Delete Recipe -> Удалить рецепт
+Describe step %lld... -> Опишите шаг %lld...
+Designed to help treat or prev -> Предназначен для лечения или предотвращения высоко
+Diabetes requiring scheduled m -> Диабет, требующий регулярного питания
+Diet Plans -> Планы диеты
+Diet Plans: Keto, Vegan & More -> Планы диеты: кето, веганская и многое другое.
+Diet Recipes -> Диетические рецепты
+Dietary Approaches to Stop Hyp -> Диетические подходы к остановке гипертонии
+Diets -> Диеты
+Difficulty -> Сложность
+Difficulty: -> Сложность:
+Digestive issues without fiber -> Проблемы с пищеварением без клетчатки
+Digitize yourself -> Оцифруйте себя
+Dinner -> Ужин
+Directions -> Направления
+Disconnect -> Отключить
+Discover -> Обнаружить
+Dish not found -> Блюдо не найдено
+Distribution -> Распределение
+Don't forget to drink water to -> Не забывайте пить воду!
+Done -> Сделанный
+Drink 2.5L in a day -> Пить 2,5 л в день.
+Drink 3L of water in a day -> Пейте 3 литра воды в день
+Drink Now -> Выпей сейчас
+Duration -> Продолжительность
+E.g. Eggs, chicken, rice... -> Например. Яйца, курица, рис...
+e.g. Ribeye... -> например Рибай...
+Early Bird -> Ранняя пташка
+Ease your way into fasting. Bu -> Облегчите свой путь к посту. Плавно сжигает жир.
+Easy -> Легкий
+Eat a massive, nutrient-dense  -> Ешьте обильно и богато питательными веществами. Об
+Eat like our ancestors -> Ешьте, как наши предки
+Eat whatever, but restrict whe -> Ешьте что угодно, но ограничивайте время
+Eaten -> Съедено
+Edamame -> Эдамаме
+Edit Profile -> Редактировать профиль
+Egg Whites -> Яичные белки
+Eggs -> Яйца
+Eliminates all animal products -> Исключает все продукты животного происхождения. От
+Email -> Электронная почта
+End Fast -> Закончить быстро
+End Fast? -> Закончить быстро?
+Energy -> Энергия
+Energy Balance -> Энергетический баланс
+Energy Boost -> Увеличение энергии
+Energy Summary -> Энергетическая сводка
+Energy Trend -> Энергетический тренд
+Enter FoodTracker -> Войдите в FoodTracker
+Enter Manually -> Введите вручную
+Enter Today's Weight -> Введите сегодняшний вес
+Error -> Ошибка
+Est. Body Fat -> Стандартное восточное время. Жировые отложения
+Est. Protein: -> Стандартное восточное время. Белок:
+Est. Weight -> Стандартное восточное время. Масса
+Every Movement Counts! -> Каждое движение имеет значение!
+Excludes meat, poultry, and se -> Исключает мясо, птицу и морепродукты, но разрешает
+Execute Today -> Выполнить сегодня
+Expert -> Эксперт
+EXPERT -> ЭКСПЕРТ
+Expert Protocol Warning -> Предупреждение экспертного протокола
+Explore -> Исследовать
+Explore Healthy Cooking -> Изучите здоровую кулинарию
+Export Data to CSV -> Экспорт данных в CSV
+Extended fasting depletes esse -> Длительное голодание истощает необходимые минералы
+F: %lldg -> Ж: %lldг
+Fast Calorie Entry -> Быстрый ввод калорий
+Fasting -> Пост
+Fasting Drinks -> Напитки натощак
+Fasting Protocols -> Протоколы голодания
+Fasting tracker active, curren -> Трекер голодания активен, текущее голодание: %@, п
+Fasting Tracker: track fasting -> Трекер голодания: отслеживайте окна голодания, отс
+Fat -> Толстый
+Fats -> Жиры
+FATS -> ЖИРЫ
+Fats (g) -> Жиры (г)
+Filters -> Фильтры
+Final review. Check your recip -> Финальный обзор. Перед сохранением проверьте детал
+Final Touch -> Последний штрих
+Final Touch: Plating -> Последний штрих: покрытие
+Find recipe... -> Найдите рецепт...
+Finish & Eat! -> Закончи и ешь!
+Finish Day -> Завершить день
+First Step -> Первый шаг
+Fish -> Рыба
+Fluid Intake -> Потребление жидкости
+Fluid Intake Trend -> Тенденция потребления жидкости
+Focus heavily on hydration and -> В дни голодания уделяйте особое внимание гидратаци
+Focuses on eating windows rath -> Фокусируется на окнах питания, а не на конкретных 
+Focuses on whole foods like me -> Focuses on whole foods like meat, fish, eggs, vege
+Food Items -> Продукты питания
+Food Name -> Название еды
+Foods -> Продукты
+FoodTracker -> ЕдаТрекер
+FoodTracker AI provides genera -> FoodTracker AI provides гeneral nutritional inform
+FoodTracker AI provides genera -> FoodTracker AI provides гeneral nutritional inform
+Forces your body to burn fat f -> Заставляет ваше тело сжигать жир в качестве топлив
+Frame the dish and snap -> Обрамите блюдо и защелкните
+Fresh Fish -> Свежая рыба
+Fresh Seafood -> Свежие морепродукты
+Fridge to Recipe -> Холодильник по рецепту
+from %@ -> из %@
+From your history -> Из вашей истории
+Fruits -> Фрукты
+Fruits & Veggies -> Фрукты и овощи
+Full Reset -> Полный сброс
+g -> г
+gained per week -> набор в неделю
+Gallbladder issues -> Проблемы с желчным пузырем
+Gather these ingredients befor -> Соберите эти ингредиенты перед началом.
+Generate Plan -> Создать план
+Generating personalized recipe -> Создание индивидуального рецепта, оптимального вре
+Generation Failed -> Генерация не удалась
+GET -> ПОЛУЧАТЬ
+Get instant diet advice... -> Получить мгновенный совет по питанию...
+Get Started -> Начать
+Ghee -> гхи
+Glass -> Стакан
+Global database -> Глобальная база
+Go to Home Screen -> Перейти на главный экран
+Goal -> Цель
+GOAL -> ЦЕЛЬ
+Goal Direction -> Цель Направление
+Goal Reached! 🎉 -> Цель достигнута! 🎉
+Goal Type -> Тип цели
+Goal: %@ -> Цель: %@
+Goal: %lld -> Цель: %lld
+Goals & Progress -> Цели и прогресс
+Good morning! Ready to crush y -> Good morning! Ready to crush your гoals?
+Got it -> Понятно
+Got It! Keep Cooking -> Понятно! Продолжайте готовить
+Got it! Let's go -> Got it! Let's гo
+Gout risk -> Риск подагры
+Grains & Seeds -> Зерно и семена
+Grams -> Грамм
+Grass-fed Beef -> Говядина травяного откорма
+Grass-fed Meat -> Мясо травяного откорма
+Great job hitting your targets -> Отличная работа по достижению ваших целей сегодня!
+Great start! Try adding more p -> Отличное начало! Добавьте больше белка.
+Greek Yogurt -> Греческий йогурт
+Green Tea -> Зеленый чай
+Grilled Chicken -> Жареная курица
+Groceries -> Продукты питания
+Ground Beef -> Говяжий фарш
+Health Focus -> В фокусе здоровья
+Healthy & filling -> Здоровый и сытный
+Healthy breakfast with oats, b -> Здоровый завтрак с овсом, ягодами и миндалем
+Healthy Fats -> Здоровые жиры
+Healthy Oils & Fats -> Полезные масла и жиры
+Healthy range: 18.5 - 24.9 -> Здоровая норма: 18.5 - 24.9
+Heart Health -> Здоровье сердца
+Heart-healthy and balanced -> Здоровое и сбалансированное сердце
+Height -> Высота
+Height: %lld cm -> Высота: %lld см
+Help -> Помощь
+Here you can plug in your real -> Здесь вы можете подключить свой настоящий процесс 
+Here you can plug in your real -> Здесь вы можете подключить свой реальный процесс в
+High cholesterol risk -> Высокий риск холестерина
+High fat, extremely low carb -> С высоким содержанием жиров и чрезвычайно низким с
+High Protein -> Высокий белок
+High Protein Power -> Высокое содержание белка
+Higher fat content -> Более высокое содержание жира
+Highlights compatible & forbid -> Выделяет совместимые и запрещенные продукты во вре
+History & Facts -> История и факты
+History of eating disorders -> История расстройств пищевого поведения
+Hit macros for 7 days -> Выполняйте макросы в течение 7 дней.
+Hit protein goal 5 times -> Hit protein гoal 5 times
+Hitting visual goals -> Hitting visual гoals
+Home -> Дом
+How AI Computes Progress -> Как ИИ рассчитывает прогресс
+How long per meal? -> Сколько времени занимает один прием пищи?
+How much time do you want to s -> Сколько времени вы хотите потратить на готовку?
+How to break this fast -> Как нарушить это голодание
+How was your day? -> Как прошел день?
+Hydration -> Увлажнение
+Hydration Coach -> Тренер по гидратации
+Hydration Status -> Статус гидратации
+Hydro Homie -> Гидро Гомер
+If every day was exactly like  -> Если бы каждый день был таким.
+Ignite AI -> Зажгите ИИ
+Immunity Boost -> Повышение иммунитета
+Imperial (lb, ft, oz) -> Британские (фунты, футы, унции)
+In-App Purchases -> Покупки в приложении
+Ingredients -> Ингредиенты
+Initializing... -> Инициализация...
+Input ingredients from your fr -> Input ingredients from your fridge and гet diet-ma
+Inspired by traditional eating -> Вдохновлен традиционными гастрономическими привычк
+Insulin Drop -> Инсулиновые капли
+Intelligent Analytics -> Интеллектуальная аналитика
+Interactive, smart cooking gui -> Interactive, smart cooking гuide
+Intermediate -> Средний
+Intermittent Fasting -> Периодическое голодание
+Iron -> Железо
+Iron absorption concerns -> Проблемы с усвоением железа
+Iron deficiency if meat avoide -> Дефицит железа, если избегать мяса
+It's best to track your measur -> Лучше всего отслеживать свои измерения в один и то
+Items created here are permane -> Созданные здесь элементы навсегда сохраняются в ва
+Journey Progress -> Прогресс путешествия
+Jump to Today -> К сегодняшнему дню
+kcal -> ккал
+KCAL -> Ккал
+kcal burned -> ккал burned
+kcal eaten -> ккал eaten
+Keep it up! You're doing great -> Отличный темп! Так держать.
+Keep your current shape, feel  -> Поддерживайте свою текущую форму, чувствуйте себя 
+Keto -> Кето
+Keto, Vegan & More -> Кето, веганство и многое другое
+Key Benefits -> Ключевые преимущества
+Key Micronutrients -> Ключевые микроэлементы
+kg -> кг
+Kidney issues -> Проблемы с почками
+L -> л
+Lamb -> Ягненок
+Laser Focus -> Лазерный фокус
+Last 14 Days -> Последние 14 дней
+Later -> Позже
+Leafy Greens -> Листовая зелень
+Lean Beef -> Постная говядина
+Lean Proteins -> Постные белки
+Learn more -> Узнать больше
+Left -> Осталось
+Legend -> Легенда
+Legumes -> Бобовые
+Lentils -> Чечевица
+Less flexibility, for experien -> Меньшая гибкость для опытных пользователей.
+Level %lld -> Уровень %lld
+Light Fat Burn -> Легкое сжигание жира
+Liters -> Литры
+Live scanning requires an A12  -> Для сканирования в реальном времени требуется чип 
+Liver conditions -> Заболевания печени
+Loading academy... -> Загрузка академии...
+Loading Diet Plans... -> Загрузка планов диеты...
+Loading Profile... -> Загрузка профиля...
+Locked -> Заблокировано
+Log %lld kcal -> Записать %lld ккал
+Log Activity -> Журнал активности
+Log breakfast before 9 AM -> Записать завтрак до 9 утра
+Log food to see distribution. -> Запишите еду, чтобы увидеть распределение.
+Log Manually - input custom fo -> Записывать вручную – ввод индивидуальной еды
+Log Meal -> Добавлено
+Log out -> Выйти
+Log Physical Activity -> Записывать физическую активность
+Log Weight -> Вес журнала
+Log your first meal -> Запишите свой первый прием пищи
+Logged at %@ -> Записано в %@
+Long press empty space -> Длительное нажатие на пустое место
+Long press your Home Screen an -> Нажмите и удерживайте главный экран и нажмите «+»,
+Lose Weight -> Худеть
+lost per week -> потеря в неделю
+Low Carb & Keto -> Низкоуглеводные и Кето
+Low protein if not planned pro -> Низкий уровень белка, если не запланировано должны
+Low-Carb Veggies -> Низкоуглеводные овощи
+Low-fat Dairy -> Обезжиренные молочные продукты
+Low-fat Yogurt -> Нежирный йогурт
+Lunch -> Обед
+Macro & Logging Stability -> Стабильность макросов и журналирования
+Macro Verdicts -> Макровердикты
+Macronutrients -> Макронутриенты
+Macros Balance -> Макросы Баланс
+Made with ❤️ for your health -> Сделано с ❤️ для вашего здоровья
+Magnesium -> Магний
+Main Source -> Основной источник
+Maintain -> Поддерживать
+Maintenance -> Поддержание
+Manual Entry -> Ручной ввод
+Mark as Completed -> Отметить как завершенное
+Master Chef -> Мастер Шеф
+Master Your Nutrition -> Управляйте своим питанием
+Max Fat Burn -> Максимальное сжигание жира
+Maximizes muscle synthesis. Ke -> Максимизирует мышечный синтез. Сохраняет чувство с
+Meal -> Еда
+Meal AI -> AI Сканер
+Meal Details -> Детали питания
+Meal Distribution -> Распределение еды
+Meal Type -> Тип питания
+Meals -> Питание
+MEALS -> ПИТАНИЕ
+Meals Breakdown -> Распределение блюд
+Meals Logged -> Дневник питания
+Meat & Fish -> Мясо и рыба
+Mediterranean -> Средиземноморская
+Mediterranean-style salmon wit -> Mediterranean-style salmon with mixed гreens
+Medium -> Середина
+Mental Clarity -> Ясность ума
+Menu AI -> Меню ИИ
+Mercury exposure from some fis -> Воздействие ртути от некоторых рыб
+Metabolic -> Метаболический
+Metabolic Health -> Метаболическое здоровье
+Metabolic Health Breakdown -> Расстройство метаболического здоровья
+Metric (kg, cm, ml) -> Метрические (кг, см, мл)
+Micronutrients -> Микронутриенты
+Minerals & Vitamins -> Минералы и витамины
+Mise en place -> Миза на месте
+Mixed Greens -> Смешанная зелень
+Monk Fast. Full day water fast -> Монах Фаст. Полный день на воде для перезагрузки.
+Monthly -> Ежемесячно
+More recipes coming soon. -> Скоро будет еще больше рецептов.
+Muscle Mass -> Мышечная масса
+Muscle Tone -> Мышечный тонус
+My Creations -> Мои творения
+My Nutrition Day -> Мой день питания
+My Recipes -> Мои рецепты
+Name -> Имя
+Net -> Чистые
+Net %lld calories, %@ -> Чистые %lld калорий, %@
+net kcal -> net ккал
+Net: %@ kcal -> Чистые: %@ ккал
+Net: %lld kcal -> Чистые: %lld ккал
+Next -> Следующий
+Next step -> Следующий шаг
+No chat history yet. -> Истории чата пока нет.
+No custom recipes yet -> Индивидуальных рецептов пока нет
+No data -> Нет данных
+No Data -> Нет данных
+No favorites yet. Tap the star -> Пока нет фаворитов. Нажмите значок звездочки на лю
+No food items added yet. -> Продукты питания пока не добавлены.
+No Food Logged -> Еда не зарегистрирована
+No foods logged yet -> Еда еще не зарегистрирована
+No foods logged yet. -> Еда пока не зарегистрирована.
+No history -> Нет истории
+No History -> Нет истории
+No ingredients -> Нет ингредиентов
+No Recipes Found -> Рецепты не найдены
+No worries! You can quickly ad -> Не беспокойся! Вы можете быстро добавить его в сво
+Normal -> Норма
+Not selected -> Не выбрано
+Note: The recipe name must be  -> Примечание. Название рецепта должно содержать не м
+Number of servings -> Количество порций
+Nutrition -> Питание
+Nutrition Facts -> Факты о питании
+Nutrition Guides -> Руководства по питанию
+Nutrition Per Serving -> Пищевая ценность на порцию
+Nutrition Settings -> Настройки питания
+Nutrition Targets -> Цели по питанию
+Nuts -> Орехи
+Nuts & Seeds -> Орехи и семена
+Oatmeal -> Овсянка
+Oatmeal Bowl -> Овсянка
+Oatmeal with berries or a prot -> Овсянка с ягодами или протеиновый коктейль зарядят
+Oats -> Овес
+Obese -> Ожирение
+Often eaten together -> Часто едят вместе
+OK -> ХОРОШО
+Olive Oil -> Оливковое масло
+Olives -> Оливки
+Omega-3 -> Омега-3
+On Fire -> В огне
+On your 500 kcal days, focus e -> On your 500 kcal days, focus entirely on lean prot
+One day on, one day off. Break -> Один рабочий день, один выходной. Разбивает плато.
+One Meal A Day. Extreme fat bu -> Один прием пищи в день. Экстремальное сжигание и в
+Open Settings -> Открыть настройки
+Optimal Synergy Reached -> Оптимальная синергия достигнута
+Optimizing your pH & metabolis -> Оптимизация pH и метаболизма
+Optional -> Необязательный
+Or log a detailed meal -> Или запишите подробный прием пищи
+Our neural network maps over 3 -> Наша нейронная сеть отображает более 30 анатомичес
+out of 100 -> из 100
+Over -> Над
+Over Goal: **%@** -> Превышение цели: **%@**
+Over Goal: **%lld** -> Больше гола: **%lld**
+Overweight -> Избыточный вес
+P: %lldg -> Б: %lldг
+P:%lld F:%lld C:%lld -> Б:%lld Ж:%lld У:%lld
+Paleo -> Палео
+Perfect -> Идеальный
+Perfect Matches for You: -> Идеальные совпадения для вас:
+Perfect Week -> Идеальная неделя
+Personal Details -> Личные данные
+Pescatarian -> Пескетарианская
+pH Balance -> pH-баланс
+Photo Scan -> Сканирование фотографий
+Pick Your Meal -> Выберите еду
+Plant Proteins -> Растительные белки
+Plant-Based -> Растительное меню
+Plant-based with dairy & eggs -> На растительной основе с молочными продуктами и яй
+Please allow camera access in  -> Разрешите доступ камере в настройках для сканирова
+Please enter the details manua -> Пожалуйста, введите данные вручную или используйте
+Please update to the latest ve -> Пожалуйста, обновитесь до последней версии, чтобы 
+Point camera at the dish -> Наведите камеру на блюдо
+POPULAR -> ПОПУЛЯРНЫЕ
+Pork & Poultry -> Свинина и птица
+Pork Chops -> Свиные отбивные
+Portion Weight -> Вес порции
+Post-workout protein recovery  -> Протеиновый коктейль для восстановления после трен
+Posture Symmetry -> Симметрия позы
+Potassium -> Калий
+Pre-existing kidney conditions -> Ранее существовавшие заболевания почек
+Pregnant women -> Беременные женщины
+Preparation Method -> Способ приготовления
+Privacy Policy -> политика конфиденциальности
+Product not found -> Товар не найден
+Profile -> Профиль
+Profile & Settings -> Профиль и настройки
+Progress Pace -> Темп прогресса
+Progress ring showing macro br -> Кольцо прогресса, показывающее разбивку макросов
+Projected Result -> Ожидаемый результат
+Protein -> Белки
+PROTEIN -> БЕЛОК
+Protein (g) -> Белок (г)
+Protein Bar -> протеиновый батончик
+Protein Beast -> Белковый зверь
+Protein Goal Bonus -> Белковый целевой бонус
+Protein Smoothie -> Протеиновый смузи
+Proteins -> Белки
+Pumpkin Seeds -> Семена тыквы
+Quick & Easy -> Быстро и просто
+Quick Add -> Быстрое добавление
+Quick bites -> Быстрые перекусы
+Quick Entry -> Быстрый вход
+Quinoa -> Лебеда
+Rapid Fat Loss -> Быстрая потеря жира
+Rate the app -> Оцените приложение
+Reach a 3-day streak -> Достигните 3-дневной серии
+Reach a 7-day streak -> Достигните 7-дневной серии
+Reach a 30-day streak -> Достигните 30-дневной серии
+Ready for ingredients -> Готовы к ингредиентам
+Recent Entries -> Последние записи
+Recipe -> Рецепт
+Recipe Info -> Информация о рецепте
+Recipe name -> Название рецепта
+Recipe not found -> Рецепт не найден
+Recipes -> Рецепты
+Recipes: Explore Healthy Cooki -> Рецепты: изучите здоровую кулинарию. Более 600 блю
+Remaining today -> Осталось сегодня
+Remind me later -> Напомни мне позже
+Reminders -> Напоминания
+required -> необходимый
+Requires avoiding high sodium -> Требуется избегать высокого содержания натрия.
+Reset -> Перезагрузить
+Ribeye Steak -> Рибай стейк
+Ruminant Meat -> Мясо жвачных животных
+Safe & steady -> Безопасный и устойчивый
+Salmon -> Лосось
+Salmon & Quinoa -> Лосось и киноа
+Salmon Salad -> Салат с лососем
+Satiating Meals -> Насыщающие блюда
+Save -> Сохранять
+Save & Add -> Сохранить и добавить
+Save Activity -> Сохранить активность
+Save Meal -> Сохранить еду
+Save Plan -> Сохранить план
+Save Recipe -> Сохранить рецепт
+Save to My Recipes -> Сохранить в мои рецепты
+Save Weight -> Экономия веса
+Saved Favorites -> Сохраненные избранные
+Scan Label with AI -> Сканирование этикетки с помощью искусственного инт
+Scan the package or nutrition  -> Вместо этого сканируйте упаковку или этикетку с пи
+Scan with AI -> Сканирование с помощью ИИ
+Scanner Not Available -> Сканер недоступен
+Scanner not supported
+on this  -> Сканер не поддерживается
+на этом устройстве
+Scanning... -> Сканирование...
+SCORE -> СЧЕТ
+Scrambled Eggs -> Омлет
+Seafood -> Морепродукты
+Seafood allergies -> Аллергия на морепродукты
+Search -> Поиск
+Search dish in database... -> Искать блюдо в базе данных...
+Search foods... -> Поиск продуктов...
+Search for FoodTracker -> Искать FoodTracker
+Search our global database or  -> Search our гlobal database or create your own cust
+Searching database... -> Поиск в базе данных...
+Searching Database... -> Поиск в базе данных...
+Searching global database... -> Searching гlobal database...
+Seaweed -> водоросли
+See %lld Recipes -> См. %lld рецептов
+Seeds -> Семена
+Select -> Выбирать
+Select Core Diet -> Выберите основную диету
+Select Date -> Выберите дату
+Selected -> Выбрано
+Serving (%lld g) -> Порция (%lld г)
+Serving (%lldg) -> Порция (%lldг)
+Serving size -> Размер порции
+Serving Size -> Размер порции
+Set a Goal -> Поставьте цель
+Set as My Diet Plan -> Установить как мой план диеты
+Set Goal -> Установить цель
+Set your daily calorie target -> Установите ежедневную цель по калориям
+Settings -> Настройки
+Shopping List -> Список покупок
+Shrimp -> Креветка
+Sign in with Apple -> Войти через Apple
+Sign in with Google -> Войти через Google
+Simply snap a photo of your me -> Просто сфотографируйте еду или отсканируйте штрих-
+Since your first entry -> С момента вашей первой записи
+Skim Milk -> Обезжиренное молоко
+Skip Checklist -> Пропустить контрольный список
+Slightly over limit, but tomor -> Слегка превышен лимит, но завтра новый день!
+Smart Builder -> Умный Строитель
+Smart Cart -> Умная корзина
+Smart Food Vision -> Видение умной еды
+Snack -> Перекус
+Sodium -> Натрий
+Sous-Chef -> Су-шеф
+Spinach -> Шпинат
+Standard Serving -> Стандартное обслуживание
+Start %@ Protocol -> Запустить %@ протокол
+Start Cooking! -> Начни готовить!
+Start logging meals to build y -> Начните записывать приемы пищи.
+Start step-by-step cooking -> Начинаем пошаговое приготовление
+Start with a small portion of  -> Начните с небольшой порции легкоусвояемой пищи, по
+Start your day right -> Начни свой день правильно
+Steady Loss -> Устойчивая потеря
+Steps -> Шаги
+Supplements -> Добавки
+Sweet Potato -> Сладкий картофель
+Swipe -> Проведите пальцем по экрану
+Swipe up to exit the app -> Проведите пальцем вверх, чтобы выйти из приложения
+Sync nutrition, activity and b -> Sync nutrition, activity and body measurement with
+Sync with Apple Health -> Синхронизация с Apple Health
+System & Other Apps -> Система и другие приложения
+Tags & Mood -> Теги и настроение
+Tallow -> сальный
+Tap 'Add Food' below to log yo -> Нажмите «Добавить еду» ниже, чтобы зарегистрироват
+Tap a nutrient to see top sour -> Нажмите на питательное вещество, чтобы увидеть луч
+Tap the '+' button -> Нажмите кнопку «+»
+Tap the buttons above to add f -> Нажмите кнопки выше, чтобы добавить еду.
+Target -> Цель
+Target Weight -> Целевой вес
+Target: %@ kg -> Цель: %@ кг
+Tell me what you have, and I'l -> Tell me what you have, and I'll гenerate a recipe 
+Tempeh -> Темпе
+Terms of Service -> Условия использования
+The golden standard of fasting -> The гolden standard of fasting. Perfect for fat lo
+The Warrior Diet. 1-2 meals in -> Диета воина. 1-2-разовое питание в тесном окне.
+This is optimized based on you -> This is optimized based on your profile гoals. Fee
+Those needing cheap calories -> Тем, кому нужны дешевые калории
+To Buy -> Купить
+To Buy (%lld) -> Купить (%lld)
+Today -> Сегодня
+Tofu -> Тофу
+Tofu & Tempeh -> Тофу и Темпе
+Top %@ Sources -> Лучшие %@ источники
+Total Fat -> Всего жира
+Total Food Logged Today -> Добавлено за сегодня
+Total logged days -> Всего зарегистрированных дней
+Total Weight -> Общий вес
+Total XP Earned -> Всего заработанного опыта
+Track fasting windows, monitor -> Отслеживайте окна голодания, отслеживайте полосы и
+Track your feelings & habits -> Отслеживайте свои чувства и привычки
+TRACKED WITH FOODTRACKER -> ОТСЛЕЖИВАЕТСЯ С ПОМОЩЬЮ FOODTRACKER
+Tracking your progress visuall -> Визуальное отслеживание вашего прогресса — один из
+Trajectory -> Траектория
+Treat -> Обращаться
+Try adjusting your filters to  -> Попробуйте настроить фильтры, чтобы увидеть больше
+Try Again -> Попробуйте еще раз
+Tuna -> Тунец
+Turkey -> Турция
+Type -> Тип
+Type your question... -> Введите свой вопрос...
+Ultimate Discipline -> Высшая дисциплина
+Under -> Под
+Underweight -> Дефицит массы
+Units -> Единицы
+Units settings -> Настройки единиц
+Unlock Superpowers -> Разблокируйте сверхспособности
+Unlock your data at a glance -> Unlock your data at a гlance
+Unlocked -> Разблокировано
+Unstoppable -> Неудержимый
+Update Available -> Доступно обновление
+Update Now -> Обновить сейчас
+Update Required -> Требуется обновление
+Updating these metrics will au -> Updating these metrics will automatically recalcul
+Upload Before & After photos t -> Загрузите фотографии «До» и «После», чтобы визуаль
+User data not found. -> Данные пользователя не найдены.
+User ID -> ID пользователя
+Usually at the top left corner -> Обычно в верхнем левом углу
+Vegan -> Веган
+Vegetables -> Овощи
+Vegetarian -> Вегетарианская
+Vegetarian plus seafood -> Вегетарианство плюс морепродукты
+Vegetarians/Vegans -> Вегетарианцы/веганы
+Version %@ -> Версия %@
+version %@ global -> version %@ гlobal
+Version 1.0.0 -> Версия 1.0.0
+version 1.0.0 global -> version 1.0.0 гlobal
+View Active Plan -> Посмотреть активный план
+Visible definition -> Видимое определение
+Visual Balance -> Визуальный баланс
+Visual Progress -> Визуальный прогресс
+Visual Progress Analysis -> Визуальный анализ прогресса
+Vitamin C -> Витамин С
+Vitamin D -> Витамин Д
+Vitamins -> Витамины
+Vitamins & Minerals -> Витамины и минералы
+Wait until apps start jiggling -> Подождите, пока приложения не начнут трястись
+Walnuts -> Грецкие орехи
+Water -> Вода
+Water and meals reminders adap -> Напоминания о воде и еде адаптируются к вашим прив
+Water Balance -> Водный баланс
+Water boosts metabolism, suppo -> Вода ускоряет обмен веществ, поддерживает работу м
+Water maintains blood volume,  -> Вода поддерживает объем крови, вымывает излишки на
+We need your baseline to calcu -> Нам нужна ваша базовая линия для расчета макросов.
+Weekly Balance -> Еженедельный баланс
+Weekly Energy Bank -> Еженедельный энергетический банк
+Weekly Plan -> Еженедельный план
+Weight -> Масса
+Weight (g) -> Вес (г)
+Weight Entry -> Ввод веса
+Weight Gain Zone -> Зона набора массы
+Weight History -> История веса
+Weight Impact -> Влияние на вес
+Weight Loss -> Потеря веса
+Weight Loss Zone -> Зона похудения
+Weight Progress -> Прогресс веса
+Weight-in -> Взвешивание
+Weight: %@ kg -> Вес: %@ кг
+Welcome 👋 -> Добро пожаловать 👋
+What are we aiming for? -> К чему мы стремимся?
+What did you eat? -> Что ты ел?
+What happens to your body? -> Что происходит с вашим телом?
+What happens when you activate -> Что происходит при активации?
+What shall we cook with AI? -> Что будем готовить с ИИ?
+What you ate -> Что ты ел
+What's your preferred diet? -> Какую диету вы предпочитаете?
+Whey Protein -> Сывороточный протеин
+White Rice -> Белый рис
+Whole Grain Toast -> Цельнозерновой тост
+Whole Grains -> Цельнозерновые продукты
+Whole Grains & Legumes -> Цельнозерновые и бобовые
+Why It Matters -> Почему это важно
+Wild Fish -> Дикая рыба
+Wild Salmon -> Дикий лосось
+Wine (moderate) -> Вино (умеренное)
+Workout -> Тренировка
+Workout Tracker -> Трекер тренировок
+Workouts -> Тренировки
+Write about your meals, feelin -> Напишите о своей еде, чувствах или тренировках...
+yo -> йоу
+Yogurt -> Йогурт
+You are in a calorie deficit. -> Вы в дефиците калорий.
+You are in a calorie surplus. -> Вы в профиците калорий.
+You haven't logged any food fo -> Вы еще не записали еду на этот день.
+You're on track! Keep up the g -> Отличный темп! Так держать.
+You've accumulated a surplus t -> На этой неделе у вас накопился излишек.
+You've saved enough for a 0.5k -> Вы накопили достаточно, чтобы похудеть на 0,5 кг!
+Your AI Plan -> Ваш план ИИ
+Your BMI indicates you are  -> Ваш ИМТ указывает на то, что вы
+Your body is a reflection of y -> Ваше тело — это отражение вашего питания.
+Возьмите
+Your body uses 'Burned' energy -> Ваше тело использует «сожженную» энергию для перер
+Your cart is empty -> Ваша корзина пуста
+Your culinary masterpieces wil -> Здесь появятся ваши кулинарные шедевры.
+Your Day -> Твой день
+YOUR GOAL -> ВАША ЦЕЛЬ
+Your metabolic score shows ene -> Ваш метаболический показатель показывает эффективн
+Your optimized macro target. -> Ваша оптимизированная цель макроса.
+Your proactive nutritionist -> Ваш активный диетолог
+Your profile is ready -> Ваш профиль готов
+YOUR PROGRESS -> ВАШ ПРОГРЕСС
+Your recent meals will appear  -> Здесь появятся ваши недавние блюда.
+Your trophies (Swipe) -> Ваши трофеи (Смахните)
+Your ultimate fitness companio -> Ваш лучший помощник в фитнесе
+Zucchini -> Цуккини
+Алгоритм использует эти данные -> Алгоритм использует эти данные для расчета BMR (то
+Базовые параметры для старта -> Базовые параметры для старта
+Блюдо не найдено -> Блюдо не найдено
+Войти -> Войти
+Войти как гость? -> Войти как гость?
+Все готово, начинаем! -> Все готово, начинаем!
+Гость -> Гость
+Готовка: %@ -> Готовка: %@
+Если остаться гостем, данные о -> Если гостем, данные о вашем питании, калориях и во
+Завершить готовку -> Завершить готовку
+Завершить и съесть! -> Завершить и съесть!
+Закрыть -> Закрыть
+Заполни данные, чтобы сохранит -> Заполните данные, чтобы сохранить свой прогресс в 
+Зарегистрироваться -> Зарегистрироваться
+ИИ анализирует... -> ИИ анализирует...
+ИИ подобрал под твои макросы: -> ИИ подобрал под твои макросы:
+ИИ Шеф следит -> ИИ Шеф следования
+ИИ-Ассистент -> ИИ-Ассистент
+Имя и фамилия -> Имя и фамилия
+Ингредиенты -> Ингредиенты
+Инструкция от ИИ -> Инструкция от ИИ
+Искусство подачи -> Искусство подачи
+История и Факты -> История и факты
+ккал -> ккал
+Мы — это то, что мы едим и пье -> Мы — это то, что мы едим и пьем. Начни свой путь к
+Наведи камеру на блюдо -> Наведи камеру на блюдо
+Нажимая «Зарегистрироваться»,  -> Нажимая «Зарегистрироваться», вы принимаете услови
+Назад -> Назад
+Найти блюдо в базе... -> Найти блюдо в базе...
+Наполни себя энергией 🌱 -> Наполни себя настроением 🌱
+Например: Рибай... -> Например: Рибай...
+Начать пошаговую готовку -> Начать пошаговую готовку
+Опробуй готовку с ИИ -> Опробуй готовку с ИИ
+Осталось на сегодня -> Осталось сегодня
+Остаться гостем -> Остаться гостем
+Отмена -> Отмена
+Отметь, что у тебя есть на сто -> Отметь, что у тебя есть на столе
+Оцифруй себя -> Оцифруй себя
+Пароль -> Пароль
+План сгенерирован -> План сгенерирован
+Подготовка продуктов -> Подготовка продуктов
+Понял -> Понял
+Почему лучше зарегистрироватьс -> Почему лучше зарегистрироваться:
+Проверить этот шаг через камер -> Посмотреть этот шаг через камеру
+Продолжить -> Продолжить
+Регистрация -> Регистрация
+Рецепт -> Рецепт
+Сколько энергии ты тратишь в т -> Сколько энергии ты тратишь в течение дня?
+Следующий шаг -> Следующий шаг
+Сложность -> Количество
+Твое
+Чистое
+Топливо. -> Твое
+Чистое
+Топливо.
+Твой персональный нутрициолог. -> Твой персональный нутрициолог. Никаких жестких дие
+Твой ритм -> Твой ритм
+Твоя суточная норма калорий и  -> Твоя дневная норма калорий и макронутриентов успеш
+Финальный штрих: Подача -> Финальный штрих: Подача
+Что приготовим с ИИ? -> Что приготовим с ИИ?
+Ясно -> Ясно
+Add Meal -> Добавлено
+Record Weight -> Записать вес
+Water glass -> Стакан
+Water bottle -> Бутылка
+Add Manually - input custom fo -> Добавить вручную - свой продукт
+Recent -> Недавние
+Frequent -> Частые
+Favorites -> Избранное
+Your BMI indicates:  -> Ваш ИМТ указывает: 
+Body Weight -> Вес
+Body Height -> Рост
+Baked Apples with Honey & Waln -> Запеченные яблоки с медом и грецкими орехами
+Simple to make, comforting to  -> Прост в изготовлении, приятен в использовании и ид
+Honey -> Мед
+High Protein Scrambled Eggs wi -> Яичница с высоким содержанием белка и авокадо
+A classic morning staple loade -> Классический утренний продукт, богатый полезными ж
+Low Carb -> Мало углеводов
+Quickly Prepared -> Быстро готовится
+Vegan Chocolate Peanut Butter  -> Веганский шоколадный смузи с арахисовым маслом
+Rich, creamy, and packed with  -> Насыщенный, кремовый и насыщенный растительным бел
+Smoothie -> Смузи
+On the Go -> В пути
+Unsweetened Almond Milk -> Несладкое миндальное молоко
+Natural Peanut Butter -> Натуральное арахисовое масло
+Vegan Chocolate Protein Powder -> Веганский шоколадный протеиновый порошок
+Keto Garlic Butter Salmon with -> Кето лосось с чесночным маслом и спаржей
+Flaky, buttery salmon paired w -> Нежный, маслянистый лосось в сочетании с хрустящей
+Ketogenic -> Кетогенный
+Baking -> Выпечка
+Salmon Fillets -> Филе лосося
+Asparagus -> Спаржа
+Minced Garlic -> Рубленый чеснок
+Chicken and Quinoa Bowl -> Чаша с курицей и киноа
+A perfectly balanced lunch bow -> Идеально сбалансированный обед с нежирной курицей,
+Cooked Quinoa -> Приготовленная киноа
+Cherry Tomatoes -> Помидоры Черри
+Low Carb Turkey Meatballs with -> Низкоуглеводные фрикадельки из индейки с лапшой из
+A light Italian-inspired dinne -> Легкий ужин в итальянском стиле, позволяющий эконо
+Ground Turkey 93% -> Фарш из индейки 93%
+Zucchini (Spiralized) -> Кабачки (спиральные)
+Sugar-Free Marinara Sauce -> Соус Маринара без сахара
+Grated Parmesan -> Тертый пармезан
+Greek Yogurt Berry Parfait -> Греческий йогурт, ягодное парфе
+A quick, sweet, and protein-pa -> Быстрая, сладкая и богатая белком закуска, которая
+Few Ingredients -> Немного ингредиентов
+Non-fat Greek Yogurt -> Обезжиренный греческий йогурт
+Mixed Berries -> Смешанные ягоды
+Sliced Almonds -> Нарезанный миндаль
+Vegan Tofu Scramble -> Веганский скрэмбл с тофу
+A savory, plant-based egg alte -> Пикантная альтернатива яйцам на растительной основ
+Firm Tofu -> Фирменный Тофу
+Fresh Spinach -> Свежий шпинат
+Turmeric Powder -> Куркума Порошок
+Keto Steak and Broccoli -> Кето стейк и брокколи
+A heavy-hitting dinner for mus -> Плотный ужин для восстановления мышц. Нежный стейк
+Beef Sirloin Steak -> Стейк из говяжьей вырезки
+Broccoli Florets -> Соцветия брокколи
+Baked Oats with Apple and Cinn -> Запеченная овсянка с яблоком и корицей
+Warm, comforting, and tastes l -> Теплый, уютный, со вкусом яблочного пирога на завт
+Rolled Oats -> Овсяные хлопья
+Almond Milk -> Миндальное молоко
+Apple (Diced) -> Яблоко (нарезанное кубиками)
+Maple Syrup -> Кленовый сироп
+Cottage Cheese and Pineapple B -> Чаша из творога и ананаса
+A refreshing, sweet, and prote -> Освежающая, сладкая и богатая белком закуска, идеа
+Low-fat Cottage Cheese -> Нежирный творог
+Pineapple Chunks -> кусочки ананаса
+Spinach and Feta Stuffed Chick -> Куриная грудка, фаршированная шпинатом и фетой
+Juicy chicken filled with savo -> Сочная курица с пикантной начинкой из феты и шпина
+Feta Cheese -> Сыр Фета
+Vegan Lentil and Vegetable Ste -> Веганское рагу из чечевицы и овощей
+A hearty, warming, and fiber-r -> Сытное, согревающее и богатое клетчаткой рагу на р
+Dry Green Lentils -> Сухая зеленая чечевица
+Carrots -> Морковь
+Crushed Tomatoes -> Измельченные Помидоры
+Yellow Onion -> Желтый лук
+Celery -> Сельдерей
+Peanut Butter Banana Oatmeal C -> Банановое овсяное печенье с арахисовым маслом
+Chewy, flourless cookies perfe -> Жевательное печенье без муки идеально подходит для
+Overripe Banana -> Переспелый банан
+Berry Green Antioxidant Smooth -> Ягодно-зеленый антиоксидантный смузи
+A refreshing blend of greens a -> Освежающая смесь зелени и ягод, полностью скрывающ
+Frozen Mixed Berries -> Замороженная смесь ягод
+Vanilla Vegan Protein Powder -> Ванильный веганский протеиновый порошок
+Spicy Shrimp Lettuce Wraps -> Пряные обертки с креветками и салатом
+Crisp, cool lettuce cups fille -> Хрустящие, прохладные салатные чашки, наполненные 
+Raw Shrimp (Peeled) -> Сырые креветки (очищенные)
+Butter Lettuce Leaves -> Листья салата сливочного масла
+Spicy Mayo (Mayo + Sriracha) -> Пряный майонез (Майонез + Шрирача)
+Keto Egg Salad Stuffed Peppers -> Кето-яичный салат с фаршированным перцем
+Crunchy bell peppers act as th -> Хрустящий сладкий перец станет идеальным низкоугле
+Hard Boiled Eggs -> Яйца вкрутую
+Mayonnaise -> Майонез
+Bell Peppers -> Болгарский перец
+Dijon Mustard -> Дижонская горчица
+Black Bean and Corn Fiesta Sal -> Салат «Фиеста» из черной фасоли и кукурузы
+A vibrant, tangy plant-based s -> Яркий, пикантный салат на растительной основе, кот
+Canned Black Beans (Rinsed) -> Консервированная черная фасоль (промытая)
+Sweet Corn Kernels -> Ядра сладкой кукурузы
+Red Bell Pepper -> Красный болгарский перец
+Lime Juice -> сок лайма
+Flank Steak Fajita Skillet -> Фланк-стейк Фахита на сковороде
+Sizzling, tender steak strips  -> Шипящие, нежные стейки-стрипсы с карамелизированны
+Flank Steak -> Фланк стейк
+Mixed Bell Peppers -> Смесь болгарских перцев
+Red Onion -> Красный лук
+Cottage Cheese Protein Pancake -> Белковые блины из творога
+Fluffy, golden pancakes with a -> Пышные золотистые блины с секретным ингредиентом, 
+Edamame and Seaweed Snack Bowl -> Тарелка для закусок с эдамаме и морскими водоросля
+A savory, salty, and satisfyin -> Пикантная, соленая и сытная закуска на растительно
+Shelled Edamame (Thawed) -> Эдамаме в скорлупе (размороженный)
+Roasted Seaweed Snacks -> Закуски из жареных морских водорослей
+Toasted Sesame Oil -> Поджаренное кунжутное масло
+Keto Avocado Egg Salad -> Кето-яичный салат с авокадо
+A creamy, low-carb twist on tr -> Сливочный вариант традиционного яичного салата с н
+Vegan Chickpea Coconut Curry -> Веганское карри из нута и кокоса
+A fragrant, warming plant-base -> Ароматное, согревающее карри на растительной основ
+Canned Chickpeas (Rinsed) -> Консервированный нут (промытый)
+Light Coconut Milk -> Легкое кокосовое молоко
+Baked Sweet Potato with Ground -> Запеченный сладкий картофель с фаршем индейки
+A high-protein, nutrient-dense -> Обед с высоким содержанием белка и питательными ве
+Sweet Potatoes -> Сладкий картофель
+Lean Ground Turkey -> Бережливая земля индейка
+Sugar-Free BBQ Sauce -> Соус для барбекю без сахара
+Berry Chia Seed Pudding -> Ягодный пудинг из семян чиа
+A grab-and-go breakfast packed -> Быстрый завтрак, богатый клетчаткой и жирными кисл
+Raspberries -> Малина
+Garlic Butter Shrimp Zoodles -> Зудлы с креветками и чесночным маслом
+A light, garlicky, and buttery -> Легкое, чесночное и маслянистое блюдо из морепроду
+Peeled Shrimp -> Очищенные креветки
+Matcha Green Tea Protein Smoot -> Протеиновый смузи с зеленым чаем матча
+An antioxidant-rich, caffeinat -> Богатый антиоксидантами коктейль с кофеином идеаль
+Vanilla Whey Protein -> Ванильный сывороточный протеин
+Matcha Powder -> Матча порошок
+Caprese Chicken Skillet -> Куриная сковорода Капрезе
+Melted mozzarella, sweet balsa -> Растопленная моцарелла, сладкая бальзамическая гла
+Fresh Mozzarella -> Свежая Моцарелла
+Balsamic Glaze -> Бальзамическая глазурь
+Crunchy Roasted Chickpeas -> Хрустящий жареный нут
+A crispy, savory snack that re -> Хрустящая пикантная закуска, которая заменяет карт
+Canned Chickpeas -> Консервированный нут
+Smoked Paprika -> Копченая паприка
+Tuna Salad Stuffed Avocados -> Салат из тунца, фаршированные авокадо
+A quick, no-cook lunch that pr -> Быстрый обед без приготовления пищи, который содер
+Canned Tuna (In Water) -> Консервированный тунец (в воде)
+Almond Butter Apple Rings -> Яблочные кольца с миндальным маслом
+A fun, crunchy, and sweet snac -> Веселая, хрустящая и сладкая закуска, на приготовл
+Almond Butter -> Миндальное масло
+Hemp Seeds -> Семена конопли
+Keto Cauliflower Mac and Chees -> Кето Макароны с цветной капустой и сыром
+A rich, cheesy comfort food cl -> Насыщенная, сырная классика комфортной еды, полнос
+Cauliflower Florets -> Соцветия цветной капусты
+Cheddar Cheese -> Сыр Чеддер
+Heavy Cream -> Тяжелые сливки
+High Protein Turkey Chili -> Индейка и перец чили с высоким содержанием белка
+A robust, warming chili that p -> Крепкий, согревающий перец чили, содержащий серьез
+Canned Kidney Beans -> Консервированная фасоль
+Diced Onion -> Нарезанный кубиками лук
+Vegan Tempeh Teriyaki Stir-Fry -> Веганское жаркое из темпе терияки
+A quick, savory plant-based st -> Быстрое и пикантное жаркое на растительной основе 
+Teriyaki Sauce -> Соус Терияки
+Sesame Oil -> Кунжутное масло
+Chocolate Avocado Protein Pudd -> Протеиновый пудинг из шоколада и авокадо
+A decadent, velvety dessert th -> Декадентский, бархатистый десерт, который тайно со
+Cocoa Powder -> Какао-порошок
+Chocolate Plant Protein -> Шоколадный растительный белок
+High Protein Overnight Oats -> Овсянка на ночь с высоким содержанием белка
+Prepare this the night before  -> Приготовьте это накануне вечером, чтобы получить б
+Baked Lemon Herb Cod -> Запеченная треска с лимоном и травами
+An incredibly lean and flaky w -> Невероятно постный и слоеный рецепт белой рыбы, ле
+Cod Fillets -> Филе трески
+Lemon Juice -> Лимонный сок
+Vegan Edamame & Quinoa Salad -> Веганский салат Эдамаме и киноа
+A crunchy, protein-packed vega -> Хрустящий, богатый белком веганский обед с пикантн
+Shelled Edamame -> Эдамаме в скорлупе
+Shredded Red Cabbage -> Нашинкованная красная капуста
+Peanut Dressing -> Арахисовая заправка
+Keto Parmesan Crusted Chicken -> Курица в панировке с кето и пармезаном
+A crispy, golden, oven-baked c -> Хрустящая золотистая куриная грудка, запеченная в 
+Tropical Mango Spinach Smoothi -> Тропический смузи со шпинатом и манго
+A hydrating, vibrant green smo -> Увлажняющий, яркий зеленый коктейль со вкусом отпу
+Frozen Mango Chunks -> Замороженные кусочки манго
+Coconut Water -> Кокосовая вода
+Ground Beef Stuffed Bell Peppe -> Болгарский перец, фаршированный говяжьим фаршем
+A hearty, low-carb dinner clas -> Классический сытный ужин с низким содержанием угле
+Lean Ground Beef -> Постный говяжий фарш
+Cauliflower Rice -> Рис с цветной капустой
+Tomato Sauce -> Томатный соус
+Pan-Seared Scallops with Saffr -> Обжаренные гребешки с пюре из цветной капусты с ша
+Dry-aged sea scallops pan-roas -> Морские гребешки сухой выдержки, обжаренные на ско
+Dry U10 Sea Scallops -> Сухие морские гребешки U10
+Cultured Butter -> Культивированное масло
+Black Truffle Oil -> Масло черного трюфеля
+Sous-Vide Duck Breast with Che -> Утиная грудка су-вид с вишнёво-бальзамическим реду
+Precisely cooked duck breast f -> Точно приготовленная утиная грудка с отварной хрус
+Duck Breast (Skin-On) -> Утиная Грудка (С Кожей)
+Celeriac (Celery Root) -> Сельдерей (корень сельдерея)
+Pitted Cherries -> Вишня без косточек
+Aged Balsamic Vinegar -> Выдержанный бальзамический уксус
+Rendered Duck Fat -> Переработанный утиный жир
+Herb-Crusted Rack of Lamb with -> Каре ягненка с травами и пюре из мятного гороха
+Frenched rack of lamb coated i -> Каре ягненка по-французски, покрытое яркой корочко
+Frenched Rack of Lamb -> Французская каре ягненка
+Green Peas -> Зеленый горошек
+Pistachio & Herb Crumb -> Крошка с фисташками и травами
+Asparagus Tips -> Советы по приготовлению спаржи
+Extra Virgin Olive Oil -> Оливковое масло экстра вирджин
+Miso-Glazed Chilean Sea Bass w -> Чилийский сибас в глазури мисо с консоме из шиитак
+Buttery sea bass marinated in  -> Масляный морской окунь, маринованный в мисо сайкё,
+Chilean Sea Bass Fillet -> Филе чилийского сибаса
+Shiitake Mushrooms -> Грибы Шиитаке
+White Saikyo Miso Paste -> Белая паста Сайкё Мисо
+Daikon Radish -> Дайкон Редька
+Wagyu Beef Tartare with Quail  -> Тартар из говядины Вагю с перепелиным яйцом и эмул
+Hand-cut A5 Wagyu tenderloin b -> Нарезанная вручную вырезка вагю А5, переплетенная 
+Lean Wagyu Tenderloin -> Нежирная вырезка Вагю
+Quail Eggs -> Перепелиные яйца
+Capers in Brine -> Каперсы в рассоле
+Flaxseed Meal -> Льняное семя
+Dijon & Olive Oil Emulsion -> Эмульсия дижонского и оливкового масла
+Butter-Poached Lobster Tail wi -> Хвост омара, приготовленный в сливочном масле, с р
+Tender lobster tail slow-poach -> Нежный хвост омара, приготовленный на медленном ог
+Lobster Tails -> Хвосты омара
+Arborio Rice -> Арборио Райс
+Parmigiano-Reggiano -> Пармиджано-Реджано
+Saffron & White Wine -> Шафран и белое вино
+Venison Loin with Blackberry-J -> Корейка оленины с соусом из ежевики и можжевельник
+Gamey, incredibly lean venison -> Невероятно нежирная оленина, обжаренная до идеальн
+Venison Loin -> Корейка оленины
+Broccolini -> Брокколини
+Fresh Blackberries -> Свежая ежевика
+Veal Bone Demi-Glace -> Демиглас из телячьей кости
+Macadamia-Crusted Halibut with -> Палтус в корочке из макадамии с велюте из лемонгра
+Pristine white halibut wearing -> Нетронутый белый палтус с золотистой корочкой мака
+Halibut Fillet -> Филе палтуса
+Crushed Macadamia Nuts -> Дробленые орехи макадамии
+Full Fat Coconut Milk -> Полножирное кокосовое молоко
+Lemongrass & Ginger -> Лемонграсс и Имбирь
+Wild Mushroom Confit and Black -> Конфи из лесных грибов и черный чеснок на тосте Ar
+Slow-poached exotic mushrooms  -> Приготовленные на медленном огне экзотические гриб
+Maitake & Chanterelle Mushroom -> Грибы Майтаке и Лисички
+Keto Almond Flour Bread -> Кето-хлеб из миндальной муки
+Black Garlic Purée -> Пюре из черного чеснока
+Farm Fresh Eggs -> Фермерские свежие яйца
+Seared Ahi Tuna with Yuzu-Ponz -> Обжаренный тунец Ахи со сферой Юзу-Понзу и пюре Эд
+Sushi-grade Ahi seared for mer -> Ахи суши-класса, обжаренные всего на несколько сек
+Sushi Grade Ahi Tuna -> Суши Сорт Ахи Тунец
+Yuzu-Ponzu Sauce -> Соус Юдзу-Понзу
+Avocado Oil -> Масло авокадо
+Micro-Cilantro & Radish -> Микро-кинза и редис
+Butter-Basted Ora King Salmon  -> Королевский лосось Ора в сливочном масле с велюте 
+Ultra-premium Ora King salmon  -> Ультра-премиальный лосось Ора Кинг, медленно полив
+Ora King Salmon Fillet -> Филе королевского лосося Ора
+Sunchokes (Jerusalem Artichoke -> Sunchoks (топинамбур)
+Ossetra Caviar -> Осетинская икра
+Sous-Vide Veal Tenderloin with -> Телячья вырезка су-вид с соусом из черного чеснока
+Incredibly tender, milk-fed ve -> Невероятно нежная телятина на молочном откорме, пр
+Veal Tenderloin -> Телячья вырезка
+Green Asparagus Spears -> Копья зеленой спаржи
+Veal Demi-Glace -> Демиглас из телятины
+Fermented Black Garlic -> Ферментированный черный чеснок
+Grapeseed Oil -> Масло виноградных косточек
+Poached Langoustine Tail with  -> Отварный хвост лангустина с эмульсией лемонграсса 
+Sweet, delicate langoustine ge -> Сладкий, нежный лангустин, нежно приготовленный в 
+Raw Langoustine Tails -> Сырые хвосты лангустина
+Full-Fat Coconut Milk -> Полножирное кокосовое молоко
+Clarified Butter (Ghee) -> Осветленное масло (Ги)
+Lemongrass & Fresh Ginger -> Лемонграсс и свежий имбирь
+Pan-Roasted Turbot with White  -> Жареный палтус с белой спаржей и шампанским Бер Бл
+The king of fish, turbot, roas -> Король рыбы, палтус, обжаренный на кости для макси
+Turbot Fillet -> Филе палтуса
+White Asparagus -> Белая спаржа
+Brut Champagne -> Брют Шампанское
+Unsalted Butter (Cold) -> Несоленое сливочное масло (холодное)
+Minced Shallot -> Фарш-шалот
+Miso-Cured Black Cod with Dash -> Черная треска, приготовленная в мисо, с бульоном д
+Sablefish marinated in sweet w -> Черная рыба, маринованная в сладком белом мисо, им
+Black Cod (Sablefish) Fillet -> Филе черной трески (соболика)
+White Saikyo Miso -> Белый Сайкё Мисо
+Dashi Kombu Broth -> Бульон Даши Комбу
+Shimeji Mushrooms -> Грибы симеджи
+Mirin & Sake Blend -> Смесь Мирин и Саке
+Iberico Pork Secreto with Rome -> Секрето из свинины по-иберико с соусом ромеско и о
+The highly prized, heavily mar -> Высоко ценимый, мраморный «секретный» кусок иберий
+Iberico Pork Secreto -> Иберико Свинина Секрето
+Roasted Red Peppers -> Жареный красный перец
+Marcona Almonds -> Маркона Миндаль
+Baby Leeks -> Бэби-порей
+Seared Ostrich Fillet with Bla -> Обжаренное филе страуса с желудком ежевики и пюре 
+Ultra-lean red meat from premi -> Ультра-нежирное красное мясо из премиального филе 
+Ostrich Fillet -> Филе страуса
+Parsnips -> Пастернак
+Beef Stock (Demi-glace) -> Бульон говяжий (демиглас)
+Confit Quail with Pickled Must -> Конфи из перепелки с маринованными семенами горчиц
+Petite game birds slowly cooke -> Миниатюрные дикие птицы, медленно приготовленные в
+Semi-Boneless Quail -> Полубескостный перепел
+Duck Fat (for confit, residual -> Утиный жир (для конфи, остаточный)
+Belgian Endive -> Бельгийский эндивий
+Yellow Mustard Seeds -> Семена желтой горчицы
+Olive Oil Poached Halibut with -> Палтус, приготовленный на оливковом масле, с бульо
+Pearly white halibut cooked ge -> Жемчужно-белый палтус, аккуратно приготовленный в 
+Fennel Bulb -> Фенхель Луковица
+Fish Fumet with Saffron -> Рыбное фюме с шафраном
+Sea Beans (Salicornia) -> Морские бобы (Саликорния)
+Elk Medallions with Juniper-Po -> Медальоны из лося с можжевеловым портвейном и пома
+Wild, robust elk loin elevated -> Дикая, крепкая лосиная корейка, подчеркнутая липко
+Elk Loin -> Лосиная корейка
+Ruby Port Wine -> Рубиновый портвейн
+Cold Unsalted Butter -> Холодное несоленое сливочное масло
+Crushed Juniper Berries -> Измельченные ягоды можжевельника
+Keto Avocado Salmon Boat -> Кето Лодочка с лососем и авокадо
+Rich in omega-3s and healthy f -> Эта простая, но элегантная лодка с лососем, богата
+Salmon Fillet -> Филе лосося
+Protein-Packed Blueberry Panca -> Белковые блинчики с черникой
+Start your morning with these  -> Начните свое утро с этих пышных блинов с высоким с
+Oat Flour -> Овсяная мука
+Protein Powder (Vanilla) -> Протеиновый порошок (ваниль)
+Mediterranean Quinoa Bowl -> Средиземноморская чаша киноа
+A vibrant, refreshing bowl loa -> Яркая, освежающая миска с клетчаткой и полезными ж
+Cucumber -> Огурец
+Kalamata Olives -> Каламата Оливки
+Hummus -> Хумус
+Spicy Lean Turkey Chili -> Острый постный перец чили из индейки
+Warm your soul and hit your pr -> Согрейте свою душу и достигните своей цели по потр
+Low Fat -> С низким содержанием жира
+Kidney Beans -> Фасоль
+Chili Powder -> Порошок чили
+Refreshing Green Detox Smoothi -> Освежающий зеленый детокс-смузи
+A quick hit of vitamins and hy -> Быстрый набор витаминов и увлажнения, отлично подх
+Raw -> Сырой
+Green Apple -> Зеленое яблоко
+Low-Carb Zucchini Noodles with -> Низкоуглеводная лапша из кабачков с соусом песто
+A light and flavorful alternat -> Легкая и ароматная альтернатива пасте, заправленна
+Basil Pesto -> Базилик Песто
+Parmesan Cheese -> Сыр Пармезан
+Classic Chicken Caesar Salad -> Классический салат Цезарь с курицей
+Crisp romaine, tender grilled  -> Хрустящий ромэн, нежная курица-гриль и сливочно-ос
+Romaine Lettuce -> Салат ромэн
+Caesar Dressing -> Соус Цезарь
+Croutons -> Гренки
+Overnight Chia Pudding -> Ночной чиа-пудинг
+Wake up to a ready-to-eat, cre -> Просыпайтесь с готовым к употреблению сливочным и 
+Gluten Free -> Не содержит глютен
+Fresh Berries -> Свежие ягоды
+Roasted Chickpea Snack Bowl -> Тарелка для закусок из жареного нута
+Crunchy, salty, and incredibly -> Хрустящий, соленый и невероятно сытный. Закуска с 
+High Fiber -> Высокое содержание клетчатки
+Chickpeas (Canned) -> Нут (консервированный)
+Sea Salt -> Морская соль
+Garlic Butter Steak Bites -> Стейк с чесночным маслом
+Tender, juicy, and packed with -> Нежный, сочный и наполненный вкусом. Эти стейки — 
+Sirloin Steak -> Стейк без костей
+Garlic Cloves -> Зубчики чеснока
+Fresh Parsley -> Свежая петрушка
+Vegan Sweet Potato Curry -> Веганское карри из сладкого картофеля
+A comforting, creamy coconut c -> Уютное сливочно-кокосовое карри со сладким картофе
+Coconut Milk (Lite) -> Кокосовое молоко (облегченное)
+Curry Paste -> Карри Паста
+Egg Muffin Breakfast Cups -> Чашки для завтрака с яичными кексами
+Portable, protein-packed egg m -> Портативные яичные кексы с белком, которые можно п
+Bell Pepper -> Болгарский перец
+Tuna Avocado Salad -> Салат из тунца и авокадо
+A mayo-free tuna salad using c -> Салат из тунца без майонеза со сливочным авокадо, 
+Canned Tuna -> Консервированный тунец
+Chocolate Peanut Butter Smooth -> Шоколадный смузи с арахисовым маслом
+Tastes like dessert but is pac -> По вкусу напоминает десерт, но содержит много белк
+Chocolate Protein Powder -> Шоколадный протеиновый порошок
+Peanut Butter -> Арахисовое масло
+Shrimp Stir-Fry with Broccoli -> Жареные креветки с брокколи
+A quick, savory, and high-prot -> Быстрый, пикантный и богатый белком ужин, приготов
+Shrimp (Peeled) -> Креветки (очищенные)
+Soy Sauce -> Соевый соус
+Any -> Любая
+No restrictions -> Без ограничений
+High fat, low carb -> Много жиров, мало углеводов
+100% plant-based -> Только растительная пища
+Plant-based, no meat -> Без мяса
+Natural whole foods -> Натуральные цельные продукты
+Fish and seafood -> Рыба и морепродукты
+Olive oil and veggies -> Оливковое масло и овощи
+High protein for muscles -> Много белка для мышц
+Minimum carbs -> Минимум углеводов
+Fast (15m) -> Быстро (15м)
+Medium (30m) -> Средне (30м)
+Chef (60m) -> Шеф (60м)
+Try AI Cooking -> Питание ИИ
+Mon -> Пн
+Tue -> Вт
+Wed -> Ср
+Thu -> Чт
+Fri -> Пт
+Sat -> Сб
+Sun -> Вс
+D1 -> Д1
+D2 -> Д2
+D3 -> Д3
+D4 -> Д4
+D5 -> Д5
+D6 -> Д6
+D7 -> Д7
+Synthesizing nutritional matri -> Синтезируем нутрициональные матрицы...
+Aligning macros to your profil -> Адаптируем макросы под ваш профиль...
+Curating top-tier recipes... -> Подбираем лучшие рецепты...
+Assembling the perfect week... -> Собираем идеальную неделю...
+Finalizing your God-Tier Menu. -> Завершаем ваш идеальный план...
+LOADING PHOTOS -> ЗАГРУЗКА ФОТО
+Caching photo %lld of %lld -> Загрузка фото %lld из %lld
+This may take 1–2 minutes.
+We' -> Это может занять 1–2 минуты.
+Мы собираем всю вашу 
+Under 300 -> До 300
+300 - 450 -> 300 - 450
+450 - 600 -> 450 - 600
+Over 600 -> Более 600

@@ -63,9 +63,9 @@ struct AICoachDashboardView: View {
 
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text("AI Coach")
+                                        Text(LocalizedStringKey("AI Coach"))
                                             .font(.system(size: 34, weight: .heavy, design: .rounded))
-                                        Text("Your proactive nutritionist")
+                                        Text(LocalizedStringKey("Your proactive nutritionist"))
                                             .foregroundColor(.gray)
                                     }
                                     Spacer()
@@ -87,7 +87,7 @@ struct AICoachDashboardView: View {
                                 bioHackingTipsSection
 
                                 
-                                Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
+                                Text(LocalizedStringKey("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment."))
                                     .font(.caption2)
                                     .foregroundColor(.gray)
                                     .multilineTextAlignment(.center)
@@ -127,32 +127,32 @@ struct AICoachDashboardView: View {
 
     private let tips: [BioHackingTip] = [
         BioHackingTip(
-            title: "Iron Synergy",
-            text: "Pair iron-rich foods (spinach, lentils) with Vitamin C (citrus, peppers) to increase iron absorption by up to 300%.",
+            title: String(localized: "Iron Synergy"),
+            text: String(localized: "Pair iron-rich foods (spinach, lentils) with Vitamin C (citrus, peppers) to increase iron absorption by up to 300%."),
             icon: "leaf.fill",
             gradientColors: [.green, .mint]
         ),
         BioHackingTip(
-            title: "Protein Pacing",
-            text: "Distribute your protein intake in 30-40g portions every 3-4 hours to keep muscle protein synthesis optimized.",
+            title: String(localized: "Protein Pacing"),
+            text: String(localized: "Distribute your protein intake in 30-40g portions every 3-4 hours to keep muscle protein synthesis optimized."),
             icon: "flame.fill",
             gradientColors: [.themePink, .themeOrange]
         ),
         BioHackingTip(
-            title: "Circadian Fasting",
-            text: "Finish eating at least 3 hours before sleep. This lowers insulin levels and improves deep sleep recovery phases.",
+            title: String(localized: "Circadian Fasting"),
+            text: String(localized: "Finish eating at least 3 hours before sleep. This lowers insulin levels and improves deep sleep recovery phases."),
             icon: "moon.stars.fill",
             gradientColors: [.purple, .indigo]
         ),
         BioHackingTip(
-            title: "Hydration Window",
-            text: "Drink 500ml of water immediately upon waking to kickstart metabolism and offset overnight dehydration.",
+            title: String(localized: "Hydration Window"),
+            text: String(localized: "Drink 500ml of water immediately upon waking to kickstart metabolism and offset overnight dehydration."),
             icon: "drop.fill",
             gradientColors: [.cyan, .blue]
         ),
         BioHackingTip(
-            title: "Sodium Balance",
-            text: "Feeling bloated? Increase potassium intake (avocados, bananas) to assist kidneys in flushing out excess sodium.",
+            title: String(localized: "Sodium Balance"),
+            text: String(localized: "Feeling bloated? Increase potassium intake (avocados, bananas) to assist kidneys in flushing out excess sodium."),
             icon: "sparkles",
             gradientColors: [.themeYellow, .themeOrange]
         )
@@ -165,12 +165,12 @@ struct AICoachDashboardView: View {
                     Circle().fill(Color.purple.opacity(0.15)).frame(width: 36, height: 36)
                     Image(systemName: "lightbulb.fill").foregroundColor(.purple)
                 }
-                Text("Bio-hacking Tips")
+                Text(LocalizedStringKey("Bio-hacking Tips"))
                     .font(.title3).bold()
                 
                 Spacer()
                 
-                Text("Swipe")
+                Text(LocalizedStringKey("Swipe"))
                     .font(.caption2)
                     .foregroundColor(.gray)
                     .padding(.horizontal, 8)
@@ -234,7 +234,7 @@ struct AICoachDashboardView: View {
                     Circle().fill(Color.themePink.opacity(0.15)).frame(width: 36, height: 36)
                     Image(systemName: "refrigerator.fill").foregroundColor(.themePink)
                 }
-                Text("Fridge to Recipe")
+                Text(LocalizedStringKey("Fridge to Recipe"))
                     .font(.title3).bold()
                 
                 Spacer()
@@ -255,11 +255,11 @@ struct AICoachDashboardView: View {
                 .shadow(color: Color.themePink.opacity(0.4), radius: 4, x: 0, y: 2)
             }
 
-            Text("Tell me what you have, and I'll generate a recipe that perfectly fits your remaining calories.")
+            Text(LocalizedStringKey("Tell me what you have, and I'll generate a recipe that perfectly fits your remaining calories."))
                 .font(.subheadline).foregroundColor(.gray)
 
             HStack {
-                TextField("E.g. Eggs, chicken, rice...", text: Binding(get: { viewModel?.fridgeInput ?? "" }, set: { viewModel?.fridgeInput = $0 }))
+                TextField(String(localized: "E.g. Eggs, chicken, rice..."), text: Binding(get: { viewModel?.fridgeInput ?? "" }, set: { viewModel?.fridgeInput = $0 }))
                     .padding()
                     .background(Color.gray.opacity(0.05))
                     .cornerRadius(12)
@@ -298,7 +298,7 @@ struct AICoachDashboardView: View {
                     }.font(.caption.bold())
 
                     Button(action: { saveGeneratedRecipe(recipe) }) {
-                        Text("Save to My Recipes").font(.subheadline.bold()).foregroundColor(.white)
+                        Text(LocalizedStringKey("Save to My Recipes")).font(.subheadline.bold()).foregroundColor(.white)
                             .frame(maxWidth: .infinity).padding(.vertical, 12).background(Color.themePink).cornerRadius(12)
                     }
                 }.transition(.move(edge: .top).combined(with: .opacity))
@@ -344,7 +344,7 @@ struct DailyVerdictGlassCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Daily Verdict")
+                Text(LocalizedStringKey("Daily Verdict"))
                     .font(.caption.bold())
                     .textCase(.uppercase)
                     .foregroundColor(hasAnalyzed ? moodColor : .gray)
@@ -366,7 +366,7 @@ struct DailyVerdictGlassCard: View {
                 Button(action: onAnalyze) {
                     HStack {
                         Image(systemName: "sparkles")
-                        Text("Analyze My Day")
+                        Text(LocalizedStringKey("Analyze My Day"))
                     }
                     .font(.headline)
                     .foregroundColor(.white)
@@ -416,10 +416,10 @@ struct AIChatPromptRow: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Ask AI Coach")
+                    Text(LocalizedStringKey("Ask AI Coach"))
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
-                    Text("Get instant diet advice...")
+                    Text(LocalizedStringKey("Get instant diet advice..."))
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .foregroundColor(.gray)
                 }

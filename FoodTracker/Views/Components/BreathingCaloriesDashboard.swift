@@ -59,11 +59,11 @@ struct EatenCaloriesRing: View {
                         .foregroundColor(consumed > target ? .red : .primary)
                         .contentTransition(.numericText())
 
-                    Text("kcal eaten")
+                    Text(LocalizedStringKey("kcal eaten"))
                         .font(.system(.headline, design: .rounded))
                         .foregroundColor(.textGray)
 
-                    Text("Goal: \(target)")
+                    Text(String(format: String(localized: "Goal: %d"), target))
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(.textGray)
                 }
@@ -118,11 +118,11 @@ struct BurnedCaloriesRing: View {
                     .foregroundColor(.themeOrange)
                     .contentTransition(.numericText())
 
-                Text("kcal burned")
+                Text(LocalizedStringKey("kcal burned"))
                     .font(.system(.headline, design: .rounded))
                     .foregroundColor(.textGray)
 
-                Text("Goal: \(targetBurn)")
+                Text(String(format: String(localized: "Goal: %d"), targetBurn))
                     .font(.system(size: 16, weight: .medium, design: .rounded))
                     .foregroundColor(.textGray)
             }
@@ -172,11 +172,11 @@ struct NetCaloriesRing: View {
                     .foregroundColor(ringColor)
                     .contentTransition(.numericText())
 
-                Text("net kcal")
+                Text(LocalizedStringKey("net kcal"))
                     .font(.system(.headline, design: .rounded))
                     .foregroundColor(.textGray)
 
-                Text(remaining >= 0 ? "\(remaining) left" : "\(abs(remaining)) over")
+                Text(remaining >= 0 ? String(format: String(localized: "%d left"), remaining) : String(format: String(localized: "%d over"), abs(remaining)))
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(ringColor)
                     .padding(.horizontal, 10).padding(.vertical, 4)

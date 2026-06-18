@@ -332,10 +332,10 @@ struct BurnedDetailsCard: View {
                     Image(systemName: "flame.fill").foregroundColor(.white)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Every Movement Counts!")
+                    Text(LocalizedStringKey("Every Movement Counts!"))
                         .font(.subheadline.bold())
                         .foregroundColor(.white)
-                    Text("All your steps, gym sessions, and Apple Watch workouts are synced here perfectly.")
+                    Text(LocalizedStringKey("All your steps, gym sessions, and Apple Watch workouts are synced here perfectly."))
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.9))
                         .lineLimit(2)
@@ -672,15 +672,15 @@ struct DetailedMacroRingsCard: View {
         let c = summary.totalCarbs; let targetC = (user?.targetCarbs ?? 250) > 0 ? (user?.targetCarbs ?? 250) : 250
 
         if summary.totalFoodCalories == 0 {
-            return ("Fresh Start", "Log your first meal to see your macro balance.", "leaf.fill", .green)
+            return (String(localized: "Fresh Start"), String(localized: "Log your first meal to see your macro balance."), "leaf.fill", .green)
         } else if p < targetP * 0.4 && summary.totalFoodCalories > 800 {
-            return ("Protein Alert", "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal.", "dumbbell.fill", .themePeach)
+            return (String(localized: "Protein Alert"), String(localized: "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal."), "dumbbell.fill", .themePeach)
         } else if f > targetF {
-            return ("High Fat", "You've exceeded your daily fat limit. Focus on lean proteins and veggies.", "exclamationmark.triangle.fill", .themeYellow)
+            return (String(localized: "High Fat"), String(localized: "You've exceeded your daily fat limit. Focus on lean proteins and veggies."), "exclamationmark.triangle.fill", .themeYellow)
         } else if c < targetC * 0.3 {
-            return ("Low Energy?", "Your carbs are quite low. Complex carbs like oats or rice can boost your energy.", "bolt.fill", .drinkWater)
+            return (String(localized: "Low Energy?"), String(localized: "Your carbs are quite low. Complex carbs like oats or rice can boost your energy."), "bolt.fill", .drinkWater)
         } else {
-            return ("Perfect Balance", "Your macros are looking great today! Keep it up.", "checkmark.seal.fill", .themePink)
+            return (String(localized: "Perfect Balance"), String(localized: "Your macros are looking great today! Keep it up."), "checkmark.seal.fill", .themePink)
         }
     }
 
@@ -794,7 +794,7 @@ struct MicronutrientsFocusCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
-                Text("Health Focus")
+                Text(LocalizedStringKey("Health Focus"))
                     .font(.headline)
                 Spacer()
                 Image(systemName: "heart.text.square.fill")
@@ -810,10 +810,10 @@ struct MicronutrientsFocusCard: View {
 
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Boost your minerals")
+                    Text(LocalizedStringKey("Boost your minerals"))
                         .font(.caption.bold())
                         .foregroundColor(.white)
-                    Text("Add spinach, nuts, or salmon to your next meal to easily hit these goals.")
+                    Text(LocalizedStringKey("Add spinach, nuts, or salmon to your next meal to easily hit these goals."))
                         .font(.caption2)
                         .foregroundColor(.white.opacity(0.9))
                 }
@@ -943,7 +943,7 @@ struct MealBreakdownCard: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("Meals Breakdown")
+            Text(LocalizedStringKey("Meals Breakdown"))
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -955,7 +955,7 @@ struct MealBreakdownCard: View {
                             selectedMeal = meal
                         }
                     }) {
-                        Text(meal)
+                        Text(LocalizedStringKey(meal))
                             .font(.system(size: 13, weight: selectedMeal == meal ? .bold : .medium))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)

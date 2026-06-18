@@ -335,7 +335,7 @@ struct AddWeightLogSheet: View {
                     DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
                 }
             }
-            .navigationTitle("Log Weight")
+            .navigationTitle("Record Weight")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -385,7 +385,7 @@ struct SetGoalSheet: View {
                 Section(header: Text("Goal Direction")) {
                     Picker("Goal Type", selection: $goalType) {
                         ForEach(goalTypes, id: \.self) { type in
-                            Text(type.capitalized).tag(type)
+                            Text(LocalizedStringKey(type.capitalized)).tag(type)
                         }
                     }
                     .pickerStyle(.segmented)

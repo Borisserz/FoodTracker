@@ -342,7 +342,7 @@ struct CalorieRangeCard: View {
                 .font(.system(size: 14))
                 .foregroundColor(color)
 
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundColor(.primary)
         }
@@ -686,7 +686,7 @@ struct FilterIconSection: View {
                         HStack(spacing: 6) {
                             Image(systemName: item.1)
                                 .font(.system(size: 14))
-                            Text(item.0)
+                            Text(LocalizedStringKey(item.0))
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                         }
                         .foregroundColor(selection.contains(item.0) ? .white : .gray)
@@ -721,7 +721,7 @@ struct FilterColoredSection: View {
                             Image(systemName: item.1)
                                 .font(.system(size: 14))
                                 .foregroundColor(selection.contains(item.0) ? .white : item.2)
-                            Text(item.0)
+                            Text(LocalizedStringKey(item.0))
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                         }
                         .foregroundColor(selection.contains(item.0) ? .white : .gray)
@@ -819,7 +819,8 @@ struct PremiumRecipeCard: View {
                 LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
 
                 if let firstTag = recipe.tags.first {
-                    Text(firstTag.uppercased())
+                    Text(LocalizedStringKey(firstTag))
+                        .textCase(.uppercase)
                         .font(.system(.caption2, design: .rounded, weight: .black))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8).padding(.vertical, 4)
@@ -841,7 +842,7 @@ struct PremiumRecipeCard: View {
             .frame(height: 160)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(recipe.title).font(.system(.headline, design: .rounded, weight: .bold)).foregroundStyle(.primary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                Text(LocalizedStringKey(recipe.title)).font(.system(.headline, design: .rounded, weight: .bold)).foregroundStyle(.primary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 12) {
                     Text(recipe.time)
                     Text("\(recipe.caloriesPerServing) Cal")
@@ -958,7 +959,7 @@ struct PremiumRecipeDetailView: View {
                         LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
 
                         VStack(alignment: .leading, spacing: 12) {
-                            Text(recipe.title)
+                            Text(LocalizedStringKey(recipe.title))
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                                 .lineLimit(3)
@@ -977,8 +978,8 @@ struct PremiumRecipeDetailView: View {
 
                     VStack(alignment: .leading, spacing: 32) {
                         VStack(alignment: .leading, spacing: 16) {
-                            Text(recipe.description).font(.body).foregroundColor(.gray).lineSpacing(4)
-                            RecipeTagLayout(spacing: 8) { ForEach(recipe.tags, id: \.self) { tag in Text(tag).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundColor(.gray).padding(.horizontal, 12).padding(.vertical, 8).background(Color.gray.opacity(0.15)).cornerRadius(16) } }
+                            Text(LocalizedStringKey(recipe.description)).font(.body).foregroundColor(.gray).lineSpacing(4)
+                            RecipeTagLayout(spacing: 8) { ForEach(recipe.tags, id: \.self) { tag in Text(LocalizedStringKey(tag)).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundColor(.gray).padding(.horizontal, 12).padding(.vertical, 8).background(Color.gray.opacity(0.15)).cornerRadius(16) } }
                         }.padding(.horizontal, 20)
 
                         VStack(alignment: .leading, spacing: 24) {

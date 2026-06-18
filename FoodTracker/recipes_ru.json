@@ -8,7 +8,7 @@
     "isFavorite": false,
     "tags": [
       "Завтрак",
-      "Закуска",
+      "Перекус",
       "Вегетарианец"
     ],
     "baseServings": 4,
@@ -294,7 +294,7 @@
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20greek%20yogurt%20berry%20parfait?width=800&height=800&nologo=true",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Вегетарианец",
       "Немного ингредиентов",
       "Легкий"
@@ -494,7 +494,7 @@
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pineapple%20bowl?width=800&height=800&nologo=true",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Высокое содержание белка",
       "Немного ингредиентов",
       "Быстро готовится"
@@ -649,7 +649,7 @@
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20peanut%20butter%20banana%20oatmeal%20cookies?width=800&height=800&nologo=true",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Выпечка",
       "Вегетарианец",
       "В пути"
@@ -998,7 +998,7 @@
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20seaweed%20bowl?width=800&height=800&nologo=true",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Веган",
       "Немного ингредиентов",
       "Быстро готовится"
@@ -1373,7 +1373,7 @@
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20roasted%20chickpeas?width=800&height=800&nologo=true",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Веган",
       "Немного ингредиентов",
       "Выпечка"
@@ -1461,7 +1461,7 @@
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20apple%20slices%20almond%20butter?width=800&height=800&nologo=true",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Веган",
       "Немного ингредиентов",
       "Быстро готовится"
@@ -1647,7 +1647,7 @@
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20avocado%20pudding?width=800&height=800&nologo=true",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Веган",
       "Немного ингредиентов",
       "Легкий"
@@ -3285,7 +3285,7 @@
     "isFavorite": false,
     "tags": [
       "Завтрак",
-      "Закуска",
+      "Перекус",
       "Веган",
       "Сырой"
     ],
@@ -3481,7 +3481,7 @@
     "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Веган",
       "Высокое содержание клетчатки"
     ],
@@ -3726,7 +3726,7 @@
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Закуска",
+      "Перекус",
       "Высокое содержание белка",
       "Вегетарианец"
     ],

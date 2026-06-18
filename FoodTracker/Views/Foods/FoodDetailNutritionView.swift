@@ -65,7 +65,7 @@ struct FoodDetailNutritionView: View {
                         .padding(.horizontal, 20)
 
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("Nutrition Facts")
+                        Text(LocalizedStringKey("Nutrition Facts"))
                             .font(.title3.bold())
                             .padding(.horizontal, 20)
                             .padding(.bottom, 12)
@@ -127,7 +127,7 @@ struct FoodDetailNutritionView: View {
                         dismiss()
                     }) {
                         HStack {
-                            Text("Add to \(mealTitle)")
+                            Text("\(String(localized: "Add to")) \(String(localized: String.LocalizationValue(mealTitle)))")
                                 .font(.headline)
                             Spacer()
                             Text("\(currentCals) kcal")

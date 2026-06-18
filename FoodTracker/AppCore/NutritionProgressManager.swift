@@ -13,12 +13,12 @@ struct NutritionProgressManager {
     
     var currentTitle: String {
         switch user.level {
-        case 1...4: return "Nutrition Rookie"
-        case 5...9: return "Macro Trainee"
-        case 10...19: return "Diet Regular"
-        case 20...29: return "Dedicated Eater"
-        case 30...49: return "Nutrition Master"
-        default: return "Diet Titan"
+        case 1...4: return String(localized: "Nutrition Rookie")
+        case 5...9: return String(localized: "Macro Trainee")
+        case 10...19: return String(localized: "Diet Regular")
+        case 20...29: return String(localized: "Dedicated Eater")
+        case 30...49: return String(localized: "Nutrition Master")
+        default: return String(localized: "Diet Titan")
         }
     }
     

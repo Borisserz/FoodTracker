@@ -155,6 +155,7 @@ struct AIVisualProgressView: View {
         HStack(spacing: 16) {
             photoUploadBox(
                 title: String(localized: "Before"),
+                isBefore: true,
                 item: $beforeItem,
                 image: beforeImage,
                 gradient: [.gray.opacity(0.15), .gray.opacity(0.05)]
@@ -162,6 +163,7 @@ struct AIVisualProgressView: View {
             
             photoUploadBox(
                 title: String(localized: "After"),
+                isBefore: false,
                 item: $afterItem,
                 image: afterImage,
                 gradient: [themeManager.current.primaryAccent.opacity(0.2), themeManager.current.primaryAccent.opacity(0.05)]
@@ -170,7 +172,7 @@ struct AIVisualProgressView: View {
         .frame(height: 200)
     }
     
-    private func photoUploadBox(title: String, item: Binding<PhotosPickerItem?>, image: UIImage?, gradient: [Color]) -> some View {
+    private func photoUploadBox(title: String, isBefore: Bool, item: Binding<PhotosPickerItem?>, image: UIImage?, gradient: [Color]) -> some View {
         PhotosPicker(selection: item, matching: .images, photoLibrary: .shared()) {
             ZStack {
                 RoundedRectangle(cornerRadius: 16)
@@ -215,7 +217,7 @@ struct AIVisualProgressView: View {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),
                    let loadedImage = UIImage(data: data) {
                     await MainActor.run {
-                        if title == "Before" {
+                        if isBefore {
                             beforeImage = loadedImage
                         } else {
                             afterImage = loadedImage

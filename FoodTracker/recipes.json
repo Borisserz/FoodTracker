@@ -1,7 +1,7 @@
 [
   {
     "title": "Baked Apples with Honey & Walnuts",
-    "description": "Simple to make, comforting to enjoy, and perfect for cozy evenings. 🍂",
+    "description": "Simple to make, comforting to enjoy, and perfect for cozy evenings. \ud83c\udf42",
     "time": "20 min",
     "caloriesPerServing": 249,
     "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
@@ -36,15 +36,16 @@
       }
     ],
     "directions": [
-      "Preheat oven to 180°C (350°F).",
+      "Preheat oven to 180\u00b0C (350\u00b0F).",
       "Core the apples, leaving the bottom intact.",
       "Mix chopped walnuts and honey, then stuff the apples.",
       "Bake for 20-25 minutes until tender."
-    ]
+    ],
+    "id": "0"
   },
   {
     "title": "High Protein Scrambled Eggs with Avocado",
-    "description": "A classic morning staple loaded with healthy fats and lean protein to keep you energized. 🥑",
+    "description": "A classic morning staple loaded with healthy fats and lean protein to keep you energized. \ud83e\udd51",
     "time": "10 min",
     "caloriesPerServing": 330,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20scrambled%20eggs%20with%20avocado?width=800&height=800&nologo=true",
@@ -85,11 +86,12 @@
       "Melt butter in a non-stick skillet over medium-low heat.",
       "Pour in the eggs and gently scramble with a spatula until softly set.",
       "Slice the avocado and serve alongside the warm scrambled eggs. Add salt and pepper to taste."
-    ]
+    ],
+    "id": "1"
   },
   {
     "title": "Vegan Chocolate Peanut Butter Smoothie",
-    "description": "Rich, creamy, and packed with plant-based protein. Tastes like dessert! 🍫",
+    "description": "Rich, creamy, and packed with plant-based protein. Tastes like dessert! \ud83c\udf6b",
     "time": "5 min",
     "caloriesPerServing": 414,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20peanut%20butter%20smoothie?width=800&height=800&nologo=true",
@@ -135,11 +137,12 @@
       "Place the peeled banana, peanut butter, and protein powder into a blender.",
       "Pour in the almond milk.",
       "Blend on high until completely smooth and creamy. Add ice if preferred."
-    ]
+    ],
+    "id": "2"
   },
   {
     "title": "Keto Garlic Butter Salmon with Asparagus",
-    "description": "Flaky, buttery salmon paired with crisp roasted asparagus. Perfect for a keto dinner. 🐟",
+    "description": "Flaky, buttery salmon paired with crisp roasted asparagus. Perfect for a keto dinner. \ud83d\udc1f",
     "time": "25 min",
     "caloriesPerServing": 409,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20salmon%20asparagus?width=800&height=800&nologo=true",
@@ -182,15 +185,16 @@
       }
     ],
     "directions": [
-      "Preheat your oven to 200°C (400°F). Line a baking sheet with parchment paper.",
+      "Preheat your oven to 200\u00b0C (400\u00b0F). Line a baking sheet with parchment paper.",
       "Place the salmon fillets in the center and arrange asparagus around them.",
       "Melt the butter, mix in minced garlic, and brush generously over the salmon and asparagus.",
       "Bake for 12-15 minutes until the salmon is cooked through and easily flakes with a fork."
-    ]
+    ],
+    "id": "3"
   },
   {
     "title": "Chicken and Quinoa Bowl",
-    "description": "A perfectly balanced lunch bowl with lean chicken, complex carbs, and fresh tomatoes. 🥗",
+    "description": "A perfectly balanced lunch bowl with lean chicken, complex carbs, and fresh tomatoes. \ud83e\udd57",
     "time": "20 min",
     "caloriesPerServing": 419,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chicken%20quinoa%20bowl?width=800&height=800&nologo=true",
@@ -235,11 +239,12 @@
       "Slice the cooked chicken.",
       "Halve the cherry tomatoes.",
       "Divide the warm quinoa into two bowls, top with sliced chicken, tomatoes, and drizzle with remaining olive oil."
-    ]
+    ],
+    "id": "4"
   },
   {
     "title": "Low Carb Turkey Meatballs with Zucchini Noodles",
-    "description": "A light Italian-inspired dinner that saves on carbs without sacrificing flavor. 🍝",
+    "description": "A light Italian-inspired dinner that saves on carbs without sacrificing flavor. \ud83c\udf5d",
     "time": "30 min",
     "caloriesPerServing": 232,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20turkey%20meatballs%20zucchini%20noodles?width=800&height=800&nologo=true",
@@ -282,13 +287,14 @@
     "directions": [
       "Form the ground turkey into small meatballs and pan-fry them until browned on all sides and fully cooked.",
       "Pour the marinara sauce over the meatballs and let simmer on low heat for 5 minutes.",
-      "In a separate skillet, lightly sauté the zucchini noodles for 2-3 minutes until just tender.",
+      "In a separate skillet, lightly saut\u00e9 the zucchini noodles for 2-3 minutes until just tender.",
       "Serve the meatballs and sauce over the zoodles and top with grated parmesan."
-    ]
+    ],
+    "id": "5"
   },
   {
     "title": "Greek Yogurt Berry Parfait",
-    "description": "A quick, sweet, and protein-packed snack to curb your mid-day cravings. 🍓",
+    "description": "A quick, sweet, and protein-packed snack to curb your mid-day cravings. \ud83c\udf53",
     "time": "5 min",
     "caloriesPerServing": 292,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20greek%20yogurt%20berry%20parfait?width=800&height=800&nologo=true",
@@ -334,11 +340,12 @@
       "Top with a layer of fresh mixed berries.",
       "Drizzle honey evenly over the berries.",
       "Sprinkle sliced almonds on top for a delightful crunch."
-    ]
+    ],
+    "id": "6"
   },
   {
     "title": "Vegan Tofu Scramble",
-    "description": "A savory, plant-based egg alternative with spinach and anti-inflammatory turmeric. 🌱",
+    "description": "A savory, plant-based egg alternative with spinach and anti-inflammatory turmeric. \ud83c\udf31",
     "time": "10 min",
     "caloriesPerServing": 256,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20tofu%20scramble?width=800&height=800&nologo=true",
@@ -384,11 +391,12 @@
       "Heat olive oil in a pan over medium heat and add the crumbled tofu.",
       "Sprinkle the turmeric over the tofu and mix well until it turns golden yellow.",
       "Add the spinach to the pan and cook for another 2 minutes until wilted."
-    ]
+    ],
+    "id": "7"
   },
   {
     "title": "Keto Steak and Broccoli",
-    "description": "A heavy-hitting dinner for muscle recovery. Tender steak and garlic butter broccoli. 🥩",
+    "description": "A heavy-hitting dinner for muscle recovery. Tender steak and garlic butter broccoli. \ud83e\udd69",
     "time": "20 min",
     "caloriesPerServing": 508,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20keto%20steak%20and%20broccoli?width=800&height=800&nologo=true",
@@ -433,12 +441,13 @@
       "Season the sirloin steak with salt and coarse black pepper.",
       "Heat olive oil in a cast-iron skillet over high heat and sear the steak to your desired doneness. Let it rest.",
       "In the same skillet, turn the heat down, add butter, and toss in the broccoli florets.",
-      "Sauté the broccoli until tender-crisp. Slice the rested steak and serve together."
-    ]
+      "Saut\u00e9 the broccoli until tender-crisp. Slice the rested steak and serve together."
+    ],
+    "id": "8"
   },
   {
     "title": "Baked Oats with Apple and Cinnamon",
-    "description": "Warm, comforting, and tastes like apple pie for breakfast. High in fiber! 🍎",
+    "description": "Warm, comforting, and tastes like apple pie for breakfast. High in fiber! \ud83c\udf4e",
     "time": "30 min",
     "caloriesPerServing": 256,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20baked%20oats%20apple%20cinnamon?width=800&height=800&nologo=true",
@@ -480,15 +489,16 @@
       }
     ],
     "directions": [
-      "Preheat the oven to 180°C (350°F). Lightly grease a small baking dish.",
+      "Preheat the oven to 180\u00b0C (350\u00b0F). Lightly grease a small baking dish.",
       "Mix the rolled oats, almond milk, diced apples, and a pinch of cinnamon in a bowl.",
       "Pour the mixture into the baking dish and drizzle the maple syrup evenly on top.",
       "Bake for 25 minutes until the top is golden and the liquid is fully absorbed."
-    ]
+    ],
+    "id": "9"
   },
   {
     "title": "Cottage Cheese and Pineapple Bowl",
-    "description": "A refreshing, sweet, and protein-dense snack perfect for post-workout recovery. 🍍",
+    "description": "A refreshing, sweet, and protein-dense snack perfect for post-workout recovery. \ud83c\udf4d",
     "time": "2 min",
     "caloriesPerServing": 261,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pineapple%20bowl?width=800&height=800&nologo=true",
@@ -527,11 +537,12 @@
       "Scoop the cottage cheese into a serving bowl.",
       "Top with fresh or canned pineapple chunks.",
       "Sprinkle chia seeds over the top for extra fiber and crunch. Stir before eating."
-    ]
+    ],
+    "id": "10"
   },
   {
     "title": "Spinach and Feta Stuffed Chicken Breast",
-    "description": "Juicy chicken filled with savory feta and spinach. Looks gourmet, but incredibly easy to make! 🌿",
+    "description": "Juicy chicken filled with savory feta and spinach. Looks gourmet, but incredibly easy to make! \ud83c\udf3f",
     "time": "35 min",
     "caloriesPerServing": 465,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spinach%20feta%20stuffed%20chicken?width=800&height=800&nologo=true",
@@ -573,15 +584,16 @@
       }
     ],
     "directions": [
-      "Preheat your oven to 190°C (375°F).",
+      "Preheat your oven to 190\u00b0C (375\u00b0F).",
       "Slice a pocket into the side of each chicken breast, being careful not to cut all the way through.",
       "Mix crumbled feta and chopped spinach in a bowl, then stuff the mixture into the chicken pockets.",
       "Rub the outside of the chicken with olive oil, salt, and pepper. Bake for 25-30 minutes until fully cooked."
-    ]
+    ],
+    "id": "11"
   },
   {
     "title": "Vegan Lentil and Vegetable Stew",
-    "description": "A hearty, warming, and fiber-rich plant-based stew that is perfect for meal prep. 🍲",
+    "description": "A hearty, warming, and fiber-rich plant-based stew that is perfect for meal prep. \ud83c\udf72",
     "time": "45 min",
     "caloriesPerServing": 266,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20lentil%20vegetable%20stew?width=800&height=800&nologo=true",
@@ -635,15 +647,16 @@
       }
     ],
     "directions": [
-      "Dice the onion, carrots, and celery. Sauté them in a large pot with olive oil until softened.",
+      "Dice the onion, carrots, and celery. Saut\u00e9 them in a large pot with olive oil until softened.",
       "Rinse the lentils and add them to the pot along with the crushed tomatoes and 3 cups of water or vegetable broth.",
       "Bring to a boil, then reduce heat, cover, and simmer for 30-35 minutes until the lentils are tender.",
       "Season with salt, pepper, and a pinch of cumin before serving."
-    ]
+    ],
+    "id": "12"
   },
   {
     "title": "Peanut Butter Banana Oatmeal Cookies",
-    "description": "Chewy, flourless cookies perfect for a pre-workout energy boost or a sweet snack. 🍪",
+    "description": "Chewy, flourless cookies perfect for a pre-workout energy boost or a sweet snack. \ud83c\udf6a",
     "time": "15 min",
     "caloriesPerServing": 139,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20peanut%20butter%20banana%20oatmeal%20cookies?width=800&height=800&nologo=true",
@@ -679,15 +692,16 @@
       }
     ],
     "directions": [
-      "Preheat the oven to 175°C (350°F) and line a baking sheet with parchment paper.",
+      "Preheat the oven to 175\u00b0C (350\u00b0F) and line a baking sheet with parchment paper.",
       "Mash the bananas in a bowl until smooth, then stir in the peanut butter.",
       "Fold in the rolled oats until a sticky dough forms.",
       "Scoop out 8 equal portions onto the baking sheet, flatten slightly, and bake for 10-12 minutes."
-    ]
+    ],
+    "id": "13"
   },
   {
     "title": "Berry Green Antioxidant Smoothie",
-    "description": "A refreshing blend of greens and berries that hides the spinach taste completely! 🫐",
+    "description": "A refreshing blend of greens and berries that hides the spinach taste completely! \ud83e\uded0",
     "time": "5 min",
     "caloriesPerServing": 247,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20green%20smoothie?width=800&height=800&nologo=true",
@@ -738,11 +752,12 @@
       "Add the spinach and almond milk to the blender first and blend until completely smooth to avoid green chunks.",
       "Add the frozen berries, chia seeds, and protein powder.",
       "Blend on high until thick and creamy. Pour into a glass and enjoy cold."
-    ]
+    ],
+    "id": "14"
   },
   {
     "title": "Spicy Shrimp Lettuce Wraps",
-    "description": "Crisp, cool lettuce cups filled with zesty, high-protein shrimp and creamy avocado. 🍤",
+    "description": "Crisp, cool lettuce cups filled with zesty, high-protein shrimp and creamy avocado. \ud83c\udf64",
     "time": "15 min",
     "caloriesPerServing": 269,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spicy%20shrimp%20lettuce%20wraps?width=800&height=800&nologo=true",
@@ -784,15 +799,16 @@
       }
     ],
     "directions": [
-      "Toss the shrimp with a little salt, pepper, and paprika. Sauté in a pan over medium heat for 3-4 minutes until pink.",
+      "Toss the shrimp with a little salt, pepper, and paprika. Saut\u00e9 in a pan over medium heat for 3-4 minutes until pink.",
       "Chop the cooked shrimp into smaller bite-sized pieces.",
       "Divide the shrimp and diced avocado evenly among the butter lettuce leaves.",
       "Drizzle the spicy mayo over the top and serve immediately."
-    ]
+    ],
+    "id": "15"
   },
   {
     "title": "Keto Egg Salad Stuffed Peppers",
-    "description": "Crunchy bell peppers act as the perfect low-carb vessel for creamy, rich egg salad. 🫑",
+    "description": "Crunchy bell peppers act as the perfect low-carb vessel for creamy, rich egg salad. \ud83e\uded1",
     "time": "15 min",
     "caloriesPerServing": 274,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20egg%20salad%20stuffed%20peppers?width=800&height=800&nologo=true",
@@ -838,11 +854,12 @@
       "In a bowl, mix the chopped eggs, mayonnaise, Dijon mustard, salt, and pepper until creamy.",
       "Cut the bell peppers in half from top to bottom and remove the seeds and membranes.",
       "Spoon the egg salad generously into the bell pepper halves and serve cold."
-    ]
+    ],
+    "id": "16"
   },
   {
     "title": "Black Bean and Corn Fiesta Salad",
-    "description": "A vibrant, tangy plant-based salad that holds up perfectly in the fridge for days. 🌽",
+    "description": "A vibrant, tangy plant-based salad that holds up perfectly in the fridge for days. \ud83c\udf3d",
     "time": "10 min",
     "caloriesPerServing": 220,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20black%20bean%20corn%20salad?width=800&height=800&nologo=true",
@@ -894,11 +911,12 @@
       "Dice the red bell pepper into small pieces.",
       "In a large bowl, combine the beans, corn, and bell pepper.",
       "Whisk olive oil and lime juice together, pour over the salad, toss well, and chill before serving."
-    ]
+    ],
+    "id": "17"
   },
   {
     "title": "Flank Steak Fajita Skillet",
-    "description": "Sizzling, tender steak strips with caramelized onions and peppers. Just missing the tortilla! 🥩",
+    "description": "Sizzling, tender steak strips with caramelized onions and peppers. Just missing the tortilla! \ud83e\udd69",
     "time": "20 min",
     "caloriesPerServing": 358,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20steak%20fajita%20skillet?width=800&height=800&nologo=true",
@@ -943,12 +961,13 @@
       "Slice the flank steak against the grain into thin strips. Slice the bell peppers and onions into similar strips.",
       "Heat the olive oil in a large skillet over medium-high heat.",
       "Add the steak and sear for 3-4 minutes. Remove the steak and set aside.",
-      "In the same skillet, sauté the peppers and onions until soft. Return the steak to the pan, toss together with fajita seasoning, and serve."
-    ]
+      "In the same skillet, saut\u00e9 the peppers and onions until soft. Return the steak to the pan, toss together with fajita seasoning, and serve."
+    ],
+    "id": "18"
   },
   {
     "title": "Cottage Cheese Protein Pancakes",
-    "description": "Fluffy, golden pancakes with a secret ingredient that bumps up the protein effortlessly. 🥞",
+    "description": "Fluffy, golden pancakes with a secret ingredient that bumps up the protein effortlessly. \ud83e\udd5e",
     "time": "15 min",
     "caloriesPerServing": 245,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pancakes?width=800&height=800&nologo=true",
@@ -988,11 +1007,12 @@
       "Blend on high until a smooth batter forms.",
       "Heat a non-stick pan over medium heat and lightly spray with cooking oil.",
       "Pour small circles of batter into the pan. Cook until bubbles form on the surface, flip, and cook until golden brown."
-    ]
+    ],
+    "id": "19"
   },
   {
     "title": "Edamame and Seaweed Snack Bowl",
-    "description": "A savory, salty, and satisfying plant-based snack loaded with trace minerals. 🥢",
+    "description": "A savory, salty, and satisfying plant-based snack loaded with trace minerals. \ud83e\udd62",
     "time": "5 min",
     "caloriesPerServing": 245,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20seaweed%20bowl?width=800&height=800&nologo=true",
@@ -1032,11 +1052,12 @@
       "Place the warm edamame in a bowl and drizzle with toasted sesame oil. Toss to coat.",
       "Crush the roasted seaweed snack sheets into small flakes with your hands.",
       "Sprinkle the seaweed flakes over the edamame along with a pinch of sea salt, and enjoy."
-    ]
+    ],
+    "id": "20"
   },
   {
     "title": "Keto Avocado Egg Salad",
-    "description": "A creamy, low-carb twist on traditional egg salad using nutrient-dense avocado instead of excess mayo. 🥑",
+    "description": "A creamy, low-carb twist on traditional egg salad using nutrient-dense avocado instead of excess mayo. \ud83e\udd51",
     "time": "10 min",
     "caloriesPerServing": 310,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20avocado%20egg%20salad?width=800&height=800&nologo=true",
@@ -1076,11 +1097,12 @@
       "Halve the avocado, remove the pit, and scoop the flesh into a bowl.",
       "Mash the avocado and mayonnaise together until creamy, then gently fold in the chopped eggs.",
       "Season with salt, pepper, and a dash of paprika. Serve in lettuce cups or eat as is."
-    ]
+    ],
+    "id": "21"
   },
   {
     "title": "Vegan Chickpea Coconut Curry",
-    "description": "A fragrant, warming plant-based curry that comes together quickly for a cozy weeknight meal. 🥥",
+    "description": "A fragrant, warming plant-based curry that comes together quickly for a cozy weeknight meal. \ud83e\udd65",
     "time": "25 min",
     "caloriesPerServing": 210,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chickpea%20coconut%20curry?width=800&height=800&nologo=true",
@@ -1122,15 +1144,16 @@
       }
     ],
     "directions": [
-      "Heat olive oil in a deep pan and sauté your favorite curry powder or paste for 1 minute until fragrant.",
+      "Heat olive oil in a deep pan and saut\u00e9 your favorite curry powder or paste for 1 minute until fragrant.",
       "Pour in the light coconut milk and bring to a gentle simmer.",
       "Add the rinsed chickpeas and let them cook in the sauce for 15 minutes to absorb flavors.",
       "Stir in the fresh spinach during the last 2 minutes until wilted. Serve hot."
-    ]
+    ],
+    "id": "22"
   },
   {
     "title": "Baked Sweet Potato with Ground Turkey",
-    "description": "A high-protein, nutrient-dense lunch loaded with complex carbohydrates to fuel your day. 🍠",
+    "description": "A high-protein, nutrient-dense lunch loaded with complex carbohydrates to fuel your day. \ud83c\udf60",
     "time": "45 min",
     "caloriesPerServing": 310,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20stuffed%20sweet%20potato%20ground%20turkey?width=800&height=800&nologo=true",
@@ -1165,15 +1188,16 @@
       }
     ],
     "directions": [
-      "Preheat the oven to 200°C (400°F). Pierce the sweet potatoes with a fork and bake for 40-45 minutes until tender.",
+      "Preheat the oven to 200\u00b0C (400\u00b0F). Pierce the sweet potatoes with a fork and bake for 40-45 minutes until tender.",
       "While the potatoes bake, brown the ground turkey in a skillet over medium heat until fully cooked.",
       "Stir the sugar-free BBQ sauce into the turkey.",
       "Slice the baked sweet potatoes open and stuff generously with the BBQ turkey mixture."
-    ]
+    ],
+    "id": "23"
   },
   {
     "title": "Berry Chia Seed Pudding",
-    "description": "A grab-and-go breakfast packed with fiber and omega-3s that preps itself overnight. 🍓",
+    "description": "A grab-and-go breakfast packed with fiber and omega-3s that preps itself overnight. \ud83c\udf53",
     "time": "5 min",
     "caloriesPerServing": 180,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20chia%20seed%20pudding?width=800&height=800&nologo=true",
@@ -1219,11 +1243,12 @@
       "Let sit for 5 minutes, then whisk again to prevent clumps.",
       "Cover and refrigerate for at least 2 hours, or overnight.",
       "Top with fresh raspberries before serving."
-    ]
+    ],
+    "id": "24"
   },
   {
     "title": "Garlic Butter Shrimp Zoodles",
-    "description": "A light, garlicky, and buttery seafood dish that keeps carbs low and protein high. 🦐",
+    "description": "A light, garlicky, and buttery seafood dish that keeps carbs low and protein high. \ud83e\udd90",
     "time": "15 min",
     "caloriesPerServing": 280,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20shrimp%20zucchini%20noodles?width=800&height=800&nologo=true",
@@ -1263,11 +1288,12 @@
       "Add the shrimp to the skillet and cook for 2-3 minutes per side until pink and opaque.",
       "Remove the shrimp and set aside. In the same skillet, toss the zucchini noodles for 1-2 minutes until just warm.",
       "Return the shrimp to the pan, toss with the zoodles, and serve immediately."
-    ]
+    ],
+    "id": "25"
   },
   {
     "title": "Matcha Green Tea Protein Smoothie",
-    "description": "An antioxidant-rich, caffeinated shake perfect for a quick morning start or pre-workout fuel. 🍵",
+    "description": "An antioxidant-rich, caffeinated shake perfect for a quick morning start or pre-workout fuel. \ud83c\udf75",
     "time": "5 min",
     "caloriesPerServing": 205,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20matcha%20green%20tea%20smoothie?width=800&height=800&nologo=true",
@@ -1313,11 +1339,12 @@
       "Add the whey protein, matcha powder, and half a banana.",
       "Add a handful of ice cubes.",
       "Blend on high until smooth and frothy."
-    ]
+    ],
+    "id": "26"
   },
   {
     "title": "Caprese Chicken Skillet",
-    "description": "Melted mozzarella, sweet balsamic glaze, and juicy tomatoes over lean chicken breasts. 🍅",
+    "description": "Melted mozzarella, sweet balsamic glaze, and juicy tomatoes over lean chicken breasts. \ud83c\udf45",
     "time": "20 min",
     "caloriesPerServing": 375,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20caprese%20chicken%20skillet?width=800&height=800&nologo=true",
@@ -1363,11 +1390,12 @@
       "Cook in a skillet over medium heat for 6-7 minutes per side until fully cooked.",
       "Top each breast with slices of mozzarella and halved cherry tomatoes. Cover the pan for 2 minutes to melt the cheese.",
       "Drizzle with balsamic glaze and garnish with fresh basil before serving."
-    ]
+    ],
+    "id": "27"
   },
   {
     "title": "Crunchy Roasted Chickpeas",
-    "description": "A crispy, savory snack that replaces potato chips and packs a nice punch of plant protein. 🌶️",
+    "description": "A crispy, savory snack that replaces potato chips and packs a nice punch of plant protein. \ud83c\udf36\ufe0f",
     "time": "35 min",
     "caloriesPerServing": 183,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20roasted%20chickpeas?width=800&height=800&nologo=true",
@@ -1403,15 +1431,16 @@
       }
     ],
     "directions": [
-      "Preheat the oven to 200°C (400°F). Drain, rinse, and thoroughly dry the chickpeas with a paper towel.",
+      "Preheat the oven to 200\u00b0C (400\u00b0F). Drain, rinse, and thoroughly dry the chickpeas with a paper towel.",
       "Toss the dry chickpeas in a bowl with olive oil, smoked paprika, salt, and pepper.",
       "Spread them out in a single layer on a baking sheet lined with parchment paper.",
       "Bake for 25-30 minutes, shaking the pan halfway, until crispy. Let cool slightly to crisp up further."
-    ]
+    ],
+    "id": "28"
   },
   {
     "title": "Tuna Salad Stuffed Avocados",
-    "description": "A quick, no-cook lunch that provides incredibly healthy fats and protein without bread. 🥑",
+    "description": "A quick, no-cook lunch that provides incredibly healthy fats and protein without bread. \ud83e\udd51",
     "time": "10 min",
     "caloriesPerServing": 235,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20tuna%20salad%20stuffed%20avocado?width=800&height=800&nologo=true",
@@ -1451,11 +1480,12 @@
       "Stir the mayonnaise into the tuna, adding salt, pepper, and a squeeze of lemon juice if desired.",
       "Halve the avocado and remove the pit. You can scoop out a little extra avocado flesh to make room if needed.",
       "Fill the avocado halves with the tuna salad and eat with a spoon."
-    ]
+    ],
+    "id": "29"
   },
   {
     "title": "Almond Butter Apple Rings",
-    "description": "A fun, crunchy, and sweet snack that takes two minutes to assemble. Perfect for kids and adults! 🍏",
+    "description": "A fun, crunchy, and sweet snack that takes two minutes to assemble. Perfect for kids and adults! \ud83c\udf4f",
     "time": "5 min",
     "caloriesPerServing": 296,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20apple%20slices%20almond%20butter?width=800&height=800&nologo=true",
@@ -1495,11 +1525,12 @@
       "Spread the almond butter evenly over the top of the apple rings.",
       "Sprinkle hemp seeds over the almond butter for a slight nutty crunch.",
       "Serve immediately to prevent the apples from browning."
-    ]
+    ],
+    "id": "30"
   },
   {
     "title": "Keto Cauliflower Mac and Cheese",
-    "description": "A rich, cheesy comfort food classic completely reimagined without the carbs. 🧀",
+    "description": "A rich, cheesy comfort food classic completely reimagined without the carbs. \ud83e\uddc0",
     "time": "25 min",
     "caloriesPerServing": 266,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20keto%20cauliflower%20mac%20and%20cheese?width=800&height=800&nologo=true",
@@ -1538,11 +1569,12 @@
       "In a saucepan over medium heat, gently warm the heavy cream.",
       "Gradually stir the cheddar cheese into the cream until melted and smooth.",
       "Fold the cooked cauliflower into the cheese sauce until fully coated and serve hot."
-    ]
+    ],
+    "id": "31"
   },
   {
     "title": "High Protein Turkey Chili",
-    "description": "A robust, warming chili that packs a serious protein punch for muscle recovery. 🌶️",
+    "description": "A robust, warming chili that packs a serious protein punch for muscle recovery. \ud83c\udf36\ufe0f",
     "time": "40 min",
     "caloriesPerServing": 305,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20turkey%20chili?width=800&height=800&nologo=true",
@@ -1587,11 +1619,12 @@
       "Rinse and drain the kidney beans.",
       "Add the beans and crushed tomatoes to the pot, seasoning with chili powder, cumin, and salt.",
       "Bring to a simmer, then reduce heat and let it cook for 20-30 minutes to let flavors meld."
-    ]
+    ],
+    "id": "32"
   },
   {
     "title": "Vegan Tempeh Teriyaki Stir-Fry",
-    "description": "A quick, savory plant-based stir-fry loaded with fermented soy protein and crunchy broccoli. 🥢",
+    "description": "A quick, savory plant-based stir-fry loaded with fermented soy protein and crunchy broccoli. \ud83e\udd62",
     "time": "15 min",
     "caloriesPerServing": 280,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20tempeh%20teriyaki%20stir%20fry?width=800&height=800&nologo=true",
@@ -1637,11 +1670,12 @@
       "Heat the sesame oil in a wok or large skillet over medium-high heat, and brown the tempeh for 5 minutes.",
       "Add the broccoli florets and stir-fry for another 3-4 minutes until tender-crisp.",
       "Pour in the teriyaki sauce, toss to coat everything evenly, and serve warm."
-    ]
+    ],
+    "id": "33"
   },
   {
     "title": "Chocolate Avocado Protein Pudding",
-    "description": "A decadent, velvety dessert that secretly delivers healthy fats and a solid dose of protein. 🍫",
+    "description": "A decadent, velvety dessert that secretly delivers healthy fats and a solid dose of protein. \ud83c\udf6b",
     "time": "5 min",
     "caloriesPerServing": 237,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20avocado%20pudding?width=800&height=800&nologo=true",
@@ -1687,11 +1721,12 @@
       "Add the cocoa powder, maple syrup, and protein powder.",
       "Blend until completely smooth and creamy. If it's too thick, add a splash of almond milk.",
       "Chill in the fridge for 30 minutes before serving for the best texture."
-    ]
+    ],
+    "id": "34"
   },
   {
     "title": "High Protein Overnight Oats",
-    "description": "Prepare this the night before for a stress-free, muscle-building breakfast on the run. 🥣",
+    "description": "Prepare this the night before for a stress-free, muscle-building breakfast on the run. \ud83e\udd63",
     "time": "5 min",
     "caloriesPerServing": 330,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20high%20protein%20overnight%20oats?width=800&height=800&nologo=true",
@@ -1737,11 +1772,12 @@
       "Add the Greek yogurt and almond milk, stirring vigorously until completely combined.",
       "Seal the container and leave it in the refrigerator overnight.",
       "Grab it in the morning, give it a quick stir, and enjoy cold."
-    ]
+    ],
+    "id": "35"
   },
   {
     "title": "Baked Lemon Herb Cod",
-    "description": "An incredibly lean and flaky white fish recipe that feels light but filling. 🍋",
+    "description": "An incredibly lean and flaky white fish recipe that feels light but filling. \ud83c\udf4b",
     "time": "20 min",
     "caloriesPerServing": 193,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20baked%20lemon%20cod?width=800&height=800&nologo=true",
@@ -1777,15 +1813,16 @@
       }
     ],
     "directions": [
-      "Preheat the oven to 200°C (400°F). Line a baking dish with parchment paper.",
+      "Preheat the oven to 200\u00b0C (400\u00b0F). Line a baking dish with parchment paper.",
       "Place the cod fillets in the dish. Drizzle with olive oil and fresh lemon juice.",
       "Sprinkle with salt, pepper, and dried dill or parsley.",
       "Bake for 12-15 minutes until the fish is opaque and flakes easily with a fork."
-    ]
+    ],
+    "id": "36"
   },
   {
     "title": "Vegan Edamame & Quinoa Salad",
-    "description": "A crunchy, protein-packed vegan lunch with a savory peanut dressing. 🥗",
+    "description": "A crunchy, protein-packed vegan lunch with a savory peanut dressing. \ud83e\udd57",
     "time": "15 min",
     "caloriesPerServing": 300,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20quinoa%20salad?width=800&height=800&nologo=true",
@@ -1831,11 +1868,12 @@
       "In a large bowl, combine the cooked quinoa, edamame, and shredded red cabbage.",
       "Drizzle the peanut dressing over the salad and toss well to coat all ingredients.",
       "Serve immediately or pack in containers for a cold, refreshing lunch."
-    ]
+    ],
+    "id": "37"
   },
   {
     "title": "Keto Parmesan Crusted Chicken",
-    "description": "A crispy, golden, oven-baked chicken breast with zero breadcrumbs required. 🍗",
+    "description": "A crispy, golden, oven-baked chicken breast with zero breadcrumbs required. \ud83c\udf57",
     "time": "30 min",
     "caloriesPerServing": 405,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20parmesan%20crusted%20chicken?width=800&height=800&nologo=true",
@@ -1871,15 +1909,16 @@
       }
     ],
     "directions": [
-      "Preheat oven to 200°C (400°F).",
+      "Preheat oven to 200\u00b0C (400\u00b0F).",
       "Spread a thin layer of mayonnaise evenly over the top of each chicken breast.",
       "Press the grated parmesan cheese firmly into the mayonnaise so it sticks.",
       "Bake for 25 minutes until the chicken is cooked through and the cheese is golden and crispy."
-    ]
+    ],
+    "id": "38"
   },
   {
     "title": "Tropical Mango Spinach Smoothie",
-    "description": "A hydrating, vibrant green smoothie that tastes like a tropical island vacation. 🥭",
+    "description": "A hydrating, vibrant green smoothie that tastes like a tropical island vacation. \ud83e\udd6d",
     "time": "5 min",
     "caloriesPerServing": 197,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20mango%20spinach%20smoothie?width=800&height=800&nologo=true",
@@ -1925,11 +1964,12 @@
       "Blend until smooth to ensure there are no green pieces left.",
       "Add the frozen mango and hemp seeds.",
       "Blend on high until perfectly smooth and creamy."
-    ]
+    ],
+    "id": "39"
   },
   {
     "title": "Ground Beef Stuffed Bell Peppers",
-    "description": "A hearty, low-carb dinner classic baked until the peppers are sweet and tender. 🫑",
+    "description": "A hearty, low-carb dinner classic baked until the peppers are sweet and tender. \ud83e\uded1",
     "time": "45 min",
     "caloriesPerServing": 260,
     "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20ground%20beef%20stuffed%20peppers?width=800&height=800&nologo=true",
@@ -1970,15 +2010,16 @@
       }
     ],
     "directions": [
-      "Preheat the oven to 190°C (375°F). Cut the tops off the bell peppers and remove the seeds.",
+      "Preheat the oven to 190\u00b0C (375\u00b0F). Cut the tops off the bell peppers and remove the seeds.",
       "In a skillet, brown the ground beef. Stir in the cauliflower rice and tomato sauce, cooking for 3 minutes.",
       "Stuff the hollowed bell peppers with the beef mixture and stand them upright in a baking dish.",
       "Cover with foil and bake for 30 minutes, then remove foil and bake 5 more minutes."
-    ]
+    ],
+    "id": "40"
   },
   {
-    "title": "Pan-Seared Scallops with Saffron Cauliflower Purée and Black Truffle",
-    "description": "Dry-aged sea scallops pan-roasted to a golden crust, resting on a velvety saffron-infused emulsion with shaved black truffle. ✨",
+    "title": "Pan-Seared Scallops with Saffron Cauliflower Pur\u00e9e and Black Truffle",
+    "description": "Dry-aged sea scallops pan-roasted to a golden crust, resting on a velvety saffron-infused emulsion with shaved black truffle. \u2728",
     "time": "30 min",
     "caloriesPerServing": 403,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20pan%20seared%20scallops%20cauliflower%20puree%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2026,15 +2067,16 @@
       }
     ],
     "directions": [
-      "Prepare the purée: Sous-vide or steam the cauliflower until completely tender. Transfer to a high-speed blender with steeped saffron, heavy cream, and half the butter. Blend on high until a velvety emulsion forms. Pass through a fine chinois.",
+      "Prepare the pur\u00e9e: Sous-vide or steam the cauliflower until completely tender. Transfer to a high-speed blender with steeped saffron, heavy cream, and half the butter. Blend on high until a velvety emulsion forms. Pass through a fine chinois.",
       "Score the scallops lightly. Heat a carbon steel pan until smoking. Add a high-smoke-point oil, then sear the scallops untouched for exactly 90 seconds until a golden-brown Maillard crust forms.",
       "Flip the scallops, lower the heat, and baste rapidly with the remaining butter and a sprig of thyme for 30 seconds. Remove and rest on a paper towel.",
-      "To plate: Spoon a perfect circle of the warm purée. Arrange the scallops asymmetrically. Finish with drops of black truffle oil and micro-herbs."
-    ]
+      "To plate: Spoon a perfect circle of the warm pur\u00e9e. Arrange the scallops asymmetrically. Finish with drops of black truffle oil and micro-herbs."
+    ],
+    "id": "41"
   },
   {
     "title": "Sous-Vide Duck Breast with Cherry-Balsamic Reduction",
-    "description": "Precisely cooked duck breast featuring rendered, crisp skin paired with a tart, glossy cherry demi-glace. 🦆",
+    "description": "Precisely cooked duck breast featuring rendered, crisp skin paired with a tart, glossy cherry demi-glace. \ud83e\udd86",
     "time": "90 min",
     "caloriesPerServing": 520,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20sous%20vide%20duck%20breast%20cherry%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2081,15 +2123,16 @@
       }
     ],
     "directions": [
-      "Score the duck skin in a tight crosshatch pattern without piercing the flesh. Vacuum seal with thyme and cook sous-vide at 54°C (129°F) for 1.5 hours.",
+      "Score the duck skin in a tight crosshatch pattern without piercing the flesh. Vacuum seal with thyme and cook sous-vide at 54\u00b0C (129\u00b0F) for 1.5 hours.",
       "Meanwhile, punch cylinders out of the celeriac. Sear the ends in duck fat, then gently braise in stock until fondant-style tender.",
       "In a saucepan, reduce the cherries and aged balsamic vinegar until syrupy, mounting with a small knob of cold butter for a glossy finish.",
       "Remove duck from the bag, dry thoroughly. Place skin-side down in a cold skillet, turning heat to medium to render the fat until glass-like and crispy. Slice and plate elegantly."
-    ]
+    ],
+    "id": "42"
   },
   {
-    "title": "Herb-Crusted Rack of Lamb with Minted Pea Purée",
-    "description": "Frenched rack of lamb coated in a vibrant pistachio-herb crust, served over an intensely sweet and bright pea purée. 🥩",
+    "title": "Herb-Crusted Rack of Lamb with Minted Pea Pur\u00e9e",
+    "description": "Frenched rack of lamb coated in a vibrant pistachio-herb crust, served over an intensely sweet and bright pea pur\u00e9e. \ud83e\udd69",
     "time": "45 min",
     "caloriesPerServing": 687,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20herb%20crusted%20lamb%20rack%20mint%20puree%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2139,13 +2182,14 @@
     "directions": [
       "Blanch the peas rapidly in salted water, immediately shocking them in an ice bath to preserve the vibrant chlorophyll. Blend with fresh mint and a touch of stock, passing through a tamis for perfect smoothness.",
       "Season the lamb rack aggressively. Sear in a screaming hot pan until deeply browned on all sides. Brush with Dijon mustard and roll tightly in the pistachio-herb crumb.",
-      "Roast the lamb at 200°C (400°F) for 12-14 minutes for a perfect medium-rare. Rest for at least 10 minutes before carving.",
-      "Char the asparagus tips with a blowtorch or cast-iron pan. SwIPE the pea purée across a warm plate, arrange the lamb chops interlocking, and garnish."
-    ]
+      "Roast the lamb at 200\u00b0C (400\u00b0F) for 12-14 minutes for a perfect medium-rare. Rest for at least 10 minutes before carving.",
+      "Char the asparagus tips with a blowtorch or cast-iron pan. SwIPE the pea pur\u00e9e across a warm plate, arrange the lamb chops interlocking, and garnish."
+    ],
+    "id": "43"
   },
   {
-    "title": "Miso-Glazed Chilean Sea Bass with Shiitake Consommé",
-    "description": "Buttery sea bass marinated in saikyo miso, slowly roasted and served over a crystal-clear, umami-rich mushroom broth. 🐟",
+    "title": "Miso-Glazed Chilean Sea Bass with Shiitake Consomm\u00e9",
+    "description": "Buttery sea bass marinated in saikyo miso, slowly roasted and served over a crystal-clear, umami-rich mushroom broth. \ud83d\udc1f",
     "time": "40 min",
     "caloriesPerServing": 280,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20miso%20glazed%20seabass%20consomme%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2193,14 +2237,15 @@
     ],
     "directions": [
       "Marinate the sea bass in white miso, a splash of sake, and mirin for at least 24 hours. Wipe off the excess marinade before cooking to prevent burning.",
-      "Create the consommé: Simmer shiitake mushrooms, kombu, and aromatics for 2 hours. Clarify the broth using an egg-white raft technique until completely transparent.",
-      "Julienne the daikon radish into delicate noodles using a mandoline. Lightly blanch in the hot consommé.",
-      "Broil the sea bass under a high salamander or oven broiler until the sugars in the miso caramelize and char slightly. Pour the hot consommé tableside."
-    ]
+      "Create the consomm\u00e9: Simmer shiitake mushrooms, kombu, and aromatics for 2 hours. Clarify the broth using an egg-white raft technique until completely transparent.",
+      "Julienne the daikon radish into delicate noodles using a mandoline. Lightly blanch in the hot consomm\u00e9.",
+      "Broil the sea bass under a high salamander or oven broiler until the sugars in the miso caramelize and char slightly. Pour the hot consomm\u00e9 tableside."
+    ],
+    "id": "44"
   },
   {
     "title": "Wagyu Beef Tartare with Quail Egg and Caper Emulsion",
-    "description": "Hand-cut A5 Wagyu tenderloin bound with an aerated mustard-caper emulsion, served with a raw quail egg yolk and flaxseed tuile. 🥩",
+    "description": "Hand-cut A5 Wagyu tenderloin bound with an aerated mustard-caper emulsion, served with a raw quail egg yolk and flaxseed tuile. \ud83e\udd69",
     "time": "20 min",
     "caloriesPerServing": 488,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20wagyu%20beef%20tartare%20quail%20egg%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2252,11 +2297,12 @@
       "Using a surgically sharp knife, hand-dice the wagyu tenderloin into 3mm brunoise. Never use a meat grinder.",
       "Fold the beef gently over an ice bath with minced shallots, chives, capers, and the Dijon emulsion to preserve the fat structure.",
       "Plate using a ring mold. Carefully separate the quail egg yolk and place it perfectly in the center. Garnish with micro-mustard greens and the crisp tuile."
-    ]
+    ],
+    "id": "45"
   },
   {
     "title": "Butter-Poached Lobster Tail with Saffron Risotto",
-    "description": "Tender lobster tail slow-poached in beurre monté, served over an al dente, vibrant yellow saffron risotto. 🦞",
+    "description": "Tender lobster tail slow-poached in beurre mont\u00e9, served over an al dente, vibrant yellow saffron risotto. \ud83e\udd9e",
     "time": "45 min",
     "caloriesPerServing": 525,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20butter%20poached%20lobster%20saffron%20risotto%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2302,15 +2348,16 @@
       }
     ],
     "directions": [
-      "Prepare the beurre monté by whisking cold butter cubes into a tablespoon of simmering water until it emulsifies. Keep exactly at 65°C (150°F).",
-      "Remove lobster meat from the shell and submerge in the beurre monté for 6-8 minutes until perfectly opaque and tender.",
+      "Prepare the beurre mont\u00e9 by whisking cold butter cubes into a tablespoon of simmering water until it emulsifies. Keep exactly at 65\u00b0C (150\u00b0F).",
+      "Remove lobster meat from the shell and submerge in the beurre mont\u00e9 for 6-8 minutes until perfectly opaque and tender.",
       "Toast the arborio rice dry, deglaze with white wine infused with premium saffron threads. Slowly ladle in hot seafood stock, stirring constantly to release starches.",
       "Finish the risotto off the heat (mantecatura) with Parmigiano and a knob of cold butter. Plate the risotto, top with the sliced lobster, and garnish with gold leaf or micro-greens."
-    ]
+    ],
+    "id": "46"
   },
   {
     "title": "Venison Loin with Blackberry-Juniper Jus",
-    "description": "Gamey, incredibly lean venison roasted to a perfect rare, balanced with an intensely reduced dark berry and juniper jus. 🌲",
+    "description": "Gamey, incredibly lean venison roasted to a perfect rare, balanced with an intensely reduced dark berry and juniper jus. \ud83c\udf32",
     "time": "45 min",
     "caloriesPerServing": 407,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20venison%20loin%20blackberry%20jus%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2361,11 +2408,12 @@
       "In the same pan, deglaze with a splash of gin or red wine. Add the blackberries and muddle them slightly. Pour in the veal demi-glace and reduce until it coats the back of a spoon.",
       "Blanch the broccolini, then char rapidly on a cast-iron grill until smoky.",
       "Carve the venison into thick medallions. Pool the glossy blackberry jus on the plate and arrange the meat alongside the charred broccolini."
-    ]
+    ],
+    "id": "47"
   },
   {
-    "title": "Macadamia-Crusted Halibut with Lemongrass Velouté",
-    "description": "Pristine white halibut wearing a golden macadamia crust, swimming in an aromatic, velvety coconut-lemongrass sauce. 🥥",
+    "title": "Macadamia-Crusted Halibut with Lemongrass Velout\u00e9",
+    "description": "Pristine white halibut wearing a golden macadamia crust, swimming in an aromatic, velvety coconut-lemongrass sauce. \ud83e\udd65",
     "time": "35 min",
     "caloriesPerServing": 455,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20macadamia%20crusted%20halibut%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2407,14 +2455,15 @@
     ],
     "directions": [
       "Process macadamia nuts into a coarse crumb. Lightly brush the halibut with a binding agent (like a touch of egg white) and press the nuts onto the top side.",
-      "Pan-roast the halibut crust-side down in a dry non-stick pan to toast the nuts, then flip and finish cooking gently in a 180°C (350°F) oven.",
-      "Sweat bruised lemongrass and ginger in a saucepan without coloring. Add coconut milk and a splash of fish stock. Reduce, strain, and froth with an immersion blender for the velouté.",
-      "Pour the frothy velouté into a shallow bowl and carefully place the crusted halibut in the center."
-    ]
+      "Pan-roast the halibut crust-side down in a dry non-stick pan to toast the nuts, then flip and finish cooking gently in a 180\u00b0C (350\u00b0F) oven.",
+      "Sweat bruised lemongrass and ginger in a saucepan without coloring. Add coconut milk and a splash of fish stock. Reduce, strain, and froth with an immersion blender for the velout\u00e9.",
+      "Pour the frothy velout\u00e9 into a shallow bowl and carefully place the crusted halibut in the center."
+    ],
+    "id": "48"
   },
   {
     "title": "Wild Mushroom Confit and Black Garlic on Artisan Keto Toast",
-    "description": "Slow-poached exotic mushrooms bathed in olive oil, deeply umami black garlic purée, and a perfectly runny sous-vide egg. 🍳",
+    "description": "Slow-poached exotic mushrooms bathed in olive oil, deeply umami black garlic pur\u00e9e, and a perfectly runny sous-vide egg. \ud83c\udf73",
     "time": "40 min",
     "caloriesPerServing": 426,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20wild%20mushroom%20confit%20poached%20egg%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2449,7 +2498,7 @@
         "calories": 260
       },
       {
-        "name": "Black Garlic Purée",
+        "name": "Black Garlic Pur\u00e9e",
         "amount": "1 tbsp",
         "weightGrams": 15,
         "calories": 25
@@ -2462,15 +2511,16 @@
       }
     ],
     "directions": [
-      "Clean the wild mushrooms with a brush (never wash). Submerge them in high-quality olive oil with a sprig of rosemary and garlic cloves. Confit gently at 85°C (185°F) for 45 minutes.",
-      "Cook the eggs sous-vide at exactly 63°C (145.4°F) for 45 minutes to achieve a custard-like yolk and tender white.",
-      "Toast the keto bread in a dry pan until crisp. Smear generously with the fermented black garlic purée.",
+      "Clean the wild mushrooms with a brush (never wash). Submerge them in high-quality olive oil with a sprig of rosemary and garlic cloves. Confit gently at 85\u00b0C (185\u00b0F) for 45 minutes.",
+      "Cook the eggs sous-vide at exactly 63\u00b0C (145.4\u00b0F) for 45 minutes to achieve a custard-like yolk and tender white.",
+      "Toast the keto bread in a dry pan until crisp. Smear generously with the fermented black garlic pur\u00e9e.",
       "Layer the drained mushroom confit over the toast, carefully crack the 63-degree egg on top, and finish with flaky Maldon sea salt."
-    ]
+    ],
+    "id": "49"
   },
   {
-    "title": "Seared Ahi Tuna with Yuzu-Ponzu Sphere and Edamame Purée",
-    "description": "Sushi-grade Ahi seared for mere seconds, accompanied by a vibrant edamame silk and molecular yuzu-ponzu caviar. 🍣",
+    "title": "Seared Ahi Tuna with Yuzu-Ponzu Sphere and Edamame Pur\u00e9e",
+    "description": "Sushi-grade Ahi seared for mere seconds, accompanied by a vibrant edamame silk and molecular yuzu-ponzu caviar. \ud83c\udf63",
     "time": "25 min",
     "caloriesPerServing": 317,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20seared%20ahi%20tuna%20yuzu%20edamame%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2517,15 +2567,16 @@
       }
     ],
     "directions": [
-      "Create the edamame purée: Blanch the edamame in aggressively salted water. Transfer to a blender with a splash of dashi and blend until completely silky. Pass through a fine sieve.",
+      "Create the edamame pur\u00e9e: Blanch the edamame in aggressively salted water. Transfer to a blender with a splash of dashi and blend until completely silky. Pass through a fine sieve.",
       "Using sodium alginate and calcium chloride (spherification), turn the yuzu-ponzu sauce into small, burst-in-your-mouth spheres.",
       "Coat the tuna block in black sesame seeds. Heat a cast-iron pan until white-hot. Sear the tuna for exactly 10 seconds per side, keeping the center completely raw.",
-      "Slice the tuna cleanly with a sashimi knife. Swipe the bright green edamame purée across the plate, fan the tuna, and garnish with the yuzu spheres and micro-cilantro."
-    ]
+      "Slice the tuna cleanly with a sashimi knife. Swipe the bright green edamame pur\u00e9e across the plate, fan the tuna, and garnish with the yuzu spheres and micro-cilantro."
+    ],
+    "id": "50"
   },
   {
-    "title": "Butter-Basted Ora King Salmon with Sunchoke Velouté and Ossetra Caviar",
-    "description": "Ultra-premium Ora King salmon slowly basted in cultured butter, resting on a silky Jerusalem artichoke velouté, crowned with a quenelle of black caviar. 🐟",
+    "title": "Butter-Basted Ora King Salmon with Sunchoke Velout\u00e9 and Ossetra Caviar",
+    "description": "Ultra-premium Ora King salmon slowly basted in cultured butter, resting on a silky Jerusalem artichoke velout\u00e9, crowned with a quenelle of black caviar. \ud83d\udc1f",
     "time": "40 min",
     "caloriesPerServing": 430,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20ora%20king%20salmon%20sunchoke%20veloute%20caviar%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2573,15 +2624,16 @@
       }
     ],
     "directions": [
-      "Prepare the velouté: Gently sweat peeled and diced sunchokes in a touch of butter without color. Deglaze with white wine, simmer with vegetable stock until tender, then blend with heavy cream until passing through a fine chinois yields a glassy texture.",
+      "Prepare the velout\u00e9: Gently sweat peeled and diced sunchokes in a touch of butter without color. Deglaze with white wine, simmer with vegetable stock until tender, then blend with heavy cream until passing through a fine chinois yields a glassy texture.",
       "Score the skin of the Ora King salmon to prevent curling. Place skin-side down in a cold carbon steel pan, bringing the heat to medium-low to meticulously render the fat and crisp the skin for 8-10 minutes.",
       "Flip the fish briefly, kill the heat, and baste continuously with foaming cultured butter and thyme to achieve a flawless medium-rare core.",
-      "Spoon the hot sunchoke velouté into a shallow bowl, place the salmon skin-side up, and finish with a precise quenelle of Ossetra caviar and micro-dill."
-    ]
+      "Spoon the hot sunchoke velout\u00e9 into a shallow bowl, place the salmon skin-side up, and finish with a precise quenelle of Ossetra caviar and micro-dill."
+    ],
+    "id": "51"
   },
   {
     "title": "Sous-Vide Veal Tenderloin with Black Garlic Jus and Charred Asparagus",
-    "description": "Incredibly tender, milk-fed veal cooked precisely sous-vide, glazed with a deeply fermented, umami-bomb black garlic reduction. 🥩",
+    "description": "Incredibly tender, milk-fed veal cooked precisely sous-vide, glazed with a deeply fermented, umami-bomb black garlic reduction. \ud83e\udd69",
     "time": "90 min",
     "caloriesPerServing": 328,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20sous%20vide%20veal%20tenderloin%20black%20garlic%20jus%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2628,15 +2680,16 @@
       }
     ],
     "directions": [
-      "Trim the veal tenderloin of any silver skin. Vacuum seal with aromatics and cook sous-vide at 56°C (133°F) for exactly 1 hour for edge-to-edge perfection.",
-      "Purée the fermented black garlic into the rich veal demi-glace. Simmer the jus until it intensely coats the back of a spoon (nappé consistency).",
+      "Trim the veal tenderloin of any silver skin. Vacuum seal with aromatics and cook sous-vide at 56\u00b0C (133\u00b0F) for exactly 1 hour for edge-to-edge perfection.",
+      "Pur\u00e9e the fermented black garlic into the rich veal demi-glace. Simmer the jus until it intensely coats the back of a spoon (napp\u00e9 consistency).",
       "Remove the veal from the bag and pat completely dry. Sear aggressively in a blazing hot pan with grapeseed oil for 30 seconds per side to trigger the Maillard reaction. Let rest.",
       "Char the asparagus over an open flame or under a broiler. Carve the veal into thick medallions and pool the glossy black garlic jus around the meat."
-    ]
+    ],
+    "id": "52"
   },
   {
     "title": "Poached Langoustine Tail with Lemongrass Emulsion and Daikon Fondant",
-    "description": "Sweet, delicate langoustine gently poached in aromatic butter, elevated by an ethereal, foamy coconut and lemongrass broth. 🦐",
+    "description": "Sweet, delicate langoustine gently poached in aromatic butter, elevated by an ethereal, foamy coconut and lemongrass broth. \ud83e\udd90",
     "time": "45 min",
     "caloriesPerServing": 280,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20poached%20langoustine%20lemongrass%20emulsion%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2685,13 +2738,14 @@
     "directions": [
       "Cut the daikon radish into uniform cylinders. Braise slowly in a court bouillon until fork-tender but retaining structure (fondant style).",
       "Bruise the lemongrass and ginger, steeping them gently in the coconut milk. Strain the infused liquid and aerate with an immersion blender to create a stable, fragrant foam.",
-      "Bring the clarified butter to exactly 60°C (140°F). Submerge the shelled langoustine tails and poach gently for 3-4 minutes until just pearlescent. Do not overcook.",
+      "Bring the clarified butter to exactly 60\u00b0C (140\u00b0F). Submerge the shelled langoustine tails and poach gently for 3-4 minutes until just pearlescent. Do not overcook.",
       "Plate the daikon cylinders, rest the buttery langoustine over them, and generously spoon the aerated lemongrass emulsion around the dish."
-    ]
+    ],
+    "id": "53"
   },
   {
     "title": "Pan-Roasted Turbot with White Asparagus and Champagne Beurre Blanc",
-    "description": "The king of fish, turbot, roasted on the bone for maximum flavor, draped in a luxurious, acidic Champagne butter sauce. 🥂",
+    "description": "The king of fish, turbot, roasted on the bone for maximum flavor, draped in a luxurious, acidic Champagne butter sauce. \ud83e\udd42",
     "time": "40 min",
     "caloriesPerServing": 355,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20pan%20roasted%20turbot%20white%20asparagus%20beurre%20blanc%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2742,11 +2796,12 @@
       "Reduce the Champagne, white wine vinegar, and minced shallot in a small saucepan until nearly dry (au sec). Off the heat, whisk in extremely cold butter cubes one by one to mount a stable, glossy beurre blanc. Keep warm.",
       "Heat a heavy skillet. Sear the turbot fillet in a whisper of oil until a golden crust develops. Flip, baste with pan juices, and cook until it yields to a cake tester.",
       "Arrange the white asparagus linearly, place the turbot gently alongside, and pour the luscious beurre blanc so it splits slightly on the plate."
-    ]
+    ],
+    "id": "54"
   },
   {
     "title": "Miso-Cured Black Cod with Dashi Broth and Shimeji Mushrooms",
-    "description": "Sablefish marinated in sweet white miso, yielding a caramelized exterior that gives way to buttery, melt-in-your-mouth flakes in an umami dashi. 🍄",
+    "description": "Sablefish marinated in sweet white miso, yielding a caramelized exterior that gives way to buttery, melt-in-your-mouth flakes in an umami dashi. \ud83c\udf44",
     "time": "30 min",
     "caloriesPerServing": 377,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20miso%20cured%20black%20cod%20dashi%20shimeji%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2797,11 +2852,12 @@
       "Gently wipe the excess miso marinade off the fish to prevent scorching. Broil the black cod under high heat until the sugars caramelize into a deep, mahogany crust and the fish flakes effortlessly.",
       "Warm the dashi kombu broth, steeping the delicate shimeji mushrooms until just softened. Do not boil.",
       "Place the glazed cod in a deep, dark bowl. Pour the steaming dashi tableside, garnishing with finely sliced scallions or an edible gold flake."
-    ]
+    ],
+    "id": "55"
   },
   {
     "title": "Iberico Pork Secreto with Romesco Sauce and Charred Baby Leeks",
-    "description": "The highly prized, heavily marbled 'secret' cut of acorn-fed Iberian pork, paired with a smoky Spanish almond-pepper purée. 🥩",
+    "description": "The highly prized, heavily marbled 'secret' cut of acorn-fed Iberian pork, paired with a smoky Spanish almond-pepper pur\u00e9e. \ud83e\udd69",
     "time": "35 min",
     "caloriesPerServing": 518,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20iberico%20pork%20secreto%20romesco%20charred%20leeks%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2853,11 +2909,12 @@
       "Trim the baby leeks, toss in a drop of oil, and char aggressively over an open flame or in a dry cast-iron skillet until the outer layers are blackened. Peel away the burnt exterior to reveal tender, sweet onion layers.",
       "Season the Iberico Secreto with flaky sea salt. Due to its intense marbling, cook in a dry pan over high heat, rendering the intramuscular fat until a dark crust forms. Serve medium-rare to medium.",
       "Swoosh the Romesco sauce across a slate plate, carve the pork against the grain, and lay over the smoky charred leeks."
-    ]
+    ],
+    "id": "56"
   },
   {
-    "title": "Seared Ostrich Fillet with Blackberry Gastrique and Smoked Parsnip Purée",
-    "description": "Ultra-lean red meat from premium ostrich fillet, complemented by a sweet-and-sour berry reduction and earthy, wood-smoked parsnips. 🍖",
+    "title": "Seared Ostrich Fillet with Blackberry Gastrique and Smoked Parsnip Pur\u00e9e",
+    "description": "Ultra-lean red meat from premium ostrich fillet, complemented by a sweet-and-sour berry reduction and earthy, wood-smoked parsnips. \ud83c\udf56",
     "time": "45 min",
     "caloriesPerServing": 312,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20seared%20ostrich%20blackberry%20gastrique%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2904,15 +2961,16 @@
       }
     ],
     "directions": [
-      "Cold-smoke peeled parsnips with applewood chips for 20 minutes. Boil until tender, then purée until completely silky, adjusting consistency with a touch of the cooking liquid.",
+      "Cold-smoke peeled parsnips with applewood chips for 20 minutes. Boil until tender, then pur\u00e9e until completely silky, adjusting consistency with a touch of the cooking liquid.",
       "Make the gastrique: Caramelize a tiny amount of sweetener, deglaze with red wine vinegar, add muddled blackberries and beef stock. Reduce until syrupy and intense.",
       "Season the ostrich fillet. Treat it like the leanest filet mignon: sear on very high heat rapidly. It MUST be served rare or medium-rare to avoid toughness. Rest for 10 minutes.",
-      "Pipe the smoked parsnip purée onto the plate. Slice the ostrich into medallions, arrange fanned out, and drizzle with the tart blackberry gastrique."
-    ]
+      "Pipe the smoked parsnip pur\u00e9e onto the plate. Slice the ostrich into medallions, arrange fanned out, and drizzle with the tart blackberry gastrique."
+    ],
+    "id": "57"
   },
   {
     "title": "Confit Quail with Pickled Mustard Seeds and Caramelized Endive",
-    "description": "Petite game birds slowly cooked in their own rendered fat for supreme tenderness, cut by the acidity of 'mustard caviar' and bitter endive. 🪶",
+    "description": "Petite game birds slowly cooked in their own rendered fat for supreme tenderness, cut by the acidity of 'mustard caviar' and bitter endive. \ud83e\udeb6",
     "time": "120 min",
     "caloriesPerServing": 370,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20confit%20quail%20pickled%20mustard%20seeds%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -2954,14 +3012,15 @@
     ],
     "directions": [
       "Prepare mustard caviar: Blanch the mustard seeds in boiling water three times to remove bitterness. Simmer in a brine of white wine vinegar, water, and salt until plump and tender.",
-      "Cure the quail overnight with salt, thyme, and crushed juniper. Submerge fully in melted duck fat and cook low and slow (confit) at 90°C (195°F) for 2 hours until the meat yields to gentle pressure.",
+      "Cure the quail overnight with salt, thyme, and crushed juniper. Submerge fully in melted duck fat and cook low and slow (confit) at 90\u00b0C (195\u00b0F) for 2 hours until the meat yields to gentle pressure.",
       "Halve the endives and sear cut-side down in a dry pan until deeply caramelized. Deglaze with a splash of water to steam them tender.",
       "Carefully remove the quail from the fat and flash-sear skin-side down to crisp. Serve alongside the caramelized endive, garnished with the bursting pickled mustard seeds."
-    ]
+    ],
+    "id": "58"
   },
   {
     "title": "Olive Oil Poached Halibut with Saffron Fennel Broth and Sea Beans",
-    "description": "Pearly white halibut cooked gently submerged in premium olive oil, resting in a fragrant golden broth with crunchy, salty sea beans. 🐟",
+    "description": "Pearly white halibut cooked gently submerged in premium olive oil, resting in a fragrant golden broth with crunchy, salty sea beans. \ud83d\udc1f",
     "time": "45 min",
     "caloriesPerServing": 334,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20olive%20oil%20poached%20halibut%20saffron%20fennel%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -3010,14 +3069,15 @@
     ],
     "directions": [
       "Thinly shave the fennel bulb using a mandoline. Sweat the trimmings in a pan, add fish fumet and a generous pinch of saffron threads. Simmer and strain for a vibrant, golden broth.",
-      "Bring a deep pan of high-quality extra virgin olive oil up to a precise 55°C (131°F). Completely submerge the seasoned halibut fillets. Poach for 15-20 minutes until the fish turns opaque and begins to separate into thick flakes.",
+      "Bring a deep pan of high-quality extra virgin olive oil up to a precise 55\u00b0C (131\u00b0F). Completely submerge the seasoned halibut fillets. Poach for 15-20 minutes until the fish turns opaque and begins to separate into thick flakes.",
       "Quickly blanch the sea beans in unsalted boiling water for 30 seconds, then shock in ice water to maintain their vivid green crunch.",
       "Carefully lift the fragile halibut from the oil and drain briefly. Place in a shallow bowl, nestle the shaved fennel and sea beans alongside, and pour the hot saffron broth around the fish."
-    ]
+    ],
+    "id": "59"
   },
   {
     "title": "Elk Medallions with Juniper-Port Reduction and Celery Root Fondant",
-    "description": "Wild, robust elk loin elevated by a sticky reduction of ruby port wine and piney juniper, grounded by earthy celery root. 🦌",
+    "description": "Wild, robust elk loin elevated by a sticky reduction of ruby port wine and piney juniper, grounded by earthy celery root. \ud83e\udd8c",
     "time": "50 min",
     "caloriesPerServing": 321,
     "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20elk%20medallions%20juniper%20port%20reduction%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
@@ -3068,11 +3128,12 @@
       "Toast crushed juniper berries in a dry pan until fragrant. Deglaze with Ruby Port and reduce by two-thirds. Whisk in the cold butter off the heat (monter au beurre) for a silken sauce.",
       "Season the elk medallions generously with coarse salt. Sear in a screaming-hot cast-iron skillet for exactly 2 minutes per side. Baste briefly with pan juices. Elk is extremely lean and must not be cooked past medium-rare.",
       "Rest the meat for 5 minutes. Slice against the grain, arrange elegantly over the celeriac fondant, and nap the medallions with the glossy juniper-port reduction."
-    ]
+    ],
+    "id": "60"
   },
   {
     "title": "Keto Avocado Salmon Boat",
-    "description": "Rich in omega-3s and healthy fats, this simple yet elegant salmon boat is perfect for a keto dinner. 🥑🐟",
+    "description": "Rich in omega-3s and healthy fats, this simple yet elegant salmon boat is perfect for a keto dinner. \ud83e\udd51\ud83d\udc1f",
     "time": "25 min",
     "caloriesPerServing": 450,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
@@ -3114,16 +3175,17 @@
       }
     ],
     "directions": [
-      "Preheat your oven to 400°F (200°C).",
+      "Preheat your oven to 400\u00b0F (200\u00b0C).",
       "Slice the avocado in half and remove the pit.",
       "Place a small piece of salmon into the hollowed avocado half.",
       "Drizzle with olive oil, lemon juice, salt, and pepper.",
       "Bake for 15-20 minutes until the salmon is cooked through."
-    ]
+    ],
+    "id": "61"
   },
   {
     "title": "Protein-Packed Blueberry Pancakes",
-    "description": "Start your morning with these fluffy, high-protein pancakes packed with fresh antioxidants. 🥞🫐",
+    "description": "Start your morning with these fluffy, high-protein pancakes packed with fresh antioxidants. \ud83e\udd5e\ud83e\uded0",
     "time": "15 min",
     "caloriesPerServing": 350,
     "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
@@ -3169,11 +3231,12 @@
       "Gently fold in the fresh blueberries.",
       "Cook on a non-stick skillet over medium heat until bubbles form, then flip.",
       "Serve hot with a drizzle of sugar-free syrup."
-    ]
+    ],
+    "id": "62"
   },
   {
     "title": "Mediterranean Quinoa Bowl",
-    "description": "A vibrant, refreshing bowl loaded with fiber and healthy fats, perfect for a sunny afternoon lunch. 🥗✨",
+    "description": "A vibrant, refreshing bowl loaded with fiber and healthy fats, perfect for a sunny afternoon lunch. \ud83e\udd57\u2728",
     "time": "20 min",
     "caloriesPerServing": 380,
     "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
@@ -3224,11 +3287,12 @@
       "Halve the cherry tomatoes and slice the cucumbers.",
       "Arrange the tomatoes, cucumbers, and olives over the quinoa.",
       "Top with a generous scoop of hummus and a drizzle of olive oil."
-    ]
+    ],
+    "id": "63"
   },
   {
     "title": "Spicy Lean Turkey Chili",
-    "description": "Warm your soul and hit your protein goals with this rich and spicy turkey chili. 🌶️🍲",
+    "description": "Warm your soul and hit your protein goals with this rich and spicy turkey chili. \ud83c\udf36\ufe0f\ud83c\udf72",
     "time": "45 min",
     "caloriesPerServing": 310,
     "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
@@ -3274,11 +3338,12 @@
       "Add the crushed tomatoes and kidney beans (drained and rinsed).",
       "Simmer for 30 minutes to let the flavors meld together.",
       "Garnish with a sprinkle of low-fat cheese or cilantro before serving."
-    ]
+    ],
+    "id": "64"
   },
   {
     "title": "Refreshing Green Detox Smoothie",
-    "description": "A quick hit of vitamins and hydration, excellent for a post-workout recovery or a fresh morning start. 🍏🥬",
+    "description": "A quick hit of vitamins and hydration, excellent for a post-workout recovery or a fresh morning start. \ud83c\udf4f\ud83e\udd6c",
     "time": "5 min",
     "caloriesPerServing": 180,
     "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
@@ -3324,11 +3389,12 @@
       "Add spinach, apple, banana, and coconut water into a blender.",
       "Blend on high until completely smooth.",
       "Pour into a chilled glass and enjoy immediately!"
-    ]
+    ],
+    "id": "65"
   },
   {
     "title": "Low-Carb Zucchini Noodles with Pesto",
-    "description": "A light and flavorful alternative to pasta, tossed in a rich basil pesto sauce. 🌿🍝",
+    "description": "A light and flavorful alternative to pasta, tossed in a rich basil pesto sauce. \ud83c\udf3f\ud83c\udf5d",
     "time": "15 min",
     "caloriesPerServing": 220,
     "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
@@ -3371,14 +3437,15 @@
     ],
     "directions": [
       "Spiralize the zucchini into thin noodles.",
-      "Heat a pan over medium heat and lightly sauté the noodles for 2-3 minutes.",
+      "Heat a pan over medium heat and lightly saut\u00e9 the noodles for 2-3 minutes.",
       "Remove from heat and toss with basil pesto until evenly coated.",
       "Top with halved cherry tomatoes and grated parmesan cheese."
-    ]
+    ],
+    "id": "66"
   },
   {
     "title": "Classic Chicken Caesar Salad",
-    "description": "Crisp romaine, tender grilled chicken, and a creamy, tangy dressing make this a timeless favorite. 🥗🍗",
+    "description": "Crisp romaine, tender grilled chicken, and a creamy, tangy dressing make this a timeless favorite. \ud83e\udd57\ud83c\udf57",
     "time": "20 min",
     "caloriesPerServing": 410,
     "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
@@ -3422,11 +3489,12 @@
       "Chop the romaine lettuce and place in a large bowl.",
       "Toss the lettuce with Caesar dressing.",
       "Top with sliced chicken and a handful of croutons."
-    ]
+    ],
+    "id": "67"
   },
   {
     "title": "Overnight Chia Pudding",
-    "description": "Wake up to a ready-to-eat, creamy and nutritious chia pudding topped with fresh fruit. 🥄🍓",
+    "description": "Wake up to a ready-to-eat, creamy and nutritious chia pudding topped with fresh fruit. \ud83e\udd44\ud83c\udf53",
     "time": "5 min",
     "caloriesPerServing": 240,
     "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
@@ -3471,11 +3539,12 @@
       "Let sit for 5 minutes, then whisk again to prevent clumping.",
       "Cover and refrigerate overnight (or at least 2 hours).",
       "Top with fresh berries before serving."
-    ]
+    ],
+    "id": "68"
   },
   {
     "title": "Roasted Chickpea Snack Bowl",
-    "description": "Crunchy, salty, and incredibly satisfying. A high-fiber snack that keeps you full. 🥣🔥",
+    "description": "Crunchy, salty, and incredibly satisfying. A high-fiber snack that keeps you full. \ud83e\udd63\ud83d\udd25",
     "time": "30 min",
     "caloriesPerServing": 180,
     "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
@@ -3516,15 +3585,16 @@
       }
     ],
     "directions": [
-      "Preheat oven to 400°F (200°C).",
+      "Preheat oven to 400\u00b0F (200\u00b0C).",
       "Drain, rinse, and thoroughly dry the chickpeas with a paper towel.",
       "Toss the chickpeas with olive oil, paprika, and salt.",
       "Spread evenly on a baking sheet and roast for 20-25 minutes until crunchy."
-    ]
+    ],
+    "id": "69"
   },
   {
     "title": "Garlic Butter Steak Bites",
-    "description": "Tender, juicy, and packed with flavor. These steak bites are the ultimate high-protein dinner. 🥩🧄",
+    "description": "Tender, juicy, and packed with flavor. These steak bites are the ultimate high-protein dinner. \ud83e\udd69\ud83e\uddc4",
     "time": "15 min",
     "caloriesPerServing": 420,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
@@ -3569,11 +3639,12 @@
       "Heat a skillet over high heat and sear the steak pieces for 3-4 minutes.",
       "Reduce heat, add butter and minced garlic, and toss to coat the steak.",
       "Garnish with chopped fresh parsley and serve immediately."
-    ]
+    ],
+    "id": "70"
   },
   {
     "title": "Vegan Sweet Potato Curry",
-    "description": "A comforting, creamy coconut curry loaded with sweet potatoes and warm spices. 🍛🍠",
+    "description": "A comforting, creamy coconut curry loaded with sweet potatoes and warm spices. \ud83c\udf5b\ud83c\udf60",
     "time": "35 min",
     "caloriesPerServing": 340,
     "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
@@ -3618,11 +3689,12 @@
       "In a large pot, gently fry the curry paste until fragrant.",
       "Add the sweet potatoes and coconut milk. Simmer for 20 minutes until tender.",
       "Stir in the spinach and let it wilt before serving."
-    ]
+    ],
+    "id": "71"
   },
   {
     "title": "Egg Muffin Breakfast Cups",
-    "description": "Portable, protein-packed egg muffins you can make ahead for busy mornings. 🥚🧁",
+    "description": "Portable, protein-packed egg muffins you can make ahead for busy mornings. \ud83e\udd5a\ud83e\uddc1",
     "time": "25 min",
     "caloriesPerServing": 150,
     "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
@@ -3663,15 +3735,16 @@
       }
     ],
     "directions": [
-      "Preheat oven to 350°F (175°C) and grease a muffin tin.",
+      "Preheat oven to 350\u00b0F (175\u00b0C) and grease a muffin tin.",
       "Whisk eggs in a bowl and season with salt and pepper.",
       "Divide chopped bell pepper, spinach, and cheese among the muffin cups.",
       "Pour the egg mixture over the fillings and bake for 15-20 minutes."
-    ]
+    ],
+    "id": "72"
   },
   {
     "title": "Tuna Avocado Salad",
-    "description": "A mayo-free tuna salad using creamy avocado for healthy fats and incredible texture. 🐟🥑",
+    "description": "A mayo-free tuna salad using creamy avocado for healthy fats and incredible texture. \ud83d\udc1f\ud83e\udd51",
     "time": "10 min",
     "caloriesPerServing": 280,
     "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
@@ -3716,11 +3789,12 @@
       "Add the avocado and mash it together with the tuna using a fork.",
       "Stir in finely diced red onion, lemon juice, salt, and pepper.",
       "Serve on cucumber slices or whole grain toast."
-    ]
+    ],
+    "id": "73"
   },
   {
     "title": "Chocolate Peanut Butter Smoothie",
-    "description": "Tastes like dessert but is packed with muscle-building protein and healthy fats. 🍫🥜",
+    "description": "Tastes like dessert but is packed with muscle-building protein and healthy fats. \ud83c\udf6b\ud83e\udd5c",
     "time": "5 min",
     "caloriesPerServing": 390,
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
@@ -3764,11 +3838,12 @@
       "Add all ingredients to a blender.",
       "Add a handful of ice cubes.",
       "Blend on high until smooth and creamy."
-    ]
+    ],
+    "id": "74"
   },
   {
     "title": "Shrimp Stir-Fry with Broccoli",
-    "description": "A quick, savory, and high-protein dinner that comes together in one pan. 🍤🥦",
+    "description": "A quick, savory, and high-protein dinner that comes together in one pan. \ud83c\udf64\ud83e\udd66",
     "time": "20 min",
     "caloriesPerServing": 260,
     "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
@@ -3813,6 +3888,7 @@
       "Add broccoli florets and stir-fry for 4-5 minutes until tender-crisp.",
       "Add shrimp and cook for 2-3 minutes until they turn pink.",
       "Drizzle with soy sauce, toss well, and serve hot."
-    ]
+    ],
+    "id": "75"
   }
 ]

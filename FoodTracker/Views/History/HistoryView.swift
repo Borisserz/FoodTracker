@@ -78,7 +78,7 @@ struct FoodsDashboardView: View {
                                     Button(action: {
                                         withAnimation(.spring()) { selectedFilter = option }
                                     }) {
-                                        Text(option)
+                                        Text(LocalizedStringKey(option))
                                             .font(.subheadline).bold()
                                             .padding(.horizontal, 16).padding(.vertical, 8)
                                             .background(selectedFilter == option ? Color.themePink : Color.white)
@@ -93,7 +93,7 @@ struct FoodsDashboardView: View {
                         }
 
                         if filteredMeals.isEmpty {
-                            let message = selectedFilter == "All" ? "Your logged meals will appear here." : "No meals logged for \(selectedFilter)."
+                            let message = selectedFilter == "All" ? String(localized: "Your logged meals will appear here.") : String(localized: "No meals logged for \(String(localized: LocalizedStringResource(stringLiteral: selectedFilter))).")
                             EmptyStateView(imageName: "fork.knife", title: String(localized: "No History"), description: message)
                                 .frame(height: 200).premiumCardStyle()
                                 .padding(.horizontal)
@@ -478,7 +478,7 @@ struct FrequentMealRow: View {
     var body: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text(timeTag)
+                Text(LocalizedStringKey(timeTag))
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 6)
@@ -627,7 +627,7 @@ struct LearnCategorySection: View {
         VStack(alignment: .leading, spacing: 16) {
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(category.title)
+                Text(LocalizedStringKey(category.title))
                     .font(.title3)
                     .bold()
                     .foregroundColor(.primary)
@@ -693,7 +693,7 @@ struct ArticleCardView: View {
 
                 HStack(spacing: 4) {
                     Image(systemName: "clock.fill").font(.system(size: 9))
-                    Text("\(article.readTime) MIN").font(.system(size: 9, weight: .bold))
+                    Text("\(article.readTime) \(String(localized: "MIN"))").font(.system(size: 9, weight: .bold))
                 }
                 .foregroundStyle(.white)
                 .padding(.horizontal, 8).padding(.vertical, 5)
@@ -703,12 +703,12 @@ struct ArticleCardView: View {
             .frame(height: 115).clipped()
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(article.title)
+                Text(LocalizedStringKey(article.title))
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                Text(article.subtitle)
+                Text(LocalizedStringKey(article.subtitle))
                     .font(.system(.caption, weight: .medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -777,7 +777,7 @@ struct ArticleDetailView: View {
                             VStack(alignment: .leading, spacing: 16) {
                                 HStack(spacing: 6) {
                                     Image(systemName: "clock.fill")
-                                    Text("\(article.readTime) min read")
+                                    Text("\(article.readTime) \(String(localized: "min read"))")
                                 }
                                 .font(.caption.bold())
                                 .foregroundStyle(.white)
@@ -787,7 +787,7 @@ struct ArticleDetailView: View {
                                 .environment(\.colorScheme, .dark)
                                 .clipShape(Capsule())
 
-                                Text(article.title)
+                                Text(LocalizedStringKey(article.title))
                                     .font(.system(.largeTitle, design: .rounded, weight: .heavy))
                                     .foregroundStyle(.white)
                                     .lineSpacing(4)
