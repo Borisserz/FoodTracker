@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import FirebaseFirestore
 struct PremiumRecipe: Identifiable, Hashable, Codable {
-    @DocumentID var id: String? 
+    var id: String? = UUID().uuidString
     let title: String
     let description: String
     let time: String
@@ -269,23 +269,7 @@ struct MealTypeCard: View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
                 // Background food image with placeholder
-                AsyncImage(url: URL(string: imageUrl)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else if phase.error != nil {
-                        Image(AINutritionService.shared.fallbackLocalImage(for: title))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        LinearGradient(
-                            colors: [color.opacity(0.85), color],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    }
-                }
+                SmartImageView(url: imageUrl, fallbackTitle: title)
                 .frame(width: 260, height: 110)
                 .clipped()
                 
@@ -484,16 +468,7 @@ struct CustomRecipePremiumCard: View {
             
             // Hero Image
             ZStack(alignment: .bottomLeading) {
-                AsyncImage(url: URL(string: AINutritionService.shared.imageUrl(forMealTitle: recipe.name))) { phase in
-                    if let image = phase.image {
-                        image.resizable().aspectRatio(contentMode: .fill)
-                    } else if phase.error != nil {
-                        Image(AINutritionService.shared.fallbackLocalImage(for: recipe.name))
-                            .resizable().aspectRatio(contentMode: .fill)
-                    } else {
-                        Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView())
-                    }
-                }
+                SmartImageView(url: AINutritionService.shared.imageUrl(forMealTitle: recipe.name), fallbackTitle: recipe.name)
                 .frame(height: 140)
                 .clipped()
                 
@@ -804,17 +779,8 @@ struct PremiumRecipeCard: View {
 
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .bottomLeading) {
-                AsyncImage(url: URL(string: effectiveUrl)) { phase in
-                    if let image = phase.image {
-                        image.resizable().aspectRatio(contentMode: .fill)
-                    } else if phase.error != nil {
-                        // Network failed — use local asset fallback
-                        Image(AINutritionService.shared.fallbackLocalImage(for: recipe.title))
-                            .resizable().aspectRatio(contentMode: .fill)
-                    } else {
-                        Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView())
-                    }
-                }.frame(height: 160).clipped()
+                SmartImageView(url: effectiveUrl, fallbackTitle: recipe.title)
+                    .frame(height: 160).clipped()
 
                 LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
 
@@ -942,16 +908,7 @@ struct PremiumRecipeDetailView: View {
                             ? AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
                             : recipe.imageUrl
 
-                        AsyncImage(url: URL(string: effectiveDetailUrl)) { phase in
-                            if let image = phase.image {
-                                image.resizable().aspectRatio(contentMode: .fill)
-                            } else if phase.error != nil {
-                                Image(AINutritionService.shared.fallbackLocalImage(for: recipe.title))
-                                    .resizable().aspectRatio(contentMode: .fill)
-                            } else {
-                                Rectangle().fill(Color.gray.opacity(0.2))
-                            }
-                        }
+                        SmartImageView(url: effectiveDetailUrl, fallbackTitle: recipe.title)
                         .frame(maxWidth: .infinity)
                         .frame(height: 320)
                         .clipped()

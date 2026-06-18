@@ -290,7 +290,7 @@ struct GodTierMealCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             QueuedAsyncImageView(
-                mealTitle: meal.title,
+                searchQuery: meal.imageQuery.isEmpty ? meal.title : meal.imageQuery,
                 fallbackImageName: AINutritionService.shared.fallbackLocalImage(for: meal.title),
                 gradientForMeal: gradientForMeal
             )
@@ -395,7 +395,7 @@ struct MealPlanItemDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         QueuedAsyncImageView(
-                            mealTitle: meal.title,
+                            searchQuery: meal.imageQuery.isEmpty ? meal.title : meal.imageQuery,
                             fallbackImageName: AINutritionService.shared.fallbackLocalImage(for: meal.title),
                             gradientForMeal: LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
@@ -708,7 +708,7 @@ private struct MealPlanNutritionRow: View {
 }
 
 struct QueuedAsyncImageView: View {
-    let mealTitle: String          // теперь принимаем название блюда, а не готовый URL
+    let searchQuery: String          // теперь принимаем название блюда или англ. запрос
     let fallbackImageName: String
     let gradientForMeal: LinearGradient
 
@@ -735,14 +735,14 @@ struct QueuedAsyncImageView: View {
                     .scaledToFill()
             }
         }
-        .task(id: mealTitle) {
+        .task(id: searchQuery) {
             await load()
         }
     }
 
     private func load() async {
         // 1) Pexels — точное совпадение по блюду
-        if let url = await AINutritionService.shared.resolveImageURL(forMealTitle: mealTitle),
+        if let url = await AINutritionService.shared.resolveImageURL(forMealTitle: searchQuery),
            let img = try? await PollinationsImageLoader.shared.fetchImage(url: url) {
             if !Task.isCancelled {
                 await MainActor.run { state = .success(Image(uiImage: img)) }
@@ -750,7 +750,7 @@ struct QueuedAsyncImageView: View {
             return
         }
         // 2) Fallback — стоковое фото по ключевым словам
-        if let url = URL(string: AINutritionService.shared.imageUrl(forMealTitle: mealTitle)),
+        if let url = URL(string: AINutritionService.shared.imageUrl(forMealTitle: searchQuery)),
            let img = try? await PollinationsImageLoader.shared.fetchImage(url: url) {
             if !Task.isCancelled {
                 await MainActor.run { state = .success(Image(uiImage: img)) }

@@ -1247,3 +1247,36 @@ struct IntensityBar: View {
         }
     }
 }
+
+// MARK: - 🖼 Smart Image View (AI Image Loader)
+struct SmartImageView: View {
+    let url: String
+    let fallbackTitle: String
+    @State private var image: UIImage? = nil
+    @State private var hasError = false
+    
+    var body: some View {
+        ZStack {
+            if let image = image {
+                Image(uiImage: image).resizable().aspectRatio(contentMode: .fill)
+            } else if hasError {
+                Image(AINutritionService.shared.fallbackLocalImage(for: fallbackTitle))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView())
+            }
+        }
+        .task(id: url) {
+            guard let parsed = URL(string: url) else {
+                hasError = true
+                return
+            }
+            do {
+                image = try await PollinationsImageLoader.shared.fetchImage(url: parsed)
+            } catch {
+                hasError = true
+            }
+        }
+    }
+}

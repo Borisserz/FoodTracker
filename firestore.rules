@@ -81,7 +81,7 @@ service cloud.firestore {
     }
     match /diets/{dietId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if false;
     }
     match /fasting_plans/{planId} {
       allow read: if true;
@@ -90,13 +90,15 @@ service cloud.firestore {
 
     // === Custom Barcodes (Shared Crowdsourced DB) ===
     match /custom_barcodes/{barcode} {
-      allow read, create: if true;
+      allow read: if true;
+      allow create: if request.auth != null;
       allow update, delete: if false;
     }
 
     // === Global Community Foods (AI & Manual) ===
     match /global_community_foods/{foodId} {
-      allow read, create, update: if true;
+      allow read: if true;
+      allow create, update: if request.auth != null;
       allow delete: if false;
     }
 

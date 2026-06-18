@@ -56,6 +56,7 @@ struct AIWeeklyPlanItemDTO: Codable {
     let ingredients: String?
     let instructions: String?
     let prepTimeMinutes: Int?
+    let imageQuery: String?
 }
 
 struct AIWeeklyPlanDayDTO: Codable {
@@ -288,6 +289,8 @@ class AINutritionService {
         Use EXACTLY these type values: "Breakfast", "Lunch", "Dinner", "Snack"
         Each day MUST sum to \(targetCalories) kcal.
         Make meals VARIED — no repeated dishes across the 7 days.
+        IMPORTANT: "title", "ingredients" and "instructions" must be in the user's language,
+        but "imageQuery" MUST ALWAYS be in English (for image search).
         
         Provide the response STRICTLY as a raw JSON object. No markdown. No backticks.
         Schema:
@@ -309,7 +312,8 @@ class AINutritionService {
                     "fat": Int,
                     "ingredients": "String (MUST include quantity for EVERY ingredient, comma-separated, e.g.: '200g chicken breast, 1 cup quinoa, 2 tbsp olive oil, 100g baby spinach, 3 cloves garlic')",
                     "instructions": "String (2-3 clear step instructions)",
-                    "prepTimeMinutes": Int
+                    "prepTimeMinutes": Int,
+                    "imageQuery": "String (2-3 word ENGLISH dish description for a photo search, e.g. 'bacon cheese omelette', 'ribeye steak asparagus'. MUST always be in English even if the dish name is in another language.)"
                   }
                ]
              }
@@ -348,7 +352,8 @@ class AINutritionService {
                         ingredients: mealDTO.ingredients ?? "",
                         instructions: mealDTO.instructions ?? "",
                         prepTimeMinutes: mealDTO.prepTimeMinutes ?? 15,
-                        imageUrl: self.imageUrlForDish(title: mealDTO.title ?? "")
+                        imageUrl: self.imageUrlForDish(title: mealDTO.title ?? ""),
+                        imageQuery: mealDTO.imageQuery ?? mealDTO.title ?? ""
                     )
                     day.meals = (day.meals ?? []) + [meal]
                 }
@@ -377,11 +382,10 @@ class AINutritionService {
     }
 
     private func imageUrlForDish(title: String) -> String {
-        // Fallback-источник: реальное стоковое фото по ключевым словам блюда.
-        let keywords = extractFoodKeywords(from: title).joined(separator: ",")
-        let encoded = keywords.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "food,meal"
-        let sig = abs(title.lowercased().hashValue % 9999) + 1
-        return "https://loremflickr.com/800/500/\(encoded)?lock=\(sig)"
+        // AI image generation for recipe
+        let keywords = extractFoodKeywords(from: title).joined(separator: " ")
+        let encoded = keywords.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "delicious%20food"
+        return "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20\(encoded)?width=800&height=800&nologo=true"
     }
 
     // Кэш найденных URL в памяти — чтобы не дёргать функцию при прокрутке.
@@ -585,39 +589,41 @@ actor PollinationsImageLoader {
     
     private let cache = NSCache<NSString, UIImage>()
     
+    private var downloadTaskQueue: Task<UIImage, Error>?
+    
     func fetchImage(url: URL) async throws -> UIImage {
         let cacheKey = url.absoluteString as NSString
         if let cachedImage = cache.object(forKey: cacheKey) {
             return cachedImage
         }
         
-        var attempt = 0
-        while attempt < 3 {
-            let now = Date()
-            let timeSinceLast = now.timeIntervalSince(lastRequestTime)
-            if timeSinceLast < minimumDelay {
-                let delay = minimumDelay - timeSinceLast
-                lastRequestTime = now.addingTimeInterval(delay)
-                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            } else {
-                lastRequestTime = now
-            }
+        let previousTask = downloadTaskQueue
+        let currentTask = Task {
+            // Wait for previous download to finish
+            _ = try? await previousTask?.value
             
-            let (data, response) = try await URLSession.shared.data(from: url)
+            // Add a small delay between requests to prevent 429
+            try? await Task.sleep(nanoseconds: 800_000_000)
             
-            if let http = response as? HTTPURLResponse, http.statusCode == 429 {
-                attempt += 1
-                try await Task.sleep(nanoseconds: UInt64(attempt * 2) * 1_000_000_000)
-                continue
+            var attempt = 0
+            while attempt < 3 {
+                let (data, response) = try await URLSession.shared.data(from: url)
+                if let http = response as? HTTPURLResponse, http.statusCode == 429 {
+                    attempt += 1
+                    try await Task.sleep(nanoseconds: UInt64(attempt * 2) * 1_000_000_000)
+                    continue
+                }
+                
+                if let image = UIImage(data: data) {
+                    cache.setObject(image, forKey: cacheKey)
+                    return image
+                } else {
+                    throw URLError(.cannotDecodeRawData)
+                }
             }
-            
-            if let image = UIImage(data: data) {
-                cache.setObject(image, forKey: cacheKey)
-                return image
-            } else {
-                throw URLError(.cannotDecodeRawData)
-            }
+            throw URLError(.badServerResponse)
         }
-        throw URLError(.badServerResponse)
+        downloadTaskQueue = currentTask
+        return try await currentTask.value
     }
 }

@@ -347,18 +347,7 @@ struct SearchResultRow: View {
             let imageUrl = recipe.heroImage.starts(with: "http")
                 ? recipe.heroImage
                 : AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
-            AsyncImage(url: URL(string: imageUrl)) { phase in
-                if let image = phase.image {
-                    image.resizable().scaledToFill()
-                } else if phase.error != nil {
-                    Image(systemName: "fork.knife")
-                        .foregroundColor(.themePink)
-                        .frame(width: 40, height: 40)
-                        .background(Color.themePink.opacity(0.1))
-                } else {
-                    Color.gray.opacity(0.2)
-                }
-            }
+            SmartImageView(url: imageUrl, fallbackTitle: recipe.title)
             .frame(width: 40, height: 40).cornerRadius(10)
             VStack(alignment: .leading) {
                 Text(LocalizedStringKey(recipe.title)).font(.headline)
@@ -380,16 +369,8 @@ struct RecipeCardView: View {
                 let imageUrl = recipe.heroImage.starts(with: "http")
                     ? recipe.heroImage
                     : AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
-                AsyncImage(url: URL(string: imageUrl)) { phase in
-                    if let image = phase.image {
-                        image.resizable().scaledToFill()
-                    } else if phase.error != nil {
-                        Image(AINutritionService.shared.fallbackLocalImage(for: recipe.title))
-                            .resizable().scaledToFill()
-                    } else {
-                        Color.gray.opacity(0.2)
-                    }
-                }
+                SmartImageView(url: imageUrl, fallbackTitle: recipe.title)
+                    .frame(height: 120).clipped()
             }.frame(width: 180, height: 120).cornerRadius(16).clipped()
             Text(LocalizedStringKey(recipe.title)).font(.headline).lineLimit(1).padding(.top, 8)
             Text("\(recipe.calories) kcal • \(recipe.cookTime) min").font(.caption).foregroundColor(.gray)

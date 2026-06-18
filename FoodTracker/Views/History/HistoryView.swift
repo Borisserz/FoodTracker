@@ -184,17 +184,10 @@ struct RecipesHeroCard: View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
                 // Background image with fallback
-                AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    LinearGradient(
-                        colors: [.themePink.opacity(0.85), .themeOrange.opacity(0.85)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                }
+                SmartImageView(
+                    url: "https://image.pollinations.ai/prompt/beautiful%20cinematic%20highly%20detailed%20dark%20moody%20food%20photography%20gourmet%20healthy%20cooking%20in%20a%20modern%20kitchen?width=1200&height=800&nologo=true",
+                    fallbackTitle: "Healthy Cooking"
+                )
                 .frame(height: 190)
                 .clipped()
                 
