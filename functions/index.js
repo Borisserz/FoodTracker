@@ -500,11 +500,14 @@ exports.imageProxy = onRequest(
         headers: { Authorization: PEXELS_API_KEY.value() },
       });
       if (!r.ok) {
+        console.error("PEXELS ERROR", r.status, (await r.text()).slice(0, 200));
         res.status(200).json({ url: null });
         return;
       }
       const data = await r.json();
       const photoUrl = data?.photos?.[0]?.src?.large || null;
+      console.log("PEXELS OK", { query, total: data?.total_results, photoUrl });
+      
       if (photoUrl) {
         await ref.set({
           url: photoUrl,
