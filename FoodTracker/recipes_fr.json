@@ -40,7 +40,8 @@
       "Épépinez les pommes en laissant le fond intact.",
       "Mélangez les noix concassées et le miel, puis farcissez les pommes.",
       "Cuire au four pendant 20-25 minutes jusqu'à tendreté."
-    ]
+    ],
+    "id": "recipe_fr_0"
   },
   {
     "title": "Oeufs brouillés riches en protéines à l'avocat",
@@ -85,7 +86,8 @@
       "Faire fondre le beurre dans une poêle antiadhésive à feu moyen-doux.",
       "Versez les œufs et brouillez délicatement avec une spatule jusqu'à ce qu'ils soient tendrement pris.",
       "Tranchez l'avocat et servez-le avec les œufs brouillés chauds. Ajoutez du sel et du poivre au goût."
-    ]
+    ],
+    "id": "recipe_fr_1"
   },
   {
     "title": "Smoothie végétalien au chocolat et au beurre de cacahuète",
@@ -135,7 +137,8 @@
       "Placez la banane pelée, le beurre de cacahuète et la poudre de protéines dans un mélangeur.",
       "Versez le lait d'amande.",
       "Mélanger à puissance élevée jusqu'à ce qu'il soit complètement lisse et crémeux. Ajoutez de la glace si vous préférez."
-    ]
+    ],
+    "id": "recipe_fr_2"
   },
   {
     "title": "Saumon au beurre d'ail céto et asperges",
@@ -186,7 +189,8 @@
       "Placer les filets de saumon au centre et disposer les asperges autour.",
       "Faire fondre le beurre, incorporer l'ail émincé et badigeonner généreusement le saumon et les asperges.",
       "Cuire au four pendant 12 à 15 minutes jusqu'à ce que le saumon soit bien cuit et se défasse facilement à la fourchette."
-    ]
+    ],
+    "id": "recipe_fr_3"
   },
   {
     "title": "Bol de poulet et quinoa",
@@ -235,7 +239,8 @@
       "Tranchez le poulet cuit.",
       "Coupez les tomates cerises en deux.",
       "Répartissez le quinoa chaud dans deux bols, garnissez de tranches de poulet, de tomates et arrosez du reste de l'huile d'olive."
-    ]
+    ],
+    "id": "recipe_fr_4"
   },
   {
     "title": "Boulettes de dinde à faible teneur en glucides avec nouilles de courgettes",
@@ -284,7 +289,8 @@
       "Versez la sauce marinara sur les boulettes de viande et laissez mijoter à feu doux pendant 5 minutes.",
       "Dans une autre poêle, faire revenir légèrement les nouilles de courgettes pendant 2-3 minutes jusqu'à ce qu'elles soient juste tendres.",
       "Servir les boulettes de viande et la sauce sur les zoodles et garnir de parmesan râpé."
-    ]
+    ],
+    "id": "recipe_fr_5"
   },
   {
     "title": "Parfait aux baies et au yaourt grec",
@@ -334,7 +340,8 @@
       "Garnir d’une couche de baies fraîches mélangées.",
       "Verser uniformément le miel sur les baies.",
       "Saupoudrez le dessus d'amandes effilées pour un délicieux croquant."
-    ]
+    ],
+    "id": "recipe_fr_6"
   },
   {
     "title": "Brouillage végétalien au tofu",
@@ -384,7 +391,8 @@
       "Faites chauffer l'huile d'olive dans une poêle à feu moyen et ajoutez le tofu émietté.",
       "Saupoudrer le curcuma sur le tofu et bien mélanger jusqu'à ce qu'il devienne jaune doré.",
       "Ajouter les épinards dans la poêle et cuire encore 2 minutes jusqu'à ce qu'ils soient fanés."
-    ]
+    ],
+    "id": "recipe_fr_7"
   },
   {
     "title": "Steak céto et brocoli",
@@ -434,7 +442,8 @@
       "Faites chauffer l'huile d'olive dans une poêle en fonte à feu vif et saisissez le steak jusqu'à la cuisson désirée. Laissez-le reposer.",
       "Dans la même poêle, baissez le feu, ajoutez le beurre et ajoutez les fleurons de brocoli.",
       "Faire sauter le brocoli jusqu'à ce qu'il soit tendre et croustillant. Trancher le steak reposé et servir ensemble."
-    ]
+    ],
+    "id": "recipe_fr_8"
   },
   {
     "title": "Gruau au four avec pomme et cannelle",
@@ -484,7 +493,8 @@
       "Mélangez les flocons d'avoine, le lait d'amande, les pommes coupées en dés et une pincée de cannelle dans un bol.",
       "Versez le mélange dans le plat allant au four et versez uniformément le sirop d'érable dessus.",
       "Cuire au four pendant 25 minutes jusqu'à ce que le dessus soit doré et que le liquide soit complètement absorbé."
-    ]
+    ],
+    "id": "recipe_fr_9"
   },
   {
     "title": "Bol de fromage cottage et d'ananas",
@@ -527,7 +537,8 @@
       "Versez le fromage cottage dans un bol de service.",
       "Garnir de morceaux d'ananas frais ou en conserve.",
       "Saupoudrez le dessus de graines de chia pour plus de fibres et de croquant. Remuer avant de manger."
-    ]
+    ],
+    "id": "recipe_fr_10"
   },
   {
     "title": "Poitrine de poulet farcie aux épinards et à la feta",
@@ -577,7 +588,8 @@
       "Coupez une poche sur le côté de chaque poitrine de poulet, en prenant soin de ne pas couper complètement.",
       "Mélangez la feta émiettée et les épinards hachés dans un bol, puis farcissez le mélange dans les poches de poulet.",
       "Frottez l'extérieur du poulet avec de l'huile d'olive, du sel et du poivre. Cuire au four pendant 25 à 30 minutes jusqu'à ce qu'il soit complètement cuit."
-    ]
+    ],
+    "id": "recipe_fr_11"
   },
   {
     "title": "Ragoût végétalien de lentilles et de légumes",
@@ -639,7 +651,8 @@
       "Rincez les lentilles et ajoutez-les dans la casserole avec les tomates concassées et 3 tasses d'eau ou de bouillon de légumes.",
       "Porter à ébullition, puis réduire le feu, couvrir et laisser mijoter 30 à 35 minutes jusqu'à ce que les lentilles soient tendres.",
       "Assaisonner avec du sel, du poivre et une pincée de cumin avant de servir."
-    ]
+    ],
+    "id": "recipe_fr_12"
   },
   {
     "title": "Biscuits à l'avoine, à la banane et au beurre de cacahuète",
@@ -683,7 +696,8 @@
       "Écrasez les bananes dans un bol jusqu'à consistance lisse, puis incorporez le beurre de cacahuète.",
       "Incorporez les flocons d’avoine jusqu’à ce qu’une pâte collante se forme.",
       "Déposez 8 portions égales sur la plaque à pâtisserie, aplatissez légèrement et faites cuire au four pendant 10 à 12 minutes."
-    ]
+    ],
+    "id": "recipe_fr_13"
   },
   {
     "title": "Smoothie antioxydant aux baies vertes",
@@ -738,7 +752,8 @@
       "Ajoutez d’abord les épinards et le lait d’amande dans le mixeur et mélangez jusqu’à obtenir une consistance complètement lisse pour éviter les morceaux verts.",
       "Ajoutez les baies congelées, les graines de chia et la poudre de protéines.",
       "Mélanger à puissance élevée jusqu'à consistance épaisse et crémeuse. Versez dans un verre et dégustez froid."
-    ]
+    ],
+    "id": "recipe_fr_14"
   },
   {
     "title": "Wraps de laitue aux crevettes épicées",
@@ -788,7 +803,8 @@
       "Coupez les crevettes cuites en petits morceaux.",
       "Répartir uniformément les crevettes et les dés d'avocat sur les feuilles de laitue au beurre.",
       "Arroser de mayonnaise épicée et servir immédiatement."
-    ]
+    ],
+    "id": "recipe_fr_15"
   },
   {
     "title": "Poivrons farcis à la salade aux œufs céto",
@@ -838,7 +854,8 @@
       "Dans un bol, mélanger les œufs hachés, la mayonnaise, la moutarde de Dijon, le sel et le poivre jusqu'à obtenir une consistance crémeuse.",
       "Coupez les poivrons en deux de haut en bas et retirez les graines et les membranes.",
       "Verser généreusement la salade aux œufs dans les moitiés de poivrons et servir froid."
-    ]
+    ],
+    "id": "recipe_fr_16"
   },
   {
     "title": "Salade fiesta aux haricots noirs et au maïs",
@@ -894,7 +911,8 @@
       "Coupez le poivron rouge en petits morceaux.",
       "Dans un grand bol, mélanger les haricots, le maïs et le poivron.",
       "Fouetter ensemble l'huile d'olive et le jus de citron vert, verser sur la salade, bien mélanger et réfrigérer avant de servir."
-    ]
+    ],
+    "id": "recipe_fr_17"
   },
   {
     "title": "Poêlée de fajitas de flanc de bifteck",
@@ -944,7 +962,8 @@
       "Faites chauffer l'huile d'olive dans une grande poêle à feu moyen-vif.",
       "Ajouter le steak et saisir pendant 3 à 4 minutes. Retirez le steak et réservez.",
       "Dans la même poêle, faire revenir les poivrons et les oignons jusqu'à ce qu'ils soient tendres. Remettez le steak dans la poêle, mélangez-le avec l'assaisonnement pour fajita et servez."
-    ]
+    ],
+    "id": "recipe_fr_18"
   },
   {
     "title": "Crêpes protéinées au fromage cottage",
@@ -988,7 +1007,8 @@
       "Mélanger à puissance élevée jusqu'à ce qu'une pâte lisse se forme.",
       "Faites chauffer une poêle antiadhésive à feu moyen et vaporisez légèrement d’huile de cuisson.",
       "Versez des petits cercles de pâte dans le moule. Cuire jusqu'à ce que des bulles se forment à la surface, retourner et cuire jusqu'à ce qu'ils soient dorés."
-    ]
+    ],
+    "id": "recipe_fr_19"
   },
   {
     "title": "Snack Bowl Edamame et Algues",
@@ -1032,7 +1052,8 @@
       "Placez les edamames chauds dans un bol et arrosez d'huile de sésame grillé. Remuer pour enrober.",
       "Écrasez les feuilles de collation aux algues grillées en petits flocons avec vos mains.",
       "Saupoudrez les flocons d'algues sur les edamames avec une pincée de sel marin et dégustez."
-    ]
+    ],
+    "id": "recipe_fr_20"
   },
   {
     "title": "Salade aux œufs et à l'avocat Keto",
@@ -1076,7 +1097,8 @@
       "Coupez l'avocat en deux, retirez le noyau et versez la chair dans un bol.",
       "Écrasez l’avocat et la mayonnaise jusqu’à obtenir une consistance crémeuse, puis incorporez délicatement les œufs hachés.",
       "Assaisonner avec du sel, du poivre et une pincée de paprika. Servir dans des coupes de laitue ou manger tel quel."
-    ]
+    ],
+    "id": "recipe_fr_21"
   },
   {
     "title": "Curry végétalien aux pois chiches et à la noix de coco",
@@ -1126,7 +1148,8 @@
       "Versez le lait de coco léger et portez à légère ébullition.",
       "Ajoutez les pois chiches rincés et laissez-les cuire dans la sauce pendant 15 minutes pour qu'ils s'imprègnent des saveurs.",
       "Incorporer les épinards frais pendant les 2 dernières minutes jusqu'à ce qu'ils soient fanés. Servir chaud."
-    ]
+    ],
+    "id": "recipe_fr_22"
   },
   {
     "title": "Patate douce au four avec dinde hachée",
@@ -1169,7 +1192,8 @@
       "Pendant que les pommes de terre cuisent, faire dorer la dinde hachée dans une poêle à feu moyen jusqu'à ce qu'elle soit complètement cuite.",
       "Incorporer la sauce barbecue sans sucre à la dinde.",
       "Coupez les patates douces cuites au four et farcissez-les généreusement avec le mélange de dinde BBQ."
-    ]
+    ],
+    "id": "recipe_fr_23"
   },
   {
     "title": "Pouding aux graines de chia et aux baies",
@@ -1219,7 +1243,8 @@
       "Laissez reposer 5 minutes, puis fouettez à nouveau pour éviter les grumeaux.",
       "Couvrir et réfrigérer au moins 2 heures, voire toute la nuit.",
       "Garnir de framboises fraîches avant de servir."
-    ]
+    ],
+    "id": "recipe_fr_24"
   },
   {
     "title": "Zoodles aux crevettes et au beurre d'ail",
@@ -1263,7 +1288,8 @@
       "Ajouter les crevettes dans la poêle et cuire 2-3 minutes de chaque côté jusqu'à ce qu'elles soient roses et opaques.",
       "Retirez les crevettes et réservez. Dans la même poêle, mélanger les nouilles de courgettes pendant 1 à 2 minutes jusqu'à ce qu'elles soient juste chaudes.",
       "Remettez les crevettes dans la poêle, mélangez-les avec les zoodles et servez immédiatement."
-    ]
+    ],
+    "id": "recipe_fr_25"
   },
   {
     "title": "Smoothie protéiné au thé vert matcha",
@@ -1313,7 +1339,8 @@
       "Ajoutez la protéine de lactosérum, la poudre de matcha et une demi-banane.",
       "Ajoutez une poignée de glaçons.",
       "Mélanger à puissance élevée jusqu'à consistance lisse et mousseuse."
-    ]
+    ],
+    "id": "recipe_fr_26"
   },
   {
     "title": "Poêlée de poulet Caprese",
@@ -1363,7 +1390,8 @@
       "Cuire dans une poêle à feu moyen pendant 6 à 7 minutes de chaque côté jusqu'à cuisson complète.",
       "Garnir chaque poitrine de tranches de mozzarella et de tomates cerises coupées en deux. Couvrir la poêle pendant 2 minutes pour faire fondre le fromage.",
       "Arroser de glaçage balsamique et garnir de basilic frais avant de servir."
-    ]
+    ],
+    "id": "recipe_fr_27"
   },
   {
     "title": "Pois chiches rôtis croquants",
@@ -1407,7 +1435,8 @@
       "Mélangez les pois chiches secs dans un bol avec de l'huile d'olive, du paprika fumé, du sel et du poivre.",
       "Étalez-les en une seule couche sur une plaque à pâtisserie recouverte de papier sulfurisé.",
       "Cuire au four pendant 25 à 30 minutes, en secouant le moule à mi-cuisson, jusqu'à ce qu'il soit croustillant. Laisser refroidir légèrement pour qu'il soit encore plus croustillant."
-    ]
+    ],
+    "id": "recipe_fr_28"
   },
   {
     "title": "Avocats farcis à la salade de thon",
@@ -1451,7 +1480,8 @@
       "Incorporer la mayonnaise au thon, en ajoutant du sel, du poivre et un filet de jus de citron si vous le souhaitez.",
       "Coupez l'avocat en deux et retirez le noyau. Vous pouvez retirer un peu de chair d'avocat supplémentaire pour faire de la place si nécessaire.",
       "Remplissez les moitiés d'avocat avec la salade de thon et mangez avec une cuillère."
-    ]
+    ],
+    "id": "recipe_fr_29"
   },
   {
     "title": "Rondelles de pommes au beurre d'amande",
@@ -1495,7 +1525,8 @@
       "Répartir uniformément le beurre d'amande sur les rondelles de pomme.",
       "Saupoudrez des graines de chanvre sur le beurre d'amande pour un léger croquant de noisette.",
       "Servir immédiatement pour éviter que les pommes ne brunissent."
-    ]
+    ],
+    "id": "recipe_fr_30"
   },
   {
     "title": "Macaroni au fromage et au chou-fleur céto",
@@ -1538,7 +1569,8 @@
       "Dans une casserole, à feu moyen, faites chauffer délicatement la crème épaisse.",
       "Incorporer progressivement le fromage cheddar à la crème jusqu'à ce qu'il soit fondu et lisse.",
       "Incorporer le chou-fleur cuit à la sauce au fromage jusqu'à ce qu'il soit entièrement enrobé et servir chaud."
-    ]
+    ],
+    "id": "recipe_fr_31"
   },
   {
     "title": "Chili à la dinde riche en protéines",
@@ -1587,7 +1619,8 @@
       "Rincez et égouttez les haricots rouges.",
       "Ajouter les haricots et les tomates concassées dans la casserole, assaisonner avec de la poudre de chili, du cumin et du sel.",
       "Portez à ébullition, puis réduisez le feu et laissez cuire 20 à 30 minutes pour que les saveurs se mélangent."
-    ]
+    ],
+    "id": "recipe_fr_32"
   },
   {
     "title": "Sauté végétalien au tempeh teriyaki",
@@ -1637,7 +1670,8 @@
       "Faites chauffer l'huile de sésame dans un wok ou une grande poêle à feu moyen-vif et faites dorer le tempeh pendant 5 minutes.",
       "Ajoutez les fleurons de brocoli et faites sauter pendant encore 3 à 4 minutes jusqu'à ce qu'ils soient tendres et croustillants.",
       "Versez la sauce teriyaki, mélangez pour bien enrober le tout et servez chaud."
-    ]
+    ],
+    "id": "recipe_fr_33"
   },
   {
     "title": "Pudding protéiné au chocolat et à l'avocat",
@@ -1687,7 +1721,8 @@
       "Ajoutez la poudre de cacao, le sirop d'érable et la poudre de protéines.",
       "Mélanger jusqu'à ce qu'il soit complètement lisse et crémeux. Si c'est trop épais, ajoutez un peu de lait d'amande.",
       "Réfrigérer 30 minutes au réfrigérateur avant de servir pour une meilleure texture."
-    ]
+    ],
+    "id": "recipe_fr_34"
   },
   {
     "title": "Gruau de nuit riche en protéines",
@@ -1737,7 +1772,8 @@
       "Ajouter le yaourt grec et le lait d'amande en remuant vigoureusement jusqu'à ce que le tout soit complètement mélangé.",
       "Fermez le récipient et laissez-le au réfrigérateur toute la nuit.",
       "Prenez-le le matin, remuez-le rapidement et dégustez-le froid."
-    ]
+    ],
+    "id": "recipe_fr_35"
   },
   {
     "title": "Morue au four au citron et aux herbes",
@@ -1781,7 +1817,8 @@
       "Disposez les filets de cabillaud dans le plat. Arroser d'huile d'olive et de jus de citron frais.",
       "Saupoudrer de sel, de poivre et d'aneth ou de persil séché.",
       "Cuire au four pendant 12 à 15 minutes jusqu'à ce que le poisson soit opaque et se défasse facilement à la fourchette."
-    ]
+    ],
+    "id": "recipe_fr_36"
   },
   {
     "title": "Salade végétalienne d'edamame et de quinoa",
@@ -1831,7 +1868,8 @@
       "Dans un grand bol, mélanger le quinoa cuit, l'edamame et le chou rouge râpé.",
       "Verser la vinaigrette aux arachides sur la salade et bien mélanger pour enrober tous les ingrédients.",
       "Servir immédiatement ou mettre dans des contenants pour un déjeuner froid et rafraîchissant."
-    ]
+    ],
+    "id": "recipe_fr_37"
   },
   {
     "title": "Poulet en croûte de parmesan céto",
@@ -1875,7 +1913,8 @@
       "Étalez uniformément une fine couche de mayonnaise sur chaque poitrine de poulet.",
       "Pressez fermement le parmesan râpé dans la mayonnaise pour qu'il colle.",
       "Cuire au four pendant 25 minutes jusqu'à ce que le poulet soit bien cuit et que le fromage soit doré et croustillant."
-    ]
+    ],
+    "id": "recipe_fr_38"
   },
   {
     "title": "Smoothie tropical à la mangue et aux épinards",
@@ -1925,7 +1964,8 @@
       "Mélanger jusqu'à consistance lisse pour s'assurer qu'il ne reste plus de morceaux verts.",
       "Ajoutez la mangue surgelée et les graines de chanvre.",
       "Mélanger à puissance élevée jusqu'à ce qu'il soit parfaitement lisse et crémeux."
-    ]
+    ],
+    "id": "recipe_fr_39"
   },
   {
     "title": "Poivrons farcis au bœuf haché",
@@ -1974,7 +2014,8 @@
       "Dans une poêle, faire dorer le bœuf haché. Incorporer le riz au chou-fleur et la sauce tomate et cuire 3 minutes.",
       "Farcissez les poivrons évidés avec le mélange de bœuf et placez-les debout dans un plat allant au four.",
       "Couvrir de papier d'aluminium et cuire au four pendant 30 minutes, puis retirer le papier d'aluminium et cuire encore 5 minutes."
-    ]
+    ],
+    "id": "recipe_fr_40"
   },
   {
     "title": "Saint-Jacques poêlées, purée de chou-fleur au safran et truffe noire",
@@ -2030,7 +2071,8 @@
       "Écaillez légèrement les pétoncles. Faites chauffer une poêle en acier au carbone jusqu'à ce qu'elle fume. Ajoutez une huile à point de fumée élevé, puis saisissez les pétoncles intacts pendant exactement 90 secondes jusqu'à ce qu'une croûte Maillard dorée se forme.",
       "Retournez les Saint-Jacques, baissez le feu et arrosez rapidement avec le reste de beurre et une branche de thym pendant 30 secondes. Retirer et poser sur une serviette en papier.",
       "Pour l'assiette : Verser un cercle parfait de purée tiède. Disposez les pétoncles de manière asymétrique. Terminez avec des gouttes d’huile de truffe noire et des micro-herbes."
-    ]
+    ],
+    "id": "recipe_fr_41"
   },
   {
     "title": "Magret de canard sous vide avec réduction cerise-balsamique",
@@ -2085,7 +2127,8 @@
       "Pendant ce temps, sortez les cylindres du céleri-rave. Saisir les extrémités dans la graisse de canard, puis braiser doucement dans le bouillon jusqu'à ce qu'elles soient fondantes.",
       "Dans une casserole, réduire les cerises et le vieux vinaigre balsamique jusqu'à ce qu'ils soient sirupeux, en montant avec une petite noix de beurre froid pour un rendu brillant.",
       "Sortez le canard du sac, séchez-le soigneusement. Placer le côté peau vers le bas dans une poêle froide, en tournant le feu à moyen pour rendre la graisse jusqu'à ce qu'elle soit vitreuse et croustillante. Trancher et dresser avec élégance."
-    ]
+    ],
+    "id": "recipe_fr_42"
   },
   {
     "title": "Carré d'agneau en croûte d'herbes et purée de petits pois à la menthe",
@@ -2141,7 +2184,8 @@
       "Assaisonnez agressivement le carré d’agneau. Saisir dans une poêle bien chaude jusqu'à ce qu'ils soient bien dorés de tous les côtés. Badigeonner de moutarde de Dijon et rouler fermement dans la chapelure pistache-herbes.",
       "Rôtir l'agneau à 200 °C (400 °F) pendant 12 à 14 minutes pour une cuisson mi-saignante parfaite. Reposez-vous au moins 10 minutes avant de découper.",
       "Carbonisez les pointes d'asperges avec un chalumeau ou une poêle en fonte. Faites glisser la purée de pois sur une assiette chaude, disposez les côtelettes d'agneau entre elles et décorez."
-    ]
+    ],
+    "id": "recipe_fr_43"
   },
   {
     "title": "Bar chilien glacé au miso avec consommé de shiitake",
@@ -2196,7 +2240,8 @@
       "Créer le consommé : Laisser mijoter les champignons shiitake, le kombu et les aromates pendant 2 heures. Clarifiez le bouillon en utilisant la technique du radeau au blanc d'œuf jusqu'à ce qu'il soit complètement transparent.",
       "Julienne le radis daikon en nouilles délicates à l'aide d'une mandoline. Blanchir légèrement dans le consommé chaud.",
       "Faire griller le bar sous une salamandre haute ou un gril au four jusqu'à ce que les sucres du miso caramélisent et carbonisent légèrement. Versez le consommé chaud à table."
-    ]
+    ],
+    "id": "recipe_fr_44"
   },
   {
     "title": "Tartare de bœuf Wagyu avec œuf de caille et émulsion de câpres",
@@ -2252,7 +2297,8 @@
       "À l'aide d'un couteau chirurgicalement tranchant, coupez à la main le filet wagyu en brunoise de 3 mm. N'utilisez jamais de hachoir à viande.",
       "Pliez délicatement le bœuf sur un bain de glace avec les échalotes émincées, la ciboulette, les câpres et l'émulsion de Dijon pour préserver la structure grasse.",
       "Plaquer à l'aide d'un moule rond. Séparez soigneusement le jaune d'œuf de caille et placez-le parfaitement au centre. Garnir de feuilles de micro-moutarde et de tuile croustillante."
-    ]
+    ],
+    "id": "recipe_fr_45"
   },
   {
     "title": "Queue de homard pochée au beurre avec risotto au safran",
@@ -2306,7 +2352,8 @@
       "Retirez la chair du homard de la carapace et plongez-la dans le beurre monté pendant 6 à 8 minutes jusqu'à ce qu'elle soit parfaitement opaque et tendre.",
       "Faire griller le riz arborio à sec, déglacer avec le vin blanc infusé aux fils de safran premium. Versez lentement le bouillon de fruits de mer chaud, en remuant constamment pour libérer les féculents.",
       "Terminez le risotto hors du feu (mantecatura) avec du Parmigiano et une noix de beurre froid. Assiettez le risotto, garnissez de tranches de homard et décorez de feuilles d'or ou de micro-pousses."
-    ]
+    ],
+    "id": "recipe_fr_46"
   },
   {
     "title": "Longe de chevreuil au jus de mûres et de genévrier",
@@ -2361,7 +2408,8 @@
       "Dans la même poêle, déglacer avec un peu de gin ou de vin rouge. Ajoutez les mûres et écrasez-les légèrement. Verser la demi-glace de veau et laisser réduire jusqu'à ce qu'elle nappe le dos d'une cuillère.",
       "Blanchir les brocolini, puis les carboniser rapidement sur un gril en fonte jusqu'à ce qu'ils soient fumés.",
       "Découpez le gibier en médaillons épais. Versez le jus de mûres brillant dans l'assiette et disposez la viande aux côtés des brocolini carbonisés."
-    ]
+    ],
+    "id": "recipe_fr_47"
   },
   {
     "title": "Flétan en croûte de macadamia et velouté de citronnelle",
@@ -2410,7 +2458,8 @@
       "Rôtir le flétan côté croûte vers le bas dans une poêle antiadhésive sèche pour griller les noix, puis retourner et terminer la cuisson doucement au four à 180°C (350°F).",
       "Faire suer la citronnelle meurtrie et le gingembre dans une casserole sans coloration. Ajoutez le lait de coco et un peu de bouillon de poisson. Réduire, filtrer et faire mousser avec un mixeur plongeant pour le velouté.",
       "Versez le velouté mousseux dans un bol peu profond et placez délicatement le flétan en croûte au centre."
-    ]
+    ],
+    "id": "recipe_fr_48"
   },
   {
     "title": "Confit de champignons sauvages et ail noir sur pain grillé Artisan Keto",
@@ -2466,7 +2515,8 @@
       "Faites cuire les œufs sous vide à exactement 63°C (145,4°F) pendant 45 minutes pour obtenir un jaune semblable à une crème anglaise et un blanc tendre.",
       "Faire griller le pain céto dans une poêle sèche jusqu'à ce qu'il soit croustillant. Badigeonnez généreusement de purée d'ail noir fermenté.",
       "Étalez les champignons confits égouttés sur le pain grillé, cassez soigneusement l'œuf à 63 degrés sur le dessus et terminez avec du sel marin feuilleté de Maldon."
-    ]
+    ],
+    "id": "recipe_fr_49"
   },
   {
     "title": "Thon Ahi poêlé avec sphère Yuzu-Ponzu et purée d'edamame",
@@ -2521,7 +2571,8 @@
       "À l'aide d'alginate de sodium et de chlorure de calcium (sphérification), transformez la sauce yuzu-ponzu en petites sphères qui éclatent en bouche.",
       "Enrober le bloc de thon de graines de sésame noires. Faites chauffer une poêle en fonte jusqu'à ce qu'elle soit chaude à blanc. Saisir le thon pendant exactement 10 secondes de chaque côté, en gardant le centre complètement cru.",
       "Tranchez proprement le thon avec un couteau à sashimi. Étalez la purée d'edamame vert vif sur l'assiette, ventilez le thon et décorez avec les sphères de yuzu et la micro-coriandre."
-    ]
+    ],
+    "id": "recipe_fr_50"
   },
   {
     "title": "Saumon Ora King au beurre, velouté de topinambour et caviar d'Ossetra",
@@ -2577,7 +2628,8 @@
       "Entailler la peau du saumon Ora King pour éviter qu'elle ne s'enroule. Placer le côté peau vers le bas dans une poêle froide en acier au carbone, en portant le feu à moyen-doux pour restituer méticuleusement le gras et rendre la peau croustillante pendant 8 à 10 minutes.",
       "Retournez brièvement le poisson, éteignez la chaleur et arrosez continuellement de beurre de culture moussant et de thym pour obtenir un noyau mi-saignant impeccable.",
       "Versez le velouté de topinambour chaud dans un bol peu profond, déposez le saumon côté peau vers le haut et terminez par une quenelle précise de caviar d'Ossetra et de micro-aneth."
-    ]
+    ],
+    "id": "recipe_fr_51"
   },
   {
     "title": "Filet de veau sous vide avec jus d'ail noir et asperges grillées",
@@ -2632,7 +2684,8 @@
       "Réduire en purée l'ail noir fermenté dans la riche demi-glace de veau. Laisser mijoter le jus jusqu'à ce qu'il nappe intensément le dos d'une cuillère (consistance nappée).",
       "Retirez le veau du sac et séchez-le complètement. Saisir agressivement dans une poêle bien chaude avec de l'huile de pépins de raisin pendant 30 secondes de chaque côté pour déclencher la réaction de Maillard. Laissez reposer.",
       "Faire griller les asperges sur une flamme nue ou sous le gril. Découpez le veau en médaillons épais et arrosez la viande du jus d'ail noir brillant."
-    ]
+    ],
+    "id": "recipe_fr_52"
   },
   {
     "title": "Queue de Langoustine Pochée, Émulsion de Citronnelle et Fondant au Daikon",
@@ -2687,7 +2740,8 @@
       "Broyez la citronnelle et le gingembre en les trempant délicatement dans le lait de coco. Filtrer le liquide infusé et aérer avec un mixeur plongeant pour créer une mousse stable et parfumée.",
       "Porter le beurre clarifié à exactement 60°C (140°F). Plongez les queues de langoustines décortiquées et pochez-les délicatement pendant 3 à 4 minutes jusqu'à ce qu'elles soient juste nacrées. Ne pas trop cuire.",
       "Dressez les cylindres de daïkon, posez dessus la langoustine beurrée et versez généreusement l'émulsion aérée de citronnelle autour du plat."
-    ]
+    ],
+    "id": "recipe_fr_53"
   },
   {
     "title": "Turbot Poêlé aux Asperges Blanches et Champagne Beurre Blanc",
@@ -2742,7 +2796,8 @@
       "Réduire le champagne, le vinaigre de vin blanc et l'échalote émincée dans une petite casserole jusqu'à ce qu'ils soient presque secs (au sec). Hors du feu, incorporez un à un les cubes de beurre très froids pour obtenir un beurre blanc stable et brillant. Gardez au chaud.",
       "Faites chauffer une poêle épaisse. Saisir le filet de turbot dans un filet d'huile jusqu'à obtenir une croûte dorée. Retourner, arroser de jus de cuisson et cuire jusqu'à ce qu'il cède à la forme d'un cure-dent.",
       "Disposez linéairement les asperges blanches, placez délicatement le turbot à côté et versez le succulent beurre blanc pour qu'il se fend légèrement dans l'assiette."
-    ]
+    ],
+    "id": "recipe_fr_54"
   },
   {
     "title": "Morue noire séchée au miso avec bouillon Dashi et champignons Shimeji",
@@ -2797,7 +2852,8 @@
       "Essuyez délicatement l'excès de marinade miso du poisson pour éviter qu'il ne brûle. Faites griller la morue noire à feu vif jusqu'à ce que les sucres caramélisent en une croûte profonde d'acajou et que le poisson se défasse sans effort.",
       "Réchauffez le bouillon dashi kombu en faisant tremper les délicats champignons shimeji jusqu'à ce qu'ils soient à peine ramollis. Ne faites pas bouillir.",
       "Placez la morue glacée dans un bol profond et sombre. Versez le dashi fumant sur la table, en garnissant d'oignons verts finement tranchés ou d'un flocon d'or comestible."
-    ]
+    ],
+    "id": "recipe_fr_55"
   },
   {
     "title": "Secreto de porc ibérique avec sauce Romesco et petits poireaux grillés",
@@ -2853,7 +2909,8 @@
       "Coupez les jeunes poireaux, ajoutez une goutte d'huile et carbonisez agressivement sur une flamme nue ou dans une poêle en fonte sèche jusqu'à ce que les couches extérieures soient noircies. Retirez l'extérieur brûlé pour révéler des couches d'oignons tendres et sucrés.",
       "Assaisonnez l'Iberico Secreto avec du sel marin feuilleté. En raison de son persillage intense, faites cuire dans une poêle sèche à feu vif, en faisant fondre la graisse intramusculaire jusqu'à ce qu'une croûte foncée se forme. Servir mi-saignant à moyen.",
       "Swoosh the Romesco sauce across a slate plate, carve the pork against the grain, and lay over the smoky charred leeks."
-    ]
+    ],
+    "id": "recipe_fr_56"
   },
   {
     "title": "Filet d'autruche poêlé, gastrique de mûres et purée de panais fumé",
@@ -2908,7 +2965,8 @@
       "Réaliser la gastrique : Caraméliser une petite quantité d'édulcorant, déglacer avec le vinaigre de vin rouge, ajouter les mûres écrasées et le bouillon de bœuf. Réduire jusqu'à ce qu'il soit sirupeux et intense.",
       "Assaisonnez le filet d'autruche. Traitez-le comme le filet mignon le plus maigre : saisissez-le rapidement à feu très vif. Il DOIT être servi saignant ou mi-saignant pour éviter la dureté. Reposez-vous 10 minutes.",
       "Dressez la purée de panais fumé dans l'assiette. Coupez l'autruche en médaillons, disposez-la en éventail et arrosez-la de gastrique acidulée aux mûres."
-    ]
+    ],
+    "id": "recipe_fr_57"
   },
   {
     "title": "Cailles confites aux graines de moutarde marinées et endives caramélisées",
@@ -2957,7 +3015,8 @@
       "Faites sécher les cailles toute la nuit avec du sel, du thym et du genièvre écrasé. Plongez entièrement dans la graisse de canard fondue et faites cuire doucement (confit) à 90°C (195°F) pendant 2 heures jusqu'à ce que la viande cède à une légère pression.",
       "Coupez les endives en deux et saisissez-les côté coupé vers le bas dans une poêle sèche jusqu'à ce qu'elles soient profondément caramélisées. Déglacez avec un peu d'eau pour les rendre tendres à la vapeur.",
       "Retirez délicatement les cailles de la graisse et faites-les saisir côté peau vers le bas pour les rendre croustillantes. Servir avec les endives caramélisées, garnies de graines de moutarde marinées éclatées."
-    ]
+    ],
+    "id": "recipe_fr_58"
   },
   {
     "title": "Flétan poché à l'huile d'olive avec bouillon de fenouil au safran et haricots de mer",
@@ -3013,7 +3072,8 @@
       "Portez une casserole profonde d'huile d'olive extra vierge de haute qualité à une température précise de 55 °C (131 °F). Immergez complètement les filets de flétan assaisonnés. Pocher pendant 15 à 20 minutes jusqu'à ce que le poisson devienne opaque et commence à se séparer en flocons épais.",
       "Blanchissez rapidement les haricots marins dans de l'eau bouillante non salée pendant 30 secondes, puis plongez-les dans de l'eau glacée pour conserver leur croquant vert vif.",
       "Retirez délicatement le flétan fragile de l'huile et égouttez-le brièvement. Placer dans un bol peu profond, déposer les copeaux de fenouil et les haricots marins à côté et verser le bouillon chaud au safran autour du poisson."
-    ]
+    ],
+    "id": "recipe_fr_59"
   },
   {
     "title": "Médaillons d'élan avec réduction de genévrier-porto et fondant de céleri-rave",
@@ -3068,6 +3128,767 @@
       "Faire griller les baies de genièvre écrasées dans une poêle sèche jusqu'à ce qu'elles soient parfumées. Déglacer au Porto Ruby et laisser réduire des deux tiers. Incorporer le beurre froid hors du feu (monter au beurre) pour une sauce soyeuse.",
       "Assaisonnez généreusement les médaillons d’élan avec du gros sel. Saisir dans une poêle en fonte très chaude pendant exactement 2 minutes de chaque côté. Arroser brièvement de jus de cuisson. Le wapiti est extrêmement maigre et ne doit pas être cuit au-delà de la cuisson.",
       "Laissez reposer la viande pendant 5 minutes. Trancher à contre-courant, disposer élégamment sur le fondant de céleri-rave et napper les médaillons avec la réduction brillante au porto et au genièvre."
-    ]
+    ],
+    "id": "recipe_fr_60"
+  },
+  {
+    "title": "Bateau de saumon Keto avocat",
+    "description": "Riche en oméga-3 et en graisses saines, ce bateau au saumon simple mais élégant est parfait pour un dîner céto. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Céto",
+      "Riche en protéines",
+      "Faible teneur en glucides"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filet De Saumon",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Avocat",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Huile d'Olive",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Jus de Citron",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Préchauffez votre four à 400°F (200°C).",
+      "Coupez l'avocat en deux et retirez le noyau.",
+      "Placez un petit morceau de saumon dans la moitié d'avocat évidée.",
+      "Arroser d'huile d'olive, de jus de citron, de sel et de poivre.",
+      "Cuire au four pendant 15 à 20 minutes jusqu'à ce que le saumon soit bien cuit."
+    ],
+    "id": "recipe_fr_61"
+  },
+  {
+    "title": "Crêpes aux myrtilles riches en protéines",
+    "description": "Commencez votre journée avec ces crêpes moelleuses et riches en protéines, remplies d'antioxydants frais. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Petit-déjeuner",
+      "Riche en protéines",
+      "Végétarien"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Farine d'Avoine",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Poudre de protéines (vanille)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Lait d'amande",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Bleuets",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "Dans un bol, mélanger la farine d'avoine et la poudre de protéines.",
+      "Incorporez progressivement le lait d'amande jusqu'à obtenir une pâte lisse.",
+      "Incorporez délicatement les myrtilles fraîches.",
+      "Cuire dans une poêle antiadhésive à feu moyen jusqu'à formation de bulles, puis retourner.",
+      "Servir chaud avec un filet de sirop sans sucre."
+    ],
+    "id": "recipe_fr_62"
+  },
+  {
+    "title": "Bol de quinoa méditerranéen",
+    "description": "Un bol vibrant et rafraîchissant chargé de fibres et de graisses saines, parfait pour un déjeuner ensoleillé l'après-midi. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Déjeuner",
+      "Végétalien",
+      "méditerranéen"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Quinoa cuit",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Tomates cerises",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Concombre",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Olives de Kalamata",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Houmous",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Placez le quinoa cuit au fond de votre bol.",
+      "Coupez les tomates cerises en deux et tranchez les concombres.",
+      "Disposez les tomates, les concombres et les olives sur le quinoa.",
+      "Garnir d’une généreuse boule de houmous et d’un filet d’huile d’olive."
+    ],
+    "id": "recipe_fr_63"
+  },
+  {
+    "title": "Chili maigre et épicé à la dinde",
+    "description": "Réchauffez votre âme et atteignez vos objectifs en matière de protéines avec ce chili à la dinde riche et épicé. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Riche en protéines",
+      "Faible en gras"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Dinde hachée maigre",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Haricots rouges",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Tomates concassées",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Poudre de piment",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Faire dorer la dinde hachée dans une grande casserole à feu moyen.",
+      "Incorporer la poudre de chili et cuire 1 minute jusqu'à ce qu'elle soit parfumée.",
+      "Ajouter les tomates concassées et les haricots rouges (égouttés et rincés).",
+      "Laisser mijoter 30 minutes pour que les saveurs se mélangent.",
+      "Garnir d'une pincée de fromage faible en gras ou de coriandre avant de servir."
+    ],
+    "id": "recipe_fr_64"
+  },
+  {
+    "title": "Smoothie détox vert rafraîchissant",
+    "description": "Une dose rapide de vitamines et d'hydratation, excellente pour une récupération après l'entraînement ou pour un nouveau départ le matin. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Petit-déjeuner",
+      "Collation",
+      "Végétalien",
+      "Brut"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Épinard",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Pomme verte",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banane",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Eau de coco",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Épépinez et hachez la pomme verte.",
+      "Ajoutez les épinards, la pomme, la banane et l'eau de coco dans un mélangeur.",
+      "Mélanger à puissance élevée jusqu'à ce qu'il soit complètement lisse.",
+      "Versez dans un verre bien frais et dégustez immédiatement !"
+    ],
+    "id": "recipe_fr_65"
+  },
+  {
+    "title": "Nouilles de courgettes faibles en glucides avec pesto",
+    "description": "Une alternative légère et savoureuse aux pâtes, mélangée à une riche sauce pesto au basilic. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Céto",
+      "Végétarien",
+      "Faible teneur en glucides"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Courgettes",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Pesto au basilic",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Fromage Parmesan",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Tomates cerises",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Spiralisez les courgettes en fines nouilles.",
+      "Faites chauffer une poêle à feu moyen et faites revenir légèrement les nouilles pendant 2-3 minutes.",
+      "Retirer du feu et mélanger avec le pesto de basilic jusqu'à ce qu'il soit uniformément enrobé.",
+      "Garnir de tomates cerises coupées en deux et de parmesan râpé."
+    ],
+    "id": "recipe_fr_66"
+  },
+  {
+    "title": "Salade César au Poulet Classique",
+    "description": "De la romaine croustillante, du poulet grillé tendre et une vinaigrette crémeuse et piquante en font un favori intemporel. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Déjeuner",
+      "Riche en protéines"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Blanc de poulet",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Laitue romaine",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Vinaigrette César",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Croûtons",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Assaisonner la poitrine de poulet et la faire griller jusqu'à ce qu'elle soit complètement cuite. Laissez reposer, puis tranchez.",
+      "Hachez la laitue romaine et placez-la dans un grand bol.",
+      "Mélangez la laitue avec la vinaigrette César.",
+      "Garnir de tranches de poulet et d'une poignée de croûtons."
+    ],
+    "id": "recipe_fr_67"
+  },
+  {
+    "title": "Pudding au chia du jour au lendemain",
+    "description": "Réveillez-vous avec un pudding au chia prêt à manger, crémeux et nutritif, garni de fruits frais. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Petit-déjeuner",
+      "Végétalien",
+      "Sans gluten"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Graines de Chia",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Lait d'amande",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Sirop d'érable",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Baies fraîches",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "Dans un bocal, mélanger les graines de chia, le lait d'amande et le sirop d'érable.",
+      "Laissez reposer 5 minutes, puis fouettez à nouveau pour éviter les grumeaux.",
+      "Couvrir et réfrigérer toute la nuit (ou au moins 2 heures).",
+      "Garnir de baies fraîches avant de servir."
+    ],
+    "id": "recipe_fr_68"
+  },
+  {
+    "title": "Bol de collation aux pois chiches rôtis",
+    "description": "Croquant, salé et incroyablement satisfaisant. Une collation riche en fibres qui vous rassasie. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Collation",
+      "Végétalien",
+      "Haute teneur en fibres"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Pois chiches (en conserve)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Huile d'Olive",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Paprika Fumé",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sel de mer",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Préchauffer le four à 400°F (200°C).",
+      "Égouttez, rincez et séchez soigneusement les pois chiches avec une serviette en papier.",
+      "Mélangez les pois chiches avec l'huile d'olive, le paprika et le sel.",
+      "Étaler uniformément sur une plaque à pâtisserie et rôtir pendant 20 à 25 minutes jusqu'à ce qu'il soit croustillant."
+    ],
+    "id": "recipe_fr_69"
+  },
+  {
+    "title": "Bouchées de steak au beurre d’ail",
+    "description": "Tendre, juteux et plein de saveurs. Ces bouchées de steak constituent le dîner riche en protéines par excellence. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Céto",
+      "Riche en protéines"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Bifteck de surlonge",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Beurre",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Gousses d'ail",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Persil frais",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Coupez le steak en petits cubes et assaisonnez de sel et de poivre.",
+      "Faites chauffer une poêle à feu vif et saisissez les morceaux de steak pendant 3 à 4 minutes.",
+      "Réduire le feu, ajouter le beurre et l'ail émincé et remuer pour enrober le steak.",
+      "Garnir de persil frais haché et servir aussitôt."
+    ],
+    "id": "recipe_fr_70"
+  },
+  {
+    "title": "Curry végétalien de patates douces",
+    "description": "Un curry de noix de coco réconfortant et crémeux chargé de patates douces et d'épices chaudes. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Végétalien",
+      "Sans gluten"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Patate douce",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Lait de coco (léger)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Pâte De Curry",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Épinard",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Épluchez et coupez les patates douces en petits cubes.",
+      "Dans une grande casserole, faire revenir doucement la pâte de curry jusqu'à ce qu'elle soit parfumée.",
+      "Ajoutez les patates douces et le lait de coco. Laisser mijoter pendant 20 minutes jusqu'à tendreté.",
+      "Incorporez les épinards et laissez-les ramollir avant de servir."
+    ],
+    "id": "recipe_fr_71"
+  },
+  {
+    "title": "Coupes de petit-déjeuner aux muffins aux œufs",
+    "description": "Des muffins aux œufs portables et riches en protéines que vous pouvez préparer à l'avance pour les matins chargés. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Petit-déjeuner",
+      "Céto",
+      "Riche en protéines"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Œufs",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Fromage Cheddar",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Poivron",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Épinard",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Préchauffer le four à 350°F (175°C) et graisser un moule à muffins.",
+      "Battre les œufs dans un bol et assaisonner de sel et de poivre.",
+      "Répartir le poivron haché, les épinards et le fromage dans les moules à muffins.",
+      "Versez le mélange d'œufs sur la garniture et enfournez pendant 15 à 20 minutes."
+    ],
+    "id": "recipe_fr_72"
+  },
+  {
+    "title": "Salade Thon Avocat",
+    "description": "Une salade de thon sans mayonnaise à base d'avocat crémeux pour des graisses saines et une texture incroyable. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Déjeuner",
+      "Céto",
+      "Riche en protéines"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Thon en conserve",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Avocat",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Oignon rouge",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Jus de Citron",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Égouttez le thon et placez-le dans un bol.",
+      "Ajoutez l'avocat et écrasez-le avec le thon à l'aide d'une fourchette.",
+      "Incorporer l'oignon rouge finement coupé, le jus de citron, le sel et le poivre.",
+      "Servir sur des tranches de concombre ou des toasts de grains entiers."
+    ],
+    "id": "recipe_fr_73"
+  },
+  {
+    "title": "Smoothie au chocolat et au beurre de cacahuète",
+    "description": "Il a le goût d'un dessert, mais il regorge de protéines qui renforcent les muscles et de graisses saines. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Collation",
+      "Riche en protéines",
+      "Végétarien"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Poudre de protéines de chocolat",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Beurre de cacahuète",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banane",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Lait d'amande",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Ajoutez tous les ingrédients dans un mixeur.",
+      "Ajoutez une poignée de glaçons.",
+      "Mélanger à puissance élevée jusqu'à consistance lisse et crémeuse."
+    ],
+    "id": "recipe_fr_74"
+  },
+  {
+    "title": "Sauté de crevettes au brocoli",
+    "description": "Un dîner rapide, savoureux et riche en protéines réuni dans une seule poêle. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Dîner",
+      "Riche en protéines",
+      "Faible teneur en glucides"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Crevettes (Décalées)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Fleurons de brocoli",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Sauce de soja",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Huile de sésame",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Faites chauffer l'huile de sésame dans une grande poêle ou un wok à feu moyen-vif.",
+      "Ajouter les fleurons de brocoli et faire sauter pendant 4 à 5 minutes jusqu'à ce qu'ils soient tendres et croustillants.",
+      "Ajouter les crevettes et cuire 2-3 minutes jusqu'à ce qu'elles deviennent roses.",
+      "Arroser de sauce soja, bien mélanger et servir chaud."
+    ],
+    "id": "recipe_fr_75"
   }
 ]

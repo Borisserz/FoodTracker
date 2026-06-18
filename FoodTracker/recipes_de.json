@@ -40,7 +40,8 @@
       "Die Äpfel entkernen, dabei den Boden intakt lassen.",
       "Gehackte Walnüsse und Honig vermischen und dann die Äpfel füllen.",
       "20-25 Minuten backen, bis sie weich sind."
-    ]
+    ],
+    "id": "recipe_de_0"
   },
   {
     "title": "Proteinreiches Rührei mit Avocado",
@@ -85,7 +86,8 @@
       "Butter in einer beschichteten Pfanne bei mittlerer bis niedriger Hitze schmelzen.",
       "Gießen Sie die Eier hinein und rühren Sie vorsichtig mit einem Spatel um, bis sie weich sind.",
       "Die Avocado in Scheiben schneiden und zusammen mit den warmen Rühreiern servieren. Mit Salz und Pfeffer abschmecken."
-    ]
+    ],
+    "id": "recipe_de_1"
   },
   {
     "title": "Veganer Schokoladen-Erdnussbutter-Smoothie",
@@ -135,7 +137,8 @@
       "Geben Sie die geschälte Banane, Erdnussbutter und Proteinpulver in einen Mixer.",
       "Mandelmilch einfüllen.",
       "Auf höchster Stufe mixen, bis alles glatt und cremig ist. Bei Bedarf Eis hinzufügen."
-    ]
+    ],
+    "id": "recipe_de_2"
   },
   {
     "title": "Keto-Knoblauchbutter-Lachs mit Spargel",
@@ -186,7 +189,8 @@
       "Die Lachsfilets in die Mitte legen und den Spargel darum herum anrichten.",
       "Die Butter schmelzen, den gehackten Knoblauch untermischen und den Lachs und den Spargel großzügig damit bestreichen.",
       "12–15 Minuten backen, bis der Lachs gar ist und sich mit einer Gabel leicht zerteilen lässt."
-    ]
+    ],
+    "id": "recipe_de_3"
   },
   {
     "title": "Hühnchen-Quinoa-Bowl",
@@ -235,7 +239,8 @@
       "Das gekochte Hähnchen in Scheiben schneiden.",
       "Kirschtomaten halbieren.",
       "Den warmen Quinoa auf zwei Schüsseln verteilen, mit Hähnchenscheiben und Tomaten belegen und mit dem restlichen Olivenöl beträufeln."
-    ]
+    ],
+    "id": "recipe_de_4"
   },
   {
     "title": "Low Carb Putenfleischbällchen mit Zucchininudeln",
@@ -284,7 +289,8 @@
       "Die Marinara-Sauce über die Fleischbällchen gießen und bei schwacher Hitze 5 Minuten köcheln lassen.",
       "In einer separaten Pfanne die Zucchininudeln 2-3 Minuten leicht anbraten, bis sie gerade weich sind.",
       "Die Fleischbällchen und die Soße über den Zoodles servieren und mit geriebenem Parmesan belegen."
-    ]
+    ],
+    "id": "recipe_de_5"
   },
   {
     "title": "Griechisches Joghurt-Beeren-Parfait",
@@ -334,7 +340,8 @@
       "Mit einer Schicht frisch gemischter Beeren belegen.",
       "Honig gleichmäßig über die Beeren träufeln.",
       "Für einen köstlichen Crunch gehobelte Mandeln darüber streuen."
-    ]
+    ],
+    "id": "recipe_de_6"
   },
   {
     "title": "Veganes Tofu-Rührei",
@@ -384,7 +391,8 @@
       "Olivenöl in einer Pfanne bei mittlerer Hitze erhitzen und den zerbröselten Tofu hinzufügen.",
       "Die Kurkuma über den Tofu streuen und gut vermischen, bis er goldgelb wird.",
       "Den Spinat in die Pfanne geben und weitere 2 Minuten kochen, bis er zusammengefallen ist."
-    ]
+    ],
+    "id": "recipe_de_7"
   },
   {
     "title": "Keto-Steak und Brokkoli",
@@ -434,7 +442,8 @@
       "Erhitzen Sie Olivenöl in einer gusseisernen Pfanne bei starker Hitze und braten Sie das Steak bis zum gewünschten Gargrad an. Lass es ruhen.",
       "In derselben Pfanne die Hitze reduzieren, Butter hinzufügen und die Brokkoliröschen hineingeben.",
       "Den Brokkoli anbraten, bis er zart-knusprig ist. Das ruhende Steak in Scheiben schneiden und zusammen servieren."
-    ]
+    ],
+    "id": "recipe_de_8"
   },
   {
     "title": "Gebackene Haferflocken mit Apfel und Zimt",
@@ -484,7 +493,8 @@
       "Haferflocken, Mandelmilch, Apfelwürfel und eine Prise Zimt in einer Schüssel vermischen.",
       "Gießen Sie die Mischung in die Auflaufform und träufeln Sie den Ahornsirup gleichmäßig darüber.",
       "25 Minuten backen, bis die Oberfläche goldbraun ist und die Flüssigkeit vollständig aufgesogen ist."
-    ]
+    ],
+    "id": "recipe_de_9"
   },
   {
     "title": "Schüssel mit Hüttenkäse und Ananas",
@@ -527,7 +537,8 @@
       "Geben Sie den Hüttenkäse in eine Servierschüssel.",
       "Mit frischen oder eingemachten Ananasstücken belegen.",
       "Für zusätzliche Ballaststoffe und Knusprigkeit Chiasamen darüber streuen. Vor dem Essen umrühren."
-    ]
+    ],
+    "id": "recipe_de_10"
   },
   {
     "title": "Mit Spinat und Feta gefüllte Hähnchenbrust",
@@ -577,7 +588,8 @@
       "Schneiden Sie eine Tasche in die Seite jeder Hähnchenbrust und achten Sie darauf, dass Sie nicht ganz durchschneiden.",
       "Zerkrümelten Feta und gehackten Spinat in einer Schüssel vermischen und die Mischung dann in die Hähnchentaschen füllen.",
       "Reiben Sie die Außenseite des Hähnchens mit Olivenöl, Salz und Pfeffer ein. 25–30 Minuten backen, bis es vollständig gar ist."
-    ]
+    ],
+    "id": "recipe_de_11"
   },
   {
     "title": "Veganer Linsen-Gemüse-Eintopf",
@@ -639,7 +651,8 @@
       "Spülen Sie die Linsen ab und geben Sie sie zusammen mit den zerkleinerten Tomaten und 3 Tassen Wasser oder Gemüsebrühe in den Topf.",
       "Zum Kochen bringen, dann die Hitze reduzieren, abdecken und 30–35 Minuten köcheln lassen, bis die Linsen weich sind.",
       "Vor dem Servieren mit Salz, Pfeffer und einer Prise Kreuzkümmel würzen."
-    ]
+    ],
+    "id": "recipe_de_12"
   },
   {
     "title": "Erdnussbutter-Bananen-Haferkekse",
@@ -683,7 +696,8 @@
       "Die Bananen in einer Schüssel zerdrücken, bis eine glatte Masse entsteht, dann die Erdnussbutter unterrühren.",
       "Die Haferflocken unterheben, bis ein klebriger Teig entsteht.",
       "8 gleiche Portionen auf das Backblech geben, leicht flach drücken und 10–12 Minuten backen."
-    ]
+    ],
+    "id": "recipe_de_13"
   },
   {
     "title": "Beerengrüner antioxidativer Smoothie",
@@ -738,7 +752,8 @@
       "Zuerst den Spinat und die Mandelmilch in den Mixer geben und mixen, bis eine glatte Masse entsteht, um grüne Stücke zu vermeiden.",
       "Fügen Sie die gefrorenen Beeren, Chiasamen und Proteinpulver hinzu.",
       "Auf höchster Stufe mixen, bis eine dicke und cremige Masse entsteht. In ein Glas füllen und kalt genießen."
-    ]
+    ],
+    "id": "recipe_de_14"
   },
   {
     "title": "Würzige Garnelen-Salat-Wraps",
@@ -788,7 +803,8 @@
       "Die gekochten Garnelen in kleinere, mundgerechte Stücke schneiden.",
       "Die Garnelen und die gewürfelte Avocado gleichmäßig auf die Buttersalatblätter verteilen.",
       "Die würzige Mayonnaise darüber träufeln und sofort servieren."
-    ]
+    ],
+    "id": "recipe_de_15"
   },
   {
     "title": "Keto-Eiersalat mit gefüllten Paprikaschoten",
@@ -838,7 +854,8 @@
       "In einer Schüssel die gehackten Eier, Mayonnaise, Dijon-Senf, Salz und Pfeffer cremig verrühren.",
       "Die Paprika von oben nach unten halbieren und Kerne und Häutchen entfernen.",
       "Den Eiersalat großzügig in die Paprikahälften geben und kalt servieren."
-    ]
+    ],
+    "id": "recipe_de_16"
   },
   {
     "title": "Fiesta-Salat mit schwarzen Bohnen und Mais",
@@ -894,7 +911,8 @@
       "Die rote Paprika in kleine Stücke schneiden.",
       "In einer großen Schüssel Bohnen, Mais und Paprika vermischen.",
       "Olivenöl und Limettensaft verquirlen, über den Salat gießen, gut vermischen und vor dem Servieren kalt stellen."
-    ]
+    ],
+    "id": "recipe_de_17"
   },
   {
     "title": "Flank Steak Fajita-Pfanne",
@@ -944,7 +962,8 @@
       "Das Olivenöl in einer großen Pfanne bei mittlerer bis hoher Hitze erhitzen.",
       "Das Steak dazugeben und 3-4 Minuten anbraten. Das Steak herausnehmen und beiseite stellen.",
       "In derselben Pfanne die Paprika und Zwiebeln anbraten, bis sie weich sind. Das Steak wieder in die Pfanne geben, mit dem Fajita-Gewürz vermengen und servieren."
-    ]
+    ],
+    "id": "recipe_de_18"
   },
   {
     "title": "Hüttenkäse-Protein-Pfannkuchen",
@@ -988,7 +1007,8 @@
       "Auf höchster Stufe mixen, bis ein glatter Teig entsteht.",
       "Eine beschichtete Pfanne bei mittlerer Hitze erhitzen und leicht mit Speiseöl besprühen.",
       "Kleine Teigkreise in die Pfanne gießen. Kochen, bis sich auf der Oberfläche Blasen bilden, wenden und goldbraun backen."
-    ]
+    ],
+    "id": "recipe_de_19"
   },
   {
     "title": "Snackschale aus Edamame und Algen",
@@ -1032,7 +1052,8 @@
       "Das warme Edamame in eine Schüssel geben und mit geröstetem Sesamöl beträufeln. Zum Überziehen wenden.",
       "Die gerösteten Algen-Snackblätter mit den Händen in kleine Flocken zerdrücken.",
       "Die Algenflocken zusammen mit einer Prise Meersalz über das Edamame streuen und genießen."
-    ]
+    ],
+    "id": "recipe_de_20"
   },
   {
     "title": "Keto-Avocado-Eiersalat",
@@ -1076,7 +1097,8 @@
       "Die Avocado halbieren, den Kern entfernen und das Fruchtfleisch in eine Schüssel geben.",
       "Avocado und Mayonnaise cremig zerdrücken, dann die gehackten Eier vorsichtig unterheben.",
       "Mit Salz, Pfeffer und einer Prise Paprika würzen. In Salatbechern servieren oder so essen."
-    ]
+    ],
+    "id": "recipe_de_21"
   },
   {
     "title": "Veganes Kichererbsen-Kokos-Curry",
@@ -1126,7 +1148,8 @@
       "Die leichte Kokosmilch dazugeben und leicht köcheln lassen.",
       "Fügen Sie die abgespülten Kichererbsen hinzu und lassen Sie sie 15 Minuten lang in der Sauce kochen, damit sie die Aromen aufnehmen können.",
       "Während der letzten 2 Minuten den frischen Spinat unterrühren, bis er zusammengefallen ist. Heiß servieren."
-    ]
+    ],
+    "id": "recipe_de_22"
   },
   {
     "title": "Gebackene Süßkartoffel mit Putenhackfleisch",
@@ -1169,7 +1192,8 @@
       "Während die Kartoffeln backen, braten Sie das Putenhackfleisch in einer Pfanne bei mittlerer Hitze an, bis es vollständig gegart ist.",
       "Die zuckerfreie BBQ-Sauce unter den Truthahn rühren.",
       "Die gebackenen Süßkartoffeln aufschneiden und großzügig mit der BBQ-Putenmischung füllen."
-    ]
+    ],
+    "id": "recipe_de_23"
   },
   {
     "title": "Beeren-Chia-Samen-Pudding",
@@ -1219,7 +1243,8 @@
       "5 Minuten ruhen lassen und dann erneut verquirlen, um Klumpenbildung zu vermeiden.",
       "Abdecken und mindestens 2 Stunden oder über Nacht im Kühlschrank lagern.",
       "Vor dem Servieren mit frischen Himbeeren belegen."
-    ]
+    ],
+    "id": "recipe_de_24"
   },
   {
     "title": "Garnelen-Zoodles mit Knoblauchbutter",
@@ -1263,7 +1288,8 @@
       "Die Garnelen in die Pfanne geben und auf jeder Seite 2-3 Minuten braten, bis sie rosa und undurchsichtig sind.",
       "Garnelen herausnehmen und beiseite stellen. In derselben Pfanne die Zucchini-Nudeln 1-2 Minuten lang schwenken, bis sie gerade noch warm sind.",
       "Die Garnelen wieder in die Pfanne geben, mit den Zoodles vermengen und sofort servieren."
-    ]
+    ],
+    "id": "recipe_de_25"
   },
   {
     "title": "Matcha-Grüntee-Protein-Smoothie",
@@ -1313,7 +1339,8 @@
       "Fügen Sie das Molkenprotein, Matcha-Pulver und eine halbe Banane hinzu.",
       "Eine Handvoll Eiswürfel hinzufügen.",
       "Auf höchster Stufe mixen, bis alles glatt und schaumig ist."
-    ]
+    ],
+    "id": "recipe_de_26"
   },
   {
     "title": "Caprese-Hühnerpfanne",
@@ -1363,7 +1390,8 @@
       "In einer Pfanne bei mittlerer Hitze 6-7 Minuten pro Seite braten, bis es vollständig gegart ist.",
       "Jede Brust mit Mozzarellascheiben und halbierten Kirschtomaten belegen. Decken Sie die Pfanne 2 Minuten lang ab, um den Käse zu schmelzen.",
       "Vor dem Servieren mit Balsamico-Glasur beträufeln und mit frischem Basilikum garnieren."
-    ]
+    ],
+    "id": "recipe_de_27"
   },
   {
     "title": "Knusprig geröstete Kichererbsen",
@@ -1407,7 +1435,8 @@
       "Die trockenen Kichererbsen in einer Schüssel mit Olivenöl, geräuchertem Paprika, Salz und Pfeffer vermengen.",
       "Verteilen Sie sie in einer einzigen Schicht auf einem mit Backpapier ausgelegten Backblech.",
       "25–30 Minuten backen, dabei die Pfanne halb schütteln, bis sie knusprig sind. Etwas abkühlen lassen, damit es noch knuspriger wird."
-    ]
+    ],
+    "id": "recipe_de_28"
   },
   {
     "title": "Mit Thunfischsalat gefüllte Avocados",
@@ -1451,7 +1480,8 @@
       "Die Mayonnaise unter den Thunfisch rühren und nach Belieben Salz, Pfeffer und einen Spritzer Zitronensaft hinzufügen.",
       "Die Avocado halbieren und den Kern entfernen. Bei Bedarf können Sie etwas mehr Avocadofleisch herauslöffeln, um Platz zu schaffen.",
       "Die Avocadohälften mit dem Thunfischsalat füllen und mit einem Löffel essen."
-    ]
+    ],
+    "id": "recipe_de_29"
   },
   {
     "title": "Apfelringe mit Mandelbutter",
@@ -1495,7 +1525,8 @@
       "Verteilen Sie die Mandelbutter gleichmäßig auf den Apfelringen.",
       "Für einen leicht nussigen Crunch Hanfsamen über die Mandelbutter streuen.",
       "Sofort servieren, damit die Äpfel nicht braun werden."
-    ]
+    ],
+    "id": "recipe_de_30"
   },
   {
     "title": "Keto-Blumenkohl-Makkaroni mit Käse",
@@ -1538,7 +1569,8 @@
       "In einem Topf bei mittlerer Hitze die Sahne leicht erwärmen.",
       "Den Cheddar-Käse nach und nach unter die Sahne rühren, bis er geschmolzen und glatt ist.",
       "Den gekochten Blumenkohl unter die Käsesauce heben, bis er vollständig bedeckt ist, und heiß servieren."
-    ]
+    ],
+    "id": "recipe_de_31"
   },
   {
     "title": "Proteinreiches Puten-Chili",
@@ -1587,7 +1619,8 @@
       "Die Kidneybohnen abspülen und abtropfen lassen.",
       "Die Bohnen und die zerdrückten Tomaten in den Topf geben und mit Chilipulver, Kreuzkümmel und Salz würzen.",
       "Zum Köcheln bringen, dann die Hitze reduzieren und 20–30 Minuten kochen lassen, damit sich die Aromen vermischen."
-    ]
+    ],
+    "id": "recipe_de_32"
   },
   {
     "title": "Vegane Tempeh-Teriyaki-Pfanne",
@@ -1637,7 +1670,8 @@
       "Das Sesamöl in einem Wok oder einer großen Pfanne bei mittlerer bis hoher Hitze erhitzen und das Tempeh 5 Minuten lang anbraten.",
       "Die Brokkoliröschen dazugeben und weitere 3-4 Minuten unter Rühren braten, bis sie zart-knusprig sind.",
       "Die Teriyaki-Sauce dazugeben, alles gleichmäßig umrühren und warm servieren."
-    ]
+    ],
+    "id": "recipe_de_33"
   },
   {
     "title": "Schokoladen-Avocado-Proteinpudding",
@@ -1687,7 +1721,8 @@
       "Kakaopulver, Ahornsirup und Proteinpulver hinzufügen.",
       "Mixen, bis alles glatt und cremig ist. Wenn es zu dick ist, einen Spritzer Mandelmilch hinzufügen.",
       "Für die beste Konsistenz vor dem Servieren 30 Minuten im Kühlschrank ruhen lassen."
-    ]
+    ],
+    "id": "recipe_de_34"
   },
   {
     "title": "Proteinreiche Overnight-Oats",
@@ -1737,7 +1772,8 @@
       "Geben Sie den griechischen Joghurt und die Mandelmilch hinzu und rühren Sie kräftig um, bis alles gut vermischt ist.",
       "Den Behälter verschließen und über Nacht im Kühlschrank stehen lassen.",
       "Schnappen Sie es sich morgens, rühren Sie es kurz um und genießen Sie es kalt."
-    ]
+    ],
+    "id": "recipe_de_35"
   },
   {
     "title": "Gebackener Zitronen-Kräuter-Kabeljau",
@@ -1781,7 +1817,8 @@
       "Die Kabeljaufilets in die Form legen. Mit Olivenöl und frischem Zitronensaft beträufeln.",
       "Mit Salz, Pfeffer und getrocknetem Dill oder Petersilie bestreuen.",
       "12–15 Minuten backen, bis der Fisch undurchsichtig ist und sich mit einer Gabel leicht zerteilen lässt."
-    ]
+    ],
+    "id": "recipe_de_36"
   },
   {
     "title": "Veganer Edamame-Quinoa-Salat",
@@ -1831,7 +1868,8 @@
       "In einer großen Schüssel gekochtes Quinoa, Edamame und geriebenen Rotkohl vermengen.",
       "Das Erdnussdressing über den Salat träufeln und gut vermengen, sodass alle Zutaten bedeckt sind.",
       "Sofort servieren oder für ein kaltes, erfrischendes Mittagessen in Behälter füllen."
-    ]
+    ],
+    "id": "recipe_de_37"
   },
   {
     "title": "Hähnchen mit Keto-Parmesankruste",
@@ -1875,7 +1913,8 @@
       "Verteilen Sie eine dünne Schicht Mayonnaise gleichmäßig auf jeder Hähnchenbrust.",
       "Drücken Sie den geriebenen Parmesankäse fest in die Mayonnaise, sodass er festklebt.",
       "25 Minuten backen, bis das Hähnchen gar ist und der Käse goldbraun und knusprig ist."
-    ]
+    ],
+    "id": "recipe_de_38"
   },
   {
     "title": "Tropischer Mango-Spinat-Smoothie",
@@ -1925,7 +1964,8 @@
       "Alles glatt rühren, um sicherzustellen, dass keine grünen Stücke übrig bleiben.",
       "Die gefrorenen Mango- und Hanfsamen hinzufügen.",
       "Auf höchster Stufe mixen, bis eine vollkommen glatte und cremige Konsistenz entsteht."
-    ]
+    ],
+    "id": "recipe_de_39"
   },
   {
     "title": "Mit Hackfleisch gefüllte Paprika",
@@ -1974,7 +2014,8 @@
       "In einer Pfanne das Hackfleisch anbraten. Den Blumenkohlreis und die Tomatensauce einrühren und 3 Minuten kochen lassen.",
       "Die ausgehöhlten Paprikaschoten mit der Rindfleischmischung füllen und aufrecht in eine Auflaufform stellen.",
       "Mit Folie abdecken und 30 Minuten backen, dann die Folie entfernen und weitere 5 Minuten backen."
-    ]
+    ],
+    "id": "recipe_de_40"
   },
   {
     "title": "In der Pfanne gebratene Jakobsmuscheln mit Safran-Blumenkohlpüree und schwarzem Trüffel",
@@ -2030,7 +2071,8 @@
       "Die Jakobsmuscheln leicht einschneiden. Eine Pfanne aus Kohlenstoffstahl erhitzen, bis sie raucht. Fügen Sie ein Öl mit hohem Rauchpunkt hinzu und braten Sie die Jakobsmuscheln anschließend genau 90 Sekunden lang an, bis sich eine goldbraune Maillard-Kruste bildet.",
       "Die Jakobsmuscheln wenden, die Hitze reduzieren und 30 Sekunden lang schnell mit der restlichen Butter und einem Zweig Thymian begießen. Herausnehmen und auf einem Papiertuch ruhen lassen.",
       "Anrichten: Einen perfekten Kreis des warmen Pürees löffeln. Die Jakobsmuscheln asymmetrisch anrichten. Zum Schluss Tropfen schwarzes Trüffelöl und Mikrokräuter hinzufügen."
-    ]
+    ],
+    "id": "recipe_de_41"
   },
   {
     "title": "Sous-Vide-Entenbrust mit Kirsch-Balsamico-Reduktion",
@@ -2085,7 +2127,8 @@
       "In der Zwischenzeit Zylinder aus dem Knollensellerie stanzen. Die Enden im Entenfett anbraten und dann in der Brühe sanft schmoren, bis sie zart wie Fondant sind.",
       "In einem Topf die Kirschen und den gereiften Balsamico-Essig einkochen, bis er sirupartig ist, und mit einem kleinen Stück kalter Butter vermischen, um ein glänzendes Finish zu erhalten.",
       "Ente aus dem Beutel nehmen und gründlich trocknen. Mit der Hautseite nach unten in eine kalte Pfanne legen und die Hitze auf mittlere Stufe stellen, damit das Fett glasig und knusprig wird. Elegant in Scheiben schneiden und anrichten."
-    ]
+    ],
+    "id": "recipe_de_42"
   },
   {
     "title": "Lammkarree mit Kräuterkruste und Minz-Erbsenpüree",
@@ -2141,7 +2184,8 @@
       "Den Lammrücken kräftig würzen. In einer glühend heißen Pfanne anbraten, bis es von allen Seiten tief gebräunt ist. Mit Dijon-Senf bestreichen und fest in der Pistazien-Kräuter-Krümel wälzen.",
       "Braten Sie das Lamm bei 200 °C (400 °F) 12–14 Minuten lang für ein perfektes Medium-Rare. Vor dem Schnitzen mindestens 10 Minuten ruhen lassen.",
       "Die Spargelspitzen mit einer Lötlampe oder einer gusseisernen Pfanne anbraten. Das Erbsenpüree auf einem warmen Teller verteilen, die Lammkoteletts ineinander stecken und garnieren."
-    ]
+    ],
+    "id": "recipe_de_43"
   },
   {
     "title": "Mit Miso glasierter chilenischer Wolfsbarsch mit Shiitake-Consommé",
@@ -2196,7 +2240,8 @@
       "Zubereitung der Brühe: Shiitake-Pilze, Kombu und Aromastoffe 2 Stunden köcheln lassen. Klären Sie die Brühe mit der Eiweiß-Raft-Technik, bis sie vollständig transparent ist.",
       "Den Daikon-Rettich mit einer Mandoline in feine Nudeln schneiden. In der heißen Brühe leicht blanchieren.",
       "Den Wolfsbarsch unter einem hohen Salamander oder Ofengrill grillen, bis der Zucker im Miso karamellisiert und leicht verkohlt. Gießen Sie die heiße Brühe auf den Tisch."
-    ]
+    ],
+    "id": "recipe_de_44"
   },
   {
     "title": "Wagyu-Rindertatar mit Wachtelei und Kapernemulsion",
@@ -2252,7 +2297,8 @@
       "Mit einem scharfen Messer das Wagyu-Filet von Hand in 3 mm große Brunoise schneiden. Benutzen Sie niemals einen Fleischwolf.",
       "Falten Sie das Rindfleisch vorsichtig über einem Eisbad mit gehackten Schalotten, Schnittlauch, Kapern und der Dijon-Emulsion, um die Fettstruktur zu bewahren.",
       "Mit einer Ringform anrichten. Trennen Sie das Eigelb des Wachteleis vorsichtig und platzieren Sie es perfekt in der Mitte. Mit Mikro-Senfgrün und dem knusprigen Tuile garnieren."
-    ]
+    ],
+    "id": "recipe_de_45"
   },
   {
     "title": "In Butter pochierter Hummerschwanz mit Safranrisotto",
@@ -2306,7 +2352,8 @@
       "Hummerfleisch aus der Schale nehmen und 6–8 Minuten in der Beurre Monté einlegen, bis es vollkommen undurchsichtig und zart ist.",
       "Den Arborio-Reis trocken rösten und mit Weißwein mit Premium-Safranfäden ablöschen. Langsam heiße Meeresfrüchtebrühe hinzufügen und dabei ständig umrühren, um die Stärke freizusetzen.",
       "Beenden Sie das Risotto vom Herd (mantecatura) mit Parmigiano und einem Stück kalter Butter. Das Risotto auf Tellern anrichten, mit dem in Scheiben geschnittenen Hummer belegen und mit Blattgold oder Microgreens garnieren."
-    ]
+    ],
+    "id": "recipe_de_46"
   },
   {
     "title": "Hirschlende mit Brombeer-Wacholder-Jus",
@@ -2361,7 +2408,8 @@
       "In derselben Pfanne mit einem Schuss Gin oder Rotwein ablöschen. Die Brombeeren dazugeben und leicht zerdrücken. Die Kalbs-Demi-Glace dazugeben und reduzieren, bis die Rückseite eines Löffels bedeckt ist.",
       "Den Broccolini blanchieren und dann schnell auf einem gusseisernen Grill grillen, bis er raucht.",
       "Das Wildbret in dicke Medaillons schneiden. Die glänzende Brombeerjus auf dem Teller bündeln und das Fleisch neben den verkohlten Broccolini anrichten."
-    ]
+    ],
+    "id": "recipe_de_47"
   },
   {
     "title": "Heilbutt in Macadamiakruste mit Zitronengras-Velouté",
@@ -2410,7 +2458,8 @@
       "Den Heilbutt mit der Krustenseite nach unten in einer trockenen, beschichteten Pfanne rösten, um die Nüsse zu rösten, dann umdrehen und im Ofen bei 180 °C (350 °F) vorsichtig garen.",
       "Gequetschtes Zitronengras und Ingwer in einem Topf ohne Farbstoffe anschwitzen. Kokosmilch und einen Schuss Fischbrühe hinzufügen. Reduzieren, abseihen und mit einem Stabmixer für die Velouté aufschäumen.",
       "Gießen Sie den schaumigen Velouté in eine flache Schüssel und legen Sie den verkrusteten Heilbutt vorsichtig in die Mitte."
-    ]
+    ],
+    "id": "recipe_de_48"
   },
   {
     "title": "Wildpilz-Confit und schwarzer Knoblauch auf handwerklich hergestelltem Keto-Toast",
@@ -2466,7 +2515,8 @@
       "Kochen Sie die Eier 45 Minuten lang Sous-vide bei genau 63 °C (145,4 °F), um ein puddingartiges Eigelb und zartes Eiweiß zu erhalten.",
       "Das Ketobrot in einer trockenen Pfanne knusprig rösten. Großzügig mit dem fermentierten schwarzen Knoblauchpüree bestreichen.",
       "Das abgetropfte Pilz-Confit über den Toast legen, das 63-Grad-Ei vorsichtig aufschlagen und mit flockigem Maldon-Meersalz abschließen."
-    ]
+    ],
+    "id": "recipe_de_49"
   },
   {
     "title": "Gebratener Ahi-Thunfisch mit Yuzu-Ponzu-Kugel und Edamame-Püree",
@@ -2521,7 +2571,8 @@
       "Verwandeln Sie die Yuzu-Ponzu-Sauce mit Natriumalginat und Calciumchlorid (Kugelbildung) in kleine, im Mund zerplatzende Kugeln.",
       "Den Thunfischblock mit schwarzen Sesamkörnern bestreichen. Eine gusseiserne Pfanne erhitzen, bis sie weißglühend ist. Den Thunfisch auf jeder Seite genau 10 Sekunden anbraten, dabei die Mitte vollständig roh lassen.",
       "Den Thunfisch mit einem Sashimimesser sauber in Scheiben schneiden. Streichen Sie das hellgrüne Edamame-Püree über den Teller, fächern Sie den Thunfisch auf und garnieren Sie ihn mit den Yuzu-Kugeln und Mikro-Koriander."
-    ]
+    ],
+    "id": "recipe_de_50"
   },
   {
     "title": "Mit Butter bestrichener Ora-Königslachs mit Sunchoke-Velouté und Ossetra-Kaviar",
@@ -2577,7 +2628,8 @@
       "Ritzen Sie die Haut des Ora-King-Lachses ein, um ein Einrollen zu verhindern. Mit der Hautseite nach unten in eine kalte Karbonstahlpfanne legen und die Hitze auf mittlere bis niedrige Stufe einstellen, um das Fett sorgfältig zu zerteilen und die Haut 8–10 Minuten lang knusprig zu machen.",
       "Drehen Sie den Fisch kurz um, stellen Sie die Hitze ab und begießen Sie ihn kontinuierlich mit schäumender Sauerbutter und Thymian, um einen makellosen mittel-seltenen Kern zu erhalten.",
       "Geben Sie das heiße Sunchoke-Velouté in eine flache Schüssel, legen Sie den Lachs mit der Hautseite nach oben darauf und garnieren Sie ihn mit einer präzisen Quenelle aus Ossetra-Kaviar und Mikrodill."
-    ]
+    ],
+    "id": "recipe_de_51"
   },
   {
     "title": "Sous-Vide-Kalbsfilet mit schwarzem Knoblauchjus und verkohltem Spargel",
@@ -2632,7 +2684,8 @@
       "Den fermentierten schwarzen Knoblauch in die reichhaltige Kalbs-Demi-Glace pürieren. Den Jus köcheln lassen, bis er die Rückseite eines Löffels intensiv bedeckt (Nappé-Konsistenz).",
       "Das Kalbfleisch aus der Tüte nehmen und vollständig trocken tupfen. In einer glühend heißen Pfanne mit Traubenkernöl 30 Sekunden pro Seite scharf anbraten, um die Maillard-Reaktion auszulösen. Lass dich ausruhen.",
       "Den Spargel über offener Flamme oder unter einem Grill grillen. Das Kalbfleisch in dicke Medaillons schneiden und die glänzende schwarze Knoblauchjus rund um das Fleisch verteilen."
-    ]
+    ],
+    "id": "recipe_de_52"
   },
   {
     "title": "Pochierter Langustinenschwanz mit Zitronengrasemulsion und Daikon-Fondant",
@@ -2687,7 +2740,8 @@
       "Zitronengras und Ingwer zerdrücken und vorsichtig in der Kokosmilch einweichen. Die aufgegossene Flüssigkeit abseihen und mit einem Stabmixer belüften, um einen stabilen, duftenden Schaum zu erzeugen.",
       "Bringen Sie das Butterschmalz auf genau 60 °C (140 °F). Tauchen Sie die geschälten Langustinenschwänze ein und pochieren Sie sie 3-4 Minuten lang vorsichtig, bis sie nur noch perlmuttfarben sind. Nicht zu lange kochen.",
       "Die Daikon-Zylinder auf Tellern anrichten, die butterartige Langustine darüber verteilen und die belüftete Zitronengras-Emulsion großzügig auf dem Teller verteilen."
-    ]
+    ],
+    "id": "recipe_de_53"
   },
   {
     "title": "Gebratener Steinbutt mit weißem Spargel und Champagner-Beurre-Blanc",
@@ -2742,7 +2796,8 @@
       "Champagner, Weißweinessig und gehackte Schalotte in einem kleinen Topf einkochen lassen, bis sie fast trocken sind (ca. 1 Sekunde). Vom Herd nehmen und nacheinander extrem kalte Butterwürfel unterrühren, bis ein stabiler, glänzender Beurre Blanc entsteht. Warm halten.",
       "Eine schwere Pfanne erhitzen. Das Steinbuttfilet in einem Hauch Öl anbraten, bis eine goldene Kruste entsteht. Umdrehen, mit Pfannensaft begießen und kochen, bis sich ein Kuchentest ergibt.",
       "Ordnen Sie den weißen Spargel linear an, legen Sie den Steinbutt vorsichtig daneben und gießen Sie den köstlichen Beurre Blanc darüber, sodass er auf dem Teller leicht platzt."
-    ]
+    ],
+    "id": "recipe_de_54"
   },
   {
     "title": "In Miso gepökelter schwarzer Kabeljau mit Dashi-Brühe und Shimeji-Pilzen",
@@ -2797,7 +2852,8 @@
       "Wischen Sie die überschüssige Miso-Marinade vorsichtig vom Fisch ab, um ein Anbrennen zu vermeiden. Den schwarzen Kabeljau bei starker Hitze braten, bis der Zucker zu einer tiefen Mahagonikruste karamellisiert und der Fisch mühelos zerfällt.",
       "Erwärmen Sie die Dashi-Kombu-Brühe und lassen Sie die zarten Shimeji-Pilze darin einweichen, bis sie gerade weich sind. Nicht kochen.",
       "Den glasierten Kabeljau in eine tiefe, dunkle Schüssel geben. Gießen Sie das dampfende Dashi auf den Tisch und garnieren Sie es mit fein geschnittenen Frühlingszwiebeln oder essbaren Goldflocken."
-    ]
+    ],
+    "id": "recipe_de_55"
   },
   {
     "title": "Secreto vom iberischen Schwein mit Romesco-Sauce und geröstetem Baby-Lauch",
@@ -2853,7 +2909,8 @@
       "Schneiden Sie den kleinen Lauch ab, geben Sie einen Tropfen Öl hinein und braten Sie ihn über offener Flamme oder in einer trockenen gusseisernen Pfanne kräftig an, bis die äußeren Schichten geschwärzt sind. Entfernen Sie die verbrannte Außenseite, um zarte, süße Zwiebelschichten freizulegen.",
       "Den Iberico Secreto mit Meersalzflocken würzen. Aufgrund seiner intensiven Marmorierung in einer trockenen Pfanne bei starker Hitze kochen, dabei das intramuskuläre Fett auslassen, bis sich eine dunkle Kruste bildet. Servieren Sie mittel-selten bis mittelgroß.",
       "Die Romesco-Sauce auf einem Schieferteller verteilen, das Schweinefleisch gegen die Faser aufschneiden und über den rauchigen, verkohlten Lauch legen."
-    ]
+    ],
+    "id": "recipe_de_56"
   },
   {
     "title": "Gebratenes Straußenfilet mit Brombeergastrique und geräuchertem Pastinakenpüree",
@@ -2908,7 +2965,8 @@
       "Machen Sie den Gastrique: Eine kleine Menge Süßstoff karamellisieren, mit Rotweinessig ablöschen, zerdrückte Brombeeren und Rinderbrühe hinzufügen. Reduzieren, bis es sirupartig und intensiv ist.",
       "Das Straußenfilet würzen. Behandeln Sie es wie das magerste Filet Mignon: Bei sehr hoher Hitze schnell anbraten. Es MUSS selten oder mittel-selten serviert werden, um Zähigkeit zu vermeiden. 10 Minuten ruhen lassen.",
       "Das geräucherte Pastinakenpüree auf den Teller spritzen. Den Strauß in Medaillons schneiden, fächerförmig anrichten und mit dem säuerlichen Brombeer-Gastrique beträufeln."
-    ]
+    ],
+    "id": "recipe_de_57"
   },
   {
     "title": "Konfierte Wachteln mit eingelegten Senfkörnern und karamellisiertem Endiviensalat",
@@ -2957,7 +3015,8 @@
       "Die Wachtel über Nacht mit Salz, Thymian und zerstoßenem Wacholder pökeln. Vollständig in geschmolzenes Entenfett eintauchen und bei niedriger Temperatur (Confit) bei 90 °C (195 °F) 2 Stunden lang garen, bis das Fleisch unter leichtem Druck nachgibt.",
       "Die Endivien halbieren und mit der Schnittfläche nach unten in einer trockenen Pfanne anbraten, bis sie tief karamellisiert sind. Mit einem Spritzer Wasser ablöschen, damit sie zart werden.",
       "Nehmen Sie die Wachtel vorsichtig aus dem Fett und braten Sie sie mit der Hautseite nach unten scharf an, bis sie knusprig ist. Zusammen mit der karamellisierten Endivie servieren, garniert mit den geplatzten eingelegten Senfkörnern."
-    ]
+    ],
+    "id": "recipe_de_58"
   },
   {
     "title": "In Olivenöl pochierter Heilbutt mit Safran-Fenchel-Brühe und Meeresbohnen",
@@ -3013,7 +3072,8 @@
       "Bringen Sie eine tiefe Pfanne mit hochwertigem nativem Olivenöl extra auf genau 55 °C (131 °F). Tauchen Sie die gewürzten Heilbuttfilets vollständig ein. 15 bis 20 Minuten lang pochieren, bis der Fisch undurchsichtig wird und sich in dicke Flocken zu teilen beginnt.",
       "Blanchieren Sie die Meeresbohnen schnell 30 Sekunden lang in ungesalzenem kochendem Wasser und schocken Sie sie dann in Eiswasser, damit sie ihre leuchtend grüne Knusprigkeit behalten.",
       "Heben Sie den zerbrechlichen Heilbutt vorsichtig aus dem Öl und lassen Sie ihn kurz abtropfen. In eine flache Schüssel geben, den gehobelten Fenchel und die Meeresbohnen daneben legen und die heiße Safranbrühe um den Fisch gießen."
-    ]
+    ],
+    "id": "recipe_de_59"
   },
   {
     "title": "Elchmedaillons mit Wacholder-Port-Reduktion und Selleriewurzelfondant",
@@ -3068,7 +3128,8 @@
       "Zerkleinerte Wacholderbeeren in einer trockenen Pfanne rösten, bis sie duften. Mit Ruby Port ablöschen und auf zwei Drittel reduzieren. Die kalte Butter vom Herd (monter au beurre) unterrühren, um eine cremige Soße zu erhalten.",
       "Die Elchmedaillons großzügig mit grobem Salz würzen. In einer glühend heißen Gusseisenpfanne genau 2 Minuten pro Seite anbraten. Kurz mit Bratensaft begießen. Elch ist extrem mager und darf nicht über die mittlere bis mittlere Rarität hinaus gegart werden.",
       "Das Fleisch 5 Minuten ruhen lassen. Gegen die Faserrichtung aufschneiden, elegant über dem Selleriefondant anrichten und die Medaillons mit der glänzenden Wacholder-Port-Reduktion verzieren."
-    ]
+    ],
+    "id": "recipe_de_60"
   },
   {
     "title": "Keto-Avocado-Lachsboot",
@@ -3119,7 +3180,8 @@
       "Legen Sie ein kleines Stück Lachs in die ausgehöhlte Avocadohälfte.",
       "Mit Olivenöl, Zitronensaft, Salz und Pfeffer beträufeln.",
       "15–20 Minuten backen, bis der Lachs gar ist."
-    ]
+    ],
+    "id": "recipe_de_61"
   },
   {
     "title": "Proteinreiche Blaubeerpfannkuchen",
@@ -3169,7 +3231,8 @@
       "Die frischen Blaubeeren vorsichtig unterheben.",
       "In einer beschichteten Pfanne bei mittlerer Hitze kochen, bis sich Blasen bilden, dann wenden.",
       "Heiß mit einem Schuss zuckerfreiem Sirup servieren."
-    ]
+    ],
+    "id": "recipe_de_62"
   },
   {
     "title": "Mediterrane Quinoa-Bowl",
@@ -3224,7 +3287,8 @@
       "Die Kirschtomaten halbieren und die Gurken in Scheiben schneiden.",
       "Tomaten, Gurken und Oliven auf dem Quinoa anrichten.",
       "Mit einer großzügigen Kugel Hummus und einem Schuss Olivenöl belegen."
-    ]
+    ],
+    "id": "recipe_de_63"
   },
   {
     "title": "Scharfes, mageres Puten-Chili",
@@ -3274,7 +3338,8 @@
       "Die zerkleinerten Tomaten und Kidneybohnen (abgetropft und abgespült) hinzufügen.",
       "30 Minuten köcheln lassen, damit sich die Aromen vermischen.",
       "Vor dem Servieren mit einer Prise fettarmem Käse oder Koriander garnieren."
-    ]
+    ],
+    "id": "recipe_de_64"
   },
   {
     "title": "Erfrischender grüner Detox-Smoothie",
@@ -3324,7 +3389,8 @@
       "Spinat, Apfel, Banane und Kokoswasser in einen Mixer geben.",
       "Auf höchster Stufe mixen, bis eine vollkommen glatte Masse entsteht.",
       "In ein gekühltes Glas füllen und sofort genießen!"
-    ]
+    ],
+    "id": "recipe_de_65"
   },
   {
     "title": "Low-Carb-Zucchininudeln mit Pesto",
@@ -3374,7 +3440,8 @@
       "Eine Pfanne bei mittlerer Hitze erhitzen und die Nudeln 2–3 Minuten leicht anbraten.",
       "Vom Herd nehmen und mit Basilikumpesto vermengen, bis es gleichmäßig bedeckt ist.",
       "Mit halbierten Kirschtomaten und geriebenem Parmesan belegen."
-    ]
+    ],
+    "id": "recipe_de_66"
   },
   {
     "title": "Klassischer Hähnchen-Caesar-Salat",
@@ -3422,7 +3489,8 @@
       "Den Römersalat hacken und in eine große Schüssel geben.",
       "Den Salat mit Caesar-Dressing vermengen.",
       "Mit Hähnchenscheiben und einer Handvoll Croutons belegen."
-    ]
+    ],
+    "id": "recipe_de_67"
   },
   {
     "title": "Chia-Pudding über Nacht",
@@ -3471,7 +3539,8 @@
       "5 Minuten ruhen lassen und dann erneut verquirlen, um ein Verklumpen zu verhindern.",
       "Abdecken und über Nacht (oder mindestens 2 Stunden) im Kühlschrank lagern.",
       "Vor dem Servieren mit frischen Beeren belegen."
-    ]
+    ],
+    "id": "recipe_de_68"
   },
   {
     "title": "Snackschale mit gerösteten Kichererbsen",
@@ -3520,7 +3589,8 @@
       "Die Kichererbsen abtropfen lassen, abspülen und gründlich mit einem Papiertuch trocknen.",
       "Die Kichererbsen mit Olivenöl, Paprika und Salz vermengen.",
       "Gleichmäßig auf einem Backblech verteilen und 20–25 Minuten knusprig rösten."
-    ]
+    ],
+    "id": "recipe_de_69"
   },
   {
     "title": "Steakhäppchen mit Knoblauchbutter",
@@ -3569,7 +3639,8 @@
       "Erhitzen Sie eine Pfanne bei starker Hitze und braten Sie die Steakstücke 3-4 Minuten lang an.",
       "Hitze reduzieren, Butter und gehackten Knoblauch hinzufügen und vermengen, um das Steak zu bedecken.",
       "Mit gehackter frischer Petersilie garnieren und sofort servieren."
-    ]
+    ],
+    "id": "recipe_de_70"
   },
   {
     "title": "Veganes Süßkartoffel-Curry",
@@ -3618,7 +3689,8 @@
       "In einem großen Topf die Currypaste vorsichtig anbraten, bis sie duftet.",
       "Süßkartoffeln und Kokosmilch hinzufügen. 20 Minuten köcheln lassen, bis es weich ist.",
       "Den Spinat unterrühren und vor dem Servieren zusammenfallen lassen."
-    ]
+    ],
+    "id": "recipe_de_71"
   },
   {
     "title": "Eier-Muffin-Frühstücksbecher",
@@ -3667,7 +3739,8 @@
       "Eier in einer Schüssel verquirlen und mit Salz und Pfeffer würzen.",
       "Gehackte Paprika, Spinat und Käse auf die Muffinförmchen verteilen.",
       "Die Eiermischung über die Füllungen gießen und 15–20 Minuten backen."
-    ]
+    ],
+    "id": "recipe_de_72"
   },
   {
     "title": "Thunfisch-Avocado-Salat",
@@ -3716,7 +3789,8 @@
       "Die Avocado dazugeben und zusammen mit dem Thunfisch mit einer Gabel zerdrücken.",
       "Fein gewürfelte rote Zwiebeln, Zitronensaft, Salz und Pfeffer unterrühren.",
       "Auf Gurkenscheiben oder Vollkorntoast servieren."
-    ]
+    ],
+    "id": "recipe_de_73"
   },
   {
     "title": "Schokoladen-Erdnussbutter-Smoothie",
@@ -3764,7 +3838,8 @@
       "Alle Zutaten in einen Mixer geben.",
       "Eine Handvoll Eiswürfel hinzufügen.",
       "Auf höchster Stufe mixen, bis eine glatte und cremige Masse entsteht."
-    ]
+    ],
+    "id": "recipe_de_74"
   },
   {
     "title": "Garnelenpfanne mit Brokkoli",
@@ -3813,6 +3888,767 @@
       "Brokkoliröschen dazugeben und unter Rühren 4-5 Minuten braten, bis sie zart-knusprig sind.",
       "Garnelen hinzufügen und 2-3 Minuten kochen lassen, bis sie rosa werden.",
       "Mit Sojasauce beträufeln, gut umrühren und heiß servieren."
-    ]
+    ],
+    "id": "recipe_de_75"
+  },
+  {
+    "title": "Keto-Avocado-Lachsboot",
+    "description": "Dieses einfache, aber elegante Lachsboot ist reich an Omega-3-Fettsäuren und gesunden Fetten und eignet sich perfekt für ein Keto-Abendessen. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Keto",
+      "Hoher Proteingehalt",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Lachsfilet",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Olivenöl",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Zitronensaft",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Heizen Sie Ihren Backofen auf 400 °F (200 °C) vor.",
+      "Die Avocado halbieren und den Kern entfernen.",
+      "Legen Sie ein kleines Stück Lachs in die ausgehöhlte Avocadohälfte.",
+      "Mit Olivenöl, Zitronensaft, Salz und Pfeffer beträufeln.",
+      "15–20 Minuten backen, bis der Lachs gar ist."
+    ],
+    "id": "recipe_de_76"
+  },
+  {
+    "title": "Proteinreiche Blaubeerpfannkuchen",
+    "description": "Beginnen Sie Ihren Morgen mit diesen flauschigen, proteinreichen Pfannkuchen voller frischer Antioxidantien. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Frühstück",
+      "Hoher Proteingehalt",
+      "Vegetarier"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Hafermehl",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Proteinpulver (Vanille)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Mandelmilch",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Blaubeeren",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "In einer Schüssel Hafermehl und Proteinpulver vermischen.",
+      "Nach und nach die Mandelmilch unterrühren, bis ein glatter Teig entsteht.",
+      "Die frischen Blaubeeren vorsichtig unterheben.",
+      "In einer beschichteten Pfanne bei mittlerer Hitze kochen, bis sich Blasen bilden, dann wenden.",
+      "Heiß mit einem Schuss zuckerfreiem Sirup servieren."
+    ],
+    "id": "recipe_de_77"
+  },
+  {
+    "title": "Mediterrane Quinoa-Bowl",
+    "description": "Eine lebendige, erfrischende Schüssel voller Ballaststoffe und gesunder Fette, perfekt für ein sonniges Mittagessen am Nachmittag. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Mittagessen",
+      "Vegan",
+      "Mittelmeer"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Gekochte Quinoa",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Kirschtomaten",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Gurke",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Kalamata-Oliven",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Hummus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Legen Sie die gekochte Quinoa auf den Boden Ihrer Schüssel.",
+      "Die Kirschtomaten halbieren und die Gurken in Scheiben schneiden.",
+      "Tomaten, Gurken und Oliven auf dem Quinoa anrichten.",
+      "Mit einer großzügigen Kugel Hummus und einem Schuss Olivenöl belegen."
+    ],
+    "id": "recipe_de_78"
+  },
+  {
+    "title": "Scharfes, mageres Puten-Chili",
+    "description": "Wärmen Sie Ihre Seele und erreichen Sie Ihre Proteinziele mit diesem reichhaltigen und würzigen Truthahn-Chili. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Hoher Proteingehalt",
+      "Wenig Fett"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Lean Ground Turkey",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Kidneybohnen",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Zerkleinerte Tomaten",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Chilipulver",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Das Putenhackfleisch in einem großen Topf bei mittlerer Hitze anbraten.",
+      "Das Chilipulver einrühren und 1 Minute kochen lassen, bis es duftet.",
+      "Die zerkleinerten Tomaten und Kidneybohnen (abgetropft und abgespült) hinzufügen.",
+      "30 Minuten köcheln lassen, damit sich die Aromen vermischen.",
+      "Vor dem Servieren mit einer Prise fettarmem Käse oder Koriander garnieren."
+    ],
+    "id": "recipe_de_79"
+  },
+  {
+    "title": "Erfrischender grüner Detox-Smoothie",
+    "description": "Ein schneller Vitamin- und Feuchtigkeitsschub, hervorragend für die Erholung nach dem Training oder einen frischen Start in den Morgen. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Frühstück",
+      "Snack",
+      "Vegan",
+      "Roh"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Spinat",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Grüner Apfel",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banane",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Kokoswasser",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Den grünen Apfel entkernen und hacken.",
+      "Spinat, Apfel, Banane und Kokoswasser in einen Mixer geben.",
+      "Auf höchster Stufe mixen, bis eine vollkommen glatte Masse entsteht.",
+      "In ein gekühltes Glas füllen und sofort genießen!"
+    ],
+    "id": "recipe_de_80"
+  },
+  {
+    "title": "Low-Carb-Zucchininudeln mit Pesto",
+    "description": "Eine leichte und geschmackvolle Alternative zu Nudeln, verfeinert mit einer reichhaltigen Basilikum-Pesto-Sauce. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Keto",
+      "Vegetarier",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Zucchini",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Basilikumpesto",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Parmesankäse",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Kirschtomaten",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Aus der Zucchini dünne Nudeln formen.",
+      "Eine Pfanne bei mittlerer Hitze erhitzen und die Nudeln 2–3 Minuten leicht anbraten.",
+      "Vom Herd nehmen und mit Basilikumpesto vermengen, bis es gleichmäßig bedeckt ist.",
+      "Mit halbierten Kirschtomaten und geriebenem Parmesan belegen."
+    ],
+    "id": "recipe_de_81"
+  },
+  {
+    "title": "Klassischer Hähnchen-Caesar-Salat",
+    "description": "Knusprige Römersalat, zartes gegrilltes Hähnchen und ein cremig-würziges Dressing machen dies zu einem zeitlosen Favoriten. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Mittagessen",
+      "Hoher Proteingehalt"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Hühnerbrust",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Römersalat",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Caesar-Dressing",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Croutons",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Die Hähnchenbrust würzen und grillen, bis sie vollständig gar ist. Lassen Sie es ruhen und schneiden Sie es dann in Scheiben.",
+      "Den Römersalat hacken und in eine große Schüssel geben.",
+      "Den Salat mit Caesar-Dressing vermengen.",
+      "Mit Hähnchenscheiben und einer Handvoll Croutons belegen."
+    ],
+    "id": "recipe_de_82"
+  },
+  {
+    "title": "Chia-Pudding über Nacht",
+    "description": "Wachen Sie mit einem verzehrfertigen, cremigen und nahrhaften Chia-Pudding mit frischen Früchten auf. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Frühstück",
+      "Vegan",
+      "Glutenfrei"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Chia-Samen",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Mandelmilch",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Ahornsirup",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Frische Beeren",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "In einem Glas Chiasamen, Mandelmilch und Ahornsirup verrühren.",
+      "5 Minuten ruhen lassen und dann erneut verquirlen, um ein Verklumpen zu verhindern.",
+      "Abdecken und über Nacht (oder mindestens 2 Stunden) im Kühlschrank lagern.",
+      "Vor dem Servieren mit frischen Beeren belegen."
+    ],
+    "id": "recipe_de_83"
+  },
+  {
+    "title": "Snackschale mit gerösteten Kichererbsen",
+    "description": "Knusprig, salzig und unglaublich sättigend. Ein ballaststoffreicher Snack, der satt hält. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Snack",
+      "Vegan",
+      "Hoher Ballaststoffgehalt"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Kichererbsen (Konserviert)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Olivenöl",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Geräucherter Paprika",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Meersalz",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Den Ofen auf 200 °C (400 °F) vorheizen.",
+      "Die Kichererbsen abtropfen lassen, abspülen und gründlich mit einem Papiertuch trocknen.",
+      "Die Kichererbsen mit Olivenöl, Paprika und Salz vermengen.",
+      "Gleichmäßig auf einem Backblech verteilen und 20–25 Minuten knusprig rösten."
+    ],
+    "id": "recipe_de_84"
+  },
+  {
+    "title": "Steakhäppchen mit Knoblauchbutter",
+    "description": "Zart, saftig und voller Geschmack. Diese Steakhäppchen sind das ultimative proteinreiche Abendessen. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Keto",
+      "Hoher Proteingehalt"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Lendensteak",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Butter",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Knoblauchzehen",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Frische Petersilie",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Das Steak in mundgerechte Würfel schneiden und mit Salz und Pfeffer würzen.",
+      "Erhitzen Sie eine Pfanne bei starker Hitze und braten Sie die Steakstücke 3-4 Minuten lang an.",
+      "Hitze reduzieren, Butter und gehackten Knoblauch hinzufügen und vermengen, um das Steak zu bedecken.",
+      "Mit gehackter frischer Petersilie garnieren und sofort servieren."
+    ],
+    "id": "recipe_de_85"
+  },
+  {
+    "title": "Veganes Süßkartoffel-Curry",
+    "description": "Ein wohltuendes, cremiges Kokos-Curry mit Süßkartoffeln und warmen Gewürzen. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Vegan",
+      "Glutenfrei"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Süßkartoffel",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Kokosmilch (Lite)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Currypaste",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Spinat",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Die Süßkartoffeln schälen und in kleine Würfel schneiden.",
+      "In einem großen Topf die Currypaste vorsichtig anbraten, bis sie duftet.",
+      "Süßkartoffeln und Kokosmilch hinzufügen. 20 Minuten köcheln lassen, bis es weich ist.",
+      "Den Spinat unterrühren und vor dem Servieren zusammenfallen lassen."
+    ],
+    "id": "recipe_de_86"
+  },
+  {
+    "title": "Eier-Muffin-Frühstücksbecher",
+    "description": "Tragbare, proteinreiche Eiermuffins, die Sie für geschäftige Morgen vorbereiten können. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Frühstück",
+      "Keto",
+      "Hoher Proteingehalt"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Eier",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Cheddar-Käse",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Paprika",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Spinat",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Den Backofen auf 175 °C (350 °F) vorheizen und eine Muffinform einfetten.",
+      "Eier in einer Schüssel verquirlen und mit Salz und Pfeffer würzen.",
+      "Gehackte Paprika, Spinat und Käse auf die Muffinförmchen verteilen.",
+      "Die Eiermischung über die Füllungen gießen und 15–20 Minuten backen."
+    ],
+    "id": "recipe_de_87"
+  },
+  {
+    "title": "Thunfisch-Avocado-Salat",
+    "description": "Ein Mayonnaise-freier Thunfischsalat mit cremiger Avocado für gesunde Fette und eine unglaubliche Textur. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Mittagessen",
+      "Keto",
+      "Hoher Proteingehalt"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Thunfischkonserven",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Rote Zwiebel",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Zitronensaft",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Den Thunfisch abtropfen lassen und in eine Schüssel geben.",
+      "Die Avocado dazugeben und zusammen mit dem Thunfisch mit einer Gabel zerdrücken.",
+      "Fein gewürfelte rote Zwiebeln, Zitronensaft, Salz und Pfeffer unterrühren.",
+      "Auf Gurkenscheiben oder Vollkorntoast servieren."
+    ],
+    "id": "recipe_de_88"
+  },
+  {
+    "title": "Schokoladen-Erdnussbutter-Smoothie",
+    "description": "Schmeckt wie ein Nachtisch, ist aber voller muskelaufbauender Proteine ​​und gesunder Fette. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Snack",
+      "Hoher Proteingehalt",
+      "Vegetarier"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Schokoladenproteinpulver",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Erdnussbutter",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banane",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Mandelmilch",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Alle Zutaten in einen Mixer geben.",
+      "Eine Handvoll Eiswürfel hinzufügen.",
+      "Auf höchster Stufe mixen, bis eine glatte und cremige Masse entsteht."
+    ],
+    "id": "recipe_de_89"
+  },
+  {
+    "title": "Garnelenpfanne mit Brokkoli",
+    "description": "Ein schnelles, herzhaftes und proteinreiches Abendessen, das in einer Pfanne zubereitet wird. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Abendessen",
+      "Hoher Proteingehalt",
+      "Low Carb"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Garnelen (geschält)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Brokkoliröschen",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Sojasauce",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Sesamöl",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Sesamöl in einer großen Pfanne oder im Wok bei mittlerer bis hoher Hitze erhitzen.",
+      "Brokkoliröschen dazugeben und unter Rühren 4-5 Minuten braten, bis sie zart-knusprig sind.",
+      "Garnelen hinzufügen und 2-3 Minuten kochen lassen, bis sie rosa werden.",
+      "Mit Sojasauce beträufeln, gut umrühren und heiß servieren."
+    ],
+    "id": "recipe_de_90"
   }
 ]

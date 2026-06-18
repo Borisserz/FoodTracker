@@ -40,7 +40,8 @@
       "Togliere il torsolo alle mele, lasciando intatto il fondo.",
       "Mescolare le noci tritate e il miele, quindi farcire le mele.",
       "Cuocere per 20-25 minuti finché sono teneri."
-    ]
+    ],
+    "id": "recipe_it_0"
   },
   {
     "title": "Uova strapazzate ad alto contenuto proteico con avocado",
@@ -85,7 +86,8 @@
       "Sciogliere il burro in una padella antiaderente a fuoco medio-basso.",
       "Versare le uova e mescolare delicatamente con una spatola fino a quando non si saranno solidificate.",
       "Tagliare l'avocado e servire insieme alle uova strapazzate calde. Aggiungere sale e pepe a piacere."
-    ]
+    ],
+    "id": "recipe_it_1"
   },
   {
     "title": "Frullato vegano al burro di arachidi e cioccolato",
@@ -135,7 +137,8 @@
       "Metti la banana sbucciata, il burro di arachidi e le proteine ​​in polvere in un frullatore.",
       "Versare il latte di mandorle.",
       "Frullare a velocità alta fino a ottenere un composto liscio e cremoso. Aggiungi ghiaccio se preferisci."
-    ]
+    ],
+    "id": "recipe_it_2"
   },
   {
     "title": "Salmone al burro all'aglio Keto con asparagi",
@@ -186,7 +189,8 @@
       "Disponete al centro i filetti di salmone e attorno disponete gli asparagi.",
       "Sciogliere il burro, aggiungere l'aglio tritato e spennellare generosamente il salmone e gli asparagi.",
       "Cuocere per 12-15 minuti fino a quando il salmone sarà completamente cotto e si sfalderà facilmente con una forchetta."
-    ]
+    ],
+    "id": "recipe_it_3"
   },
   {
     "title": "Ciotola di pollo e quinoa",
@@ -235,7 +239,8 @@
       "Tagliare il pollo cotto.",
       "Dimezzare i pomodorini.",
       "Dividere la quinoa calda in due ciotole, guarnire con il pollo a fette, i pomodori e irrorare con l'olio d'oliva rimanente."
-    ]
+    ],
+    "id": "recipe_it_4"
   },
   {
     "title": "Polpette di tacchino a basso contenuto di carboidrati con tagliatelle di zucchine",
@@ -284,7 +289,8 @@
       "Versare la salsa marinara sulle polpette e lasciar cuocere a fuoco basso per 5 minuti.",
       "In una padella separata, rosolare leggermente le tagliatelle di zucchine per 2-3 minuti fino a quando saranno tenere.",
       "Servire le polpette e la salsa sugli zoodles e guarnire con parmigiano grattugiato."
-    ]
+    ],
+    "id": "recipe_it_5"
   },
   {
     "title": "Parfait ai frutti di bosco allo yogurt greco",
@@ -334,7 +340,8 @@
       "Ricoprire con uno strato di frutti di bosco freschi.",
       "Cospargere uniformemente il miele sulle bacche.",
       "Cospargere le mandorle a fette sulla parte superiore per una deliziosa croccantezza."
-    ]
+    ],
+    "id": "recipe_it_6"
   },
   {
     "title": "Strapazzata di tofu vegano",
@@ -384,7 +391,8 @@
       "Scaldare l'olio d'oliva in una padella a fuoco medio e aggiungere il tofu sbriciolato.",
       "Cospargere la curcuma sul tofu e mescolare bene finché non diventa giallo dorato.",
       "Aggiungere gli spinaci nella padella e cuocere per altri 2 minuti finché non saranno appassiti."
-    ]
+    ],
+    "id": "recipe_it_7"
   },
   {
     "title": "Bistecca e broccoli Keto",
@@ -434,7 +442,8 @@
       "Scaldare l'olio d'oliva in una padella di ghisa a fuoco alto e rosolare la bistecca fino alla cottura desiderata. Lascia riposare.",
       "Nella stessa padella, abbassa il fuoco, aggiungi il burro e aggiungi le cimette di broccoli.",
       "Rosolare i broccoli finché diventano teneri e croccanti. Tagliare la bistecca riposata e servire insieme."
-    ]
+    ],
+    "id": "recipe_it_8"
   },
   {
     "title": "Avena al forno con mela e cannella",
@@ -484,7 +493,8 @@
       "Mescolare in una ciotola i fiocchi d'avena, il latte di mandorle, le mele tagliate a cubetti e un pizzico di cannella.",
       "Versare il composto nella teglia e irrorare uniformemente lo sciroppo d'acero.",
       "Cuocere per 25 minuti finché la superficie non sarà dorata e il liquido sarà completamente assorbito."
-    ]
+    ],
+    "id": "recipe_it_9"
   },
   {
     "title": "Ciotola di ricotta e ananas",
@@ -527,7 +537,8 @@
       "Raccogli la ricotta in una ciotola da portata.",
       "Completare con pezzi di ananas fresco o in scatola.",
       "Cospargere i semi di chia sopra per fibre extra e croccantezza. Mescolare prima di mangiare."
-    ]
+    ],
+    "id": "recipe_it_10"
   },
   {
     "title": "Petto di pollo ripieno di spinaci e feta",
@@ -577,7 +588,8 @@
       "Taglia una tasca sul lato di ciascun petto di pollo, facendo attenzione a non tagliarla completamente.",
       "Mescolare in una ciotola la feta sbriciolata e gli spinaci tritati, quindi versare il composto nelle tasche del pollo.",
       "Strofina l'esterno del pollo con olio d'oliva, sale e pepe. Cuocere per 25-30 minuti fino a completa cottura."
-    ]
+    ],
+    "id": "recipe_it_11"
   },
   {
     "title": "Spezzatino Vegano Di Lenticchie E Verdure",
@@ -639,7 +651,8 @@
       "Sciacquate le lenticchie e aggiungetele nella pentola insieme ai pomodorini schiacciati e 3 bicchieri di acqua o brodo vegetale.",
       "Portare a ebollizione, quindi abbassare la fiamma, coprire e cuocere a fuoco lento per 30-35 minuti finché le lenticchie saranno tenere.",
       "Condire con sale, pepe e un pizzico di cumino prima di servire."
-    ]
+    ],
+    "id": "recipe_it_12"
   },
   {
     "title": "Biscotti di farina d'avena e banane al burro di arachidi",
@@ -683,7 +696,8 @@
       "Schiacciare le banane in una ciotola fino ad ottenere un composto omogeneo, quindi aggiungere il burro di arachidi.",
       "Piegare i fiocchi d'avena fino a formare un impasto appiccicoso.",
       "Raccogliere 8 porzioni uguali sulla teglia, appiattirle leggermente e cuocere per 10-12 minuti."
-    ]
+    ],
+    "id": "recipe_it_13"
   },
   {
     "title": "Frullato antiossidante ai frutti di bosco verdi",
@@ -738,7 +752,8 @@
       "Aggiungere prima gli spinaci e il latte di mandorle nel frullatore e frullare fino a ottenere un composto completamente liscio per evitare pezzi verdi.",
       "Aggiungi i frutti di bosco congelati, i semi di chia e le proteine ​​in polvere.",
       "Frullare a velocità alta fino a ottenere un composto denso e cremoso. Versare in un bicchiere e gustare freddo."
-    ]
+    ],
+    "id": "recipe_it_14"
   },
   {
     "title": "Involtini piccanti di lattuga e gamberi",
@@ -788,7 +803,8 @@
       "Tritare i gamberi cotti in pezzetti più piccoli.",
       "Dividere uniformemente i gamberi e l'avocado tagliato a dadini tra le foglie di lattuga al burro.",
       "Versare sopra la maionese piccante e servire immediatamente."
-    ]
+    ],
+    "id": "recipe_it_15"
   },
   {
     "title": "Peperoni ripieni di insalata di uova cheto",
@@ -838,7 +854,8 @@
       "In una ciotola, mescolare le uova tritate, la maionese, la senape di Digione, il sale e il pepe fino ad ottenere una crema.",
       "Tagliate i peperoni a metà dall'alto verso il basso ed eliminate i semi e le membrane.",
       "Versare generosamente l'insalata di uova nelle metà dei peperoni e servire fredda."
-    ]
+    ],
+    "id": "recipe_it_16"
   },
   {
     "title": "Insalata Fiesta di fagioli neri e mais",
@@ -894,7 +911,8 @@
       "Tagliare il peperone rosso a pezzetti.",
       "In una grande ciotola, unisci i fagioli, il mais e il peperone.",
       "Sbattere insieme l'olio d'oliva e il succo di lime, versare sull'insalata, mescolare bene e raffreddare prima di servire."
-    ]
+    ],
+    "id": "recipe_it_17"
   },
   {
     "title": "Padella Fajita Di Bistecca Di Fianco",
@@ -944,7 +962,8 @@
       "Scaldare l'olio d'oliva in una padella capiente a fuoco medio-alto.",
       "Aggiungere la bistecca e rosolarla per 3-4 minuti. Togliere la bistecca e metterla da parte.",
       "Nella stessa padella, rosolare i peperoni e le cipolle fino a renderli morbidi. Riporta la bistecca nella padella, condiscila con il condimento per fajita e servi."
-    ]
+    ],
+    "id": "recipe_it_18"
   },
   {
     "title": "Pancake proteici alla ricotta",
@@ -988,7 +1007,8 @@
       "Frullare a velocità alta fino a formare una pastella liscia.",
       "Scaldare una padella antiaderente a fuoco medio e ungerla leggermente con olio da cucina.",
       "Versare piccoli cerchi di pastella nella padella. Cuocere fino a quando non si formeranno delle bollicine in superficie, girare e cuocere fino a doratura."
-    ]
+    ],
+    "id": "recipe_it_19"
   },
   {
     "title": "Ciotola per snack edamame e alghe",
@@ -1032,7 +1052,8 @@
       "Mettete l'edamame caldo in una ciotola e conditelo con olio di sesamo tostato. Mescolare per ricoprire.",
       "Schiacciare con le mani le sfoglie di alghe arrostite fino a ridurle in piccole scaglie.",
       "Cospargi i fiocchi di alghe sull'edamame insieme a un pizzico di sale marino e buon appetito."
-    ]
+    ],
+    "id": "recipe_it_20"
   },
   {
     "title": "Insalata di uova di avocado Keto",
@@ -1076,7 +1097,8 @@
       "Tagliare a metà l'avocado, eliminare il nocciolo e raccogliere la polpa in una ciotola.",
       "Schiacciare insieme l'avocado e la maionese fino ad ottenere una crema, quindi incorporare delicatamente le uova tritate.",
       "Condire con sale, pepe e un pizzico di paprika. Servire in tazze di lattuga o mangiare così com'è."
-    ]
+    ],
+    "id": "recipe_it_21"
   },
   {
     "title": "Curry vegano di ceci e cocco",
@@ -1126,7 +1148,8 @@
       "Versare il latte di cocco leggero e portare a ebollizione dolce.",
       "Aggiungete i ceci sciacquati e lasciateli cuocere nella salsa per 15 minuti affinché assorbano i sapori.",
       "Negli ultimi 2 minuti aggiungete gli spinaci freschi finché non saranno appassiti. Servire caldo."
-    ]
+    ],
+    "id": "recipe_it_22"
   },
   {
     "title": "Patate dolci al forno con tacchino macinato",
@@ -1169,7 +1192,8 @@
       "Mentre le patate cuociono, rosolare il macinato di tacchino in una padella a fuoco medio fino a cottura completa.",
       "Mescolare la salsa BBQ senza zucchero nel tacchino.",
       "Tagliare le patate dolci al forno e farcirle generosamente con il composto di tacchino barbecue."
-    ]
+    ],
+    "id": "recipe_it_23"
   },
   {
     "title": "Budino di semi di chia ai frutti di bosco",
@@ -1219,7 +1243,8 @@
       "Lasciare riposare per 5 minuti, quindi frullare nuovamente per evitare la formazione di grumi.",
       "Coprire e conservare in frigorifero per almeno 2 ore o durante la notte.",
       "Completare con lamponi freschi prima di servire."
-    ]
+    ],
+    "id": "recipe_it_24"
   },
   {
     "title": "Zoodles di gamberetti al burro e aglio",
@@ -1263,7 +1288,8 @@
       "Aggiungere i gamberi nella padella e cuocerli per 2-3 minuti per lato fino a quando saranno rosa e opachi.",
       "Togliere i gamberetti e metterli da parte. Nella stessa padella, gettare le tagliatelle di zucchine per 1-2 minuti fino a quando saranno appena calde.",
       "Riporta i gamberi nella padella, condisci con gli zoodles e servi immediatamente."
-    ]
+    ],
+    "id": "recipe_it_25"
   },
   {
     "title": "Frullato proteico al tè verde Matcha",
@@ -1313,7 +1339,8 @@
       "Aggiungi le proteine ​​del siero di latte, il matcha in polvere e mezza banana.",
       "Aggiungi una manciata di cubetti di ghiaccio.",
       "Frullare a velocità alta fino a ottenere un composto liscio e schiumoso."
-    ]
+    ],
+    "id": "recipe_it_26"
   },
   {
     "title": "Padella Di Pollo Alla Caprese",
@@ -1363,7 +1390,8 @@
       "Cuocere in padella a fuoco medio per 6-7 minuti per lato fino a completa cottura.",
       "Ricoprire ogni petto con fette di mozzarella e pomodorini tagliati a metà. Coprire la padella per 2 minuti per far sciogliere il formaggio.",
       "Irrorare con glassa balsamica e guarnire con basilico fresco prima di servire."
-    ]
+    ],
+    "id": "recipe_it_27"
   },
   {
     "title": "Ceci Arrostiti Croccanti",
@@ -1407,7 +1435,8 @@
       "Mettete i ceci secchi in una ciotola con olio d'oliva, paprika affumicata, sale e pepe.",
       "Distribuiteli in un unico strato su una teglia foderata con carta da forno.",
       "Cuocere per 25-30 minuti, scuotendo la padella a metà, fino a quando diventano croccanti. Lasciare raffreddare leggermente per renderla ulteriormente croccante."
-    ]
+    ],
+    "id": "recipe_it_28"
   },
   {
     "title": "Avocado ripieni di insalata di tonno",
@@ -1451,7 +1480,8 @@
       "Mescolare la maionese con il tonno, aggiungendo sale, pepe e, se lo si desidera, una spruzzata di succo di limone.",
       "Tagliare a metà l'avocado e rimuovere il nocciolo. Se necessario, puoi raccogliere un po' di polpa di avocado in più per fare spazio.",
       "Riempire le metà dell'avocado con l'insalata di tonno e mangiarle con un cucchiaio."
-    ]
+    ],
+    "id": "recipe_it_29"
   },
   {
     "title": "Anelli di mela al burro di mandorle",
@@ -1495,7 +1525,8 @@
       "Distribuire uniformemente il burro di mandorle sulla parte superiore degli anelli di mela.",
       "Cospargi i semi di canapa sul burro di mandorle per un leggero scricchiolio di nocciole.",
       "Servire subito per evitare che le mele anneriscano."
-    ]
+    ],
+    "id": "recipe_it_30"
   },
   {
     "title": "Mac e formaggio Keto cavolfiore",
@@ -1538,7 +1569,8 @@
       "In una casseruola a fuoco medio, scaldare delicatamente la panna.",
       "Mescolare gradualmente il formaggio cheddar nella panna fino a quando non sarà sciolto e liscio.",
       "Incorporate il cavolfiore cotto alla salsa di formaggio fino a ricoprirlo completamente e servitelo caldo."
-    ]
+    ],
+    "id": "recipe_it_31"
   },
   {
     "title": "Peperoncino di tacchino ad alto contenuto proteico",
@@ -1587,7 +1619,8 @@
       "Sciacquare e scolare i fagioli rossi.",
       "Aggiungi i fagioli e i pomodori tritati nella pentola, condendo con peperoncino in polvere, cumino e sale.",
       "Portare a ebollizione, quindi abbassare la fiamma e lasciare cuocere per 20-30 minuti per far fondere i sapori."
-    ]
+    ],
+    "id": "recipe_it_32"
   },
   {
     "title": "Tempeh Teriyaki vegano saltato in padella",
@@ -1637,7 +1670,8 @@
       "Scaldare l'olio di sesamo in un wok o in una padella larga a fuoco medio-alto e far rosolare il tempeh per 5 minuti.",
       "Aggiungete le cimette di broccoli e fatele soffriggere per altri 3-4 minuti fino a quando saranno morbide e croccanti.",
       "Versare la salsa teriyaki, mescolare per ricoprire il tutto in modo uniforme e servire caldo."
-    ]
+    ],
+    "id": "recipe_it_33"
   },
   {
     "title": "Budino proteico al cioccolato e avocado",
@@ -1687,7 +1721,8 @@
       "Aggiungere il cacao in polvere, lo sciroppo d'acero e le proteine ​​in polvere.",
       "Frullare fino a ottenere un composto completamente liscio e cremoso. Se risultasse troppo densa aggiungete un goccio di latte di mandorla.",
       "Lasciare raffreddare in frigorifero per 30 minuti prima di servire per ottenere la migliore consistenza."
-    ]
+    ],
+    "id": "recipe_it_34"
   },
   {
     "title": "Avena notturna ad alto contenuto proteico",
@@ -1737,7 +1772,8 @@
       "Aggiungete lo yogurt greco e il latte di mandorle, mescolando energicamente fino a quando non saranno completamente amalgamati.",
       "Sigillare il contenitore e lasciarlo in frigorifero per una notte.",
       "Prendilo al mattino, mescola velocemente e gustalo freddo."
-    ]
+    ],
+    "id": "recipe_it_35"
   },
   {
     "title": "Cod. Erbe Di Limone Al Forno",
@@ -1781,7 +1817,8 @@
       "Disporre i filetti di merluzzo nella pirofila. Condire con olio d'oliva e succo di limone fresco.",
       "Cospargere con sale, pepe e aneto secco o prezzemolo.",
       "Cuocere per 12-15 minuti fino a quando il pesce sarà opaco e si sfalderà facilmente con una forchetta."
-    ]
+    ],
+    "id": "recipe_it_36"
   },
   {
     "title": "Insalata vegana di edamame e quinoa",
@@ -1831,7 +1868,8 @@
       "In una grande ciotola, unisci la quinoa cotta, l'edamame e il cavolo rosso sminuzzato.",
       "Irrorare la salsa di arachidi sull'insalata e mescolare bene per ricoprire tutti gli ingredienti.",
       "Servire immediatamente o confezionare in contenitori per un pranzo freddo e rinfrescante."
-    ]
+    ],
+    "id": "recipe_it_37"
   },
   {
     "title": "Pollo in crosta di parmigiano cheto",
@@ -1875,7 +1913,8 @@
       "Distribuire uniformemente uno strato sottile di maionese sulla parte superiore di ciascun petto di pollo.",
       "Premere bene il parmigiano grattugiato nella maionese in modo che aderisca.",
       "Cuocere per 25 minuti fino a quando il pollo sarà cotto e il formaggio sarà dorato e croccante."
-    ]
+    ],
+    "id": "recipe_it_38"
   },
   {
     "title": "Frullato tropicale di mango e spinaci",
@@ -1925,7 +1964,8 @@
       "Frullare fino a ottenere un composto omogeneo per assicurarsi che non rimangano pezzi verdi.",
       "Aggiungere il mango congelato e i semi di canapa.",
       "Frullare a velocità alta fino a ottenere un composto perfettamente liscio e cremoso."
-    ]
+    ],
+    "id": "recipe_it_39"
   },
   {
     "title": "Peperoni ripieni di carne macinata",
@@ -1974,7 +2014,8 @@
       "In una padella fate rosolare la carne macinata. Incorporare il riso al cavolfiore e la salsa di pomodoro, cuocendo per 3 minuti.",
       "Farcite i peperoni scavati con il composto di carne e metteteli in posizione verticale in una pirofila.",
       "Coprire con la pellicola e cuocere per 30 minuti, quindi rimuovere la pellicola e cuocere altri 5 minuti."
-    ]
+    ],
+    "id": "recipe_it_40"
   },
   {
     "title": "Capesante scottate in padella con purea di cavolfiore allo zafferano e tartufo nero",
@@ -2030,7 +2071,8 @@
       "Incidere leggermente le capesante. Scaldare una padella di acciaio al carbonio fino a farla fumare. Aggiungere un olio ad alto punto di fumo, quindi rosolare le capesante intatte per 90 secondi esatti finché non si forma una crosta di Maillard marrone dorata.",
       "Girare le capesante, abbassare la fiamma e ungerle rapidamente con il burro rimanente e un rametto di timo per 30 secondi. Rimuovere e riposare su un tovagliolo di carta.",
       "Per impiattare: versare un cerchio perfetto di purea calda. Disporre le capesante in modo asimmetrico. Terminare con gocce di olio al tartufo nero e microerbe."
-    ]
+    ],
+    "id": "recipe_it_41"
   },
   {
     "title": "Petto d'anatra sottovuoto con riduzione di balsamico alle ciliegie",
@@ -2085,7 +2127,8 @@
       "Nel frattempo ricavare dei cilindri dal sedano rapa. Scottare le estremità nel grasso d'anatra, quindi brasare delicatamente nel brodo finché diventano teneri come se fossero fondenti.",
       "In un pentolino far ridurre le ciliegie e l'aceto balsamico invecchiato fino a ottenere uno sciroppo, montando con una piccola noce di burro freddo per una finitura lucida.",
       "Rimuovere l'anatra dal sacchetto e asciugarla accuratamente. Metti la pelle rivolta verso il basso in una padella fredda, regolando la fiamma a una temperatura media per rendere il grasso fino a renderlo vetroso e croccante. Affettare e impiattare elegantemente."
-    ]
+    ],
+    "id": "recipe_it_42"
   },
   {
     "title": "Carré d'agnello in crosta di erbe con purea di piselli alla menta",
@@ -2141,7 +2184,8 @@
       "Condisci il carré di agnello in modo aggressivo. Rosolare in una padella ben calda finché non sarà ben dorata su tutti i lati. Spennellate con senape di Digione e arrotolate bene la mollica di pistacchi ed erbe aromatiche.",
       "Arrostire l'agnello a 200°C (400°F) per 12-14 minuti per una perfetta cottura media-al sangue. Riposare per almeno 10 minuti prima di scolpire.",
       "Scottare le punte degli asparagi con un cannello o una padella di ghisa. Versare la purea di piselli su un piatto caldo, disporre le costolette di agnello ad incastro e guarnire."
-    ]
+    ],
+    "id": "recipe_it_43"
   },
   {
     "title": "Branzino cileno glassato al miso con consommé di shiitake",
@@ -2196,7 +2240,8 @@
       "Prepara il consommé: fai sobbollire i funghi shiitake, il kombu e gli aromi per 2 ore. Chiarire il brodo con la tecnica della zattera di albume fino a completa trasparenza.",
       "Tagliare a julienne il ravanello daikon in delicati noodles utilizzando una mandolina. Sbollentare leggermente nel consommé caldo.",
       "Cuocere la spigola sotto una salamandra alta o su una griglia da forno finché gli zuccheri nel miso non si caramellano e si carbonizzano leggermente. Versare il consommé caldo al tavolo."
-    ]
+    ],
+    "id": "recipe_it_44"
   },
   {
     "title": "Tartare di Manzo Wagyu con Uovo di Quaglia ed Emulsione di Capperi",
@@ -2252,7 +2297,8 @@
       "Usando un coltello affilato chirurgicamente, taglia a dadini a mano il filetto di wagyu in una brunoise di 3 mm. Non usare mai un tritacarne.",
       "Piegare delicatamente la carne su un bagno di ghiaccio con scalogno tritato, erba cipollina, capperi ed emulsione di Digione per preservare la struttura del grasso.",
       "Plasmare utilizzando uno stampo ad anello. Separare con attenzione il tuorlo dell'uovo di quaglia e posizionarlo perfettamente al centro. Guarnire con micro-senape e tuile croccante."
-    ]
+    ],
+    "id": "recipe_it_45"
   },
   {
     "title": "Coda di aragosta affogata nel burro con risotto allo zafferano",
@@ -2306,7 +2352,8 @@
       "Togliere la carne dell'aragosta dal guscio e immergerla nel beurre monté per 6-8 minuti fino a quando sarà perfettamente opaca e tenera.",
       "Tostare il riso arborio a secco, sfumare con vino bianco infuso con fili di zafferano pregiato. Versare lentamente il brodo di pesce caldo, mescolando continuamente per rilasciare gli amidi.",
       "Terminare il risotto fuori dal fuoco (mantecatura) con il parmigiano e una noce di burro freddo. Impiattare il risotto, guarnire con l'aragosta affettata e guarnire con foglia d'oro o micro-verdure."
-    ]
+    ],
+    "id": "recipe_it_46"
   },
   {
     "title": "Lombo di cervo con succo di more e ginepro",
@@ -2361,7 +2408,8 @@
       "Nella stessa padella sfumare con una spruzzata di gin o vino rosso. Aggiungete le more e pestatele leggermente. Versare il demi-glace di vitello e far restringere fino a ricoprire il dorso di un cucchiaio.",
       "Sbollentare i broccolini, quindi rosolarli rapidamente su una griglia di ghisa fino a renderli affumicati.",
       "Tagliare la carne di cervo in spessi medaglioni. Versare il succo lucido di more sul piatto e disporre la carne accanto ai broccolini carbonizzati."
-    ]
+    ],
+    "id": "recipe_it_47"
   },
   {
     "title": "Halibut in crosta di macadamia con vellutata alla citronella",
@@ -2410,7 +2458,8 @@
       "Arrostire l'ippoglosso con la crosta rivolta verso il basso in una padella antiaderente per tostare le noci, quindi girarlo e terminare la cottura delicatamente in forno a 180°C (350°F).",
       "Far sudare la citronella e lo zenzero ammaccati in una casseruola senza colorare. Aggiungere il latte di cocco e una spruzzata di brodo di pesce. Ridurre, filtrare e montare con il frullatore ad immersione per la vellutata.",
       "Versare la vellutata schiumosa in una ciotola poco profonda e posizionare con cura l'ippoglosso in crosta al centro."
-    ]
+    ],
+    "id": "recipe_it_48"
   },
   {
     "title": "Confit di funghi selvatici e aglio nero su toast Keto artigianale",
@@ -2466,7 +2515,8 @@
       "Cuocere le uova sottovuoto esattamente a 63°C (145,4°F) per 45 minuti per ottenere un tuorlo simile a una crema pasticcera e un bianco tenero.",
       "Tostare il pane cheto in una padella asciutta fino a renderlo croccante. Spalmare generosamente con la purea di aglio nero fermentato.",
       "Metti uno strato di funghi confit sgocciolati sul pane tostato, rompi con cura l'uovo a 63 gradi sopra e finisci con sale marino Maldon in scaglie."
-    ]
+    ],
+    "id": "recipe_it_49"
   },
   {
     "title": "Tonno Ahi scottato con sfera di Yuzu-Ponzu e purea di Edamame",
@@ -2521,7 +2571,8 @@
       "Utilizzando l'alginato di sodio e il cloruro di calcio (sferificazione), trasformare la salsa yuzu-ponzu in piccole sfere che scoppiano in bocca.",
       "Rivestire il blocco di tonno con semi di sesamo nero. Scaldare una padella di ghisa fino a renderla incandescente. Scottare il tonno per 10 secondi esatti per lato, mantenendo la parte centrale completamente cruda.",
       "Affettare il tonno in modo pulito con un coltello da sashimi. Passare la purea di edamame verde brillante sul piatto, smazzare il tonno e guarnire con le sfere di yuzu e il micro-coriandolo."
-    ]
+    ],
+    "id": "recipe_it_50"
   },
   {
     "title": "Salmone Ora King impanato al burro con vellutata di Sunchoke e caviale Ossetra",
@@ -2577,7 +2628,8 @@
       "Incidere la pelle del salmone Ora King per evitare che si arricci. Disporre la carne in una padella fredda di acciaio al carbonio con il lato della pelle rivolto verso il basso, portando il fuoco a un livello medio-basso per sciogliere meticolosamente il grasso e rendere croccante la pelle per 8-10 minuti.",
       "Capovolgi brevemente il pesce, spegni il fuoco e ungilo continuamente con burro fermentato schiumoso e timo per ottenere un nucleo medio-raro impeccabile.",
       "Versare la vellutata calda di sunchoke in una ciotola poco profonda, adagiare il salmone con la pelle rivolta verso l'alto e terminare con una precisa quenelle di caviale Ossetra e micro-aneto."
-    ]
+    ],
+    "id": "recipe_it_51"
   },
   {
     "title": "Filetto di vitello sottovuoto con salsa all'aglio nero e asparagi carbonizzati",
@@ -2632,7 +2684,8 @@
       "Frullare l'aglio nero fermentato nel ricco demi-glace di vitello. Cuocere a fuoco lento il sugo finché non ricopre intensamente il dorso di un cucchiaio (consistenza nappé).",
       "Togliere la carne di vitello dal sacchetto e asciugarla completamente. Rosolare in modo aggressivo in una padella rovente con olio di vinaccioli per 30 secondi per lato per innescare la reazione di Maillard. Lascia riposare.",
       "Scottare gli asparagi su una fiamma libera o sotto una griglia. Tagliare la carne di vitello in spessi medaglioni e unire il sugo lucido di aglio nero attorno alla carne."
-    ]
+    ],
+    "id": "recipe_it_52"
   },
   {
     "title": "Coda di scampo affogata con emulsione alla citronella e fondente Daikon",
@@ -2687,7 +2740,8 @@
       "Spezzettare la citronella e lo zenzero, immergendoli delicatamente nel latte di cocco. Filtrare il liquido infuso e aerare con un frullatore ad immersione fino a creare una schiuma stabile e profumata.",
       "Portare il burro chiarificato esattamente a 60°C (140°F). Immergere le code di scampi sgusciate e cuocere delicatamente per 3-4 minuti fino a quando diventano perlescenti. Non cuocere troppo.",
       "Disporre i cilindri di daikon, adagiarvi sopra gli scampi burrosi e spalmare generosamente l'emulsione aerata di citronella attorno al piatto."
-    ]
+    ],
+    "id": "recipe_it_53"
   },
   {
     "title": "Rombo in padella con asparagi bianchi e champagne Beurre Blanc",
@@ -2742,7 +2796,8 @@
       "Ridurre lo champagne, l'aceto di vino bianco e lo scalogno tritato in un pentolino fino a quando saranno quasi asciutti (au sec). Fuori dal fuoco, sbatti uno per uno i cubetti di burro estremamente freddo per montare un beurre blanc stabile e lucido. Stai al caldo.",
       "Scalda una padella pesante. Rosolare il filetto di rombo in un filo d'olio finché non si forma una crosticina dorata. Capovolgere, ungere con il sugo della padella e cuocere fino a quando non cede a un tester per torte.",
       "Disporre gli asparagi bianchi in modo lineare, affiancare delicatamente il rombo e versare il delizioso beurre blanc in modo che si spacchi leggermente sul piatto."
-    ]
+    ],
+    "id": "recipe_it_54"
   },
   {
     "title": "Merluzzo nero marinato al miso con brodo Dashi e funghi Shimeji",
@@ -2797,7 +2852,8 @@
       "Pulisci delicatamente il pesce dalla marinata di miso in eccesso per evitare che si bruci. Cuocere il merluzzo nero a fuoco vivace finché gli zuccheri non si caramellano formando una crosta color mogano e il pesce si sfalda senza sforzo.",
       "Riscaldare il brodo dashi kombu, lasciando in infusione i delicati funghi shimeji finché non saranno appena ammorbiditi. Non bollire.",
       "Metti il ​​merluzzo glassato in una ciotola profonda e scura. Versare il dashi fumante sul tavolo, guarnendo con scalogno affettato finemente o una scaglia dorata commestibile."
-    ]
+    ],
+    "id": "recipe_it_55"
   },
   {
     "title": "Secreto di Maiale Iberico con Salsa Romesco e Porri Scottati",
@@ -2853,7 +2909,8 @@
       "Tagliare i porri, condirli con una goccia d'olio e farli rosolare in modo aggressivo su una fiamma libera o in una padella di ghisa asciutta finché gli strati esterni non saranno anneriti. Rimuovere la parte esterna bruciata per rivelare strati di cipolla teneri e dolci.",
       "Condire l'Iberico Secreto con sale marino in scaglie. A causa della sua intensa marezzatura, cuocere in padella asciutta a fuoco vivace, facendo sciogliere il grasso intramuscolare fino a formare una crosta scura. Servire da medio-raro a medio.",
       "Versare la salsa Romesco su un piatto di ardesia, tagliare il maiale contro la grana e adagiarvi sopra i porri affumicati e carbonizzati."
-    ]
+    ],
+    "id": "recipe_it_56"
   },
   {
     "title": "Filetto di struzzo scottato con gastrique di more e purea di pastinaca affumicata",
@@ -2908,7 +2965,8 @@
       "Prepara la gastrique: caramella una piccola quantità di dolcificante, sfuma con aceto di vino rosso, aggiungi le more pestate e il brodo di manzo. Fare ridurre fino ad ottenere un composto sciropposo ed intenso.",
       "Condire il filetto di struzzo. Trattatelo come il filetto mignon più magro: rosolatelo rapidamente a fuoco molto alto. DEVE essere servito al sangue o medio-raro per evitare la durezza. Riposa per 10 minuti.",
       "Versare la purea di pastinaca affumicata sul piatto. Tagliare lo struzzo a medaglioni, disporli a ventaglio e irrorare con la crostata gastrique alle more."
-    ]
+    ],
+    "id": "recipe_it_57"
   },
   {
     "title": "Quaglia confit con semi di senape sott'aceto e indivia caramellata",
@@ -2957,7 +3015,8 @@
       "Cura la quaglia durante la notte con sale, timo e ginepro tritato. Immergere completamente nel grasso d'anatra fuso e cuocere a fuoco basso e lento (confit) a 90°C (195°F) per 2 ore finché la carne non cede ad una leggera pressione.",
       "Tagliare a metà l'indivia e rosolarla in una padella asciutta con la parte tagliata rivolta verso il basso fino a quando sarà completamente caramellata. Sfumare con un po' d'acqua per renderli teneri al vapore.",
       "Rimuovere con attenzione la quaglia dal grasso e rosolarla con la pelle rivolta verso il basso per renderla croccante. Servire insieme all'indivia caramellata, guarnita con i semi di senape sott'aceto."
-    ]
+    ],
+    "id": "recipe_it_58"
   },
   {
     "title": "Halibut affogato all'olio d'oliva con brodo di finocchio allo zafferano e fagioli di mare",
@@ -3013,7 +3072,8 @@
       "Portare una padella profonda di olio extravergine di oliva di alta qualità fino a una temperatura precisa di 55°C (131°F). Immergere completamente i filetti di halibut conditi. Cuocere per 15-20 minuti fino a quando il pesce diventa opaco e inizia a separarsi in scaglie spesse.",
       "Sbollentare rapidamente i fagioli di mare in acqua bollente non salata per 30 secondi, quindi immergerli in acqua ghiacciata per mantenere la loro vivida croccantezza verde.",
       "Sollevare con attenzione il fragile ippoglosso dall'olio e scolarlo brevemente. Disporre in una ciotola poco profonda, adagiare accanto ai finocchi rasati e ai fagioli di mare e versare il brodo caldo allo zafferano attorno al pesce."
-    ]
+    ],
+    "id": "recipe_it_59"
   },
   {
     "title": "Medaglioni di alce con riduzione di porto al ginepro e fondente al sedano rapa",
@@ -3068,7 +3128,8 @@
       "Tostare le bacche di ginepro tritate in una padella asciutta finché non diventano fragranti. Sfumare con Ruby Port e ridurre di due terzi. Sbattere il burro freddo fuori dal fuoco (monter au beurre) per ottenere una salsa setosa.",
       "Condire generosamente i medaglioni di alce con sale grosso. Rosolarli in una padella di ghisa rovente per 2 minuti esatti per lato. Bagnare brevemente con i succhi di padella. L'alce è estremamente magro e non deve essere cotto oltre il medio-raro.",
       "Fate riposare la carne per 5 minuti. Tagliare contropelo, disporli elegantemente sul fondente di sedano rapa e ricoprire i medaglioni con la riduzione lucida di porto al ginepro."
-    ]
+    ],
+    "id": "recipe_it_60"
   },
   {
     "title": "Barchetta di salmone con avocado Keto",
@@ -3119,7 +3180,8 @@
       "Metti un pezzetto di salmone nella metà scavata dell'avocado.",
       "Condire con olio d'oliva, succo di limone, sale e pepe.",
       "Cuocere per 15-20 minuti fino a quando il salmone sarà cotto."
-    ]
+    ],
+    "id": "recipe_it_61"
   },
   {
     "title": "Pancake ai mirtilli ricchi di proteine",
@@ -3169,7 +3231,8 @@
       "Incorporate delicatamente i mirtilli freschi.",
       "Cuocere su una padella antiaderente a fuoco medio finché non si formano le bolle, quindi girare.",
       "Servire caldo con un filo di sciroppo senza zucchero."
-    ]
+    ],
+    "id": "recipe_it_62"
   },
   {
     "title": "Ciotola di quinoa mediterranea",
@@ -3224,7 +3287,8 @@
       "Tagliate a metà i pomodorini e affettate i cetrioli.",
       "Disporre i pomodori, i cetrioli e le olive sopra la quinoa.",
       "Completare con una generosa cucchiaiata di hummus e un filo d'olio d'oliva."
-    ]
+    ],
+    "id": "recipe_it_63"
   },
   {
     "title": "Peperoncino piccante di tacchino magro",
@@ -3274,7 +3338,8 @@
       "Aggiungere i pomodori schiacciati e i fagioli rossi (scolati e sciacquati).",
       "Cuocere a fuoco lento per 30 minuti per consentire ai sapori di fondersi insieme.",
       "Guarnire con una spolverata di formaggio magro o coriandolo prima di servire."
-    ]
+    ],
+    "id": "recipe_it_64"
   },
   {
     "title": "Frullato rinfrescante verde disintossicante",
@@ -3324,7 +3389,8 @@
       "Aggiungi gli spinaci, la mela, la banana e l'acqua di cocco in un frullatore.",
       "Frullare a velocità alta fino a ottenere un composto completamente liscio.",
       "Versare in un bicchiere ghiacciato e gustare subito!"
-    ]
+    ],
+    "id": "recipe_it_65"
   },
   {
     "title": "Tagliatelle di zucchine a basso contenuto di carboidrati con pesto",
@@ -3374,7 +3440,8 @@
       "Scaldate una padella a fuoco medio e fate rosolare leggermente le tagliatelle per 2-3 minuti.",
       "Togliere dal fuoco e condire con il pesto di basilico fino a ricoprirlo uniformemente.",
       "Completare con pomodorini tagliati a metà e parmigiano grattugiato."
-    ]
+    ],
+    "id": "recipe_it_66"
   },
   {
     "title": "Insalata Caesar classica di pollo",
@@ -3422,7 +3489,8 @@
       "Tritate la lattuga romana e mettetela in una ciotola capiente.",
       "Condisci la lattuga con la salsa Caesar.",
       "Completare con il pollo a fette e una manciata di crostini."
-    ]
+    ],
+    "id": "recipe_it_67"
   },
   {
     "title": "Budino di Chia durante la notte",
@@ -3471,7 +3539,8 @@
       "Lasciare riposare per 5 minuti, quindi frullare nuovamente per evitare la formazione di grumi.",
       "Coprire e conservare in frigorifero durante la notte (o almeno 2 ore).",
       "Completare con frutti di bosco freschi prima di servire."
-    ]
+    ],
+    "id": "recipe_it_68"
   },
   {
     "title": "Ciotola per snack di ceci arrostiti",
@@ -3520,7 +3589,8 @@
       "Scolate, sciacquate e asciugate bene i ceci con carta assorbente.",
       "Condire i ceci con olio d'oliva, paprika e sale.",
       "Distribuire uniformemente su una teglia e arrostire per 20-25 minuti fino a quando diventa croccante."
-    ]
+    ],
+    "id": "recipe_it_69"
   },
   {
     "title": "Bocconcini di bistecca al burro e aglio",
@@ -3569,7 +3639,8 @@
       "Scaldare una padella a fuoco alto e rosolare i pezzi di bistecca per 3-4 minuti.",
       "Ridurre il fuoco, aggiungere il burro e l'aglio tritato e mescolare per ricoprire la bistecca.",
       "Decorare con prezzemolo fresco tritato e servire subito."
-    ]
+    ],
+    "id": "recipe_it_70"
   },
   {
     "title": "Curry vegano di patate dolci",
@@ -3618,7 +3689,8 @@
       "In una pentola capiente, friggi delicatamente la pasta di curry finché non diventa fragrante.",
       "Aggiungere le patate dolci e il latte di cocco. Cuocere a fuoco lento per 20 minuti finché sono teneri.",
       "Unire gli spinaci e lasciarli appassire prima di servire."
-    ]
+    ],
+    "id": "recipe_it_71"
   },
   {
     "title": "Tazze da colazione per muffin all'uovo",
@@ -3667,7 +3739,8 @@
       "Sbattere le uova in una ciotola e condire con sale e pepe.",
       "Dividere i peperoni tritati, gli spinaci e il formaggio nelle tazze da muffin.",
       "Versare il composto di uova sul ripieno e infornare per 15-20 minuti."
-    ]
+    ],
+    "id": "recipe_it_72"
   },
   {
     "title": "Insalata Di Tonno E Avocado",
@@ -3716,7 +3789,8 @@
       "Aggiungete l'avocado e schiacciatelo insieme al tonno con una forchetta.",
       "Mescolare la cipolla rossa tagliata finemente, il succo di limone, sale e pepe.",
       "Servire su fette di cetriolo o toast integrali."
-    ]
+    ],
+    "id": "recipe_it_73"
   },
   {
     "title": "Frullato al burro di arachidi e cioccolato",
@@ -3764,7 +3838,8 @@
       "Aggiungi tutti gli ingredienti a un frullatore.",
       "Aggiungi una manciata di cubetti di ghiaccio.",
       "Frullare a velocità alta fino a ottenere un composto liscio e cremoso."
-    ]
+    ],
+    "id": "recipe_it_74"
   },
   {
     "title": "Gamberetti saltati in padella con broccoli",
@@ -3813,6 +3888,767 @@
       "Aggiungete le cimette di broccoli e fatele soffriggere per 4-5 minuti fino a quando saranno morbide e croccanti.",
       "Aggiungere i gamberi e cuocere per 2-3 minuti finché non diventano rosa.",
       "Condire con salsa di soia, mescolare bene e servire caldo."
-    ]
+    ],
+    "id": "recipe_it_75"
+  },
+  {
+    "title": "Barchetta di salmone con avocado Keto",
+    "description": "Ricca di omega-3 e grassi sani, questa semplice ma elegante barchetta per salmone è perfetta per una cena cheto. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filetto Di Salmone",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Succo Di Limone",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Preriscalda il forno a 200°C (400°F).",
+      "Tagliare l'avocado a metà ed eliminare il nocciolo.",
+      "Metti un pezzetto di salmone nella metà scavata dell'avocado.",
+      "Condire con olio d'oliva, succo di limone, sale e pepe.",
+      "Cuocere per 15-20 minuti fino a quando il salmone sarà cotto."
+    ],
+    "id": "recipe_it_76"
+  },
+  {
+    "title": "Pancake ai mirtilli ricchi di proteine",
+    "description": "Inizia la giornata con questi soffici pancake ad alto contenuto proteico ricchi di freschi antiossidanti. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Alto contenuto proteico",
+      "Vegetariano"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Farina d'Avena",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Proteine ​​in Polvere (Vaniglia)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Mirtilli",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "In una ciotola, mescolare la farina d'avena e le proteine ​​in polvere.",
+      "Aggiungete poco alla volta il latte di mandorle fino ad ottenere una pastella liscia.",
+      "Incorporate delicatamente i mirtilli freschi.",
+      "Cuocere su una padella antiaderente a fuoco medio finché non si formano le bolle, quindi girare.",
+      "Servire caldo con un filo di sciroppo senza zucchero."
+    ],
+    "id": "recipe_it_77"
+  },
+  {
+    "title": "Ciotola di quinoa mediterranea",
+    "description": "Una ciotola vivace e rinfrescante ricca di fibre e grassi sani, perfetta per un pranzo pomeridiano soleggiato. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Vegano",
+      "mediterraneo"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Quinoa cotta",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Pomodorini",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Cetriolo",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Olive Kalamata",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Hummus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Metti la quinoa cotta alla base della ciotola.",
+      "Tagliate a metà i pomodorini e affettate i cetrioli.",
+      "Disporre i pomodori, i cetrioli e le olive sopra la quinoa.",
+      "Completare con una generosa cucchiaiata di hummus e un filo d'olio d'oliva."
+    ],
+    "id": "recipe_it_78"
+  },
+  {
+    "title": "Peperoncino piccante di tacchino magro",
+    "description": "Riscalda la tua anima e raggiungi i tuoi obiettivi proteici con questo peperoncino di tacchino ricco e piccante. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di grassi"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Tacchino macinato magro",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Fagioli rossi",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Pomodori schiacciati",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Polvere di peperoncino",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Rosolare il tacchino macinato in una pentola capiente a fuoco medio.",
+      "Aggiungere il peperoncino in polvere e cuocere per 1 minuto finché non diventa fragrante.",
+      "Aggiungere i pomodori schiacciati e i fagioli rossi (scolati e sciacquati).",
+      "Cuocere a fuoco lento per 30 minuti per consentire ai sapori di fondersi insieme.",
+      "Guarnire con una spolverata di formaggio magro o coriandolo prima di servire."
+    ],
+    "id": "recipe_it_79"
+  },
+  {
+    "title": "Frullato rinfrescante verde disintossicante",
+    "description": "Un rapido apporto di vitamine e idratazione, ottimo per il recupero post-allenamento o per un nuovo inizio mattutino. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Spuntino",
+      "Vegano",
+      "Crudo"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Spinaci",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Mela Verde",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Acqua di cocco",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Togliere il torsolo e tritare la mela verde.",
+      "Aggiungi gli spinaci, la mela, la banana e l'acqua di cocco in un frullatore.",
+      "Frullare a velocità alta fino a ottenere un composto completamente liscio.",
+      "Versare in un bicchiere ghiacciato e gustare subito!"
+    ],
+    "id": "recipe_it_80"
+  },
+  {
+    "title": "Tagliatelle di zucchine a basso contenuto di carboidrati con pesto",
+    "description": "Un'alternativa leggera e saporita alla pasta, condita con un ricco pesto al basilico. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Vegetariano",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Zucchine",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Pesto Al Basilico",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Parmigiano",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Pomodorini",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Spiralizzare le zucchine in tagliatelle sottili.",
+      "Scaldate una padella a fuoco medio e fate rosolare leggermente le tagliatelle per 2-3 minuti.",
+      "Togliere dal fuoco e condire con il pesto di basilico fino a ricoprirlo uniformemente.",
+      "Completare con pomodorini tagliati a metà e parmigiano grattugiato."
+    ],
+    "id": "recipe_it_81"
+  },
+  {
+    "title": "Insalata Caesar classica di pollo",
+    "description": "La romana croccante, il tenero pollo alla griglia e un condimento cremoso e piccante lo rendono uno dei piatti preferiti senza tempo. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Petto di pollo",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Lattuga romana",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Condimento di Cesare",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Crostini",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Condire il petto di pollo e grigliarlo fino a cottura completa. Lasciare riposare, quindi affettare.",
+      "Tritate la lattuga romana e mettetela in una ciotola capiente.",
+      "Condisci la lattuga con la salsa Caesar.",
+      "Completare con il pollo a fette e una manciata di crostini."
+    ],
+    "id": "recipe_it_82"
+  },
+  {
+    "title": "Budino di Chia durante la notte",
+    "description": "Svegliati con un budino di chia pronto da mangiare, cremoso e nutriente, condito con frutta fresca. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Vegano",
+      "Senza glutine"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Semi di Chia",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Sciroppo d'acero",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Bacche fresche",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "In un barattolo, sbatti insieme i semi di chia, il latte di mandorle e lo sciroppo d'acero.",
+      "Lasciare riposare per 5 minuti, quindi frullare nuovamente per evitare la formazione di grumi.",
+      "Coprire e conservare in frigorifero durante la notte (o almeno 2 ore).",
+      "Completare con frutti di bosco freschi prima di servire."
+    ],
+    "id": "recipe_it_83"
+  },
+  {
+    "title": "Ciotola per snack di ceci arrostiti",
+    "description": "Croccante, salato e incredibilmente soddisfacente. Uno spuntino ricco di fibre che ti mantiene sazio. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Vegano",
+      "Alto contenuto di fibre"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Ceci (in scatola)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Olio d'oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Paprica affumicata",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sale marino",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 200°C (400°F).",
+      "Scolate, sciacquate e asciugate bene i ceci con carta assorbente.",
+      "Condire i ceci con olio d'oliva, paprika e sale.",
+      "Distribuire uniformemente su una teglia e arrostire per 20-25 minuti fino a quando diventa croccante."
+    ],
+    "id": "recipe_it_84"
+  },
+  {
+    "title": "Bocconcini di bistecca al burro e aglio",
+    "description": "Tenero, succoso e ricco di sapore. Questi bocconcini di bistecca sono la cena ad alto contenuto proteico per eccellenza. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Lombata",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Burro",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Spicchi d'aglio",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Prezzemolo fresco",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Tagliare la bistecca a cubetti di piccole dimensioni e condire con sale e pepe.",
+      "Scaldare una padella a fuoco alto e rosolare i pezzi di bistecca per 3-4 minuti.",
+      "Ridurre il fuoco, aggiungere il burro e l'aglio tritato e mescolare per ricoprire la bistecca.",
+      "Decorare con prezzemolo fresco tritato e servire subito."
+    ],
+    "id": "recipe_it_85"
+  },
+  {
+    "title": "Curry vegano di patate dolci",
+    "description": "Un curry al cocco confortante e cremoso, ricco di patate dolci e spezie calde. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Vegano",
+      "Senza glutine"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Patata dolce",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Latte di cocco (leggero)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Pasta Di Curry",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Spinaci",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Sbucciare e tagliare a cubetti le patate dolci.",
+      "In una pentola capiente, friggi delicatamente la pasta di curry finché non diventa fragrante.",
+      "Aggiungere le patate dolci e il latte di cocco. Cuocere a fuoco lento per 20 minuti finché sono teneri.",
+      "Unire gli spinaci e lasciarli appassire prima di servire."
+    ],
+    "id": "recipe_it_86"
+  },
+  {
+    "title": "Tazze da colazione per muffin all'uovo",
+    "description": "Muffin all'uovo portatili e ricchi di proteine ​​che puoi preparare in anticipo per le mattine impegnative. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Colazione",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Uova",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Formaggio Cheddar",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Peperone",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Spinaci",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Preriscaldare il forno a 175°C (350°F) e ungere uno stampo per muffin.",
+      "Sbattere le uova in una ciotola e condire con sale e pepe.",
+      "Dividere i peperoni tritati, gli spinaci e il formaggio nelle tazze da muffin.",
+      "Versare il composto di uova sul ripieno e infornare per 15-20 minuti."
+    ],
+    "id": "recipe_it_87"
+  },
+  {
+    "title": "Insalata Di Tonno E Avocado",
+    "description": "Un'insalata di tonno senza maionese con avocado cremoso per grassi sani e consistenza incredibile. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Pranzo",
+      "Cheto",
+      "Alto contenuto proteico"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Tonno in scatola",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Avocado",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Cipolla Rossa",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Succo Di Limone",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Scolate il tonno e mettetelo in una ciotola.",
+      "Aggiungete l'avocado e schiacciatelo insieme al tonno con una forchetta.",
+      "Mescolare la cipolla rossa tagliata finemente, il succo di limone, sale e pepe.",
+      "Servire su fette di cetriolo o toast integrali."
+    ],
+    "id": "recipe_it_88"
+  },
+  {
+    "title": "Frullato al burro di arachidi e cioccolato",
+    "description": "Ha il sapore di un dessert ma è ricco di proteine ​​per la costruzione muscolare e grassi sani. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Spuntino",
+      "Alto contenuto proteico",
+      "Vegetariano"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Polvere proteica del cioccolato",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Burro di arachidi",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banana",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Latte Di Mandorle",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Aggiungi tutti gli ingredienti a un frullatore.",
+      "Aggiungi una manciata di cubetti di ghiaccio.",
+      "Frullare a velocità alta fino a ottenere un composto liscio e cremoso."
+    ],
+    "id": "recipe_it_89"
+  },
+  {
+    "title": "Gamberetti saltati in padella con broccoli",
+    "description": "Una cena veloce, gustosa e ricca di proteine, riunita in un'unica padella. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alto contenuto proteico",
+      "Basso contenuto di carboidrati"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Gamberetti (Sgusciati)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Cimette di broccoli",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Salsa di soia",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Olio di sesamo",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Scaldare l'olio di sesamo in una padella larga o nel wok a fuoco medio-alto.",
+      "Aggiungete le cimette di broccoli e fatele soffriggere per 4-5 minuti fino a quando saranno morbide e croccanti.",
+      "Aggiungere i gamberi e cuocere per 2-3 minuti finché non diventano rosa.",
+      "Condire con salsa di soia, mescolare bene e servire caldo."
+    ],
+    "id": "recipe_it_90"
   }
 ]

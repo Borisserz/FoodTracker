@@ -40,7 +40,8 @@
       "Retire o caroço das maçãs, deixando o fundo intacto.",
       "Misture as nozes picadas e o mel e recheie as maçãs.",
       "Asse por 20-25 minutos até ficar macio."
-    ]
+    ],
+    "id": "recipe_pt-PT_0"
   },
   {
     "title": "Ovos mexidos ricos em proteínas com abacate",
@@ -85,7 +86,8 @@
       "Derreta a manteiga em uma frigideira antiaderente em fogo médio-baixo.",
       "Despeje os ovos e mexa delicadamente com uma espátula até firmar suavemente.",
       "Fatie o abacate e sirva junto com os ovos mexidos quentes. Adicione sal e pimenta a gosto."
-    ]
+    ],
+    "id": "recipe_pt-PT_1"
   },
   {
     "title": "Smoothie de manteiga de amendoim com chocolate vegano",
@@ -135,7 +137,8 @@
       "Coloque a banana descascada, a manteiga de amendoim e a proteína em pó no liquidificador.",
       "Despeje o leite de amêndoa.",
       "Bata em fogo alto até ficar completamente homogêneo e cremoso. Adicione gelo, se preferir."
-    ]
+    ],
+    "id": "recipe_pt-PT_2"
   },
   {
     "title": "Keto Manteiga de Alho Salmão com Espargos",
@@ -186,7 +189,8 @@
       "Coloque os filés de salmão no centro e arrume os aspargos ao redor deles.",
       "Derreta a manteiga, misture o alho picado e pincele generosamente o salmão e os aspargos.",
       "Asse por 12-15 minutos até que o salmão esteja cozido e lasque facilmente com um garfo."
-    ]
+    ],
+    "id": "recipe_pt-PT_3"
   },
   {
     "title": "Tigela de Frango e Quinoa",
@@ -235,7 +239,8 @@
       "Fatie o frango cozido.",
       "Corte os tomates cereja pela metade.",
       "Divida a quinoa quente em duas tigelas, cubra com o frango fatiado, os tomates e regue com o restante do azeite."
-    ]
+    ],
+    "id": "recipe_pt-PT_4"
   },
   {
     "title": "Almôndegas de peru com baixo teor de carboidratos e macarrão de abobrinha",
@@ -284,7 +289,8 @@
       "Despeje o molho marinara sobre as almôndegas e deixe cozinhar em fogo baixo por 5 minutos.",
       "Em uma frigideira separada, refogue levemente o macarrão de abobrinha por 2-3 minutos até ficar macio.",
       "Sirva as almôndegas e o molho sobre os zoodles e cubra com o parmesão ralado."
-    ]
+    ],
+    "id": "recipe_pt-PT_5"
   },
   {
     "title": "Parfait de frutas com iogurte grego",
@@ -334,7 +340,8 @@
       "Cubra com uma camada de frutas frescas misturadas.",
       "Regue o mel uniformemente sobre as frutas.",
       "Polvilhe amêndoas fatiadas por cima para um crocante delicioso."
-    ]
+    ],
+    "id": "recipe_pt-PT_6"
   },
   {
     "title": "Mistura vegana de tofu",
@@ -384,7 +391,8 @@
       "Numa frigideira aqueça o azeite em fogo médio e acrescente o tofu esfarelado.",
       "Polvilhe o açafrão sobre o tofu e misture bem até ficar amarelo dourado.",
       "Adicione o espinafre à panela e cozinhe por mais 2 minutos até murchar."
-    ]
+    ],
+    "id": "recipe_pt-PT_7"
   },
   {
     "title": "Bife Keto e Brócolis",
@@ -434,7 +442,8 @@
       "Aqueça o azeite em uma frigideira de ferro fundido em fogo alto e sele o bife até o ponto desejado. Deixe descansar.",
       "Na mesma frigideira, abaixe o fogo, acrescente a manteiga e acrescente os floretes de brócolis.",
       "Refogue o brócolis até ficar crocante. Corte o bife descansado e sirva junto."
-    ]
+    ],
+    "id": "recipe_pt-PT_8"
   },
   {
     "title": "Aveia Assada com Maçã e Canela",
@@ -484,7 +493,8 @@
       "Misture a aveia em flocos, o leite de amêndoa, as maçãs cortadas em cubos e uma pitada de canela em uma tigela.",
       "Despeje a mistura na assadeira e regue uniformemente com xarope de bordo.",
       "Asse por 25 minutos até que o topo fique dourado e o líquido seja totalmente absorvido."
-    ]
+    ],
+    "id": "recipe_pt-PT_9"
   },
   {
     "title": "Tigela de queijo cottage e abacaxi",
@@ -527,7 +537,8 @@
       "Coloque o queijo cottage em uma tigela.",
       "Cubra com pedaços de abacaxi fresco ou enlatado.",
       "Polvilhe sementes de chia por cima para obter mais fibra e crocância. Mexa antes de comer."
-    ]
+    ],
+    "id": "recipe_pt-PT_10"
   },
   {
     "title": "Peito de Frango Recheado com Espinafre e Feta",
@@ -577,7 +588,8 @@
       "Corte um bolso na lateral de cada peito de frango, tomando cuidado para não cortar completamente.",
       "Misture o queijo feta esfarelado e o espinafre picado em uma tigela e coloque a mistura nos bolsos do frango.",
       "Esfregue a parte externa do frango com azeite, sal e pimenta. Asse por 25-30 minutos até ficar totalmente cozido."
-    ]
+    ],
+    "id": "recipe_pt-PT_11"
   },
   {
     "title": "Lentilha Vegana e Ensopado de Legumes",
@@ -639,7 +651,8 @@
       "Lave as lentilhas e coloque-as na panela junto com os tomates esmagados e 3 xícaras de água ou caldo de legumes.",
       "Deixe ferver, reduza o fogo, tampe e cozinhe por 30-35 minutos até que as lentilhas estejam macias.",
       "Tempere com sal, pimenta e uma pitada de cominho antes de servir."
-    ]
+    ],
+    "id": "recipe_pt-PT_12"
   },
   {
     "title": "Biscoitos de aveia e banana com manteiga de amendoim",
@@ -683,7 +696,8 @@
       "Amasse as bananas em uma tigela até ficar homogêneo e junte a manteiga de amendoim.",
       "Junte a aveia em flocos até formar uma massa pegajosa.",
       "Coloque 8 porções iguais na assadeira, alise levemente e leve ao forno por 10-12 minutos."
-    ]
+    ],
+    "id": "recipe_pt-PT_13"
   },
   {
     "title": "Smoothie antioxidante verde de frutas vermelhas",
@@ -738,7 +752,8 @@
       "Adicione primeiro o espinafre e o leite de amêndoa ao liquidificador e bata até ficar completamente homogêneo para evitar pedaços verdes.",
       "Adicione as frutas congeladas, as sementes de chia e a proteína em pó.",
       "Bata em fogo alto até ficar espesso e cremoso. Despeje em um copo e saboreie gelado."
-    ]
+    ],
+    "id": "recipe_pt-PT_14"
   },
   {
     "title": "Wraps de alface com camarão picante",
@@ -788,7 +803,8 @@
       "Pique o camarão cozido em pedaços menores.",
       "Divida o camarão e o abacate em cubos igualmente entre as folhas de alface-manteiga.",
       "Regue com a maionese picante e sirva imediatamente."
-    ]
+    ],
+    "id": "recipe_pt-PT_15"
   },
   {
     "title": "Pimentão Recheado com Salada de Ovo Keto",
@@ -838,7 +854,8 @@
       "Em uma tigela, misture os ovos picados, a maionese, a mostarda Dijon, o sal e a pimenta até ficar cremoso.",
       "Corte os pimentões ao meio, de cima para baixo, e retire as sementes e as membranas.",
       "Coloque generosamente a salada de ovo nas metades do pimentão e sirva fria."
-    ]
+    ],
+    "id": "recipe_pt-PT_16"
   },
   {
     "title": "Salada Fiesta de Feijão Preto e Milho",
@@ -894,7 +911,8 @@
       "Corte o pimentão vermelho em pedaços pequenos.",
       "Em uma tigela grande, misture o feijão, o milho e o pimentão.",
       "Misture o azeite e o suco de limão, regue com a salada, misture bem e leve à geladeira antes de servir."
-    ]
+    ],
+    "id": "recipe_pt-PT_17"
   },
   {
     "title": "Frigideira de Fajita de Bife de Flanco",
@@ -944,7 +962,8 @@
       "Aqueça o azeite em uma frigideira grande em fogo médio-alto.",
       "Adicione o bife e frite por 3-4 minutos. Retire o bife e reserve.",
       "Na mesma frigideira, refogue os pimentões e as cebolas até ficarem macios. Retorne o bife à frigideira, misture com o tempero de fajita e sirva."
-    ]
+    ],
+    "id": "recipe_pt-PT_18"
   },
   {
     "title": "Panquecas proteicas de queijo cottage",
@@ -988,7 +1007,8 @@
       "Misture em fogo alto até formar uma massa lisa.",
       "Aqueça uma frigideira antiaderente em fogo médio e borrife levemente com óleo de cozinha.",
       "Despeje pequenos círculos de massa na panela. Cozinhe até formar bolhas na superfície, vire e cozinhe até dourar."
-    ]
+    ],
+    "id": "recipe_pt-PT_19"
   },
   {
     "title": "Tigela de lanche de Edamame e Algas Marinhas",
@@ -1032,7 +1052,8 @@
       "Coloque o edamame quente em uma tigela e regue com óleo de gergelim torrado. Misture bem.",
       "Esmague as folhas de algas assadas em pequenos flocos com as mãos.",
       "Polvilhe os flocos de algas marinhas sobre o edamame junto com uma pitada de sal marinho e divirta-se."
-    ]
+    ],
+    "id": "recipe_pt-PT_20"
   },
   {
     "title": "Salada de ovo com abacate ceto",
@@ -1076,7 +1097,8 @@
       "Corte o abacate ao meio, retire o caroço e coloque a polpa em uma tigela.",
       "Amasse o abacate e a maionese até ficar cremoso e, em seguida, envolva delicadamente os ovos picados.",
       "Tempere com sal, pimenta e uma pitada de colorau. Sirva em xícaras de alface ou coma como está."
-    ]
+    ],
+    "id": "recipe_pt-PT_21"
   },
   {
     "title": "Caril vegano de grão de bico e coco",
@@ -1126,7 +1148,8 @@
       "Despeje o leite de coco light e leve para ferver suavemente.",
       "Adicione o grão de bico enxaguado e deixe cozinhar no molho por 15 minutos para absorver os sabores.",
       "Junte o espinafre fresco durante os últimos 2 minutos até murchar. Sirva quente."
-    ]
+    ],
+    "id": "recipe_pt-PT_22"
   },
   {
     "title": "Batata Doce Assada com Peru Moído",
@@ -1169,7 +1192,8 @@
       "Enquanto as batatas assam, doure o peru moído em uma frigideira em fogo médio até ficar totalmente cozido.",
       "Misture o molho de churrasco sem açúcar ao peru.",
       "Corte as batatas-doces assadas e recheie generosamente com a mistura de peru para churrasco."
-    ]
+    ],
+    "id": "recipe_pt-PT_23"
   },
   {
     "title": "Pudim de Sementes de Berry Chia",
@@ -1219,7 +1243,8 @@
       "Deixe descansar por 5 minutos e bata novamente para evitar grumos.",
       "Cubra e leve à geladeira por pelo menos 2 horas ou durante a noite.",
       "Cubra com framboesas frescas antes de servir."
-    ]
+    ],
+    "id": "recipe_pt-PT_24"
   },
   {
     "title": "Zoodles de Camarão com Manteiga de Alho",
@@ -1263,7 +1288,8 @@
       "Adicione o camarão à frigideira e cozinhe por 2-3 minutos de cada lado até ficar rosado e opaco.",
       "Retire o camarão e reserve. Na mesma frigideira, misture o macarrão de abobrinha por 1-2 minutos até aquecer.",
       "Retorne o camarão à frigideira, misture com o macarrão e sirva imediatamente."
-    ]
+    ],
+    "id": "recipe_pt-PT_25"
   },
   {
     "title": "Smoothie de proteína de chá verde Matcha",
@@ -1313,7 +1339,8 @@
       "Adicione o whey protein, o matcha em pó e meia banana.",
       "Adicione um punhado de cubos de gelo.",
       "Misture em fogo alto até ficar homogêneo e espumoso."
-    ]
+    ],
+    "id": "recipe_pt-PT_26"
   },
   {
     "title": "Frigideira de Frango Caprese",
@@ -1363,7 +1390,8 @@
       "Cozinhe em uma frigideira em fogo médio por 6-7 minutos de cada lado até ficar totalmente cozido.",
       "Cubra cada peito com fatias de mussarela e tomate cereja cortado ao meio. Tampe a panela por 2 minutos para derreter o queijo.",
       "Regue com esmalte balsâmico e decore com manjericão fresco antes de servir."
-    ]
+    ],
+    "id": "recipe_pt-PT_27"
   },
   {
     "title": "Grão De Bico Assado Crocante",
@@ -1407,7 +1435,8 @@
       "Misture o grão de bico seco em uma tigela com azeite, páprica defumada, sal e pimenta.",
       "Espalhe-os em uma única camada sobre uma assadeira forrada com papel manteiga.",
       "Asse por 25-30 minutos, sacudindo a assadeira até a metade, até ficar crocante. Deixe esfriar um pouco para ficar ainda mais crocante."
-    ]
+    ],
+    "id": "recipe_pt-PT_28"
   },
   {
     "title": "Salada de Atum Abacate Recheado",
@@ -1451,7 +1480,8 @@
       "Misture a maionese ao atum, adicionando sal, pimenta e um pouco de suco de limão, se desejar.",
       "Corte o abacate ao meio e retire o caroço. Você pode retirar um pouco mais de polpa de abacate para abrir espaço, se necessário.",
       "Recheie as metades do abacate com a salada de atum e coma com uma colher."
-    ]
+    ],
+    "id": "recipe_pt-PT_29"
   },
   {
     "title": "Anéis de maçã com manteiga de amêndoa",
@@ -1495,7 +1525,8 @@
       "Espalhe a manteiga de amêndoa uniformemente por cima dos anéis de maçã.",
       "Polvilhe sementes de cânhamo sobre a manteiga de amêndoa para obter um leve crocante de nozes.",
       "Sirva imediatamente para evitar que as maçãs fiquem douradas."
-    ]
+    ],
+    "id": "recipe_pt-PT_30"
   },
   {
     "title": "Keto couve-flor Mac e queijo",
@@ -1538,7 +1569,8 @@
       "Em uma panela em fogo médio, aqueça delicadamente o creme de leite.",
       "Aos poucos, misture o queijo cheddar ao creme até derreter e ficar homogêneo.",
       "Dobre a couve-flor cozida no molho de queijo até revestir completamente e sirva quente."
-    ]
+    ],
+    "id": "recipe_pt-PT_31"
   },
   {
     "title": "Pimentão de peru rico em proteínas",
@@ -1587,7 +1619,8 @@
       "Lave e escorra o feijão.",
       "Adicione o feijão e o tomate esmagado à panela, temperando com pimenta em pó, cominho e sal.",
       "Deixe ferver, reduza o fogo e deixe cozinhar por 20-30 minutos para que os sabores se fundam."
-    ]
+    ],
+    "id": "recipe_pt-PT_32"
   },
   {
     "title": "Tempeh Teriyaki Vegano Refogado",
@@ -1637,7 +1670,8 @@
       "Aqueça o óleo de gergelim em uma wok ou frigideira grande em fogo médio-alto e doure o tempeh por 5 minutos.",
       "Adicione os floretes de brócolis e frite por mais 3-4 minutos até ficarem crocantes.",
       "Despeje o molho teriyaki, misture bem e sirva quente."
-    ]
+    ],
+    "id": "recipe_pt-PT_33"
   },
   {
     "title": "Pudim de proteína de abacate e chocolate",
@@ -1687,7 +1721,8 @@
       "Adicione o cacau em pó, o xarope de bordo e a proteína em pó.",
       "Misture até ficar completamente homogêneo e cremoso. Se estiver muito grosso, adicione um pouco de leite de amêndoa.",
       "Deixe na geladeira por 30 minutos antes de servir para obter a melhor textura."
-    ]
+    ],
+    "id": "recipe_pt-PT_34"
   },
   {
     "title": "Aveia noturna rica em proteínas",
@@ -1737,7 +1772,8 @@
       "Adicione o iogurte grego e o leite de amêndoa, mexendo vigorosamente até incorporar completamente.",
       "Feche o recipiente e deixe na geladeira durante a noite.",
       "Pegue de manhã, mexa rapidamente e aproveite o frio."
-    ]
+    ],
+    "id": "recipe_pt-PT_35"
   },
   {
     "title": "Bacalhau Assado com Ervas e Limão",
@@ -1781,7 +1817,8 @@
       "Coloque os filés de bacalhau no prato. Regue com azeite e suco de limão fresco.",
       "Polvilhe com sal, pimenta e endro seco ou salsa.",
       "Asse por 12-15 minutos até que o peixe fique opaco e lasque facilmente com um garfo."
-    ]
+    ],
+    "id": "recipe_pt-PT_36"
   },
   {
     "title": "Salada Vegana de Edamame e Quinoa",
@@ -1831,7 +1868,8 @@
       "Em uma tigela grande, misture a quinoa cozida, o edamame e o repolho roxo ralado.",
       "Regue a salada com o molho de amendoim e misture bem para cobrir todos os ingredientes.",
       "Sirva imediatamente ou embale em recipientes para um almoço frio e refrescante."
-    ]
+    ],
+    "id": "recipe_pt-PT_37"
   },
   {
     "title": "Frango com Crosta de Parmesão Ceto",
@@ -1875,7 +1913,8 @@
       "Espalhe uma fina camada de maionese uniformemente por cima de cada peito de frango.",
       "Pressione o queijo parmesão ralado firmemente na maionese para que grude.",
       "Asse por 25 minutos até que o frango esteja cozido e o queijo dourado e crocante."
-    ]
+    ],
+    "id": "recipe_pt-PT_38"
   },
   {
     "title": "Smoothie de espinafre e manga tropical",
@@ -1925,7 +1964,8 @@
       "Misture até ficar homogêneo para garantir que não restem pedaços verdes.",
       "Adicione a manga congelada e as sementes de cânhamo.",
       "Bata em fogo alto até ficar perfeitamente homogêneo e cremoso."
-    ]
+    ],
+    "id": "recipe_pt-PT_39"
   },
   {
     "title": "Pimentão Recheado com Carne Moída",
@@ -1974,7 +2014,8 @@
       "Em uma frigideira, doure a carne moída. Junte o arroz de couve-flor e o molho de tomate e cozinhe por 3 minutos.",
       "Recheie os pimentões ocos com a mistura de carne e coloque-os em pé em uma assadeira.",
       "Cubra com papel alumínio e leve ao forno por 30 minutos, depois retire o papel alumínio e leve ao forno por mais 5 minutos."
-    ]
+    ],
+    "id": "recipe_pt-PT_40"
   },
   {
     "title": "Vieiras Tostadas com Purê de Couve-Flor com Açafrão e Trufa Negra",
@@ -2030,7 +2071,8 @@
       "Marque levemente as vieiras. Aqueça uma panela de aço carbono até soltar fumaça. Adicione um óleo com alto ponto de fumaça e sele as vieiras intactas por exatamente 90 segundos até que se forme uma crosta de Maillard marrom-dourada.",
       "Vire as vieiras, abaixe o fogo e regue rapidamente com a manteiga restante e um raminho de tomilho por 30 segundos. Retire e descanse sobre papel toalha.",
       "Para servir: coloque um círculo perfeito de purê quente. Disponha as vieiras de forma assimétrica. Finalize com gotas de óleo de trufa negra e microervas."
-    ]
+    ],
+    "id": "recipe_pt-PT_41"
   },
   {
     "title": "Peito de Pato Sous-Vide com Redução Balsâmica de Cereja",
@@ -2085,7 +2127,8 @@
       "Enquanto isso, retire os cilindros do aipo-rábano. Sele as pontas na gordura de pato e refogue delicadamente no caldo até ficar macio como o fondant.",
       "Em uma panela, reduza as cerejas e o vinagre balsâmico envelhecido até ficarem xaroposos, montando com uma pequena noz de manteiga fria para um acabamento brilhante.",
       "Retire o pato do saco e seque bem. Coloque a pele voltada para baixo em uma frigideira fria, levando o fogo para médio para deixar a gordura até ficar crocante e vítrea. Fatie e distribua com elegância."
-    ]
+    ],
+    "id": "recipe_pt-PT_42"
   },
   {
     "title": "Costeleta de Cordeiro com Crosta de Ervas e Purê de Ervilha Mintada",
@@ -2141,7 +2184,8 @@
       "Tempere a costela de cordeiro de forma agressiva. Sele em uma frigideira bem quente até dourar profundamente por todos os lados. Pincele com mostarda Dijon e enrole bem na migalha de pistache e ervas.",
       "Asse o cordeiro a 200°C (400°F) por 12-14 minutos para um ponto médio-mal passado perfeito. Descanse por pelo menos 10 minutos antes de esculpir.",
       "Queime as pontas dos aspargos com um maçarico ou uma panela de ferro fundido. Passe o purê de ervilha em um prato quente, arrume as costeletas de cordeiro entrelaçadas e decore."
-    ]
+    ],
+    "id": "recipe_pt-PT_43"
   },
   {
     "title": "Robalo chileno com cobertura de missô e consomê de shiitake",
@@ -2196,7 +2240,8 @@
       "Crie o consomê: cozinhe cogumelos shiitake, kombu e aromáticos por 2 horas. Esclareça o caldo usando a técnica de jangada de clara de ovo até ficar completamente transparente.",
       "Julienne o rabanete daikon em macarrão delicado usando uma mandolina. Escalde levemente no consomê quente.",
       "Grelhe o robalo em uma salamandra alta ou grelha de forno até que os açúcares do missô caramelizem e queimem levemente. Despeje o consomê quente ao lado da mesa."
-    ]
+    ],
+    "id": "recipe_pt-PT_44"
   },
   {
     "title": "Tártaro de Carne Wagyu com Ovo de Codorna e Emulsão de Alcaparras",
@@ -2252,7 +2297,8 @@
       "Usando uma faca cirurgicamente afiada, corte à mão o lombo wagyu em brunoise de 3 mm. Nunca use um moedor de carne.",
       "Dobre a carne delicadamente sobre um banho de gelo com chalotas picadas, cebolinhas, alcaparras e a emulsão de Dijon para preservar a estrutura da gordura.",
       "Placa usando um molde de anel. Separe com cuidado a gema do ovo de codorna e coloque-a perfeitamente no centro. Decore com micromostarda e tuile crocante."
-    ]
+    ],
+    "id": "recipe_pt-PT_45"
   },
   {
     "title": "Cauda de Lagosta Escalfada na Manteiga com Risoto de Açafrão",
@@ -2306,7 +2352,8 @@
       "Retire a carne da lagosta da casca e mergulhe no beurre monté por 6-8 minutos até ficar perfeitamente opaca e macia.",
       "Torre o arroz arbóreo até secar e deglaceie com vinho branco infundido com fios de açafrão premium. Despeje lentamente o caldo de frutos do mar quente, mexendo sempre para liberar os amidos.",
       "Finalize o risoto fora do fogo (mantecatura) com Parmigiano e uma noz de manteiga fria. Coloque o risoto em pratos, cubra com a lagosta fatiada e decore com folhas de ouro ou microverdes."
-    ]
+    ],
+    "id": "recipe_pt-PT_46"
   },
   {
     "title": "Lombo de Veado com Jus Blackberry-Juniper",
@@ -2361,7 +2408,8 @@
       "Na mesma frigideira, deglaze com um pouco de gin ou vinho tinto. Adicione as amoras e amasse um pouco. Despeje o demi-glace de vitela e reduza até cobrir as costas de uma colher.",
       "Escalde os brócolis e queime rapidamente em uma grelha de ferro fundido até fumegar.",
       "Corte a carne de veado em medalhões grossos. Coloque o suco de amora brilhante no prato e arrume a carne ao lado do brócolis carbonizado."
-    ]
+    ],
+    "id": "recipe_pt-PT_47"
   },
   {
     "title": "Halibute com Crosta de Macadâmia e Velouté de Capim Limão",
@@ -2410,7 +2458,8 @@
       "Asse o halibute com a crosta voltada para baixo em uma frigideira antiaderente seca para torrar as nozes, depois vire e termine de cozinhar delicadamente em um forno a 180°C (350°F).",
       "Suar capim-limão machucado e gengibre em uma panela sem corante. Adicione o leite de coco e um pouco de caldo de peixe. Reduza, coe e bata com um liquidificador de imersão para o velouté.",
       "Despeje o velouté espumoso em uma tigela rasa e coloque cuidadosamente o linguado com crosta no centro."
-    ]
+    ],
+    "id": "recipe_pt-PT_48"
   },
   {
     "title": "Confit de cogumelos selvagens e alho preto em torradas artesanais Keto",
@@ -2466,7 +2515,8 @@
       "Cozinhe os ovos sous-vide a exatamente 63°C (145,4°F) por 45 minutos para obter uma gema semelhante a um creme e uma clara macia.",
       "Torre o pão cetônico em uma frigideira seca até ficar crocante. Espalhe generosamente com o purê de alho preto fermentado.",
       "Coloque o confit de cogumelo escorrido sobre a torrada, quebre cuidadosamente o ovo a 63 graus por cima e finalize com sal marinho Maldon em flocos."
-    ]
+    ],
+    "id": "recipe_pt-PT_49"
   },
   {
     "title": "Atum Ahi Grelhado com Esfera Yuzu-Ponzu e Purê de Edamame",
@@ -2521,7 +2571,8 @@
       "Usando alginato de sódio e cloreto de cálcio (esferificação), transforme o molho yuzu-ponzu em pequenas esferas que explodem na boca.",
       "Cubra o bloco de atum com sementes de gergelim preto. Aqueça uma panela de ferro fundido até ficar bem quente. Sele o atum por exatamente 10 segundos de cada lado, mantendo o centro completamente cru.",
       "Corte o atum em fatias limpas com uma faca de sashimi. Passe o purê de edamame verde brilhante no prato, ventile o atum e decore com as esferas de yuzu e o microcoentro."
-    ]
+    ],
+    "id": "recipe_pt-PT_50"
   },
   {
     "title": "Salmão Ora King Regado com Manteiga com Sunchoke Velouté e Caviar Ossetra",
@@ -2577,7 +2628,8 @@
       "Faça um corte na pele do salmão Ora King para evitar que enrole. Coloque a pele voltada para baixo em uma panela fria de aço carbono, levando o fogo para médio-baixo para derreter meticulosamente a gordura e deixar a pele crocante por 8 a 10 minutos.",
       "Vire o peixe brevemente, apague o fogo e regue continuamente com espuma de manteiga cultivada e tomilho para obter um miolo mal passado perfeito.",
       "Coloque o velouté de sunchoke quente em uma tigela rasa, coloque o salmão com a pele voltada para cima e finalize com uma quenelle precisa de caviar Ossetra e micro-endro."
-    ]
+    ],
+    "id": "recipe_pt-PT_51"
   },
   {
     "title": "Lombo de vitela Sous-Vide com molho de alho preto e espargos carbonizados",
@@ -2632,7 +2684,8 @@
       "Bata o alho preto fermentado no rico demi-glace de vitela. Cozinhe o suco até cobrir intensamente as costas de uma colher (consistência de nappé).",
       "Retire a vitela do saco e seque completamente. Sele agressivamente em uma frigideira bem quente com óleo de semente de uva por 30 segundos de cada lado para desencadear a reação de Maillard. Deixe descansar.",
       "Carbonize os aspargos em fogo aberto ou na grelha. Corte a vitela em medalhões grossos e junte o molho de alho preto brilhante ao redor da carne."
-    ]
+    ],
+    "id": "recipe_pt-PT_52"
   },
   {
     "title": "Rabo de lagostim escalfado com emulsão de capim-limão e fondant Daikon",
@@ -2687,7 +2740,8 @@
       "Amasse o capim-limão e o gengibre, mergulhando-os delicadamente no leite de coco. Coe o líquido infundido e areje com um liquidificador de imersão para criar uma espuma estável e perfumada.",
       "Leve a manteiga clarificada a exatamente 60°C (140°F). Mergulhe as caudas de lagostim sem casca e cozinhe delicadamente por 3-4 minutos até ficarem peroladas. Não cozinhe demais.",
       "Distribua os cilindros de daikon, coloque o lagostim amanteigado sobre eles e espalhe generosamente a emulsão de capim-limão aerada ao redor do prato."
-    ]
+    ],
+    "id": "recipe_pt-PT_53"
   },
   {
     "title": "Pregado Assado na Panela com Espargos Brancos e Champanhe Beurre Blanc",
@@ -2742,7 +2796,8 @@
       "Reduza o champanhe, o vinagre de vinho branco e a cebola picada em uma panela pequena até quase secar (au sec). Fora do fogo, misture cubos de manteiga extremamente frios, um por um, para formar uma beurre blanc estável e brilhante. Mantenha-se aquecido.",
       "Aqueça uma frigideira pesada. Sele o filé de pregado em um fio de óleo até formar uma crosta dourada. Vire, regue com o suco da frigideira e cozinhe até formar um provador de bolo.",
       "Disponha os espargos brancos de forma linear, coloque o pregado delicadamente ao lado e despeje a deliciosa beurre blanc para que se parta ligeiramente no prato."
-    ]
+    ],
+    "id": "recipe_pt-PT_54"
   },
   {
     "title": "Bacalhau Preto Curado com Miso com Caldo Dashi e Cogumelos Shimeji",
@@ -2797,7 +2852,8 @@
       "Limpe suavemente o excesso da marinada de missô do peixe para evitar que queime. Grelhe o bacalhau preto em fogo alto até que os açúcares caramelizem em uma crosta profunda de mogno e o peixe lasque sem esforço.",
       "Aqueça o caldo dashi kombu, macerando os delicados cogumelos shimeji até amolecerem. Não ferva.",
       "Coloque o bacalhau glaceado em uma tigela funda e escura. Despeje o dashi fumegante ao lado da mesa, enfeitando com cebolinhas em fatias finas ou um floco de ouro comestível."
-    ]
+    ],
+    "id": "recipe_pt-PT_55"
   },
   {
     "title": "Secreto de porco ibérico com molho Romesco e alho-poró carbonizado",
@@ -2853,7 +2909,8 @@
       "Corte o alho-poró, acrescente uma gota de óleo e queime agressivamente sobre uma chama aberta ou em uma frigideira de ferro fundido seco até que as camadas externas fiquem enegrecidas. Retire a parte externa queimada para revelar camadas macias e doces de cebola.",
       "Tempere o Iberico Secreto com sal marinho em flocos. Devido ao seu intenso marmoreio, cozinhe em panela seca em fogo alto, desfazendo a gordura intramuscular até formar uma crosta escura. Sirva mal passado a médio.",
       "Espalhe o molho Romesco em um prato de ardósia, corte a carne de porco na contramão e coloque sobre o alho-poró carbonizado e esfumaçado."
-    ]
+    ],
+    "id": "recipe_pt-PT_56"
   },
   {
     "title": "Filé de Avestruz Grelhado com Gastrique de Amora e Purê de Pastinaga Defumada",
@@ -2908,7 +2965,8 @@
       "Faça a gastrique: caramelize uma pequena quantidade de adoçante, deglaze com vinagre de vinho tinto, acrescente amoras amassadas e caldo de carne. Reduza até ficar xaroposo e intenso.",
       "Tempere o filé de avestruz. Trate-o como o filé mignon mais magro: sele rapidamente em fogo alto. DEVE ser servido mal passado ou mal passado para evitar dureza. Descanse por 10 minutos.",
       "Coloque o purê de pastinaga defumada no prato. Corte o avestruz em medalhões, espalhe-o e regue com a torta gastrique de amora."
-    ]
+    ],
+    "id": "recipe_pt-PT_57"
   },
   {
     "title": "Codorna Confitada com Sementes de Mostarda em Conserva e Endívia Caramelizada",
@@ -2957,7 +3015,8 @@
       "Cure a codorna durante a noite com sal, tomilho e zimbro esmagado. Mergulhe totalmente na gordura de pato derretida e cozinhe lentamente (confit) a 90°C (195°F) por 2 horas até que a carne ceda à pressão suave.",
       "Corte as endívias ao meio e sele com o lado cortado voltado para baixo em uma frigideira seca até caramelizar profundamente. Deglaze com um pouco de água para deixá-los macios.",
       "Remova com cuidado a codorna da gordura e sele com a pele voltada para baixo até ficar crocante. Sirva junto com a escarola caramelizada, guarnecida com as sementes de mostarda em conserva."
-    ]
+    ],
+    "id": "recipe_pt-PT_58"
   },
   {
     "title": "Halibute escalfado em azeite com caldo de erva-doce e açafrão e feijão marinho",
@@ -3013,7 +3072,8 @@
       "Leve uma panela funda com azeite de oliva extra virgem de alta qualidade a uma temperatura precisa de 55°C (131°F). Mergulhe completamente os filés de alabote temperados. Cozinhe por 15-20 minutos até que o peixe fique opaco e comece a se separar em flocos grossos.",
       "Escalde rapidamente os grãos do mar em água fervente sem sal por 30 segundos e, em seguida, coloque-os em água gelada para manter sua crocância verde viva.",
       "Retire com cuidado o frágil linguado do óleo e escorra brevemente. Coloque em uma tigela rasa, aninhe a erva-doce raspada e os feijões do mar ao lado e despeje o caldo de açafrão quente em volta do peixe."
-    ]
+    ],
+    "id": "recipe_pt-PT_59"
   },
   {
     "title": "Medalhões de alce com redução de junípero e fondant de raiz de aipo",
@@ -3068,7 +3128,8 @@
       "Torre as bagas de zimbro esmagadas em uma frigideira seca até ficarem perfumadas. Deglaze com Ruby Port e reduza em dois terços. Junte a manteiga fria fora do fogo (monter au beurre) para obter um molho sedoso.",
       "Tempere generosamente os medalhões de alce com sal grosso. Sele em uma frigideira de ferro fundido bem quente por exatamente 2 minutos de cada lado. Regue brevemente com os sucos da frigideira. O alce é extremamente magro e não deve ser cozido além do ponto médio.",
       "Descanse a carne por 5 minutos. Corte na contramão, arrume-o elegantemente sobre o fondant de aipo e cubra os medalhões com a redução brilhante do porto de zimbro."
-    ]
+    ],
+    "id": "recipe_pt-PT_60"
   },
   {
     "title": "Barco Keto Abacate Salmão",
@@ -3119,7 +3180,8 @@
       "Coloque um pequeno pedaço de salmão na metade oca do abacate.",
       "Regue com azeite, suco de limão, sal e pimenta.",
       "Asse por 15-20 minutos até que o salmão esteja cozido."
-    ]
+    ],
+    "id": "recipe_pt-PT_61"
   },
   {
     "title": "Panquecas de Mirtilo Embaladas com Proteínas",
@@ -3169,7 +3231,8 @@
       "Misture delicadamente os mirtilos frescos.",
       "Cozinhe em uma frigideira antiaderente em fogo médio até formar bolhas e depois vire.",
       "Sirva quente com um fiozinho de calda sem açúcar."
-    ]
+    ],
+    "id": "recipe_pt-PT_62"
   },
   {
     "title": "Tigela de Quinoa Mediterrânea",
@@ -3224,7 +3287,8 @@
       "Corte os tomates cereja ao meio e corte os pepinos.",
       "Disponha os tomates, os pepinos e as azeitonas sobre a quinoa.",
       "Cubra com uma colher generosa de homus e um fiozinho de azeite."
-    ]
+    ],
+    "id": "recipe_pt-PT_63"
   },
   {
     "title": "Pimentão de peru magro picante",
@@ -3274,7 +3338,8 @@
       "Adicione o tomate esmagado e o feijão (escorrido e enxaguado).",
       "Cozinhe por 30 minutos para que os sabores se fundam.",
       "Decore com uma pitada de queijo magro ou coentro antes de servir."
-    ]
+    ],
+    "id": "recipe_pt-PT_64"
   },
   {
     "title": "Smoothie Detox Verde Refrescante",
@@ -3324,7 +3389,8 @@
       "Adicione o espinafre, a maçã, a banana e a água de coco no liquidificador.",
       "Misture em alta velocidade até ficar completamente homogêneo.",
       "Despeje em um copo gelado e saboreie imediatamente!"
-    ]
+    ],
+    "id": "recipe_pt-PT_65"
   },
   {
     "title": "Macarrão de abobrinha com baixo teor de carboidratos e pesto",
@@ -3374,7 +3440,8 @@
       "Aqueça uma panela em fogo médio e refogue levemente o macarrão por 2-3 minutos.",
       "Retire do fogo e misture com o pesto de manjericão até revestir uniformemente.",
       "Cubra com tomate cereja cortado ao meio e queijo parmesão ralado."
-    ]
+    ],
+    "id": "recipe_pt-PT_66"
   },
   {
     "title": "Salada César de Frango Clássica",
@@ -3422,7 +3489,8 @@
       "Pique a alface romana e coloque em uma tigela grande.",
       "Misture a alface com o molho César.",
       "Cubra com frango fatiado e um punhado de croutons."
-    ]
+    ],
+    "id": "recipe_pt-PT_67"
   },
   {
     "title": "Pudim de Chia durante a noite",
@@ -3471,7 +3539,8 @@
       "Deixe descansar por 5 minutos e bata novamente para evitar grumos.",
       "Cubra e leve à geladeira durante a noite (ou pelo menos 2 horas).",
       "Cubra com frutas frescas antes de servir."
-    ]
+    ],
+    "id": "recipe_pt-PT_68"
   },
   {
     "title": "Tigela de lanche de grão de bico torrado",
@@ -3520,7 +3589,8 @@
       "Escorra, enxágue e seque bem o grão de bico com papel toalha.",
       "Misture o grão de bico com azeite, páprica e sal.",
       "Espalhe uniformemente em uma assadeira e leve ao forno por 20-25 minutos até ficar crocante."
-    ]
+    ],
+    "id": "recipe_pt-PT_69"
   },
   {
     "title": "Picadas de bife com manteiga de alho",
@@ -3569,7 +3639,8 @@
       "Aqueça uma frigideira em fogo alto e sele os pedaços de bife por 3-4 minutos.",
       "Reduza o fogo, acrescente a manteiga e o alho picado e misture bem o bife.",
       "Decore com salsa fresca picada e sirva imediatamente."
-    ]
+    ],
+    "id": "recipe_pt-PT_70"
   },
   {
     "title": "Caril de Batata Doce Vegano",
@@ -3618,7 +3689,8 @@
       "Em uma panela grande, frite delicadamente a pasta de curry até ficar perfumada.",
       "Adicione a batata doce e o leite de coco. Cozinhe por 20 minutos até ficar macio.",
       "Junte o espinafre e deixe murchar antes de servir."
-    ]
+    ],
+    "id": "recipe_pt-PT_71"
   },
   {
     "title": "Copos de café da manhã com muffin de ovo",
@@ -3667,7 +3739,8 @@
       "Bata os ovos em uma tigela e tempere com sal e pimenta.",
       "Divida o pimentão picado, o espinafre e o queijo entre as forminhas de muffin.",
       "Despeje a mistura de ovos sobre os recheios e leve ao forno por 15-20 minutos."
-    ]
+    ],
+    "id": "recipe_pt-PT_72"
   },
   {
     "title": "Salada de Atum e Abacate",
@@ -3716,7 +3789,8 @@
       "Adicione o abacate e amasse junto com o atum com um garfo.",
       "Junte a cebola roxa em cubos finos, o suco de limão, o sal e a pimenta.",
       "Sirva sobre rodelas de pepino ou torradas integrais."
-    ]
+    ],
+    "id": "recipe_pt-PT_73"
   },
   {
     "title": "Smoothie de manteiga de amendoim com chocolate",
@@ -3764,7 +3838,8 @@
       "Adicione todos os ingredientes ao liquidificador.",
       "Adicione um punhado de cubos de gelo.",
       "Bata em fogo alto até ficar homogêneo e cremoso."
-    ]
+    ],
+    "id": "recipe_pt-PT_74"
   },
   {
     "title": "Camarão salteado com brócolis",
@@ -3813,6 +3888,767 @@
       "Adicione florzinhas de brócolis e frite por 4-5 minutos até ficarem crocantes.",
       "Adicione os camarões e cozinhe por 2-3 minutos até ficarem rosados.",
       "Regue com o molho de soja, misture bem e sirva quente."
-    ]
+    ],
+    "id": "recipe_pt-PT_75"
+  },
+  {
+    "title": "Barco Keto Abacate Salmão",
+    "description": "Rico em ômega-3 e gorduras saudáveis, este barco de salmão simples, mas elegante, é perfeito para um jantar cetônico. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Ceto",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filé de Salmão",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Abacate",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Azeite",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Suco de limão",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 400°F (200°C).",
+      "Corte o abacate ao meio e retire o caroço.",
+      "Coloque um pequeno pedaço de salmão na metade oca do abacate.",
+      "Regue com azeite, suco de limão, sal e pimenta.",
+      "Asse por 15-20 minutos até que o salmão esteja cozido."
+    ],
+    "id": "recipe_pt-PT_76"
+  },
+  {
+    "title": "Panquecas de Mirtilo Embaladas com Proteínas",
+    "description": "Comece o seu dia com estas panquecas fofas e ricas em proteínas, repletas de antioxidantes frescos. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Alta proteína",
+      "Vegetariano"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "Farinha de Aveia",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Proteína em pó (baunilha)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Leite de Amêndoa",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "Mirtilos",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "Em uma tigela, misture a farinha de aveia e a proteína em pó.",
+      "Aos poucos, acrescente o leite de amêndoa até formar uma massa lisa.",
+      "Misture delicadamente os mirtilos frescos.",
+      "Cozinhe em uma frigideira antiaderente em fogo médio até formar bolhas e depois vire.",
+      "Sirva quente com um fiozinho de calda sem açúcar."
+    ],
+    "id": "recipe_pt-PT_77"
+  },
+  {
+    "title": "Tigela de Quinoa Mediterrânea",
+    "description": "Uma tigela vibrante e refrescante carregada de fibras e gorduras saudáveis, perfeita para um almoço de tarde ensolarada. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Vegano",
+      "Mediterrâneo"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Quinua Cozida",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "Tomate Cereja",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Pepino",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Azeitonas Kalamata",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Homus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Coloque a quinoa cozida no fundo da tigela.",
+      "Corte os tomates cereja ao meio e corte os pepinos.",
+      "Disponha os tomates, os pepinos e as azeitonas sobre a quinoa.",
+      "Cubra com uma colher generosa de homus e um fiozinho de azeite."
+    ],
+    "id": "recipe_pt-PT_78"
+  },
+  {
+    "title": "Pimentão de peru magro picante",
+    "description": "Aqueça sua alma e atinja seus objetivos de proteína com este pimentão de peru rico e picante. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de gordura"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Turquia moída magra",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Feijão",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Tomates esmagados",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Pimenta em pó",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Doure o peru moído em uma panela grande em fogo médio.",
+      "Junte a pimenta em pó e cozinhe por 1 minuto até ficar perfumado.",
+      "Adicione o tomate esmagado e o feijão (escorrido e enxaguado).",
+      "Cozinhe por 30 minutos para que os sabores se fundam.",
+      "Decore com uma pitada de queijo magro ou coentro antes de servir."
+    ],
+    "id": "recipe_pt-PT_79"
+  },
+  {
+    "title": "Smoothie Detox Verde Refrescante",
+    "description": "Uma dose rápida de vitaminas e hidratação, excelente para uma recuperação pós-treino ou para um novo começo de manhã. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Lanche",
+      "Vegano",
+      "Cru"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Espinafre",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "Maçã Verde",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Água de Côco",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Retire o caroço e pique a maçã verde.",
+      "Adicione o espinafre, a maçã, a banana e a água de coco no liquidificador.",
+      "Misture em alta velocidade até ficar completamente homogêneo.",
+      "Despeje em um copo gelado e saboreie imediatamente!"
+    ],
+    "id": "recipe_pt-PT_80"
+  },
+  {
+    "title": "Macarrão de abobrinha com baixo teor de carboidratos e pesto",
+    "description": "Uma alternativa leve e saborosa à massa, temperada com um rico molho pesto de manjericão. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Ceto",
+      "Vegetariano",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Abobrinha",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Pesto de manjericão",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Queijo Parmesão",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "Tomate Cereja",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Espiralize a abobrinha em macarrão fino.",
+      "Aqueça uma panela em fogo médio e refogue levemente o macarrão por 2-3 minutos.",
+      "Retire do fogo e misture com o pesto de manjericão até revestir uniformemente.",
+      "Cubra com tomate cereja cortado ao meio e queijo parmesão ralado."
+    ],
+    "id": "recipe_pt-PT_81"
+  },
+  {
+    "title": "Salada César de Frango Clássica",
+    "description": "Alface romana crocante, frango grelhado tenro e um molho cremoso e picante fazem deste um favorito atemporal. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Peito de Frango",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Alface",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Molho César",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Croutons",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Tempere o peito de frango e grelhe até ficar totalmente cozido. Deixe descansar e depois corte.",
+      "Pique a alface romana e coloque em uma tigela grande.",
+      "Misture a alface com o molho César.",
+      "Cubra com frango fatiado e um punhado de croutons."
+    ],
+    "id": "recipe_pt-PT_82"
+  },
+  {
+    "title": "Pudim de Chia durante a noite",
+    "description": "Acorde com um pudim de chia pronto para comer, cremoso e nutritivo, coberto com frutas frescas. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Vegano",
+      "Não contém gluten"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Sementes de Chia",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Leite de Amêndoa",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Xarope de bordo",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "Bagas Frescas",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "Em uma jarra, misture as sementes de chia, o leite de amêndoa e o xarope de bordo.",
+      "Deixe descansar por 5 minutos e bata novamente para evitar grumos.",
+      "Cubra e leve à geladeira durante a noite (ou pelo menos 2 horas).",
+      "Cubra com frutas frescas antes de servir."
+    ],
+    "id": "recipe_pt-PT_83"
+  },
+  {
+    "title": "Tigela de lanche de grão de bico torrado",
+    "description": "Crocante, salgado e incrivelmente satisfatório. Um lanche rico em fibras que mantém você saciado. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Vegano",
+      "Alta fibra"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Grão de bico (enlatado)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Azeite",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Páprica Defumada",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sal marinho",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 400°F (200°C).",
+      "Escorra, enxágue e seque bem o grão de bico com papel toalha.",
+      "Misture o grão de bico com azeite, páprica e sal.",
+      "Espalhe uniformemente em uma assadeira e leve ao forno por 20-25 minutos até ficar crocante."
+    ],
+    "id": "recipe_pt-PT_84"
+  },
+  {
+    "title": "Picadas de bife com manteiga de alho",
+    "description": "Macio, suculento e cheio de sabor. Essas mordidas de bife são o melhor jantar rico em proteínas. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Ceto",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Filé mignon",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Manteiga",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "Dentes de alho",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Salsa Fresca",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Corte o bife em cubos pequenos e tempere com sal e pimenta.",
+      "Aqueça uma frigideira em fogo alto e sele os pedaços de bife por 3-4 minutos.",
+      "Reduza o fogo, acrescente a manteiga e o alho picado e misture bem o bife.",
+      "Decore com salsa fresca picada e sirva imediatamente."
+    ],
+    "id": "recipe_pt-PT_85"
+  },
+  {
+    "title": "Caril de Batata Doce Vegano",
+    "description": "Um reconfortante e cremoso curry de coco carregado com batata doce e temperos quentes. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Vegano",
+      "Não contém gluten"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Batata doce",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Leite de coco (leve)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Pasta de Caril",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Espinafre",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Descasque e corte as batatas-doces em cubos pequenos.",
+      "Em uma panela grande, frite delicadamente a pasta de curry até ficar perfumada.",
+      "Adicione a batata doce e o leite de coco. Cozinhe por 20 minutos até ficar macio.",
+      "Junte o espinafre e deixe murchar antes de servir."
+    ],
+    "id": "recipe_pt-PT_86"
+  },
+  {
+    "title": "Copos de café da manhã com muffin de ovo",
+    "description": "Muffins de ovo portáteis e cheios de proteínas que você pode preparar para as manhãs agitadas. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Ceto",
+      "Alta proteína"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Ovos",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Queijo Cheddar",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Pimentão",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Espinafre",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 175°C (350°F) e unte uma forma de muffin.",
+      "Bata os ovos em uma tigela e tempere com sal e pimenta.",
+      "Divida o pimentão picado, o espinafre e o queijo entre as forminhas de muffin.",
+      "Despeje a mistura de ovos sobre os recheios e leve ao forno por 15-20 minutos."
+    ],
+    "id": "recipe_pt-PT_87"
+  },
+  {
+    "title": "Salada de Atum e Abacate",
+    "description": "Uma salada de atum sem maionese com abacate cremoso para obter gorduras saudáveis ​​e textura incrível. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Ceto",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Atum enlatado",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Abacate",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Cebola Vermelha",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Suco de limão",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Escorra o atum e coloque-o numa tigela.",
+      "Adicione o abacate e amasse junto com o atum com um garfo.",
+      "Junte a cebola roxa em cubos finos, o suco de limão, o sal e a pimenta.",
+      "Sirva sobre rodelas de pepino ou torradas integrais."
+    ],
+    "id": "recipe_pt-PT_88"
+  },
+  {
+    "title": "Smoothie de manteiga de amendoim com chocolate",
+    "description": "Tem gosto de sobremesa, mas é repleto de proteínas para construção muscular e gorduras saudáveis. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Alta proteína",
+      "Vegetariano"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Proteína em pó de chocolate",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Manteiga de amendoim",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banana",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Leite de Amêndoa",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Adicione todos os ingredientes ao liquidificador.",
+      "Adicione um punhado de cubos de gelo.",
+      "Bata em fogo alto até ficar homogêneo e cremoso."
+    ],
+    "id": "recipe_pt-PT_89"
+  },
+  {
+    "title": "Camarão salteado com brócolis",
+    "description": "Um jantar rápido, saboroso e rico em proteínas que vem junto em uma panela. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Camarão (descascado)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Florzinhas de brócolis",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Molho de soja",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Óleo de gergelim",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Aqueça o óleo de gergelim em uma panela grande ou wok em fogo médio-alto.",
+      "Adicione florzinhas de brócolis e frite por 4-5 minutos até ficarem crocantes.",
+      "Adicione os camarões e cozinhe por 2-3 minutos até ficarem rosados.",
+      "Regue com o molho de soja, misture bem e sirva quente."
+    ],
+    "id": "recipe_pt-PT_90"
   }
 ]

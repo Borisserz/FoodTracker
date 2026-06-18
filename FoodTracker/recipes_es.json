@@ -40,7 +40,8 @@
       "Descorazona las manzanas, dejando el fondo intacto.",
       "Mezcla nueces picadas y miel, luego rellena las manzanas.",
       "Hornee durante 20-25 minutos hasta que estén tiernos."
-    ]
+    ],
+    "id": "recipe_es_0"
   },
   {
     "title": "Huevos Revueltos Altos En Proteínas Con Aguacate",
@@ -85,7 +86,8 @@
       "Derrita la mantequilla en una sartén antiadherente a fuego medio-bajo.",
       "Vierta los huevos y revuelva suavemente con una espátula hasta que estén suaves.",
       "Corta el aguacate en rodajas y sírvelo junto con los huevos revueltos calientes. Agrega sal y pimienta al gusto."
-    ]
+    ],
+    "id": "recipe_es_1"
   },
   {
     "title": "Batido vegano de chocolate y mantequilla de maní",
@@ -135,7 +137,8 @@
       "Coloca el plátano pelado, la mantequilla de maní y la proteína en polvo en una licuadora.",
       "Vierta la leche de almendras.",
       "Licue a velocidad alta hasta que esté completamente suave y cremoso. Agregue hielo si lo prefiere."
-    ]
+    ],
+    "id": "recipe_es_2"
   },
   {
     "title": "Salmón Keto con Mantequilla de Ajo y Espárragos",
@@ -186,7 +189,8 @@
       "Coloca los filetes de salmón en el centro y coloca los espárragos alrededor.",
       "Derrita la mantequilla, agregue el ajo picado y unte generosamente el salmón y los espárragos.",
       "Hornee durante 12 a 15 minutos hasta que el salmón esté bien cocido y se desmenuce fácilmente con un tenedor."
-    ]
+    ],
+    "id": "recipe_es_3"
   },
   {
     "title": "Bowl De Pollo Y Quinua",
@@ -235,7 +239,8 @@
       "Cortar el pollo cocido en rodajas.",
       "Corta los tomates cherry por la mitad.",
       "Divida la quinua tibia en dos tazones, cubra con rodajas de pollo, tomates y rocíe con el aceite de oliva restante."
-    ]
+    ],
+    "id": "recipe_es_4"
   },
   {
     "title": "Albóndigas de pavo bajas en carbohidratos con fideos de calabacín",
@@ -284,7 +289,8 @@
       "Vierta la salsa marinara sobre las albóndigas y déjelas cocinar a fuego lento durante 5 minutos.",
       "En una sartén aparte, saltee ligeramente los fideos de calabacín durante 2-3 minutos hasta que estén tiernos.",
       "Sirva las albóndigas y la salsa sobre los zoodles y cubra con parmesano rallado."
-    ]
+    ],
+    "id": "recipe_es_5"
   },
   {
     "title": "Parfait de yogur griego y frutos rojos",
@@ -334,7 +340,8 @@
       "Cubra con una capa de bayas frescas mixtas.",
       "Rocíe miel uniformemente sobre las bayas.",
       "Espolvoree almendras rebanadas encima para obtener un delicioso crujido."
-    ]
+    ],
+    "id": "recipe_es_6"
   },
   {
     "title": "Revuelto de tofu vegano",
@@ -384,7 +391,8 @@
       "Calienta el aceite de oliva en una sartén a fuego medio y agrega el tofu desmenuzado.",
       "Espolvorea la cúrcuma sobre el tofu y mezcla bien hasta que adquiera un color amarillo dorado.",
       "Agregue las espinacas a la sartén y cocine por otros 2 minutos hasta que se ablanden."
-    ]
+    ],
+    "id": "recipe_es_7"
   },
   {
     "title": "Filete Keto y Brócoli",
@@ -434,7 +442,8 @@
       "Caliente el aceite de oliva en una sartén de hierro fundido a fuego alto y dore el bistec hasta obtener el punto de cocción deseado. Déjalo reposar.",
       "En la misma sartén, baje el fuego, agregue la mantequilla y agregue los floretes de brócoli.",
       "Saltee el brócoli hasta que esté tierno y crujiente. Cortar el filete reposado en rodajas y servir juntos."
-    ]
+    ],
+    "id": "recipe_es_8"
   },
   {
     "title": "Avena Al Horno Con Manzana Y Canela",
@@ -484,7 +493,8 @@
       "Mezclar los copos de avena, la leche de almendras, las manzanas cortadas en cubitos y una pizca de canela en un bol.",
       "Vierta la mezcla en la fuente para hornear y rocíe el jarabe de arce uniformemente encima.",
       "Hornee durante 25 minutos hasta que la parte superior esté dorada y el líquido se absorba por completo."
-    ]
+    ],
+    "id": "recipe_es_9"
   },
   {
     "title": "Tazón de requesón y piña",
@@ -527,7 +537,8 @@
       "Coloque el requesón en un tazón para servir.",
       "Cubra con trozos de piña fresca o enlatada.",
       "Espolvoree semillas de chía por encima para obtener más fibra y que queden crujientes. Revuelva antes de comer."
-    ]
+    ],
+    "id": "recipe_es_10"
   },
   {
     "title": "Pechuga De Pollo Rellena De Espinacas Y Feta",
@@ -577,7 +588,8 @@
       "Corta un bolsillo en el costado de cada pechuga de pollo, teniendo cuidado de no cortarlo por completo.",
       "Mezcle el queso feta desmenuzado y las espinacas picadas en un tazón, luego rellene la mezcla en los bolsillos de pollo.",
       "Frote el exterior del pollo con aceite de oliva, sal y pimienta. Hornee durante 25-30 minutos hasta que esté completamente cocido."
-    ]
+    ],
+    "id": "recipe_es_11"
   },
   {
     "title": "Guiso Vegano de Lentejas y Verduras",
@@ -639,7 +651,8 @@
       "Enjuaga las lentejas y agrégalas a la olla junto con los tomates triturados y 3 tazas de agua o caldo de verduras.",
       "Llevar a ebullición, luego reducir el fuego, tapar y cocinar a fuego lento durante 30-35 minutos hasta que las lentejas estén tiernas.",
       "Sazone con sal, pimienta y una pizca de comino antes de servir."
-    ]
+    ],
+    "id": "recipe_es_12"
   },
   {
     "title": "Galletas de avena, plátano y mantequilla de maní",
@@ -683,7 +696,8 @@
       "Triture los plátanos en un tazón hasta que quede suave, luego agregue la mantequilla de maní.",
       "Incorpora los copos de avena hasta que se forme una masa pegajosa.",
       "Saque 8 porciones iguales y colóquelas en la bandeja para hornear, aplánelas ligeramente y hornee durante 10 a 12 minutos."
-    ]
+    ],
+    "id": "recipe_es_13"
   },
   {
     "title": "Batido antioxidante de bayas verdes",
@@ -738,7 +752,8 @@
       "Agrega primero las espinacas y la leche de almendras a la licuadora y licúa hasta que esté completamente suave para evitar trozos verdes.",
       "Agrega las bayas congeladas, las semillas de chía y la proteína en polvo.",
       "Licue a fuego alto hasta que esté espeso y cremoso. Vierta en un vaso y disfrute frío."
-    ]
+    ],
+    "id": "recipe_es_14"
   },
   {
     "title": "Wraps picantes de lechuga y camarones",
@@ -788,7 +803,8 @@
       "Pica los camarones cocidos en trozos más pequeños.",
       "Divida los camarones y el aguacate cortado en cubitos de manera uniforme entre las hojas de lechuga mantecosa.",
       "Rocíe la mayonesa picante por encima y sirva inmediatamente."
-    ]
+    ],
+    "id": "recipe_es_15"
   },
   {
     "title": "Pimientos Rellenos De Ensalada De Huevo Keto",
@@ -838,7 +854,8 @@
       "En un bol, mezcle los huevos picados, la mayonesa, la mostaza de Dijon, la sal y la pimienta hasta que quede cremoso.",
       "Cortar los pimientos morrones por la mitad de arriba a abajo y quitarles las semillas y las membranas.",
       "Vierta generosamente la ensalada de huevo en las mitades de pimiento morrón y sirva fría."
-    ]
+    ],
+    "id": "recipe_es_16"
   },
   {
     "title": "Ensalada Fiesta de Frijoles Negros y Maíz",
@@ -894,7 +911,8 @@
       "Corta el pimiento rojo en trozos pequeños.",
       "En un tazón grande, combine los frijoles, el maíz y el pimiento morrón.",
       "Batir el aceite de oliva y el jugo de lima, verter sobre la ensalada, mezclar bien y enfriar antes de servir."
-    ]
+    ],
+    "id": "recipe_es_17"
   },
   {
     "title": "Sartén De Fajitas De Filete De Flanco",
@@ -944,7 +962,8 @@
       "Calienta el aceite de oliva en una sartén grande a fuego medio-alto.",
       "Agregue el bistec y dore durante 3-4 minutos. Retire el bistec y reserve.",
       "En la misma sartén, saltea los pimientos y la cebolla hasta que estén tiernos. Regrese el bistec a la sartén, mezcle con el condimento para fajitas y sirva."
-    ]
+    ],
+    "id": "recipe_es_18"
   },
   {
     "title": "Tortitas proteicas de requesón",
@@ -988,7 +1007,8 @@
       "Licue a fuego alto hasta que se forme una masa suave.",
       "Calienta una sartén antiadherente a fuego medio y rocía ligeramente con aceite de cocina.",
       "Vierta pequeños círculos de masa en la sartén. Cocine hasta que se formen burbujas en la superficie, voltee y cocine hasta que se doren."
-    ]
+    ],
+    "id": "recipe_es_19"
   },
   {
     "title": "Snack Bowl de edamame y algas",
@@ -1032,7 +1052,8 @@
       "Coloque el edamame tibio en un bol y rocíe con aceite de sésamo tostado. Mezcle para cubrir.",
       "Triture las hojas de algas asadas en hojuelas pequeñas con las manos.",
       "Espolvorea las hojuelas de algas sobre el edamame junto con una pizca de sal marina y disfruta."
-    ]
+    ],
+    "id": "recipe_es_20"
   },
   {
     "title": "Ensalada Keto De Huevo Y Aguacate",
@@ -1076,7 +1097,8 @@
       "Corta el aguacate por la mitad, quítale el hueso y coloca la pulpa en un bol.",
       "Triture el aguacate y la mayonesa hasta que estén cremosos, luego agregue suavemente los huevos picados.",
       "Sazone con sal, pimienta y una pizca de pimentón. Sirva en tazas de lechuga o cómelo como está."
-    ]
+    ],
+    "id": "recipe_es_21"
   },
   {
     "title": "Curry Vegano De Garbanzos Y Coco",
@@ -1126,7 +1148,8 @@
       "Vierta la leche de coco ligera y cocine a fuego lento.",
       "Agrega los garbanzos enjuagados y déjalos cocer en la salsa durante 15 minutos para que absorban los sabores.",
       "Agregue las espinacas frescas durante los últimos 2 minutos hasta que se ablanden. Servir caliente."
-    ]
+    ],
+    "id": "recipe_es_22"
   },
   {
     "title": "Camote Al Horno Con Pavo Molido",
@@ -1169,7 +1192,8 @@
       "Mientras se hornean las papas, dore el pavo molido en una sartén a fuego medio hasta que esté completamente cocido.",
       "Agrega la salsa BBQ sin azúcar al pavo.",
       "Corte las batatas horneadas y rellénelas generosamente con la mezcla de pavo BBQ."
-    ]
+    ],
+    "id": "recipe_es_23"
   },
   {
     "title": "Pudín de semillas de chía y bayas",
@@ -1219,7 +1243,8 @@
       "Deje reposar durante 5 minutos, luego bata nuevamente para evitar grumos.",
       "Cubra y refrigere durante al menos 2 horas o toda la noche.",
       "Cubra con frambuesas frescas antes de servir."
-    ]
+    ],
+    "id": "recipe_es_24"
   },
   {
     "title": "Zoodles De Camarones Y Mantequilla De Ajo",
@@ -1263,7 +1288,8 @@
       "Agrega los camarones a la sartén y cocina durante 2-3 minutos por lado hasta que estén rosados ​​y opacos.",
       "Retire los camarones y reserve. En la misma sartén, revuelva los fideos de calabacín durante 1 o 2 minutos hasta que estén tibios.",
       "Regrese los camarones a la sartén, mezcle con los zoodles y sirva inmediatamente."
-    ]
+    ],
+    "id": "recipe_es_25"
   },
   {
     "title": "Batido de proteínas de té verde Matcha",
@@ -1313,7 +1339,8 @@
       "Agrega la proteína de suero, el matcha en polvo y medio plátano.",
       "Agrega un puñado de cubitos de hielo.",
       "Licue a fuego alto hasta que quede suave y espumoso."
-    ]
+    ],
+    "id": "recipe_es_26"
   },
   {
     "title": "Sartén De Pollo Caprese",
@@ -1363,7 +1390,8 @@
       "Cocine en una sartén a fuego medio durante 6-7 minutos por lado hasta que esté completamente cocido.",
       "Cubra cada pechuga con rodajas de mozzarella y tomates cherry cortados por la mitad. Tapa la sartén durante 2 minutos para derretir el queso.",
       "Rocíe con glaseado balsámico y decore con albahaca fresca antes de servir."
-    ]
+    ],
+    "id": "recipe_es_27"
   },
   {
     "title": "Garbanzos Asados ​​Crujientes",
@@ -1407,7 +1435,8 @@
       "Mezcle los garbanzos secos en un bol con aceite de oliva, pimentón ahumado, sal y pimienta.",
       "Extiéndelas en una sola capa sobre una bandeja para hornear forrada con papel pergamino.",
       "Hornee durante 25-30 minutos, agitando la sartén hasta la mitad, hasta que esté crujiente. Deje enfriar un poco para que quede aún más crujiente."
-    ]
+    ],
+    "id": "recipe_es_28"
   },
   {
     "title": "Aguacates Rellenos De Ensalada De Atún",
@@ -1451,7 +1480,8 @@
       "Agrega la mayonesa al atún, agrega sal, pimienta y un chorrito de jugo de limón si lo deseas.",
       "Cortar el aguacate por la mitad y quitarle el hueso. Puedes sacar un poco más de pulpa de aguacate para dejar espacio si es necesario.",
       "Rellena las mitades de aguacate con la ensalada de atún y come con una cuchara."
-    ]
+    ],
+    "id": "recipe_es_29"
   },
   {
     "title": "Anillos de manzana con mantequilla de almendras",
@@ -1495,7 +1525,8 @@
       "Extienda la mantequilla de almendras uniformemente sobre la parte superior de los aros de manzana.",
       "Espolvoree semillas de cáñamo sobre la mantequilla de almendras para obtener un ligero crujido de nuez.",
       "Sirve inmediatamente para evitar que las manzanas se doren."
-    ]
+    ],
+    "id": "recipe_es_30"
   },
   {
     "title": "Macarrones con queso y coliflor cetogénicos",
@@ -1538,7 +1569,8 @@
       "En una cacerola a fuego medio, calienta suavemente la crema espesa.",
       "Incorpora gradualmente el queso cheddar a la crema hasta que se derrita y quede suave.",
       "Incorpora la coliflor cocida a la salsa de queso hasta que esté completamente cubierta y sirve caliente."
-    ]
+    ],
+    "id": "recipe_es_31"
   },
   {
     "title": "Chile de pavo rico en proteínas",
@@ -1587,7 +1619,8 @@
       "Enjuague y escurra los frijoles.",
       "Agrega los frijoles y los tomates triturados a la olla, sazonando con chile en polvo, comino y sal.",
       "Llevar a fuego lento, luego reducir el fuego y dejar cocinar durante 20-30 minutos para que los sabores se mezclen."
-    ]
+    ],
+    "id": "recipe_es_32"
   },
   {
     "title": "Salteado Vegano De Tempeh Teriyaki",
@@ -1637,7 +1670,8 @@
       "Calienta el aceite de sésamo en un wok o sartén grande a fuego medio-alto y dora el tempeh durante 5 minutos.",
       "Agregue los floretes de brócoli y saltee durante otros 3-4 minutos hasta que estén tiernos y crujientes.",
       "Vierta la salsa teriyaki, revuelva para cubrir todo uniformemente y sirva caliente."
-    ]
+    ],
+    "id": "recipe_es_33"
   },
   {
     "title": "Pudín proteico de chocolate y aguacate",
@@ -1687,7 +1721,8 @@
       "Agrega el cacao en polvo, el jarabe de arce y la proteína en polvo.",
       "Licue hasta que esté completamente suave y cremoso. Si queda demasiado espesa, añade un chorrito de leche de almendras.",
       "Enfríe en el refrigerador durante 30 minutos antes de servir para obtener la mejor textura."
-    ]
+    ],
+    "id": "recipe_es_34"
   },
   {
     "title": "Avena nocturna alta en proteínas",
@@ -1737,7 +1772,8 @@
       "Agrega el yogur griego y la leche de almendras, revolviendo vigorosamente hasta que estén completamente combinados.",
       "Cierra el recipiente y déjalo en el frigorífico toda la noche.",
       "Cógelo por la mañana, revuélvelo rápidamente y disfrútalo frío."
-    ]
+    ],
+    "id": "recipe_es_35"
   },
   {
     "title": "Bacalao Al Horno Con Hierbas De Limón",
@@ -1781,7 +1817,8 @@
       "Coloca los filetes de bacalao en la fuente. Rocíe con aceite de oliva y jugo de limón fresco.",
       "Espolvorea con sal, pimienta y eneldo o perejil seco.",
       "Hornee durante 12 a 15 minutos hasta que el pescado esté opaco y se desmenuce fácilmente con un tenedor."
-    ]
+    ],
+    "id": "recipe_es_36"
   },
   {
     "title": "Ensalada vegana de edamame y quinua",
@@ -1831,7 +1868,8 @@
       "En un tazón grande, combine la quinua cocida, el edamame y la col roja rallada.",
       "Rocíe el aderezo de maní sobre la ensalada y revuelva bien para cubrir todos los ingredientes.",
       "Sirva inmediatamente o empaquete en recipientes para un almuerzo frío y refrescante."
-    ]
+    ],
+    "id": "recipe_es_37"
   },
   {
     "title": "Pollo con costra de parmesano keto",
@@ -1875,7 +1913,8 @@
       "Extienda una fina capa de mayonesa de manera uniforme sobre cada pechuga de pollo.",
       "Presione firmemente el queso parmesano rallado en la mayonesa para que se pegue.",
       "Hornee por 25 minutos hasta que el pollo esté bien cocido y el queso esté dorado y crujiente."
-    ]
+    ],
+    "id": "recipe_es_38"
   },
   {
     "title": "Batido tropical de mango y espinacas",
@@ -1925,7 +1964,8 @@
       "Licue hasta que quede suave para asegurarse de que no queden trozos verdes.",
       "Agrega el mango congelado y las semillas de cáñamo.",
       "Licue a velocidad alta hasta que esté perfectamente suave y cremoso."
-    ]
+    ],
+    "id": "recipe_es_39"
   },
   {
     "title": "Pimientos Rellenos De Carne Molida",
@@ -1974,7 +2014,8 @@
       "En una sartén dorar la carne molida. Agregue el arroz de coliflor y la salsa de tomate y cocine por 3 minutos.",
       "Rellena los pimientos morrones ahuecados con la mezcla de carne y colócalos en posición vertical en una fuente para horno.",
       "Cubra con papel aluminio y hornee por 30 minutos, luego retire el papel aluminio y hornee 5 minutos más."
-    ]
+    ],
+    "id": "recipe_es_40"
   },
   {
     "title": "Vieiras a la plancha con puré de coliflor al azafrán y trufa negra",
@@ -2030,7 +2071,8 @@
       "Marque las vieiras ligeramente. Calienta una sartén de acero al carbono hasta que humee. Agregue un aceite con un punto de humo alto y luego dore las vieiras intactas durante exactamente 90 segundos hasta que se forme una corteza de Maillard de color marrón dorado.",
       "Voltee las vieiras, baje el fuego y rocíe rápidamente con la mantequilla restante y una ramita de tomillo durante 30 segundos. Retirar y reposar sobre una toalla de papel.",
       "Para emplatar: vierta un círculo perfecto del puré tibio. Coloca las vieiras de forma asimétrica. Terminar con gotas de aceite de trufa negra y microhierbas."
-    ]
+    ],
+    "id": "recipe_es_41"
   },
   {
     "title": "Pechuga de pato al vacío con reducción de balsámico y cerezas",
@@ -2085,7 +2127,8 @@
       "Mientras tanto, saque los cilindros del apio. Dorar los extremos en grasa de pato y luego cocer suavemente en caldo hasta que estén tiernos como si fueran fondant.",
       "En una cacerola, reduzca las cerezas y el vinagre balsámico añejo hasta que quede espeso, montando con una pequeña cantidad de mantequilla fría para obtener un acabado brillante.",
       "Retire el pato de la bolsa y séquelo bien. Coloque con la piel hacia abajo en una sartén fría, bajando el fuego a medio para que la grasa quede como un vidrio y crujiente. Cortar y emplatar con elegancia."
-    ]
+    ],
+    "id": "recipe_es_42"
   },
   {
     "title": "Costillar de cordero con costra de hierbas y puré de guisantes a la menta",
@@ -2141,7 +2184,8 @@
       "Sazone agresivamente el costillar de cordero. Dorar en una sartén muy caliente hasta que se dore profundamente por todos lados. Unte con mostaza de Dijon y enrolle bien en la miga de pistacho y hierbas.",
       "Ase el cordero a 200 °C (400 °F) durante 12 a 14 minutos para obtener un punto perfecto a medio cocer. Descanse al menos 10 minutos antes de tallar.",
       "Quema las puntas de los espárragos con un soplete o una sartén de hierro fundido. Pase el puré de guisantes por un plato caliente, coloque las chuletas de cordero entrelazadas y decore."
-    ]
+    ],
+    "id": "recipe_es_43"
   },
   {
     "title": "Lubina chilena glaseada con miso y consomé de shiitake",
@@ -2196,7 +2240,8 @@
       "Prepare el consomé: cocine a fuego lento los hongos shiitake, el kombu y las aromáticas durante 2 horas. Clarificar el caldo mediante la técnica de la balsa de clara de huevo hasta que esté completamente transparente.",
       "Corta en juliana el rábano daikon en delicados fideos usando una mandolina. Escaldar ligeramente en el consomé caliente.",
       "Ase la lubina bajo una salamandra alta o en un horno hasta que los azúcares del miso se caramelicen y se quemen ligeramente. Vierta el consomé caliente al lado de la mesa."
-    ]
+    ],
+    "id": "recipe_es_44"
   },
   {
     "title": "Tartar de ternera Wagyu con huevo de codorniz y emulsión de alcaparras",
@@ -2252,7 +2297,8 @@
       "Con un cuchillo quirúrgico afilado, corte a mano el lomo wagyu en brunoise de 3 mm. Nunca utilices una picadora de carne.",
       "Doble suavemente la carne sobre un baño de hielo con chalotas picadas, cebollino, alcaparras y la emulsión de Dijon para preservar la estructura de la grasa.",
       "Emplatar utilizando un molde de aros. Separa con cuidado la yema del huevo de codorniz y colócala perfectamente en el centro. Adorne con hojas de micromostaza y la teja crujiente."
-    ]
+    ],
+    "id": "recipe_es_45"
   },
   {
     "title": "Cola de langosta escalfada en mantequilla con risotto al azafrán",
@@ -2306,7 +2352,8 @@
       "Retire la carne de langosta del caparazón y sumérjala en la beurre monté durante 6-8 minutos hasta que esté perfectamente opaca y tierna.",
       "Tostar el arroz arborio en seco, desglasar con vino blanco infusionado con hebras de azafrán premium. Sirva lentamente el caldo de mariscos caliente, revolviendo constantemente para liberar los almidones.",
       "Terminar el risotto fuera del fuego (mantecatura) con parmigiano y una nuez de mantequilla fría. Coloque el risotto en un plato, cubra con la langosta en rodajas y decore con pan de oro o microverduras."
-    ]
+    ],
+    "id": "recipe_es_46"
   },
   {
     "title": "Lomo de Venado con Jugo de Moras y Enebro",
@@ -2361,7 +2408,8 @@
       "En la misma sartén desglasar con un chorrito de ginebra o vino tinto. Agrega las moras y tritúralas un poco. Vierta el demi-glace de ternera y reduzca hasta que cubra el dorso de una cuchara.",
       "Blanquee el broccolini y luego cocínelo rápidamente en una parrilla de hierro fundido hasta que esté ahumado.",
       "Cortar el venado en medallones gruesos. Coloque el jugo de mora brillante en el plato y coloque la carne junto con el broccolini carbonizado."
-    ]
+    ],
+    "id": "recipe_es_47"
   },
   {
     "title": "Fletán con costra de macadamia y velouté de limoncillo",
@@ -2410,7 +2458,8 @@
       "Ase el fletán con la corteza hacia abajo en una sartén antiadherente seca para tostar las nueces, luego voltee y termine de cocinar suavemente en un horno a 180°C (350°F).",
       "Sudar la hierba de limón machacada y el jengibre en una cacerola sin colorar. Añade la leche de coco y un chorrito de caldo de pescado. Reducir, colar y espumar con una batidora de mano para la velouté.",
       "Vierta la velouté espumosa en un recipiente poco profundo y coloque con cuidado el fletán con costra en el centro."
-    ]
+    ],
+    "id": "recipe_es_48"
   },
   {
     "title": "Champiñones confitados y ajo negro sobre tostada cetogénica artesanal",
@@ -2466,7 +2515,8 @@
       "Cocine los huevos al vacío a exactamente 63 °C (145,4 °F) durante 45 minutos para lograr una yema parecida a una natilla y una clara tierna.",
       "Tuesta el pan cetogénico en una sartén seca hasta que esté crujiente. Untar generosamente con el puré de ajo negro fermentado.",
       "Coloque una capa de champiñones confitados escurridos sobre la tostada, rompa con cuidado el huevo a 63 grados encima y termine con sal marina Maldon en escamas."
-    ]
+    ],
+    "id": "recipe_es_49"
   },
   {
     "title": "Atún Ahi braseado con esfera Yuzu-Ponzu y puré de edamame",
@@ -2521,7 +2571,8 @@
       "Usando alginato de sodio y cloruro de calcio (esferificación), convierta la salsa yuzu-ponzu en pequeñas esferas que estallan en la boca.",
       "Cubra el bloque de atún con semillas de sésamo negro. Calienta una sartén de hierro fundido hasta que esté al rojo vivo. Dorar el atún durante exactamente 10 segundos por lado, manteniendo el centro completamente crudo.",
       "Cortar el atún en rodajas limpias con un cuchillo para sashimi. Pase el puré de edamame de color verde brillante por el plato, abanique el atún y decore con las esferas de yuzu y el microcilantro."
-    ]
+    ],
+    "id": "recipe_es_50"
   },
   {
     "title": "Salmón Ora King bañado en mantequilla con Sunchoke Velouté y caviar Ossetra",
@@ -2577,7 +2628,8 @@
       "Marque la piel del salmón Ora King para evitar que se doble. Coloque con la piel hacia abajo en una sartén fría de acero al carbono, llevando el fuego a medio-bajo para derretir meticulosamente la grasa y dorar la piel durante 8 a 10 minutos.",
       "Voltee el pescado brevemente, apague el fuego y rocíelo continuamente con mantequilla cultivada espumosa y tomillo para lograr un corazón impecable a medio cocer.",
       "Vierta la velouté de sunchoke caliente en un recipiente poco profundo, coloque el salmón con la piel hacia arriba y termine con una quenelle precisa de caviar Ossetra y microeneldo."
-    ]
+    ],
+    "id": "recipe_es_51"
   },
   {
     "title": "Solomillo de ternera al vacío con jugo de ajo negro y espárragos asados",
@@ -2632,7 +2684,8 @@
       "Triture el ajo negro fermentado con el rico demi-glace de ternera. Cocine a fuego lento el jugo hasta que cubra intensamente el dorso de una cuchara (consistencia de napé).",
       "Retire la ternera de la bolsa y séquela completamente. Dorar agresivamente en una sartén muy caliente con aceite de semilla de uva durante 30 segundos por lado para desencadenar la reacción de Maillard. Dejar reposar.",
       "Char los espárragos a fuego abierto o debajo de una parrilla. Corte la ternera en medallones gruesos y coloque el brillante jugo de ajo negro alrededor de la carne."
-    ]
+    ],
+    "id": "recipe_es_52"
   },
   {
     "title": "Cola de langostino escalfada con emulsión de limoncillo y fondant daikon",
@@ -2687,7 +2740,8 @@
       "Triture la hierba de limón y el jengibre, sumergiéndolos suavemente en la leche de coco. Cuela el líquido infundido y airea con una batidora de inmersión para crear una espuma fragante y estable.",
       "Lleva la mantequilla clarificada a exactamente 60°C (140°F). Sumerge las colas de langostino sin cáscara y escalfalas suavemente durante 3-4 minutos hasta que estén nacaradas. No cocine demasiado.",
       "Coloque los cilindros de daikon en un plato, coloque los langostinos mantecosos sobre ellos y vierta generosamente la emulsión de limoncillo aireada alrededor del plato."
-    ]
+    ],
+    "id": "recipe_es_53"
   },
   {
     "title": "Rodaballo asado con espárragos blancos y champán Beurre Blanc",
@@ -2742,7 +2796,8 @@
       "Reduzca el champán, el vinagre de vino blanco y la chalota picada en una cacerola pequeña hasta que esté casi seco (au sec). Fuera del fuego, agregue los cubos de mantequilla extremadamente fríos uno por uno para montar una beurre blanc brillante y estable. Manténgase caliente.",
       "Calienta una sartén pesada. Dorar el filete de rodaballo en un susurro de aceite hasta que se forme una costra dorada. Voltee, rocíe con el jugo de la sartén y cocine hasta que rinda en un probador de pasteles.",
       "Coloque los espárragos blancos en forma lineal, coloque el rodaballo con cuidado al lado y vierta la deliciosa beurre blanc de manera que se parta ligeramente en el plato."
-    ]
+    ],
+    "id": "recipe_es_54"
   },
   {
     "title": "Bacalao Negro Curado Con Miso Con Caldo Dashi Y Hongos Shimeji",
@@ -2797,7 +2852,8 @@
       "Limpie suavemente el exceso de marinada de miso del pescado para evitar que se queme. Ase el bacalao negro a fuego alto hasta que los azúcares se caramelicen formando una corteza profunda de color caoba y el pescado se desmenuce sin esfuerzo.",
       "Calienta el caldo dashi kombu y deja reposar los delicados hongos shimeji hasta que se ablanden. No hervir.",
       "Coloque el bacalao glaseado en un recipiente oscuro y profundo. Vierta el dashi humeante junto a la mesa y decore con cebolletas finamente picadas o unas hojuelas de oro comestible."
-    ]
+    ],
+    "id": "recipe_es_55"
   },
   {
     "title": "Secreto de cerdo ibérico con salsa romesco y puerros tiernos asados",
@@ -2853,7 +2909,8 @@
       "Recorte los puerros tiernos, agregue una gota de aceite y cocínelos agresivamente sobre una llama abierta o en una sartén de hierro fundido seca hasta que las capas exteriores se ennegrezcan. Retire el exterior quemado para revelar capas tiernas y dulces de cebolla.",
       "Sazone el Secreto Ibérico con sal marina en escamas. Debido a su intenso veteado, cocinar en una sartén seca a fuego alto, deshaciendo la grasa intramuscular hasta que se forme una costra oscura. Sirva a medio cocer o medio.",
       "Extienda la salsa Romesco sobre un plato de pizarra, corte la carne de cerdo a contrapelo y colóquela sobre los puerros carbonizados ahumados."
-    ]
+    ],
+    "id": "recipe_es_56"
   },
   {
     "title": "Filete de avestruz braseado con gastrique de moras y puré de chirivía ahumada",
@@ -2908,7 +2965,8 @@
       "Prepare la gastrique: caramelice una pequeña cantidad de edulcorante, desglase con vinagre de vino tinto, agregue moras machacadas y caldo de res. Reducir hasta que quede almibarado e intenso.",
       "Sazona el filete de avestruz. Trátelo como el filet mignon más magro: dórelo rápidamente a fuego muy alto. DEBE servirse crudo o medio cocido para evitar que quede duro. Descanse durante 10 minutos.",
       "Colocar el puré de chirivía ahumada en el plato. Cortar el avestruz en medallones, colocarlo en abanico y rociar con la tarta gastrique de moras."
-    ]
+    ],
+    "id": "recipe_es_57"
   },
   {
     "title": "Codornices confitadas con semillas de mostaza en escabeche y escarola caramelizada",
@@ -2957,7 +3015,8 @@
       "Cure las codornices durante la noche con sal, tomillo y enebro machacado. Sumerja completamente en grasa de pato derretida y cocine a fuego lento (confit) a 90 °C (195 °F) durante 2 horas hasta que la carne ceda a una presión suave.",
       "Cortar las endibias por la mitad y dorar con el lado cortado hacia abajo en una sartén seca hasta que estén profundamente caramelizadas. Desglasar con un chorrito de agua para que queden tiernas al vapor.",
       "Retire con cuidado las codornices de la grasa y dórelas con la piel hacia abajo hasta que estén crujientes. Sirva junto con la escarola caramelizada, adornada con las semillas de mostaza en escabeche."
-    ]
+    ],
+    "id": "recipe_es_58"
   },
   {
     "title": "Fletán escalfado en aceite de oliva con caldo de hinojo y azafrán y alubias",
@@ -3013,7 +3072,8 @@
       "Lleve una sartén honda con aceite de oliva virgen extra de alta calidad a una temperatura precisa de 55 °C (131 °F). Sumerge completamente los filetes de fletán sazonados. Escalfa durante 15 a 20 minutos hasta que el pescado se vuelva opaco y comience a separarse en hojuelas gruesas.",
       "Blanquee rápidamente las alubias en agua hirviendo sin sal durante 30 segundos, luego colóquelas en agua helada para mantener su crujiente color verde intenso.",
       "Saque con cuidado el frágil fletán del aceite y escúrralo brevemente. Colóquelo en un recipiente poco profundo, coloque el hinojo rallado y las alubias al lado y vierta el caldo de azafrán caliente alrededor del pescado."
-    ]
+    ],
+    "id": "recipe_es_59"
   },
   {
     "title": "Medallones de alce con reducción de oporto de enebro y fondant de raíz de apio",
@@ -3068,7 +3128,8 @@
       "Tuesta las bayas de enebro trituradas en una sartén seca hasta que estén fragantes. Desglasar con Ruby Port y reducir en dos tercios. Agregue la mantequilla fría del fuego (monter au beurre) para obtener una salsa sedosa.",
       "Sazone generosamente los medallones de alce con sal gruesa. Dorar en una sartén de hierro fundido muy caliente durante exactamente 2 minutos por lado. Rocíe brevemente con el jugo de la sartén. El alce es extremadamente magro y no se debe cocinar más allá del medio cocido.",
       "Reposar la carne durante 5 minutos. Corte a contrapelo, colóquelo elegantemente sobre el fondant de apio nabo y cubra los medallones con la brillante reducción de oporto de enebro."
-    ]
+    ],
+    "id": "recipe_es_60"
   },
   {
     "title": "Barco Keto De Salmón Y Aguacate",
@@ -3119,7 +3180,8 @@
       "Coloque un pequeño trozo de salmón en la mitad ahuecada del aguacate.",
       "Rocíe con aceite de oliva, jugo de limón, sal y pimienta.",
       "Hornee durante 15-20 minutos hasta que el salmón esté bien cocido."
-    ]
+    ],
+    "id": "recipe_es_61"
   },
   {
     "title": "Panqueques de arándanos llenos de proteínas",
@@ -3169,7 +3231,8 @@
       "Incorpora suavemente los arándanos frescos.",
       "Cocine en una sartén antiadherente a fuego medio hasta que se formen burbujas, luego voltee.",
       "Servir caliente con un chorrito de almíbar sin azúcar."
-    ]
+    ],
+    "id": "recipe_es_62"
   },
   {
     "title": "Tazón de quinua mediterránea",
@@ -3224,7 +3287,8 @@
       "Corta los tomates cherry por la mitad y corta los pepinos en rodajas.",
       "Coloca los tomates, los pepinos y las aceitunas sobre la quinua.",
       "Cubra con una generosa cucharada de hummus y un chorrito de aceite de oliva."
-    ]
+    ],
+    "id": "recipe_es_63"
   },
   {
     "title": "Chile de pavo magro picante",
@@ -3274,7 +3338,8 @@
       "Agregue los tomates triturados y los frijoles (escurridos y enjuagados).",
       "Cocine a fuego lento durante 30 minutos para que los sabores se mezclen.",
       "Adorne con una pizca de queso bajo en grasa o cilantro antes de servir."
-    ]
+    ],
+    "id": "recipe_es_64"
   },
   {
     "title": "Batido Detox Verde Refrescante",
@@ -3324,7 +3389,8 @@
       "Agrega las espinacas, la manzana, el plátano y el agua de coco en una licuadora.",
       "Licue a velocidad alta hasta que esté completamente suave.",
       "¡Vierta en un vaso frío y disfrútelo de inmediato!"
-    ]
+    ],
+    "id": "recipe_es_65"
   },
   {
     "title": "Fideos de calabacín bajos en carbohidratos con pesto",
@@ -3374,7 +3440,8 @@
       "Calienta una sartén a fuego medio y saltea ligeramente los fideos durante 2-3 minutos.",
       "Retire del fuego y mezcle con pesto de albahaca hasta que esté cubierto uniformemente.",
       "Cubra con tomates cherry cortados por la mitad y queso parmesano rallado."
-    ]
+    ],
+    "id": "recipe_es_66"
   },
   {
     "title": "Ensalada César De Pollo Clásica",
@@ -3422,7 +3489,8 @@
       "Pica la lechuga romana y colócala en un bol grande.",
       "Mezcle la lechuga con el aderezo César.",
       "Cubra con pollo en rodajas y un puñado de picatostes."
-    ]
+    ],
+    "id": "recipe_es_67"
   },
   {
     "title": "Pudín de chía durante la noche",
@@ -3471,7 +3539,8 @@
       "Deje reposar durante 5 minutos, luego bata nuevamente para evitar que se formen grumos.",
       "Cubra y refrigere durante la noche (o al menos 2 horas).",
       "Cubra con bayas frescas antes de servir."
-    ]
+    ],
+    "id": "recipe_es_68"
   },
   {
     "title": "Tazón de snack de garbanzos asados",
@@ -3520,7 +3589,8 @@
       "Escurrir, enjuagar y secar bien los garbanzos con una toalla de papel.",
       "Mezcle los garbanzos con aceite de oliva, pimentón y sal.",
       "Extienda uniformemente sobre una bandeja para hornear y ase durante 20-25 minutos hasta que esté crujiente."
-    ]
+    ],
+    "id": "recipe_es_69"
   },
   {
     "title": "Bocaditos de filete con mantequilla de ajo",
@@ -3569,7 +3639,8 @@
       "Calienta una sartén a fuego alto y dora los trozos de carne durante 3-4 minutos.",
       "Reduzca el fuego, agregue la mantequilla y el ajo picado y revuelva para cubrir el bistec.",
       "Adorne con perejil fresco picado y sirva inmediatamente."
-    ]
+    ],
+    "id": "recipe_es_70"
   },
   {
     "title": "Curry vegano de camote",
@@ -3618,7 +3689,8 @@
       "En una olla grande, sofreír la pasta de curry hasta que esté fragante.",
       "Agrega las batatas y la leche de coco. Cocine a fuego lento durante 20 minutos hasta que estén tiernos.",
       "Agregue las espinacas y deje que se ablanden antes de servir."
-    ]
+    ],
+    "id": "recipe_es_71"
   },
   {
     "title": "Tazas de desayuno para muffins de huevo",
@@ -3667,7 +3739,8 @@
       "Batir los huevos en un bol y sazonar con sal y pimienta.",
       "Divida el pimiento morrón picado, las espinacas y el queso entre los moldes para muffins.",
       "Vierta la mezcla de huevo sobre los rellenos y hornee por 15-20 minutos."
-    ]
+    ],
+    "id": "recipe_es_72"
   },
   {
     "title": "Ensalada De Atún Y Aguacate",
@@ -3716,7 +3789,8 @@
       "Agrega el aguacate y tritúralo junto con el atún con un tenedor.",
       "Agregue la cebolla morada finamente picada, el jugo de limón, la sal y la pimienta.",
       "Sirva sobre rodajas de pepino o tostadas integrales."
-    ]
+    ],
+    "id": "recipe_es_73"
   },
   {
     "title": "Batido de chocolate y mantequilla de maní",
@@ -3764,7 +3838,8 @@
       "Agrega todos los ingredientes a una licuadora.",
       "Agrega un puñado de cubitos de hielo.",
       "Licue a fuego alto hasta que quede suave y cremoso."
-    ]
+    ],
+    "id": "recipe_es_74"
   },
   {
     "title": "Salteado De Camarones Con Brócoli",
@@ -3813,6 +3888,767 @@
       "Agregue los floretes de brócoli y saltee durante 4-5 minutos hasta que estén tiernos y crujientes.",
       "Agregue los camarones y cocine durante 2-3 minutos hasta que se pongan rosados.",
       "Rocíe con salsa de soja, revuelva bien y sirva caliente."
-    ]
+    ],
+    "id": "recipe_es_75"
+  },
+  {
+    "title": "Barco Keto De Salmón Y Aguacate",
+    "description": "Rico en omega-3 y grasas saludables, este sencillo pero elegante barco de salmón es perfecto para una cena cetogénica. 🥑🐟",
+    "time": "25 min",
+    "caloriesPerServing": 450,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "cetogénico",
+      "Alta proteína",
+      "Bajo en carbohidratos"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 32.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Filete De Salmón",
+        "amount": "300 g",
+        "weightGrams": 300,
+        "calories": 624
+      },
+      {
+        "name": "Palta",
+        "amount": "1 large",
+        "weightGrams": 200,
+        "calories": 320
+      },
+      {
+        "name": "Aceite de oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "Zumo de limón",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Precalienta tu horno a 400°F (200°C).",
+      "Cortar el aguacate por la mitad y quitarle el hueso.",
+      "Coloque un pequeño trozo de salmón en la mitad ahuecada del aguacate.",
+      "Rocíe con aceite de oliva, jugo de limón, sal y pimienta.",
+      "Hornee durante 15-20 minutos hasta que el salmón esté bien cocido."
+    ],
+    "id": "recipe_es_76"
+  },
+  {
+    "title": "Panqueques de arándanos llenos de proteínas",
+    "description": "Comience el día con estos panqueques esponjosos y ricos en proteínas y repletos de antioxidantes frescos. 🥞🫐",
+    "time": "15 min",
+    "caloriesPerServing": 350,
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Desayuno",
+      "Alta proteína",
+      "Vegetariano"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 8.0,
+    "carbs": 42.0,
+    "ingredients": [
+      {
+        "name": "harina de avena",
+        "amount": "1 cup",
+        "weightGrams": 100,
+        "calories": 400
+      },
+      {
+        "name": "Proteína en polvo (vainilla)",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Leche De Almendras",
+        "amount": "1/2 cup",
+        "weightGrams": 120,
+        "calories": 15
+      },
+      {
+        "name": "arándanos",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 42
+      }
+    ],
+    "directions": [
+      "En un bol, mezcle la harina de avena y la proteína en polvo.",
+      "Incorpora poco a poco la leche de almendras hasta que se forme una masa suave.",
+      "Incorpora suavemente los arándanos frescos.",
+      "Cocine en una sartén antiadherente a fuego medio hasta que se formen burbujas, luego voltee.",
+      "Servir caliente con un chorrito de almíbar sin azúcar."
+    ],
+    "id": "recipe_es_77"
+  },
+  {
+    "title": "Tazón de quinua mediterránea",
+    "description": "Un plato vibrante y refrescante cargado de fibra y grasas saludables, perfecto para un almuerzo soleado por la tarde. 🥗✨",
+    "time": "20 min",
+    "caloriesPerServing": 380,
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almuerzo",
+      "vegano",
+      "mediterráneo"
+    ],
+    "baseServings": 1,
+    "protein": 12.0,
+    "fat": 15.0,
+    "carbs": 55.0,
+    "ingredients": [
+      {
+        "name": "Quinua Cocida",
+        "amount": "1 cup",
+        "weightGrams": 185,
+        "calories": 222
+      },
+      {
+        "name": "tomates cherry",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      },
+      {
+        "name": "Pepino",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 8
+      },
+      {
+        "name": "Aceitunas de Kalamata",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 46
+      },
+      {
+        "name": "Hummus",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 70
+      }
+    ],
+    "directions": [
+      "Coloca la quinua cocida en la base de tu bol.",
+      "Corta los tomates cherry por la mitad y corta los pepinos en rodajas.",
+      "Coloca los tomates, los pepinos y las aceitunas sobre la quinua.",
+      "Cubra con una generosa cucharada de hummus y un chorrito de aceite de oliva."
+    ],
+    "id": "recipe_es_78"
+  },
+  {
+    "title": "Chile de pavo magro picante",
+    "description": "Calienta tu alma y alcanza tus objetivos de proteínas con este rico y picante chile de pavo. 🌶️🍲",
+    "time": "45 min",
+    "caloriesPerServing": 310,
+    "imageUrl": "https://images.unsplash.com/photo-1548943487-a2e4d43b4850?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alta proteína",
+      "Bajo en grasa"
+    ],
+    "baseServings": 4,
+    "protein": 35.0,
+    "fat": 8.0,
+    "carbs": 25.0,
+    "ingredients": [
+      {
+        "name": "Pavo molido magro",
+        "amount": "500 g",
+        "weightGrams": 500,
+        "calories": 750
+      },
+      {
+        "name": "Frijoles",
+        "amount": "1 can",
+        "weightGrams": 250,
+        "calories": 280
+      },
+      {
+        "name": "Tomates triturados",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Chile en polvo",
+        "amount": "2 tbsp",
+        "weightGrams": 15,
+        "calories": 48
+      }
+    ],
+    "directions": [
+      "Dora el pavo molido en una olla grande a fuego medio.",
+      "Agregue el chile en polvo y cocine por 1 minuto hasta que esté fragante.",
+      "Agregue los tomates triturados y los frijoles (escurridos y enjuagados).",
+      "Cocine a fuego lento durante 30 minutos para que los sabores se mezclen.",
+      "Adorne con una pizca de queso bajo en grasa o cilantro antes de servir."
+    ],
+    "id": "recipe_es_79"
+  },
+  {
+    "title": "Batido Detox Verde Refrescante",
+    "description": "Una dosis rápida de vitaminas e hidratación, excelente para una recuperación post-entrenamiento o para un nuevo comienzo por la mañana. 🍏🥬",
+    "time": "5 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Desayuno",
+      "Bocadillo",
+      "vegano",
+      "Crudo"
+    ],
+    "baseServings": 1,
+    "protein": 4.0,
+    "fat": 2.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Espinaca",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      },
+      {
+        "name": "manzana verde",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 78
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 medium",
+        "weightGrams": 60,
+        "calories": 53
+      },
+      {
+        "name": "Agua de coco",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Descorazona y pica la manzana verde.",
+      "Agrega las espinacas, la manzana, el plátano y el agua de coco en una licuadora.",
+      "Licue a velocidad alta hasta que esté completamente suave.",
+      "¡Vierta en un vaso frío y disfrútelo de inmediato!"
+    ],
+    "id": "recipe_es_80"
+  },
+  {
+    "title": "Fideos de calabacín bajos en carbohidratos con pesto",
+    "description": "Una alternativa ligera y sabrosa a la pasta, mezclada con una rica salsa pesto de albahaca. 🌿🍝",
+    "time": "15 min",
+    "caloriesPerServing": 220,
+    "imageUrl": "https://images.unsplash.com/photo-1596484552834-6a58f850d0d7?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "cetogénico",
+      "Vegetariano",
+      "Bajo en carbohidratos"
+    ],
+    "baseServings": 2,
+    "protein": 6.0,
+    "fat": 18.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Calabacín",
+        "amount": "2 medium",
+        "weightGrams": 400,
+        "calories": 68
+      },
+      {
+        "name": "Pesto de albahaca",
+        "amount": "3 tbsp",
+        "weightGrams": 45,
+        "calories": 240
+      },
+      {
+        "name": "Queso parmesano",
+        "amount": "2 tbsp",
+        "weightGrams": 10,
+        "calories": 43
+      },
+      {
+        "name": "tomates cherry",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Haga espirales de calabacín en fideos finos.",
+      "Calienta una sartén a fuego medio y saltea ligeramente los fideos durante 2-3 minutos.",
+      "Retire del fuego y mezcle con pesto de albahaca hasta que esté cubierto uniformemente.",
+      "Cubra con tomates cherry cortados por la mitad y queso parmesano rallado."
+    ],
+    "id": "recipe_es_81"
+  },
+  {
+    "title": "Ensalada César De Pollo Clásica",
+    "description": "La lechuga romana crujiente, el tierno pollo asado y un aderezo cremoso y picante hacen de este un favorito atemporal. 🥗🍗",
+    "time": "20 min",
+    "caloriesPerServing": 410,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almuerzo",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 22.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Pechuga de pollo",
+        "amount": "200 g",
+        "weightGrams": 200,
+        "calories": 330
+      },
+      {
+        "name": "Lechuga romana",
+        "amount": "2 cups",
+        "weightGrams": 100,
+        "calories": 17
+      },
+      {
+        "name": "Aderezo César",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 160
+      },
+      {
+        "name": "Crutones",
+        "amount": "1/4 cup",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Sazone la pechuga de pollo y cocine a la parrilla hasta que esté completamente cocida. Déjelo reposar y luego córtelo.",
+      "Pica la lechuga romana y colócala en un bol grande.",
+      "Mezcle la lechuga con el aderezo César.",
+      "Cubra con pollo en rodajas y un puñado de picatostes."
+    ],
+    "id": "recipe_es_82"
+  },
+  {
+    "title": "Pudín de chía durante la noche",
+    "description": "Despiértese con un pudín de chía nutritivo, cremoso y listo para comer, cubierto con fruta fresca. 🥄🍓",
+    "time": "5 min",
+    "caloriesPerServing": 240,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Desayuno",
+      "vegano",
+      "Sin gluten"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 12.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Semillas de chía",
+        "amount": "3 tbsp",
+        "weightGrams": 30,
+        "calories": 145
+      },
+      {
+        "name": "Leche De Almendras",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      },
+      {
+        "name": "Jarabe de arce",
+        "amount": "1 tbsp",
+        "weightGrams": 20,
+        "calories": 52
+      },
+      {
+        "name": "bayas frescas",
+        "amount": "1/4 cup",
+        "weightGrams": 40,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "En un frasco, mezcle las semillas de chía, la leche de almendras y el jarabe de arce.",
+      "Deje reposar durante 5 minutos, luego bata nuevamente para evitar que se formen grumos.",
+      "Cubra y refrigere durante la noche (o al menos 2 horas).",
+      "Cubra con bayas frescas antes de servir."
+    ],
+    "id": "recipe_es_83"
+  },
+  {
+    "title": "Tazón de snack de garbanzos asados",
+    "description": "Crujiente, salado e increíblemente satisfactorio. Un refrigerio rico en fibra que te mantiene lleno. 🥣🔥",
+    "time": "30 min",
+    "caloriesPerServing": 180,
+    "imageUrl": "https://images.unsplash.com/photo-1589139885874-912f2c823055?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Bocadillo",
+      "vegano",
+      "Alto contenido de fibra"
+    ],
+    "baseServings": 4,
+    "protein": 8.0,
+    "fat": 5.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Garbanzos (enlatados)",
+        "amount": "1 can (400g)",
+        "weightGrams": 240,
+        "calories": 350
+      },
+      {
+        "name": "Aceite de oliva",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 119
+      },
+      {
+        "name": "pimentón ahumado",
+        "amount": "1 tsp",
+        "weightGrams": 2,
+        "calories": 6
+      },
+      {
+        "name": "Sal marina",
+        "amount": "1/2 tsp",
+        "weightGrams": 3,
+        "calories": 0
+      }
+    ],
+    "directions": [
+      "Precalienta el horno a 400°F (200°C).",
+      "Escurrir, enjuagar y secar bien los garbanzos con una toalla de papel.",
+      "Mezcle los garbanzos con aceite de oliva, pimentón y sal.",
+      "Extienda uniformemente sobre una bandeja para hornear y ase durante 20-25 minutos hasta que esté crujiente."
+    ],
+    "id": "recipe_es_84"
+  },
+  {
+    "title": "Bocaditos de filete con mantequilla de ajo",
+    "description": "Tierno, jugoso y lleno de sabor. Estos bocados de carne son la mejor cena rica en proteínas. 🥩🧄",
+    "time": "15 min",
+    "caloriesPerServing": 420,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "cetogénico",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 26.0,
+    "carbs": 1.0,
+    "ingredients": [
+      {
+        "name": "Solomillo",
+        "amount": "400 g",
+        "weightGrams": 400,
+        "calories": 680
+      },
+      {
+        "name": "Manteca",
+        "amount": "2 tbsp",
+        "weightGrams": 28,
+        "calories": 200
+      },
+      {
+        "name": "dientes de ajo",
+        "amount": "3 cloves",
+        "weightGrams": 9,
+        "calories": 13
+      },
+      {
+        "name": "Perejil fresco",
+        "amount": "1 tbsp",
+        "weightGrams": 4,
+        "calories": 1
+      }
+    ],
+    "directions": [
+      "Corta el bistec en cubos del tamaño de un bocado y sazona con sal y pimienta.",
+      "Calienta una sartén a fuego alto y dora los trozos de carne durante 3-4 minutos.",
+      "Reduzca el fuego, agregue la mantequilla y el ajo picado y revuelva para cubrir el bistec.",
+      "Adorne con perejil fresco picado y sirva inmediatamente."
+    ],
+    "id": "recipe_es_85"
+  },
+  {
+    "title": "Curry vegano de camote",
+    "description": "Un reconfortante y cremoso curry de coco cargado de batatas y especias calientes. 🍛🍠",
+    "time": "35 min",
+    "caloriesPerServing": 340,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "vegano",
+      "Sin gluten"
+    ],
+    "baseServings": 4,
+    "protein": 6.0,
+    "fat": 15.0,
+    "carbs": 48.0,
+    "ingredients": [
+      {
+        "name": "Batata",
+        "amount": "2 large",
+        "weightGrams": 400,
+        "calories": 344
+      },
+      {
+        "name": "Leche de coco (lite)",
+        "amount": "1 can",
+        "weightGrams": 400,
+        "calories": 600
+      },
+      {
+        "name": "Pasta de curry",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Espinaca",
+        "amount": "2 cups",
+        "weightGrams": 60,
+        "calories": 14
+      }
+    ],
+    "directions": [
+      "Pelar y cortar los boniatos en cubos pequeños.",
+      "En una olla grande, sofreír la pasta de curry hasta que esté fragante.",
+      "Agrega las batatas y la leche de coco. Cocine a fuego lento durante 20 minutos hasta que estén tiernos.",
+      "Agregue las espinacas y deje que se ablanden antes de servir."
+    ],
+    "id": "recipe_es_86"
+  },
+  {
+    "title": "Tazas de desayuno para muffins de huevo",
+    "description": "Muffins de huevo portátiles y llenos de proteínas que puedes preparar con anticipación para las mañanas ocupadas. 🥚🧁",
+    "time": "25 min",
+    "caloriesPerServing": 150,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Desayuno",
+      "cetogénico",
+      "Alta proteína"
+    ],
+    "baseServings": 6,
+    "protein": 12.0,
+    "fat": 10.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Huevos",
+        "amount": "6 large",
+        "weightGrams": 300,
+        "calories": 432
+      },
+      {
+        "name": "Queso Cheddar",
+        "amount": "1/2 cup",
+        "weightGrams": 50,
+        "calories": 200
+      },
+      {
+        "name": "Pimiento morrón",
+        "amount": "1/2 cup",
+        "weightGrams": 75,
+        "calories": 20
+      },
+      {
+        "name": "Espinaca",
+        "amount": "1 cup",
+        "weightGrams": 30,
+        "calories": 7
+      }
+    ],
+    "directions": [
+      "Precalienta el horno a 350°F (175°C) y engrasa un molde para muffins.",
+      "Batir los huevos en un bol y sazonar con sal y pimienta.",
+      "Divida el pimiento morrón picado, las espinacas y el queso entre los moldes para muffins.",
+      "Vierta la mezcla de huevo sobre los rellenos y hornee por 15-20 minutos."
+    ],
+    "id": "recipe_es_87"
+  },
+  {
+    "title": "Ensalada De Atún Y Aguacate",
+    "description": "Una ensalada de atún sin mayonesa con aguacate cremoso para obtener grasas saludables y una textura increíble. 🐟🥑",
+    "time": "10 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almuerzo",
+      "cetogénico",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Atún Enlatado",
+        "amount": "1 can",
+        "weightGrams": 150,
+        "calories": 160
+      },
+      {
+        "name": "Palta",
+        "amount": "1 medium",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Cebolla Roja",
+        "amount": "2 tbsp",
+        "weightGrams": 20,
+        "calories": 8
+      },
+      {
+        "name": "Zumo de limón",
+        "amount": "1 tbsp",
+        "weightGrams": 15,
+        "calories": 4
+      }
+    ],
+    "directions": [
+      "Escurre el atún y colócalo en un bol.",
+      "Agrega el aguacate y tritúralo junto con el atún con un tenedor.",
+      "Agregue la cebolla morada finamente picada, el jugo de limón, la sal y la pimienta.",
+      "Sirva sobre rodajas de pepino o tostadas integrales."
+    ],
+    "id": "recipe_es_88"
+  },
+  {
+    "title": "Batido de chocolate y mantequilla de maní",
+    "description": "Sabe a postre, pero está repleto de proteínas para desarrollar músculos y grasas saludables. 🍫🥜",
+    "time": "5 min",
+    "caloriesPerServing": 390,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Bocadillo",
+      "Alta proteína",
+      "Vegetariano"
+    ],
+    "baseServings": 1,
+    "protein": 30.0,
+    "fat": 14.0,
+    "carbs": 40.0,
+    "ingredients": [
+      {
+        "name": "Polvo de proteína de chocolate",
+        "amount": "1 scoop",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Manteca de cacahuete",
+        "amount": "1 tbsp",
+        "weightGrams": 16,
+        "calories": 94
+      },
+      {
+        "name": "Banana",
+        "amount": "1 medium",
+        "weightGrams": 118,
+        "calories": 105
+      },
+      {
+        "name": "Leche De Almendras",
+        "amount": "1 cup",
+        "weightGrams": 240,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Agrega todos los ingredientes a una licuadora.",
+      "Agrega un puñado de cubitos de hielo.",
+      "Licue a fuego alto hasta que quede suave y cremoso."
+    ],
+    "id": "recipe_es_89"
+  },
+  {
+    "title": "Salteado De Camarones Con Brócoli",
+    "description": "Una cena rápida, sabrosa y rica en proteínas que viene en una sola sartén. 🍤🥦",
+    "time": "20 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Cena",
+      "Alta proteína",
+      "Bajo en carbohidratos"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Camarones (Pelados)",
+        "amount": "250 g",
+        "weightGrams": 250,
+        "calories": 250
+      },
+      {
+        "name": "Floretes de brócoli",
+        "amount": "2 cups",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Salsa de soja",
+        "amount": "2 tbsp",
+        "weightGrams": 30,
+        "calories": 18
+      },
+      {
+        "name": "Aceite de sésamo",
+        "amount": "1 tbsp",
+        "weightGrams": 14,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Calienta el aceite de sésamo en una sartén grande o en un wok a fuego medio-alto.",
+      "Agregue los floretes de brócoli y saltee durante 4-5 minutos hasta que estén tiernos y crujientes.",
+      "Agregue los camarones y cocine durante 2-3 minutos hasta que se pongan rosados.",
+      "Rocíe con salsa de soja, revuelva bien y sirva caliente."
+    ],
+    "id": "recipe_es_90"
   }
 ]
