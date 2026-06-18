@@ -753,7 +753,7 @@ struct RecipeMacroDonutView: View {
                 Spacer()
                 HStack(spacing: 16) {
                     MacroStatColumn(percent: cPct, grams: carbs, title: String(localized: "Carbs"), color: .drinkWater)
-                    MacroStatColumn(percent: fPct, grams: fat, title: String(localized: "Fat"), color: .themeYellow)
+                    MacroStatColumn(percent: fPct, grams: fat, title: String(localized: "Fats"), color: .themeYellow)
                     MacroStatColumn(percent: pPct, grams: protein, title: String(localized: "Protein"), color: .themePeach)
                 }
             }
@@ -767,8 +767,11 @@ struct MacroStatColumn: View {
     var body: some View {
         VStack(alignment: .center, spacing: 6) {
             Text("\(Int(percent * 100))%").font(.system(size: 14, weight: .bold)).foregroundColor(color)
+                .lineLimit(1).minimumScaleFactor(0.5)
             Text("\(grams, specifier: "%.1f") g").font(.system(size: 16, weight: .bold, design: .rounded)).contentTransition(.numericText())
+                .lineLimit(1).minimumScaleFactor(0.5)
             Text(title).font(.caption).foregroundColor(.gray)
+                .lineLimit(1).minimumScaleFactor(0.5)
         }.frame(minWidth: 50)
     }
 }

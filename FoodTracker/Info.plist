@@ -9,7 +9,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.667537183554-d61rbgt3boe1s91uh12hth1o53vgp901</string>
+				<string>com.googleusercontent.apps.667537183554-0gc3ajbgb4dav5frk307dj9eahvlu29c</string>
 				<string>foodtracker</string>
 			</array>
 		</dict>
@@ -22,5 +22,11 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>FoodTracker uses HealthKit to read your activity and dietary data to provide a comprehensive view of your fitness progress.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>FoodTracker uses HealthKit to save your logged meals and nutritional information directly to the Health app.</string>
 </dict>
 </plist>

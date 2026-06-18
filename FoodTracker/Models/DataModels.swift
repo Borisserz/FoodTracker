@@ -71,6 +71,7 @@ struct Achievement: Identifiable {
     // Goals
     var targetWeight: Double?
     var weightGoalType: String? // "lose", "gain", "maintain"
+    var dailyWaterGoal: Double?
 
     init(name: String, weight: Double, height: Double, age: Int, gender: String = "Male") {
         self.name = name
@@ -405,5 +406,99 @@ public struct AIChatMessage: Identifiable, Codable, Equatable {
 
     public static func == (lhs: AIChatMessage, rhs: AIChatMessage) -> Bool {
         lhs.id == rhs.id
+    }
+}
+
+// MARK: - Scanned Food Cache (SwiftData model)
+/// Stores foods discovered through photo scan or barcode scan, persisted locally on device.
+/// Zero Firestore reads/writes — all local SwiftData storage.
+@Model final class ScannedFoodCache {
+    var id: UUID = UUID()
+    var name: String = ""
+    var nameNormalized: String = ""  // lowercase, for fast search
+    var caloriesPer100g: Int = 0
+    var proteinPer100g: Double = 0.0
+    var fatPer100g: Double = 0.0
+    var carbsPer100g: Double = 0.0
+    var source: String = "ai"        // "photo", "barcode", "ai"
+    var scannedAt: Date = Date()
+    var scanCount: Int = 1           // how many times this food was scanned (for sorting)
+    var barcode: String?             // optional barcode if scanned via barcode reader
+
+    init(name: String, caloriesPer100g: Int, proteinPer100g: Double,
+         fatPer100g: Double, carbsPer100g: Double,
+         source: String = "ai", barcode: String? = nil) {
+        self.id = UUID()
+        self.name = name
+        self.nameNormalized = name.lowercased()
+        self.caloriesPer100g = caloriesPer100g
+        self.proteinPer100g = proteinPer100g
+        self.fatPer100g = fatPer100g
+        self.carbsPer100g = carbsPer100g
+        self.source = source
+        self.scannedAt = Date()
+        self.barcode = barcode
+    }
+
+    /// Convert to FoodItem for use in Add Meal screen
+    func toFoodItem(weight: Double = 100) -> FoodItem {
+        FoodItem(
+            name: name,
+            weight: weight,
+            calories: Int(Double(caloriesPer100g) * weight / 100),
+            protein: proteinPer100g * weight / 100,
+            fats: fatPer100g * weight / 100,
+            carbs: carbsPer100g * weight / 100
+        )
+    }
+}
+
+// MARK: - Scanned Food Repository
+/// CRUD operations for ScannedFoodCache. Called after successful photo/barcode scan.
+final class ScannedFoodRepository {
+    static let shared = ScannedFoodRepository()
+    private init() {}
+
+    /// Saves a newly scanned food. If it already exists (same name), increments scanCount instead.
+    @MainActor
+    func save(name: String, calories: Int, protein: Double, fat: Double, carbs: Double,
+              source: String, barcode: String? = nil, in context: ModelContext) {
+        let normalized = name.lowercased().trimmingCharacters(in: .whitespaces)
+        guard !normalized.isEmpty, calories > 0 else { return }
+
+        // Check for duplicate by normalised name or barcode
+        let descriptor = FetchDescriptor<ScannedFoodCache>(
+            predicate: #Predicate<ScannedFoodCache> { $0.nameNormalized == normalized }
+        )
+        if let existing = try? context.fetch(descriptor).first {
+            existing.scanCount += 1
+            existing.scannedAt = Date()
+            print("♻️ ScannedFoodCache: updated '\(name)' (count=\(existing.scanCount))")
+            return
+        }
+
+        let entry = ScannedFoodCache(
+            name: name, caloriesPer100g: calories, proteinPer100g: protein,
+            fatPer100g: fat, carbsPer100g: carbs, source: source, barcode: barcode
+        )
+        context.insert(entry)
+        print("✅ ScannedFoodCache: saved '\(name)' from \(source)")
+    }
+
+    /// Search cached scanned foods by query string
+    func search(query: String, in context: ModelContext, limit: Int = 10) -> [FoodItem] {
+        let q = query.lowercased().trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return [] }
+
+        let descriptor = FetchDescriptor<ScannedFoodCache>(
+            sortBy: [SortDescriptor(\.scanCount, order: .reverse),
+                     SortDescriptor(\.scannedAt, order: .reverse)]
+        )
+        guard let all = try? context.fetch(descriptor) else { return [] }
+        return Array(
+            all.filter { $0.nameNormalized.contains(q) }
+               .prefix(limit)
+               .map { $0.toFoodItem() }
+        )
     }
 }

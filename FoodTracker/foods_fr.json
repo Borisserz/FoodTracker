@@ -1,0 +1,3296 @@
+[
+  {
+    "id": "poulet_fr",
+    "name": "Blanc de poulet (cuit)",
+    "calories": 175,
+    "protein": 32.0,
+    "fat": 4.5,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "boeuf_fr",
+    "name": "Bœuf haché (15% MG)",
+    "calories": 218,
+    "protein": 17.0,
+    "fat": 15.0,
+    "carbs": 1.0,
+    "category": "meat"
+  },
+  {
+    "id": "saumon_fr",
+    "name": "Saumon (cru)",
+    "calories": 206,
+    "protein": 20.0,
+    "fat": 13.4,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "thon_fr",
+    "name": "Thon en conserve",
+    "calories": 116,
+    "protein": 25.5,
+    "fat": 0.8,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "oeuf_fr",
+    "name": "Œuf entier (cru)",
+    "calories": 143,
+    "protein": 12.6,
+    "fat": 9.5,
+    "carbs": 0.7,
+    "category": "eggs"
+  },
+  {
+    "id": "lait_fr",
+    "name": "Lait entier (3.5%)",
+    "calories": 64,
+    "protein": 3.3,
+    "fat": 3.5,
+    "carbs": 4.8,
+    "category": "dairy"
+  },
+  {
+    "id": "yaourt_fr",
+    "name": "Yaourt nature",
+    "calories": 61,
+    "protein": 3.5,
+    "fat": 3.3,
+    "carbs": 4.7,
+    "category": "dairy"
+  },
+  {
+    "id": "brie_fr",
+    "name": "Brie de Meaux",
+    "calories": 334,
+    "protein": 20.8,
+    "fat": 27.7,
+    "carbs": 0.5,
+    "category": "dairy"
+  },
+  {
+    "id": "camembert_fr",
+    "name": "Camembert de Normandie",
+    "calories": 300,
+    "protein": 19.8,
+    "fat": 24.3,
+    "carbs": 0.5,
+    "category": "dairy"
+  },
+  {
+    "id": "beurre_fr",
+    "name": "Beurre doux",
+    "calories": 748,
+    "protein": 0.8,
+    "fat": 82.5,
+    "carbs": 0.8,
+    "category": "dairy"
+  },
+  {
+    "id": "baguette_fr",
+    "name": "Baguette tradition",
+    "calories": 263,
+    "protein": 8.3,
+    "fat": 1.5,
+    "carbs": 55.0,
+    "category": "bread"
+  },
+  {
+    "id": "croissant_fr2",
+    "name": "Croissant au beurre",
+    "calories": 406,
+    "protein": 8.2,
+    "fat": 21.0,
+    "carbs": 45.8,
+    "category": "bread"
+  },
+  {
+    "id": "pomme_de_terre_fr",
+    "name": "Pomme de terre (crue)",
+    "calories": 77,
+    "protein": 2.0,
+    "fat": 0.1,
+    "carbs": 17.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "carotte_fr",
+    "name": "Carotte (crue)",
+    "calories": 41,
+    "protein": 0.9,
+    "fat": 0.2,
+    "carbs": 9.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "tomate_fr",
+    "name": "Tomate (crue)",
+    "calories": 18,
+    "protein": 0.9,
+    "fat": 0.2,
+    "carbs": 3.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "riz_fr",
+    "name": "Riz blanc (cuit)",
+    "calories": 130,
+    "protein": 2.7,
+    "fat": 0.3,
+    "carbs": 28.7,
+    "category": "grains"
+  },
+  {
+    "id": "pates_fr",
+    "name": "Pâtes (cuites)",
+    "calories": 158,
+    "protein": 5.5,
+    "fat": 0.9,
+    "carbs": 30.9,
+    "category": "grains"
+  },
+  {
+    "id": "lentilles_fr",
+    "name": "Lentilles vertes (cuites)",
+    "calories": 116,
+    "protein": 9.0,
+    "fat": 0.4,
+    "carbs": 20.1,
+    "category": "legumes"
+  },
+  {
+    "id": "pois_chiches_fr",
+    "name": "Pois chiches (cuits)",
+    "calories": 164,
+    "protein": 8.9,
+    "fat": 2.6,
+    "carbs": 27.4,
+    "category": "legumes"
+  },
+  {
+    "id": "amande_fr",
+    "name": "Amande",
+    "calories": 579,
+    "protein": 21.2,
+    "fat": 49.9,
+    "carbs": 21.6,
+    "category": "nuts"
+  },
+  {
+    "id": "huile_olive_fr",
+    "name": "Huile d'olive vierge extra",
+    "calories": 884,
+    "protein": 0.0,
+    "fat": 99.9,
+    "carbs": 0.0,
+    "category": "fats"
+  },
+  {
+    "id": "pomme_fr",
+    "name": "Pomme (crue)",
+    "calories": 52,
+    "protein": 0.3,
+    "fat": 0.2,
+    "carbs": 13.8,
+    "category": "fruits"
+  },
+  {
+    "id": "banane_fr",
+    "name": "Banane (crue)",
+    "calories": 89,
+    "protein": 1.1,
+    "fat": 0.3,
+    "carbs": 22.8,
+    "category": "fruits"
+  },
+  {
+    "id": "quiche_fr",
+    "name": "Quiche lorraine (part)",
+    "calories": 285,
+    "protein": 12.0,
+    "fat": 20.5,
+    "carbs": 14.5,
+    "category": "ready"
+  },
+  {
+    "id": "ratatouille_fr",
+    "name": "Ratatouille",
+    "calories": 55,
+    "protein": 1.5,
+    "fat": 3.5,
+    "carbs": 7.0,
+    "category": "ready"
+  },
+  {
+    "id": "bouillabaisse_fr",
+    "name": "Bouillabaisse",
+    "calories": 85,
+    "protein": 9.0,
+    "fat": 3.5,
+    "carbs": 6.5,
+    "category": "ready"
+  },
+  {
+    "id": "coq_au_vin_fr",
+    "name": "Coq au vin",
+    "calories": 175,
+    "protein": 18.5,
+    "fat": 8.5,
+    "carbs": 7.5,
+    "category": "ready"
+  },
+  {
+    "id": "chicken_breast_raw",
+    "name": "Blanc de poulet",
+    "calories": 165,
+    "protein": 31.0,
+    "fat": 3.6,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_breast_boiled",
+    "name": "Blanc de poulet (bouilli)",
+    "calories": 132,
+    "protein": 24.8,
+    "fat": 2.9,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_breast_fried",
+    "name": "Blanc de poulet (frit)",
+    "calories": 288,
+    "protein": 34.1,
+    "fat": 14.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_breast_baked",
+    "name": "Blanc de poulet (cuit au four)",
+    "calories": 206,
+    "protein": 38.8,
+    "fat": 4.5,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_breast_grilled",
+    "name": "Blanc de poulet (grillé)",
+    "calories": 198,
+    "protein": 37.2,
+    "fat": 4.3,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_breast_steamed",
+    "name": "Blanc de poulet (à la vapeur)",
+    "calories": 148,
+    "protein": 27.9,
+    "fat": 3.2,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_thigh_raw",
+    "name": "Cuisse de poulet",
+    "calories": 209,
+    "protein": 26.0,
+    "fat": 10.9,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_thigh_boiled",
+    "name": "Cuisse de poulet (bouilli)",
+    "calories": 167,
+    "protein": 20.8,
+    "fat": 8.7,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_thigh_fried",
+    "name": "Cuisse de poulet (frit)",
+    "calories": 340,
+    "protein": 28.6,
+    "fat": 22.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_thigh_baked",
+    "name": "Cuisse de poulet (cuit au four)",
+    "calories": 261,
+    "protein": 32.5,
+    "fat": 13.6,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "chicken_thigh_grilled",
+    "name": "Cuisse de poulet (grillé)",
+    "calories": 250,
+    "protein": 31.2,
+    "fat": 13.1,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "beef_steak_raw",
+    "name": "Steak de bœuf",
+    "calories": 271,
+    "protein": 25.0,
+    "fat": 19.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "beef_steak_fried",
+    "name": "Steak de bœuf (frit)",
+    "calories": 415,
+    "protein": 27.5,
+    "fat": 30.9,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "beef_steak_baked",
+    "name": "Steak de bœuf (cuit au four)",
+    "calories": 338,
+    "protein": 31.2,
+    "fat": 23.8,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "beef_steak_grilled",
+    "name": "Steak de bœuf (grillé)",
+    "calories": 325,
+    "protein": 30.0,
+    "fat": 22.8,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "pork_chop_raw",
+    "name": "Côtelette de porc",
+    "calories": 231,
+    "protein": 24.0,
+    "fat": 14.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "pork_chop_fried",
+    "name": "Côtelette de porc (frit)",
+    "calories": 367,
+    "protein": 26.4,
+    "fat": 25.4,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "pork_chop_baked",
+    "name": "Côtelette de porc (cuit au four)",
+    "calories": 288,
+    "protein": 30.0,
+    "fat": 17.5,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "pork_chop_grilled",
+    "name": "Côtelette de porc (grillé)",
+    "calories": 277,
+    "protein": 28.8,
+    "fat": 16.8,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "ground_beef_raw",
+    "name": "Bœuf haché",
+    "calories": 332,
+    "protein": 14.0,
+    "fat": 30.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "ground_beef_fried",
+    "name": "Bœuf haché (frit)",
+    "calories": 488,
+    "protein": 15.4,
+    "fat": 43.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "ground_beef_baked",
+    "name": "Bœuf haché (cuit au four)",
+    "calories": 415,
+    "protein": 17.5,
+    "fat": 37.5,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "turkey_breast_raw",
+    "name": "Blanc de dinde",
+    "calories": 135,
+    "protein": 30.0,
+    "fat": 1.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "turkey_breast_boiled",
+    "name": "Blanc de dinde (bouilli)",
+    "calories": 108,
+    "protein": 24.0,
+    "fat": 0.8,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "turkey_breast_baked",
+    "name": "Blanc de dinde (cuit au four)",
+    "calories": 168,
+    "protein": 37.5,
+    "fat": 1.2,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "turkey_breast_grilled",
+    "name": "Blanc de dinde (grillé)",
+    "calories": 162,
+    "protein": 36.0,
+    "fat": 1.2,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "bacon_raw",
+    "name": "Bacon",
+    "calories": 541,
+    "protein": 37.0,
+    "fat": 42.0,
+    "carbs": 1.4,
+    "category": "meat"
+  },
+  {
+    "id": "bacon_fried",
+    "name": "Bacon (frit)",
+    "calories": 739,
+    "protein": 40.7,
+    "fat": 56.2,
+    "carbs": 1.5,
+    "category": "meat"
+  },
+  {
+    "id": "bacon_baked",
+    "name": "Bacon (cuit au four)",
+    "calories": 676,
+    "protein": 46.2,
+    "fat": 52.5,
+    "carbs": 1.8,
+    "category": "meat"
+  },
+  {
+    "id": "salmon_raw",
+    "name": "Saumon",
+    "calories": 208,
+    "protein": 20.0,
+    "fat": 13.0,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "salmon_boiled",
+    "name": "Saumon (bouilli)",
+    "calories": 166,
+    "protein": 16.0,
+    "fat": 10.4,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "salmon_fried",
+    "name": "Saumon (frit)",
+    "calories": 339,
+    "protein": 22.0,
+    "fat": 24.3,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "salmon_baked",
+    "name": "Saumon (cuit au four)",
+    "calories": 260,
+    "protein": 25.0,
+    "fat": 16.2,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "salmon_grilled",
+    "name": "Saumon (grillé)",
+    "calories": 249,
+    "protein": 24.0,
+    "fat": 15.6,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "salmon_steamed",
+    "name": "Saumon (à la vapeur)",
+    "calories": 187,
+    "protein": 18.0,
+    "fat": 11.7,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "tuna_raw",
+    "name": "Thon",
+    "calories": 130,
+    "protein": 28.0,
+    "fat": 1.0,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "tuna_fried",
+    "name": "Thon (frit)",
+    "calories": 246,
+    "protein": 30.8,
+    "fat": 11.1,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "tuna_grilled",
+    "name": "Thon (grillé)",
+    "calories": 156,
+    "protein": 33.6,
+    "fat": 1.2,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "tuna_canned",
+    "name": "Thon (en conserve)",
+    "calories": 150,
+    "protein": 25.2,
+    "fat": 0.9,
+    "carbs": 5.0,
+    "category": "fish"
+  },
+  {
+    "id": "shrimp_raw",
+    "name": "Crevettes",
+    "calories": 99,
+    "protein": 24.0,
+    "fat": 0.3,
+    "carbs": 0.2,
+    "category": "fish"
+  },
+  {
+    "id": "shrimp_boiled",
+    "name": "Crevettes (bouilli)",
+    "calories": 79,
+    "protein": 19.2,
+    "fat": 0.2,
+    "carbs": 0.2,
+    "category": "fish"
+  },
+  {
+    "id": "shrimp_fried",
+    "name": "Crevettes (frit)",
+    "calories": 208,
+    "protein": 26.4,
+    "fat": 10.3,
+    "carbs": 0.2,
+    "category": "fish"
+  },
+  {
+    "id": "shrimp_grilled",
+    "name": "Crevettes (grillé)",
+    "calories": 118,
+    "protein": 28.8,
+    "fat": 0.4,
+    "carbs": 0.2,
+    "category": "fish"
+  },
+  {
+    "id": "cod_raw",
+    "name": "Cabillaud",
+    "calories": 82,
+    "protein": 18.0,
+    "fat": 0.7,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "cod_boiled",
+    "name": "Cabillaud (bouilli)",
+    "calories": 65,
+    "protein": 14.4,
+    "fat": 0.6,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "cod_fried",
+    "name": "Cabillaud (frit)",
+    "calories": 188,
+    "protein": 19.8,
+    "fat": 10.8,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "cod_baked",
+    "name": "Cabillaud (cuit au four)",
+    "calories": 102,
+    "protein": 22.5,
+    "fat": 0.9,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "potato_raw",
+    "name": "Pomme de terre",
+    "calories": 77,
+    "protein": 2.0,
+    "fat": 0.1,
+    "carbs": 17.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "potato_boiled",
+    "name": "Pomme de terre (bouilli)",
+    "calories": 61,
+    "protein": 1.6,
+    "fat": 0.1,
+    "carbs": 13.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "potato_fried",
+    "name": "Pomme de terre (frit)",
+    "calories": 182,
+    "protein": 2.2,
+    "fat": 10.1,
+    "carbs": 18.7,
+    "category": "vegetables"
+  },
+  {
+    "id": "potato_baked",
+    "name": "Pomme de terre (cuit au four)",
+    "calories": 96,
+    "protein": 2.5,
+    "fat": 0.1,
+    "carbs": 21.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "potato_steamed",
+    "name": "Pomme de terre (à la vapeur)",
+    "calories": 69,
+    "protein": 1.8,
+    "fat": 0.1,
+    "carbs": 15.3,
+    "category": "vegetables"
+  },
+  {
+    "id": "sweet_potato_raw",
+    "name": "Patate douce",
+    "calories": 86,
+    "protein": 1.6,
+    "fat": 0.1,
+    "carbs": 20.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "sweet_potato_boiled",
+    "name": "Patate douce (bouilli)",
+    "calories": 68,
+    "protein": 1.3,
+    "fat": 0.1,
+    "carbs": 16.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "sweet_potato_fried",
+    "name": "Patate douce (frit)",
+    "calories": 193,
+    "protein": 1.8,
+    "fat": 10.1,
+    "carbs": 22.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "sweet_potato_baked",
+    "name": "Patate douce (cuit au four)",
+    "calories": 107,
+    "protein": 2.0,
+    "fat": 0.1,
+    "carbs": 25.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "broccoli_raw",
+    "name": "Brocoli",
+    "calories": 34,
+    "protein": 2.8,
+    "fat": 0.4,
+    "carbs": 6.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "broccoli_boiled",
+    "name": "Brocoli (bouilli)",
+    "calories": 27,
+    "protein": 2.2,
+    "fat": 0.3,
+    "carbs": 5.3,
+    "category": "vegetables"
+  },
+  {
+    "id": "broccoli_baked",
+    "name": "Brocoli (cuit au four)",
+    "calories": 42,
+    "protein": 3.5,
+    "fat": 0.5,
+    "carbs": 8.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "broccoli_steamed",
+    "name": "Brocoli (à la vapeur)",
+    "calories": 30,
+    "protein": 2.5,
+    "fat": 0.4,
+    "carbs": 5.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "carrot_raw",
+    "name": "Carotte",
+    "calories": 41,
+    "protein": 0.9,
+    "fat": 0.2,
+    "carbs": 9.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "carrot_boiled",
+    "name": "Carotte (bouilli)",
+    "calories": 32,
+    "protein": 0.7,
+    "fat": 0.2,
+    "carbs": 7.7,
+    "category": "vegetables"
+  },
+  {
+    "id": "carrot_baked",
+    "name": "Carotte (cuit au four)",
+    "calories": 51,
+    "protein": 1.1,
+    "fat": 0.2,
+    "carbs": 12.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "carrot_steamed",
+    "name": "Carotte (à la vapeur)",
+    "calories": 36,
+    "protein": 0.8,
+    "fat": 0.2,
+    "carbs": 8.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "tomato_raw",
+    "name": "Tomate",
+    "calories": 18,
+    "protein": 0.9,
+    "fat": 0.2,
+    "carbs": 3.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "tomato_baked",
+    "name": "Tomate (cuit au four)",
+    "calories": 22,
+    "protein": 1.1,
+    "fat": 0.2,
+    "carbs": 4.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "tomato_canned",
+    "name": "Tomate (en conserve)",
+    "calories": 38,
+    "protein": 0.8,
+    "fat": 0.2,
+    "carbs": 8.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "tomato_dried",
+    "name": "Tomate (séché)",
+    "calories": 63,
+    "protein": 3.1,
+    "fat": 0.7,
+    "carbs": 13.7,
+    "category": "vegetables"
+  },
+  {
+    "id": "onion_raw",
+    "name": "Oignon",
+    "calories": 40,
+    "protein": 1.1,
+    "fat": 0.1,
+    "carbs": 9.3,
+    "category": "vegetables"
+  },
+  {
+    "id": "onion_fried",
+    "name": "Oignon (frit)",
+    "calories": 138,
+    "protein": 1.2,
+    "fat": 10.1,
+    "carbs": 10.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "onion_baked",
+    "name": "Oignon (cuit au four)",
+    "calories": 50,
+    "protein": 1.4,
+    "fat": 0.1,
+    "carbs": 11.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "garlic_raw",
+    "name": "Ail",
+    "calories": 149,
+    "protein": 6.4,
+    "fat": 0.5,
+    "carbs": 33.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "garlic_fried",
+    "name": "Ail (frit)",
+    "calories": 268,
+    "protein": 7.0,
+    "fat": 10.6,
+    "carbs": 36.3,
+    "category": "vegetables"
+  },
+  {
+    "id": "garlic_baked",
+    "name": "Ail (cuit au four)",
+    "calories": 186,
+    "protein": 8.0,
+    "fat": 0.6,
+    "carbs": 41.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "garlic_dried",
+    "name": "Ail (séché)",
+    "calories": 521,
+    "protein": 22.4,
+    "fat": 1.8,
+    "carbs": 115.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "spinach_raw",
+    "name": "Épinard",
+    "calories": 23,
+    "protein": 2.9,
+    "fat": 0.4,
+    "carbs": 3.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "spinach_boiled",
+    "name": "Épinard (bouilli)",
+    "calories": 18,
+    "protein": 2.3,
+    "fat": 0.3,
+    "carbs": 2.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "spinach_steamed",
+    "name": "Épinard (à la vapeur)",
+    "calories": 20,
+    "protein": 2.6,
+    "fat": 0.4,
+    "carbs": 3.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "bell_pepper_raw",
+    "name": "Poivron",
+    "calories": 20,
+    "protein": 0.9,
+    "fat": 0.2,
+    "carbs": 4.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "bell_pepper_fried",
+    "name": "Poivron (frit)",
+    "calories": 114,
+    "protein": 1.0,
+    "fat": 10.2,
+    "carbs": 5.1,
+    "category": "vegetables"
+  },
+  {
+    "id": "bell_pepper_baked",
+    "name": "Poivron (cuit au four)",
+    "calories": 25,
+    "protein": 1.1,
+    "fat": 0.2,
+    "carbs": 5.8,
+    "category": "vegetables"
+  },
+  {
+    "id": "bell_pepper_grilled",
+    "name": "Poivron (grillé)",
+    "calories": 24,
+    "protein": 1.1,
+    "fat": 0.2,
+    "carbs": 5.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "zucchini_raw",
+    "name": "Courgette",
+    "calories": 17,
+    "protein": 1.2,
+    "fat": 0.3,
+    "carbs": 3.1,
+    "category": "vegetables"
+  },
+  {
+    "id": "zucchini_fried",
+    "name": "Courgette (frit)",
+    "calories": 110,
+    "protein": 1.3,
+    "fat": 10.3,
+    "carbs": 3.4,
+    "category": "vegetables"
+  },
+  {
+    "id": "zucchini_baked",
+    "name": "Courgette (cuit au four)",
+    "calories": 21,
+    "protein": 1.5,
+    "fat": 0.4,
+    "carbs": 3.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "zucchini_grilled",
+    "name": "Courgette (grillé)",
+    "calories": 20,
+    "protein": 1.4,
+    "fat": 0.4,
+    "carbs": 3.7,
+    "category": "vegetables"
+  },
+  {
+    "id": "eggplant_raw",
+    "name": "Aubergine",
+    "calories": 25,
+    "protein": 1.0,
+    "fat": 0.2,
+    "carbs": 6.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "eggplant_fried",
+    "name": "Aubergine (frit)",
+    "calories": 120,
+    "protein": 1.1,
+    "fat": 10.2,
+    "carbs": 6.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "eggplant_baked",
+    "name": "Aubergine (cuit au four)",
+    "calories": 31,
+    "protein": 1.2,
+    "fat": 0.2,
+    "carbs": 7.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "eggplant_grilled",
+    "name": "Aubergine (grillé)",
+    "calories": 30,
+    "protein": 1.2,
+    "fat": 0.2,
+    "carbs": 7.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "mushroom_raw",
+    "name": "Champignon",
+    "calories": 22,
+    "protein": 3.1,
+    "fat": 0.3,
+    "carbs": 3.3,
+    "category": "vegetables"
+  },
+  {
+    "id": "mushroom_boiled",
+    "name": "Champignon (bouilli)",
+    "calories": 17,
+    "protein": 2.5,
+    "fat": 0.2,
+    "carbs": 2.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "mushroom_fried",
+    "name": "Champignon (frit)",
+    "calories": 116,
+    "protein": 3.4,
+    "fat": 10.3,
+    "carbs": 3.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "mushroom_baked",
+    "name": "Champignon (cuit au four)",
+    "calories": 27,
+    "protein": 3.9,
+    "fat": 0.4,
+    "carbs": 4.1,
+    "category": "vegetables"
+  },
+  {
+    "id": "mushroom_canned",
+    "name": "Champignon (en conserve)",
+    "calories": 42,
+    "protein": 2.8,
+    "fat": 0.3,
+    "carbs": 8.3,
+    "category": "vegetables"
+  },
+  {
+    "id": "corn_raw",
+    "name": "Maïs",
+    "calories": 86,
+    "protein": 3.2,
+    "fat": 1.2,
+    "carbs": 19.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "corn_boiled",
+    "name": "Maïs (bouilli)",
+    "calories": 68,
+    "protein": 2.6,
+    "fat": 1.0,
+    "carbs": 15.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "corn_grilled",
+    "name": "Maïs (grillé)",
+    "calories": 103,
+    "protein": 3.8,
+    "fat": 1.4,
+    "carbs": 22.8,
+    "category": "vegetables"
+  },
+  {
+    "id": "corn_canned",
+    "name": "Maïs (en conserve)",
+    "calories": 106,
+    "protein": 2.9,
+    "fat": 1.1,
+    "carbs": 24.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "cabbage_raw",
+    "name": "Chou",
+    "calories": 25,
+    "protein": 1.3,
+    "fat": 0.1,
+    "carbs": 5.8,
+    "category": "vegetables"
+  },
+  {
+    "id": "cabbage_boiled",
+    "name": "Chou (bouilli)",
+    "calories": 20,
+    "protein": 1.0,
+    "fat": 0.1,
+    "carbs": 4.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "cabbage_fried",
+    "name": "Chou (frit)",
+    "calories": 120,
+    "protein": 1.4,
+    "fat": 10.1,
+    "carbs": 6.4,
+    "category": "vegetables"
+  },
+  {
+    "id": "apple_raw",
+    "name": "Pomme",
+    "calories": 52,
+    "protein": 0.3,
+    "fat": 0.2,
+    "carbs": 14.0,
+    "category": "fruits"
+  },
+  {
+    "id": "apple_baked",
+    "name": "Pomme (cuit au four)",
+    "calories": 65,
+    "protein": 0.4,
+    "fat": 0.2,
+    "carbs": 17.5,
+    "category": "fruits"
+  },
+  {
+    "id": "apple_dried",
+    "name": "Pomme (séché)",
+    "calories": 182,
+    "protein": 1.1,
+    "fat": 0.7,
+    "carbs": 49.0,
+    "category": "fruits"
+  },
+  {
+    "id": "banana_raw",
+    "name": "Banane",
+    "calories": 89,
+    "protein": 1.1,
+    "fat": 0.3,
+    "carbs": 23.0,
+    "category": "fruits"
+  },
+  {
+    "id": "banana_fried",
+    "name": "Banane (frit)",
+    "calories": 196,
+    "protein": 1.2,
+    "fat": 10.3,
+    "carbs": 25.3,
+    "category": "fruits"
+  },
+  {
+    "id": "banana_dried",
+    "name": "Banane (séché)",
+    "calories": 311,
+    "protein": 3.9,
+    "fat": 1.1,
+    "carbs": 80.5,
+    "category": "fruits"
+  },
+  {
+    "id": "orange_raw",
+    "name": "Orange",
+    "calories": 47,
+    "protein": 0.9,
+    "fat": 0.1,
+    "carbs": 12.0,
+    "category": "fruits"
+  },
+  {
+    "id": "strawberry_raw",
+    "name": "Fraise",
+    "calories": 32,
+    "protein": 0.7,
+    "fat": 0.3,
+    "carbs": 7.7,
+    "category": "fruits"
+  },
+  {
+    "id": "strawberry_dried",
+    "name": "Fraise (séché)",
+    "calories": 112,
+    "protein": 2.4,
+    "fat": 1.1,
+    "carbs": 26.9,
+    "category": "fruits"
+  },
+  {
+    "id": "grapes_raw",
+    "name": "Raisin",
+    "calories": 69,
+    "protein": 0.7,
+    "fat": 0.2,
+    "carbs": 18.0,
+    "category": "fruits"
+  },
+  {
+    "id": "grapes_dried",
+    "name": "Raisin (séché)",
+    "calories": 241,
+    "protein": 2.4,
+    "fat": 0.7,
+    "carbs": 63.0,
+    "category": "fruits"
+  },
+  {
+    "id": "mango_raw",
+    "name": "Mangue",
+    "calories": 60,
+    "protein": 0.8,
+    "fat": 0.4,
+    "carbs": 15.0,
+    "category": "fruits"
+  },
+  {
+    "id": "mango_dried",
+    "name": "Mangue (séché)",
+    "calories": 210,
+    "protein": 2.8,
+    "fat": 1.4,
+    "carbs": 52.5,
+    "category": "fruits"
+  },
+  {
+    "id": "mango_canned",
+    "name": "Mangue (en conserve)",
+    "calories": 80,
+    "protein": 0.7,
+    "fat": 0.4,
+    "carbs": 20.0,
+    "category": "fruits"
+  },
+  {
+    "id": "pineapple_raw",
+    "name": "Ananas",
+    "calories": 50,
+    "protein": 0.5,
+    "fat": 0.1,
+    "carbs": 13.0,
+    "category": "fruits"
+  },
+  {
+    "id": "pineapple_grilled",
+    "name": "Ananas (grillé)",
+    "calories": 60,
+    "protein": 0.6,
+    "fat": 0.1,
+    "carbs": 15.6,
+    "category": "fruits"
+  },
+  {
+    "id": "pineapple_canned",
+    "name": "Ananas (en conserve)",
+    "calories": 70,
+    "protein": 0.5,
+    "fat": 0.1,
+    "carbs": 18.0,
+    "category": "fruits"
+  },
+  {
+    "id": "pineapple_dried",
+    "name": "Ananas (séché)",
+    "calories": 175,
+    "protein": 1.8,
+    "fat": 0.4,
+    "carbs": 45.5,
+    "category": "fruits"
+  },
+  {
+    "id": "peach_raw",
+    "name": "Pêche",
+    "calories": 39,
+    "protein": 0.9,
+    "fat": 0.3,
+    "carbs": 9.5,
+    "category": "fruits"
+  },
+  {
+    "id": "peach_canned",
+    "name": "Pêche (en conserve)",
+    "calories": 59,
+    "protein": 0.8,
+    "fat": 0.3,
+    "carbs": 14.5,
+    "category": "fruits"
+  },
+  {
+    "id": "peach_dried",
+    "name": "Pêche (séché)",
+    "calories": 136,
+    "protein": 3.1,
+    "fat": 1.1,
+    "carbs": 33.2,
+    "category": "fruits"
+  },
+  {
+    "id": "avocado_raw",
+    "name": "Avocat",
+    "calories": 160,
+    "protein": 2.0,
+    "fat": 15.0,
+    "carbs": 9.0,
+    "category": "fruits"
+  },
+  {
+    "id": "rice_white_boiled",
+    "name": "Riz blanc (bouilli)",
+    "calories": 104,
+    "protein": 2.2,
+    "fat": 0.2,
+    "carbs": 22.4,
+    "category": "grains"
+  },
+  {
+    "id": "rice_white_fried",
+    "name": "Riz blanc (frit)",
+    "calories": 246,
+    "protein": 3.0,
+    "fat": 10.3,
+    "carbs": 30.8,
+    "category": "grains"
+  },
+  {
+    "id": "rice_brown_boiled",
+    "name": "Riz complet (bouilli)",
+    "calories": 88,
+    "protein": 2.1,
+    "fat": 0.7,
+    "carbs": 18.4,
+    "category": "grains"
+  },
+  {
+    "id": "rice_brown_fried",
+    "name": "Riz complet (frit)",
+    "calories": 223,
+    "protein": 2.9,
+    "fat": 11.0,
+    "carbs": 25.3,
+    "category": "grains"
+  },
+  {
+    "id": "pasta_boiled",
+    "name": "Pâtes (bouilli)",
+    "calories": 104,
+    "protein": 4.0,
+    "fat": 0.9,
+    "carbs": 20.0,
+    "category": "grains"
+  },
+  {
+    "id": "oats_raw",
+    "name": "Flocons d'avoine",
+    "calories": 389,
+    "protein": 16.9,
+    "fat": 6.9,
+    "carbs": 66.0,
+    "category": "grains"
+  },
+  {
+    "id": "oats_boiled",
+    "name": "Flocons d'avoine (bouilli)",
+    "calories": 311,
+    "protein": 13.5,
+    "fat": 5.5,
+    "carbs": 52.8,
+    "category": "grains"
+  },
+  {
+    "id": "oats_baked",
+    "name": "Flocons d'avoine (cuit au four)",
+    "calories": 486,
+    "protein": 21.1,
+    "fat": 8.6,
+    "carbs": 82.5,
+    "category": "grains"
+  },
+  {
+    "id": "quinoa_boiled",
+    "name": "Quinoa (bouilli)",
+    "calories": 96,
+    "protein": 3.5,
+    "fat": 1.5,
+    "carbs": 16.8,
+    "category": "grains"
+  },
+  {
+    "id": "buckwheat_boiled",
+    "name": "Sarrasin (bouilli)",
+    "calories": 73,
+    "protein": 2.7,
+    "fat": 0.5,
+    "carbs": 16.0,
+    "category": "grains"
+  },
+  {
+    "id": "bread_white_raw",
+    "name": "Pain blanc",
+    "calories": 265,
+    "protein": 9.0,
+    "fat": 3.2,
+    "carbs": 49.0,
+    "category": "bread"
+  },
+  {
+    "id": "bread_white_baked",
+    "name": "Pain blanc (cuit au four)",
+    "calories": 331,
+    "protein": 11.2,
+    "fat": 4.0,
+    "carbs": 61.2,
+    "category": "bread"
+  },
+  {
+    "id": "bread_white_fried",
+    "name": "Pain blanc (frit)",
+    "calories": 408,
+    "protein": 9.9,
+    "fat": 13.5,
+    "carbs": 53.9,
+    "category": "bread"
+  },
+  {
+    "id": "bread_whole_raw",
+    "name": "Pain complet",
+    "calories": 247,
+    "protein": 13.0,
+    "fat": 3.4,
+    "carbs": 41.0,
+    "category": "bread"
+  },
+  {
+    "id": "bread_whole_baked",
+    "name": "Pain complet (cuit au four)",
+    "calories": 308,
+    "protein": 16.2,
+    "fat": 4.2,
+    "carbs": 51.2,
+    "category": "bread"
+  },
+  {
+    "id": "bread_whole_fried",
+    "name": "Pain complet (frit)",
+    "calories": 386,
+    "protein": 14.3,
+    "fat": 13.7,
+    "carbs": 45.1,
+    "category": "bread"
+  },
+  {
+    "id": "lentils_boiled",
+    "name": "Lentilles (bouilli)",
+    "calories": 92,
+    "protein": 7.2,
+    "fat": 0.3,
+    "carbs": 16.0,
+    "category": "legumes"
+  },
+  {
+    "id": "lentils_canned",
+    "name": "Lentilles (en conserve)",
+    "calories": 136,
+    "protein": 8.1,
+    "fat": 0.4,
+    "carbs": 25.0,
+    "category": "legumes"
+  },
+  {
+    "id": "chickpeas_boiled",
+    "name": "Pois chiches (bouilli)",
+    "calories": 131,
+    "protein": 7.1,
+    "fat": 2.1,
+    "carbs": 21.6,
+    "category": "legumes"
+  },
+  {
+    "id": "chickpeas_canned",
+    "name": "Pois chiches (en conserve)",
+    "calories": 184,
+    "protein": 8.0,
+    "fat": 2.3,
+    "carbs": 32.0,
+    "category": "legumes"
+  },
+  {
+    "id": "chickpeas_baked",
+    "name": "Pois chiches (cuit au four)",
+    "calories": 205,
+    "protein": 11.1,
+    "fat": 3.2,
+    "carbs": 33.8,
+    "category": "legumes"
+  },
+  {
+    "id": "black_beans_boiled",
+    "name": "Haricots noirs (bouilli)",
+    "calories": 105,
+    "protein": 7.1,
+    "fat": 0.4,
+    "carbs": 19.2,
+    "category": "legumes"
+  },
+  {
+    "id": "black_beans_canned",
+    "name": "Haricots noirs (en conserve)",
+    "calories": 152,
+    "protein": 8.0,
+    "fat": 0.5,
+    "carbs": 29.0,
+    "category": "legumes"
+  },
+  {
+    "id": "peas_raw",
+    "name": "Petits pois",
+    "calories": 81,
+    "protein": 5.4,
+    "fat": 0.4,
+    "carbs": 14.0,
+    "category": "legumes"
+  },
+  {
+    "id": "peas_boiled",
+    "name": "Petits pois (bouilli)",
+    "calories": 64,
+    "protein": 4.3,
+    "fat": 0.3,
+    "carbs": 11.2,
+    "category": "legumes"
+  },
+  {
+    "id": "peas_canned",
+    "name": "Petits pois (en conserve)",
+    "calories": 101,
+    "protein": 4.9,
+    "fat": 0.4,
+    "carbs": 19.0,
+    "category": "legumes"
+  },
+  {
+    "id": "egg_raw",
+    "name": "Œuf",
+    "calories": 143,
+    "protein": 12.6,
+    "fat": 9.5,
+    "carbs": 0.7,
+    "category": "eggs"
+  },
+  {
+    "id": "egg_boiled",
+    "name": "Œuf (bouilli)",
+    "calories": 114,
+    "protein": 10.1,
+    "fat": 7.6,
+    "carbs": 0.6,
+    "category": "eggs"
+  },
+  {
+    "id": "egg_fried",
+    "name": "Œuf (frit)",
+    "calories": 261,
+    "protein": 13.9,
+    "fat": 20.5,
+    "carbs": 0.8,
+    "category": "eggs"
+  },
+  {
+    "id": "milk_whole_raw",
+    "name": "Lait entier",
+    "calories": 61,
+    "protein": 3.2,
+    "fat": 3.3,
+    "carbs": 4.8,
+    "category": "dairy"
+  },
+  {
+    "id": "milk_whole_boiled",
+    "name": "Lait entier (bouilli)",
+    "calories": 48,
+    "protein": 2.6,
+    "fat": 2.6,
+    "carbs": 3.8,
+    "category": "dairy"
+  },
+  {
+    "id": "cheese_cheddar_raw",
+    "name": "Fromage Cheddar",
+    "calories": 402,
+    "protein": 25.0,
+    "fat": 33.0,
+    "carbs": 1.3,
+    "category": "dairy"
+  },
+  {
+    "id": "cheese_mozzarella_raw",
+    "name": "Mozzarella",
+    "calories": 280,
+    "protein": 28.0,
+    "fat": 17.0,
+    "carbs": 3.1,
+    "category": "dairy"
+  },
+  {
+    "id": "cheese_mozzarella_baked",
+    "name": "Mozzarella (cuit au four)",
+    "calories": 350,
+    "protein": 35.0,
+    "fat": 21.2,
+    "carbs": 3.9,
+    "category": "dairy"
+  },
+  {
+    "id": "yogurt_greek_raw",
+    "name": "Yaourt grec",
+    "calories": 59,
+    "protein": 10.0,
+    "fat": 0.4,
+    "carbs": 3.6,
+    "category": "dairy"
+  },
+  {
+    "id": "butter_raw",
+    "name": "Beurre",
+    "calories": 717,
+    "protein": 0.8,
+    "fat": 81.0,
+    "carbs": 0.1,
+    "category": "dairy"
+  },
+  {
+    "id": "almonds_raw",
+    "name": "Amandes",
+    "calories": 579,
+    "protein": 21.0,
+    "fat": 50.0,
+    "carbs": 22.0,
+    "category": "nuts"
+  },
+  {
+    "id": "almonds_baked",
+    "name": "Amandes (cuit au four)",
+    "calories": 723,
+    "protein": 26.2,
+    "fat": 62.5,
+    "carbs": 27.5,
+    "category": "nuts"
+  },
+  {
+    "id": "walnuts_raw",
+    "name": "Noix",
+    "calories": 654,
+    "protein": 15.0,
+    "fat": 65.0,
+    "carbs": 14.0,
+    "category": "nuts"
+  },
+  {
+    "id": "peanut_butter_raw",
+    "name": "Beurre de cacahuète",
+    "calories": 588,
+    "protein": 25.0,
+    "fat": 50.0,
+    "carbs": 20.0,
+    "category": "nuts"
+  },
+  {
+    "id": "olive_oil_raw",
+    "name": "Huile d'olive",
+    "calories": 884,
+    "protein": 0.0,
+    "fat": 100.0,
+    "carbs": 0.0,
+    "category": "fats"
+  },
+  {
+    "id": "coconut_oil_raw",
+    "name": "Huile de coco",
+    "calories": 862,
+    "protein": 0.0,
+    "fat": 100.0,
+    "carbs": 0.0,
+    "category": "fats"
+  },
+  {
+    "id": "pizza_margherita",
+    "name": "Pizza Margherita",
+    "calories": 266,
+    "protein": 11.0,
+    "fat": 10.0,
+    "carbs": 33.0,
+    "category": "ready"
+  },
+  {
+    "id": "spaghetti_bolognese",
+    "name": "Spaghettis à la Bolognaise",
+    "calories": 132,
+    "protein": 6.0,
+    "fat": 4.0,
+    "carbs": 18.0,
+    "category": "ready"
+  },
+  {
+    "id": "caesar_salad",
+    "name": "Salade César",
+    "calories": 170,
+    "protein": 7.0,
+    "fat": 12.0,
+    "carbs": 8.0,
+    "category": "ready"
+  },
+  {
+    "id": "sushi_roll",
+    "name": "Rouleau de Sushi",
+    "calories": 140,
+    "protein": 4.5,
+    "fat": 1.5,
+    "carbs": 28.0,
+    "category": "ready"
+  },
+  {
+    "id": "hamburger",
+    "name": "Hamburger",
+    "calories": 295,
+    "protein": 17.0,
+    "fat": 14.0,
+    "carbs": 24.0,
+    "category": "ready"
+  },
+  {
+    "id": "lasagna",
+    "name": "Lasagnes",
+    "calories": 135,
+    "protein": 8.0,
+    "fat": 6.0,
+    "carbs": 12.0,
+    "category": "ready"
+  },
+  {
+    "id": "pancakes",
+    "name": "Pancakes",
+    "calories": 227,
+    "protein": 6.0,
+    "fat": 10.0,
+    "carbs": 28.0,
+    "category": "ready"
+  },
+  {
+    "id": "croissant",
+    "name": "Croissant",
+    "calories": 406,
+    "protein": 8.2,
+    "fat": 21.0,
+    "carbs": 45.8,
+    "category": "ready"
+  },
+  {
+    "id": "duck_breast_raw",
+    "name": "Magret de canard",
+    "calories": 337,
+    "protein": 19.0,
+    "fat": 28.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "duck_breast_baked",
+    "name": "Magret de canard (cuit au four)",
+    "calories": 421,
+    "protein": 23.8,
+    "fat": 35.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "duck_breast_fried",
+    "name": "Magret de canard (frit)",
+    "calories": 494,
+    "protein": 20.9,
+    "fat": 40.8,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "duck_breast_grilled",
+    "name": "Magret de canard (grillé)",
+    "calories": 404,
+    "protein": 22.8,
+    "fat": 33.6,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "lamb_chop_raw",
+    "name": "Côtelette d'agneau",
+    "calories": 294,
+    "protein": 25.0,
+    "fat": 21.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "lamb_chop_baked",
+    "name": "Côtelette d'agneau (cuit au four)",
+    "calories": 367,
+    "protein": 31.2,
+    "fat": 26.2,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "lamb_chop_fried",
+    "name": "Côtelette d'agneau (frit)",
+    "calories": 442,
+    "protein": 27.5,
+    "fat": 33.1,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "lamb_chop_grilled",
+    "name": "Côtelette d'agneau (grillé)",
+    "calories": 352,
+    "protein": 30.0,
+    "fat": 25.2,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "veal_cutlet_raw",
+    "name": "Escalope de veau",
+    "calories": 112,
+    "protein": 21.0,
+    "fat": 2.5,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "veal_cutlet_fried",
+    "name": "Escalope de veau (frit)",
+    "calories": 224,
+    "protein": 23.1,
+    "fat": 12.8,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "veal_cutlet_grilled",
+    "name": "Escalope de veau (grillé)",
+    "calories": 134,
+    "protein": 25.2,
+    "fat": 3.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "veal_cutlet_baked",
+    "name": "Escalope de veau (cuit au four)",
+    "calories": 140,
+    "protein": 26.2,
+    "fat": 3.1,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "venison_raw",
+    "name": "Viande de cerf",
+    "calories": 158,
+    "protein": 30.0,
+    "fat": 3.2,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "venison_fried",
+    "name": "Viande de cerf (frit)",
+    "calories": 279,
+    "protein": 33.0,
+    "fat": 13.5,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "venison_grilled",
+    "name": "Viande de cerf (grillé)",
+    "calories": 189,
+    "protein": 36.0,
+    "fat": 3.8,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "sausage_pork_raw",
+    "name": "Saucisse de porc",
+    "calories": 301,
+    "protein": 14.0,
+    "fat": 27.0,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "sausage_pork_fried",
+    "name": "Saucisse de porc (frit)",
+    "calories": 451,
+    "protein": 15.4,
+    "fat": 39.7,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "sausage_pork_grilled",
+    "name": "Saucisse de porc (grillé)",
+    "calories": 361,
+    "protein": 16.8,
+    "fat": 32.4,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "sausage_pork_boiled",
+    "name": "Saucisse de porc (bouilli)",
+    "calories": 240,
+    "protein": 11.2,
+    "fat": 21.6,
+    "carbs": 0.0,
+    "category": "meat"
+  },
+  {
+    "id": "mackerel_raw",
+    "name": "Maquereau",
+    "calories": 305,
+    "protein": 19.0,
+    "fat": 25.0,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "mackerel_fried",
+    "name": "Maquereau (frit)",
+    "calories": 456,
+    "protein": 20.9,
+    "fat": 37.5,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "mackerel_grilled",
+    "name": "Maquereau (grillé)",
+    "calories": 366,
+    "protein": 22.8,
+    "fat": 30.0,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "mackerel_baked",
+    "name": "Maquereau (cuit au four)",
+    "calories": 381,
+    "protein": 23.8,
+    "fat": 31.2,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "mackerel_canned",
+    "name": "Maquereau (en conserve)",
+    "calories": 325,
+    "protein": 17.1,
+    "fat": 22.5,
+    "carbs": 5.0,
+    "category": "fish"
+  },
+  {
+    "id": "herring_raw",
+    "name": "Hareng",
+    "calories": 203,
+    "protein": 23.0,
+    "fat": 11.0,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "herring_fried",
+    "name": "Hareng (frit)",
+    "calories": 333,
+    "protein": 25.3,
+    "fat": 22.1,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "herring_baked",
+    "name": "Hareng (cuit au four)",
+    "calories": 253,
+    "protein": 28.8,
+    "fat": 13.8,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "sardines_raw",
+    "name": "Sardines",
+    "calories": 208,
+    "protein": 25.0,
+    "fat": 11.0,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "sardines_canned",
+    "name": "Sardines (en conserve)",
+    "calories": 228,
+    "protein": 22.5,
+    "fat": 9.9,
+    "carbs": 5.0,
+    "category": "fish"
+  },
+  {
+    "id": "sardines_grilled",
+    "name": "Sardines (grillé)",
+    "calories": 249,
+    "protein": 30.0,
+    "fat": 13.2,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "octopus_raw",
+    "name": "Poulpe",
+    "calories": 82,
+    "protein": 15.0,
+    "fat": 1.0,
+    "carbs": 2.2,
+    "category": "fish"
+  },
+  {
+    "id": "octopus_boiled",
+    "name": "Poulpe (bouilli)",
+    "calories": 65,
+    "protein": 12.0,
+    "fat": 0.8,
+    "carbs": 1.8,
+    "category": "fish"
+  },
+  {
+    "id": "octopus_grilled",
+    "name": "Poulpe (grillé)",
+    "calories": 98,
+    "protein": 18.0,
+    "fat": 1.2,
+    "carbs": 2.6,
+    "category": "fish"
+  },
+  {
+    "id": "squid_raw",
+    "name": "Calamar",
+    "calories": 92,
+    "protein": 16.0,
+    "fat": 1.4,
+    "carbs": 3.1,
+    "category": "fish"
+  },
+  {
+    "id": "squid_fried",
+    "name": "Calamar (frit)",
+    "calories": 200,
+    "protein": 17.6,
+    "fat": 11.5,
+    "carbs": 3.4,
+    "category": "fish"
+  },
+  {
+    "id": "squid_grilled",
+    "name": "Calamar (grillé)",
+    "calories": 110,
+    "protein": 19.2,
+    "fat": 1.7,
+    "carbs": 3.7,
+    "category": "fish"
+  },
+  {
+    "id": "squid_boiled",
+    "name": "Calamar (bouilli)",
+    "calories": 73,
+    "protein": 12.8,
+    "fat": 1.1,
+    "carbs": 2.5,
+    "category": "fish"
+  },
+  {
+    "id": "mussels_raw",
+    "name": "Moules",
+    "calories": 172,
+    "protein": 24.0,
+    "fat": 4.5,
+    "carbs": 7.4,
+    "category": "fish"
+  },
+  {
+    "id": "mussels_boiled",
+    "name": "Moules (bouilli)",
+    "calories": 137,
+    "protein": 19.2,
+    "fat": 3.6,
+    "carbs": 5.9,
+    "category": "fish"
+  },
+  {
+    "id": "mussels_steamed",
+    "name": "Moules (à la vapeur)",
+    "calories": 154,
+    "protein": 21.6,
+    "fat": 4.0,
+    "carbs": 6.7,
+    "category": "fish"
+  },
+  {
+    "id": "crab_raw",
+    "name": "Crabe",
+    "calories": 87,
+    "protein": 18.0,
+    "fat": 1.5,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "crab_boiled",
+    "name": "Crabe (bouilli)",
+    "calories": 69,
+    "protein": 14.4,
+    "fat": 1.2,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "crab_canned",
+    "name": "Crabe (en conserve)",
+    "calories": 107,
+    "protein": 16.2,
+    "fat": 1.4,
+    "carbs": 5.0,
+    "category": "fish"
+  },
+  {
+    "id": "lobster_raw",
+    "name": "Homard",
+    "calories": 89,
+    "protein": 19.0,
+    "fat": 0.9,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "lobster_boiled",
+    "name": "Homard (bouilli)",
+    "calories": 71,
+    "protein": 15.2,
+    "fat": 0.7,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "lobster_steamed",
+    "name": "Homard (à la vapeur)",
+    "calories": 80,
+    "protein": 17.1,
+    "fat": 0.8,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "lobster_grilled",
+    "name": "Homard (grillé)",
+    "calories": 106,
+    "protein": 22.8,
+    "fat": 1.1,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "trout_raw",
+    "name": "Truite",
+    "calories": 148,
+    "protein": 21.0,
+    "fat": 6.6,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "trout_baked",
+    "name": "Truite (cuit au four)",
+    "calories": 185,
+    "protein": 26.2,
+    "fat": 8.2,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "trout_grilled",
+    "name": "Truite (grillé)",
+    "calories": 177,
+    "protein": 25.2,
+    "fat": 7.9,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "trout_fried",
+    "name": "Truite (frit)",
+    "calories": 267,
+    "protein": 23.1,
+    "fat": 17.3,
+    "carbs": 0.0,
+    "category": "fish"
+  },
+  {
+    "id": "cauliflower_raw",
+    "name": "Chou-fleur",
+    "calories": 25,
+    "protein": 1.9,
+    "fat": 0.3,
+    "carbs": 5.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "cauliflower_boiled",
+    "name": "Chou-fleur (bouilli)",
+    "calories": 20,
+    "protein": 1.5,
+    "fat": 0.2,
+    "carbs": 4.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "cauliflower_steamed",
+    "name": "Chou-fleur (à la vapeur)",
+    "calories": 22,
+    "protein": 1.7,
+    "fat": 0.3,
+    "carbs": 4.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "cauliflower_baked",
+    "name": "Chou-fleur (cuit au four)",
+    "calories": 31,
+    "protein": 2.4,
+    "fat": 0.4,
+    "carbs": 6.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "asparagus_raw",
+    "name": "Asperges",
+    "calories": 20,
+    "protein": 2.2,
+    "fat": 0.1,
+    "carbs": 3.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "asparagus_boiled",
+    "name": "Asperges (bouilli)",
+    "calories": 16,
+    "protein": 1.8,
+    "fat": 0.1,
+    "carbs": 3.1,
+    "category": "vegetables"
+  },
+  {
+    "id": "asparagus_steamed",
+    "name": "Asperges (à la vapeur)",
+    "calories": 18,
+    "protein": 2.0,
+    "fat": 0.1,
+    "carbs": 3.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "asparagus_grilled",
+    "name": "Asperges (grillé)",
+    "calories": 24,
+    "protein": 2.6,
+    "fat": 0.1,
+    "carbs": 4.7,
+    "category": "vegetables"
+  },
+  {
+    "id": "green_beans_raw",
+    "name": "Haricots verts",
+    "calories": 31,
+    "protein": 1.8,
+    "fat": 0.2,
+    "carbs": 7.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "green_beans_boiled",
+    "name": "Haricots verts (bouilli)",
+    "calories": 24,
+    "protein": 1.4,
+    "fat": 0.2,
+    "carbs": 5.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "green_beans_steamed",
+    "name": "Haricots verts (à la vapeur)",
+    "calories": 27,
+    "protein": 1.6,
+    "fat": 0.2,
+    "carbs": 6.3,
+    "category": "vegetables"
+  },
+  {
+    "id": "pumpkin_raw",
+    "name": "Citrouille",
+    "calories": 26,
+    "protein": 1.0,
+    "fat": 0.1,
+    "carbs": 6.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "pumpkin_baked",
+    "name": "Citrouille (cuit au four)",
+    "calories": 32,
+    "protein": 1.2,
+    "fat": 0.1,
+    "carbs": 8.1,
+    "category": "vegetables"
+  },
+  {
+    "id": "pumpkin_boiled",
+    "name": "Citrouille (bouilli)",
+    "calories": 20,
+    "protein": 0.8,
+    "fat": 0.1,
+    "carbs": 5.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "celery_raw",
+    "name": "Céleri",
+    "calories": 16,
+    "protein": 0.7,
+    "fat": 0.2,
+    "carbs": 3.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "celery_boiled",
+    "name": "Céleri (bouilli)",
+    "calories": 12,
+    "protein": 0.6,
+    "fat": 0.2,
+    "carbs": 2.4,
+    "category": "vegetables"
+  },
+  {
+    "id": "cucumber_raw",
+    "name": "Concombre",
+    "calories": 15,
+    "protein": 0.7,
+    "fat": 0.1,
+    "carbs": 3.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "radish_raw",
+    "name": "Radis",
+    "calories": 16,
+    "protein": 0.7,
+    "fat": 0.1,
+    "carbs": 3.4,
+    "category": "vegetables"
+  },
+  {
+    "id": "beetroot_raw",
+    "name": "Betterave",
+    "calories": 43,
+    "protein": 1.6,
+    "fat": 0.2,
+    "carbs": 9.6,
+    "category": "vegetables"
+  },
+  {
+    "id": "beetroot_boiled",
+    "name": "Betterave (bouilli)",
+    "calories": 34,
+    "protein": 1.3,
+    "fat": 0.2,
+    "carbs": 7.7,
+    "category": "vegetables"
+  },
+  {
+    "id": "beetroot_baked",
+    "name": "Betterave (cuit au four)",
+    "calories": 53,
+    "protein": 2.0,
+    "fat": 0.2,
+    "carbs": 12.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "brussels_sprouts_raw",
+    "name": "Choux de Bruxelles",
+    "calories": 43,
+    "protein": 3.4,
+    "fat": 0.3,
+    "carbs": 9.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "brussels_sprouts_boiled",
+    "name": "Choux de Bruxelles (bouilli)",
+    "calories": 34,
+    "protein": 2.7,
+    "fat": 0.2,
+    "carbs": 7.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "brussels_sprouts_steamed",
+    "name": "Choux de Bruxelles (à la vapeur)",
+    "calories": 38,
+    "protein": 3.1,
+    "fat": 0.3,
+    "carbs": 8.1,
+    "category": "vegetables"
+  },
+  {
+    "id": "brussels_sprouts_baked",
+    "name": "Choux de Bruxelles (cuit au four)",
+    "calories": 53,
+    "protein": 4.2,
+    "fat": 0.4,
+    "carbs": 11.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "kale_raw",
+    "name": "Chou frisé",
+    "calories": 49,
+    "protein": 4.3,
+    "fat": 0.9,
+    "carbs": 8.8,
+    "category": "vegetables"
+  },
+  {
+    "id": "kale_boiled",
+    "name": "Chou frisé (bouilli)",
+    "calories": 39,
+    "protein": 3.4,
+    "fat": 0.7,
+    "carbs": 7.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "kale_steamed",
+    "name": "Chou frisé (à la vapeur)",
+    "calories": 44,
+    "protein": 3.9,
+    "fat": 0.8,
+    "carbs": 7.9,
+    "category": "vegetables"
+  },
+  {
+    "id": "artichoke_raw",
+    "name": "Artichaut",
+    "calories": 47,
+    "protein": 3.3,
+    "fat": 0.2,
+    "carbs": 10.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "artichoke_boiled",
+    "name": "Artichaut (bouilli)",
+    "calories": 37,
+    "protein": 2.6,
+    "fat": 0.2,
+    "carbs": 8.4,
+    "category": "vegetables"
+  },
+  {
+    "id": "artichoke_canned",
+    "name": "Artichaut (en conserve)",
+    "calories": 67,
+    "protein": 3.0,
+    "fat": 0.2,
+    "carbs": 15.5,
+    "category": "vegetables"
+  },
+  {
+    "id": "leek_raw",
+    "name": "Poireau",
+    "calories": 61,
+    "protein": 1.5,
+    "fat": 0.3,
+    "carbs": 14.0,
+    "category": "vegetables"
+  },
+  {
+    "id": "leek_boiled",
+    "name": "Poireau (bouilli)",
+    "calories": 48,
+    "protein": 1.2,
+    "fat": 0.2,
+    "carbs": 11.2,
+    "category": "vegetables"
+  },
+  {
+    "id": "leek_fried",
+    "name": "Poireau (frit)",
+    "calories": 163,
+    "protein": 1.7,
+    "fat": 10.3,
+    "carbs": 15.4,
+    "category": "vegetables"
+  },
+  {
+    "id": "pear_raw",
+    "name": "Poire",
+    "calories": 57,
+    "protein": 0.4,
+    "fat": 0.1,
+    "carbs": 15.0,
+    "category": "fruits"
+  },
+  {
+    "id": "pear_dried",
+    "name": "Poire (séché)",
+    "calories": 199,
+    "protein": 1.4,
+    "fat": 0.4,
+    "carbs": 52.5,
+    "category": "fruits"
+  },
+  {
+    "id": "pear_canned",
+    "name": "Poire (en conserve)",
+    "calories": 77,
+    "protein": 0.4,
+    "fat": 0.1,
+    "carbs": 20.0,
+    "category": "fruits"
+  },
+  {
+    "id": "pear_baked",
+    "name": "Poire (cuit au four)",
+    "calories": 71,
+    "protein": 0.5,
+    "fat": 0.1,
+    "carbs": 18.8,
+    "category": "fruits"
+  },
+  {
+    "id": "plum_raw",
+    "name": "Prune",
+    "calories": 46,
+    "protein": 0.7,
+    "fat": 0.3,
+    "carbs": 11.4,
+    "category": "fruits"
+  },
+  {
+    "id": "plum_dried",
+    "name": "Prune (séché)",
+    "calories": 161,
+    "protein": 2.4,
+    "fat": 1.1,
+    "carbs": 39.9,
+    "category": "fruits"
+  },
+  {
+    "id": "cherry_raw",
+    "name": "Cerise",
+    "calories": 63,
+    "protein": 1.1,
+    "fat": 0.2,
+    "carbs": 16.0,
+    "category": "fruits"
+  },
+  {
+    "id": "cherry_canned",
+    "name": "Cerise (en conserve)",
+    "calories": 83,
+    "protein": 1.0,
+    "fat": 0.2,
+    "carbs": 21.0,
+    "category": "fruits"
+  },
+  {
+    "id": "cherry_dried",
+    "name": "Cerise (séché)",
+    "calories": 220,
+    "protein": 3.9,
+    "fat": 0.7,
+    "carbs": 56.0,
+    "category": "fruits"
+  },
+  {
+    "id": "apricot_raw",
+    "name": "Abricot",
+    "calories": 48,
+    "protein": 1.4,
+    "fat": 0.4,
+    "carbs": 11.0,
+    "category": "fruits"
+  },
+  {
+    "id": "apricot_dried",
+    "name": "Abricot (séché)",
+    "calories": 168,
+    "protein": 4.9,
+    "fat": 1.4,
+    "carbs": 38.5,
+    "category": "fruits"
+  },
+  {
+    "id": "apricot_canned",
+    "name": "Abricot (en conserve)",
+    "calories": 68,
+    "protein": 1.3,
+    "fat": 0.4,
+    "carbs": 16.0,
+    "category": "fruits"
+  },
+  {
+    "id": "watermelon_raw",
+    "name": "Pastèque",
+    "calories": 30,
+    "protein": 0.6,
+    "fat": 0.2,
+    "carbs": 7.6,
+    "category": "fruits"
+  },
+  {
+    "id": "melon_raw",
+    "name": "Melon",
+    "calories": 34,
+    "protein": 0.8,
+    "fat": 0.2,
+    "carbs": 8.2,
+    "category": "fruits"
+  },
+  {
+    "id": "melon_dried",
+    "name": "Melon (séché)",
+    "calories": 119,
+    "protein": 2.8,
+    "fat": 0.7,
+    "carbs": 28.7,
+    "category": "fruits"
+  },
+  {
+    "id": "kiwi_raw",
+    "name": "Kiwi",
+    "calories": 61,
+    "protein": 1.1,
+    "fat": 0.5,
+    "carbs": 15.0,
+    "category": "fruits"
+  },
+  {
+    "id": "kiwi_dried",
+    "name": "Kiwi (séché)",
+    "calories": 213,
+    "protein": 3.9,
+    "fat": 1.8,
+    "carbs": 52.5,
+    "category": "fruits"
+  },
+  {
+    "id": "lemon_raw",
+    "name": "Citron",
+    "calories": 29,
+    "protein": 1.1,
+    "fat": 0.3,
+    "carbs": 9.3,
+    "category": "fruits"
+  },
+  {
+    "id": "blueberry_raw",
+    "name": "Myrtille",
+    "calories": 57,
+    "protein": 0.7,
+    "fat": 0.3,
+    "carbs": 14.0,
+    "category": "fruits"
+  },
+  {
+    "id": "blueberry_dried",
+    "name": "Myrtille (séché)",
+    "calories": 199,
+    "protein": 2.4,
+    "fat": 1.1,
+    "carbs": 49.0,
+    "category": "fruits"
+  },
+  {
+    "id": "blueberry_canned",
+    "name": "Myrtille (en conserve)",
+    "calories": 77,
+    "protein": 0.6,
+    "fat": 0.3,
+    "carbs": 19.0,
+    "category": "fruits"
+  },
+  {
+    "id": "raspberry_raw",
+    "name": "Framboise",
+    "calories": 52,
+    "protein": 1.2,
+    "fat": 0.7,
+    "carbs": 12.0,
+    "category": "fruits"
+  },
+  {
+    "id": "raspberry_dried",
+    "name": "Framboise (séché)",
+    "calories": 182,
+    "protein": 4.2,
+    "fat": 2.4,
+    "carbs": 42.0,
+    "category": "fruits"
+  },
+  {
+    "id": "raspberry_canned",
+    "name": "Framboise (en conserve)",
+    "calories": 72,
+    "protein": 1.1,
+    "fat": 0.6,
+    "carbs": 17.0,
+    "category": "fruits"
+  },
+  {
+    "id": "blackberry_raw",
+    "name": "Mûre",
+    "calories": 43,
+    "protein": 1.4,
+    "fat": 0.5,
+    "carbs": 10.0,
+    "category": "fruits"
+  },
+  {
+    "id": "papaya_raw",
+    "name": "Papaye",
+    "calories": 43,
+    "protein": 0.5,
+    "fat": 0.3,
+    "carbs": 11.0,
+    "category": "fruits"
+  },
+  {
+    "id": "papaya_dried",
+    "name": "Papaye (séché)",
+    "calories": 150,
+    "protein": 1.8,
+    "fat": 1.1,
+    "carbs": 38.5,
+    "category": "fruits"
+  },
+  {
+    "id": "fig_raw",
+    "name": "Figue",
+    "calories": 74,
+    "protein": 0.8,
+    "fat": 0.3,
+    "carbs": 19.0,
+    "category": "fruits"
+  },
+  {
+    "id": "fig_dried",
+    "name": "Figue (séché)",
+    "calories": 259,
+    "protein": 2.8,
+    "fat": 1.1,
+    "carbs": 66.5,
+    "category": "fruits"
+  },
+  {
+    "id": "pomegranate_raw",
+    "name": "Grenade",
+    "calories": 83,
+    "protein": 1.7,
+    "fat": 1.2,
+    "carbs": 19.0,
+    "category": "fruits"
+  },
+  {
+    "id": "barley_raw",
+    "name": "Orge",
+    "calories": 354,
+    "protein": 12.0,
+    "fat": 2.3,
+    "carbs": 73.0,
+    "category": "grains"
+  },
+  {
+    "id": "barley_boiled",
+    "name": "Orge (bouilli)",
+    "calories": 283,
+    "protein": 9.6,
+    "fat": 1.8,
+    "carbs": 58.4,
+    "category": "grains"
+  },
+  {
+    "id": "millet_raw",
+    "name": "Millet",
+    "calories": 378,
+    "protein": 11.0,
+    "fat": 4.2,
+    "carbs": 73.0,
+    "category": "grains"
+  },
+  {
+    "id": "millet_boiled",
+    "name": "Millet (bouilli)",
+    "calories": 302,
+    "protein": 8.8,
+    "fat": 3.4,
+    "carbs": 58.4,
+    "category": "grains"
+  },
+  {
+    "id": "couscous_raw",
+    "name": "Couscous",
+    "calories": 376,
+    "protein": 13.0,
+    "fat": 0.6,
+    "carbs": 77.0,
+    "category": "grains"
+  },
+  {
+    "id": "couscous_boiled",
+    "name": "Couscous (bouilli)",
+    "calories": 300,
+    "protein": 10.4,
+    "fat": 0.5,
+    "carbs": 61.6,
+    "category": "grains"
+  },
+  {
+    "id": "bulgur_raw",
+    "name": "Boulgour",
+    "calories": 342,
+    "protein": 12.0,
+    "fat": 1.3,
+    "carbs": 76.0,
+    "category": "grains"
+  },
+  {
+    "id": "bulgur_boiled",
+    "name": "Boulgour (bouilli)",
+    "calories": 273,
+    "protein": 9.6,
+    "fat": 1.0,
+    "carbs": 60.8,
+    "category": "grains"
+  },
+  {
+    "id": "amaranth_raw",
+    "name": "Amaranthe",
+    "calories": 371,
+    "protein": 14.0,
+    "fat": 7.0,
+    "carbs": 65.0,
+    "category": "grains"
+  },
+  {
+    "id": "amaranth_boiled",
+    "name": "Amaranthe (bouilli)",
+    "calories": 296,
+    "protein": 11.2,
+    "fat": 5.6,
+    "carbs": 52.0,
+    "category": "grains"
+  },
+  {
+    "id": "kidney_beans_boiled",
+    "name": "Haricots rouges (bouilli)",
+    "calories": 101,
+    "protein": 7.0,
+    "fat": 0.4,
+    "carbs": 18.4,
+    "category": "legumes"
+  },
+  {
+    "id": "kidney_beans_canned",
+    "name": "Haricots rouges (en conserve)",
+    "calories": 147,
+    "protein": 7.8,
+    "fat": 0.5,
+    "carbs": 28.0,
+    "category": "legumes"
+  },
+  {
+    "id": "white_beans_boiled",
+    "name": "Haricots blancs (bouilli)",
+    "calories": 111,
+    "protein": 7.8,
+    "fat": 0.3,
+    "carbs": 20.0,
+    "category": "legumes"
+  },
+  {
+    "id": "white_beans_canned",
+    "name": "Haricots blancs (en conserve)",
+    "calories": 159,
+    "protein": 8.7,
+    "fat": 0.4,
+    "carbs": 30.0,
+    "category": "legumes"
+  },
+  {
+    "id": "soybeans_boiled",
+    "name": "Graines de soja (bouilli)",
+    "calories": 117,
+    "protein": 10.4,
+    "fat": 5.4,
+    "carbs": 8.8,
+    "category": "legumes"
+  },
+  {
+    "id": "tofu_raw",
+    "name": "Tofu",
+    "calories": 76,
+    "protein": 8.0,
+    "fat": 4.8,
+    "carbs": 1.9,
+    "category": "legumes"
+  },
+  {
+    "id": "tofu_fried",
+    "name": "Tofu (frit)",
+    "calories": 181,
+    "protein": 8.8,
+    "fat": 15.3,
+    "carbs": 2.1,
+    "category": "legumes"
+  },
+  {
+    "id": "tofu_baked",
+    "name": "Tofu (cuit au four)",
+    "calories": 95,
+    "protein": 10.0,
+    "fat": 6.0,
+    "carbs": 2.4,
+    "category": "legumes"
+  },
+  {
+    "id": "cheese_parmesan_raw",
+    "name": "Parmesan",
+    "calories": 431,
+    "protein": 38.0,
+    "fat": 29.0,
+    "carbs": 4.1,
+    "category": "dairy"
+  },
+  {
+    "id": "cheese_brie_raw",
+    "name": "Brie",
+    "calories": 334,
+    "protein": 21.0,
+    "fat": 28.0,
+    "carbs": 0.5,
+    "category": "dairy"
+  },
+  {
+    "id": "cheese_brie_baked",
+    "name": "Brie (cuit au four)",
+    "calories": 417,
+    "protein": 26.2,
+    "fat": 35.0,
+    "carbs": 0.6,
+    "category": "dairy"
+  },
+  {
+    "id": "cheese_feta_raw",
+    "name": "Feta",
+    "calories": 264,
+    "protein": 14.0,
+    "fat": 21.0,
+    "carbs": 4.1,
+    "category": "dairy"
+  },
+  {
+    "id": "cheese_feta_baked",
+    "name": "Feta (cuit au four)",
+    "calories": 330,
+    "protein": 17.5,
+    "fat": 26.2,
+    "carbs": 5.1,
+    "category": "dairy"
+  },
+  {
+    "id": "cottage_cheese_raw",
+    "name": "Fromage cottage",
+    "calories": 98,
+    "protein": 11.0,
+    "fat": 4.3,
+    "carbs": 3.4,
+    "category": "dairy"
+  },
+  {
+    "id": "sour_cream_raw",
+    "name": "Crème aigre",
+    "calories": 214,
+    "protein": 2.4,
+    "fat": 22.0,
+    "carbs": 2.9,
+    "category": "dairy"
+  },
+  {
+    "id": "kefir_raw",
+    "name": "Kéfir",
+    "calories": 60,
+    "protein": 3.3,
+    "fat": 3.0,
+    "carbs": 4.0,
+    "category": "dairy"
+  },
+  {
+    "id": "quail_egg_raw",
+    "name": "Œuf de caille",
+    "calories": 158,
+    "protein": 13.0,
+    "fat": 11.0,
+    "carbs": 0.4,
+    "category": "eggs"
+  },
+  {
+    "id": "quail_egg_boiled",
+    "name": "Œuf de caille (bouilli)",
+    "calories": 126,
+    "protein": 10.4,
+    "fat": 8.8,
+    "carbs": 0.3,
+    "category": "eggs"
+  },
+  {
+    "id": "quail_egg_fried",
+    "name": "Œuf de caille (frit)",
+    "calories": 279,
+    "protein": 14.3,
+    "fat": 22.1,
+    "carbs": 0.4,
+    "category": "eggs"
+  },
+  {
+    "id": "cashews_raw",
+    "name": "Noix de cajou",
+    "calories": 553,
+    "protein": 18.0,
+    "fat": 44.0,
+    "carbs": 30.0,
+    "category": "nuts"
+  },
+  {
+    "id": "cashews_baked",
+    "name": "Noix de cajou (cuit au four)",
+    "calories": 691,
+    "protein": 22.5,
+    "fat": 55.0,
+    "carbs": 37.5,
+    "category": "nuts"
+  },
+  {
+    "id": "pistachios_raw",
+    "name": "Pistaches",
+    "calories": 562,
+    "protein": 20.0,
+    "fat": 45.0,
+    "carbs": 28.0,
+    "category": "nuts"
+  },
+  {
+    "id": "pistachios_baked",
+    "name": "Pistaches (cuit au four)",
+    "calories": 702,
+    "protein": 25.0,
+    "fat": 56.2,
+    "carbs": 35.0,
+    "category": "nuts"
+  },
+  {
+    "id": "hazelnuts_raw",
+    "name": "Noisettes",
+    "calories": 628,
+    "protein": 15.0,
+    "fat": 61.0,
+    "carbs": 17.0,
+    "category": "nuts"
+  },
+  {
+    "id": "macadamia_raw",
+    "name": "Macadamia",
+    "calories": 718,
+    "protein": 7.9,
+    "fat": 76.0,
+    "carbs": 14.0,
+    "category": "nuts"
+  },
+  {
+    "id": "pecans_raw",
+    "name": "Noix de pécan",
+    "calories": 691,
+    "protein": 9.0,
+    "fat": 72.0,
+    "carbs": 14.0,
+    "category": "nuts"
+  },
+  {
+    "id": "sunflower_seeds_raw",
+    "name": "Graines de tournesol",
+    "calories": 584,
+    "protein": 21.0,
+    "fat": 51.0,
+    "carbs": 20.0,
+    "category": "nuts"
+  },
+  {
+    "id": "sunflower_seeds_baked",
+    "name": "Graines de tournesol (cuit au four)",
+    "calories": 730,
+    "protein": 26.2,
+    "fat": 63.8,
+    "carbs": 25.0,
+    "category": "nuts"
+  },
+  {
+    "id": "pumpkin_seeds_raw",
+    "name": "Graines de citrouille",
+    "calories": 559,
+    "protein": 30.0,
+    "fat": 49.0,
+    "carbs": 11.0,
+    "category": "nuts"
+  },
+  {
+    "id": "pumpkin_seeds_baked",
+    "name": "Graines de citrouille (cuit au four)",
+    "calories": 698,
+    "protein": 37.5,
+    "fat": 61.2,
+    "carbs": 13.8,
+    "category": "nuts"
+  },
+  {
+    "id": "chia_seeds_raw",
+    "name": "Graines de chia",
+    "calories": 486,
+    "protein": 17.0,
+    "fat": 31.0,
+    "carbs": 42.0,
+    "category": "nuts"
+  },
+  {
+    "id": "flaxseeds_raw",
+    "name": "Graines de lin",
+    "calories": 534,
+    "protein": 18.0,
+    "fat": 42.0,
+    "carbs": 29.0,
+    "category": "nuts"
+  },
+  {
+    "id": "sesame_seeds_raw",
+    "name": "Graines de sésame",
+    "calories": 573,
+    "protein": 18.0,
+    "fat": 50.0,
+    "carbs": 23.0,
+    "category": "nuts"
+  },
+  {
+    "id": "chocolate_dark_raw",
+    "name": "Chocolat noir",
+    "calories": 598,
+    "protein": 7.8,
+    "fat": 43.0,
+    "carbs": 46.0,
+    "category": "sweets"
+  },
+  {
+    "id": "chocolate_milk_raw",
+    "name": "Chocolat au lait",
+    "calories": 535,
+    "protein": 7.7,
+    "fat": 30.0,
+    "carbs": 59.0,
+    "category": "sweets"
+  },
+  {
+    "id": "honey_raw",
+    "name": "Miel",
+    "calories": 304,
+    "protein": 0.3,
+    "fat": 0.0,
+    "carbs": 82.0,
+    "category": "sweets"
+  },
+  {
+    "id": "maple_syrup_raw",
+    "name": "Sirop d'érable",
+    "calories": 260,
+    "protein": 0.0,
+    "fat": 0.0,
+    "carbs": 67.0,
+    "category": "sweets"
+  },
+  {
+    "id": "sugar_white_raw",
+    "name": "Sucre blanc",
+    "calories": 387,
+    "protein": 0.0,
+    "fat": 0.0,
+    "carbs": 100.0,
+    "category": "sweets"
+  },
+  {
+    "id": "potato_chips_raw",
+    "name": "Chips de pommes de terre",
+    "calories": 536,
+    "protein": 7.0,
+    "fat": 35.0,
+    "carbs": 53.0,
+    "category": "sweets"
+  },
+  {
+    "id": "popcorn_raw",
+    "name": "Pop-corn",
+    "calories": 387,
+    "protein": 13.0,
+    "fat": 4.5,
+    "carbs": 78.0,
+    "category": "sweets"
+  }
+]

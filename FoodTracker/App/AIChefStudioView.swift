@@ -278,7 +278,7 @@ struct AIChefStudioView: View {
         if let pr = preview.premiumRecipe {
             PremiumRecipeDetailView(recipe: pr)
         } else if let cr = preview.customRecipe {
-            Text("Custom Recipe Details: \(cr.name)")
+            RecipeDetailView(recipe: cr, path: .constant(NavigationPath()))
         } else {
             Text("Recipe not found")
         }
@@ -344,14 +344,22 @@ struct SearchResultRow: View {
     let recipe: UnifiedRecipePreview
     var body: some View {
         HStack {
-            if recipe.heroImage.starts(with: "http") {
-                AsyncImage(url: URL(string: recipe.heroImage)) { phase in
-                    if let image = phase.image { image.resizable().scaledToFill() } else { Color.gray.opacity(0.3) }
+            let imageUrl = recipe.heroImage.starts(with: "http")
+                ? recipe.heroImage
+                : AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
+            AsyncImage(url: URL(string: imageUrl)) { phase in
+                if let image = phase.image {
+                    image.resizable().scaledToFill()
+                } else if phase.error != nil {
+                    Image(systemName: "fork.knife")
+                        .foregroundColor(.themePink)
+                        .frame(width: 40, height: 40)
+                        .background(Color.themePink.opacity(0.1))
+                } else {
+                    Color.gray.opacity(0.2)
                 }
-                .frame(width: 40, height: 40).cornerRadius(10)
-            } else {
-                Image(systemName: recipe.heroImage).foregroundColor(.themePink).frame(width: 40, height: 40).background(Color.themePink.opacity(0.1)).cornerRadius(10)
             }
+            .frame(width: 40, height: 40).cornerRadius(10)
             VStack(alignment: .leading) {
                 Text(recipe.title).font(.headline)
                 Text("\(recipe.calories) kcal").font(.caption).foregroundColor(.gray)
@@ -368,14 +376,21 @@ struct RecipeCardView: View {
         VStack(alignment: .leading) {
             ZStack {
                 Color.themePink.opacity(0.15)
-                if recipe.heroImage.starts(with: "http") {
-                    AsyncImage(url: URL(string: recipe.heroImage)) { phase in
-                        if let image = phase.image { image.resizable().scaledToFill() } else { Color.gray.opacity(0.3) }
+                // Always show a food photo — use stored URL or generate from title
+                let imageUrl = recipe.heroImage.starts(with: "http")
+                    ? recipe.heroImage
+                    : AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
+                AsyncImage(url: URL(string: imageUrl)) { phase in
+                    if let image = phase.image {
+                        image.resizable().scaledToFill()
+                    } else if phase.error != nil {
+                        Image(AINutritionService.shared.fallbackLocalImage(for: recipe.title))
+                            .resizable().scaledToFill()
+                    } else {
+                        Color.gray.opacity(0.2)
                     }
-                } else {
-                    Image(systemName: recipe.heroImage).resizable().scaledToFit().frame(width: 50, height: 50).foregroundColor(.themePink)
                 }
-            }.frame(width: 180, height: 120).cornerRadius(16)
+            }.frame(width: 180, height: 120).cornerRadius(16).clipped()
             Text(recipe.title).font(.headline).lineLimit(1).padding(.top, 8)
             Text("\(recipe.calories) kcal • \(recipe.cookTime) min").font(.caption).foregroundColor(.gray)
         }.frame(width: 180)

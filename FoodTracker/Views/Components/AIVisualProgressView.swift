@@ -16,6 +16,8 @@ struct AIVisualProgressView: View {
     
     @State private var isAnalyzing = false
     @State private var hasAnalyzed = false
+    @State private var analysisResult: VisualProgressResult?
+    @State private var analysisTask: Task<Void, Never>?
     
     @State private var scannerOffset: CGFloat = 0.0
     
@@ -73,13 +75,21 @@ struct AIVisualProgressView: View {
                                 .font(.headline)
                             Spacer()
                             if beforeImage != nil || afterImage != nil {
-                                Button("Reset") {
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .light)
                                     withAnimation {
                                         resetPhotos()
                                     }
+                                }) {
+                                    Text("Reset")
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundStyle(themeManager.current.primaryAccent)
+                                        .padding(.vertical, 6)
+                                        .padding(.horizontal, 14)
+                                        .background(themeManager.current.primaryAccent.opacity(0.15))
+                                        .cornerRadius(12)
                                 }
-                                .font(.caption.bold())
-                                .foregroundStyle(themeManager.current.primaryAccent)
+                                .buttonStyle(.plain)
                             }
                         }
                         
@@ -325,11 +335,14 @@ struct AIVisualProgressView: View {
         isAnalyzing = true
         hasAnalyzed = false
         
-        Task { @MainActor in
+        analysisTask?.cancel()
+        analysisTask = Task { @MainActor in
             HapticManager.shared.impact(style: .medium)
             try? await Task.sleep(for: .seconds(3.0))
+            guard !Task.isCancelled else { return }
             HapticManager.shared.notification(type: .success)
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                analysisResult = VisualProgressResult.random()
                 isAnalyzing = false
                 hasAnalyzed = true
                 UserDefaults.standard.set(true, forKey: "has_visual_analyzed")
@@ -394,49 +407,49 @@ struct AIVisualProgressView: View {
                 .background(Color.gray.opacity(0.03))
                 .cornerRadius(16)
                 .transition(.opacity)
-            } else if hasAnalyzed {
+            } else if hasAnalyzed, let result = analysisResult {
                 VStack(alignment: .leading, spacing: 16) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         AIVisualInsightCard(
                             label: String(localized: "Progress Pace"),
-                            value: "Optimal",
-                            desc: String(localized: "Safe & steady"),
+                            value: result.paceValue,
+                            desc: result.paceDesc,
                             icon: "speedometer",
                             color: .green
                         )
                         
                         AIVisualInsightCard(
                             label: String(localized: "Muscle Tone"),
-                            value: "Enhanced",
-                            desc: String(localized: "Visible definition"),
+                            value: result.muscleValue,
+                            desc: result.muscleDesc,
                             icon: "figure.strengthtraining.traditional",
                             color: themeManager.current.primaryAccent
                         )
                         
                         AIVisualInsightCard(
                             label: String(localized: "Posture Symmetry"),
-                            value: "Improved",
-                            desc: String(localized: "Better alignment"),
+                            value: result.postureValue,
+                            desc: result.postureDesc,
                             icon: "figure.mind.and.body",
                             color: .cyan
                         )
                         
                         AIVisualInsightCard(
                             label: String(localized: "Trajectory"),
-                            value: "On Track",
-                            desc: String(localized: "Hitting visual goals"),
+                            value: result.trajectoryValue,
+                            desc: result.trajectoryDesc,
                             icon: "target",
                             color: .orange
                         )
                     }
                     
                     HStack(spacing: 12) {
-                        FakeMetricCard(title: String(localized: "Est. Body Fat"), value: "-2.4%", isPositive: true)
-                        FakeMetricCard(title: String(localized: "Est. Weight"), value: "-1.8 kg", isPositive: true)
-                        FakeMetricCard(title: String(localized: "Muscle Mass"), value: "+0.5 kg", isPositive: true)
+                        FakeMetricCard(title: String(localized: "Est. Body Fat"), value: result.bfDelta, isPositive: result.bfPositive)
+                        FakeMetricCard(title: String(localized: "Est. Weight"), value: result.weightDelta, isPositive: result.weightPositive)
+                        FakeMetricCard(title: String(localized: "Muscle Mass"), value: result.muscleDelta, isPositive: result.musclePositive)
                     }
                     
-                    AIPerceptionFeedbackCard()
+                    AIPerceptionFeedbackCard(fullText: result.feedbackText)
                 }
                 .transition(.asymmetric(
                     insertion: .move(edge: .bottom).combined(with: .opacity),
@@ -471,6 +484,9 @@ struct AIVisualProgressView: View {
     }
     
     private func resetPhotos() {
+        analysisTask?.cancel()
+        analysisTask = nil
+        
         beforeItem = nil
         afterItem = nil
         beforeImage = nil

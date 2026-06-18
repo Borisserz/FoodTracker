@@ -377,7 +377,7 @@ struct NutritionSettingsEditor: View {
 
                         VStack(spacing: 24) {
                             MacroAdjusterRow(title: String(localized: "Protein"), color: .themePeach, pct: $pPct, grams: calculateGrams(pct: pPct, multiplier: 4), onAdjust: { adjustMacros(changed: .protein) })
-                            MacroAdjusterRow(title: String(localized: "Fat"), color: .themeYellow, pct: $fPct, grams: calculateGrams(pct: fPct, multiplier: 9), onAdjust: { adjustMacros(changed: .fat) })
+                            MacroAdjusterRow(title: String(localized: "Fats"), color: .themeYellow, pct: $fPct, grams: calculateGrams(pct: fPct, multiplier: 9), onAdjust: { adjustMacros(changed: .fat) })
                             MacroAdjusterRow(title: String(localized: "Carbs"), color: .drinkWater, pct: $cPct, grams: calculateGrams(pct: cPct, multiplier: 4), onAdjust: { adjustMacros(changed: .carbs) })
                         }.padding(20).background(Color.white).cornerRadius(24).shadow(color: .black.opacity(0.04), radius: 10, y: 5).padding(.horizontal, 20)
 
@@ -426,6 +426,7 @@ struct SettingsView: View {
 
     @AppStorage("useMetricSystem") private var useMetricSystem = true
     @Query private var summaries: [DailySummary]
+    @State private var showingWidgetPromo = false
 
     var body: some View {
         NavigationStack {
@@ -479,6 +480,11 @@ struct SettingsView: View {
                             }
                             Divider().padding(.leading, 56)
 
+                            Button(action: { showingWidgetPromo = true }) {
+                                SettingsRowView(icon: "rectangle.3.group.fill", iconColor: .themePink, title: String(localized: "Widgets Guide"))
+                            }
+                            Divider().padding(.leading, 56)
+
                             Button(action: { openPrivacyPolicy() }) {
                                 SettingsRowView(icon: "hand.raised.fill", iconColor: .gray, title: String(localized: "Privacy Policy"))
                             }
@@ -520,6 +526,9 @@ struct SettingsView: View {
                             .foregroundColor(.gray.opacity(0.5))
                     }
                 }
+            }
+            .sheet(isPresented: $showingWidgetPromo) {
+                WidgetPromoView()
             }
         }
     }

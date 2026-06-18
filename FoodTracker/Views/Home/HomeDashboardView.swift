@@ -1831,7 +1831,7 @@ struct SmartAddFoodView: View {
             do {
                 try await Task.sleep(nanoseconds: 500_000_000)
                 guard !Task.isCancelled else { return }
-                let results = await NetworkManager.shared.searchFoodByText(query: query)
+                let results = await NetworkManager.shared.searchFoodByText(query: query, modelContext: context)
                 await MainActor.run {
                     if !Task.isCancelled {
                         self.apiSearchResults = results

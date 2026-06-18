@@ -66,8 +66,10 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
                 if case .barcode(let barcode) = item {
                     guard let payload = barcode.payloadStringValue else { continue }
                     HapticManager.shared.impact(style: .heavy)
-                    parent.recognizedBarcode = payload
-                    parent.isScanning = false
+                    DispatchQueue.main.async {
+                        self.parent.recognizedBarcode = payload
+                        self.parent.isScanning = false
+                    }
                     return  // process first valid code only
                 }
             }

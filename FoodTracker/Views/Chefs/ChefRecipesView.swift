@@ -274,6 +274,10 @@ struct MealTypeCard: View {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
+                    } else if phase.error != nil {
+                        Image(AINutritionService.shared.fallbackLocalImage(for: title))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
                     } else {
                         LinearGradient(
                             colors: [color.opacity(0.85), color],
@@ -527,7 +531,7 @@ struct CustomRecipePremiumCard: View {
 
             HStack(spacing: 20) {
                 MacroPill(title: String(localized: "Carbs"), value: macros.carbs, color: .drinkWater)
-                MacroPill(title: String(localized: "Fat"), value: macros.fats, color: .themeYellow)
+                MacroPill(title: String(localized: "Fats"), value: macros.fats, color: .themeYellow)
                 MacroPill(title: String(localized: "Protein"), value: macros.protein, color: .themePeach)
             }
             .padding(.horizontal, 20)
@@ -772,10 +776,23 @@ struct PremiumRecipeCard: View {
     var width: CGFloat? = nil
 
     var body: some View {
+        // Always resolve an image — use stored URL or generate one from the title.
+        let effectiveUrl = recipe.imageUrl.isEmpty
+            ? AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
+            : recipe.imageUrl
+
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .bottomLeading) {
-                AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
-                    if let image = phase.image { image.resizable().aspectRatio(contentMode: .fill) } else { Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView()) }
+                AsyncImage(url: URL(string: effectiveUrl)) { phase in
+                    if let image = phase.image {
+                        image.resizable().aspectRatio(contentMode: .fill)
+                    } else if phase.error != nil {
+                        // Network failed — use local asset fallback
+                        Image(AINutritionService.shared.fallbackLocalImage(for: recipe.title))
+                            .resizable().aspectRatio(contentMode: .fill)
+                    } else {
+                        Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView())
+                    }
                 }.frame(height: 160).clipped()
 
                 LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
@@ -898,10 +915,17 @@ struct PremiumRecipeDetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     ZStack(alignment: .bottomLeading) {
+                        // Always show a matching image
+                        let effectiveDetailUrl = recipe.imageUrl.isEmpty
+                            ? AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
+                            : recipe.imageUrl
 
-                        AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
+                        AsyncImage(url: URL(string: effectiveDetailUrl)) { phase in
                             if let image = phase.image {
                                 image.resizable().aspectRatio(contentMode: .fill)
+                            } else if phase.error != nil {
+                                Image(AINutritionService.shared.fallbackLocalImage(for: recipe.title))
+                                    .resizable().aspectRatio(contentMode: .fill)
                             } else {
                                 Rectangle().fill(Color.gray.opacity(0.2))
                             }

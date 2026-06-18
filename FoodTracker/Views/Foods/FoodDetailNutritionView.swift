@@ -277,7 +277,7 @@ private struct MacroDonutChartCard: View {
 
             HStack(spacing: 16) {
                 MacroColumnInfo(percent: cPercent, grams: c, title: String(localized: "Carbs"), color: .drinkWater)
-                MacroColumnInfo(percent: fPercent, grams: f, title: String(localized: "Fat"), color: .themeYellow)
+                MacroColumnInfo(percent: fPercent, grams: f, title: String(localized: "Fats"), color: .themeYellow)
                 MacroColumnInfo(percent: pPercent, grams: p, title: String(localized: "Protein"), color: .themePeach)
             }
         }

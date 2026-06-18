@@ -72,22 +72,29 @@ struct DietHeroCard: View {
         VStack(alignment: .leading, spacing: 0) {
 
             ZStack(alignment: .topLeading) {
-                // Background Unsplash food photo
-                AsyncImage(url: URL(string: diet.imageUrl)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        LinearGradient(
-                            colors: [diet.color.opacity(0.85), diet.color],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                if diet.imageUrl.starts(with: "http") {
+                    AsyncImage(url: URL(string: diet.imageUrl)) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            LinearGradient(
+                                colors: [diet.color.opacity(0.85), diet.color],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        }
                     }
+                    .frame(height: 240)
+                    .clipped()
+                } else {
+                    Image(diet.imageUrl)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 240)
+                        .clipped()
                 }
-                .frame(height: 240)
-                .clipped()
 
                 // Overlay gradient for readability
                 LinearGradient(
@@ -128,7 +135,7 @@ struct DietHeroCard: View {
 
             VStack(spacing: 20) {
                 HStack(spacing: 24) {
-                    MacroMiniStat(title: String(localized: "Fat"), value: diet.macroBreakdown.fat, color: .themeYellow)
+                    MacroMiniStat(title: String(localized: "Fats"), value: diet.macroBreakdown.fat, color: .themeYellow)
                     MacroMiniStat(title: String(localized: "Protein"), value: diet.macroBreakdown.protein, color: .themePeach)
                     MacroMiniStat(title: String(localized: "Carbs"), value: diet.macroBreakdown.carbs, color: .drinkWater)
                 }
@@ -200,22 +207,31 @@ struct PremiumDietDetailView: View {
 
                         ZStack(alignment: .bottomLeading) {
 
-                            AsyncImage(url: URL(string: diet.imageUrl)) { phase in
-                                if let image = phase.image {
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                } else {
-                                    LinearGradient(
-                                        colors: [diet.color.opacity(0.7), diet.color],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
+                            if diet.imageUrl.starts(with: "http") {
+                                AsyncImage(url: URL(string: diet.imageUrl)) { phase in
+                                    if let image = phase.image {
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                    } else {
+                                        LinearGradient(
+                                            colors: [diet.color.opacity(0.7), diet.color],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    }
                                 }
+                                .frame(height: isScrollingDown ? 350 + minY : 350)
+                                .clipped()
+                                .offset(y: isScrollingDown ? -minY : 0)
+                            } else {
+                                Image(diet.imageUrl)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(height: isScrollingDown ? 350 + minY : 350)
+                                    .clipped()
+                                    .offset(y: isScrollingDown ? -minY : 0)
                             }
-                            .frame(height: isScrollingDown ? 350 + minY : 350)
-                            .clipped()
-                            .offset(y: isScrollingDown ? -minY : 0)
 
                             Image(systemName: "sparkles")
                                 .font(.system(size: 150))
@@ -245,7 +261,7 @@ struct PremiumDietDetailView: View {
                     VStack(spacing: 24) {
 
                         HStack(spacing: 0) {
-                            MacroDonutStat(title: String(localized: "Fat"), percent: diet.macroBreakdown.fat, color: .themeYellow)
+                            MacroDonutStat(title: String(localized: "Fats"), percent: diet.macroBreakdown.fat, color: .themeYellow)
                             Divider().frame(height: 50)
                             MacroDonutStat(title: String(localized: "Protein"), percent: diet.macroBreakdown.protein, color: .themePeach)
                             Divider().frame(height: 50)
@@ -452,11 +468,17 @@ struct PremiumFoodCategorySection: View {
 extension DietPlan {
     var imageUrl: String {
         switch key {
-        case "keto": return "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600"
-        case "vegan": return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600"
-        case "high_protein": return "https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=80&w=600"
-        case "mediterranean": return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=600"
-        default: return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600"
+        case "keto": return "diet_bg_keto"
+        case "vegan": return "diet_bg_vegan"
+        case "high_protein": return "diet_bg_highprotein"
+        case "mediterranean": return "diet_bg_mediterranean"
+        case "carnivore": return "diet_carnivore"
+        case "intermittent_fasting": return "diet_intermittent_fasting"
+        case "pescatarian": return "diet_pescatarian"
+        case "paleo": return "diet_paleo"
+        case "dash": return "diet_dash"
+        case "vegetarian": return "diet_vegetarian"
+        default: return "diet_bg_any"
         }
     }
 }

@@ -290,46 +290,46 @@ struct GodTierMealCard: View {
     }
     
     var body: some View {
+        // Always resolve a URL: use the stored one, or generate one on-the-fly from the title.
+        let effectiveUrl = meal.imageUrl.isEmpty
+            ? AINutritionService.shared.imageUrl(forMealTitle: meal.title)
+            : meal.imageUrl
+
         VStack(alignment: .leading, spacing: 0) {
-            if !meal.imageUrl.isEmpty {
-                AsyncImage(url: URL(string: meal.imageUrl)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
+            AsyncImage(url: URL(string: effectiveUrl)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 140)
+                        .clipped()
+                case .failure(_):
+                    Image(AINutritionService.shared.fallbackLocalImage(for: meal.title))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 140)
+                        .clipped()
+                case .empty:
+                    ZStack {
+                        Rectangle()
+                            .fill(gradientForMeal.opacity(0.3))
                             .frame(height: 140)
-                            .clipped()
-                    case .failure(_):
-                        ZStack {
-                            Rectangle()
-                                .fill(gradientForMeal.opacity(0.3))
-                                .frame(height: 140)
-                            Image(systemName: "fork.knife")
-                                .font(.title)
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-                    case .empty:
-                        ZStack {
-                            Rectangle()
-                                .fill(gradientForMeal.opacity(0.3))
-                                .frame(height: 140)
-                            ProgressView()
-                                .tint(.white)
-                        }
-                    @unknown default:
-                        EmptyView()
+                        ProgressView()
+                            .tint(.white)
                     }
+                @unknown default:
+                    EmptyView()
                 }
-                .frame(height: 140)
-                .overlay(
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.4)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
             }
+            .frame(height: 140)
+            .overlay(
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.4)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
@@ -420,42 +420,42 @@ struct MealPlanItemDetailView: View {
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
-                        if !meal.imageUrl.isEmpty {
-                            AsyncImage(url: URL(string: meal.imageUrl)) { phase in
-                                switch phase {
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
+                        // Always show image — use stored URL or generate from title.
+                        let effectiveDetailUrl = meal.imageUrl.isEmpty
+                            ? AINutritionService.shared.imageUrl(forMealTitle: meal.title)
+                            : meal.imageUrl
+
+                        AsyncImage(url: URL(string: effectiveDetailUrl)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 220)
+                                    .clipped()
+                            case .failure(_):
+                                Image(AINutritionService.shared.fallbackLocalImage(for: meal.title))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 220)
+                                    .clipped()
+                            case .empty:
+                                ZStack {
+                                    Rectangle()
+                                        .fill(LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
                                         .frame(height: 220)
-                                        .clipped()
-                                case .failure(_):
-                                    ZStack {
-                                        Rectangle()
-                                            .fill(LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                            .frame(height: 220)
-                                        Image(systemName: "fork.knife")
-                                            .font(.system(size: 48))
-                                            .foregroundColor(.white.opacity(0.8))
-                                    }
-                                case .empty:
-                                    ZStack {
-                                        Rectangle()
-                                            .fill(LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                            .frame(height: 220)
-                                        ProgressView()
-                                            .tint(.white)
-                                    }
-                                @unknown default:
-                                    EmptyView()
+                                    ProgressView()
+                                        .tint(.white)
                                 }
+                            @unknown default:
+                                EmptyView()
                             }
-                            .frame(height: 220)
-                            .cornerRadius(24)
-                            .padding(.horizontal)
-                            .padding(.top, 16)
-                            .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
                         }
+                        .frame(height: 220)
+                        .cornerRadius(24)
+                        .padding(.horizontal)
+                        .padding(.top, 16)
+                        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
                         
                         // Header
                         VStack(alignment: .leading, spacing: 8) {

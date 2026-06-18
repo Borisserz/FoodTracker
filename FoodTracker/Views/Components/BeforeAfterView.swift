@@ -15,6 +15,8 @@ struct BeforeAfterView: View {
     
     @State private var isAnalyzing = false
     @State private var hasAnalyzed = false
+    @State private var analysisResult: VisualProgressResult?
+    @State private var analysisTask: Task<Void, Never>?
     
     @State private var scannerOffset: CGFloat = 0.0
     
@@ -27,8 +29,11 @@ struct BeforeAfterView: View {
                 Spacer()
                 
                 if beforeImage != nil || afterImage != nil {
-                    Button("Reset") {
+                    Button(action: {
+                        HapticManager.shared.impact(style: .light)
                         withAnimation {
+                            analysisTask?.cancel()
+                            analysisTask = nil
                             beforeItem = nil
                             afterItem = nil
                             beforeImage = nil
@@ -37,9 +42,16 @@ struct BeforeAfterView: View {
                             isAnalyzing = false
                             hasAnalyzed = false
                         }
+                    }) {
+                        Text("Reset")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(themeManager.current.primaryAccent)
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 14)
+                            .background(themeManager.current.primaryAccent.opacity(0.15))
+                            .cornerRadius(12)
                     }
-                    .font(.caption.bold())
-                    .foregroundStyle(themeManager.current.primaryAccent)
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 4)
@@ -271,11 +283,14 @@ struct BeforeAfterView: View {
         isAnalyzing = true
         hasAnalyzed = false
         
-        Task { @MainActor in
+        analysisTask?.cancel()
+        analysisTask = Task { @MainActor in
             HapticManager.shared.impact(style: .medium)
             try? await Task.sleep(for: .seconds(3.0))
+            guard !Task.isCancelled else { return }
             HapticManager.shared.notification(type: .success)
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                analysisResult = VisualProgressResult.random()
                 isAnalyzing = false
                 hasAnalyzed = true
             }
@@ -343,51 +358,49 @@ struct BeforeAfterView: View {
                 .background(Color.gray.opacity(0.03))
                 .cornerRadius(16)
                 .transition(.opacity)
-            } else if hasAnalyzed {
+            } else if hasAnalyzed, let result = analysisResult {
                 VStack(alignment: .leading, spacing: 16) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         AIVisualInsightCard(
                             label: String(localized: "Progress Pace"),
-                            value: "Optimal",
-                            desc: String(localized: "Safe & steady"),
+                            value: result.paceValue,
+                            desc: result.paceDesc,
                             icon: "speedometer",
                             color: .green
                         )
                         
                         AIVisualInsightCard(
                             label: String(localized: "Muscle Tone"),
-                            value: "Enhanced",
-                            desc: String(localized: "Visible definition"),
+                            value: result.muscleValue,
+                            desc: result.muscleDesc,
                             icon: "figure.strengthtraining.traditional",
                             color: themeManager.current.primaryAccent
                         )
                         
                         AIVisualInsightCard(
                             label: String(localized: "Posture Symmetry"),
-                            value: "Improved",
-                            desc: String(localized: "Better alignment"),
+                            value: result.postureValue,
+                            desc: result.postureDesc,
                             icon: "figure.mind.and.body",
                             color: .cyan
                         )
                         
                         AIVisualInsightCard(
                             label: String(localized: "Trajectory"),
-                            value: "On Track",
-                            desc: String(localized: "Hitting visual goals"),
+                            value: result.trajectoryValue,
+                            desc: result.trajectoryDesc,
                             icon: "target",
                             color: .orange
                         )
                     }
                     
                     HStack(spacing: 12) {
-                        FakeMetricCard(title: String(localized: "Est. Body Fat"), value: "-2.4%", isPositive: true)
-                        FakeMetricCard(title: String(localized: "Est. Weight"), value: "-1.8 kg", isPositive: true)
-                        FakeMetricCard(title: String(localized: "Muscle Mass"), value: "+0.5 kg", isPositive: true)
+                        FakeMetricCard(title: String(localized: "Est. Body Fat"), value: result.bfDelta, isPositive: result.bfPositive)
+                        FakeMetricCard(title: String(localized: "Est. Weight"), value: result.weightDelta, isPositive: result.weightPositive)
+                        FakeMetricCard(title: String(localized: "Muscle Mass"), value: result.muscleDelta, isPositive: result.musclePositive)
                     }
                     
-
-                    
-                    AIPerceptionFeedbackCard()
+                    AIPerceptionFeedbackCard(fullText: result.feedbackText)
                 }
                 .transition(.asymmetric(
                     insertion: .move(edge: .bottom).combined(with: .opacity),
@@ -444,10 +457,9 @@ struct AIVisualInsightCard: View {
 }
 
 struct AIPerceptionFeedbackCard: View {
+    let fullText: String
     @State private var displayedText: String = ""
     @State private var currentIndex: String.Index?
-    
-    private let fullText = "Based on the visual comparison, your rate of body recomposition is optimal. There is a noticeable enhancement in muscle definition and a visible improvement in posture alignment. This pace of visual change is highly sustainable and indicates that your current caloric deficit and protein intake are perfectly dialed in. Keep following your current protocol."
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -474,6 +486,9 @@ struct AIPerceptionFeedbackCard: View {
         )
         .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
         .onAppear {
+            startTypewriter()
+        }
+        .onChange(of: fullText) { _, _ in
             startTypewriter()
         }
     }
@@ -526,6 +541,71 @@ struct FakeMetricCard: View {
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+        )
+    }
+}
+
+// MARK: - Visual Progress Result Data Model
+
+struct VisualProgressResult {
+    let paceValue: String
+    let paceDesc: String
+    let muscleValue: String
+    let muscleDesc: String
+    let postureValue: String
+    let postureDesc: String
+    let trajectoryValue: String
+    let trajectoryDesc: String
+    
+    let bfDelta: String
+    let bfPositive: Bool
+    let weightDelta: String
+    let weightPositive: Bool
+    let muscleDelta: String
+    let musclePositive: Bool
+    
+    let feedbackText: String
+    
+    static func random() -> VisualProgressResult {
+        let paceValues = ["Optimal", "Moderate", "Accelerated", "Aggressive", "Steady", "Gradual", "Impressive"]
+        let paceDescs = ["Safe & steady", "Consistent pace", "High response", "Fast fat loss", "Pacing well", "Slow but sure", "Noticeable changes"]
+        
+        let muscleValues = ["Enhanced", "Maintained", "Hypertrophy", "Defined", "Toned", "Symmetrical", "Voluminous"]
+        let muscleDescs = ["Visible definition", "Preserved mass", "Increased volume", "Higher vascularity", "Lean look", "Balanced proportions", "Dense fibers"]
+        
+        let postureValues = ["Improved", "Stable", "Balanced", "Neutral", "Excellent", "Upright", "Aligned"]
+        let postureDescs = ["Better alignment", "Good symmetry", "Stronger frame", "Unchanged", "Perfect alignment", "Core engaged", "Spinal relief"]
+        
+        let bfDeltaVal = Double.random(in: 0.5...4.5)
+        let weightDeltaVal = Double.random(in: -4.0...1.5)
+        let muscleDeltaVal = Double.random(in: -0.5...2.5)
+        
+        let bfStr = String(format: "-%.1f%%", bfDeltaVal)
+        let weightStr = String(format: "%+.1f kg", weightDeltaVal)
+        let muscleStr = String(format: "%+.1f kg", muscleDeltaVal)
+        
+        let templates = [
+            "Based on the visual comparison, your rate of body recomposition is {pace}. There is a noticeable enhancement in muscle definition and a visible improvement in posture. This indicates that your current caloric deficit and protein intake are dialing in nicely.",
+            "Your visual recomposition shows a {pace} progression. While overall mass hasn't changed drastically, your body fat percentage has decreased while maintaining lean muscle. This suggests your training stimulus is adequate.",
+            "The analysis indicates a strong response. You've gained noticeable muscle mass, particularly in the upper body and core, while keeping fat levels relatively stable. Structurally you are much leaner and more defined.",
+            "Visual mapping reveals a significant reduction in body fat, uncovering deep muscle definition. This is an excellent result. Make sure to keep protein intake high to preserve the remaining muscle.",
+            "The most striking change is in your structural symmetry and posture. Your shoulders sit further back, naturally enhancing your V-taper. Alongside a steady decrease in body fat, your physical presentation has drastically improved.",
+            "Incredible {pace} progress! You are shedding fat efficiently while preserving lean mass. Your overall symmetry and visual leanness have taken a major leap forward.",
+            "A clear {pace} transformation. The core is significantly tighter and arm definition is starting to pop. Stay consistent with your current routine, it is visibly working."
+        ]
+        
+        let feedback = templates.randomElement()!.replacingOccurrences(of: "{pace}", with: paceValues.randomElement()!.lowercased())
+        
+        return VisualProgressResult(
+            paceValue: paceValues.randomElement()!, paceDesc: paceDescs.randomElement()!,
+            muscleValue: muscleValues.randomElement()!, muscleDesc: muscleDescs.randomElement()!,
+            postureValue: postureValues.randomElement()!, postureDesc: postureDescs.randomElement()!,
+            trajectoryValue: ["On Track", "Steady", "Surpassing", "Peaking", "Balanced"].randomElement()!, 
+            trajectoryDesc: ["Hitting visual goals", "Sustainable changes", "Ahead of schedule", "Cutting phase", "Well balanced"].randomElement()!,
+            bfDelta: bfStr, bfPositive: true,
+            weightDelta: weightStr, weightPositive: weightDeltaVal <= 0,
+            muscleDelta: muscleStr, musclePositive: muscleDeltaVal >= 0,
+            feedbackText: feedback
         )
     }
 }

@@ -6,6 +6,7 @@ import Combine
 // MARK: - SmartScannerView
 struct SmartScannerView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     var onProductFound: (FoodItem) -> Void
     var onManualEntryRequest: (String?) -> Void
@@ -485,6 +486,17 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     isLoading = false
                     HapticManager.shared.impact(style: .heavy)
+                    // ── Auto-save to local cache (zero Firestore) ────────
+                    ScannedFoodRepository.shared.save(
+                        name: foodItem.name,
+                        calories: foodItem.calories,
+                        protein: foodItem.protein,
+                        fat: foodItem.fats,
+                        carbs: foodItem.carbs,
+                        source: "barcode",
+                        barcode: barcode,
+                        in: modelContext
+                    )
                     onProductFound(foodItem)
                     dismiss()
                 }
@@ -506,6 +518,18 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     withAnimation { isAnalyzingAI = false }
                     HapticManager.shared.impact(style: .heavy)
+                    // ── Auto-save AI-recognized food to local cache ───────
+                    if foodItem.calories > 0 {
+                        ScannedFoodRepository.shared.save(
+                            name: foodItem.name,
+                            calories: foodItem.calories,
+                            protein: foodItem.protein,
+                            fat: foodItem.fats,
+                            carbs: foodItem.carbs,
+                            source: "photo",
+                            in: modelContext
+                        )
+                    }
                     onProductFound(foodItem)
                     dismiss()
                 }

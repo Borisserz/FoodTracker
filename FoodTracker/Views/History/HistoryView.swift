@@ -217,7 +217,7 @@ struct RecipesHeroCard: View {
                                 .background(Color.themePink)
                                 .clipShape(Capsule())
                             
-                            Text("600+ DISHES")
+                            Text("60+ DISHES")
                                 .font(.system(.caption2, design: .rounded, weight: .bold))
                                 .foregroundStyle(Color.themeYellow)
                         }
@@ -255,7 +255,7 @@ struct RecipesHeroCard: View {
         }
         .buttonStyle(BounceButtonStyle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Recipes: Explore Healthy Cooking. 600+ dishes, custom meals, and step-by-step videos.")
+        .accessibilityLabel("Recipes: Explore Healthy Cooking. 60+ dishes, custom meals, and step-by-step videos.")
         .accessibilityAddTraits(.isButton)
     }
 }

@@ -26,7 +26,12 @@ struct MacroBatteryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(title).font(.caption).foregroundColor(.textGray).bold()
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.textGray)
+                    .bold()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Spacer()
                 let textColor = color == .themeYellow ? Color.themeDarkYellow : color
                 Text("\(current)/\(total)g").font(.caption.bold()).foregroundColor(textColor)
@@ -167,7 +172,7 @@ struct DynamicEnergyDashboard: View {
                             selectedTab = tab
                         }
                     }) {
-                        Text(tab.rawValue)
+                        Text(LocalizedStringKey(tab.rawValue))
                             .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -503,7 +508,10 @@ struct EquationBlock: View {
         VStack(spacing: 8) {
             HStack(spacing: 4) {
                 Image(systemName: icon).font(.caption2)
-                Text(title).font(.caption.bold())
+                Text(title)
+                    .font(.caption.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
             }
             .foregroundColor(color)
             .textCase(.uppercase)
@@ -688,7 +696,7 @@ struct DetailedMacroRingsCard: View {
 
             HStack(spacing: 15) {
                 IndividualMacroRing(title: String(localized: "Carbs"), current: summary.totalCarbs, target: targetC, color: .drinkWater)
-                IndividualMacroRing(title: String(localized: "Fat"), current: summary.totalFats, target: targetF, color: .themeYellow)
+                IndividualMacroRing(title: String(localized: "Fats"), current: summary.totalFats, target: targetF, color: .themeYellow)
                 IndividualMacroRing(title: String(localized: "Protein"), current: summary.totalProtein, target: targetP, color: .themePeach)
             }
             .padding(.vertical, 4)
@@ -739,6 +747,8 @@ struct IndividualMacroRing: View {
             Text(title)
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .foregroundColor(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
 
             ZStack {
                 Circle()
@@ -966,7 +976,7 @@ struct MealBreakdownCard: View {
                 Divider()
                 MealMacroRow(title: String(localized: "Protein"), value: currentMealData?.totalProtein ?? 0, unit: "g", color: .themePeach)
                 Divider()
-                MealMacroRow(title: String(localized: "Fat"), value: currentMealData?.totalFats ?? 0, unit: "g", color: .themeYellow)
+                MealMacroRow(title: String(localized: "Fats"), value: currentMealData?.totalFats ?? 0, unit: "g", color: .themeYellow)
             }
             .padding(20)
             .background(

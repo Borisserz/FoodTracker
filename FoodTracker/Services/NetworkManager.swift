@@ -1,4 +1,6 @@
 import Foundation
+import SwiftData
+
 
 class NetworkManager {
     static let shared = NetworkManager()
@@ -25,17 +27,48 @@ class NetworkManager {
         return 0.0
     }
 
-    func searchFoodByText(query: String) async -> [FoodItem] {
+    func searchFoodByText(query: String, modelContext: ModelContext? = nil) async -> [FoodItem] {
         print("🔍 Ищем '\(query)' (Язык: \(currentLanguage))")
 
-        var results = await searchFromOpenFoodFacts(query: query)
-        print("🍏 В Open Food Facts найдено: \(results.count)")
+        // ── Step 1: Local bundled JSON database (instant, zero network) ──────
+        let localResults = LocalFoodDatabaseService.shared.search(query: query)
+        print("📚 Локальная база: \(localResults.count) результатов")
 
+        // ── Step 2: User's previously scanned foods (SwiftData, zero network) ─
+        var scannedResults: [FoodItem] = []
+        if let ctx = modelContext {
+            scannedResults = ScannedFoodRepository.shared.search(query: query, in: ctx)
+            print("🔬 Сканированные продукты: \(scannedResults.count) результатов")
+        }
+
+        // Merge local + scanned (deduped by lowercased name)
+        var results: [FoodItem] = localResults
+        for scanned in scannedResults {
+            if !results.contains(where: { $0.name.lowercased() == scanned.name.lowercased() }) {
+                results.insert(scanned, at: 0) // scanned foods appear first
+            }
+        }
+
+        // If we already have good coverage, skip the network entirely
+        if results.count >= 5 {
+            print("✅ Достаточно локальных результатов (\(results.count)). Сеть не нужна.")
+            return Array(results.prefix(20))
+        }
+
+        // ── Step 3: OpenFoodFacts API ─────────────────────────────────────────
+        let offResults = await searchFromOpenFoodFacts(query: query)
+        print("🍏 Open Food Facts: \(offResults.count) результатов")
+        for item in offResults {
+            if !results.contains(where: { $0.name.lowercased() == item.name.lowercased() }) {
+                results.append(item)
+            }
+        }
+
+        // ── Step 4: FatSecret API (if still not enough) ──────────────────────
         if results.count < 10 {
-            print("⚠️ В OFF мало результатов. Подключаем FatSecret...")
+            print("⚠️ Мало результатов. Подключаем FatSecret...")
             let fatSecretResults = await searchFromFatSecret(query: query)
-            print("🍔 В FatSecret найдено: \(fatSecretResults.count)")
-
+            print("🍔 FatSecret: \(fatSecretResults.count) результатов")
             for fsItem in fatSecretResults {
                 if !results.contains(where: { $0.name.lowercased() == fsItem.name.lowercased() }) {
                     results.append(fsItem)
@@ -43,8 +76,9 @@ class NetworkManager {
             }
         }
 
+        // ── Step 5: AI generation as last resort ─────────────────────────────
         if results.isEmpty {
-            print("⚠️ Оба API ничего не нашли. Подключаем ИИ-генерацию для '\(query)'...")
+            print("⚠️ Все источники пусты. Запускаем ИИ-генерацию для '\(query)'...")
             TrackingManager.shared.track(.aiChefUsed(queryLength: query.count))
             if let aiFood = await AINutritionService.shared.generateFoodItem(for: query) {
                 print("✨ ИИ сгенерировал продукт: \(aiFood.name)")
@@ -55,6 +89,7 @@ class NetworkManager {
         print("✅ Итого найдено: \(results.count) результатов.")
         return Array(results.prefix(20))
     }
+
 
     func fetchProduct(barcode: String) async -> FoodItem? {
         print("🔍 Ищем штрихкод \(barcode)...")

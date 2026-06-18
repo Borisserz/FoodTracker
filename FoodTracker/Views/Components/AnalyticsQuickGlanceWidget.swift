@@ -82,6 +82,8 @@ struct GlanceCard: View {
                 Text(title)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 
                 Spacer()
                 
@@ -99,7 +101,7 @@ struct GlanceCard: View {
                     .font(.system(size: 24, weight: .black, design: .rounded))
                     .foregroundColor(.primary)
                 
-                Text("/ \(Int(target)) \(unit)")
+                Text("/ \(Int(target)) \(String(localized: String.LocalizationValue(unit)))")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundColor(.gray.opacity(0.7))
             }

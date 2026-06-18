@@ -228,7 +228,6 @@
 				BE10A108A722F94EAFEEF26B /* Info.plist */,
 				40CB57D0E0E29A5AD9131E06 /* FoodTrackerTests.swift */,
 			);
-			name = FoodTrackerTests;
 			path = FoodTrackerTests;
 			sourceTree = "<group>";
 		};
@@ -238,7 +237,6 @@
 				951DC820DDF45895C66E3051 /* Info.plist */,
 				C0D54905F7C5FFBE5CDC3075 /* FoodTrackerUITests.swift */,
 			);
-			name = FoodTrackerUITests;
 			path = FoodTrackerUITests;
 			sourceTree = "<group>";
 		};
@@ -287,8 +285,8 @@
 				ACD93EFB2F8AC7E200868265 /* Sources */,
 				ACD93EFC2F8AC7E200868265 /* Frameworks */,
 				ACD93EFD2F8AC7E200868265 /* Resources */,
-				A8E93B9035C662EEC7D5AB5B /* Firebase Crashlytics */,
 				B56B381E84EA79DA009CF93B /* Embed App Extensions */,
+				A8E93B9035C662EEC7D5AB5B /* Firebase Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -416,6 +414,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		A8E93B9035C662EEC7D5AB5B /* Firebase Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -755,11 +754,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = FoodTracker/FoodTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = LSCCP92LMG;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FoodTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FoodTracker;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				INFOPLIST_KEY_NSCameraUsageDescription = "FoodTracker needs access to your camera to scan food barcodes, restaurant menus, and capture cooking steps for AI analysis";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized";
@@ -794,11 +795,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = FoodTracker/FoodTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = LSCCP92LMG;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FoodTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FoodTracker;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				INFOPLIST_KEY_NSCameraUsageDescription = "FoodTracker needs access to your camera to scan food barcodes, restaurant menus, and capture cooking steps for AI analysis";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized";

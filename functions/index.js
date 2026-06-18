@@ -8,7 +8,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getAuth } = require("firebase-admin/auth");
 // Per-user AI rate limit (abuse / cost control for the paid Vertex proxy).
 const AI_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;     // 7 days in ms
-const DEFAULT_AI_WEEKLY_LIMIT = 10;               // default requests per rolling 7-day window
+const DEFAULT_AI_WEEKLY_LIMIT = 100;              // default requests per rolling 7-day window
 initializeApp();
 
 // ==========================================
@@ -154,6 +154,17 @@ try {
   await enforceRateLimit(uid);
 } catch (e) {
   if (e instanceof RateLimitError) {
+    // Log the limit hit to Firestore so the admin can monitor it
+    try {
+      await getFirestore().collection("limit_hits").add({
+        uid: uid,
+        limit: e.limit,
+        timestamp: FieldValue.serverTimestamp()
+      });
+    } catch (logErr) {
+      console.error("Failed to log limit hit:", logErr);
+    }
+
     res.set("Retry-After", String(e.retryAfterSeconds));
     res.status(429).json({
       error: "weekly_limit_reached",

@@ -7,7 +7,9 @@ struct WaterGridTrackerView: View {
 
     @Bindable var summary: DailySummary
 
-    let dailyGoalLiters = 2.5
+    var dailyGoalLiters: Double {
+        users.first?.dailyWaterGoal ?? 2.5
+    }
     let volumePerGridCupMl: Double = 250.0
     let gridColumns = 6
 
