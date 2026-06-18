@@ -150,6 +150,10 @@ struct MoreTabView: View {
             Text("\(String(localized: "Version")) \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
                 .font(.caption2)
                 .foregroundStyle(Color.secondary.opacity(0.6))
+                
+            Link("Photos provided by Pexels", destination: URL(string: "https://www.pexels.com")!)
+                .font(.system(size: 9))
+                .foregroundStyle(Color.secondary.opacity(0.3))
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)

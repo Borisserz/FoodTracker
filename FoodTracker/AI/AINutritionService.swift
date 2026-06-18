@@ -589,7 +589,18 @@ actor PollinationsImageLoader {
     
     private let cache = NSCache<NSString, UIImage>()
     
-    private var downloadTaskQueue: Task<UIImage, Error>?
+    // Disk Cache Directory
+    private var cacheDirectory: URL {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+    }
+    
+    private let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15.0
+        config.timeoutIntervalForResource = 15.0
+        config.httpMaximumConnectionsPerHost = 4 // Native concurrency limit
+        return URLSession(configuration: config)
+    }()
     
     func fetchImage(url: URL) async throws -> UIImage {
         let cacheKey = url.absoluteString as NSString
@@ -597,33 +608,63 @@ actor PollinationsImageLoader {
             return cachedImage
         }
         
-        let previousTask = downloadTaskQueue
-        let currentTask = Task {
-            // Wait for previous download to finish
-            _ = try? await previousTask?.value
-            
-            // Add a small delay between requests to prevent 429
-            try? await Task.sleep(nanoseconds: 800_000_000)
-            
-            var attempt = 0
-            while attempt < 3 {
-                let (data, response) = try await URLSession.shared.data(from: url)
+        let safeFileName = url.absoluteString.components(separatedBy: .alphanumerics.inverted).joined() + ".jpg"
+        let fileUrl = cacheDirectory.appendingPathComponent(safeFileName)
+        
+        // 1. Check disk cache
+        if let data = try? Data(contentsOf: fileUrl), let image = UIImage(data: data) {
+            cache.setObject(image, forKey: cacheKey)
+            return image
+        }
+        
+        // 2. Fast path for non-pollinations URLs
+        let isPollinations = url.host?.contains("pollinations.ai") == true
+        if !isPollinations {
+            let (data, _) = try await session.data(from: url)
+            if let image = UIImage(data: data) {
+                cache.setObject(image, forKey: cacheKey)
+                Task.detached {
+                    if let jpegData = image.jpegData(compressionQuality: 0.8) {
+                        try? jpegData.write(to: fileUrl)
+                    }
+                }
+                return image
+            } else {
+                throw URLError(.cannotDecodeRawData)
+            }
+        }
+        
+        // 3. Rate-limited concurrent execution for pollinations.ai
+        // Native URLSession handles concurrency via httpMaximumConnectionsPerHost = 4
+        var attempt = 0
+        while attempt < 3 {
+            do {
+                let (data, response) = try await session.data(from: url)
                 if let http = response as? HTTPURLResponse, http.statusCode == 429 {
                     attempt += 1
-                    try await Task.sleep(nanoseconds: UInt64(attempt * 2) * 1_000_000_000)
+                    // Add jitter to avoid thundering herd on retry
+                    let jitter = Double.random(in: 0.5...1.5)
+                    try await Task.sleep(nanoseconds: UInt64(Double(attempt * 2) * jitter * 1_000_000_000))
                     continue
                 }
                 
                 if let image = UIImage(data: data) {
                     cache.setObject(image, forKey: cacheKey)
+                    // Save to disk cache
+                    Task.detached {
+                        if let jpegData = image.jpegData(compressionQuality: 0.8) {
+                            try? jpegData.write(to: fileUrl)
+                        }
+                    }
                     return image
                 } else {
                     throw URLError(.cannotDecodeRawData)
                 }
+            } catch {
+                // Fail fast on timeout/error
+                throw error
             }
-            throw URLError(.badServerResponse)
         }
-        downloadTaskQueue = currentTask
-        return try await currentTask.value
+        throw URLError(.badServerResponse)
     }
 }

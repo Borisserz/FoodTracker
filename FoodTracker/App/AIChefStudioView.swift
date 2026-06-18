@@ -344,11 +344,19 @@ struct SearchResultRow: View {
     let recipe: UnifiedRecipePreview
     var body: some View {
         HStack {
-            let imageUrl = recipe.heroImage.starts(with: "http")
-                ? recipe.heroImage
-                : AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
-            SmartImageView(url: imageUrl, fallbackTitle: recipe.title)
-            .frame(width: 40, height: 40).cornerRadius(10)
+            if recipe.customRecipe != nil && (recipe.customRecipe?.imageUrl ?? "").isEmpty {
+                ZStack {
+                    LinearGradient(colors: [.themeOrange.opacity(0.6), .themePink.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    Image(systemName: "frying.pan").font(.system(size: 24)).foregroundColor(.white)
+                }
+                .frame(width: 60, height: 60).cornerRadius(12)
+            } else {
+                let imageUrl = recipe.heroImage.starts(with: "http")
+                    ? recipe.heroImage
+                    : (recipe.customRecipe?.imageUrl ?? AINutritionService.shared.imageUrl(forMealTitle: recipe.title))
+                SmartImageView(url: imageUrl, fallbackTitle: recipe.title)
+                    .frame(width: 60, height: 60).cornerRadius(12)
+            }
             VStack(alignment: .leading) {
                 Text(LocalizedStringKey(recipe.title)).font(.headline)
                 Text("\(recipe.calories) kcal").font(.caption).foregroundColor(.gray)
@@ -366,11 +374,25 @@ struct RecipeCardView: View {
             ZStack {
                 Color.themePink.opacity(0.15)
                 // Always show a food photo — use stored URL or generate from title
-                let imageUrl = recipe.heroImage.starts(with: "http")
-                    ? recipe.heroImage
-                    : AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
-                SmartImageView(url: imageUrl, fallbackTitle: recipe.title)
-                    .frame(height: 120).clipped()
+                if recipe.customRecipe != nil && (recipe.customRecipe?.imageUrl ?? "").isEmpty {
+                    ZStack {
+                        LinearGradient(colors: [.themeOrange.opacity(0.6), .themePink.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        VStack(spacing: 8) {
+                            Image(systemName: "frying.pan")
+                                .font(.system(size: 30))
+                                .foregroundColor(.white)
+                            Text("Custom")
+                                .font(.caption2.bold())
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    }
+                } else {
+                    let imageUrl = recipe.heroImage.starts(with: "http")
+                        ? recipe.heroImage
+                        : (recipe.customRecipe?.imageUrl ?? AINutritionService.shared.imageUrl(forMealTitle: recipe.title))
+                    SmartImageView(url: imageUrl, fallbackTitle: recipe.title)
+                        .frame(height: 120).clipped()
+                }
             }.frame(width: 180, height: 120).cornerRadius(16).clipped()
             Text(LocalizedStringKey(recipe.title)).font(.headline).lineLimit(1).padding(.top, 8)
             Text("\(recipe.calories) kcal • \(recipe.cookTime) min").font(.caption).foregroundColor(.gray)

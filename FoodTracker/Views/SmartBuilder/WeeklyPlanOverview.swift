@@ -749,15 +749,8 @@ struct QueuedAsyncImageView: View {
             }
             return
         }
-        // 2) Fallback — стоковое фото по ключевым словам
-        if let url = URL(string: AINutritionService.shared.imageUrl(forMealTitle: searchQuery)),
-           let img = try? await PollinationsImageLoader.shared.fetchImage(url: url) {
-            if !Task.isCancelled {
-                await MainActor.run { state = .success(Image(uiImage: img)) }
-            }
-            return
-        }
-        // 3) Финальный fallback — локальная картинка из ассетов
+        
+        // 2) Финальный fallback — локальная картинка из ассетов
         if !Task.isCancelled {
             await MainActor.run { state = .failure }
         }

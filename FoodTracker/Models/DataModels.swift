@@ -201,14 +201,16 @@ struct Achievement: Identifiable {
 
     var servings: Int = 1
     var directions: [String] = []
+    var imageUrl: String = ""
 
     var totalCalories: Int { (foodItems ?? []).reduce(0) { $0 + $1.calories } }
 
-    init(name: String, info: String, foodItems: [FoodItem]? = [], cookingTime: Int, difficulty: String, servings: Int = 1, directions: [String] = []) {
+    init(name: String, info: String, foodItems: [FoodItem]? = [], cookingTime: Int, difficulty: String, servings: Int = 1, directions: [String] = [], imageUrl: String = "") {
         self.name = name; self.info = info; self.foodItems = foodItems
         self.cookingTime = cookingTime; self.difficulty = difficulty
         self.servings = servings
         self.directions = directions
+        self.imageUrl = imageUrl
     }
 }
 

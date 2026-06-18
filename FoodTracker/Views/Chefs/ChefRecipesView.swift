@@ -468,9 +468,25 @@ struct CustomRecipePremiumCard: View {
             
             // Hero Image
             ZStack(alignment: .bottomLeading) {
-                SmartImageView(url: AINutritionService.shared.imageUrl(forMealTitle: recipe.name), fallbackTitle: recipe.name)
-                .frame(height: 140)
-                .clipped()
+                if recipe.imageUrl.isEmpty {
+                    ZStack {
+                        LinearGradient(colors: [.themeOrange.opacity(0.6), .themePink.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        VStack(spacing: 8) {
+                            Image(systemName: "frying.pan")
+                                .font(.system(size: 40))
+                                .foregroundColor(.white)
+                            Text("Custom Recipe")
+                                .font(.caption.bold())
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    }
+                    .frame(height: 140)
+                    .clipped()
+                } else {
+                    SmartImageView(url: recipe.imageUrl, fallbackTitle: recipe.name)
+                        .frame(height: 140)
+                        .clipped()
+                }
                 
                 LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
                 
