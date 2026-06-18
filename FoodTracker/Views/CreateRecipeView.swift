@@ -537,6 +537,8 @@ struct AddIngredientModalView: View {
     @State private var protein: String = ""
     @State private var fats: String = ""
     @State private var carbs: String = ""
+    
+    @State private var isPublic: Bool = true
 
     var isFormValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty && (Double(weight) ?? 0) > 0
@@ -612,6 +614,27 @@ struct AddIngredientModalView: View {
                                 Divider().padding(.leading, 20)
                                 CustomTextFieldRow(title: String(localized: "Carbs (g)"), placeholder: "0", text: $carbs, isNumber: true)
                             }
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+                        }
+
+                        // Community Toggle
+                        VStack(alignment: .leading, spacing: 8) {
+                            Toggle(isOn: $isPublic) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Share with Community")
+                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.primary)
+                                    Text("Make this product public so others can find it via text search.")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .tint(.themePink)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 16)
                             .background(Color.white)
                             .cornerRadius(20)
                             .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
@@ -701,6 +724,10 @@ struct AddIngredientModalView: View {
 
         if let barcode = failedBarcode {
             BarcodeDatabaseService.shared.saveCustomBarcode(barcode: barcode, item: newFood)
+        }
+        
+        if isPublic {
+            BarcodeDatabaseService.shared.saveCommunityFood(item: newFood)
         }
 
         onSave(newFood)

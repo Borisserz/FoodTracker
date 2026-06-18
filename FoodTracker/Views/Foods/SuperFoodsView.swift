@@ -9,14 +9,14 @@ struct DietsListView: View {
 
     var body: some View {
         ZStack {
-            // Защита: если диеты еще не загрузились с сервера
+            
             if DietDataLoader.shared.diets.isEmpty {
                 VStack {
                     ProgressView()
                     Text("Loading Diet Plans...").foregroundColor(.gray).padding(.top)
                 }
             } else {
-                // Данные загружены, отображаем интерфейс
+                
                 let currentDietColor = DietDataLoader.shared.diets[selectedIndex].color
                 currentDietColor.opacity(0.15)
                     .ignoresSafeArea()

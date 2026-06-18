@@ -94,6 +94,12 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // === Global Community Foods (AI & Manual) ===
+    match /global_community_foods/{foodId} {
+      allow read, create, update: if true;
+      allow delete: if false;
+    }
+
     // === Default deny for everything else ===
     match /{document=**} {
       allow read, write: if false;

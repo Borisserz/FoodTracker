@@ -28,17 +28,17 @@ class NetworkManager {
     }
 
     func searchFoodByText(query: String, modelContext: ModelContext? = nil) async -> [FoodItem] {
-        print("🔍 Ищем '\(query)' (Язык: \(currentLanguage))")
+        print("Log output removed for English localization")
 
         // ── Step 1: Local bundled JSON database (instant, zero network) ──────
         let localResults = LocalFoodDatabaseService.shared.search(query: query)
-        print("📚 Локальная база: \(localResults.count) результатов")
+        print("Log output removed for English localization")
 
         // ── Step 2: User's previously scanned foods (SwiftData, zero network) ─
         var scannedResults: [FoodItem] = []
         if let ctx = modelContext {
             scannedResults = ScannedFoodRepository.shared.search(query: query, in: ctx)
-            print("🔬 Сканированные продукты: \(scannedResults.count) результатов")
+            print("Log output removed for English localization")
         }
 
         // Merge local + scanned (deduped by lowercased name)
@@ -51,13 +51,37 @@ class NetworkManager {
 
         // If we already have good coverage, skip the network entirely
         if results.count >= 5 {
-            print("✅ Достаточно локальных результатов (\(results.count)). Сеть не нужна.")
+            print("Log output removed for English localization")
             return Array(results.prefix(20))
         }
 
-        // ── Step 3: OpenFoodFacts API ─────────────────────────────────────────
+        // ── Step 3: Global Community Database ──────────────
+        let communityFoods = await BarcodeDatabaseService.shared.searchCommunityFoods(query: query)
+        let blockedList = UserDefaults.standard.stringArray(forKey: "blockedCommunityFoods") ?? []
+        print("Log output removed for English localization")
+        for item in communityFoods {
+            let cleanName = item.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            if !blockedList.contains(cleanName) && !results.contains(where: { $0.name.lowercased() == item.name.lowercased() }) {
+                results.append(item)
+            }
+        }
+        
+        let customBarcodeFoods = await BarcodeDatabaseService.shared.searchCustomBarcodesByText(query: query)
+        print("Log output removed for English localization")
+        for item in customBarcodeFoods {
+            if !results.contains(where: { $0.name.lowercased() == item.name.lowercased() }) {
+                results.append(item)
+            }
+        }
+        
+        // Return if we hit the threshold
+        if results.count >= 5 {
+            return Array(results.prefix(20))
+        }
+
+        // ── Step 4: OpenFoodFacts API ─────────────────────────────────────────
         let offResults = await searchFromOpenFoodFacts(query: query)
-        print("🍏 Open Food Facts: \(offResults.count) результатов")
+        print("Log output removed for English localization")
         for item in offResults {
             if !results.contains(where: { $0.name.lowercased() == item.name.lowercased() }) {
                 results.append(item)
@@ -66,9 +90,9 @@ class NetworkManager {
 
         // ── Step 4: FatSecret API (if still not enough) ──────────────────────
         if results.count < 10 {
-            print("⚠️ Мало результатов. Подключаем FatSecret...")
+            print("Log output removed for English localization")
             let fatSecretResults = await searchFromFatSecret(query: query)
-            print("🍔 FatSecret: \(fatSecretResults.count) результатов")
+            print("Log output removed for English localization")
             for fsItem in fatSecretResults {
                 if !results.contains(where: { $0.name.lowercased() == fsItem.name.lowercased() }) {
                     results.append(fsItem)
@@ -78,37 +102,41 @@ class NetworkManager {
 
         // ── Step 5: AI generation as last resort ─────────────────────────────
         if results.isEmpty {
-            print("⚠️ Все источники пусты. Запускаем ИИ-генерацию для '\(query)'...")
+            print("Log output removed for English localization")
             TrackingManager.shared.track(.aiChefUsed(queryLength: query.count))
             if let aiFood = await AINutritionService.shared.generateFoodItem(for: query) {
-                print("✨ ИИ сгенерировал продукт: \(aiFood.name)")
+                print("Log output removed for English localization")
+                
+                
+                BarcodeDatabaseService.shared.saveCommunityFood(item: aiFood)
+                
                 results.append(aiFood)
             }
         }
 
-        print("✅ Итого найдено: \(results.count) результатов.")
+        print("Log output removed for English localization")
         return Array(results.prefix(20))
     }
 
 
     func fetchProduct(barcode: String) async -> FoodItem? {
-        print("🔍 Ищем штрихкод \(barcode)...")
+        print("Log output removed for English localization")
         if let customProduct = await BarcodeDatabaseService.shared.fetchCustomBarcode(barcode: barcode) {
-            print("✅ Нашли в Custom Barcodes DB: \(customProduct.name)")
+            print("Log output removed for English localization")
             return customProduct
         }
 
         if let offProduct = await fetchBarcodeFromOFF(barcode: barcode) {
-            print("✅ Нашли в Open Food Facts: \(offProduct.name)")
+            print("Log output removed for English localization")
             return offProduct
         }
 
         if let fatSecretProduct = await fetchBarcodeFromFatSecretBarcode(barcode: barcode) {
-            print("✅ Нашли в FatSecret: \(fatSecretProduct.name)")
+            print("Log output removed for English localization")
             return fatSecretProduct
         }
 
-        print("❌ Продукт по штрихкоду не найден.")
+        print("Log output removed for English localization")
         return nil
     }
 
@@ -178,7 +206,7 @@ class NetworkManager {
     private func ensureToken() async -> String? {
             if let token = fatSecretAccessToken { return token }
 
-            // 1. Берем ключи из Firebase
+            
             let clientId = await RemoteConfigManager.shared.getString(forKey: "fatsecret_client_id")
             let clientSecret = await RemoteConfigManager.shared.getString(forKey: "fatsecret_secret")
 
@@ -188,7 +216,7 @@ class NetworkManager {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             
-            // 2. Используем скачанные ключи
+            
             let auth = "\(clientId):\(clientSecret)".data(using: .utf8)!.base64EncodedString()
             request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
             

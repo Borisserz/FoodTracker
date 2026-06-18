@@ -45,7 +45,7 @@ struct FoodDetailNutritionView: View {
                 VStack(spacing: 20) {
 
                     VStack(spacing: 0) {
-                        FoodDetailHeader(name: editedName) {
+                        FoodDetailHeader(food: food, name: editedName) {
                             HapticManager.shared.impact(style: .medium)
                             showAdjustSheet = true
                         }
@@ -166,7 +166,11 @@ struct FoodDetailNutritionView: View {
 private struct FoodDetailHeader: View {
     @Environment(\.dismiss) var dismiss
     @State private var isFavorite = false
+    
+    @State private var showingReportReasons = false
+    @State private var reportReason = ""
 
+    let food: FoodItem
     let name: String
     var onAdjust: () -> Void
 
@@ -202,6 +206,30 @@ private struct FoodDetailHeader: View {
                         .background(Color.black.opacity(0.2))
                         .clipShape(Circle())
                 }
+                
+                Menu {
+                    Button(role: .destructive) {
+                        HapticManager.shared.impact(style: .medium)
+                        showingReportReasons = true
+                    } label: {
+                        Label("Report Content", systemImage: "exclamationmark.triangle")
+                    }
+                    
+                    Button(role: .destructive) {
+                        HapticManager.shared.impact(style: .heavy)
+                        BarcodeDatabaseService.shared.blockCommunityFood(item: food)
+                        dismiss()
+                    } label: {
+                        Label("Block Product", systemImage: "nosign")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .frame(width: 40, height: 40)
+                        .background(Color.black.opacity(0.2))
+                        .clipShape(Circle())
+                }
             }
             .padding(.top, 50)
 
@@ -219,6 +247,23 @@ private struct FoodDetailHeader: View {
 
         .clipShape(RoundedCorner(radius: 32, corners: [.bottomLeft, .bottomRight]))
         .shadow(color: Color.themePink.opacity(0.3), radius: 15, y: 10)
+        .confirmationDialog("Report Content", isPresented: $showingReportReasons, titleVisibility: .visible) {
+            Button("Offensive Content", role: .destructive) {
+                BarcodeDatabaseService.shared.reportCommunityFood(item: food, reason: "Offensive Content")
+                dismiss()
+            }
+            Button("Spam or Fake", role: .destructive) {
+                BarcodeDatabaseService.shared.reportCommunityFood(item: food, reason: "Spam")
+                dismiss()
+            }
+            Button("Inaccurate Macros", role: .destructive) {
+                BarcodeDatabaseService.shared.reportCommunityFood(item: food, reason: "Inaccurate")
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Why are you reporting \(name)? This will notify our moderators.")
+        }
     }
 }
 

@@ -91,6 +91,7 @@ final class GeminiProxyClient {
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.timeoutInterval = 180 // 3 minutes timeout for long AI generations
         request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
         request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

@@ -8,7 +8,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getAuth } = require("firebase-admin/auth");
 // Per-user AI rate limit (abuse / cost control for the paid Vertex proxy).
 const AI_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;     // 7 days in ms
-const DEFAULT_AI_WEEKLY_LIMIT = 100;              // default requests per rolling 7-day window
+const DEFAULT_AI_WEEKLY_LIMIT = 150;              // default requests per rolling 7-day window
 initializeApp();
 
 // ==========================================

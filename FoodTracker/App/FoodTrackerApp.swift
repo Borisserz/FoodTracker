@@ -191,6 +191,10 @@ struct ContentView: View {
                 .tag(4)
         }
         .tint(themeManager.current.primaryAccent)
+        .overlay {
+            // Floating pill visible on every tab during background plan generation
+            GenerationStatusPill()
+        }
         .onAppear {
             initializeUserIfNeeded()
 
@@ -289,7 +293,7 @@ struct RootLaunchView: View {
         ZStack {
             switch currentStep {
             case .screen1:
-                // ЭКРАН 1 ИЗ МОНЕТКИ (3D-еда и вход)
+                
                 OnboardingView(onSuccess: {
                     hasCompletedInitialOnboarding = true
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
@@ -299,8 +303,8 @@ struct RootLaunchView: View {
                 .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading).combined(with: .opacity)))
 
             case .mainApp:
-                // Переход в главное приложение
-                ContentView() // Главный экран FoodTracker
+                
+                ContentView() 
                     .transition(.opacity)
             }
         }

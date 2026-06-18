@@ -272,21 +272,19 @@ struct GodTierMealCard: View {
     let meal: MealPlanItem
     
     var gradientForMeal: LinearGradient {
-        switch meal.type {
-        case "Breakfast": return LinearGradient(colors: [.orange, .yellow], startPoint: .topLeading, endPoint: .bottomTrailing)
-        case "Lunch": return LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing)
-        case "Dinner": return LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
-        default: return LinearGradient(colors: [.gray, .gray.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
-        }
+        let t = meal.type.lowercased()
+        if t.contains("breakfast") { return LinearGradient(colors: [.orange, .yellow], startPoint: .topLeading, endPoint: .bottomTrailing) }
+        if t.contains("lunch") { return LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing) }
+        if t.contains("dinner") { return LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing) }
+        return LinearGradient(colors: [.gray, .gray.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
     }
     
     var iconForMeal: String {
-        switch meal.type {
-        case "Breakfast": return "sun.max.fill"
-        case "Lunch": return "sun.haze.fill"
-        case "Dinner": return "moon.stars.fill"
-        default: return "fork.knife"
-        }
+        let t = meal.type.lowercased()
+        if t.contains("breakfast") { return "sun.max.fill" }
+        if t.contains("lunch") { return "sun.haze.fill" }
+        if t.contains("dinner") { return "moon.stars.fill" }
+        return "fork.knife"
     }
     
     var body: some View {
@@ -296,32 +294,13 @@ struct GodTierMealCard: View {
             : meal.imageUrl
 
         VStack(alignment: .leading, spacing: 0) {
-            AsyncImage(url: URL(string: effectiveUrl)) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 140)
-                        .clipped()
-                case .failure(_):
-                    Image(AINutritionService.shared.fallbackLocalImage(for: meal.title))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 140)
-                        .clipped()
-                case .empty:
-                    ZStack {
-                        Rectangle()
-                            .fill(gradientForMeal.opacity(0.3))
-                            .frame(height: 140)
-                        ProgressView()
-                            .tint(.white)
-                    }
-                @unknown default:
-                    EmptyView()
-                }
-            }
+            QueuedAsyncImageView(
+                url: URL(string: effectiveUrl),
+                fallbackImageName: AINutritionService.shared.fallbackLocalImage(for: meal.title),
+                gradientForMeal: gradientForMeal
+            )
+            .frame(height: 140)
+            .clipped()
             .frame(height: 140)
             .overlay(
                 LinearGradient(
@@ -425,33 +404,13 @@ struct MealPlanItemDetailView: View {
                             ? AINutritionService.shared.imageUrl(forMealTitle: meal.title)
                             : meal.imageUrl
 
-                        AsyncImage(url: URL(string: effectiveDetailUrl)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 220)
-                                    .clipped()
-                            case .failure(_):
-                                Image(AINutritionService.shared.fallbackLocalImage(for: meal.title))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 220)
-                                    .clipped()
-                            case .empty:
-                                ZStack {
-                                    Rectangle()
-                                        .fill(LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .frame(height: 220)
-                                    ProgressView()
-                                        .tint(.white)
-                                }
-                            @unknown default:
-                                EmptyView()
-                            }
-                        }
+                        QueuedAsyncImageView(
+                            url: URL(string: effectiveDetailUrl),
+                            fallbackImageName: AINutritionService.shared.fallbackLocalImage(for: meal.title),
+                            gradientForMeal: LinearGradient(colors: [themeManager.current.primaryAccent.opacity(0.6), Color.themePink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
                         .frame(height: 220)
+                        .clipped()
                         .cornerRadius(24)
                         .padding(.horizontal)
                         .padding(.top, 16)
@@ -755,5 +714,56 @@ private struct MealPlanNutritionRow: View {
         .overlay(
             Divider(), alignment: .bottom
         )
+    }
+}
+
+struct QueuedAsyncImageView: View {
+    let url: URL?
+    let fallbackImageName: String
+    let gradientForMeal: LinearGradient
+    
+    enum LoadState { case empty, success(Image), failure }
+    @State private var state: LoadState = .empty
+    
+    var body: some View {
+        Group {
+            switch state {
+            case .empty:
+                ZStack {
+                    Rectangle()
+                        .fill(gradientForMeal.opacity(0.3))
+                    ProgressView()
+                        .tint(.white)
+                }
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFill()
+            case .failure:
+                Image(fallbackImageName)
+                    .resizable()
+                    .scaledToFill()
+            }
+        }
+        .task {
+            guard let url = url else {
+                state = .failure
+                return
+            }
+            do {
+                let uiImage = try await PollinationsImageLoader.shared.fetchImage(url: url)
+                await MainActor.run {
+                    state = .success(Image(uiImage: uiImage))
+                }
+            } catch {
+                if Task.isCancelled || (error as? URLError)?.code == .cancelled {
+                    // Just cancelled because user scrolled away, do not show mock image
+                    return
+                }
+                await MainActor.run {
+                    state = .failure
+                }
+            }
+        }
     }
 }

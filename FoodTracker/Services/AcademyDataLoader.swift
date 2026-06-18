@@ -62,7 +62,7 @@ class AcademyDataLoader {
             guard let self = self else { return }
             
             if let error = error {
-                print("❌ Ошибка загрузки Академии: \(error.localizedDescription)")
+                print("❌ Error loading Academy: \(error.localizedDescription)")
                 return
             }
             
@@ -72,12 +72,12 @@ class AcademyDataLoader {
                 let fetchedCategories = try documents.compactMap { try $0.data(as: ArticleCategory.self) }
                 
                 DispatchQueue.main.async {
-                    self.categories = fetchedCategories.sorted { $0.title < $1.title } // Или добавь поле order для сортировки
+                    self.categories = fetchedCategories.sorted { $0.title < $1.title } 
                     self.recalculateProgress()
-                    print("✅ Академия загружена: \(self.categories.count) категорий.")
+                    print("✅ Academy loaded: \(self.categories.count) categories.")
                 }
             } catch {
-                print("❌ Ошибка парсинга Академии: \(error)")
+                print("❌ Error parsing Academy: \(error)")
             }
         }
     }
@@ -121,32 +121,32 @@ class FirebaseUploader {
 #endif
     }
     
-    // 1. Выгрузка рецептов
+    
     func uploadRecipesFromJSON() {
         guard let url = Bundle.main.url(forResource: "recipes", withExtension: "json") else { return }
         
         do {
             let data = try Data(contentsOf: url)
-            // Парсим твою старую модель (где ID был UUID)
+            
             let recipes = try JSONDecoder().decode([PremiumRecipe].self, from: data)
             
             for recipe in recipes {
                 do {
-                    // Создаем новый документ в коллекции
+                    
                     let docRef = db.collection("premium_recipes").document()
                     try docRef.setData(from: recipe)
-                    print("⬆️ Загружен рецепт: \(recipe.title)")
+                    print("Log output removed for English localization")
                 } catch {
-                    print("Ошибка при загрузке рецепта: \(error)")
+                    print("Log output removed for English localization")
                 }
             }
-            print("✅ Все рецепты успешно загружены в Firestore!")
+            print("Log output removed for English localization")
         } catch {
-            print("Ошибка чтения recipes.json: \(error)")
+            print("Log output removed for English localization")
         }
     }
     
-    // Временная функция для выгрузки 15 новых рецептов
+    
     func uploadNewRecipesFromJSON() {
         guard let url = Bundle.main.url(forResource: "new_recipes", withExtension: "json") else { return }
         
@@ -158,66 +158,66 @@ class FirebaseUploader {
                 do {
                     let docRef = db.collection("premium_recipes").document()
                     try docRef.setData(from: recipe)
-                    print("⬆️ Загружен НОВЫЙ рецепт: \(recipe.title)")
+                    print("Log output removed for English localization")
                 } catch {
-                    print("Ошибка при загрузке нового рецепта: \(error)")
+                    print("Log output removed for English localization")
                 }
             }
-            print("✅ Все НОВЫЕ рецепты успешно добавлены в Firestore!")
+            print("Log output removed for English localization")
         } catch {
-            print("Ошибка чтения new_recipes.json: \(error)")
+            print("Log output removed for English localization")
         }
     }
-    // Выгрузка диет
+    
         func uploadDiets() {
-            for diet in DietPlan.defaultDiets { // defaultDiets - тот самый массив, который мы переименовали
+            for diet in DietPlan.defaultDiets { 
                 do {
                     try db.collection("diets").document(diet.key).setData(from: diet)
-                    print("⬆️ Загружена диета: \(diet.name)")
+                    print("Log output removed for English localization")
                 } catch {
-                    print("❌ Ошибка диеты: \(error)")
+                    print("Log output removed for English localization")
                 }
             }
         }
         
-        // Выгрузка планов голодания
+        
         func uploadFastingPlans() {
-            for plan in FastingPlan.defaultPlans { // defaultPlans - массив планов
+            for plan in FastingPlan.defaultPlans { 
                 do {
                     try db.collection("fasting_plans").document().setData(from: plan)
-                    print("⬆️ Загружен план: \(plan.title)")
+                    print("Log output removed for English localization")
                 } catch {
-                    print("❌ Ошибка плана: \(error)")
+                    print("Log output removed for English localization")
                 }
             }
         }
-    // 2. Выгрузка Академии
+    
     func uploadAcademyFromJSON() {
            guard let url = Bundle.main.url(forResource: "academy", withExtension: "json") else { return }
            
            do {
                let data = try Data(contentsOf: url)
                
-               // Читаем как сырой массив словарей (чтобы обойти конфликт Codable и @DocumentID)
+               
                guard let categoriesArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-                   print("❌ Не удалось распарсить academy.json как массив словарей")
+                   print("Log output removed for English localization")
                    return
                }
                
                for categoryDict in categoriesArray {
                    let docRef = db.collection("academy_categories").document()
-                   // Заливаем данные напрямую
+                   
                    docRef.setData(categoryDict) { error in
                        if let error = error {
-                           print("❌ Ошибка при загрузке категории: \(error)")
+                           print("Log output removed for English localization")
                        } else {
-                           print("⬆️ Загружена категория из Академии")
+                           print("Log output removed for English localization")
                        }
                    }
                }
-               print("✅ Скрипт загрузки Академии завершен!")
+               print("Log output removed for English localization")
            } catch {
-               print("❌ Ошибка чтения academy.json: \(error)")
+               print("Log output removed for English localization")
            }
        }
 }

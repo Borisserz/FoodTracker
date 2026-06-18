@@ -74,7 +74,7 @@ struct HomeDashboardContentView: View {
 
     var body: some View {
           NavigationStack {
-              ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
+              ZStack(alignment: .bottomTrailing) { 
                   Color.themeBg.ignoresSafeArea()
 
                   // Ensure the day's summary exists via the actor-isolated repo (removes detached main-context creation).
@@ -157,10 +157,10 @@ struct HomeDashboardContentView: View {
                           
                           AllTimeStatsCardView(totalCalories: allTimeCalories)
                       }
-                      .padding(.bottom, 120) // Оставили место для плавающей кнопки
+                      .padding(.bottom, 120) 
                   }
                   
-                  // ПЛАВАЮЩАЯ КНОПКА QUICK ADD (ПЕРЕНЕСЕНА СЮДА)
+                  
                   Button(action: {
                       HapticManager.shared.impact(style: .medium)
                       showPremiumQuickAdd = true
@@ -1625,6 +1625,32 @@ struct SmartAddFoodView: View {
 
     var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
 
+    private var smartSuggestions: [FoodItem] {
+        guard !selectedFoods.isEmpty else { return [] }
+        let selectedNames = Set(selectedFoods.map { $0.name })
+        var coOccurrences: [String: (count: Int, item: FoodItem)] = [:]
+
+        for meal in pastMeals {
+            let items = meal.foodItems ?? []
+            let mealFoodNames = Set(items.map { $0.name })
+            
+            if !selectedNames.isDisjoint(with: mealFoodNames) {
+                for item in items {
+                    if !selectedNames.contains(item.name) {
+                        if let existing = coOccurrences[item.name] {
+                            coOccurrences[item.name] = (count: existing.count + 1, item: item)
+                        } else {
+                            coOccurrences[item.name] = (count: 1, item: item)
+                        }
+                    }
+                }
+            }
+        }
+        
+        let sorted = coOccurrences.values.sorted { $0.count > $1.count }
+        return sorted.prefix(5).map { $0.item }
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
@@ -1647,6 +1673,52 @@ struct SmartAddFoodView: View {
 
                     ActionSearchBar(text: $searchText)
                     .padding(.horizontal, 20)
+
+                    if !selectedFoods.isEmpty && !smartSuggestions.isEmpty && searchText.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Image(systemName: "sparkles")
+                                    .foregroundColor(.themePink)
+                                Text("Often eaten together")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.horizontal, 24)
+                            .padding(.top, 4)
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    ForEach(smartSuggestions, id: \.id) { suggestion in
+                                        Button(action: {
+                                            HapticManager.shared.impact(style: .light)
+                                            withAnimation(.spring()) {
+                                                selectedFoods.append(suggestion)
+                                            }
+                                        }) {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: "plus.circle.fill")
+                                                    .foregroundColor(.white)
+                                                Text("\(suggestion.name) (\(Int(suggestion.weight))g)")
+                                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                                    .foregroundColor(.white)
+                                            }
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 8)
+                                            .background(
+                                                LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing)
+                                            )
+                                            .cornerRadius(20)
+                                            .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 3)
+                                        }
+                                        .buttonStyle(BounceButtonStyle())
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.bottom, 8)
+                            }
+                        }
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
 
                     if searchText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {

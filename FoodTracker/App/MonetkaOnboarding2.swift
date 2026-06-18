@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-// MARK: - Модель данных
+
 struct UserMetrics {
     var age: Int = 25
     var height: Int = 175
@@ -14,11 +14,11 @@ struct UserMetrics {
 }
 
 enum ActivityType: String, CaseIterable {
-    case none = "Пока не выбрано"
-    case office = "Офисный дзен"
-    case light = "Легкий тонус"
-    case active = "Активный метаболизм"
-    case beast = "Турбо-режим"
+    case none = "Not selected yet"
+    case office = "Office zen"
+    case light = "Light tone"
+    case active = "Active metabolism"
+    case beast = "Turbo mode"
     
     var emoji: String {
         switch self {
@@ -33,17 +33,17 @@ enum ActivityType: String, CaseIterable {
     var description: String {
         switch self {
         case .none: return ""
-        case .office: return "Сидячая работа, минимум шагов"
-        case .light: return "Прогулки, йога 1-2 раза в неделю"
-        case .active: return "Спорт 3-4 раза, регулярное движение"
-        case .beast: return "Ежедневные нагрузки, высокий расход калорий"
+        case .office: return "Sedentary job, minimum steps"
+        case .light: return "Walking, yoga 1-2 times a week"
+        case .active: return "Sports 3-4 times, regular movement"
+        case .beast: return "Daily workouts, high calorie burn"
         }
     }
 }
 
-// MARK: - Родительский View
+
 struct OnboardingNutritionMode: View {
-    // ЗАМЫКАНИЕ ДЛЯ ПЕРЕХОДА
+    
     var onFinish: () -> Void
     
     enum Step {
@@ -76,7 +76,7 @@ struct OnboardingNutritionMode: View {
                     ActivityScreen(metrics: $metrics, onNext: { navigate(to: .finish) })
                         .transition(pushTransition)
                 case .finish:
-                    // При завершении вызываем onFinish, который перебросит нас в главное приложение
+                    
                     FinishScreen(onCalculationComplete: onFinish)
                 }
             }
@@ -98,7 +98,7 @@ struct OnboardingNutritionMode: View {
     }
 }
 
-// MARK: - 1. Экран Приветствия
+
 struct WelcomeScreenMetrics: View {
     let onNext: () -> Void
     @State private var isVisible = false
@@ -107,14 +107,14 @@ struct WelcomeScreenMetrics: View {
         VStack(alignment: .leading, spacing: 16) {
             Spacer()
             
-            Text("Твое\nЧистое\nТопливо.")
+            Text("Your\nClean\nFuel.")
                 .font(.system(size: 56, weight: .black, design: .rounded))
                 .foregroundStyle(LinearGradient(colors: [.white, .green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
                 .lineSpacing(-5)
                 .offset(y: isVisible ? 0 : 20)
                 .opacity(isVisible ? 1 : 0)
             
-            Text("Твой персональный нутрициолог. Никаких жестких диет и голодовок — только умный подход к телу и балансу энергии.\n\nГотов изменить себя изнутри?")
+            Text("Your personal nutritionist. No strict diets or starving — just a smart approach to your body and energy balance.\n\nReady to transform yourself from the inside out?")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(.white.opacity(0.7))
                 .lineSpacing(4)
@@ -123,7 +123,7 @@ struct WelcomeScreenMetrics: View {
             
             Spacer()
             
-            GodModeButton(title: "Начать", action: onNext)
+            GodModeButton(title: "Start", action: onNext)
                 .offset(y: isVisible ? 0 : 30)
                 .opacity(isVisible ? 1 : 0)
         }
@@ -134,7 +134,7 @@ struct WelcomeScreenMetrics: View {
     }
 }
 
-// MARK: - 2. Экран Метрик
+
 struct MetricsScreen: View {
     @Binding var metrics: OnboardingMetrics
     let onNext: () -> Void
@@ -142,10 +142,10 @@ struct MetricsScreen: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 8) {
-                Text("Оцифруй себя")
+                Text("Digitize yourself")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
-                Text("Базовые параметры для старта")
+                Text("Basic metrics to start")
                     .font(.system(size: 15))
                     .foregroundStyle(.white.opacity(0.6))
             }
@@ -154,9 +154,9 @@ struct MetricsScreen: View {
             Spacer()
             
             HStack(spacing: 0) {
-                WheelColumn(title: "Возраст", range: 14...100, suffix: "лет", selection: $metrics.age)
-                WheelColumn(title: "Рост", range: 140...230, suffix: "см", selection: $metrics.height)
-                WheelColumn(title: "Вес", range: 40...200, suffix: "кг", selection: $metrics.weight)
+                WheelColumn(title: "Age", range: 14...100, suffix: "years", selection: $metrics.age)
+                WheelColumn(title: "Height", range: 140...230, suffix: "cm", selection: $metrics.height)
+                WheelColumn(title: "Weight", range: 40...200, suffix: "kg", selection: $metrics.weight)
             }
             .frame(height: 220)
             .background(
@@ -171,7 +171,7 @@ struct MetricsScreen: View {
                     .font(.system(size: 24, weight: .light))
                     .foregroundStyle(.mint)
                 
-                Text("Алгоритм использует эти данные для точного расчета BMR (базового обмена веществ) и твоей дневной нормы макронутриентов.")
+                Text("The algorithm uses this data to accurately calculate your BMR (Basal Metabolic Rate) and your daily macronutrient needs.")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.white.opacity(0.7))
                     .lineSpacing(2)
@@ -184,7 +184,7 @@ struct MetricsScreen: View {
             
             Spacer()
             
-            GodModeButton(title: "Продолжить", action: onNext)
+            GodModeButton(title: "Continue", action: onNext)
                 .padding(.horizontal, 30)
                 .padding(.bottom, 30)
         }
@@ -218,7 +218,7 @@ struct WheelColumn: View {
     }
 }
 
-// MARK: - 3. Экран Активности
+
 struct ActivityScreen: View {
     @Binding var metrics: OnboardingMetrics
     let onNext: () -> Void
@@ -226,10 +226,10 @@ struct ActivityScreen: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Твой ритм")
+                Text("Your rhythm")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
-                Text("Сколько энергии ты тратишь в течение дня?")
+                Text("How much energy do you burn during the day?")
                     .font(.system(size: 15))
                     .foregroundStyle(.white.opacity(0.6))
             }
@@ -253,7 +253,7 @@ struct ActivityScreen: View {
             
             Spacer()
             
-            GodModeButton(title: "Синтезировать план", action: onNext, isDisabled: metrics.activityLevel == .none)
+            GodModeButton(title: "Synthesize plan", action: onNext, isDisabled: metrics.activityLevel == .none)
                 .padding(.horizontal, 30)
                 .padding(.bottom, 30)
         }
@@ -293,7 +293,7 @@ struct ActivityCard: View {
     }
 }
 
-// MARK: - 4. ЭКРАН ЗАВЕРШЕНИЯ (УЛЬТРА-ПЛАВНЫЙ И БЕЗОПАСНЫЙ)
+
 struct FinishScreen: View {
     let onCalculationComplete: () -> Void
     
@@ -325,11 +325,11 @@ struct FinishScreen: View {
                 }
                 
                 VStack(spacing: 8) {
-                    Text("План сгенерирован")
+                    Text("Plan generated")
                         .font(.system(size: 32, weight: .black, design: .rounded))
                         .foregroundStyle(.white)
                     
-                    Text("Твоя суточная норма калорий и макронутриентов успешно рассчитана.\n\nДобро пожаловать в лучшую версию себя.")
+                    Text("Your daily calorie and macronutrient goals have been successfully calculated.\n\nWelcome to the best version of yourself.")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(.white.opacity(0.6))
                         .multilineTextAlignment(.center)
@@ -339,7 +339,7 @@ struct FinishScreen: View {
                 
                 Spacer()
                 
-                GodModeButton(title: "Запустить синтез") {
+                GodModeButton(title: "Launch synthesis") {
                     startEnergySynthesis()
                 }
                 .padding(.horizontal, 30)
@@ -379,12 +379,12 @@ struct FinishScreen: View {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-            onCalculationComplete() // Вызов перехода в MainApp
+            onCalculationComplete() 
         }
     }
 }
 
-// MARK: - Движок Сборки
+
 class MetabolicSynthesisEngine {
     struct Particle {
         var angle: Double
@@ -541,7 +541,7 @@ class MetabolicSynthesisEngine {
     }
 }
 
-// MARK: - Универсальный UI
+
 struct GodModeButton: View {
     let title: String
     let action: () -> Void

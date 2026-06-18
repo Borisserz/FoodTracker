@@ -86,7 +86,7 @@ struct AICoachDashboardView: View {
 
                                 bioHackingTipsSection
 
-                                // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
+                                
                                 Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
                                     .font(.caption2)
                                     .foregroundColor(.gray)

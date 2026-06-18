@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import SwiftData
 
 struct AIVisualProgressView: View {
     @Environment(\.dismiss) private var dismiss
@@ -13,13 +14,12 @@ struct AIVisualProgressView: View {
     
     @State private var sliderPosition: CGFloat = 0.5 // 0.0 to 1.0
     @State private var isDragging = false
-    
-    @State private var isAnalyzing = false
     @State private var hasAnalyzed = false
-    @State private var analysisResult: VisualProgressResult?
-    @State private var analysisTask: Task<Void, Never>?
     
-    @State private var scannerOffset: CGFloat = 0.0
+    @Query private var users: [User]
+    
+    @State private var beforeWeight: Double?
+    @State private var afterWeight: Double?
     
     var body: some View {
         ZStack {
@@ -105,8 +105,8 @@ struct AIVisualProgressView: View {
                     .shadow(color: .black.opacity(0.02), radius: 8, y: 4)
                     
                     // Analysis calculations
-                    if isAnalyzing || hasAnalyzed {
-                        aiPhotoAnalysisSection
+                    if beforeImage != nil && afterImage != nil {
+                        weightAnalysisSection
                             .padding(20)
                             .background(Color.white)
                             .cornerRadius(24)
@@ -127,16 +127,24 @@ struct AIVisualProgressView: View {
             if let img = newValue {
                 saveImageToDisk(image: img, isBefore: true)
             }
-            if newValue != nil && afterImage != nil {
-                triggerAnalysis()
-            }
         }
         .onChange(of: afterImage) { _, newValue in
             if let img = newValue {
                 saveImageToDisk(image: img, isBefore: false)
             }
-            if newValue != nil && beforeImage != nil {
-                triggerAnalysis()
+        }
+        .onChange(of: beforeWeight) { _, newValue in
+            if let w = newValue {
+                UserDefaults.standard.set(w, forKey: "visual_before_weight")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "visual_before_weight")
+            }
+        }
+        .onChange(of: afterWeight) { _, newValue in
+            if let w = newValue {
+                UserDefaults.standard.set(w, forKey: "visual_after_weight")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "visual_after_weight")
             }
         }
     }
@@ -249,24 +257,7 @@ struct AIVisualProgressView: View {
                         )
                 }
                 
-                if isAnalyzing {
-                    VStack {
-                        Rectangle()
-                            .fill(LinearGradient(colors: [.clear, themeManager.current.primaryAccent, .clear], startPoint: .top, endPoint: .bottom))
-                            .frame(height: 20)
-                            .blur(radius: 5)
-                            .shadow(color: themeManager.current.primaryAccent, radius: 10)
-                            .offset(y: scannerOffset)
-                            .onAppear {
-                                scannerOffset = -height/2
-                                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                                    scannerOffset = height/2
-                                }
-                            }
-                    }
-                    .frame(width: width, height: height)
-                    .clipped()
-                }
+                // 3. Laser Scanner Animation Removed
                 
                 VStack {
                     HStack {
@@ -330,126 +321,54 @@ struct AIVisualProgressView: View {
         .animation(.interactiveSpring, value: sliderPosition)
     }
     
-    private func triggerAnalysis() {
-        guard !isAnalyzing && !hasAnalyzed else { return }
-        isAnalyzing = true
-        hasAnalyzed = false
-        
-        analysisTask?.cancel()
-        analysisTask = Task { @MainActor in
-            HapticManager.shared.impact(style: .medium)
-            try? await Task.sleep(for: .seconds(3.0))
-            guard !Task.isCancelled else { return }
-            HapticManager.shared.notification(type: .success)
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                analysisResult = VisualProgressResult.random()
-                isAnalyzing = false
-                hasAnalyzed = true
-                UserDefaults.standard.set(true, forKey: "has_visual_analyzed")
-            }
-        }
-    }
-    
-    private var aiPhotoAnalysisSection: some View {
+    private var weightAnalysisSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(themeManager.current.primaryAccent.opacity(0.15))
-                        .frame(width: 32, height: 32)
-                    
-                    Image(systemName: "sparkles")
-                        .font(.subheadline)
-                        .foregroundStyle(themeManager.current.primaryAccent)
-                        .symbolEffect(.pulse, isActive: isAnalyzing)
-                }
-                
-                Text("AI Fitness Scanner")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
-                
-                Spacer()
-                
-                if isAnalyzing {
-                    Text("Scanning...")
-                        .font(.caption2.bold())
-                        .foregroundStyle(themeManager.current.primaryAccent)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(themeManager.current.primaryAccent.opacity(0.1))
-                        .cornerRadius(6)
-                } else if hasAnalyzed {
-                    Text("Analysis Complete")
-                        .font(.caption2.bold())
-                        .foregroundStyle(.green)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(6)
-                }
+            Text("Weight Transformation")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+            
+            HStack(spacing: 16) {
+                WeightEntryCard(title: String(localized: "Before Weight"), weight: $beforeWeight)
+                WeightEntryCard(title: String(localized: "Current Weight"), weight: $afterWeight)
             }
             
-            if isAnalyzing {
-                VStack(spacing: 12) {
-                    ProgressView()
-                        .tint(themeManager.current.primaryAccent)
-                        .scaleEffect(1.2)
-                        .padding(.top, 10)
-                    
-                    Text("Aligning frames & evaluating physical recomposition pace...")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
-                .background(Color.gray.opacity(0.03))
-                .cornerRadius(16)
-                .transition(.opacity)
-            } else if hasAnalyzed, let result = analysisResult {
-                VStack(alignment: .leading, spacing: 16) {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        AIVisualInsightCard(
-                            label: String(localized: "Progress Pace"),
-                            value: result.paceValue,
-                            desc: result.paceDesc,
-                            icon: "speedometer",
-                            color: .green
-                        )
+            if let bw = beforeWeight, let aw = afterWeight {
+                let diff = aw - bw
+                let isPositive = diff > 0
+                let trendIcon = abs(diff) < 0.1 ? "minus" : (isPositive ? "arrow.up.right" : "arrow.down.right")
+                let trendColor = abs(diff) < 0.1 ? Color.gray : (isPositive ? Color.red : Color.green)
+                
+                VStack(spacing: 16) {
+                    HStack(alignment: .center, spacing: 20) {
+                        VStack(alignment: .leading) {
+                            Text("Total Change")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            HStack(spacing: 4) {
+                                Image(systemName: trendIcon)
+                                Text(String(format: "%+.1f kg", diff))
+                            }
+                            .font(.title2.bold())
+                            .foregroundColor(trendColor)
+                        }
                         
-                        AIVisualInsightCard(
-                            label: String(localized: "Muscle Tone"),
-                            value: result.muscleValue,
-                            desc: result.muscleDesc,
-                            icon: "figure.strengthtraining.traditional",
-                            color: themeManager.current.primaryAccent
-                        )
+                        Spacer()
                         
-                        AIVisualInsightCard(
-                            label: String(localized: "Posture Symmetry"),
-                            value: result.postureValue,
-                            desc: result.postureDesc,
-                            icon: "figure.mind.and.body",
-                            color: .cyan
-                        )
-                        
-                        AIVisualInsightCard(
-                            label: String(localized: "Trajectory"),
-                            value: result.trajectoryValue,
-                            desc: result.trajectoryDesc,
-                            icon: "target",
-                            color: .orange
-                        )
+                        Image(systemName: "chart.line.uptrend.xyaxis")
+                            .font(.system(size: 40))
+                            .foregroundColor(.gray.opacity(0.2))
                     }
+                    .padding()
+                    .background(Color.gray.opacity(0.04))
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                    )
                     
-                    HStack(spacing: 12) {
-                        FakeMetricCard(title: String(localized: "Est. Body Fat"), value: result.bfDelta, isPositive: result.bfPositive)
-                        FakeMetricCard(title: String(localized: "Est. Weight"), value: result.weightDelta, isPositive: result.weightPositive)
-                        FakeMetricCard(title: String(localized: "Muscle Mass"), value: result.muscleDelta, isPositive: result.musclePositive)
+                    if let user = users.first {
+                        TransformationFeedbackCard(before: bw, after: aw, dietKey: user.activeDietKey)
                     }
-                    
-                    AIPerceptionFeedbackCard(fullText: result.feedbackText)
                 }
                 .transition(.asymmetric(
                     insertion: .move(edge: .bottom).combined(with: .opacity),
@@ -480,27 +399,36 @@ struct AIVisualProgressView: View {
             afterImage = UIImage(contentsOfFile: afterUrl.path)
         }
         
+        if let w = UserDefaults.standard.object(forKey: "visual_before_weight") as? Double {
+            beforeWeight = w
+        }
+        if let w = UserDefaults.standard.object(forKey: "visual_after_weight") as? Double {
+            afterWeight = w
+        }
+        
         hasAnalyzed = UserDefaults.standard.bool(forKey: "has_visual_analyzed")
     }
     
     private func resetPhotos() {
-        analysisTask?.cancel()
-        analysisTask = nil
-        
         beforeItem = nil
         afterItem = nil
         beforeImage = nil
         afterImage = nil
         sliderPosition = 0.5
-        isAnalyzing = false
-        hasAnalyzed = false
+        beforeWeight = nil
+        afterWeight = nil
         
         let beforeUrl = getDocumentsDirectory().appendingPathComponent("before_progress.jpg")
         let afterUrl = getDocumentsDirectory().appendingPathComponent("after_progress.jpg")
         try? FileManager.default.removeItem(at: beforeUrl)
         try? FileManager.default.removeItem(at: afterUrl)
+        let beforeWeightUrl = getDocumentsDirectory().appendingPathComponent("before_weight.txt")
+        let afterWeightUrl = getDocumentsDirectory().appendingPathComponent("after_weight.txt")
+        try? FileManager.default.removeItem(at: beforeWeightUrl)
+        try? FileManager.default.removeItem(at: afterWeightUrl)
         
-        UserDefaults.standard.set(false, forKey: "has_visual_analyzed")
+        UserDefaults.standard.removeObject(forKey: "visual_before_weight")
+        UserDefaults.standard.removeObject(forKey: "visual_after_weight")
     }
     
     private func getDocumentsDirectory() -> URL {

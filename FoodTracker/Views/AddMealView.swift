@@ -497,18 +497,18 @@ private struct FoodItemRowCard: View {
     
     private func emojiForFood(_ name: String) -> String {
         let nameLower = name.lowercased()
-        if nameLower.contains("yogurt") || nameLower.contains("йогурт") { return "🥛" }
-        if nameLower.contains("granola") || nameLower.contains("гранола") || nameLower.contains("овсян") || nameLower.contains("oat") { return "🥣" }
-        if nameLower.contains("coffee") || nameLower.contains("кофе") { return "☕️" }
-        if nameLower.contains("apple") || nameLower.contains("яблоко") { return "🍎" }
-        if nameLower.contains("chicken") || nameLower.contains("куриц") { return "🍗" }
-        if nameLower.contains("avocado") || nameLower.contains("авокадо") { return "🥑" }
-        if nameLower.contains("egg") || nameLower.contains("яйцо") || nameLower.contains("яиц") { return "🍳" }
-        if nameLower.contains("salad") || nameLower.contains("салат") { return "🥗" }
-        if nameLower.contains("meat") || nameLower.contains("мясо") || nameLower.contains("steak") || nameLower.contains("стейк") { return "🥩" }
-        if nameLower.contains("banana") || nameLower.contains("банан") { return "🍌" }
-        if nameLower.contains("fish") || nameLower.contains("рыба") || nameLower.contains("salmon") || nameLower.contains("лосось") { return "🐟" }
-        if nameLower.contains("water") || nameLower.contains("вода") { return "💧" }
+        if nameLower.contains("yogurt") { return "🥛" }
+        if nameLower.contains("granola") || nameLower.contains("oat") { return "🥣" }
+        if nameLower.contains("coffee") { return "☕️" }
+        if nameLower.contains("apple") { return "🍎" }
+        if nameLower.contains("chicken") { return "🍗" }
+        if nameLower.contains("avocado") { return "🥑" }
+        if nameLower.contains("egg") { return "🍳" }
+        if nameLower.contains("salad") { return "🥗" }
+        if nameLower.contains("meat") || nameLower.contains("steak") { return "🥩" }
+        if nameLower.contains("banana") { return "🍌" }
+        if nameLower.contains("fish") || nameLower.contains("salmon") { return "🐟" }
+        if nameLower.contains("water") { return "💧" }
         return "🥘"
     }
     

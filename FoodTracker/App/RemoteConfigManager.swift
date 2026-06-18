@@ -26,12 +26,12 @@ actor RemoteConfigManager: Sendable {
         do {
             let status = try await remoteConfig.fetchAndActivate()
             if status == .successFetchedFromRemote {
-                print("☁️✅ FoodTracker: Свежие ключи загружены из облака!")
+                print("Log output removed for English localization")
             } else {
-                print("☁️⚡️ FoodTracker: Используем кэш конфига.")
+                print("Log output removed for English localization")
             }
         } catch {
-            print("☁️❌ Ошибка Remote Config: \(error.localizedDescription)")
+            print("Log output removed for English localization")
         }
     }
 

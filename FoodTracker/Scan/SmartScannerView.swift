@@ -529,6 +529,8 @@ struct SmartScannerView: View {
                             source: "photo",
                             in: modelContext
                         )
+                        // ── Upload to Global Cloud Database ───────
+                        BarcodeDatabaseService.shared.saveCommunityFood(item: foodItem)
                     }
                     onProductFound(foodItem)
                     dismiss()

@@ -8,12 +8,11 @@ struct SmartPlanBuilderFlow: View {
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
     
+    @State private var planService = PlanGenerationService.shared
     @State private var currentStep = 0
     @State private var selectedDiet = "Any"
     @State private var targetCalories: Double = 2000
-    @State private var complexity = "Medium"
-    @State private var isGenerating = false
-    @State private var generatedPlan: WeeklyMealPlan? = nil
+    @State private var complexity = "Medium (30m)"
     
     // Background animation
     @State private var bgRotation: Double = 0
@@ -57,14 +56,30 @@ struct SmartPlanBuilderFlow: View {
                     }
                 }
                 
-                if let plan = generatedPlan {
-                    WeeklyPlanOverview(plan: plan) {
-                        dismiss()
+                if planService.isGenerating {
+                    // ── Loading screen (dismissable) ──────────────────────
+                    ZStack(alignment: .topTrailing) {
+                        GodTierLoadingView(phase: planService.phase)
+                            .transition(.opacity)
+                        
+                        // Minimize button — lets user go back to menu
+                        Button {
+                            HapticManager.shared.impact(style: .medium)
+                            dismiss()
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.down.right.and.arrow.up.left")
+                                Text("Minimize")
+                                    .font(.subheadline.bold())
+                            }
+                            .foregroundColor(.white.opacity(0.7))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Capsule().fill(.white.opacity(0.15)))
+                        }
+                        .padding(.top, 60)
+                        .padding(.trailing, 24)
                     }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                } else if isGenerating {
-                    GodTierLoadingView()
-                        .transition(.opacity)
                 } else {
                     VStack(spacing: 0) {
                         // Liquid Progress Bar
@@ -159,10 +174,10 @@ struct SmartPlanBuilderFlow: View {
                     }
                 }
             }
-            .navigationTitle(isGenerating ? "" : (generatedPlan != nil ? "" : "AI Builder"))
+            .navigationTitle(planService.isGenerating ? "" : "AI Builder")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if !isGenerating && generatedPlan == nil {
+                if !planService.isGenerating {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: { dismiss() }) {
                             Image(systemName: "xmark")
@@ -178,6 +193,17 @@ struct SmartPlanBuilderFlow: View {
             .onAppear {
                 if let user = users.first, user.dailyCaloriesGoal > 0 {
                     targetCalories = Double(user.dailyCaloriesGoal)
+                }
+            }
+            .fullScreenCover(isPresented: .init(
+                get: { planService.readyPlan != nil },
+                set: { if !$0 { planService.acknowledge(); dismiss() } }
+            )) {
+                if let plan = planService.readyPlan {
+                    WeeklyPlanOverview(plan: plan) {
+                        planService.acknowledge()
+                        dismiss()
+                    }
                 }
             }
         }
@@ -249,7 +275,7 @@ struct SmartPlanBuilderFlow: View {
                 }
             }
             
-            CustomThickSlider(value: $targetCalories, range: 1200...4000, step: 50)
+            CustomThickSlider(value: $targetCalories, range: 1200...6000, step: 50)
                 .padding(.horizontal, 40)
             
             Spacer()
@@ -280,22 +306,21 @@ struct SmartPlanBuilderFlow: View {
                                 .font(.title3.bold())
                                 .foregroundColor(complexity == comp ? .white : .primary)
                             Spacer()
-                            if complexity == comp {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.white)
-                                    .font(.title2)
-                                    .transition(.scale.combined(with: .opacity))
-                            }
+                            
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.white)
+                                .font(.title2)
+                                .opacity(complexity == comp ? 1 : 0)
+                                .scaleEffect(complexity == comp ? 1 : 0.5)
                         }
                         .padding(.horizontal, 24)
                         .padding(.vertical, 16)
                         .background(
                             ZStack {
-                                if complexity == comp {
-                                    themeManager.current.primaryGradient
-                                } else {
-                                    Rectangle().fill(.ultraThinMaterial)
-                                }
+                                Rectangle().fill(.ultraThinMaterial)
+                                
+                                themeManager.current.primaryGradient
+                                    .opacity(complexity == comp ? 1 : 0)
                             }
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 24))
@@ -334,38 +359,15 @@ struct SmartPlanBuilderFlow: View {
     // MARK: - Generation
     
     private func startGeneration() {
-        withAnimation(.easeInOut(duration: 0.5)) {
-            isGenerating = true
-        }
-        
-        Task {
-            if let newPlan = await AINutritionService.shared.generateWeeklyPlan(
-                targetCalories: Int(targetCalories),
-                diet: selectedDiet,
-                complexity: complexity
-            ) {
-                await MainActor.run {
-                    if let existingPlans = try? context.fetch(FetchDescriptor<WeeklyMealPlan>(sortBy: [SortDescriptor(\.createdDate, order: .reverse)])) {
-                        if existingPlans.count >= 3 {
-                            for plan in existingPlans.dropFirst(2) {
-                                context.delete(plan)
-                            }
-                        }
-                    }
-                    context.insert(newPlan)
-                    try? context.save()
-                    
-                    withAnimation(.spring(response: 0.8, dampingFraction: 0.8)) {
-                        self.generatedPlan = newPlan
-                        self.isGenerating = false
-                    }
-                }
-            } else {
-                await MainActor.run {
-                    withAnimation { isGenerating = false }
-                }
-            }
-        }
+        // Hand off to the global service — it runs entirely in background.
+        // The loading screen is shown (GodTierLoadingView via planService.isGenerating),
+        // and the user can tap "Minimize" at any time to go back to the tab bar.
+        // The floating GenerationStatusPill in ContentView tracks progress everywhere.
+        PlanGenerationService.shared.start(
+            calories: Int(targetCalories),
+            diet: selectedDiet,
+            complexity: complexity
+        )
     }
 }
 
@@ -379,7 +381,8 @@ struct CustomThickSlider: View {
     
     var body: some View {
         GeometryReader { geometry in
-            let percentage = CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound))
+            let rawPercentage = CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound))
+            let percentage = min(max(rawPercentage, 0), 1)
             
             ZStack(alignment: .leading) {
                 // Track
@@ -548,25 +551,47 @@ struct DietCard: View {
 
 // MARK: - Hypnotic Loading View
 struct GodTierLoadingView: View {
+    var phase: PlanGenerationService.Phase = .generatingText
+
     @Environment(ThemeManager.self) private var themeManager
     @State private var rotation1: Double = 0
     @State private var rotation2: Double = 360
     @State private var statusIndex = 0
     @State private var innerScale: CGFloat = 0.5
-    
-    let statuses = [
+
+    private let aiStatuses = [
         "Synthesizing nutritional matrices...",
         "Aligning macros to your profile...",
         "Curating top-tier recipes...",
         "Assembling the perfect week...",
-        "Finalizing God-Tier Menu..."
+        "Finalizing your God-Tier Menu..."
     ]
-    
+
+    private var isImagePhase: Bool {
+        if case .fetchingImages = phase { return true }
+        return false
+    }
+
+    private var imageDone: Int {
+        if case .fetchingImages(let done, _) = phase { return done }
+        return 0
+    }
+
+    private var imageTotal: Int {
+        if case .fetchingImages(_, let total) = phase { return total }
+        return 0
+    }
+
+    private var imageProgress: Double {
+        guard imageTotal > 0 else { return 0 }
+        return Double(imageDone) / Double(imageTotal)
+    }
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.85).ignoresSafeArea()
-            
-            VStack(spacing: 80) {
+
+            VStack(spacing: 60) {
                 ZStack {
                     // Outer ring
                     Circle()
@@ -576,16 +601,32 @@ struct GodTierLoadingView: View {
                         )
                         .frame(width: 200, height: 200)
                         .rotationEffect(.degrees(rotation1))
-                    
-                    // Inner ring
-                    Circle()
-                        .strokeBorder(
-                            AngularGradient(gradient: Gradient(colors: [.clear, Color.themePink, .clear]), center: .center),
-                            lineWidth: 8
-                        )
-                        .frame(width: 150, height: 150)
-                        .rotationEffect(.degrees(rotation2))
-                    
+
+                    // Inner ring — progress arc when fetching images
+                    if isImagePhase {
+                        Circle()
+                            .stroke(Color.white.opacity(0.1), lineWidth: 10)
+                            .frame(width: 150, height: 150)
+
+                        Circle()
+                            .trim(from: 0, to: imageProgress)
+                            .stroke(
+                                themeManager.current.primaryAccent,
+                                style: StrokeStyle(lineWidth: 10, lineCap: .round)
+                            )
+                            .frame(width: 150, height: 150)
+                            .rotationEffect(.degrees(-90))
+                            .animation(.easeInOut(duration: 0.4), value: imageProgress)
+                    } else {
+                        Circle()
+                            .strokeBorder(
+                                AngularGradient(gradient: Gradient(colors: [.clear, Color.themePink, .clear]), center: .center),
+                                lineWidth: 8
+                            )
+                            .frame(width: 150, height: 150)
+                            .rotationEffect(.degrees(rotation2))
+                    }
+
                     // Core orb
                     Circle()
                         .fill(themeManager.current.primaryGradient)
@@ -593,26 +634,63 @@ struct GodTierLoadingView: View {
                         .blur(radius: 20)
                         .scaleEffect(innerScale)
                         .opacity(0.8)
-                    
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 40, weight: .light))
-                        .foregroundColor(.white)
+
+                    if isImagePhase {
+                        Image(systemName: "photo.stack")
+                            .font(.system(size: 32, weight: .light))
+                            .foregroundColor(.white)
+                    } else {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 40, weight: .light))
+                            .foregroundColor(.white)
+                    }
                 }
-                
-                VStack(spacing: 16) {
-                    Text("AI CHEF AWAKENED")
-                        .font(.system(size: 24, weight: .black, design: .rounded))
+
+                VStack(spacing: 12) {
+                    Text(isImagePhase ? "LOADING PHOTOS" : "AI CHEF AWAKENED")
+                        .font(.system(size: 22, weight: .black, design: .rounded))
                         .foregroundColor(.white)
                         .tracking(4)
-                    
-                    Text(statuses[statusIndex])
-                        .font(.headline)
-                        .foregroundColor(.white.opacity(0.7))
-                        .id(statusIndex)
-                        .transition(.asymmetric(
-                            insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.9)),
-                            removal: .move(edge: .top).combined(with: .opacity).combined(with: .scale(scale: 1.1))
-                        ))
+                        .animation(.easeInOut, value: isImagePhase)
+
+                    if isImagePhase {
+                        // Real progress text
+                        Text("Caching photo \(imageDone) of \(imageTotal)")
+                            .font(.headline)
+                            .foregroundColor(.white.opacity(0.7))
+                            .transition(.opacity)
+
+                        // Progress bar
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(Color.white.opacity(0.15))
+                                    .frame(height: 6)
+                                Capsule()
+                                    .fill(themeManager.current.primaryGradient)
+                                    .frame(width: geo.size.width * imageProgress, height: 6)
+                                    .animation(.easeInOut(duration: 0.4), value: imageProgress)
+                            }
+                        }
+                        .frame(height: 6)
+                        .padding(.horizontal, 40)
+                    } else {
+                        Text(aiStatuses[min(statusIndex, aiStatuses.count - 1)])
+                            .font(.headline)
+                            .foregroundColor(.white.opacity(0.7))
+                            .id(statusIndex)
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.9)),
+                                removal: .move(edge: .top).combined(with: .opacity).combined(with: .scale(scale: 1.1))
+                            ))
+                    }
+
+                    Text("This may take 1–2 minutes.\nWe're building your entire week, including meal photos.")
+                        .font(.footnote)
+                        .foregroundColor(.white.opacity(0.35))
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 4)
+                        .padding(.horizontal, 32)
                 }
             }
         }
@@ -626,11 +704,11 @@ struct GodTierLoadingView: View {
             withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
                 innerScale = 1.5
             }
-            
+
             Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { timer in
                 HapticManager.shared.impact(style: .medium)
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                    if statusIndex < statuses.count - 1 {
+                    if statusIndex < aiStatuses.count - 1 {
                         statusIndex += 1
                     } else {
                         timer.invalidate()

@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import FirebaseFirestore
 struct PremiumRecipe: Identifiable, Hashable, Codable {
-    @DocumentID var id: String? // Оставляем так
+    @DocumentID var id: String? 
     let title: String
     let description: String
     let time: String
@@ -481,16 +481,37 @@ struct CustomRecipePremiumCard: View {
         let macros = recipe.toFoodItem()
 
         VStack(spacing: 0) {
+            
+            // Hero Image
+            ZStack(alignment: .bottomLeading) {
+                AsyncImage(url: URL(string: AINutritionService.shared.imageUrl(forMealTitle: recipe.name))) { phase in
+                    if let image = phase.image {
+                        image.resizable().aspectRatio(contentMode: .fill)
+                    } else if phase.error != nil {
+                        Image(AINutritionService.shared.fallbackLocalImage(for: recipe.name))
+                            .resizable().aspectRatio(contentMode: .fill)
+                    } else {
+                        Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView())
+                    }
+                }
+                .frame(height: 140)
+                .clipped()
+                
+                LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
+                
+                let displayInfo = recipe.info.count > 20 ? "AI RECIPE" : recipe.info.uppercased()
+                Text(displayInfo)
+                    .font(.system(size: 10, weight: .black, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.themePink.opacity(0.8))
+                    .clipShape(Capsule())
+                    .padding(12)
+            }
 
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(recipe.info.uppercased())
-                        .font(.system(size: 10, weight: .black, design: .rounded))
-                        .foregroundColor(.themePink)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.themePink.opacity(0.15))
-                        .clipShape(Capsule())
 
                     Text(recipe.name)
                         .font(.system(size: 20, weight: .bold, design: .rounded))

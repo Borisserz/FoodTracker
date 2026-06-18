@@ -66,7 +66,7 @@ struct AICoachChatView: View {
             }
 
             VStack(spacing: 0) {
-                // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
+                
                 Text("FoodTracker AI provides general nutritional information. Not medical advice.")
                     .font(.system(size: 10))
                     .foregroundColor(.gray)

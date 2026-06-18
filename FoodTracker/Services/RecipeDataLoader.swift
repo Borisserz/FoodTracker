@@ -17,7 +17,7 @@ class RecipeDataLoader {
             guard let self = self else { return }
             
             if let error = error {
-                print("❌ Ошибка загрузки рецептов: \(error.localizedDescription)")
+                print("❌ Error loading recipes: \(error.localizedDescription)")
                 return
             }
             
@@ -25,9 +25,9 @@ class RecipeDataLoader {
             
             do {
                 self.recipes = try documents.compactMap { try $0.data(as: PremiumRecipe.self) }
-                print("✅ Все рецепты загружены! Всего: \(self.recipes.count) шт.")
+                print("✅ All recipes loaded! Total: \(self.recipes.count)")
             } catch {
-                print("❌ Ошибка парсинга рецептов: \(error)")
+                print("❌ Error parsing recipes: \(error)")
             }
         }
     }

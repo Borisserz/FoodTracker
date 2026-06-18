@@ -137,9 +137,9 @@ struct AIChefStudioView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     HStack {
                                         Image(systemName: "sparkles.tv")
-                                        Text("ИИ-Ассистент")
+                                        Text("AI Assistant")
                                     }.font(.caption.bold()).foregroundColor(.white.opacity(0.8))
-                                    Text("Опробуй готовку с ИИ").font(.title3.bold()).foregroundColor(.white)
+                                    Text("Try AI Cooking").font(.title3.bold()).foregroundColor(.white)
                                 }
                                 Spacer()
                                 Image(systemName: "camera.macro.circle.fill").font(.system(size: 40)).foregroundColor(.white).symbolEffect(.pulse)
@@ -255,7 +255,7 @@ struct AIChefStudioView: View {
                     }.padding(.vertical)
                 }
             }
-            .navigationTitle("AI Шеф")
+            .navigationTitle("AI Chef")
             .onAppear {
                 TrackingManager.shared.track(.featureDiscovered(feature: "ai_chef_studio"))
             }
@@ -552,6 +552,8 @@ struct AIAssistantFlowView: View {
     @State private var isPrepPhase = false
     @State private var isGenerating = false
     
+    @State private var generateTask: Task<Void, Never>?
+    
     var agentResults: [UnifiedRecipePreview] {
         var list = [UnifiedRecipePreview]()
         for pr in dataLoader.recipes { list.append(UnifiedRecipePreview(title: pr.title, calories: pr.caloriesPerServing, protein: Int(pr.protein), heroImage: pr.imageUrl, cookTime: Int(pr.time.replacingOccurrences(of: "m", with: "")) ?? 20, ingredients: pr.ingredients.map { "\($0.name) (\($0.amount))" }, premiumRecipe: pr, customRecipe: nil)) }
@@ -617,7 +619,16 @@ struct AIAssistantFlowView: View {
                     .zIndex(100)
                 }
             }
-            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Cancel") { isPresented = false }.foregroundColor(.themePink).disabled(isGenerating) } }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        generateTask?.cancel()
+                        isGenerating = false
+                        isPresented = false
+                    }
+                    .foregroundColor(.themePink)
+                }
+            }
             .navigationDestination(isPresented: $isPrepPhase) { if let r = selectedRecipe { PrepChecklistView(recipe: r, isFlowPresented: $isPresented) } }
         }
     }
@@ -627,7 +638,7 @@ struct AIAssistantFlowView: View {
         isGenerating = true
         HapticManager.shared.impact(style: .medium)
         
-        Task {
+        generateTask = Task {
             if let dto = await AINutritionService.shared.generateCookingSteps(for: preview.title, ingredients: preview.ingredients) {
                 let ai = AIChefRecipe(
                     title: dto.title,

@@ -59,8 +59,8 @@ class AICoachViewModel {
     }
 
     func generateSmartRecipe(currentSummary: DailySummary, currentUser: User) {
-        let missingCals = max(0, currentUser.dailyCaloriesGoal - currentSummary.totalCalories)
-        let missingProtein = max(0, Int(currentUser.targetProtein - currentSummary.totalProtein))
+        let missingCals = max(250, currentUser.dailyCaloriesGoal - currentSummary.totalCalories)
+        let missingProtein = max(15, Int(currentUser.targetProtein - currentSummary.totalProtein))
 
         HapticManager.shared.impact(style: .medium)
         withAnimation { isGeneratingRecipe = true }
@@ -94,7 +94,7 @@ class AICoachViewModel {
                 self.isFixingMacros = false
                 HapticManager.shared.impact(style: .heavy)
             } else {
-                print("❌ Не удалось получить совет по макросам от ИИ")
+                print("Log output removed for English localization")
                 self.isFixingMacros = false
             }
         }

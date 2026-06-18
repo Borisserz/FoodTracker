@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import SwiftData
 
 struct BeforeAfterView: View {
     @Environment(ThemeManager.self) private var themeManager
@@ -13,12 +14,10 @@ struct BeforeAfterView: View {
     @State private var sliderPosition: CGFloat = 0.5 // 0.0 to 1.0
     @State private var isDragging = false
     
-    @State private var isAnalyzing = false
-    @State private var hasAnalyzed = false
-    @State private var analysisResult: VisualProgressResult?
-    @State private var analysisTask: Task<Void, Never>?
+    @Query private var users: [User]
     
-    @State private var scannerOffset: CGFloat = 0.0
+    @State private var beforeWeight: Double?
+    @State private var afterWeight: Double?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -32,15 +31,13 @@ struct BeforeAfterView: View {
                     Button(action: {
                         HapticManager.shared.impact(style: .light)
                         withAnimation {
-                            analysisTask?.cancel()
-                            analysisTask = nil
                             beforeItem = nil
                             afterItem = nil
                             beforeImage = nil
                             afterImage = nil
                             sliderPosition = 0.5
-                            isAnalyzing = false
-                            hasAnalyzed = false
+                            beforeWeight = nil
+                            afterWeight = nil
                         }
                     }) {
                         Text("Reset")
@@ -60,8 +57,8 @@ struct BeforeAfterView: View {
                 // Interactive Slider View
                 comparisonSlider
                 
-                // AI Photo Analysis View
-                aiPhotoAnalysisSection
+                // Weight Analysis View
+                weightAnalysisSection
             } else {
                 // Upload Windows
                 uploadWindows
@@ -72,15 +69,83 @@ struct BeforeAfterView: View {
         .cornerRadius(24)
         .shadow(color: .black.opacity(0.03), radius: 10, y: 5)
         .onChange(of: beforeImage) { _, newValue in
-            if newValue != nil && afterImage != nil {
-                triggerAnalysis()
+            if let img = newValue {
+                saveImageToDisk(image: img, isBefore: true)
             }
         }
         .onChange(of: afterImage) { _, newValue in
-            if newValue != nil && beforeImage != nil {
-                triggerAnalysis()
+            if let img = newValue {
+                saveImageToDisk(image: img, isBefore: false)
             }
         }
+        .onChange(of: beforeWeight) { _, newValue in
+            if let w = newValue {
+                UserDefaults.standard.set(w, forKey: "visual_before_weight")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "visual_before_weight")
+            }
+        }
+        .onChange(of: afterWeight) { _, newValue in
+            if let w = newValue {
+                UserDefaults.standard.set(w, forKey: "visual_after_weight")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "visual_after_weight")
+            }
+        }
+        .onAppear {
+            loadPhotosFromDisk()
+        }
+    }
+    
+    // MARK: - Disk Operations
+    
+    private func getDocumentsDirectory() -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+    
+    private func saveImageToDisk(image: UIImage, isBefore: Bool) {
+        let fileName = isBefore ? "before_progress.jpg" : "after_progress.jpg"
+        let url = getDocumentsDirectory().appendingPathComponent(fileName)
+        if let data = image.jpegData(compressionQuality: 0.8) {
+            try? data.write(to: url)
+        }
+    }
+    
+    private func loadPhotosFromDisk() {
+        let beforeUrl = getDocumentsDirectory().appendingPathComponent("before_progress.jpg")
+        let afterUrl = getDocumentsDirectory().appendingPathComponent("after_progress.jpg")
+        
+        if FileManager.default.fileExists(atPath: beforeUrl.path) {
+            beforeImage = UIImage(contentsOfFile: beforeUrl.path)
+        }
+        if FileManager.default.fileExists(atPath: afterUrl.path) {
+            afterImage = UIImage(contentsOfFile: afterUrl.path)
+        }
+        
+        if let w = UserDefaults.standard.object(forKey: "visual_before_weight") as? Double {
+            beforeWeight = w
+        }
+        if let w = UserDefaults.standard.object(forKey: "visual_after_weight") as? Double {
+            afterWeight = w
+        }
+    }
+    
+    private func resetPhotos() {
+        beforeItem = nil
+        afterItem = nil
+        beforeImage = nil
+        afterImage = nil
+        sliderPosition = 0.5
+        beforeWeight = nil
+        afterWeight = nil
+        
+        let beforeUrl = getDocumentsDirectory().appendingPathComponent("before_progress.jpg")
+        let afterUrl = getDocumentsDirectory().appendingPathComponent("after_progress.jpg")
+        try? FileManager.default.removeItem(at: beforeUrl)
+        try? FileManager.default.removeItem(at: afterUrl)
+        
+        UserDefaults.standard.removeObject(forKey: "visual_before_weight")
+        UserDefaults.standard.removeObject(forKey: "visual_after_weight")
     }
     
     // MARK: - Upload Windows
@@ -194,25 +259,7 @@ struct BeforeAfterView: View {
                         )
                 }
                 
-                // 3. Laser Scanner Animation
-                if isAnalyzing {
-                    VStack {
-                        Rectangle()
-                            .fill(LinearGradient(colors: [.clear, themeManager.current.primaryAccent, .clear], startPoint: .top, endPoint: .bottom))
-                            .frame(height: 20)
-                            .blur(radius: 5)
-                            .shadow(color: themeManager.current.primaryAccent, radius: 10)
-                            .offset(y: scannerOffset)
-                            .onAppear {
-                                scannerOffset = -height/2
-                                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                                    scannerOffset = height/2
-                                }
-                            }
-                    }
-                    .frame(width: width, height: height)
-                    .clipped()
-                }
+                // 3. Laser Scanner Animation Removed
                 
                 // 4. Labels
                 VStack {
@@ -278,129 +325,58 @@ struct BeforeAfterView: View {
         .animation(.interactiveSpring, value: sliderPosition)
     }
     
-    private func triggerAnalysis() {
-        guard !isAnalyzing && !hasAnalyzed else { return }
-        isAnalyzing = true
-        hasAnalyzed = false
-        
-        analysisTask?.cancel()
-        analysisTask = Task { @MainActor in
-            HapticManager.shared.impact(style: .medium)
-            try? await Task.sleep(for: .seconds(3.0))
-            guard !Task.isCancelled else { return }
-            HapticManager.shared.notification(type: .success)
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                analysisResult = VisualProgressResult.random()
-                isAnalyzing = false
-                hasAnalyzed = true
-            }
-        }
-    }
-    
-    private var aiPhotoAnalysisSection: some View {
+    private var weightAnalysisSection: some View {
         VStack(alignment: .leading, spacing: 14) {
             Divider()
                 .background(themeManager.current.primaryAccent.opacity(0.15))
                 .padding(.vertical, 4)
             
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(themeManager.current.primaryAccent.opacity(0.15))
-                        .frame(width: 32, height: 32)
-                    
-                    Image(systemName: "sparkles")
-                        .font(.subheadline)
-                        .foregroundStyle(themeManager.current.primaryAccent)
-                        .symbolEffect(.pulse, isActive: isAnalyzing)
-                }
-                
-                Text("AI Fitness Scanner")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
-                
-                Spacer()
-                
-                if isAnalyzing {
-                    Text("Scanning...")
-                        .font(.caption2.bold())
-                        .foregroundStyle(themeManager.current.primaryAccent)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(themeManager.current.primaryAccent.opacity(0.1))
-                        .cornerRadius(6)
-                } else if hasAnalyzed {
-                    Text("Analysis Complete")
-                        .font(.caption2.bold())
-                        .foregroundStyle(.green)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(6)
-                }
+            Text("Weight Transformation")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+            
+            HStack(spacing: 16) {
+                WeightEntryCard(title: String(localized: "Before Weight"), weight: $beforeWeight)
+                WeightEntryCard(title: String(localized: "Current Weight"), weight: $afterWeight)
             }
             
-            if isAnalyzing {
-                VStack(spacing: 12) {
-                    ProgressView()
-                        .tint(themeManager.current.primaryAccent)
-                        .scaleEffect(1.2)
-                        .padding(.top, 10)
-                    
-                    Text("Aligning frames & evaluating physical recomposition pace...")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
-                .background(Color.gray.opacity(0.03))
-                .cornerRadius(16)
-                .transition(.opacity)
-            } else if hasAnalyzed, let result = analysisResult {
-                VStack(alignment: .leading, spacing: 16) {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        AIVisualInsightCard(
-                            label: String(localized: "Progress Pace"),
-                            value: result.paceValue,
-                            desc: result.paceDesc,
-                            icon: "speedometer",
-                            color: .green
-                        )
+            if let bw = beforeWeight, let aw = afterWeight {
+                let diff = aw - bw
+                let isPositive = diff > 0
+                let trendIcon = abs(diff) < 0.1 ? "minus" : (isPositive ? "arrow.up.right" : "arrow.down.right")
+                let trendColor = abs(diff) < 0.1 ? Color.gray : (isPositive ? Color.red : Color.green)
+                
+                VStack(spacing: 16) {
+                    HStack(alignment: .center, spacing: 20) {
+                        VStack(alignment: .leading) {
+                            Text("Total Change")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            HStack(spacing: 4) {
+                                Image(systemName: trendIcon)
+                                Text(String(format: "%+.1f kg", diff))
+                            }
+                            .font(.title2.bold())
+                            .foregroundColor(trendColor)
+                        }
                         
-                        AIVisualInsightCard(
-                            label: String(localized: "Muscle Tone"),
-                            value: result.muscleValue,
-                            desc: result.muscleDesc,
-                            icon: "figure.strengthtraining.traditional",
-                            color: themeManager.current.primaryAccent
-                        )
+                        Spacer()
                         
-                        AIVisualInsightCard(
-                            label: String(localized: "Posture Symmetry"),
-                            value: result.postureValue,
-                            desc: result.postureDesc,
-                            icon: "figure.mind.and.body",
-                            color: .cyan
-                        )
-                        
-                        AIVisualInsightCard(
-                            label: String(localized: "Trajectory"),
-                            value: result.trajectoryValue,
-                            desc: result.trajectoryDesc,
-                            icon: "target",
-                            color: .orange
-                        )
+                        Image(systemName: "chart.line.uptrend.xyaxis")
+                            .font(.system(size: 40))
+                            .foregroundColor(.gray.opacity(0.2))
                     }
+                    .padding()
+                    .background(Color.gray.opacity(0.04))
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                    )
                     
-                    HStack(spacing: 12) {
-                        FakeMetricCard(title: String(localized: "Est. Body Fat"), value: result.bfDelta, isPositive: result.bfPositive)
-                        FakeMetricCard(title: String(localized: "Est. Weight"), value: result.weightDelta, isPositive: result.weightPositive)
-                        FakeMetricCard(title: String(localized: "Muscle Mass"), value: result.muscleDelta, isPositive: result.musclePositive)
+                    if let user = users.first {
+                        TransformationFeedbackCard(before: bw, after: aw, dietKey: user.activeDietKey)
                     }
-                    
-                    AIPerceptionFeedbackCard(fullText: result.feedbackText)
                 }
                 .transition(.asymmetric(
                     insertion: .move(edge: .bottom).combined(with: .opacity),
@@ -413,57 +389,43 @@ struct BeforeAfterView: View {
 
 // MARK: - Premium UI Components
 
-struct AIVisualInsightCard: View {
-    let label: String
-    let value: String
-    let desc: String
-    let icon: String
-    let color: Color
+struct WeightEntryCard: View {
+    let title: String
+    @Binding var weight: Double?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.caption)
-                    .foregroundColor(color)
-                    .padding(6)
-                    .background(color.opacity(0.15))
-                    .clipShape(Circle())
-                
-                Text(label)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(.gray)
-            }
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.gray)
             
-            VStack(alignment: .leading, spacing: 2) {
-                Text(value)
-                    .font(.system(size: 16, weight: .heavy, design: .rounded))
-                    .foregroundColor(.primary)
-                
-                Text(desc)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.gray.opacity(0.8))
-            }
+            TextField("0.0", value: $weight, format: .number)
+                .keyboardType(.decimalPad)
+                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .textFieldStyle(.plain)
+                .padding(12)
+                .background(Color.gray.opacity(0.04))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                )
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(Color.gray.opacity(0.04))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
-        )
     }
 }
 
-struct AIPerceptionFeedbackCard: View {
-    let fullText: String
+struct TransformationFeedbackCard: View {
+    let before: Double
+    let after: Double
+    let dietKey: String
+    
     @State private var displayedText: String = ""
+    @State private var fullText: String = ""
     @State private var currentIndex: String.Index?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("AI Perception Feedback:")
+            Text("AI Analysis:")
                 .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(.primary)
             
@@ -486,11 +448,26 @@ struct AIPerceptionFeedbackCard: View {
         )
         .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
         .onAppear {
-            startTypewriter()
+            generateText()
         }
-        .onChange(of: fullText) { _, _ in
-            startTypewriter()
+        .onChange(of: before) { _, _ in generateText() }
+        .onChange(of: after) { _, _ in generateText() }
+        .onChange(of: dietKey) { _, _ in generateText() }
+    }
+    
+    private func generateText() {
+        let diff = after - before
+        let dietName = dietKey.capitalized
+        
+        if diff < -0.1 {
+            fullText = "Incredible progress! You successfully lost \(String(format: "%.1f", abs(diff))) kg. You stayed disciplined and effectively adhered to the \(dietName) diet. Keep up the excellent work!"
+        } else if diff > 0.1 {
+            fullText = "You gained \(String(format: "%.1f", diff)) kg. Whether it's muscle mass or part of your goals on the \(dietName) diet, your dedication is visible. Stay focused on your targets!"
+        } else {
+            fullText = "You maintained your weight of \(String(format: "%.1f", after)) kg. Great job sustaining your physique and sticking to your \(dietName) diet!"
         }
+        
+        startTypewriter()
     }
     
     private func startTypewriter() {
@@ -510,102 +487,5 @@ struct AIPerceptionFeedbackCard: View {
                 HapticManager.shared.impact(style: .rigid)
             }
         }
-    }
-}
-
-struct FakeMetricCard: View {
-    let title: String
-    let value: String
-    let isPositive: Bool
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            Text(title)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-            
-            HStack(spacing: 4) {
-                Image(systemName: isPositive ? "arrow.down.right" : "arrow.up.right")
-                    .font(.system(size: 12, weight: .bold))
-                Text(value)
-                    .font(.system(size: 18, weight: .heavy, design: .rounded))
-            }
-            .foregroundColor(isPositive ? .green : .red)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .padding(.horizontal, 4)
-        .background(Color.gray.opacity(0.04))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
-        )
-    }
-}
-
-// MARK: - Visual Progress Result Data Model
-
-struct VisualProgressResult {
-    let paceValue: String
-    let paceDesc: String
-    let muscleValue: String
-    let muscleDesc: String
-    let postureValue: String
-    let postureDesc: String
-    let trajectoryValue: String
-    let trajectoryDesc: String
-    
-    let bfDelta: String
-    let bfPositive: Bool
-    let weightDelta: String
-    let weightPositive: Bool
-    let muscleDelta: String
-    let musclePositive: Bool
-    
-    let feedbackText: String
-    
-    static func random() -> VisualProgressResult {
-        let paceValues = ["Optimal", "Moderate", "Accelerated", "Aggressive", "Steady", "Gradual", "Impressive"]
-        let paceDescs = ["Safe & steady", "Consistent pace", "High response", "Fast fat loss", "Pacing well", "Slow but sure", "Noticeable changes"]
-        
-        let muscleValues = ["Enhanced", "Maintained", "Hypertrophy", "Defined", "Toned", "Symmetrical", "Voluminous"]
-        let muscleDescs = ["Visible definition", "Preserved mass", "Increased volume", "Higher vascularity", "Lean look", "Balanced proportions", "Dense fibers"]
-        
-        let postureValues = ["Improved", "Stable", "Balanced", "Neutral", "Excellent", "Upright", "Aligned"]
-        let postureDescs = ["Better alignment", "Good symmetry", "Stronger frame", "Unchanged", "Perfect alignment", "Core engaged", "Spinal relief"]
-        
-        let bfDeltaVal = Double.random(in: 0.5...4.5)
-        let weightDeltaVal = Double.random(in: -4.0...1.5)
-        let muscleDeltaVal = Double.random(in: -0.5...2.5)
-        
-        let bfStr = String(format: "-%.1f%%", bfDeltaVal)
-        let weightStr = String(format: "%+.1f kg", weightDeltaVal)
-        let muscleStr = String(format: "%+.1f kg", muscleDeltaVal)
-        
-        let templates = [
-            "Based on the visual comparison, your rate of body recomposition is {pace}. There is a noticeable enhancement in muscle definition and a visible improvement in posture. This indicates that your current caloric deficit and protein intake are dialing in nicely.",
-            "Your visual recomposition shows a {pace} progression. While overall mass hasn't changed drastically, your body fat percentage has decreased while maintaining lean muscle. This suggests your training stimulus is adequate.",
-            "The analysis indicates a strong response. You've gained noticeable muscle mass, particularly in the upper body and core, while keeping fat levels relatively stable. Structurally you are much leaner and more defined.",
-            "Visual mapping reveals a significant reduction in body fat, uncovering deep muscle definition. This is an excellent result. Make sure to keep protein intake high to preserve the remaining muscle.",
-            "The most striking change is in your structural symmetry and posture. Your shoulders sit further back, naturally enhancing your V-taper. Alongside a steady decrease in body fat, your physical presentation has drastically improved.",
-            "Incredible {pace} progress! You are shedding fat efficiently while preserving lean mass. Your overall symmetry and visual leanness have taken a major leap forward.",
-            "A clear {pace} transformation. The core is significantly tighter and arm definition is starting to pop. Stay consistent with your current routine, it is visibly working."
-        ]
-        
-        let feedback = templates.randomElement()!.replacingOccurrences(of: "{pace}", with: paceValues.randomElement()!.lowercased())
-        
-        return VisualProgressResult(
-            paceValue: paceValues.randomElement()!, paceDesc: paceDescs.randomElement()!,
-            muscleValue: muscleValues.randomElement()!, muscleDesc: muscleDescs.randomElement()!,
-            postureValue: postureValues.randomElement()!, postureDesc: postureDescs.randomElement()!,
-            trajectoryValue: ["On Track", "Steady", "Surpassing", "Peaking", "Balanced"].randomElement()!, 
-            trajectoryDesc: ["Hitting visual goals", "Sustainable changes", "Ahead of schedule", "Cutting phase", "Well balanced"].randomElement()!,
-            bfDelta: bfStr, bfPositive: true,
-            weightDelta: weightStr, weightPositive: weightDeltaVal <= 0,
-            muscleDelta: muscleStr, musclePositive: muscleDeltaVal >= 0,
-            feedbackText: feedback
-        )
     }
 }
