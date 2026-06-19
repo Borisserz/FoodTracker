@@ -173,18 +173,18 @@ struct Achievement: Identifiable {
     @Relationship(deleteRule: .cascade, inverse: \FoodItem.parentMeal) var foodItems: [FoodItem]? = []
     var parentDailySummary: DailySummary?
 
-    var totalCalories: Int { (foodItems ?? []).reduce(0) { $0 + $1.calories } }
-    var totalProtein: Double { (foodItems ?? []).reduce(0) { $0 + $1.protein } }
-    var totalFats: Double { (foodItems ?? []).reduce(0) { $0 + $1.fats } }
-    var totalCarbs: Double { (foodItems ?? []).reduce(0) { $0 + $1.carbs } }
+    var totalCalories: Int { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.calories } }
+    var totalProtein: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.protein } }
+    var totalFats: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.fats } }
+    var totalCarbs: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.carbs } }
 
-    var totalOmega3: Double { (foodItems ?? []).reduce(0) { $0 + $1.omega3 } }
-    var totalPotassium: Double { (foodItems ?? []).reduce(0) { $0 + $1.potassium } }
-    var totalMagnesium: Double { (foodItems ?? []).reduce(0) { $0 + $1.magnesium } }
-    var totalCalcium: Double { (foodItems ?? []).reduce(0) { $0 + $1.calcium } }
-    var totalIron: Double { (foodItems ?? []).reduce(0) { $0 + $1.iron } }
-    var totalVitaminC: Double { (foodItems ?? []).reduce(0) { $0 + $1.vitaminC } }
-    var totalVitaminD: Double { (foodItems ?? []).reduce(0) { $0 + $1.vitaminD } }
+    var totalOmega3: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.omega3 } }
+    var totalPotassium: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.potassium } }
+    var totalMagnesium: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.magnesium } }
+    var totalCalcium: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.calcium } }
+    var totalIron: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.iron } }
+    var totalVitaminC: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.vitaminC } }
+    var totalVitaminD: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.vitaminD } }
 
     init(title: String, date: Date, foodItems: [FoodItem]? = []) {
         self.title = title
@@ -204,7 +204,7 @@ struct Achievement: Identifiable {
     var directions: [String] = []
     var imageUrl: String = ""
 
-    var totalCalories: Int { (foodItems ?? []).reduce(0) { $0 + $1.calories } }
+    var totalCalories: Int { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.calories } }
 
     init(name: String, info: String, foodItems: [FoodItem]? = [], cookingTime: Int, difficulty: String, servings: Int = 1, directions: [String] = [], imageUrl: String = "") {
         self.name = name; self.info = info; self.foodItems = foodItems
@@ -245,16 +245,16 @@ struct Achievement: Identifiable {
 
     var workoutCalories: Int = 0
 
-    var totalFoodCalories: Int { (meals ?? []).reduce(0) { $0 + $1.totalCalories } }
-    var totalDrinkCalories: Int { (beverages ?? []).reduce(0) { $0 + $1.caloriesPerGlass } }
+    var totalFoodCalories: Int { (meals ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.totalCalories } }
+    var totalDrinkCalories: Int { (beverages ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.caloriesPerGlass } }
     var totalCalories: Int { totalFoodCalories + totalDrinkCalories }
 
-    var totalHydrationLiters: Double { (beverages ?? []).reduce(0) { $0 + $1.volumeMl } / 1000.0 }
-    var totalProtein: Double { (meals ?? []).reduce(0) { $0 + $1.totalProtein } }
-    var totalFats: Double { (meals ?? []).reduce(0) { $0 + $1.totalFats } }
-    var totalCarbs: Double { (meals ?? []).reduce(0) { $0 + $1.totalCarbs } }
+    var totalHydrationLiters: Double { (beverages ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.volumeMl } / 1000.0 }
+    var totalProtein: Double { (meals ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.totalProtein } }
+    var totalFats: Double { (meals ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.totalFats } }
+    var totalCarbs: Double { (meals ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.totalCarbs } }
 
-    var localActivityCalories: Int { (activities ?? []).reduce(0) { $0 + $1.calories } }
+    var localActivityCalories: Int { (activities ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.calories } }
 
     var netCalories: Int {
         totalCalories - activeCaloriesBurned
