@@ -1127,7 +1127,7 @@ struct FoodSearchResultRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(food.name)
+                    Text(food.name.decodingHTMLEntities())
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(compatibility == .avoid ? .gray : .primary)
                         .strikethrough(compatibility == .avoid, color: .red.opacity(0.5))
@@ -1465,7 +1465,7 @@ struct DailyLogDetailView: View {
                                             }
 
                                             VStack(alignment: .leading, spacing: 4) {
-                                                Text(food.name)
+                                                Text(food.name.decodingHTMLEntities())
                                                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                                                     .foregroundColor(.primary)
 
@@ -1567,7 +1567,6 @@ struct SmartAddFoodView: View {
     @State private var showingScanner = false
     @State private var showingManualAdd = false
     @State private var failedBarcodeForManualAdd: String? = nil
-    @State private var selectedFoods: [FoodItem] = []
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
     @State private var scannerMode: SmartScannerView.ScannerMode = .barcode
@@ -1615,7 +1614,8 @@ struct SmartAddFoodView: View {
         }
 
         if !searchText.isEmpty {
-            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+            let queryRoots = SmartSearch.getRoots(for: searchText)
+            items = items.filter { SmartSearch.matches(name: $0.name, queryRoots: queryRoots) }
         }
         if selectedCategory == "Recent" || selectedCategory == "My Recipes" {
             items.sort { $0.name < $1.name }
@@ -1623,11 +1623,14 @@ struct SmartAddFoodView: View {
         return items
     }
 
-    var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
+    private var currentMealItems: [FoodItem] {
+        return pastMeals.first(where: { $0.title == mealTitle && Calendar.current.isDateInToday($0.date) })?.foodItems ?? []
+    }
 
     private var smartSuggestions: [FoodItem] {
-        guard !selectedFoods.isEmpty else { return [] }
-        let selectedNames = Set(selectedFoods.map { $0.name })
+        let currentItems = currentMealItems
+        guard !currentItems.isEmpty else { return [] }
+        let selectedNames = Set(currentItems.map { $0.name })
         var coOccurrences: [String: (count: Int, item: FoodItem)] = [:]
 
         for meal in pastMeals {
@@ -1674,7 +1677,7 @@ struct SmartAddFoodView: View {
                     ActionSearchBar(text: $searchText)
                     .padding(.horizontal, 20)
 
-                    if !selectedFoods.isEmpty && !smartSuggestions.isEmpty && searchText.isEmpty {
+                    if !smartSuggestions.isEmpty && searchText.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
                                 Image(systemName: "sparkles")
@@ -1690,15 +1693,13 @@ struct SmartAddFoodView: View {
                                 HStack(spacing: 12) {
                                     ForEach(smartSuggestions, id: \.id) { suggestion in
                                         Button(action: {
-                                            HapticManager.shared.impact(style: .light)
-                                            withAnimation(.spring()) {
-                                                selectedFoods.append(suggestion)
-                                            }
+                                            HapticManager.shared.impact(style: .heavy)
+                                            onSave([suggestion])
                                         }) {
                                             HStack(spacing: 6) {
                                                 Image(systemName: "plus.circle.fill")
                                                     .foregroundColor(.white)
-                                                Text("\(suggestion.name) (\(Int(suggestion.weight))g)")
+                                                Text("\(suggestion.name.decodingHTMLEntities()) (\(Int(suggestion.weight))g)")
                                                     .font(.system(size: 13, weight: .bold, design: .rounded))
                                                     .foregroundColor(.white)
                                             }
@@ -1838,6 +1839,31 @@ struct SmartAddFoodView: View {
                                     }
                                     .padding(.top, 40)
                                 }
+                                
+                                if !apiSearchResults.isEmpty || !filteredLocalFoods.isEmpty {
+                                    VStack(spacing: 12) {
+                                        Divider().padding(.horizontal, 40)
+                                        Text("Didn't find what you're looking for?")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                        
+                                        Button(action: {
+                                            HapticManager.shared.impact(style: .medium)
+                                            showingManualAdd = true
+                                        }) {
+                                            HStack {
+                                                Image(systemName: "plus.circle.fill")
+                                                Text("Create Custom Food")
+                                            }
+                                            .font(.subheadline.bold()).foregroundColor(.white).padding(.vertical, 12).padding(.horizontal, 20)
+                                            .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .cornerRadius(20).shadow(color: Color.green.opacity(0.3), radius: 6, y: 3)
+                                        }
+                                        .buttonStyle(BounceButtonStyle())
+                                    }
+                                    .padding(.top, 24)
+                                    .padding(.bottom, 10)
+                                }
                             }
                         } else {
                             if filteredLocalFoods.isEmpty {
@@ -1850,25 +1876,16 @@ struct SmartAddFoodView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
+                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, 40)
                 }
-            }
-
-            if !selectedFoods.isEmpty {
-                FloatingCartButton(count: selectedFoods.count, calories: cartCalories) {
-                    HapticManager.shared.impact(style: .heavy)
-                    onSave(selectedFoods)
-                    dismiss()
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
             }
         }
         .onChange(of: searchText) { _, newValue in performSearch(query: newValue) }
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
         .fullScreenCover(item: $selectedFoodForDetail) { food in
             FoodDetailNutritionView(food: food, mealTitle: mealTitle) { addedFood in
-                withAnimation(.spring()) { selectedFoods.append(addedFood) }
+                HapticManager.shared.impact(style: .heavy)
+                onSave([addedFood])
             }
         }
         .fullScreenCover(isPresented: $showingScanner) {
@@ -1883,7 +1900,8 @@ struct SmartAddFoodView: View {
         }
         .sheet(isPresented: $showingManualAdd) {
             AddIngredientModalView(failedBarcode: failedBarcodeForManualAdd) { newCustomItem in
-                withAnimation(.spring()) { selectedFoods.append(newCustomItem) }
+                HapticManager.shared.impact(style: .heavy)
+                onSave([newCustomItem])
             }
             .presentationDetents([.fraction(0.85), .large])
             .presentationCornerRadius(32)

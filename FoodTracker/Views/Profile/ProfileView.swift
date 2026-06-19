@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import Charts
 import FirebaseAuth
+import PhotosUI
 
 struct ProfileWrapperView: View {
     @Query private var users: [User]
@@ -40,12 +41,21 @@ struct ProfileView: View {
                 VStack(spacing: 24) {
 
                     VStack(spacing: 16) {
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 100, height: 100)
-                            .foregroundStyle(themeManager.current.primaryGradient)
-                            .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
+                        if let data = user.avatarData, let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 100, height: 100)
+                                .clipShape(Circle())
+                                .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
+                        } else {
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 100, height: 100)
+                                .foregroundStyle(themeManager.current.primaryGradient)
+                                .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
+                        }
 
                         VStack(spacing: 4) {
                             Text(user.name)
@@ -163,6 +173,7 @@ struct EditProfileSheet: View {
     @State private var weight: Double
     @State private var height: Double
     @State private var age: Int
+    @State private var avatarItem: PhotosPickerItem? = nil
 
     init(user: User) {
         self._user = Bindable(user)
@@ -182,6 +193,41 @@ struct EditProfileSheet: View {
                         
                         // Personal Details Card
                         VStack(spacing: 16) {
+                            HStack {
+                                Spacer()
+                                PhotosPicker(selection: $avatarItem, matching: .images) {
+                                    ZStack(alignment: .bottomTrailing) {
+                                        if let data = user.avatarData, let uiImage = UIImage(data: data) {
+                                            Image(uiImage: uiImage)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 80, height: 80)
+                                                .clipShape(Circle())
+                                        } else {
+                                            Image(systemName: "person.crop.circle.fill")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 80, height: 80)
+                                                .foregroundColor(.gray.opacity(0.5))
+                                        }
+                                        Image(systemName: "pencil.circle.fill")
+                                            .foregroundColor(.themePink)
+                                            .font(.title3)
+                                            .background(Circle().fill(Color.white))
+                                            .offset(x: 4, y: 4)
+                                    }
+                                }
+                                .padding(.bottom, 8)
+                                .onChange(of: avatarItem) { _, newItem in
+                                    Task {
+                                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                            await MainActor.run { user.avatarData = data }
+                                        }
+                                    }
+                                }
+                                Spacer()
+                            }
+                            
                             HStack {
                                 Text("Name")
                                     .font(.system(size: 16, weight: .medium, design: .rounded))

@@ -24,7 +24,7 @@ struct FoodDetailNutritionView: View {
         self.onAdd = onAdd
         self._weight = State(initialValue: food.weight > 0 ? food.weight : 100.0)
         
-        self._editedName = State(initialValue: food.name)
+        self._editedName = State(initialValue: food.name.decodingHTMLEntities())
         self._baseCalories = State(initialValue: food.calories)
         self._baseProtein = State(initialValue: food.protein)
         self._baseFats = State(initialValue: food.fats)

@@ -57,6 +57,7 @@ struct Achievement: Identifiable {
     var dailyCaloriesGoal: Int = 0
     var createdDate: Date = Date()
     var isHealthKitEnabled: Bool = false
+    var avatarData: Data? = nil
 
     var activeDietKey: String = "balanced"
     var targetProtein: Double = 150.0
@@ -159,7 +160,7 @@ struct Achievement: Identifiable {
 
         self.id = UUID()
 
-        self.name = name; self.weight = weight; self.calories = calories
+        self.name = name.decodingHTMLEntities(); self.weight = weight; self.calories = calories
         self.protein = protein; self.fats = fats; self.carbs = carbs
         self.omega3 = omega3; self.calcium = calcium; self.potassium = potassium
         self.magnesium = magnesium; self.iron = iron; self.vitaminC = vitaminC; self.vitaminD = vitaminD
@@ -431,8 +432,8 @@ public struct AIChatMessage: Identifiable, Codable, Equatable {
          fatPer100g: Double, carbsPer100g: Double,
          source: String = "ai", barcode: String? = nil) {
         self.id = UUID()
-        self.name = name
-        self.nameNormalized = name.lowercased()
+        self.name = name.decodingHTMLEntities()
+        self.nameNormalized = self.name.lowercased()
         self.caloriesPer100g = caloriesPer100g
         self.proteinPer100g = proteinPer100g
         self.fatPer100g = fatPer100g
@@ -465,7 +466,8 @@ final class ScannedFoodRepository {
     @MainActor
     func save(name: String, calories: Int, protein: Double, fat: Double, carbs: Double,
               source: String, barcode: String? = nil, in context: ModelContext) {
-        let normalized = name.lowercased().trimmingCharacters(in: .whitespaces)
+        let decodedName = name.decodingHTMLEntities()
+        let normalized = decodedName.lowercased().trimmingCharacters(in: .whitespaces)
         guard !normalized.isEmpty, calories > 0 else { return }
 
         // Check for duplicate by normalised name or barcode
@@ -475,16 +477,16 @@ final class ScannedFoodRepository {
         if let existing = try? context.fetch(descriptor).first {
             existing.scanCount += 1
             existing.scannedAt = Date()
-            print("♻️ ScannedFoodCache: updated '\(name)' (count=\(existing.scanCount))")
+            print("♻️ ScannedFoodCache: updated '\(decodedName)' (count=\(existing.scanCount))")
             return
         }
 
         let entry = ScannedFoodCache(
-            name: name, caloriesPer100g: calories, proteinPer100g: protein,
+            name: decodedName, caloriesPer100g: calories, proteinPer100g: protein,
             fatPer100g: fat, carbsPer100g: carbs, source: source, barcode: barcode
         )
         context.insert(entry)
-        print("✅ ScannedFoodCache: saved '\(name)' from \(source)")
+        print("✅ ScannedFoodCache: saved '\(decodedName)' from \(source)")
     }
 
     /// Search cached scanned foods by query string
@@ -502,5 +504,18 @@ final class ScannedFoodRepository {
                .prefix(limit)
                .map { $0.toFoodItem() }
         )
+    }
+}
+
+extension String {
+    func decodingHTMLEntities() -> String {
+        var result = self
+        result = result.replacingOccurrences(of: "&quot;", with: "\"")
+        result = result.replacingOccurrences(of: "&amp;", with: "&")
+        result = result.replacingOccurrences(of: "&apos;", with: "'")
+        result = result.replacingOccurrences(of: "&lt;", with: "<")
+        result = result.replacingOccurrences(of: "&gt;", with: ">")
+        result = result.replacingOccurrences(of: "&#39;", with: "'")
+        return result
     }
 }
