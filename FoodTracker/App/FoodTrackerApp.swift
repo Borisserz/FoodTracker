@@ -204,6 +204,11 @@ struct ContentView: View {
                 }
             }
         }
+        .onChange(of: users) { _, newUsers in
+            if newUsers.isEmpty {
+                initializeUserIfNeeded()
+            }
+        }
     }
 
     private func initializeUserIfNeeded() {

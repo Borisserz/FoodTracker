@@ -199,10 +199,9 @@ struct OnboardingView: View {
     }
     
     @Environment(\.openURL) var openURL
+    @Environment(AuthManager.self) private var authManager
     @State private var step: Step = .welcome
     @State private var showGuestModal = false
-    @State private var showAppleAlert = false
-    @State private var showGoogleAlert = false
     
     var body: some View {
         ZStack {
@@ -218,8 +217,28 @@ struct OnboardingView: View {
             switch step {
             case .welcome:
                 WelcomeStepView(
-                    onAppleTap: { showAppleAlert = true },
-                    onGoogleTap: { showGoogleAlert = true },
+                    onAppleTap: { 
+                        Task {
+                            do {
+                                try await SocialAuthService.shared.signInWithApple()
+                                authManager.refresh()
+                                await MainActor.run { onSuccess() }
+                            } catch {
+                                print("Apple sign in error: \(error)")
+                            }
+                        }
+                    },
+                    onGoogleTap: { 
+                        Task {
+                            do {
+                                try await SocialAuthService.shared.signInWithGoogle()
+                                authManager.refresh()
+                                await MainActor.run { onSuccess() }
+                            } catch {
+                                print("Google sign in error: \(error)")
+                            }
+                        }
+                    },
                     onGuestTap: { showGuestModal = true }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -246,18 +265,6 @@ struct OnboardingView: View {
             .presentationDetents([.fraction(0.48), .medium])
             .presentationDragIndicator(.visible)
             .background(Color(red: 0.12, green: 0.20, blue: 0.18).ignoresSafeArea())
-        }
-        .alert("Sign in with Apple", isPresented: $showAppleAlert) {
-            Button("Continue") { onSuccess() } 
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Here you can plug in your real Apple Sign In flow.")
-        }
-        .alert("Sign in with Google", isPresented: $showGoogleAlert) {
-            Button("Continue") { onSuccess() } 
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Here you can plug in your real Google Sign In flow.")
         }
         .onAppear {
             TrackingManager.shared.track(.appOpened(source: "onboarding"))

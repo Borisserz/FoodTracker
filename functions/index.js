@@ -19,7 +19,7 @@ initializeApp();
 // ==========================================
 const PROJECT_ID = "serzhanovich-ecosystem-ce700";
 const LOCATION = "us-central1";
-const MODEL = "gemini-3.5-flash";
+const MODEL = "gemini-1.5-flash";
 const AUTO_BLOCK_REPORT_THRESHOLD = 3;
 const SERVICE_ACCOUNT =
   "firebase-adminsdk-fbsvc@serzhanovich-ecosystem-ce700.iam.gserviceaccount.com";

@@ -38,8 +38,9 @@ struct FoodDetailNutritionView: View {
     private var currentC: Double { baseCarbs * multiplier }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Color.themeBg.ignoresSafeArea()
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                Color.themeBg.ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
@@ -96,6 +97,7 @@ struct FoodDetailNutritionView: View {
                     Spacer().frame(height: 100)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .ignoresSafeArea(edges: .top)
 
             VStack {
@@ -149,16 +151,17 @@ struct FoodDetailNutritionView: View {
         }
         .navigationBarHidden(true)
         .sheet(isPresented: $showAdjustSheet) {
-            AdjustMacrosSheet(
-                name: $editedName,
-                calories: $baseCalories,
-                protein: $baseProtein,
-                fats: $baseFats,
-                carbs: $baseCarbs
-            )
-            .presentationDetents([.fraction(0.7), .large])
-            .presentationCornerRadius(32)
-            .presentationDragIndicator(.visible)
+                AdjustMacrosSheet(
+                    name: $editedName,
+                    calories: $baseCalories,
+                    protein: $baseProtein,
+                    fats: $baseFats,
+                    carbs: $baseCarbs
+                )
+                .presentationDetents([.fraction(0.7), .large])
+                .presentationCornerRadius(32)
+                .presentationDragIndicator(.visible)
+            }
         }
     }
 }
@@ -414,6 +417,16 @@ private struct ServingSizeEditor: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(Color.gray.opacity(0.1), lineWidth: 1)
                         )
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                }
+                                .font(.headline)
+                                .foregroundColor(.themePink)
+                            }
+                        }
 
                     Text("g")
                         .font(.title2.bold())
@@ -516,9 +529,10 @@ struct AdjustMacrosSheet: View {
     @Binding var carbs: Double
 
     var body: some View {
-        ZStack {
-            Color.themeBg.ignoresSafeArea()
-                .onTapGesture { hideKeyboard() }
+        NavigationStack {
+            ZStack {
+                Color.themeBg.ignoresSafeArea()
+                    .onTapGesture { hideKeyboard() }
                 
             VStack(spacing: 24) {
                 Capsule()
@@ -562,6 +576,7 @@ struct AdjustMacrosSheet: View {
             }
         }
     }
+}
     
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -615,6 +630,16 @@ struct AdjustNumberField: View {
                     .keyboardType(.decimalPad)
                     .font(.headline.bold())
                     .multilineTextAlignment(.trailing)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") {
+                                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                            }
+                            .font(.headline)
+                            .foregroundColor(.themePink)
+                        }
+                    }
             }
             .padding()
             .background(Color(uiColor: .secondarySystemGroupedBackground))

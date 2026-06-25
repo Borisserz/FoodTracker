@@ -26,6 +26,14 @@ final class AuthManager {
         currentUser?.email
     }
 
+    func refresh() {
+        if let user = Auth.auth().currentUser {
+            self.currentUser = user
+            self.isAnonymous = user.isAnonymous
+            self.isAuthenticated = !user.isAnonymous
+        }
+    }
+
     func deleteCurrentUser() async throws {
         try await currentUser?.delete()
     }

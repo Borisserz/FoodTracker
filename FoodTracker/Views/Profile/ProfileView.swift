@@ -362,9 +362,30 @@ struct PremiumMetricSlider: View {
                         .foregroundColor(.gray)
                 }
             }
-            
-            Slider(value: $value, in: range, step: step)
-                .tint(color)
+            HStack(spacing: 12) {
+                Button(action: {
+                    HapticManager.shared.impact(style: .light)
+                    value = max(range.lowerBound, value - step)
+                }) {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(color.opacity(0.6))
+                }
+                .buttonStyle(.plain)
+                
+                Slider(value: $value, in: range, step: step)
+                    .tint(color)
+                
+                Button(action: {
+                    HapticManager.shared.impact(style: .light)
+                    value = min(range.upperBound, value + step)
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(color.opacity(0.6))
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(.vertical, 4)
     }
@@ -676,12 +697,14 @@ struct SettingsRowView: View {
 
 struct AccountSettingsView: View {
     @Environment(AuthManager.self) private var authManager
+    @Environment(\.modelContext) private var context
     let user: User
     let loggedDaysCount: Int
 
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showError = false
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         ZStack {
@@ -716,6 +739,7 @@ struct AccountSettingsView: View {
                                 isLoading = true
                                 do {
                                     try await SocialAuthService.shared.signInWithApple()
+                                    authManager.refresh()
                                 } catch {
                                     errorMessage = error.localizedDescription
                                     showError = true
@@ -741,6 +765,7 @@ struct AccountSettingsView: View {
                                 isLoading = true
                                 do {
                                     try await SocialAuthService.shared.signInWithGoogle()
+                                    authManager.refresh()
                                 } catch {
                                     errorMessage = error.localizedDescription
                                     showError = true
@@ -790,18 +815,7 @@ struct AccountSettingsView: View {
                     }
 
                     Button(action: {
-                        Task {
-                            isLoading = true
-                            do {
-                                try await SocialAuthService.shared.reauthenticateForDeletion()
-                                try await authManager.deleteCurrentUser()
-                                try await AnonymousAuthBootstrap.shared.ensureSignedIn()
-                            } catch {
-                                errorMessage = error.localizedDescription
-                                showError = true
-                            }
-                            isLoading = false
-                        }
+                        showDeleteConfirmation = true
                     }) {
                         HStack {
                             Image(systemName: "trash")
@@ -831,6 +845,55 @@ struct AccountSettingsView: View {
         }, message: {
             Text(errorMessage ?? "Unknown error")
         })
+        .alert("Delete Account", isPresented: $showDeleteConfirmation, actions: {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                Task {
+                    isLoading = true
+                    do {
+                        try await SocialAuthService.shared.reauthenticateForDeletion()
+                        try await SocialAuthService.shared.deleteServerData()
+                        wipeLocalData()
+                        try await authManager.deleteCurrentUser()
+                        try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+                    } catch {
+                        errorMessage = error.localizedDescription
+                        showError = true
+                    }
+                    isLoading = false
+                }
+            }
+        }, message: {
+            Text("Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.")
+        })
+    }
+
+    private func wipeLocalData() {
+        let userFetch = FetchDescriptor<User>()
+        if let users = try? context.fetch(userFetch) { users.forEach { context.delete($0) } }
+        
+        let summaryFetch = FetchDescriptor<DailySummary>()
+        if let summaries = try? context.fetch(summaryFetch) { summaries.forEach { context.delete($0) } }
+        
+        let recipeFetch = FetchDescriptor<CustomRecipe>()
+        if let recipes = try? context.fetch(recipeFetch) { recipes.forEach { context.delete($0) } }
+        
+        let planFetch = FetchDescriptor<WeeklyMealPlan>()
+        if let plans = try? context.fetch(planFetch) { plans.forEach { context.delete($0) } }
+        
+        let weightFetch = FetchDescriptor<WeightLog>()
+        if let weights = try? context.fetch(weightFetch) { weights.forEach { context.delete($0) } }
+        
+        let chatFetch = FetchDescriptor<AIChatSession>()
+        if let chats = try? context.fetch(chatFetch) { chats.forEach { context.delete($0) } }
+        
+        let shoppingFetch = FetchDescriptor<ShoppingItem>()
+        if let items = try? context.fetch(shoppingFetch) { items.forEach { context.delete($0) } }
+        
+        let cacheFetch = FetchDescriptor<ScannedFoodCache>()
+        if let caches = try? context.fetch(cacheFetch) { caches.forEach { context.delete($0) } }
+        
+        try? context.save()
     }
 }
 

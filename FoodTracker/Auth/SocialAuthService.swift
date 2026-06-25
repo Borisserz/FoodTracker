@@ -10,7 +10,8 @@ import AuthenticationServices
 import CryptoKit
 import FirebaseAuth
 import FirebaseCore
- import GoogleSignIn
+import FirebaseAppCheck
+import GoogleSignIn
 import UIKit
 
 @MainActor
@@ -86,7 +87,6 @@ final class SocialAuthService {
         guard let idToken = result.user.idToken?.tokenString else {
            throw AuthError.invalidGoogleCredential
         }
-        throw AuthError.invalidGoogleCredential
 
         let credential = GoogleAuthProvider.credential(
            withIDToken: idToken,
@@ -115,6 +115,31 @@ final class SocialAuthService {
             }
         } else {
             _ = try await Auth.auth().signIn(with: credential)
+        }
+    }
+
+    // MARK: - Server Data Deletion
+
+    /// Calls the deleteAccount Cloud Function via REST to wipe Firestore data
+    func deleteServerData() async throws {
+        guard let user = Auth.auth().currentUser else { throw AuthError.notSignedIn }
+        
+        let idToken = try await user.getIDToken()
+        let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: false).token
+        
+        guard let url = URL(string: "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/deleteAccount") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+        request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["data": [:]])
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        if let httpResp = response as? HTTPURLResponse, httpResp.statusCode != 200 {
+            print("Failed to delete server data, status: \(httpResp.statusCode)")
+            throw URLError(.badServerResponse)
         }
     }
 
@@ -215,7 +240,6 @@ final class SocialAuthService {
          guard let idToken = result.user.idToken?.tokenString else {
             throw AuthError.invalidGoogleCredential
          }
-        throw AuthError.invalidGoogleCredential
          let credential = GoogleAuthProvider.credential(
             withIDToken: idToken,
             accessToken: result.user.accessToken.tokenString
