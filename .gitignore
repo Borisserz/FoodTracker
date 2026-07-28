@@ -26,20 +26,25 @@ Pods/
 .DS_Store
 
 Secrets.swift
+vertex_credentials.json
+sa.json
+**/sa.json
 
-Secrets.swift
-
+# Local scratch / one-off tooling
 copy.sh
-
 copy-swift.sh
-
 main.sh
-
 q.py
 script.py
 names.json
-
-# Google Cloud Vertex AI Credentials
-vertex_credentials.json
 *.sh
+*.log
 *.tmp
+.agents/
+add_*.rb
+fix_*.py
+generate_*.py
+translate_*.py
+translate_*.js
+/translations.txt
+/foods_*.json
