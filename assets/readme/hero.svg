@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">FoodTracker</title>
+  <desc id="desc">Native iOS nutrition app with AI meal scanning, macro tracking, and HealthKit sync with WorkoutTracker.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F7F1EA"/>
+      <stop offset="55%" stop-color="#F3E8DF"/>
+      <stop offset="100%" stop-color="#EFE4DA"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F28A4B"/>
+      <stop offset="100%" stop-color="#E4576B"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFCF9"/>
+      <stop offset="100%" stop-color="#F8F0E8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="360" rx="28" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="1197" height="357" rx="26.5" fill="none" stroke="#E2D3C5" stroke-width="1.5"/>
+
+  <g transform="translate(56 54)">
+    <text x="0" y="0" fill="#B07A6A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="600" letter-spacing="2.4">IOS  |  NUTRITION  |  HEALTHKIT</text>
+    <text x="0" y="62" fill="#2B211C" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="56" font-weight="750">FoodTracker</text>
+    <text x="0" y="112" fill="#6C564C" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="24" font-weight="500">AI macro tracker that scans meals,</text>
+    <text x="0" y="146" fill="#6C564C" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="24" font-weight="500">menus, and barcodes in one flow.</text>
+
+    <g transform="translate(0 188)">
+      <rect width="132" height="36" rx="18" fill="#FFF8F2" stroke="#E8D4C7"/>
+      <text x="66" y="24" text-anchor="middle" fill="#5C433A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="650">Gemini</text>
+      <rect x="142" width="132" height="36" rx="18" fill="#FFF8F2" stroke="#E8D4C7"/>
+      <text x="208" y="24" text-anchor="middle" fill="#5C433A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="650">VisionKit</text>
+      <rect x="284" width="132" height="36" rx="18" fill="#FFF8F2" stroke="#E8D4C7"/>
+      <text x="350" y="24" text-anchor="middle" fill="#5C433A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="650">SwiftData</text>
+      <rect x="426" width="118" height="36" rx="18" fill="#FFF8F2" stroke="#E8D4C7"/>
+      <text x="485" y="24" text-anchor="middle" fill="#5C433A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="650">HealthKit</text>
+    </g>
+  </g>
+
+  <g transform="translate(780 48)">
+    <rect width="360" height="264" rx="24" fill="url(#panel)" stroke="#E5D3C5" stroke-width="1.5"/>
+    <text x="28" y="42" fill="#B07A6A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="650" letter-spacing="1.6">DAILY ENERGY</text>
+    <text x="28" y="78" fill="#2B211C" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="700">608 / 2 262 kcal</text>
+
+    <g transform="translate(180 168)">
+      <circle r="78" fill="none" stroke="#F0E2D6" stroke-width="18"/>
+      <circle r="78" fill="none" stroke="url(#ring)" stroke-width="18" stroke-linecap="round" stroke-dasharray="120 370" transform="rotate(-90)"/>
+      <text x="0" y="-4" text-anchor="middle" fill="#2B211C" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="750">27%</text>
+      <text x="0" y="24" text-anchor="middle" fill="#8A6C60" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="600">eaten</text>
+    </g>
+
+    <g transform="translate(28 208)">
+      <rect width="92" height="28" rx="14" fill="#F7E7DC"/>
+      <text x="46" y="19" text-anchor="middle" fill="#8A4A3D" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="650">Protein</text>
+      <rect x="102" width="78" height="28" rx="14" fill="#F7E7DC"/>
+      <text x="141" y="19" text-anchor="middle" fill="#8A4A3D" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="650">Fat</text>
+      <rect x="190" width="96" height="28" rx="14" fill="#F7E7DC"/>
+      <text x="238" y="19" text-anchor="middle" fill="#8A4A3D" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="650">Carbs</text>
+    </g>
+  </g>
+</svg>
