@@ -18,7 +18,7 @@ enum MacroType: String, Identifiable {
 
     var color: Color {
         switch self {
-        case .protein: return .pink
+        case .protein: return .themePink
         case .fat: return .orange
         case .carbs: return .blue
         }
@@ -33,22 +33,14 @@ struct Achievement: Identifiable {
     let color: Color
 
     static let all: [Achievement] = [
-        Achievement(id: "first_log", title: String(localized: "First Step"), description: String(localized: "Log your first meal"), icon: "flag.fill", color: .pink),
-        Achievement(id: "streak_3", title: String(localized: "On Fire"), description: String(localized: "Reach a 3-day streak"), icon: "flame.fill", color: .orange),
-        Achievement(id: "streak_7", title: String(localized: "Unstoppable"), description: String(localized: "Reach a 7-day streak"), icon: "bolt.fill", color: .yellow),
-        Achievement(id: "streak_30", title: String(localized: "Legend"), description: String(localized: "Reach a 30-day streak"), icon: "crown.fill", color: .yellow),
-        Achievement(id: "water_pro", title: String(localized: "Hydro Homie"), description: String(localized: "Drink 2.5L in a day"), icon: "drop.fill", color: .blue),
-        Achievement(id: "water_king", title: String(localized: "Aqua King"), description: String(localized: "Drink 3L of water in a day"), icon: "drop.triangle.fill", color: .cyan),
-        Achievement(id: "protein_beast", title: String(localized: "Protein Beast"), description: String(localized: "Hit protein goal 5 times"), icon: "figure.strengthtraining.traditional", color: .red),
-        Achievement(id: "perfect_week", title: String(localized: "Perfect Week"), description: String(localized: "Hit macros for 7 days"), icon: "medal.fill", color: .indigo),
-        Achievement(id: "early_bird", title: String(localized: "Early Bird"), description: String(localized: "Log breakfast before 9 AM"), icon: "sunrise.fill", color: .orange),
-        Achievement(id: "ai_chef_1", title: String(localized: "Sous-Chef"), description: String(localized: "Cook 1 recipe with AI"), icon: "sparkles", color: .purple),
-        Achievement(id: "ai_chef_10", title: String(localized: "Master Chef"), description: String(localized: "Cook 10 recipes with AI"), icon: "star.fill", color: .orange),
-        Achievement(id: "recipe_creator", title: String(localized: "Creator"), description: String(localized: "Add a custom recipe"), icon: "book.fill", color: .pink)
+        Achievement(id: "first_log", title: String(localized: "First Step"), description: String(localized: "Log your first meal"), icon: "flag.fill", color: .themePink),
+        Achievement(id: "streak_3", title: String(localized: "On Fire"), description: String(localized: "Reach a 3-day streak"), icon: "flame.fill", color: .themeOrange),
+        Achievement(id: "streak_7", title: String(localized: "Unstoppable"), description: String(localized: "Reach a 7-day streak"), icon: "bolt.fill", color: .themeYellow),
+        Achievement(id: "water_pro", title: String(localized: "Hydro Homie"), description: String(localized: "Drink 2.5L in a day"), icon: "drop.fill", color: .blue)
     ]
 }
 
-@Model final class User: @unchecked Sendable {
+@Model final class User {
     var name: String = ""
     var weight: Double = 0.0
     var height: Double = 0.0
@@ -57,7 +49,6 @@ struct Achievement: Identifiable {
     var dailyCaloriesGoal: Int = 0
     var createdDate: Date = Date()
     var isHealthKitEnabled: Bool = false
-    var avatarData: Data? = nil
 
     var activeDietKey: String = "balanced"
     var targetProtein: Double = 150.0
@@ -72,7 +63,6 @@ struct Achievement: Identifiable {
     // Goals
     var targetWeight: Double?
     var weightGoalType: String? // "lose", "gain", "maintain"
-    var dailyWaterGoal: Double?
 
     init(name: String, weight: Double, height: Double, age: Int, gender: String = "Male") {
         self.name = name
@@ -123,7 +113,6 @@ struct Achievement: Identifiable {
     var colorHex: String = ""
     var caloriesPerGlass: Int = 0
     var volumeMl: Double = 0.0
-    var parentDailySummary: DailySummary?
 
     init(date: Date = Date(), name: String, icon: String, colorHex: String, caloriesPerGlass: Int, volumeMl: Double = 250.0) {
         self.date = date
@@ -151,8 +140,6 @@ struct Achievement: Identifiable {
     var iron: Double = 0.0
     var vitaminC: Double = 0.0
     var vitaminD: Double = 0.0
-    var parentMeal: Meal?
-    var parentRecipe: CustomRecipe?
 
     init(name: String, weight: Double, calories: Int, protein: Double, fats: Double, carbs: Double,
          omega3: Double = 0, calcium: Double = 0, potassium: Double = 0,
@@ -160,7 +147,7 @@ struct Achievement: Identifiable {
 
         self.id = UUID()
 
-        self.name = name.decodingHTMLEntities(); self.weight = weight; self.calories = calories
+        self.name = name; self.weight = weight; self.calories = calories
         self.protein = protein; self.fats = fats; self.carbs = carbs
         self.omega3 = omega3; self.calcium = calcium; self.potassium = potassium
         self.magnesium = magnesium; self.iron = iron; self.vitaminC = vitaminC; self.vitaminD = vitaminD
@@ -170,23 +157,22 @@ struct Achievement: Identifiable {
 @Model final class Meal {
     var title: String = ""
     var date: Date = Date()
-    @Relationship(deleteRule: .cascade, inverse: \FoodItem.parentMeal) var foodItems: [FoodItem]? = []
-    var parentDailySummary: DailySummary?
+    @Relationship(deleteRule: .cascade) var foodItems: [FoodItem] = []
 
-    var totalCalories: Int { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.calories } }
-    var totalProtein: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.protein } }
-    var totalFats: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.fats } }
-    var totalCarbs: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.carbs } }
+    var totalCalories: Int { foodItems.reduce(0) { $0 + $1.calories } }
+    var totalProtein: Double { foodItems.reduce(0) { $0 + $1.protein } }
+    var totalFats: Double { foodItems.reduce(0) { $0 + $1.fats } }
+    var totalCarbs: Double { foodItems.reduce(0) { $0 + $1.carbs } }
 
-    var totalOmega3: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.omega3 } }
-    var totalPotassium: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.potassium } }
-    var totalMagnesium: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.magnesium } }
-    var totalCalcium: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.calcium } }
-    var totalIron: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.iron } }
-    var totalVitaminC: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.vitaminC } }
-    var totalVitaminD: Double { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.vitaminD } }
+    var totalOmega3: Double { foodItems.reduce(0) { $0 + $1.omega3 } }
+    var totalPotassium: Double { foodItems.reduce(0) { $0 + $1.potassium } }
+    var totalMagnesium: Double { foodItems.reduce(0) { $0 + $1.magnesium } }
+    var totalCalcium: Double { foodItems.reduce(0) { $0 + $1.calcium } }
+    var totalIron: Double { foodItems.reduce(0) { $0 + $1.iron } }
+    var totalVitaminC: Double { foodItems.reduce(0) { $0 + $1.vitaminC } }
+    var totalVitaminD: Double { foodItems.reduce(0) { $0 + $1.vitaminD } }
 
-    init(title: String, date: Date, foodItems: [FoodItem]? = []) {
+    init(title: String, date: Date, foodItems: [FoodItem] = []) {
         self.title = title
         self.date = date
         self.foodItems = foodItems
@@ -196,22 +182,20 @@ struct Achievement: Identifiable {
 @Model final class CustomRecipe {
     var name: String = ""
     var info: String = ""
-    @Relationship(deleteRule: .cascade, inverse: \FoodItem.parentRecipe) var foodItems: [FoodItem]? = []
+    @Relationship(deleteRule: .cascade) var foodItems: [FoodItem] = []
     var cookingTime: Int = 0
     var difficulty: String = ""
 
     var servings: Int = 1
     var directions: [String] = []
-    var imageUrl: String = ""
 
-    var totalCalories: Int { (foodItems ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.calories } }
+    var totalCalories: Int { foodItems.reduce(0) { $0 + $1.calories } }
 
-    init(name: String, info: String, foodItems: [FoodItem]? = [], cookingTime: Int, difficulty: String, servings: Int = 1, directions: [String] = [], imageUrl: String = "") {
+    init(name: String, info: String, foodItems: [FoodItem] = [], cookingTime: Int, difficulty: String, servings: Int = 1, directions: [String] = []) {
         self.name = name; self.info = info; self.foodItems = foodItems
         self.cookingTime = cookingTime; self.difficulty = difficulty
         self.servings = servings
         self.directions = directions
-        self.imageUrl = imageUrl
     }
 }
 
@@ -221,7 +205,6 @@ struct Achievement: Identifiable {
     var durationMinutes: Int = 0
     var calories: Int = 0
     var date: Date = Date()
-    var parentDailySummary: DailySummary?
 
     init(title: String, icon: String, durationMinutes: Int, calories: Int, date: Date = Date()) {
         self.title = title
@@ -232,11 +215,11 @@ struct Achievement: Identifiable {
     }
 }
 
-@Model final class DailySummary: @unchecked Sendable {
-    var date: Date = Date()
-    @Relationship(deleteRule: .cascade, inverse: \Meal.parentDailySummary) var meals: [Meal]? = []
-    @Relationship(deleteRule: .cascade, inverse: \Beverage.parentDailySummary) var beverages: [Beverage]? = []
-    @Relationship(deleteRule: .cascade, inverse: \ActivityLog.parentDailySummary) var activities: [ActivityLog]? = []
+@Model final class DailySummary {
+    @Attribute(.unique) var date: Date = Date()
+    @Relationship(deleteRule: .cascade) var meals: [Meal] = []
+    @Relationship(deleteRule: .cascade) var beverages: [Beverage] = []
+    @Relationship(deleteRule: .cascade) var activities: [ActivityLog] = []
     var weight: Double?
     var activeCaloriesBurned: Int = 0
     var dayNote: String = ""
@@ -245,24 +228,24 @@ struct Achievement: Identifiable {
 
     var workoutCalories: Int = 0
 
-    var totalFoodCalories: Int { (meals ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.totalCalories } }
-    var totalDrinkCalories: Int { (beverages ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.caloriesPerGlass } }
+    var totalFoodCalories: Int { (meals ?? []).reduce(0) { $0 + $1.totalCalories } }
+    var totalDrinkCalories: Int { (beverages ?? []).reduce(0) { $0 + $1.caloriesPerGlass } }
     var totalCalories: Int { totalFoodCalories + totalDrinkCalories }
 
-    var totalHydrationLiters: Double { (beverages ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.volumeMl } / 1000.0 }
-    var totalProtein: Double { (meals ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.totalProtein } }
-    var totalFats: Double { (meals ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.totalFats } }
-    var totalCarbs: Double { (meals ?? []).filter { !$0.isDeleted }.reduce(0) { $0 + $1.totalCarbs } }
+    var totalHydrationLiters: Double { (beverages ?? []).reduce(0) { $0 + $1.volumeMl } / 1000.0 }
+    var totalProtein: Double { (meals ?? []).reduce(0) { $0 + $1.totalProtein } }
+    var totalFats: Double { (meals ?? []).reduce(0) { $0 + $1.totalFats } }
+    var totalCarbs: Double { (meals ?? []).reduce(0) { $0 + $1.totalCarbs } }
 
-    var totalOmega3: Double { meals.reduce(0) { $0 + $1.totalOmega3 } }
-    var totalPotassium: Double { meals.reduce(0) { $0 + $1.totalPotassium } }
-    var totalMagnesium: Double { meals.reduce(0) { $0 + $1.totalMagnesium } }
-    var totalCalcium: Double { meals.reduce(0) { $0 + $1.totalCalcium } }
-    var totalIron: Double { meals.reduce(0) { $0 + $1.totalIron } }
-    var totalVitaminC: Double { meals.reduce(0) { $0 + $1.totalVitaminC } }
-    var totalVitaminD: Double { meals.reduce(0) { $0 + $1.totalVitaminD } }
+    var totalOmega3: Double { (meals ?? []).reduce(0) { $0 + $1.totalOmega3 } }
+    var totalPotassium: Double { (meals ?? []).reduce(0) { $0 + $1.totalPotassium } }
+    var totalMagnesium: Double { (meals ?? []).reduce(0) { $0 + $1.totalMagnesium } }
+    var totalCalcium: Double { (meals ?? []).reduce(0) { $0 + $1.totalCalcium } }
+    var totalIron: Double { (meals ?? []).reduce(0) { $0 + $1.totalIron } }
+    var totalVitaminC: Double { (meals ?? []).reduce(0) { $0 + $1.totalVitaminC } }
+    var totalVitaminD: Double { (meals ?? []).reduce(0) { $0 + $1.totalVitaminD } }
 
-    var localActivityCalories: Int { activities.reduce(0) { $0 + $1.calories } }
+    var localActivityCalories: Int { (activities ?? []).reduce(0) { $0 + $1.calories } }
 
     var netCalories: Int {
         totalCalories - activeCaloriesBurned
@@ -272,7 +255,7 @@ struct Achievement: Identifiable {
         return (userGoal + activeCaloriesBurned) - totalCalories
     }
 
-    init(date: Date, meals: [Meal]? = [], beverages: [Beverage]? = [], activities: [ActivityLog]? = []) {
+    init(date: Date, meals: [Meal] = [], beverages: [Beverage] = [], activities: [ActivityLog] = []) {
         self.date = Calendar.current.startOfDay(for: date)
         self.meals = meals; self.beverages = beverages; self.activities = activities
         self.activeCaloriesBurned = 0
@@ -283,18 +266,10 @@ struct Achievement: Identifiable {
 
 extension CustomRecipe {
     func toFoodItem() -> FoodItem {
-        let items = foodItems ?? []
-        let totalWeight = items.reduce(0) { $0 + $1.weight }
-        let totalProtein = items.reduce(0) { $0 + $1.protein }
-        let totalFats = items.reduce(0) { $0 + $1.fats }
-        let totalCarbs = items.reduce(0) { $0 + $1.carbs }
-        let totalOmega3 = items.reduce(0) { $0 + $1.omega3 }
-        let totalCalcium = items.reduce(0) { $0 + $1.calcium }
-        let totalPotassium = items.reduce(0) { $0 + $1.potassium }
-        let totalMagnesium = items.reduce(0) { $0 + $1.magnesium }
-        let totalIron = items.reduce(0) { $0 + $1.iron }
-        let totalVitaminC = items.reduce(0) { $0 + $1.vitaminC }
-        let totalVitaminD = items.reduce(0) { $0 + $1.vitaminD }
+        let totalWeight = foodItems.reduce(0) { $0 + $1.weight }
+        let totalProtein = foodItems.reduce(0) { $0 + $1.protein }
+        let totalFats = foodItems.reduce(0) { $0 + $1.fats }
+        let totalCarbs = foodItems.reduce(0) { $0 + $1.carbs }
 
         return FoodItem(
             name: self.name,
@@ -302,14 +277,7 @@ extension CustomRecipe {
             calories: self.totalCalories,
             protein: totalProtein,
             fats: totalFats,
-            carbs: totalCarbs,
-            omega3: totalOmega3,
-            calcium: totalCalcium,
-            potassium: totalPotassium,
-            magnesium: totalMagnesium,
-            iron: totalIron,
-            vitaminC: totalVitaminC,
-            vitaminD: totalVitaminD
+            carbs: totalCarbs
         )
     }
 }
@@ -319,8 +287,8 @@ enum HealthGrade {
     var color: Color {
         switch self {
         case .clean: return Color.green
-        case .balanced: return Color.yellow
-        case .treat: return Color.pink
+        case .balanced: return Color.themeYellow
+        case .treat: return Color.themePink
         }
     }
 
@@ -377,7 +345,7 @@ extension FoodItem {
     }
 }
 
-@Model final class WeightLog: @unchecked Sendable {
+@Model final class WeightLog {
     var id: UUID = UUID()
     var date: Date = Date()
     var weight: Double = 0.0
@@ -386,144 +354,5 @@ extension FoodItem {
         self.id = id
         self.date = date
         self.weight = weight
-    }
-}
-
-@Model public final class AIChatSession {
-    public var id: UUID = UUID()
-    public var title: String = ""
-    public var date: Date = Date()
-    public var messages: [AIChatMessage] = []
-
-    public init(title: String = "New Chat", date: Date = Date(), messages: [AIChatMessage] = []) {
-        self.title = title
-        self.date = date
-        self.messages = messages
-    }
-}
-
-public struct AIChatMessage: Identifiable, Codable, Equatable {
-    public var id = UUID()
-    public let isUser: Bool
-    public var text: String
-    public var isAnimating: Bool = false
-
-    public init(id: UUID = UUID(), isUser: Bool, text: String, isAnimating: Bool = false) {
-        self.id = id
-        self.isUser = isUser
-        self.text = text
-        self.isAnimating = isAnimating
-    }
-
-    public static func == (lhs: AIChatMessage, rhs: AIChatMessage) -> Bool {
-        lhs.id == rhs.id
-    }
-}
-
-// MARK: - Scanned Food Cache (SwiftData model)
-/// Stores foods discovered through photo scan or barcode scan, persisted locally on device.
-/// Zero Firestore reads/writes — all local SwiftData storage.
-@Model final class ScannedFoodCache {
-    var id: UUID = UUID()
-    var name: String = ""
-    var nameNormalized: String = ""  // lowercase, for fast search
-    var caloriesPer100g: Int = 0
-    var proteinPer100g: Double = 0.0
-    var fatPer100g: Double = 0.0
-    var carbsPer100g: Double = 0.0
-    var source: String = "ai"        // "photo", "barcode", "ai"
-    var scannedAt: Date = Date()
-    var scanCount: Int = 1           // how many times this food was scanned (for sorting)
-    var barcode: String?             // optional barcode if scanned via barcode reader
-
-    init(name: String, caloriesPer100g: Int, proteinPer100g: Double,
-         fatPer100g: Double, carbsPer100g: Double,
-         source: String = "ai", barcode: String? = nil) {
-        self.id = UUID()
-        self.name = name.decodingHTMLEntities()
-        self.nameNormalized = self.name.lowercased()
-        self.caloriesPer100g = caloriesPer100g
-        self.proteinPer100g = proteinPer100g
-        self.fatPer100g = fatPer100g
-        self.carbsPer100g = carbsPer100g
-        self.source = source
-        self.scannedAt = Date()
-        self.barcode = barcode
-    }
-
-    /// Convert to FoodItem for use in Add Meal screen
-    func toFoodItem(weight: Double = 100) -> FoodItem {
-        FoodItem(
-            name: name,
-            weight: weight,
-            calories: Int(Double(caloriesPer100g) * weight / 100),
-            protein: proteinPer100g * weight / 100,
-            fats: fatPer100g * weight / 100,
-            carbs: carbsPer100g * weight / 100
-        )
-    }
-}
-
-// MARK: - Scanned Food Repository
-/// CRUD operations for ScannedFoodCache. Called after successful photo/barcode scan.
-final class ScannedFoodRepository {
-    static let shared = ScannedFoodRepository()
-    private init() {}
-
-    /// Saves a newly scanned food. If it already exists (same name), increments scanCount instead.
-    @MainActor
-    func save(name: String, calories: Int, protein: Double, fat: Double, carbs: Double,
-              source: String, barcode: String? = nil, in context: ModelContext) {
-        let decodedName = name.decodingHTMLEntities()
-        let normalized = decodedName.lowercased().trimmingCharacters(in: .whitespaces)
-        guard !normalized.isEmpty, calories > 0 else { return }
-
-        // Check for duplicate by normalised name or barcode
-        let descriptor = FetchDescriptor<ScannedFoodCache>(
-            predicate: #Predicate<ScannedFoodCache> { $0.nameNormalized == normalized }
-        )
-        if let existing = try? context.fetch(descriptor).first {
-            existing.scanCount += 1
-            existing.scannedAt = Date()
-            print("♻️ ScannedFoodCache: updated '\(decodedName)' (count=\(existing.scanCount))")
-            return
-        }
-
-        let entry = ScannedFoodCache(
-            name: decodedName, caloriesPer100g: calories, proteinPer100g: protein,
-            fatPer100g: fat, carbsPer100g: carbs, source: source, barcode: barcode
-        )
-        context.insert(entry)
-        print("✅ ScannedFoodCache: saved '\(decodedName)' from \(source)")
-    }
-
-    /// Search cached scanned foods by query string
-    func search(query: String, in context: ModelContext, limit: Int = 10) -> [FoodItem] {
-        let q = query.lowercased().trimmingCharacters(in: .whitespaces)
-        guard !q.isEmpty else { return [] }
-
-        let descriptor = FetchDescriptor<ScannedFoodCache>(
-            sortBy: [SortDescriptor(\.scanCount, order: .reverse),
-                     SortDescriptor(\.scannedAt, order: .reverse)]
-        )
-        guard let all = try? context.fetch(descriptor) else { return [] }
-        return Array(
-            all.filter { $0.nameNormalized.contains(q) }
-               .prefix(limit)
-               .map { $0.toFoodItem() }
-        )
-    }
-}
-
-extension String {
-    func decodingHTMLEntities() -> String {
-        var result = self
-        result = result.replacingOccurrences(of: "&quot;", with: "\"")
-        result = result.replacingOccurrences(of: "&amp;", with: "&")
-        result = result.replacingOccurrences(of: "&apos;", with: "'")
-        result = result.replacingOccurrences(of: "&lt;", with: "<")
-        result = result.replacingOccurrences(of: "&gt;", with: ">")
-        result = result.replacingOccurrences(of: "&#39;", with: "'")
-        return result
     }
 }
