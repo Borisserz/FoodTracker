@@ -37,7 +37,6 @@ main.sh
 q.py
 script.py
 names.json
-*.sh
 *.log
 *.tmp
 .agents/
@@ -48,3 +47,4 @@ translate_*.py
 translate_*.js
 /translations.txt
 /foods_*.json
+.claude/

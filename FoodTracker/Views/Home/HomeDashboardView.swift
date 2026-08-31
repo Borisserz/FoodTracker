@@ -116,6 +116,7 @@ struct HomeDashboardContentView: View {
                           InsightsWidget(summary: currentSummary, user: currentUser)
 
                           DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
+                              .spotlightTarget(step: .macroRings)
                               .padding(.bottom, 8)
 
                           VStack(spacing: 16) {
@@ -256,6 +257,7 @@ struct HomeDashboardContentView: View {
                           .rotationEffect(.degrees(isMenuExpanded ? 135 : 0))
                           .shadow(color: .themePink.opacity(0.4), radius: 10, y: 5)
                   }
+                  .spotlightTarget(step: .addMeal)
                   .padding(.trailing, 24)
                   .padding(.bottom, 24)
                   .zIndex(100)

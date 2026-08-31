@@ -17,6 +17,7 @@
 		ACF45AA92F9E4A4C00206681 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AA82F9E4A4C00206681 /* FirebaseAnalytics */; };
 		ACF45AAB2F9E4A4C00206681 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAA2F9E4A4C00206681 /* FirebaseFirestore */; };
 		ACF45AAD2F9E4A4C00206681 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAC2F9E4A4C00206681 /* FirebaseRemoteConfig */; };
+		AC91A0022FD9000100C2DD0A /* OnboardingKit in Frameworks */ = {isa = PBXBuildFile; productRef = AC91A0012FD9000100C2DD0A /* OnboardingKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +60,7 @@
 				AC5031B92FD8191600C2DD0A /* FirebaseAppCheck in Frameworks */,
 				ACF45AAB2F9E4A4C00206681 /* FirebaseFirestore in Frameworks */,
 				ACF45AAD2F9E4A4C00206681 /* FirebaseRemoteConfig in Frameworks */,
+				AC91A0022FD9000100C2DD0A /* OnboardingKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +122,7 @@
 				AC5031B82FD8191600C2DD0A /* FirebaseAppCheck */,
 				AC5031BB2FD81A1800C2DD0A /* GoogleSignIn */,
 				AC5031BD2FD81A1800C2DD0A /* GoogleSignInSwift */,
+				AC91A0012FD9000100C2DD0A /* OnboardingKit */,
 			);
 			productName = FoodTracker;
 			productReference = ACD93EFF2F8AC7E200868265 /* FoodTracker.app */;
@@ -159,6 +162,7 @@
 				AC6A96612F8FF42600905EA9 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 				ACF45AA72F9E4A4B00206681 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				AC5031BA2FD81A1800C2DD0A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				AC91A0002FD9000100C2DD0A /* XCRemoteSwiftPackageReference "OnboardingKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = ACD93F002F8AC7E200868265 /* Products */;
@@ -468,6 +472,14 @@
 				minimumVersion = 12.12.1;
 			};
 		};
+		AC91A0002FD9000100C2DD0A /* XCRemoteSwiftPackageReference "OnboardingKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/danielsaidi/OnboardingKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.2.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -515,6 +527,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ACF45AA72F9E4A4B00206681 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseRemoteConfig;
+		};
+		AC91A0012FD9000100C2DD0A /* OnboardingKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AC91A0002FD9000100C2DD0A /* XCRemoteSwiftPackageReference "OnboardingKit" */;
+			productName = OnboardingKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
