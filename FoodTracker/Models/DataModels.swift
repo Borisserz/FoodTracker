@@ -40,7 +40,7 @@ struct Achievement: Identifiable {
     ]
 }
 
-@Model final class User: @unchecked Sendable {
+@Model final class User {
     var name: String = ""
     var weight: Double = 0.0
     var height: Double = 0.0
@@ -215,7 +215,7 @@ struct Achievement: Identifiable {
     }
 }
 
-@Model final class DailySummary: @unchecked Sendable {
+@Model final class DailySummary {
     @Attribute(.unique) var date: Date = Date()
     @Relationship(deleteRule: .cascade) var meals: [Meal] = []
     @Relationship(deleteRule: .cascade) var beverages: [Beverage] = []
@@ -228,24 +228,24 @@ struct Achievement: Identifiable {
 
     var workoutCalories: Int = 0
 
-    var totalFoodCalories: Int { meals.reduce(0) { $0 + $1.totalCalories } }
-    var totalDrinkCalories: Int { beverages.reduce(0) { $0 + $1.caloriesPerGlass } }
+    var totalFoodCalories: Int { (meals ?? []).reduce(0) { $0 + $1.totalCalories } }
+    var totalDrinkCalories: Int { (beverages ?? []).reduce(0) { $0 + $1.caloriesPerGlass } }
     var totalCalories: Int { totalFoodCalories + totalDrinkCalories }
 
-    var totalHydrationLiters: Double { beverages.reduce(0) { $0 + $1.volumeMl } / 1000.0 }
-    var totalProtein: Double { meals.reduce(0) { $0 + $1.totalProtein } }
-    var totalFats: Double { meals.reduce(0) { $0 + $1.totalFats } }
-    var totalCarbs: Double { meals.reduce(0) { $0 + $1.totalCarbs } }
+    var totalHydrationLiters: Double { (beverages ?? []).reduce(0) { $0 + $1.volumeMl } / 1000.0 }
+    var totalProtein: Double { (meals ?? []).reduce(0) { $0 + $1.totalProtein } }
+    var totalFats: Double { (meals ?? []).reduce(0) { $0 + $1.totalFats } }
+    var totalCarbs: Double { (meals ?? []).reduce(0) { $0 + $1.totalCarbs } }
 
-    var totalOmega3: Double { meals.reduce(0) { $0 + $1.totalOmega3 } }
-    var totalPotassium: Double { meals.reduce(0) { $0 + $1.totalPotassium } }
-    var totalMagnesium: Double { meals.reduce(0) { $0 + $1.totalMagnesium } }
-    var totalCalcium: Double { meals.reduce(0) { $0 + $1.totalCalcium } }
-    var totalIron: Double { meals.reduce(0) { $0 + $1.totalIron } }
-    var totalVitaminC: Double { meals.reduce(0) { $0 + $1.totalVitaminC } }
-    var totalVitaminD: Double { meals.reduce(0) { $0 + $1.totalVitaminD } }
+    var totalOmega3: Double { (meals ?? []).reduce(0) { $0 + $1.totalOmega3 } }
+    var totalPotassium: Double { (meals ?? []).reduce(0) { $0 + $1.totalPotassium } }
+    var totalMagnesium: Double { (meals ?? []).reduce(0) { $0 + $1.totalMagnesium } }
+    var totalCalcium: Double { (meals ?? []).reduce(0) { $0 + $1.totalCalcium } }
+    var totalIron: Double { (meals ?? []).reduce(0) { $0 + $1.totalIron } }
+    var totalVitaminC: Double { (meals ?? []).reduce(0) { $0 + $1.totalVitaminC } }
+    var totalVitaminD: Double { (meals ?? []).reduce(0) { $0 + $1.totalVitaminD } }
 
-    var localActivityCalories: Int { activities.reduce(0) { $0 + $1.calories } }
+    var localActivityCalories: Int { (activities ?? []).reduce(0) { $0 + $1.calories } }
 
     var netCalories: Int {
         totalCalories - activeCaloriesBurned
@@ -345,7 +345,7 @@ extension FoodItem {
     }
 }
 
-@Model final class WeightLog: @unchecked Sendable {
+@Model final class WeightLog {
     var id: UUID = UUID()
     var date: Date = Date()
     var weight: Double = 0.0
