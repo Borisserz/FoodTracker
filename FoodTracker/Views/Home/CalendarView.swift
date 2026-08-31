@@ -1,13 +1,34 @@
 import SwiftUI
+import SwiftData
 
 struct CalendarCarouselView: View {
     @Binding var selectedDate: Date
     @State private var showingFullCalendar = false
+    @Query private var summaries: [DailySummary]
 
     private var days: [Date] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         return (-30...7).compactMap { calendar.date(byAdding: .day, value: $0, to: today) }
+    }
+
+    enum DayStatus {
+        case empty
+        case logged
+        case completed
+    }
+
+    private func dayStatus(for date: Date) -> DayStatus {
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        guard let summary = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) else {
+            return .empty
+        }
+        if summary.totalCalories > 0 {
+            return .completed
+        } else if !summary.beverages.isEmpty || !summary.activities.isEmpty || summary.weight != nil {
+            return .logged
+        }
+        return .empty
     }
 
     var body: some View {
@@ -37,7 +58,7 @@ struct CalendarCarouselView: View {
                                         proxy.scrollTo(date, anchor: .center)
                                     }
                                 } label: {
-                                    VStack(spacing: 6) {
+                                    VStack(spacing: 4) {
                                         Text(dayOfWeekString(date))
                                             .font(.caption2)
                                             .fontWeight(isSelected ? .bold : .medium)
@@ -45,6 +66,21 @@ struct CalendarCarouselView: View {
 
                                         Text("\(Calendar.current.component(.day, from: date))")
                                             .font(.system(size: 18, weight: .bold, design: .rounded))
+
+                                        let status = dayStatus(for: date)
+                                        if status == .completed {
+                                            Circle()
+                                                .fill(isSelected ? Color.white : Color.green)
+                                                .frame(width: 5, height: 5)
+                                        } else if status == .logged {
+                                            Circle()
+                                                .fill(isSelected ? Color.white.opacity(0.6) : Color.orange.opacity(0.8))
+                                                .frame(width: 5, height: 5)
+                                        } else {
+                                            Circle()
+                                                .fill(Color.clear)
+                                                .frame(width: 5, height: 5)
+                                        }
                                     }
                                     .frame(width: 56, height: 72)
                                     .background(isSelected ? Color.themePink : (isToday ? Color.themeYellow.opacity(0.2) : Color.white))

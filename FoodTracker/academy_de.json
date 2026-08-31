@@ -165,7 +165,7 @@
   },
   {
     "id": "course-4",
-    "title": "Kurs 4: Entlarvte Fitness-Mythen",
+    "title": "Kurs 4: Zerplatzte Fitness-Mythen",
     "completedCount": 0,
     "articles": [
       {
@@ -301,7 +301,7 @@
         "colorHex1": "#00BCD4",
         "colorHex2": "#3F51B5",
         "iconName": "chart.xyaxis.line",
-        "content": "## Ernährung der nächsten Stufe\n\nCarb Cycling ist eine fortschrittliche Ernährungsstrategie, bei der Sie je nach Aktivitätsgrad zwischen kohlenhydratreichen und kohlenhydratarmen Tagen wechseln.\n\n### So funktioniert es:\n* **Tage mit hohem Kohlenhydratgehalt:** An den Tagen, an denen Sie am meisten trainieren (z. B. Beintag). Die Kohlenhydrate fördern intensive Leistung und füllen das Muskelglykogen wieder auf.\n* **Low-Carb-Tage:** An Ruhetagen oder leichten Cardio-Tagen. Ohne die zu verbrennenden Kohlenhydrate ist der Körper gezwungen, sich mehr auf Fett als Brennstoff zu verlassen.\n\nMit dieser Methode können Sie die Fettverbrennungsvorteile einer kohlenhydratarmen Diät nutzen und gleichzeitig die Leistungsfähigkeit und den Muskelaufbauvorteil einer kohlenhydratreichen Diät beibehalten."
+        "content": "## Ernährung der nächsten Stufe\n\nCarb Cycling ist eine fortschrittliche Ernährungsstrategie, bei der Sie je nach Aktivitätsgrad zwischen kohlenhydratreichen und kohlenhydratarmen Tagen wechseln.\n\n### So funktioniert es:\n* **Tage mit hohem Kohlenhydratgehalt:** Wird an den Tagen mit der höchsten Trainingsintensität (z. B. Beintag) platziert. Die Kohlenhydrate fördern intensive Leistung und füllen das Muskelglykogen wieder auf.\n* **Low-Carb-Tage:** An Ruhetagen oder leichten Cardio-Tagen. Ohne die zu verbrennenden Kohlenhydrate ist der Körper gezwungen, sich mehr auf Fett als Brennstoff zu verlassen.\n\nMit dieser Methode können Sie die Fettverbrennungsvorteile einer kohlenhydratarmen Diät nutzen und gleichzeitig die Leistungsfähigkeit und den Muskelaufbauvorteil einer kohlenhydratreichen Diät beibehalten."
       },
       {
         "id": "art-25",

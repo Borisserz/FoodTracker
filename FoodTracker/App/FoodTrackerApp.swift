@@ -169,34 +169,39 @@ struct ContentView: View {
 
     private var mainAppView: some View {
         @Bindable var state = appState
-        return TabView(selection: $state.selectedTab) {
-            HomeDashboardView()
-                .tabItem { Label("Home", systemImage: "house.fill") }
-                .tag(0)
+        return ZStack {
+            TabView(selection: $state.selectedTab) {
+                HomeDashboardView()
+                    .tabItem { Label("Home", systemImage: "house.fill") }
+                    .tag(0)
 
-            FoodsDashboardView()
-                .tabItem { Label("Foods", systemImage: "leaf.arrow.circlepath") }
-                .tag(1)
+                FoodsDashboardView()
+                    .tabItem { Label("Foods", systemImage: "leaf.arrow.circlepath") }
+                    .tag(1)
 
-            AIChefStudioView()
-                .tabItem { Label("AI Chef", systemImage: "frying.pan.fill") }
-                .tag(2)
+                AIChefStudioView()
+                    .tabItem { Label("AI Chef", systemImage: "frying.pan.fill") }
+                    .tag(2)
 
-            AnalyticsTabView()
-                .tabItem { Label("Analytics", systemImage: "chart.bar.fill") }
-                .tag(3)
+                AnalyticsTabView()
+                    .tabItem { Label("Analytics", systemImage: "chart.bar.fill") }
+                    .tag(3)
 
-            MoreTabView()
-                .tabItem { Label("AI Coach", systemImage: "sparkles") }
-                .tag(4)
+                MoreTabView()
+                    .tabItem { Label("AI Coach", systemImage: "sparkles") }
+                    .tag(4)
+            }
+            .tint(themeManager.current.primaryAccent)
+            
+            // In-App Interactive Spotlight Tutorial (Clash of Clans Style)
+            SpotlightOverlayView()
         }
-        .tint(themeManager.current.primaryAccent)
-        .overlay {
-            // Floating pill visible on every tab during background plan generation
-            GenerationStatusPill()
+        .onPreferenceChange(SpotlightFramePreferenceKey.self) { frames in
+            SpotlightTourManager.shared.targetFrames = frames
         }
         .onAppear {
             initializeUserIfNeeded()
+            SpotlightTourManager.shared.startTourIfNeeded()
 
             if let user = users.first, user.isHealthKitEnabled {
                 Task {

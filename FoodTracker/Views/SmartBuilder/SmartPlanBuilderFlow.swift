@@ -129,20 +129,12 @@ struct SmartPlanBuilderFlow: View {
                         // Bottom Navigation
                         HStack {
                             if currentStep > 0 {
-                                Button(action: {
-                                    HapticManager.shared.impact(style: .light)
-                                    currentStep -= 1
-                                }) {
-                                    Image(systemName: "arrow.left")
-                                        .font(.title2.bold())
-                                        .foregroundColor(.primary)
-                                        .frame(width: 64, height: 64)
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(Circle())
-                                        .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 1))
-                                        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
+                                Button("Назад") {
+                                    withAnimation { currentStep -= 1 }
                                 }
-                                .padding(.leading, 24)
+                                .font(.system(.body, design: .rounded, weight: .bold))
+                                .foregroundColor(.gray)
+                                .padding()
                             }
                             
                             Spacer()
@@ -155,17 +147,14 @@ struct SmartPlanBuilderFlow: View {
                                     startGeneration()
                                 }
                             }) {
-                                HStack(spacing: 12) {
-                                    Text(currentStep < 2 ? "Next" : "Ignite AI")
-                                    Image(systemName: currentStep < 2 ? "arrow.right" : "sparkles")
-                                }
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 36)
-                                .frame(height: 64)
-                                .background(themeManager.current.primaryGradient)
-                                .clipShape(Capsule())
-                                .shadow(color: themeManager.current.primaryAccent.opacity(0.5), radius: 20, y: 10)
+                                Text(currentStep < 2 ? "Далее" : "Создать план")
+                                    .font(.system(.headline, design: .rounded, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 32)
+                                    .padding(.vertical, 16)
+                                    .background(themeManager.current.primaryGradient)
+                                    .clipShape(Capsule())
+                                    .shadow(color: themeManager.current.primaryAccent.opacity(0.4), radius: 10, y: 5)
                             }
                             .buttonStyle(BounceButtonStyle())
                             .padding(.trailing, 24)
@@ -174,19 +163,13 @@ struct SmartPlanBuilderFlow: View {
                     }
                 }
             }
-            .navigationTitle(planService.isGenerating ? "" : "AI Builder")
+            .navigationTitle(isGenerating ? "" : (generatedPlan != nil ? "Недельное меню" : "Умный конструктор"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if !planService.isGenerating {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { dismiss() }) {
-                            Image(systemName: "xmark")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                                .frame(width: 36, height: 36)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                        }
+                        Button("Отмена") { dismiss() }
+                            .foregroundColor(.gray)
                     }
                 }
             }
@@ -206,27 +189,66 @@ struct SmartPlanBuilderFlow: View {
     // MARK: - Steps
     
     private var dietStepView: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 6) {
-                Text("Select Core Diet")
-                    .font(.system(size: 34, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.primary)
-                Text("AI tailors ingredients perfectly.")
-                    .font(.headline)
-                    .foregroundColor(.gray)
-            }
-            .padding(.top, 16)
+        VStack(spacing: 24) {
+            Text("Какую диету ты предпочитаешь?")
+                .font(.system(.title2, design: .rounded, weight: .bold))
+                .foregroundColor(.primary)
+                .padding(.top, 30)
             
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                    ForEach(dietTypes, id: \.self) { diet in
-                        Button(action: {
-                            HapticManager.shared.impact(style: .light)
-                            selectedDiet = diet
-                        }) {
-                            DietCard(isSelected: selectedDiet == diet, title: diet)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                ForEach(dietTypes, id: \.self) { diet in
+                    Button(action: {
+                        HapticManager.shared.impact(style: .light)
+                        selectedDiet = diet
+                    }) {
+                        ZStack(alignment: .bottomLeading) {
+                            // Cover Image
+                            RecipeImageView(imageString: imageUrlForDiet(diet), fallbackSystemName: iconForDiet(diet))
+                                .frame(height: 110)
+                                .clipShape(RoundedRectangle(cornerRadius: 18))
+                                .overlay(
+                                    LinearGradient(
+                                        colors: [.clear, .black.opacity(0.7)],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                    .cornerRadius(18)
+                                )
+                            
+                            // Checkmark overlay
+                            if selectedDiet == diet {
+                                VStack {
+                                    HStack {
+                                        Spacer()
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 16, weight: .bold))
+                                            .foregroundColor(.white)
+                                            .padding(6)
+                                            .background(themeManager.current.primaryAccent)
+                                            .clipShape(Circle())
+                                            .shadow(color: Color.black.opacity(0.15), radius: 3)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(8)
+                            }
+                            
+                            // Diet label text
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(russianNameForDiet(diet))
+                                    .font(.system(.subheadline, design: .rounded, weight: .black))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                            }
+                            .padding(12)
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .frame(height: 110)
+                        .cornerRadius(18)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(selectedDiet == diet ? themeManager.current.primaryAccent : Color.clear, lineWidth: 2)
+                        )
+                        .shadow(color: selectedDiet == diet ? themeManager.current.primaryAccent.opacity(0.2) : .black.opacity(0.05), radius: 6, y: 3)
                     }
                 }
                 .padding(.horizontal, 24)
@@ -236,56 +258,70 @@ struct SmartPlanBuilderFlow: View {
     }
     
     private var calorieStepView: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 4) {
-                Text("Daily Energy")
-                    .font(.system(size: 34, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.primary)
-                Text("Your optimized macro target.")
-                    .font(.headline)
-                    .foregroundColor(.gray)
-            }
-            .padding(.top, 8)
+        VStack(spacing: 24) {
+            Text("Укажи дневную цель калорий")
+                .font(.system(.title2, design: .rounded, weight: .bold))
+                .foregroundColor(.primary)
+                .padding(.top, 30)
             
-            ZStack {
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 230, height: 230)
-                    .shadow(color: .black.opacity(0.05), radius: 20, y: 10)
-                
-                Circle()
-                    .stroke(themeManager.current.primaryGradient, lineWidth: 2)
-                    .frame(width: 220, height: 220)
-                    .opacity(0.5)
-                
-                VStack(spacing: 4) {
-                    Text("\(Int(targetCalories))")
-                        .font(.system(size: 58, weight: .black, design: .rounded))
-                        .foregroundStyle(themeManager.current.primaryGradient)
-                        .contentTransition(.numericText())
-                    Text("KCAL")
-                        .font(.title3.bold())
-                        .foregroundColor(.gray)
+            Text("\(Int(targetCalories)) ккал")
+                .font(.system(size: 42, weight: .black, design: .rounded))
+                .foregroundColor(themeManager.current.primaryAccent)
+            
+            Slider(value: $targetCalories, in: 1200...4000, step: 50)
+                .accentColor(themeManager.current.primaryAccent)
+                .padding(.horizontal, 28)
+            
+            // Advice table block under the slider
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "lightbulb.fill")
+                        .foregroundColor(.themeYellow)
+                        .font(.system(size: 14))
+                    Text("СОВЕТ ШЕФА 👨‍🍳")
+                        .font(.system(size: 9, weight: .black, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.themeOrange)
+                        .cornerRadius(6)
                 }
+                .padding(.horizontal, 4)
+                
+                VStack(spacing: 0) {
+                    TableCell(icon: "flame.fill", title: "Баланс энергии", desc: "Дефицит запускает жиросжигание, профицит строит мышцы.", color: .themePink)
+                    Divider()
+                    TableCell(icon: "heart.text.square.fill", title: "Защита метаболизма", desc: "Уберегает от экстремального голода и упадка сил.", color: .mintGreen)
+                    Divider()
+                    TableCell(icon: "target", title: "Точность плана", desc: "Помогает ИИ распределить баланс БЖУ в твоем меню.", color: .cyberBlue)
+                }
+                .background(Color.primary.opacity(0.01))
+                .cornerRadius(14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+                )
             }
-            
-            CustomThickSlider(value: $targetCalories, range: 1200...6000, step: 50)
-                .padding(.horizontal, 40)
+            .padding(14)
+            .background(.ultraThinMaterial)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+            )
+            .padding(.horizontal, 24)
             
             Spacer()
         }
     }
     
     private var complexityStepView: some View {
-        VStack(spacing: 20) {
-            VStack(spacing: 6) {
-                Text("Cooking Time")
-                    .font(.system(size: 34, weight: .heavy, design: .rounded))
-                Text("How long per meal?")
-                    .font(.headline)
-                    .foregroundColor(.gray)
-            }
-            .padding(.top, 8)
+        VStack(spacing: 24) {
+            Text("Сколько времени уделять готовке?")
+                .font(.system(.title2, design: .rounded, weight: .bold))
+                .multilineTextAlignment(.center)
+                .padding(.top, 30)
+                .padding(.horizontal)
             
             VStack(spacing: 12) {
                 ForEach(complexities, id: \.self) { comp in
@@ -296,8 +332,8 @@ struct SmartPlanBuilderFlow: View {
                         }
                     }) {
                         HStack {
-                            Text(LocalizedStringKey(comp))
-                                .font(.title3.bold())
+                            Text(russianNameForComplexity(comp))
+                                .font(.system(.headline, design: .rounded, weight: .bold))
                                 .foregroundColor(complexity == comp ? .white : .primary)
                             Spacer()
                             
@@ -336,7 +372,7 @@ struct SmartPlanBuilderFlow: View {
     
     private func iconForDiet(_ diet: String) -> String {
         switch diet {
-        case "Keto": return "flame.fill"
+        case "Keto": return "meat.fill"
         case "Vegan": return "leaf.fill"
         case "Vegetarian": return "leaf.arrow.circlepath"
         case "Paleo": return "hare.fill"
@@ -346,6 +382,38 @@ struct SmartPlanBuilderFlow: View {
         case "Low Carb": return "minus.circle.fill"
         default: return "star.fill"
         }
+    }
+    
+    private func russianNameForDiet(_ diet: String) -> String {
+        switch diet {
+        case "Keto": return "Кето"
+        case "Vegan": return "Веганская"
+        case "Paleo": return "Палео"
+        case "Mediterranean": return "Средиземноморская"
+        default: return "Любая"
+        }
+    }
+    
+    private func imageUrlForDiet(_ diet: String) -> String {
+        switch diet {
+        case "Keto":
+            return "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=300&q=80"
+        case "Vegan":
+            return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=300&q=80"
+        case "Paleo":
+            return "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=300&q=80"
+        case "Mediterranean":
+            return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=300&q=80"
+        default: // Any
+            return "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80"
+        }
+    }
+    
+    private func russianNameForComplexity(_ comp: String) -> String {
+        if comp.contains("Fast") { return "Быстро (15 мин)" }
+        if comp.contains("Medium") { return "Средне (30 мин)" }
+        if comp.contains("Chef") { return "Шеф (60 мин)" }
+        return comp
     }
     
     // MARK: - Generation
@@ -710,3 +778,36 @@ struct GodTierLoadingView: View {
         }
     }
 }
+
+struct TableCell: View {
+    let icon: String
+    let title: String
+    let desc: String
+    let color: Color
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(color)
+                .frame(width: 28, height: 28)
+                .background(color.opacity(0.1))
+                .clipShape(Circle())
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundStyle(.primary)
+                Text(desc)
+                    .font(.system(size: 10, weight: .regular, design: .rounded))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+    }
+}
+

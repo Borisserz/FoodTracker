@@ -3,6 +3,12 @@
 </p>
 
 <p align="center">
+  <a href="https://apps.apple.com/us/app/foodtracker-ai-macro-tracker/id6778506345">
+    <img src="assets/readme/badges.svg" alt="App Store, iOS 17+, SwiftUI, SwiftData, HealthKit, Gemini, VisionKit" width="100%">
+  </a>
+</p>
+
+<p align="center">
   <a href="https://apps.apple.com/us/app/foodtracker-ai-macro-tracker/id6778506345"><strong>App Store</strong></a>
   ·
   <a href="https://github.com/Borisserz/WorkoutTracker">WorkoutTracker</a>

@@ -28,11 +28,12 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
         )
 
         let scanner = DataScannerViewController(
-            recognizedDataTypes: [barcodeDataType],
-            qualityLevel: .balanced,          // balanced = good for both close and distant codes
-            recognizesMultipleItems: false,   // stop after first hit for UX speed
+            recognizedDataTypes: [.barcode()],
+            qualityLevel: .balanced,
+            recognizesMultipleItems: false,
             isHighFrameRateTrackingEnabled: true,
-            isHighlightingEnabled: true       // shows a visual highlight on the detected code
+            isPinchToZoomEnabled: true,
+            isHighlightingEnabled: true
         )
         scanner.delegate = context.coordinator
         return scanner

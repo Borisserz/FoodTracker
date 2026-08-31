@@ -869,10 +869,7 @@ struct PremiumRecipeDetailView: View {
     @State var recipe: PremiumRecipe
     @State private var servings: Int
     @State private var showMealSheet = false
-    @State private var isGeneratingRecipe = false
-    @State private var generatedRecipe: AIChefRecipe? = nil
-    @State private var showAIFlow = false
-    @State private var showAddedToast = false
+    @State private var showAICooking = false
     @Environment(RecipeDataLoader.self) private var dataLoader
     init(recipe: PremiumRecipe) { self._recipe = State(initialValue: recipe); self._servings = State(initialValue: recipe.baseServings) }
 
@@ -1030,20 +1027,22 @@ struct PremiumRecipeDetailView: View {
                                     Text("Directions").font(.title2).bold()
                                     Spacer()
                                     Button(action: {
-                                        generateAI()
+                                        HapticManager.shared.impact(style: .medium)
+                                        showAICooking = true
                                     }) {
-                                        HStack {
+                                        HStack(spacing: 6) {
                                             Image(systemName: "sparkles")
-                                            Text(isGeneratingRecipe ? "Chef is thinking..." : "Cook with AI")
+                                            Text("Cook with AI")
                                         }
                                         .font(.caption.bold())
                                         .foregroundColor(.white)
-                                        .padding(.horizontal, 12)
+                                        .padding(.horizontal, 14)
                                         .padding(.vertical, 8)
-                                        .background(isGeneratingRecipe ? Color.gray : Color.themeOrange)
+                                        .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
                                         .clipShape(Capsule())
+                                        .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
                                     }
-                                    .disabled(isGeneratingRecipe)
+                                    .buttonStyle(BounceButtonStyle())
                                 }
                                 VStack(alignment: .leading, spacing: 24) {
                                     ForEach(Array(recipe.directions.enumerated()), id: \.offset) { index, step in
@@ -1154,11 +1153,9 @@ struct PremiumRecipeDetailView: View {
             ChooseMealSheet(recipe: recipe, calories: dynamicCalories, p: Double(dynamicProtein), f: Double(dynamicFat), c: Double(dynamicCarbs))
                 .presentationDetents([.fraction(0.4)]).presentationCornerRadius(32).presentationDragIndicator(.visible)
         }
-        .fullScreenCover(isPresented: $showAIFlow) {
-            if let ai = generatedRecipe {
-                NavigationStack {
-                    PrepChecklistView(recipe: ai, isFlowPresented: $showAIFlow)
-                }
+        .fullScreenCover(isPresented: $showAICooking) {
+            NavigationStack {
+                AgentCookingView(recipe: recipe.toAIChefRecipe(), isFlowPresented: $showAICooking)
             }
         }
     }
@@ -1308,4 +1305,29 @@ struct RecipeTagLayout: Layout {
     private func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [Row] { var rows: [Row] = []; var currentRow = Row(); var currentX: CGFloat = 0; let maxWidth = proposal.width ?? UIScreen.main.bounds.width; for subview in subviews { let size = subview.sizeThatFits(.unspecified); if currentX + size.width > maxWidth && !currentRow.elements.isEmpty { rows.append(currentRow); currentRow = Row(); currentX = 0 }; currentRow.elements.append(Element(view: subview, size: size)); currentRow.maxHeight = max(currentRow.maxHeight, size.height); currentX += size.width + spacing }; if !currentRow.elements.isEmpty { rows.append(currentRow) }; return rows }
     private struct Row { var elements: [Element] = []; var maxHeight: CGFloat = 0 }
     private struct Element { let view: LayoutSubview; let size: CGSize }
+}
+
+extension PremiumRecipe {
+    func toAIChefRecipe() -> AIChefRecipe {
+        let recipeSteps = directions.map { step in
+            RecipeStep(instruction: step, imageName: "fork.knife", aiTip: nil)
+        }
+        let ingredientNames = ingredients.map { "\($0.name) (\($0.amount))" }
+        let cleanTime = Int(time.replacingOccurrences(of: " min", with: "").replacingOccurrences(of: " min.", with: "")) ?? 20
+        return AIChefRecipe(
+            id: id ?? UUID().uuidString,
+            title: title,
+            calories: caloriesPerServing,
+            protein: Int(protein),
+            fat: Int(fat),
+            carbs: Int(carbs),
+            heroImage: "fork.knife",
+            cookTime: cleanTime,
+            difficulty: 3,
+            history: description,
+            ingredients: ingredientNames,
+            steps: recipeSteps,
+            platingTip: "Serve hot and enjoy your healthy meal!"
+        )
+    }
 }

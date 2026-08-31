@@ -11,6 +11,7 @@ struct GoalsTabView: View {
     
     @State private var showAddWeightSheet = false
     @State private var showSetGoalSheet = false
+    @State private var bgPhase = 0.0
     
     var user: User? { users.first }
     
@@ -43,10 +44,39 @@ struct GoalsTabView: View {
         return currentWeight / (heightM * heightM)
     }
     
+    private var goalColors: [Color] {
+        switch goalType.lowercased() {
+        case "lose": return [.themePink, .purple]
+        case "gain": return [.cyan, .blue]
+        default: return [.green, .mint]
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.themeBg.ignoresSafeArea()
+                
+                // Animated background glow blobs
+                ZStack {
+                    Circle()
+                        .fill(goalColors[0].opacity(0.12))
+                        .frame(width: 320, height: 320)
+                        .blur(radius: 80)
+                        .offset(x: bgPhase == 0 ? -100 : -50, y: bgPhase == 0 ? -180 : -100)
+                    
+                    Circle()
+                        .fill(goalColors[1].opacity(0.12))
+                        .frame(width: 350, height: 350)
+                        .blur(radius: 85)
+                        .offset(x: bgPhase == 0 ? 120 : 60, y: bgPhase == 0 ? 200 : 120)
+                }
+                .ignoresSafeArea()
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
+                        bgPhase = 1.0
+                    }
+                }
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
@@ -67,8 +97,6 @@ struct GoalsTabView: View {
                         // Recent Logs
                         recentLogsList
                         
-                        // Before & After Photo Comparison has been moved to AI Coach tab
-                        
                         Spacer(minLength: 40)
                     }
                     .padding()
@@ -79,6 +107,7 @@ struct GoalsTabView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showSetGoalSheet = true }) {
                         Image(systemName: "gearshape.fill")
+                            .font(.system(size: 18, weight: .bold))
                             .foregroundColor(themeManager.current.primaryAccent)
                     }
                 }
@@ -86,11 +115,15 @@ struct GoalsTabView: View {
             .sheet(isPresented: $showAddWeightSheet) {
                 AddWeightLogSheet(currentWeight: currentWeight)
                     .presentationDetents([.medium])
+                    .presentationCornerRadius(32)
+                    .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $showSetGoalSheet) {
                 if let u = user {
                     SetGoalSheet(user: u)
-                        .presentationDetents([.medium])
+                        .presentationDetents([.fraction(0.8)])
+                        .presentationCornerRadius(32)
+                        .presentationDragIndicator(.visible)
                 }
             }
         }
@@ -99,119 +132,167 @@ struct GoalsTabView: View {
     // MARK: - Subviews
     
     private var statusCard: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Current Weight")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(String(format: "%.1f", currentWeight))
-                        .font(.system(size: 40, weight: .black, design: .rounded))
-                        .foregroundColor(.primary)
-                    Text("kg")
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                }
-                
-                if let target = targetWeight {
-                    HStack {
-                        Image(systemName: iconForGoal(goalType))
-                            .foregroundColor(themeManager.current.primaryAccent)
-                        Text("Target: \(String(format: "%.1f", target)) kg")
-                            .font(.subheadline.bold())
-                            .foregroundColor(themeManager.current.primaryAccent)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(themeManager.current.primaryAccent.opacity(0.1))
-                    .cornerRadius(12)
-                } else {
-                    Button(action: { showSetGoalSheet = true }) {
-                        HStack {
-                            Image(systemName: "target")
-                            Text("Set a Goal")
-                        }
-                        .font(.subheadline.bold())
-                        .foregroundColor(themeManager.current.primaryAccent)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Current Weight")
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundColor(.secondary)
+                    
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(String(format: "%.1f", currentWeight))
+                            .font(.system(size: 40, weight: .black, design: .rounded))
+                            .foregroundColor(.primary)
+                        Text("kg")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundColor(.secondary)
                     }
                 }
                 
-                if let bmi = currentBMI {
-                    Text("BMI: \(String(format: "%.1f", bmi))")
-                        .font(.caption.bold())
-                        .foregroundColor(.gray)
-                        .padding(.top, 4)
+                Spacer()
+                
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    showAddWeightSheet = true
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(themeManager.current.primaryGradient)
+                            .frame(width: 50, height: 50)
+                            .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 8, x: 0, y: 4)
+                        Image(systemName: "plus")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                    }
                 }
             }
             
-            Spacer()
+            if let target = targetWeight {
+                HStack {
+                    Image(systemName: iconForGoal(goalType))
+                        .foregroundColor(themeManager.current.primaryAccent)
+                    Text("Target: \(String(format: "%.1f", target)) kg")
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundColor(themeManager.current.primaryAccent)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(themeManager.current.primaryAccent.opacity(0.08))
+                .cornerRadius(12)
+            } else {
+                Button(action: { showSetGoalSheet = true }) {
+                    HStack {
+                        Image(systemName: "target")
+                        Text("Set a Goal")
+                    }
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundColor(themeManager.current.primaryAccent)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(themeManager.current.primaryAccent.opacity(0.08))
+                    .cornerRadius(12)
+                }
+            }
             
-            Button(action: {
-                HapticManager.shared.impact(style: .medium)
-                showAddWeightSheet = true
-            }) {
-                Image(systemName: "plus")
-                    .font(.title2.bold())
-                    .foregroundColor(.white)
-                    .frame(width: 50, height: 50)
-                    .background(themeManager.current.primaryGradient)
-                    .clipShape(Circle())
-                    .shadow(color: themeManager.current.primaryAccent.opacity(0.4), radius: 8, y: 4)
+            if let bmi = currentBMI {
+                Divider().padding(.vertical, 4)
+                BMIMeterView(bmi: bmi)
             }
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: .black.opacity(0.03), radius: 10, y: 5)
+        .padding(20)
+        .background(
+            ZStack {
+                Color.primary.opacity(0.01)
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(.ultraThinMaterial)
+            }
+        )
+        .cornerRadius(28)
+        .overlay(
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.18),
+                            Color.white.opacity(0.04)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
     }
     
     private var progressCard: some View {
-        HStack(spacing: 20) {
-            ZStack {
-                Circle()
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 12)
-                    .frame(width: 100, height: 100)
+        VStack(spacing: 20) {
+            HStack(spacing: 20) {
+                ZStack {
+                    Circle()
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 10)
+                        .frame(width: 80, height: 80)
+                    
+                    Circle()
+                        .trim(from: 0, to: progressPercentage)
+                        .stroke(themeManager.current.primaryGradient, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                        .frame(width: 80, height: 80)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.spring(response: 1.0, dampingFraction: 0.8), value: progressPercentage)
+                    
+                    Text("\(Int(progressPercentage * 100))%")
+                        .font(.system(.title3, design: .rounded, weight: .bold))
+                        .foregroundColor(.primary)
+                }
                 
-                Circle()
-                    .trim(from: 0, to: progressPercentage)
-                    .stroke(themeManager.current.primaryGradient, style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                    .frame(width: 100, height: 100)
-                    .rotationEffect(.degrees(-90))
-                    .animation(.spring(response: 1.0, dampingFraction: 0.8), value: progressPercentage)
-                
-                Text("\(Int(progressPercentage * 100))%")
-                    .font(.title2.bold())
-                    .foregroundColor(.primary)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Journey Progress")
+                        .font(.system(.headline, design: .rounded, weight: .bold))
+                    
+                    if progressPercentage >= 1.0 {
+                        Text("Goal Reached! 🎉")
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .foregroundColor(.green)
+                    } else {
+                        let diff = abs(currentWeight - (targetWeight ?? 0))
+                        Text("\(String(format: "%.1f", diff)) kg left to \(goalType)")
+                            .font(.system(.subheadline, design: .rounded, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                Spacer()
             }
             
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Journey Progress")
-                    .font(.headline)
-                
-                if progressPercentage >= 1.0 {
-                    Text("Goal Reached! 🎉")
-                        .font(.subheadline)
-                        .foregroundColor(.green)
-                } else {
-                    let diff = abs(currentWeight - (targetWeight ?? 0))
-                    Text("\(String(format: "%.1f", diff)) kg left to \(goalType)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-            }
-            Spacer()
+
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: .black.opacity(0.03), radius: 10, y: 5)
+        .padding(20)
+        .background(
+            ZStack {
+                Color.primary.opacity(0.01)
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(.ultraThinMaterial)
+            }
+        )
+        .cornerRadius(28)
+        .overlay(
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.18),
+                            Color.white.opacity(0.04)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
     }
     
     private var chartCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Weight History")
-                .font(.headline)
+                .font(.system(.headline, design: .rounded, weight: .bold))
             
             if weightLogs.count < 2 {
                 VStack(spacing: 12) {
@@ -230,30 +311,48 @@ struct GoalsTabView: View {
                 Chart {
                     if let target = targetWeight {
                         RuleMark(y: .value("Target", target))
-                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [5]))
-                            .foregroundStyle(Color.green.opacity(0.8))
+                            .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4]))
+                            .foregroundStyle(Color.green.opacity(0.7))
                             .annotation(position: .top, alignment: .leading) {
-                                Text("Target")
-                                    .font(.caption2.bold())
+                                Text("Target: \(String(format: "%.1f", target)) kg")
+                                    .font(.system(size: 9, weight: .bold, design: .rounded))
                                     .foregroundColor(.green)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 3)
+                                    .background(Color.green.opacity(0.08))
+                                    .cornerRadius(4)
                             }
                     }
                     
                     ForEach(weightLogs) { log in
+                        AreaMark(
+                            x: .value("Date", log.date),
+                            yStart: .value("Min", (weightLogs.map { $0.weight }.min() ?? 50) - 5),
+                            yEnd: .value("Weight", log.weight)
+                        )
+                        .interpolationMethod(.monotone)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [themeManager.current.primaryAccent.opacity(0.18), themeManager.current.primaryAccent.opacity(0.02)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        
                         LineMark(
                             x: .value("Date", log.date),
                             y: .value("Weight", log.weight)
                         )
                         .interpolationMethod(.monotone)
                         .foregroundStyle(themeManager.current.primaryGradient)
-                        .lineStyle(StrokeStyle(lineWidth: 3))
+                        .lineStyle(StrokeStyle(lineWidth: 3.5, lineCap: .round))
                         
                         PointMark(
                             x: .value("Date", log.date),
                             y: .value("Weight", log.weight)
                         )
                         .foregroundStyle(themeManager.current.primaryAccent)
-                        .symbolSize(40)
+                        .symbolSize(60)
                     }
                 }
                 .chartYScale(domain: [(weightLogs.map { $0.weight }.min() ?? 50) - 2, (weightLogs.map { $0.weight }.max() ?? 100) + 2])
@@ -261,10 +360,29 @@ struct GoalsTabView: View {
                 .padding(.vertical)
             }
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: .black.opacity(0.03), radius: 10, y: 5)
+        .padding(20)
+        .background(
+            ZStack {
+                Color.primary.opacity(0.01)
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(.ultraThinMaterial)
+            }
+        )
+        .cornerRadius(28)
+        .overlay(
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.18),
+                            Color.white.opacity(0.04)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
     }
     
     private func iconForGoal(_ goal: String) -> String {
@@ -276,29 +394,54 @@ struct GoalsTabView: View {
     }
     
     private var recentLogsList: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             Text("Recent Entries")
-                .font(.headline)
+                .font(.system(.title3, design: .rounded, weight: .bold))
                 .padding(.leading, 4)
             
             ForEach(weightLogs.reversed().prefix(5)) { log in
                 HStack {
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(log.date, format: .dateTime.day().month().year())
-                            .font(.subheadline.bold())
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .foregroundColor(.primary)
                         Text(log.date, format: .dateTime.hour().minute())
-                            .font(.caption)
-                            .foregroundColor(.gray)
+                            .font(.system(.caption, design: .rounded, weight: .medium))
+                            .foregroundColor(.secondary)
                     }
                     Spacer()
+                    
                     Text(String(format: "%.1f kg", log.weight))
-                        .font(.headline)
+                        .font(.system(.headline, design: .rounded, weight: .bold))
                         .foregroundColor(themeManager.current.primaryAccent)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(themeManager.current.primaryAccent.opacity(0.06))
+                        .cornerRadius(10)
                 }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(16)
-                .shadow(color: .black.opacity(0.02), radius: 5, y: 2)
+                .padding(16)
+                .background(
+                    ZStack {
+                        Color.primary.opacity(0.01)
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill(.ultraThinMaterial)
+                    }
+                )
+                .cornerRadius(18)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.18),
+                                    Color.white.opacity(0.04)
+                                ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
             }
         }
     }
@@ -319,35 +462,105 @@ struct AddWeightLogSheet: View {
     }
     
     var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Weight Entry")) {
-                    PremiumMetricSlider(
-                        title: "Weight",
-                        value: $weight,
-                        range: 30...250,
-                        step: 0.1,
-                        unit: "kg",
-                        icon: "scalemass",
-                        color: themeManager.current.primaryAccent
-                    )
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+            
+            Circle()
+                .fill(themeManager.current.primaryAccent.opacity(0.1))
+                .frame(width: 250, height: 250)
+                .blur(radius: 50)
+                .offset(y: -120)
+            
+            VStack(spacing: 24) {
+                Capsule()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 40, height: 5)
+                    .padding(.top, 10)
+                
+                Text("Log Weight")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                
+                VStack(spacing: 20) {
+                    HStack {
+                        Text("Weight")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                        Spacer()
+                        
+                        HStack(spacing: 4) {
+                            TextField("kg", value: $weight, format: .number)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 70)
+                                .font(.system(.title3, design: .rounded, weight: .bold))
+                                .foregroundColor(themeManager.current.primaryAccent)
+                            Text("kg")
+                                .font(.system(.body, design: .rounded, weight: .bold))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.primary.opacity(0.04))
+                        .cornerRadius(10)
+                    }
+                    
+                    // Slider for Weight selection
+                    VStack(spacing: 6) {
+                        Slider(value: $weight, in: 30...200, step: 0.1)
+                            .tint(themeManager.current.primaryAccent)
+                        
+                        HStack {
+                            Text("30 kg")
+                            Spacer()
+                            Text(String(format: "%.1f kg", weight))
+                                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                .foregroundColor(themeManager.current.primaryAccent)
+                            Spacer()
+                            Text("200 kg")
+                        }
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+                    }
                     
                     DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
+                        .font(.system(.body, design: .rounded, weight: .bold))
                 }
-            }
-            .navigationTitle("Record Weight")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        saveLog()
+                .padding(20)
+                .background(.ultraThinMaterial)
+                .cornerRadius(24)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+                .padding(.horizontal, 24)
+                
+                Spacer()
+                
+                HStack(spacing: 16) {
+                    Button(action: { dismiss() }) {
+                        Text("Cancel")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.primary.opacity(0.04))
+                            .cornerRadius(20)
                     }
-                    .fontWeight(.bold)
-                    .foregroundColor(themeManager.current.primaryAccent)
+                    
+                    Button(action: { saveLog() }) {
+                        Text("Save Entry")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(themeManager.current.primaryGradient)
+                            .cornerRadius(20)
+                            .shimmer()
+                            .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
+                    }
+                    .buttonStyle(BounceButtonStyle())
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 20)
             }
         }
     }
@@ -370,6 +583,7 @@ struct SetGoalSheet: View {
     
     @State private var targetWeight: Double
     @State private var goalType: String
+    @State private var height: Double
     
     let goalTypes = ["lose", "maintain", "gain"]
     
@@ -377,48 +591,212 @@ struct SetGoalSheet: View {
         self.user = user
         _targetWeight = State(initialValue: user.targetWeight ?? user.weight)
         _goalType = State(initialValue: user.weightGoalType ?? "lose")
+        _height = State(initialValue: user.height > 0 ? user.height : 170.0)
     }
     
     var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Goal Direction")) {
-                    Picker("Goal Type", selection: $goalType) {
-                        ForEach(goalTypes, id: \.self) { type in
-                            Text(LocalizedStringKey(type.capitalized)).tag(type)
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+            
+            Circle()
+                .fill(themeManager.current.primaryAccent.opacity(0.1))
+                .frame(width: 250, height: 250)
+                .blur(radius: 50)
+                .offset(y: -120)
+            
+            VStack(spacing: 20) {
+                Capsule()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 40, height: 5)
+                    .padding(.top, 10)
+                
+                Text("Set Your Goal")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        // Custom Goal Picker cards
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Goal Direction")
+                                .font(.system(.caption, design: .rounded, weight: .bold))
+                                .foregroundColor(.secondary)
+                                .textCase(.uppercase)
+                                .padding(.horizontal, 4)
+                            
+                            HStack(spacing: 12) {
+                                ForEach(goalTypes, id: \.self) { type in
+                                    let isSelected = goalType == type
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .light)
+                                        goalType = type
+                                        if type == "maintain" {
+                                            targetWeight = user.weight
+                                        }
+                                    }) {
+                                        VStack(spacing: 8) {
+                                            Image(systemName: iconForGoalType(type))
+                                                .font(.system(size: 20, weight: .bold))
+                                            Text(type.capitalized)
+                                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .background(isSelected ? themeManager.current.primaryGradient : LinearGradient(colors: [Color.primary.opacity(0.04), Color.primary.opacity(0.04)], startPoint: .top, endPoint: .bottom))
+                                        .foregroundColor(isSelected ? .white : .primary)
+                                        .cornerRadius(16)
+                                        .shadow(color: isSelected ? themeManager.current.primaryAccent.opacity(0.3) : .clear, radius: 6)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                        }
+                        
+                        // Height Card
+                        VStack(spacing: 16) {
+                            HStack {
+                                Text("Your Height")
+                                    .font(.system(.caption, design: .rounded, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                    .textCase(.uppercase)
+                                Spacer()
+                                
+                                HStack(spacing: 4) {
+                                    TextField("cm", value: $height, format: .number)
+                                        .keyboardType(.numberPad)
+                                        .multilineTextAlignment(.trailing)
+                                        .frame(width: 60)
+                                        .font(.system(.title3, design: .rounded, weight: .bold))
+                                        .foregroundColor(themeManager.current.primaryAccent)
+                                    Text("cm")
+                                        .font(.system(.body, design: .rounded, weight: .bold))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.primary.opacity(0.04))
+                                .cornerRadius(10)
+                            }
+                            
+                            // Height slider
+                            VStack(spacing: 6) {
+                                Slider(value: $height, in: 100...250, step: 1)
+                                    .tint(themeManager.current.primaryAccent)
+                                
+                                HStack {
+                                    Text("100 cm")
+                                    Spacer()
+                                    Text("\(Int(height)) cm")
+                                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                        .foregroundColor(themeManager.current.primaryAccent)
+                                    Spacer()
+                                    Text("250 cm")
+                                }
+                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(20)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(24)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                        
+                        // Target Weight Card (only visible if goalType is not maintain)
+                        if goalType != "maintain" {
+                            VStack(spacing: 16) {
+                                HStack {
+                                    Text("Target Weight")
+                                        .font(.system(.caption, design: .rounded, weight: .bold))
+                                        .foregroundColor(.secondary)
+                                        .textCase(.uppercase)
+                                    Spacer()
+                                    
+                                    HStack(spacing: 4) {
+                                        TextField("kg", value: $targetWeight, format: .number)
+                                            .keyboardType(.decimalPad)
+                                            .multilineTextAlignment(.trailing)
+                                            .frame(width: 70)
+                                            .font(.system(.title3, design: .rounded, weight: .bold))
+                                            .foregroundColor(themeManager.current.primaryAccent)
+                                        Text("kg")
+                                            .font(.system(.body, design: .rounded, weight: .bold))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.primary.opacity(0.04))
+                                    .cornerRadius(10)
+                                }
+                                
+                                // Slider for Weight selection
+                                VStack(spacing: 6) {
+                                    Slider(value: $targetWeight, in: 30...200, step: 0.1)
+                                        .tint(themeManager.current.primaryAccent)
+                                    
+                                    HStack {
+                                        Text("30 kg")
+                                        Spacer()
+                                        Text(String(format: "%.1f kg", targetWeight))
+                                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                            .foregroundColor(themeManager.current.primaryAccent)
+                                        Spacer()
+                                        Text("200 kg")
+                                    }
+                                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(20)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(24)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            )
                         }
                     }
-                    .pickerStyle(.segmented)
+                    .padding(.horizontal, 24)
                 }
                 
-                if goalType != "maintain" {
-                    Section(header: Text("Target Weight")) {
-                            PremiumMetricSlider(
-                                title: "Target Weight",
-                                value: $targetWeight,
-                                range: 30...250,
-                                step: 0.1,
-                                unit: "kg",
-                                icon: "target",
-                                color: themeManager.current.primaryAccent
-                            )
+                Spacer()
+                
+                HStack(spacing: 16) {
+                    Button(action: { dismiss() }) {
+                        Text("Cancel")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.primary.opacity(0.04))
+                            .cornerRadius(20)
                     }
-                }
-            }
-            .navigationTitle("Set Goal")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        saveGoal()
+                    
+                    Button(action: { saveGoal() }) {
+                        Text("Save Goal")
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(themeManager.current.primaryGradient)
+                            .cornerRadius(20)
+                            .shimmer()
+                            .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
                     }
-                    .fontWeight(.bold)
-                    .foregroundColor(themeManager.current.primaryAccent)
+                    .buttonStyle(BounceButtonStyle())
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 20)
             }
+        }
+    }
+    
+    private func iconForGoalType(_ type: String) -> String {
+        switch type {
+        case "lose": return "arrow.down.right.circle.fill"
+        case "gain": return "arrow.up.right.circle.fill"
+        default: return "equal.circle.fill"
         }
     }
     
@@ -429,8 +807,80 @@ struct SetGoalSheet: View {
         } else {
             user.targetWeight = targetWeight
         }
+        user.height = height
+        user.calculateGoals()
         try? context.save()
         HapticManager.shared.notification(type: .success)
         dismiss()
+    }
+}
+
+// MARK: - Redesign Custom View Helpers
+
+struct BMIMeterView: View {
+    let bmi: Double
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("BMI Classification")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text(bmiCategoryString(bmi))
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(bmiCategoryColor(bmi))
+            }
+            
+            GeometryReader { geo in
+                let width = geo.size.width
+                let position = bmiPointerPosition(bmi, totalWidth: width)
+                
+                ZStack(alignment: .leading) {
+                    HStack(spacing: 2) {
+                        Color.blue.opacity(0.7)
+                            .frame(width: width * 0.22)
+                        Color.green.opacity(0.7)
+                            .frame(width: width * 0.35)
+                        Color.orange.opacity(0.7)
+                            .frame(width: width * 0.22)
+                        Color.red.opacity(0.7)
+                            .frame(width: width * 0.21)
+                    }
+                    .frame(height: 8)
+                    .cornerRadius(4)
+                    
+                    Circle()
+                        .fill(Color.primary)
+                        .frame(width: 14, height: 14)
+                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                        .offset(x: position - 7)
+                        .shadow(radius: 2)
+                }
+            }
+            .frame(height: 14)
+        }
+    }
+    
+    private func bmiCategoryString(_ bmi: Double) -> String {
+        if bmi < 18.5 { return "Underweight" }
+        else if bmi < 25 { return "Normal Weight" }
+        else if bmi < 30 { return "Overweight" }
+        else { return "Obese" }
+    }
+    
+    private func bmiCategoryColor(_ bmi: Double) -> Color {
+        if bmi < 18.5 { return .blue }
+        else if bmi < 25 { return .green }
+        else if bmi < 30 { return .orange }
+        else { return .red }
+    }
+    
+    private func bmiPointerPosition(_ bmi: Double, totalWidth: CGFloat) -> CGFloat {
+        let minBmi = 15.0
+        let maxBmi = 35.0
+        let clampedBmi = min(max(bmi, minBmi), maxBmi)
+        let percent = (clampedBmi - minBmi) / (maxBmi - minBmi)
+        return CGFloat(percent) * totalWidth
     }
 }

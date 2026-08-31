@@ -17,6 +17,7 @@ struct SmartScannerView: View {
     @State private var recognizedBarcode: String? = nil
     @State private var isScanning: Bool = false
     @State private var isFlashlightOn: Bool = false
+    @State private var isPulseActive: Bool = false
 
     @State private var selectedMode: ScannerMode
     @State private var cameraManager = LiveFoodCameraManager()
@@ -76,7 +77,47 @@ struct SmartScannerView: View {
                 Spacer()
 
                 if selectedMode == .barcode {
-                    barcodeViewfinderContent
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(Color.white.opacity(isPulseActive ? 0.3 : 1.0), lineWidth: isPulseActive ? 4 : 2)
+                            .frame(width: 250, height: 250)
+                            .scaleEffect(isPulseActive ? 1.02 : 1.0)
+                            .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isPulseActive)
+                            .onAppear { isPulseActive = true }
+                            .onDisappear { isPulseActive = false }
+
+                        if isLoading {
+                            VStack(spacing: 12) {
+                                ProgressView().tint(.white).scaleEffect(1.5)
+                                Text("Searching Database...").font(.headline).foregroundColor(.white)
+                            }
+                        } else if notFoundError {
+                            VStack(spacing: 16) {
+                                Image(systemName: "exclamationmark.magnifyingglass")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.themeOrange)
+                                Text("Product not found")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .medium)
+                                    dismiss()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        onManualEntryRequest()
+                                    }
+                                }) {
+                                    Text("Enter Manually")
+                                        .font(.subheadline.bold())
+                                        .foregroundColor(.black)
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 10)
+                                        .background(Color.white)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                        }
+                    }
                 } else {
                     cameraHintCard
                 }
@@ -711,7 +752,24 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
                 return
             }
 
-            self.session.addInput(videoInput)
+        do {
+            try videoDevice.lockForConfiguration()
+            if videoDevice.isFocusModeSupported(.continuousAutoFocus) {
+                videoDevice.focusMode = .continuousAutoFocus
+            }
+            if videoDevice.isExposureModeSupported(.continuousAutoExposure) {
+                videoDevice.exposureMode = .continuousAutoExposure
+            }
+            if videoDevice.isLowLightBoostSupported {
+                videoDevice.automaticallyEnablesLowLightBoostWhenAvailable = true
+            }
+            videoDevice.isSubjectAreaChangeMonitoringEnabled = true
+            videoDevice.unlockForConfiguration()
+        } catch {
+            print("❌ Failed to configure camera: \(error.localizedDescription)")
+        }
+
+        session.addInput(videoInput)
 
             if self.session.canAddOutput(self.photoOutput) {
                 self.session.addOutput(self.photoOutput)

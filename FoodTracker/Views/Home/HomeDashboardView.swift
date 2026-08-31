@@ -30,6 +30,11 @@ struct HomeDashboardContentView: View {
     @State private var allTimeCalories: Int = 0
     @State private var showXPPopup = false
     @State private var xpBreakdown: NutritionXPBreakdown? = nil
+    
+    @State private var showingScanner = false
+    @State private var showingManualAdd = false
+    @State private var selectedFoodForDetail: FoodItem? = nil
+    @State private var isMenuExpanded = false
 
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
@@ -74,8 +79,27 @@ struct HomeDashboardContentView: View {
 
     var body: some View {
           NavigationStack {
-              ZStack(alignment: .bottomTrailing) { 
-                  Color.themeBg.ignoresSafeArea()
+              ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
+                  ZStack {
+                      Color.themeBg.ignoresSafeArea()
+                      
+                      GeometryReader { geo in
+                          ZStack {
+                              Circle()
+                                  .fill(Color.themePink.opacity(0.12))
+                                  .frame(width: 320, height: 320)
+                                  .blur(radius: 80)
+                                  .offset(x: -80, y: -100)
+                              
+                              Circle()
+                                  .fill(Color.themeOrange.opacity(0.08))
+                                  .frame(width: 280, height: 280)
+                                  .blur(radius: 70)
+                                  .offset(x: geo.size.width - 200, y: 220)
+                          }
+                      }
+                      .ignoresSafeArea()
+                  }
 
                   // Ensure the day's summary exists via the actor-isolated repo (removes detached main-context creation).
                   .task(id: selectedDate) {
@@ -87,13 +111,14 @@ struct HomeDashboardContentView: View {
 
                   ScrollView(showsIndicators: false) {
                       VStack(spacing: 24) {
-                          HeaderView(selectedDate: selectedDate, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
+                          HeaderView(selectedDate: selectedDate, user: currentUser, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
                           CalendarCarouselView(selectedDate: $selectedDate)
                           InsightsWidget(summary: currentSummary, user: currentUser)
                           
                           AnalyticsQuickGlanceWidget(summary: currentSummary, user: currentUser)
 
                           DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
+                              .spotlightTarget(step: .macroRings)
                               .padding(.bottom, 8)
 
                           VStack(spacing: 16) {
@@ -159,11 +184,71 @@ struct HomeDashboardContentView: View {
                       }
                       .padding(.bottom, 120) 
                   }
+                  .blur(radius: isMenuExpanded ? 4 : 0)
+                  .disabled(isMenuExpanded)
+                  
+                  if isMenuExpanded {
+                      Color.black.opacity(0.25)
+                          .ignoresSafeArea()
+                          .onTapGesture {
+                              withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                  isMenuExpanded = false
+                              }
+                          }
+                          .transition(.opacity)
+                      
+                      VStack(spacing: 14) {
+                          SpeedDialItem(
+                              icon: "barcode.viewfinder",
+                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Сканировать" : "Scan Barcode",
+                              color: .blue
+                          ) {
+                              isMenuExpanded = false
+                              showingScanner = true
+                          }
+                          
+                          SpeedDialItem(
+                              icon: "fork.knife",
+                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Записать еду" : "Log Meal",
+                              color: .themePink
+                          ) {
+                              isMenuExpanded = false
+                              self.mealToOpenInSmartAdd = IdentifiableString(value: "Breakfast")
+                          }
+                          
+                          SpeedDialItem(
+                              icon: "bolt.fill",
+                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Быстрые калории" : "Quick Calories",
+                              color: .themeOrange
+                          ) {
+                              isMenuExpanded = false
+                              showPremiumQuickAdd = true
+                          }
+                          
+                          SpeedDialItem(
+                              icon: "figure.run",
+                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Активность" : "Log Activity",
+                              color: .green
+                          ) {
+                              isMenuExpanded = false
+                              showingQuickActivitySheet = true
+                          }
+                      }
+                      .transition(.asymmetric(
+                          insertion: .scale.combined(with: .offset(y: 50)).combined(with: .opacity),
+                          removal: .scale.combined(with: .offset(y: 50)).combined(with: .opacity)
+                      ))
+                      .padding(.trailing, 24)
+                      .padding(.bottom, 100)
+                      .zIndex(99)
+                  }
                   
                   
                   Button(action: {
                       HapticManager.shared.impact(style: .medium)
-                      showPremiumQuickAdd = true
+                      withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                          isMenuExpanded.toggle()
+                      }
                   }) {
                       Image(systemName: "plus")
                           .font(.system(size: 26, weight: .bold))
@@ -171,10 +256,13 @@ struct HomeDashboardContentView: View {
                           .frame(width: 64, height: 64)
                           .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
                           .clipShape(Circle())
+                          .rotationEffect(.degrees(isMenuExpanded ? 135 : 0))
                           .shadow(color: .themePink.opacity(0.4), radius: 10, y: 5)
                   }
+                  .spotlightTarget(step: .addMeal)
                   .padding(.trailing, 24)
                   .padding(.bottom, 24)
+                  .zIndex(100)
                   
                   if showXPPopup, let breakdown = xpBreakdown {
                       NutritionXPBreakdownPopup(breakdown: breakdown) {
@@ -217,12 +305,10 @@ struct HomeDashboardContentView: View {
                       .presentationDragIndicator(.visible)
               }
               .sheet(isPresented: $showingQuickAddSheet) {
-                  SmartAddFoodView(mealTitle: localizedMealType(quickAddMealType)) { selectedItems in
-                      addFoodsToMeal(title: quickAddMealType, items: selectedItems)
-                  }
-                  .presentationDetents([.fraction(0.85), .large])
-                  .presentationCornerRadius(32)
-                  .presentationDragIndicator(.hidden)
+                  AddMealView(selectedDate: selectedDate, initialMealType: quickAddMealType)
+                      .presentationDetents([.fraction(0.85), .large])
+                      .presentationCornerRadius(32)
+                      .presentationDragIndicator(.hidden)
               }
               .sheet(isPresented: $showPremiumQuickAdd) {
                   PremiumQuickAddSheet(selectedDate: selectedDate, onSelectDetailedMeal: { selectedMeal in
@@ -240,9 +326,26 @@ struct HomeDashboardContentView: View {
                       .presentationCornerRadius(32)
               }
               .fullScreenCover(item: $mealToOpenInSmartAdd) { mealInfo in
-                  SmartAddFoodView(mealTitle: mealInfo.value) { selectedItems in
-                      addFoodsToMeal(title: mealInfo.value, items: selectedItems)
+                  AddMealView(selectedDate: selectedDate, initialMealType: mealInfo.value)
+              }
+              .fullScreenCover(isPresented: $showingScanner) {
+                  SmartScannerView(
+                      onProductFound: { foundFood in selectedFoodForDetail = foundFood },
+                      onManualEntryRequest: { showingManualAdd = true }
+                  )
+              }
+              .fullScreenCover(item: $selectedFoodForDetail) { food in
+                  FoodDetailNutritionView(food: food, mealTitle: "Snack") { addedFood in
+                      addFoodsToMeal(title: "Snack", items: [addedFood])
                   }
+              }
+              .sheet(isPresented: $showingManualAdd) {
+                  AddIngredientModalView { newCustomItem in
+                      addFoodsToMeal(title: "Snack", items: [newCustomItem])
+                  }
+                  .presentationDetents([.fraction(0.85), .large])
+                  .presentationCornerRadius(32)
+                  .presentationDragIndicator(.visible)
               }
           }
       }
@@ -368,59 +471,101 @@ struct HomeDashboardContentView: View {
 
 struct HeaderView: View {
     let selectedDate: Date
+    let user: User?
     var onProfileTap: () -> Void
     var onShareTap: () -> Void
 
-    private var monthYearString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: selectedDate)
+    private var greetingString: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let name = user?.name ?? "Friend"
+        let isRussian = Locale.current.language.languageCode?.identifier == "ru"
+        
+        if isRussian {
+            switch hour {
+            case 5..<12:
+                return "Доброе утро, \(name)! 🌅"
+            case 12..<18:
+                return "Добрый день, \(name)! 🥗"
+            case 18..<23:
+                return "Добрый вечер, \(name)! 🌙"
+            default:
+                return "Привет, \(name)! 🌌"
+            }
+        } else {
+            switch hour {
+            case 5..<12:
+                return "Good morning, \(name)! 🌅"
+            case 12..<18:
+                return "Good afternoon, \(name)! 🥗"
+            case 18..<23:
+                return "Good evening, \(name)! 🌙"
+            default:
+                return "Hello, \(name)! 🌌"
+            }
+        }
     }
 
     private var relativeDateString: String {
         let calendar = Calendar.current
-        if calendar.isDateInToday(selectedDate) { return String(localized: "Today") }
-        if calendar.isDateInYesterday(selectedDate) { return String(localized: "Yesterday") }
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: selectedDate)
+        let isRussian = Locale.current.language.languageCode?.identifier == "ru"
+        let relativeDay: String
+        if calendar.isDateInToday(selectedDate) {
+            relativeDay = isRussian ? "Сегодня" : "Today"
+        } else if calendar.isDateInYesterday(selectedDate) {
+            relativeDay = isRussian ? "Вчера" : "Yesterday"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+            formatter.locale = Locale.current
+            relativeDay = formatter.string(from: selectedDate)
+        }
+        
+        let monthFormatter = DateFormatter()
+        monthFormatter.dateFormat = "MMMM yyyy"
+        monthFormatter.locale = Locale.current
+        let monthString = monthFormatter.string(from: selectedDate)
+        
+        return "\(relativeDay) • \(monthString)"
     }
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(monthYearString).font(.title2.bold())
-                Text(relativeDateString).foregroundColor(.textGray)
+                Text(greetingString)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                Text(relativeDateString)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(.textGray)
             }
             Spacer()
 
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Button(action: {
                     HapticManager.shared.impact(style: .medium)
                     onShareTap()
                 }) {
                     Image(systemName: "square.and.arrow.up.circle.fill")
-                        .font(.system(size: 36))
+                        .font(.system(size: 34))
                         .foregroundStyle(
                             LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
-                        .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
+                        .shadow(color: Color.themePink.opacity(0.25), radius: 5, y: 2)
                 }
                 .buttonStyle(BounceButtonStyle())
 
-            Button(action: {
-                HapticManager.shared.impact(style: .medium)
-                onProfileTap()
-            }) {
-                Image(systemName: "person.crop.circle.fill")
-                    .font(.system(size: 36))
-                    .foregroundStyle(
-                        LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
-            }
-            .buttonStyle(BounceButtonStyle())
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    onProfileTap()
+                }) {
+                    Image(systemName: "person.crop.circle.fill")
+                        .font(.system(size: 34))
+                        .foregroundStyle(
+                            LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
+                        .shadow(color: Color.themePink.opacity(0.25), radius: 5, y: 2)
+                }
+                .buttonStyle(BounceButtonStyle())
             }
         }
         .padding(.horizontal)
@@ -720,11 +865,9 @@ struct MealDetailView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showingAddFood) {
-            SmartAddFoodView(mealTitle: title) { selectedItems in
-                addFoodsToMeal(items: selectedItems)
-            }
-            .presentationDetents([.fraction(0.85), .large])
-            .presentationCornerRadius(32)
+            AddMealView(selectedDate: date, initialMealType: title)
+                .presentationDetents([.fraction(0.85), .large])
+                .presentationCornerRadius(32)
         }
         .fullScreenCover(item: $selectedFoodForDetail) { food in
             FoodDetailNutritionView(food: food, mealTitle: title) { addedFood in
@@ -957,6 +1100,22 @@ struct MealCardView: View {
                         Text(LocalizedStringKey("Add Meal")).font(.subheadline).foregroundColor(.gray.opacity(0.7))
                     }
                 }
+                
+                if let cals = calories, cals > 0 {
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule()
+                                .fill(meta.1.opacity(0.12))
+                                .frame(height: 5)
+                            
+                            Capsule()
+                                .fill(meta.1)
+                                .frame(width: geo.size.width * min(Double(cals) / Double(max(recommendedCalories, 1)), 1.0), height: 5)
+                        }
+                    }
+                    .frame(height: 5)
+                    .padding(.top, 4)
+                }
             }
             Spacer()
 
@@ -994,12 +1153,57 @@ struct ActionSearchBar: View {
     @Binding var text: String
 
     var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass").foregroundColor(.gray)
-            TextField("Search foods...", text: $text).font(.body)
-            if !text.isEmpty {
-                Button(action: { text = "" }) {
-                    Image(systemName: "xmark.circle.fill").foregroundColor(.gray.opacity(0.5))
+        VStack(spacing: 12) {
+            Button(action: {
+                HapticManager.shared.impact(style: .heavy)
+                onBarcodeTap()
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "sparkles")
+                        .font(.title2)
+                    Text("Scan Food or Menu with AI")
+                        .font(.headline)
+                        .bold()
+                    Spacer()
+                    Image(systemName: "camera.viewfinder")
+                        .font(.title2)
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .background(
+                    LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+                .cornerRadius(20)
+                .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+            }
+            .buttonStyle(BounceButtonStyle())
+
+            HStack(spacing: 12) {
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundColor(.gray)
+                    TextField("Search foods...", text: $text).font(.body)
+                    if !text.isEmpty {
+                        Button(action: { text = "" }) {
+                            Image(systemName: "xmark.circle.fill").foregroundColor(.gray.opacity(0.5))
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
+
+                Button(action: {
+                    HapticManager.shared.impact(style: .light)
+                    onManualAddTap()
+                }) {
+                    Image(systemName: "plus.app.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.green)
+                        .frame(width: 44, height: 44)
+                        .background(Color.green.opacity(0.1))
+                        .cornerRadius(14)
                 }
             }
         }
@@ -1114,49 +1318,78 @@ struct FoodSearchResultRow: View {
             HStack(spacing: 16) {
 
                 ZStack {
-                    Circle().fill(Color.gray.opacity(0.05)).frame(width: 48, height: 48)
-                    Text("🍲").font(.system(size: 24))
+                    Circle()
+                        .fill(Color.themeBg.opacity(0.8))
+                        .frame(width: 48, height: 48)
+                    Text("🍲")
+                        .font(.system(size: 24))
 
                     if compatibility != .neutral {
                         Image(systemName: compatibility.icon)
-                            .font(.system(size: 14))
+                            .font(.system(size: 10, weight: .black))
                             .foregroundColor(compatibility.color)
-                            .background(Color.white.clipShape(Circle()))
+                            .padding(4)
+                            .background(Color.white)
+                            .clipShape(Circle())
+                            .shadow(color: Color.black.opacity(0.1), radius: 3)
                             .offset(x: 16, y: 16)
                     }
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(food.name.decodingHTMLEntities())
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    Text(food.name)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(compatibility == .avoid ? .gray : .primary)
                         .strikethrough(compatibility == .avoid, color: .red.opacity(0.5))
 
-                    HStack {
+                    HStack(spacing: 6) {
                         Text("\(food.calories) kcal • 100g")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
 
                         if compatibility == .perfect {
-                            Text("• Great for \(user?.activeDietPlan?.name ?? "")")
-                                .font(.system(size: 10, weight: .bold))
+                            Text("Great option")
+                                .font(.system(size: 9, weight: .bold, design: .rounded))
                                 .foregroundColor(.green)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.green.opacity(0.08))
+                                .cornerRadius(6)
                         } else if compatibility == .avoid {
-                            Text("• Avoid on \(user?.activeDietPlan?.name ?? "")")
-                                .font(.system(size: 10, weight: .bold))
+                            Text("Avoid")
+                                .font(.system(size: 9, weight: .bold, design: .rounded))
                                 .foregroundColor(.red)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.red.opacity(0.08))
+                                .cornerRadius(6)
                         }
                     }
                 }
                 Spacer()
-                Image(systemName: "plus.circle.fill")
-                    .font(.title3)
-                    .foregroundColor(compatibility == .avoid ? .gray.opacity(0.3) : .themePink)
+                
+                ZStack {
+                    Circle()
+                        .fill(compatibility == .avoid ? Color.gray.opacity(0.1) : Color.themePink.opacity(0.1))
+                        .frame(width: 32, height: 32)
+                    
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(compatibility == .avoid ? .gray : .themePink)
+                }
             }
-            .padding(16)
-            .background(compatibility == .avoid ? Color.red.opacity(0.03) : (compatibility == .perfect ? Color.green.opacity(0.03) : Color.white))
-            .cornerRadius(20)
-            .shadow(color: Color.black.opacity(0.02), radius: 8, y: 4)
+            .padding(14)
+            .background(Color.white)
+            .cornerRadius(18)
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(
+                        compatibility == .avoid ? Color.red.opacity(0.15) :
+                        (compatibility == .perfect ? Color.green.opacity(0.15) : Color.gray.opacity(0.08)),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(color: Color.black.opacity(0.015), radius: 6, x: 0, y: 3)
         }
         .buttonStyle(BounceButtonStyle())
     }
@@ -1775,16 +2008,20 @@ struct SmartAddFoodView: View {
                             HStack(spacing: 10) {
                                 ForEach(categories, id: \.self) { category in
                                     Button(action: {
-                                        withAnimation(.spring()) { selectedCategory = category }
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { selectedCategory = category }
                                         HapticManager.shared.impact(style: .light)
                                     }) {
                                         Text(LocalizedStringKey(category))
-                                            .font(.subheadline).bold()
+                                            .font(.system(size: 13, weight: .bold, design: .rounded))
                                             .padding(.horizontal, 18).padding(.vertical, 10)
-                                            .background(selectedCategory == category ? Color.themePink : Color.white)
+                                            .background(selectedCategory == category ? ThemeManager.shared.current.primaryGradient : LinearGradient(colors: [Color.white], startPoint: .top, endPoint: .bottom))
                                             .foregroundColor(selectedCategory == category ? .white : .primary)
-                                            .cornerRadius(20)
-                                            .shadow(color: selectedCategory == category ? Color.themePink.opacity(0.3) : Color.black.opacity(0.03), radius: 4, y: 2)
+                                            .cornerRadius(18)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 18)
+                                                    .stroke(selectedCategory == category ? Color.clear : Color.gray.opacity(0.12), lineWidth: 1)
+                                            )
+                                            .shadow(color: selectedCategory == category ? ThemeManager.shared.current.primaryAccent.opacity(0.2) : Color.black.opacity(0.015), radius: 5, y: 2)
                                     }
                                 }
                             }
@@ -1935,51 +2172,39 @@ struct SmartAddFoodView: View {
     }
 }
 
-struct FeatureCard: View {
-    let title: String
-    let subtitle: String
+struct SpeedDialItem: View {
     let icon: String
-    let gradient: [Color]
+    let label: String
+    let color: Color
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: {
             HapticManager.shared.impact(style: .medium)
             action()
         }) {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
+                Text(label)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.white)
+                    .cornerRadius(12)
+                    .shadow(color: Color.black.opacity(0.08), radius: 5, y: 2)
+                
                 ZStack {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(.white.opacity(0.25))
-                        .frame(width: 44, height: 44)
+                    Circle()
+                        .fill(color)
+                        .frame(width: 48, height: 48)
+                        .shadow(color: color.opacity(0.35), radius: 5, y: 3)
                     
                     Image(systemName: icon)
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
-                }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.system(size: 15, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
-                    
-                    Text(subtitle)
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.85))
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .frame(width: 220, height: 80, alignment: .leading)
-            .background(
-                LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-            )
-            .cornerRadius(20)
-            .shadow(color: gradient.first?.opacity(0.3) ?? .clear, radius: 8, y: 4)
         }
-        .buttonStyle(BounceButtonStyle())
+        .buttonStyle(PlainButtonStyle())
     }
 }

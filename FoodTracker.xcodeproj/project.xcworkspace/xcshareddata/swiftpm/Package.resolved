@@ -1,5 +1,5 @@
 {
-  "originHash" : "cc97a799f6ccbe58311f3a0b711d291d658069e410ebb0344e297779d393dd15",
+  "originHash" : "285e299c85ae3ed155a2065719add6d5407a89863e6bbccd7cc1002487743b7a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -179,6 +179,24 @@
       "state" : {
         "revision" : "b7e1104502eca3a213b46303391ca4d3bc8ddec1",
         "version" : "2.30910.0"
+      }
+    },
+    {
+      "identity" : "onboardingkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/danielsaidi/OnboardingKit.git",
+      "state" : {
+        "revision" : "7890a8169ccc7f12ed5b754fa11889706323aff9",
+        "version" : "9.2.1"
+      }
+    },
+    {
+      "identity" : "pageview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/danielsaidi/PageView.git",
+      "state" : {
+        "revision" : "b60c9ced36242eae0eb81ab0a8e7273386fdbb9b",
+        "version" : "0.2.0"
       }
     },
     {

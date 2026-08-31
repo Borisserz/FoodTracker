@@ -12,33 +12,9 @@ struct OnboardingMetrics {
 
 struct RootOnboardingView: View {
     let onFinish: (OnboardingMetrics) -> Void
-    
-    @State private var currentStage = 0
-    @State private var metrics = OnboardingMetrics()
 
     var body: some View {
-        ZStack {
-            Color(red: 0.05, green: 0.08, blue: 0.06).ignoresSafeArea() // Deep green/black
-            AnimatedBackground()
-            
-            if currentStage == 0 {
-                MetricsScreen(metrics: $metrics, onNext: {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 1 }
-                })
-                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-            } else if currentStage == 1 {
-                OnboardingGoalScreen(metrics: $metrics, onNext: {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentStage = 2 }
-                })
-                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-            } else if currentStage == 2 {
-                OnboardingFeaturesView(onNext: {
-                    onFinish(metrics)
-                })
-                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-            }
-        }
-        .preferredColorScheme(.dark)
+        SwissBentoOnboardingFlow(onFinish: onFinish)
     }
 }
 

@@ -377,74 +377,55 @@ private struct MacroColumnInfo: View {
 
 private struct ServingSizeEditor: View {
     @Binding var weight: Double
-    
-    private var weightTextBinding: Binding<String> {
-        Binding(
-            get: {
-                if weight == 0 {
-                    return ""
-                }
-                return String(format: "%.0f", weight)
-            },
-            set: { newValue in
-                let filtered = newValue.filter { "0123456789".contains($0) }
-                if let val = Double(filtered) {
-                    weight = val
-                } else if filtered.isEmpty {
-                    weight = 0
-                }
-            }
-        )
-    }
+    @State private var textInput: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Serving Size")
-                .font(.headline)
-
-            VStack(spacing: 12) {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Spacer()
-                    TextField("100", text: weightTextBinding)
-                        .keyboardType(.numberPad)
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .multilineTextAlignment(.center)
-                        .frame(width: 140)
-                        .padding(.vertical, 4)
-                        .background(Color.gray.opacity(0.05))
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
-                        )
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                Button("Done") {
-                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                                }
-                                .font(.headline)
-                                .foregroundColor(.themePink)
+            HStack {
+                Text("Serving Size")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.gray)
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    TextField("100", text: $textInput)
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.themePink)
+                        .frame(width: 80)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 10)
+                        .background(Color.themeBg.opacity(0.5))
+                        .cornerRadius(10)
+                        .onChange(of: textInput) { _, newValue in
+                            if let val = Double(newValue), val > 0 {
+                                weight = val
                             }
                         }
-
+                    
                     Text("g")
-                        .font(.title2.bold())
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.gray)
-                    Spacer()
                 }
-
-                Slider(value: $weight, in: 1...500, step: 1)
-                    .tint(.themePink)
-                    .padding(.horizontal, 10)
             }
 
+            Slider(value: $weight, in: 5...1000, step: 5)
+                .tint(.themePink)
+                .onChange(of: weight) { _, newValue in
+                    let newText = String(format: "%.0f", newValue)
+                    if textInput != newText {
+                        textInput = newText
+                    }
+                }
+            
             HStack(spacing: 12) {
-                ForEach([50, 100, 150, 200], id: \.self) { amount in
+                ForEach([50, 100, 150, 200, 300], id: \.self) { amount in
                     Button(action: {
                         HapticManager.shared.impact(style: .medium)
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                             weight = Double(amount)
+                            textInput = "\(amount)"
                         }
                     }) {
                         Text("\(amount)g")
@@ -463,6 +444,9 @@ private struct ServingSizeEditor: View {
         .background(Color.white)
         .cornerRadius(24)
         .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+        .onAppear {
+            textInput = String(format: "%.0f", weight)
+        }
     }
 }
 
