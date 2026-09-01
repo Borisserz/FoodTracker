@@ -2,14 +2,34 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 
-struct FoodTrackerEntry: TimelineEntry {
-    let date: Date
-    let hydrationLiters: Double
-    let protein: Int
-    let fat: Int
-    let carbs: Int
-    let totalCalories: Int
-    let metabolicScore: Int
+public struct FoodTrackerEntry: TimelineEntry {
+    public let date: Date
+    public let hydrationLiters: Double
+    public let protein: Int
+    public let fat: Int
+    public let carbs: Int
+    public let totalCalories: Int
+    public let metabolicScore: Int
+    
+    public init(date: Date, hydrationLiters: Double, protein: Int, fat: Int, carbs: Int, totalCalories: Int, metabolicScore: Int) {
+        self.date = date
+        self.hydrationLiters = hydrationLiters
+        self.protein = protein
+        self.fat = fat
+        self.carbs = carbs
+        self.totalCalories = totalCalories
+        self.metabolicScore = metabolicScore
+    }
+}
+
+public struct ShoppingListEntry: TimelineEntry {
+    public let date: Date
+    public let items: [(id: String, name: String, amount: String, isChecked: Bool)]
+    
+    public init(date: Date, items: [(id: String, name: String, amount: String, isChecked: Bool)]) {
+        self.date = date
+        self.items = items
+    }
 }
 
 struct WidgetTimelineProvider: TimelineProvider {
@@ -75,7 +95,6 @@ struct WidgetTimelineProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<FoodTrackerEntry>) -> ()) {
         Task {
             let entry = await fetchTodayData(in: context)
-            // Reload every 1 hour, or when the app goes to background / intent is triggered
             let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
             let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
             completion(timeline)
@@ -97,9 +116,7 @@ struct WidgetTimelineProvider: TimelineProvider {
         
         do {
             if let todaySummary = try modelContext.fetch(descriptor).first {
-                
-                // Calculate metabolic score using a simplified version of the logic from AnalyticsDashboardView
-                let calRatio = min(Double(todaySummary.totalFoodCalories) / 2000.0, 1.5) // Assuming 2000 goal for widget
+                let calRatio = min(Double(todaySummary.totalFoodCalories) / 2000.0, 1.5)
                 let calScore = calRatio <= 1.0 ? (calRatio * 50) : max(0, 50 - ((calRatio - 1.0) * 100))
                 let hydRatio = min(todaySummary.totalHydrationLiters / 2.5, 1.0)
                 let hydScore = hydRatio * 30
@@ -122,12 +139,6 @@ struct WidgetTimelineProvider: TimelineProvider {
         
         return placeholder(in: context)
     }
-}
-
-// MARK: - Shopping List Provider
-struct ShoppingListEntry: TimelineEntry {
-    let date: Date
-    let items: [(id: String, name: String, amount: String, isChecked: Bool)]
 }
 
 struct ShoppingListTimelineProvider: TimelineProvider {
@@ -187,7 +198,6 @@ struct ShoppingListTimelineProvider: TimelineProvider {
         let container = SharedModelContainer.shared.container
         let modelContext = container.mainContext
         
-        // Fetch all items, sort unchecked first, then by date
         var fetchDescriptor = FetchDescriptor<ShoppingItem>()
         fetchDescriptor.sortBy = [SortDescriptor(\.dateAdded, order: .reverse)]
         
@@ -196,7 +206,6 @@ struct ShoppingListTimelineProvider: TimelineProvider {
             let active = allItems.filter { !$0.isChecked }
             let completed = allItems.filter { $0.isChecked }
             
-            // Take top 6 items to fit in widget
             let displayItems = (active + completed).prefix(6).map { 
                 (id: $0.id.uuidString, name: $0.name, amount: $0.amount, isChecked: $0.isChecked)
             }
@@ -209,4 +218,3 @@ struct ShoppingListTimelineProvider: TimelineProvider {
         return placeholder(in: context)
     }
 }
-

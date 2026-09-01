@@ -3,8 +3,7 @@ import SwiftData
 import FirebaseCore
 import FirebaseAppCheck
 import GoogleSignIn
-import UserNotifications
-import WidgetKit
+import AppTrackingTransparency
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -21,19 +20,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
-
 @main
 struct FoodTrackerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @Environment(\.scenePhase) var scenePhase
 
     // Migrated from @StateObject/ObservableObject to @Observable per system-rules and swiftui-pro
     @State private var versionManager = VersionManager.shared
 
     @State private var diContainer: DIContainer?
     @State private var databaseLoadError: Error?
-    @State private var recipeDataLoader: RecipeDataLoader?
-    @State private var academyDataLoader: AcademyDataLoader?
 
     var body: some Scene {
         WindowGroup {
@@ -49,15 +44,13 @@ struct FoodTrackerApp: App {
                     }
                 } else if let error = databaseLoadError {
                     Text("Database Error: \(error.localizedDescription)")
-                } else if let di = diContainer, let recipeLoader = recipeDataLoader, let academyLoader = academyDataLoader {
+                } else if let di = diContainer {
                     RootLaunchView()
                         .modelContainer(di.modelContainer)
                         .environment(di)
                         .environment(di.appState)
                         .environment(di.authManager)
                         .environment(ThemeManager.shared)
-                        .environment(recipeLoader)
-                        .environment(academyLoader)
                         .preferredColorScheme(.light)
                 } else {
                     ProgressView("Initializing...")
@@ -78,13 +71,6 @@ struct FoodTrackerApp: App {
             .onAppear {
                 TrackingManager.shared.track(.appOpened(source: "launch"))
             }
-            .onChange(of: scenePhase) { oldPhase, newPhase in
-                if newPhase == .background {
-                    WidgetCenter.shared.reloadAllTimelines()
-                } else if newPhase == .active {
-                    PromoManager.shared.checkAndShowWidgetPromo()
-                }
-            }
         }
     }
 
@@ -92,12 +78,34 @@ struct FoodTrackerApp: App {
     private func setupDependencies() async {
         print("🚀 [setupDependencies] Starting initialization...")
         do {
-            let container = SharedModelContainer.shared.container
-            print("🚀 [setupDependencies] ModelContainer successfully initialized via SharedModelContainer!")
+            let schema = Schema([
+                User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
+                WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
+            ])
+            
+            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
+            let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
+            print("🚀 [setupDependencies] dbURL resolved: \(dbURL)")
+            
+            let cloudConfig = ModelConfiguration(
+                schema: schema,
+                url: dbURL,
+                cloudKitDatabase: .private("iCloud.com.borisdev.FoodTracker2026")
+            )
+
+            let container: ModelContainer
+            do {
+                print("🚀 [setupDependencies] Initializing ModelContainer with CloudKit...")
+                container = try ModelContainer(for: schema, configurations: [cloudConfig])
+                print("🚀 [setupDependencies] ModelContainer successfully initialized with CloudKit!")
+            } catch {
+                print("⚠️ CloudKit init failed, falling back to local: \(error)")
+                let localConfig = ModelConfiguration(schema: schema, url: dbURL, cloudKitDatabase: .none)
+                container = try ModelContainer(for: schema, configurations: [localConfig])
+                print("🚀 [setupDependencies] ModelContainer successfully initialized on Local Storage fallback!")
+            }
 
             let di = DIContainer(modelContainer: container)
-            self.recipeDataLoader = RecipeDataLoader()
-            self.academyDataLoader = AcademyDataLoader()
             self.diContainer = di
             print("🚀 [setupDependencies] diContainer assigned to state. Re-rendering UI...")
             
@@ -109,7 +117,6 @@ struct FoodTrackerApp: App {
                 // Trigger auto-seeding if Firestore database is empty
                 DispatchQueue.main.async {
                     FirebaseUploader.shared.seedDatabaseIfNeeded()
-                    FirebaseUploader.shared.uploadNewRecipesFromJSON()
                 }
             } catch {
                 print("⚠️ Anonymous auth failed: \(error)")
@@ -145,8 +152,6 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     @AppStorage("hasCompletedOnboarding_v2") private var hasCompletedOnboarding = false
-    
-    @State private var promoManager = PromoManager.shared
 
     var body: some View {
         Group {
@@ -157,13 +162,6 @@ struct ContentView: View {
                     completeOnboarding(metrics: metrics)
                 }
             }
-        }
-        .sheet(isPresented: $promoManager.showWidgetPromo) {
-            WidgetPromoView()
-                .presentationDetents([.fraction(0.85)])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(32)
-                .interactiveDismissDisabled(true) // Force users to interact with buttons
         }
     }
 
@@ -208,10 +206,10 @@ struct ContentView: View {
                     try? await HealthKitManager.shared.requestAuthorization()
                 }
             }
-        }
-        .onChange(of: users) { _, newUsers in
-            if newUsers.isEmpty {
-                initializeUserIfNeeded()
+            
+            Task {
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                _ = await ATTrackingManager.requestTrackingAuthorization()
             }
         }
     }
@@ -219,15 +217,8 @@ struct ContentView: View {
     private func initializeUserIfNeeded() {
         if users.isEmpty {
             let defaultUser = User(name: "Alex", weight: 75.0, height: 180.0, age: 28, gender: "Male")
-            defaultUser.dailyCaloriesGoal = 2000
-            defaultUser.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: "balanced")
             context.insert(defaultUser)
             try? context.save()
-        } else if let user = users.first {
-            if user.targetCarbs <= 0 && user.dailyCaloriesGoal > 0 {
-                user.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: user.activeDietKey.isEmpty ? "balanced" : user.activeDietKey)
-                try? context.save()
-            }
         }
     }
     
@@ -258,7 +249,6 @@ struct ContentView: View {
             existingUser.height = Double(metrics.height)
             existingUser.weight = Double(metrics.weight)
             existingUser.dailyCaloriesGoal = cals
-            existingUser.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: existingUser.activeDietKey.isEmpty ? "balanced" : existingUser.activeDietKey)
         } else {
             let newUser = User(
                 name: "Champion",
@@ -268,7 +258,6 @@ struct ContentView: View {
                 gender: "Male"
             )
             newUser.dailyCaloriesGoal = cals
-            newUser.applyDietBreakdown(fatPercent: 30, proteinPercent: 30, carbsPercent: 40, dietKey: "balanced")
             context.insert(newUser)
         }
         try? context.save()
@@ -303,7 +292,7 @@ struct RootLaunchView: View {
         ZStack {
             switch currentStep {
             case .screen1:
-                
+                // ЭКРАН 1 ИЗ МОНЕТКИ (3D-еда и вход)
                 OnboardingView(onSuccess: {
                     hasCompletedInitialOnboarding = true
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
@@ -313,8 +302,8 @@ struct RootLaunchView: View {
                 .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading).combined(with: .opacity)))
 
             case .mainApp:
-                
-                ContentView() 
+                // Переход в главное приложение
+                ContentView() // Главный экран FoodTracker
                     .transition(.opacity)
             }
         }

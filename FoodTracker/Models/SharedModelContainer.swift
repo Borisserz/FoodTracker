@@ -1,18 +1,16 @@
 import Foundation
 import SwiftData
 
-@MainActor
-public class SharedModelContainer {
+public final class SharedModelContainer: @unchecked Sendable {
     public static let shared = SharedModelContainer()
     
     public let container: ModelContainer
     
     private init() {
         let schema = Schema([
-            User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
-            WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self, ScannedFoodCache.self
+            User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, ShoppingItem.self,
+            WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
         ])
-
         
         let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
         let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")

@@ -337,7 +337,7 @@ struct Step2IngredientsView: View {
                     .padding(.horizontal, 20)
                     .shadow(color: Color.black.opacity(0.03), radius: 10, y: 4)
                 } else {
-                    EmptyStateView(imageName: "cart.badge.plus", title: String(localized: "No ingredients"), description: String(localized: "Tap the buttons above to add food."))
+                    EmptyStateView(imageName: "cart.badge.plus", title: "No ingredients", description: "Tap the buttons above to add food.")
                         .frame(height: 200)
                 }
             }
@@ -526,10 +526,8 @@ struct AddIngredientModalView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
 
-    var failedBarcode: String? = nil
     var onSave: (FoodItem) -> Void
 
-    @State private var showingLabelScanner = false
     @State private var name: String = ""
     @State private var weight: String = "100"
 
@@ -537,8 +535,6 @@ struct AddIngredientModalView: View {
     @State private var protein: String = ""
     @State private var fats: String = ""
     @State private var carbs: String = ""
-    
-    @State private var isPublic: Bool = true
 
     var isFormValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty && (Double(weight) ?? 0) > 0
@@ -551,39 +547,6 @@ struct AddIngredientModalView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                    
-                        if let barcode = failedBarcode {
-                            VStack(spacing: 8) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.title2)
-                                    .foregroundColor(.themeOrange)
-                                Text("Barcode \(barcode) not found")
-                                    .font(.headline)
-                                Text("Please enter the details manually or use AI to scan the nutrition label.")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.top, 10)
-                        }
-                        
-                        Button(action: {
-                            HapticManager.shared.impact(style: .medium)
-                            showingLabelScanner = true
-                        }) {
-                            Label("Scan Label with AI", systemImage: "sparkles")
-                                .font(.headline.bold())
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(LinearGradient(colors: [.purple, .indigo], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .cornerRadius(20)
-                                .shadow(color: Color.purple.opacity(0.3), radius: 8, y: 4)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, failedBarcode == nil ? 10 : 0)
-                        .buttonStyle(BounceButtonStyle())
 
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Basic Info")
@@ -621,27 +584,6 @@ struct AddIngredientModalView: View {
                                 CustomTextFieldRow(title: "Carbs (g)", placeholder: "0", text: $carbs, isNumber: true, systemImage: "chart.bar.fill")
                             }
                             .ultraPremiumCardStyle()
-                        }
-
-                        // Community Toggle
-                        VStack(alignment: .leading, spacing: 8) {
-                            Toggle(isOn: $isPublic) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Share with Community")
-                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.primary)
-                                    Text("Make this product public so others can find it via text search.")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                            }
-                            .tint(.themePink)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 16)
-                            .background(Color.white)
-                            .cornerRadius(20)
-                            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
                         }
 
                         Text("Items created here are permanently saved to your database and can be used in your daily logs.")
@@ -695,27 +637,7 @@ struct AddIngredientModalView: View {
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(.gray)
                 }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    }
-                }
             }
-        }
-        .fullScreenCover(isPresented: $showingLabelScanner) {
-            SmartScannerView(
-                initialMode: .mealAI,
-                onProductFound: { item in
-                    self.name = item.name
-                    self.calories = "\(item.calories)"
-                    self.protein = "\(item.protein)"
-                    self.fats = "\(item.fats)"
-                    self.carbs = "\(item.carbs)"
-                    self.weight = "\(Int(item.weight))"
-                },
-                onManualEntryRequest: { _ in }
-            )
         }
     }
 
@@ -732,14 +654,6 @@ struct AddIngredientModalView: View {
 
         context.insert(newFood)
         try? context.save()
-
-        if let barcode = failedBarcode {
-            BarcodeDatabaseService.shared.saveCustomBarcode(barcode: barcode, item: newFood)
-        }
-        
-        if isPublic {
-            BarcodeDatabaseService.shared.saveCommunityFood(item: newFood)
-        }
 
         onSave(newFood)
         dismiss()
@@ -800,9 +714,9 @@ struct RecipeMacroDonutView: View {
                 }.frame(width: 90, height: 90)
                 Spacer()
                 HStack(spacing: 16) {
-                    MacroStatColumn(percent: cPct, grams: carbs, title: String(localized: "Carbs"), color: .drinkWater)
-                    MacroStatColumn(percent: fPct, grams: fat, title: String(localized: "Fats"), color: .themeYellow)
-                    MacroStatColumn(percent: pPct, grams: protein, title: String(localized: "Protein"), color: .themePeach)
+                    MacroStatColumn(percent: cPct, grams: carbs, title: "Carbs", color: .drinkWater)
+                    MacroStatColumn(percent: fPct, grams: fat, title: "Fat", color: .themeYellow)
+                    MacroStatColumn(percent: pPct, grams: protein, title: "Protein", color: .themePeach)
                 }
             }
         }.padding(20).background(Color.white).cornerRadius(24).shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
@@ -815,112 +729,9 @@ struct MacroStatColumn: View {
     var body: some View {
         VStack(alignment: .center, spacing: 6) {
             Text("\(Int(percent * 100))%").font(.system(size: 14, weight: .bold)).foregroundColor(color)
-                .lineLimit(1).minimumScaleFactor(0.5)
             Text("\(grams, specifier: "%.1f") g").font(.system(size: 16, weight: .bold, design: .rounded)).contentTransition(.numericText())
-                .lineLimit(1).minimumScaleFactor(0.5)
             Text(title).font(.caption).foregroundColor(.gray)
-                .lineLimit(1).minimumScaleFactor(0.5)
         }.frame(minWidth: 50)
-    }
-}
-
-struct CustomRecipeHeroHeader: View {
-    let name: String
-    
-    var gradientColors: [Color] {
-        let hash = name.hashValue
-        let colors: [[Color]] = [
-            [.themePink, .themeOrange],
-            [.purple, .blue],
-            [.green, .mint],
-            [.themeOrange, .red],
-            [.themePeach, .themeYellow],
-            [.teal, .indigo]
-        ]
-        return colors[abs(hash) % colors.count]
-    }
-    
-    var body: some View {
-        ZStack {
-            LinearGradient(colors: gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing)
-            
-            GeometryReader { proxy in
-                Circle()
-                    .fill(.white.opacity(0.15))
-                    .frame(width: proxy.size.width * 0.8)
-                    .offset(x: -proxy.size.width * 0.2, y: -proxy.size.height * 0.2)
-                    .blur(radius: 30)
-                
-                Circle()
-                    .fill(.black.opacity(0.1))
-                    .frame(width: proxy.size.width * 0.6)
-                    .offset(x: proxy.size.width * 0.5, y: proxy.size.height * 0.4)
-                    .blur(radius: 30)
-            }
-        }
-    }
-}
-
-struct AIChefPremiumBanner: View {
-    let isGenerating: Bool
-    let action: () -> Void
-    
-    @State private var shimmerOffset: CGFloat = -200
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
-                ZStack {
-                    Circle()
-                        .fill(.white.opacity(0.2))
-                        .frame(width: 48, height: 48)
-                    Image(systemName: "sparkles")
-                        .font(.title2.bold())
-                        .foregroundColor(.white)
-                        .rotationEffect(.degrees(isGenerating ? 360 : 0))
-                        .animation(isGenerating ? .linear(duration: 2).repeatForever(autoreverses: false) : .default, value: isGenerating)
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(isGenerating ? "Chef is thinking..." : "Cook with AI Chef")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text("Interactive, smart cooking guide")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
-                }
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.white.opacity(0.7))
-            }
-            .padding(16)
-            .background(
-                ZStack {
-                    LinearGradient(colors: isGenerating ? [.gray, .gray.opacity(0.8)] : [.themeOrange, .themePink], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    
-                    if !isGenerating {
-                        GeometryReader { proxy in
-                            LinearGradient(colors: [.clear, .white.opacity(0.4), .clear], startPoint: .leading, endPoint: .trailing)
-                                .frame(width: 100)
-                                .offset(x: shimmerOffset)
-                        }
-                    }
-                }
-            )
-            .cornerRadius(24)
-            .shadow(color: isGenerating ? .clear : Color.themeOrange.opacity(0.3), radius: 15, y: 8)
-            .clipped()
-        }
-        .buttonStyle(BounceButtonStyle())
-        .disabled(isGenerating)
-        .onAppear {
-            if !isGenerating {
-                withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-                    shimmerOffset = 400
-                }
-            }
-        }
     }
 }
 
@@ -928,50 +739,20 @@ struct RecipeDetailView: View {
     let recipe: CustomRecipe
     @Binding var path: NavigationPath
     @Environment(\.modelContext) private var context
+
     @Environment(\.dismiss) private var dismiss
 
     @State private var showMealSheet = false
     @State private var showAICooking = false
 
-    private func deleteRecipe() {
-        context.delete(recipe)
-        try? context.save()
-        dismiss()
-    }
-    var totalProtein: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.protein } }
-    var totalFat: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.fats } }
-    var totalCarbs: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.carbs } }
-
-    private func generateAI() {
-        guard !isGeneratingRecipe else { return }
-        isGeneratingRecipe = true
-        HapticManager.shared.impact(style: .medium)
-        
-        Task {
-            let ingredientsList = (recipe.foodItems ?? []).map { "\($0.name) (\(Int($0.weight))g)" }
-            if let dto = await AINutritionService.shared.generateCookingSteps(for: recipe.name, ingredients: ingredientsList) {
-                let ai = AIChefRecipe(
-                    title: dto.title,
-                    calories: dto.calories,
-                    protein: dto.protein,
-                    heroImage: "sparkles",
-                    cookTime: dto.cookTime,
-                    difficulty: dto.difficulty,
-                    history: dto.history,
-                    ingredients: dto.ingredients,
-                    steps: dto.steps.map { RecipeStep(instruction: $0.instruction, imageName: "sparkles", aiTip: $0.aiTip) },
-                    platingTip: dto.platingTip
-                )
-                await MainActor.run {
-                    self.generatedRecipe = ai
-                    self.isGeneratingRecipe = false
-                    self.showAIFlow = true
-                }
-            } else {
-                await MainActor.run { self.isGeneratingRecipe = false }
-            }
-        }
-    }
+       private func deleteRecipe() {
+           context.delete(recipe)
+           try? context.save()
+           dismiss()
+       }
+    var totalProtein: Double { recipe.foodItems.reduce(0) { $0 + $1.protein } }
+    var totalFat: Double { recipe.foodItems.reduce(0) { $0 + $1.fats } }
+    var totalCarbs: Double { recipe.foodItems.reduce(0) { $0 + $1.carbs } }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -980,100 +761,50 @@ struct RecipeDetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
 
-                    ZStack(alignment: .bottomLeading) {
-                        CustomRecipeHeroHeader(name: recipe.name)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 320)
-                            .clipped()
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(recipe.name)
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .padding(.top, 60)
 
-                        LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
-
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(recipe.name)
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .lineLimit(3)
-
-                            HStack(spacing: 16) {
-                                Label("\(recipe.cookingTime) min", systemImage: "clock.fill")
-                                Label(recipe.difficulty, systemImage: "flame.fill")
-                                Label("\(recipe.servings) servings", systemImage: "person.2.fill")
-                            }
-                            .font(.subheadline.bold())
-                            .foregroundColor(.white.opacity(0.9))
+                        HStack(spacing: 16) {
+                            Label("\(recipe.cookingTime) min", systemImage: "clock.fill")
+                            Label(recipe.difficulty, systemImage: "flame.fill")
+                            Label("\(recipe.servings) servings", systemImage: "person.2.fill")
                         }
-                        .padding(20)
+                        .font(.subheadline.bold())
+                        .foregroundColor(.themeOrange)
                     }
-                    .cornerRadius(32, corners: [.bottomLeft, .bottomRight])
-                    .ignoresSafeArea(edges: .top)
+                    .padding(.horizontal, 20)
 
-                    VStack(alignment: .leading, spacing: 32) {
-                        
-                        if !recipe.directions.isEmpty {
-                            AIChefPremiumBanner(isGenerating: isGeneratingRecipe) {
-                                generateAI()
+                    RecipeMacroDonutView(
+                        calories: recipe.totalCalories,
+                        protein: totalProtein,
+                        fat: totalFat,
+                        carbs: totalCarbs
+                    )
+                    .padding(.horizontal, 20)
+
+                    if !recipe.foodItems.isEmpty {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Ingredients").font(.title2).bold()
+                            VStack(spacing: 16) {
+                                ForEach(recipe.foodItems) { item in
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(item.name).font(.headline)
+                                            Text("\(item.calories) Cal — \(Int(item.weight)) g")
+                                                .font(.caption).foregroundColor(.gray)
+                                        }
+                                        Spacer()
+                                    }
+                                    if item.id != recipe.foodItems.last?.id {
+                                        Divider()
+                                    }
+                                }
                             }
-                            .padding(.horizontal, 20)
                         }
-
-                        RecipeMacroDonutView(
-                            calories: recipe.totalCalories,
-                            protein: totalProtein,
-                            fat: totalFat,
-                            carbs: totalCarbs
-                        )
                         .padding(.horizontal, 20)
-
-                        if !(recipe.foodItems ?? []).isEmpty {
-                            VStack(alignment: .leading, spacing: 16) {
-                                Text("Ingredients").font(.title2).bold()
-                                VStack(spacing: 16) {
-                                    ForEach(recipe.foodItems ?? []) { item in
-                                        HStack {
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text(item.name).font(.headline)
-                                                Text("\(item.calories) Cal — \(Int(item.weight)) g")
-                                                    .font(.caption).foregroundColor(.gray)
-                                            }
-                                            Spacer()
-                                        }
-                                        if item.id != (recipe.foodItems ?? []).last?.id {
-                                            Divider()
-                                        }
-                                    }
-                                }
-                                .padding(20)
-                                .background(Color.white)
-                                .cornerRadius(24)
-                                .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
-                            }
-                            .padding(.horizontal, 20)
-                        }
-
-                        if !recipe.directions.isEmpty {
-                            VStack(alignment: .leading, spacing: 20) {
-                                Text("Directions").font(.title2).bold()
-                                VStack(alignment: .leading, spacing: 24) {
-                                    ForEach(Array(recipe.directions.enumerated()), id: \.offset) { index, step in
-                                        HStack(alignment: .top, spacing: 16) {
-                                            Text("\(index + 1)")
-                                                .font(.headline)
-                                                .foregroundColor(.themePink)
-                                                .frame(width: 32, height: 32)
-                                                .background(Color.white)
-                                                .overlay(Circle().stroke(Color.themePink, lineWidth: 2))
-                                                .clipShape(Circle())
-                                            Text(step)
-                                                .font(.body)
-                                                .foregroundColor(.primary.opacity(0.9))
-                                                .lineSpacing(4)
-                                                .padding(.top, 4)
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                        }
+                    }
 
                     if !recipe.directions.isEmpty {
                         VStack(alignment: .leading, spacing: 20) {
@@ -1119,9 +850,10 @@ struct RecipeDetailView: View {
                         }
                         .padding(.horizontal, 20)
                     }
+
+                    Spacer().frame(height: 120)
                 }
             }
-            .ignoresSafeArea(edges: .top)
 
             VStack {
                 HStack {
@@ -1139,24 +871,24 @@ struct RecipeDetailView: View {
                     }
                     Spacer()
 
-                    Button(action: {
-                        HapticManager.shared.impact(style: .heavy)
-                        deleteRecipe()
-                    }) {
-                        Image(systemName: "trash")
-                            .font(.title3.bold())
-                            .foregroundColor(.white)
-                            .frame(width: 44, height: 44)
-                            .background(Color.red.opacity(0.8))
-                            .clipShape(Circle())
-                            .shadow(color: .red.opacity(0.3), radius: 5, y: 2)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.top, 50)
+                                      Button(action: {
+                                          HapticManager.shared.impact(style: .heavy)
+                                          deleteRecipe()
+                                      }) {
+                                          Image(systemName: "trash")
+                                              .font(.title3.bold())
+                                              .foregroundColor(.white)
+                                              .frame(width: 44, height: 44)
+                                              .background(Color.red.opacity(0.8))
+                                              .clipShape(Circle())
+                                              .shadow(color: .red.opacity(0.3), radius: 5, y: 2)
+                                      }
+                                  }
+                                  .padding(.horizontal)
+                                  .padding(.top, 50)
 
-                Spacer()
-            }
+                                  Spacer()
+                              }
 
             VStack {
                 Spacer()
@@ -1187,19 +919,12 @@ struct RecipeDetailView: View {
             .ignoresSafeArea(edges: .bottom)
         }
         .navigationBarHidden(true)
-        .toolbar(.hidden, for: .tabBar)
-        .fullScreenCover(isPresented: $showAIFlow) {
-            if let ai = generatedRecipe {
-                NavigationStack {
-                    PrepChecklistView(recipe: ai, isFlowPresented: $showAIFlow)
-                }
-            }
-        }
         .sheet(isPresented: $showMealSheet) {
             CustomChooseMealSheet(recipe: recipe)
                 .presentationDetents([.fraction(0.4)])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
+                .toolbar(.hidden, for: .tabBar)
         }
         .fullScreenCover(isPresented: $showAICooking) {
             NavigationStack {
@@ -1209,11 +934,11 @@ struct RecipeDetailView: View {
     }
 }
 
-struct CustomChooseMealSheet: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) private var context
-    @Environment(DIContainer.self) private var di
-    @Query private var summaries: [DailySummary]
+    struct CustomChooseMealSheet: View {
+        @Environment(\.dismiss) var dismiss
+        @Environment(\.modelContext) private var context
+        @Environment(DIContainer.self) private var di
+        @Query private var summaries: [DailySummary]
 
         let recipe: CustomRecipe
         @State private var selectedMeal = "Breakfast"
@@ -1324,12 +1049,12 @@ struct CustomChooseMealSheet: View {
             guard let summary = summaries.first else { return }
 
             let newFood = recipe.toFoodItem()
-            if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
-                meal.foodItems = (meal.foodItems ?? []) + [newFood]
+            if let meal = summary.meals.first(where: { $0.title == selectedMeal }) {
+                meal.foodItems.append(newFood)
             } else {
                 let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
                 context.insert(newMeal)
-                summary.meals = (summary.meals ?? []) + [newMeal]
+                summary.meals.append(newMeal)
             }
             try? context.save()
         }
