@@ -153,7 +153,7 @@ struct HomeDashboardContentView: View {
                               .padding(.horizontal)
                           }
 
-                          WaterGridTrackerView(summary: currentSummary)
+                          HydrationFlaskCardView(summary: currentSummary)
                               .spotlightTarget(step: .fastingWater)
                               .padding(.horizontal)
                           WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
