@@ -53,3 +53,37 @@ public struct AIChefRecipe: Identifiable, Hashable, Codable, Sendable {
         self.tags = tags
     }
 }
+
+struct UnifiedRecipePreview: Identifiable, Hashable {
+    var id: String
+    var title: String
+    var calories: Int
+    var protein: Int
+    var heroImage: String
+    var cookTime: Int
+    var ingredients: [String]
+    var premiumRecipe: PremiumRecipe?
+    var customRecipe: CustomRecipe?
+    
+    init(
+        id: String = UUID().uuidString,
+        title: String,
+        calories: Int,
+        protein: Int,
+        heroImage: String,
+        cookTime: Int,
+        ingredients: [String],
+        premiumRecipe: PremiumRecipe? = nil,
+        customRecipe: CustomRecipe? = nil
+    ) {
+        self.id = id
+        self.title = title
+        self.calories = calories
+        self.protein = protein
+        self.heroImage = heroImage
+        self.cookTime = cookTime
+        self.ingredients = ingredients
+        self.premiumRecipe = premiumRecipe
+        self.customRecipe = customRecipe
+    }
+}

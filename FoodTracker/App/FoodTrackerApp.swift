@@ -20,30 +20,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
-@Model final class AIChatSession {
-    var id: UUID = UUID()
-    var title: String = ""
-    var date: Date = Date()
-    var messages: [AIChatMessage] = []
-
-    init(title: String = "New Chat", date: Date = Date(), messages: [AIChatMessage] = []) {
-        self.title = title
-        self.date = date
-        self.messages = messages
-    }
-}
-
-struct AIChatMessage: Identifiable, Codable, Equatable {
-    var id = UUID()
-    let isUser: Bool
-    var text: String
-    var isAnimating: Bool = false
-
-    static func == (lhs: AIChatMessage, rhs: AIChatMessage) -> Bool {
-        lhs.id == rhs.id
-    }
-}
-
 @main
 struct FoodTrackerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate

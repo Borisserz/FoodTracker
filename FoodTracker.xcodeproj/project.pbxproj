@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C3ABF218DB321A30164FAB92 /* WidgetTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549BCA6CCB3C867E929F1947 /* WidgetTimelineProvider.swift */; };
+		D72E3B8BD9047D36D9A93E24 /* WidgetIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A736F52F343D0D14EC84AF /* WidgetIntents.swift */; };
 		AC5031B52FD818F600C2DD0A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B42FD818F600C2DD0A /* FirebaseAuth */; };
 		AC5031B72FD818FC00C2DD0A /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B62FD818FC00C2DD0A /* FirebaseCrashlytics */; };
 		AC5031B92FD8191600C2DD0A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B82FD8191600C2DD0A /* FirebaseAppCheck */; };

@@ -925,12 +925,6 @@ struct RecipeDetailView: View {
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
                 .toolbar(.hidden, for: .tabBar)
-                .sheet(isPresented: $showMealSheet) {
-                    CustomChooseMealSheet(recipe: recipe)
-                        .presentationDetents([.fraction(0.4)])
-                        .presentationCornerRadius(32)
-                        .presentationDragIndicator(.visible)
-                }
         }
         .fullScreenCover(isPresented: $showAICooking) {
             NavigationStack {
