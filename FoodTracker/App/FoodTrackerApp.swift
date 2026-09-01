@@ -191,9 +191,10 @@ struct ContentView: View {
             }
             .tint(themeManager.current.primaryAccent)
             
-            // In-App Interactive Spotlight Tutorial (Clash of Clans Style)
+            // In-App Interactive Spotlight Tutorial
             SpotlightOverlayView()
         }
+        .coordinateSpace(name: "SpotlightCoordinateSpace")
         .onPreferenceChange(SpotlightFramePreferenceKey.self) { frames in
             SpotlightTourManager.shared.targetFrames = frames
         }
