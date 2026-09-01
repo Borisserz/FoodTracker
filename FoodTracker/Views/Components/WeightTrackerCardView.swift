@@ -4,7 +4,6 @@ import Charts
 
 struct WeightTrackerCardView: View {
     @Environment(\.modelContext) private var context
-    @Query private var users: [User]
 
     @Bindable var summary: DailySummary
 
@@ -12,8 +11,6 @@ struct WeightTrackerCardView: View {
     private var allSummaries: [DailySummary]
 
     @State private var showingWeightInputSheet = false
-    @State private var showRecalculateAlert = false
-    @State private var newlyLoggedWeight: Double = 0.0
 
     private var chartData: [(date: Date, weight: Double)] {
 
@@ -53,7 +50,7 @@ struct WeightTrackerCardView: View {
         VStack(alignment: .leading, spacing: 16) {
 
             HStack {
-                Text(LocalizedStringKey("Weight Progress"))
+                Text("Weight Progress")
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 Spacer()
@@ -75,7 +72,7 @@ struct WeightTrackerCardView: View {
                                 .foregroundColor(.gray.opacity(0.8))
                         }
                     } else {
-                        Text(LocalizedStringKey("Record Weight"))
+                        Text("Log Weight")
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundColor(.gray.opacity(0.6))
                     }
@@ -139,62 +136,28 @@ struct WeightTrackerCardView: View {
         .sheet(isPresented: $showingWeightInputSheet) {
                     WeightInputSheet(
                         currentWeight: $summary.weight,
-                        onSave: { newWeight in
+                        onSave: {
 
                             if summary.modelContext == nil {
                                 context.insert(summary)
                             }
                             try? context.save()
-                            
-                            if let user = users.first, user.weight > 0, newWeight < user.weight {
-                                newlyLoggedWeight = newWeight
-                                showRecalculateAlert = true
-                            } else if let user = users.first {
-                                user.weight = newWeight
-                                try? context.save()
-                            }
                         }
                     )
                     .presentationDetents([.fraction(0.4), .medium])
                     .presentationCornerRadius(32)
                 }
-        .alert("Great job on your weight loss! 🎉", isPresented: $showRecalculateAlert) {
-            Button("Recalculate Goals", role: .none) {
-                if let user = users.first {
-                    user.weight = newlyLoggedWeight
-                    
-                    let totalCals = Double(user.dailyCaloriesGoal)
-                    let pPct = totalCals > 0 ? Int(round((user.targetProtein * 4.0) / totalCals * 100)) : 30
-                    let cPct = totalCals > 0 ? Int(round((user.targetCarbs * 4.0) / totalCals * 100)) : 40
-                    let fPct = totalCals > 0 ? Int(round((user.targetFats * 9.0) / totalCals * 100)) : 30
-                    
-                    user.calculateGoals()
-                    user.applyDietBreakdown(fatPercent: fPct, proteinPercent: pPct, carbsPercent: cPct, dietKey: user.activeDietKey)
-                    user.dailyWaterGoal = newlyLoggedWeight * 0.035
-                    
-                    try? context.save()
-                }
-            }
-            Button("Not Now", role: .cancel) {
-                if let user = users.first {
-                    user.weight = newlyLoggedWeight
-                    try? context.save()
-                }
-            }
-        } message: {
-            Text("Would you like to update your profile weight to \(String(format: "%.1f", newlyLoggedWeight)) kg and recalculate your daily calorie and water goals to match your new body composition?")
-        }
     }
 }
 
 private struct WeightInputSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var currentWeight: Double?
-    var onSave: (Double) -> Void
+    var onSave: () -> Void
 
     @State private var weightValue: Double
 
-    init(currentWeight: Binding<Double?>, onSave: @escaping (Double) -> Void) {
+    init(currentWeight: Binding<Double?>, onSave: @escaping () -> Void) {
         self._currentWeight = currentWeight
         self.onSave = onSave
         self._weightValue = State(initialValue: currentWeight.wrappedValue ?? 75.0)
@@ -206,7 +169,7 @@ private struct WeightInputSheet: View {
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 40, height: 5)
 
-            Text(LocalizedStringKey("Enter Today's Weight"))
+            Text("Enter Today's Weight")
                 .font(.headline)
 
             HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -226,10 +189,10 @@ private struct WeightInputSheet: View {
             Button(action: {
                 HapticManager.shared.impact(style: .heavy)
                 currentWeight = weightValue
-                onSave(weightValue)
+                onSave()
                 dismiss()
             }) {
-                Text(LocalizedStringKey("Save Weight"))
+                Text("Save Weight")
                     .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
                     .padding().background(Color.themeOrange).cornerRadius(16)
             }

@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-
+// MARK: - 3D Летающий фон (Тематика ЗОЖ)
 struct FloatingGlassShapes: View {
     @State private var moveX = false
     @State private var moveY = false
@@ -13,7 +13,7 @@ struct FloatingGlassShapes: View {
     
     var body: some View {
         ZStack {
-            
+            // Фоновое свечение (пульсирующее)
             Circle()
                 .fill(Color.green.opacity(0.3))
                 .frame(width: 350, height: 350)
@@ -21,7 +21,7 @@ struct FloatingGlassShapes: View {
                 .offset(x: moveX ? 150 : -100, y: moveY ? -250 : 50)
                 .scaleEffect(floatZ ? 1.1 : 0.9)
             
-            
+            // 3D Бутылка воды
             HyperRealisticWaterBottle()
                 .scaleEffect(floatZ ? 0.75 : 0.85)
                 .rotationEffect(.degrees(-15))
@@ -29,7 +29,7 @@ struct FloatingGlassShapes: View {
                 .offset(x: moveX ? -110 : -50, y: moveY ? -200 : -140)
                 .shadow(color: .cyan.opacity(0.2), radius: 30, x: -10, y: 15)
             
-            
+            // 3D Сочная долька апельсина
             HyperRealisticOrangeSlice()
                 .scaleEffect(floatZ ? 0.95 : 1.1)
                 .rotationEffect(.degrees(moveX ? 15 : -10))
@@ -37,7 +37,7 @@ struct FloatingGlassShapes: View {
                 .offset(x: moveY ? 110 : 160, y: moveX ? -70 : -10)
                 .shadow(color: .orange.opacity(0.4), radius: 25, x: -10, y: 15)
             
-            
+            // 3D Объемное Зеленое Яблоко
             HyperRealisticApple()
                 .scaleEffect(floatZ ? 0.85 : 1.0)
                 .rotationEffect(.degrees(-20))
@@ -53,7 +53,7 @@ struct FloatingGlassShapes: View {
     }
 }
 
-
+// MARK: - ЭКСТРЕМАЛЬНО ДЕТАЛИЗИРОВАННЫЕ ЕДА И ВОДА
 struct HyperRealisticWaterBottle: View {
     var body: some View {
         ZStack {
@@ -188,9 +188,9 @@ struct HyperRealisticApple: View {
     }
 }
 
-
+// MARK: - ОСНОВНОЙ ЭКРАН И КНОПКИ
 struct OnboardingView: View {
-    
+    // ЗАМЫКАНИЕ ДЛЯ ПЕРЕХОДА
     var onSuccess: () -> Void
     
     enum Step {
@@ -199,9 +199,10 @@ struct OnboardingView: View {
     }
     
     @Environment(\.openURL) var openURL
-    @Environment(AuthManager.self) private var authManager
     @State private var step: Step = .welcome
     @State private var showGuestModal = false
+    @State private var showAppleAlert = false
+    @State private var showGoogleAlert = false
     
     var body: some View {
         ZStack {
@@ -217,28 +218,8 @@ struct OnboardingView: View {
             switch step {
             case .welcome:
                 WelcomeStepView(
-                    onAppleTap: { 
-                        Task {
-                            do {
-                                try await SocialAuthService.shared.signInWithApple()
-                                authManager.refresh()
-                                await MainActor.run { onSuccess() }
-                            } catch {
-                                print("Apple sign in error: \(error)")
-                            }
-                        }
-                    },
-                    onGoogleTap: { 
-                        Task {
-                            do {
-                                try await SocialAuthService.shared.signInWithGoogle()
-                                authManager.refresh()
-                                await MainActor.run { onSuccess() }
-                            } catch {
-                                print("Google sign in error: \(error)")
-                            }
-                        }
-                    },
+                    onAppleTap: { showAppleAlert = true },
+                    onGoogleTap: { showGoogleAlert = true },
                     onGuestTap: { showGuestModal = true }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -246,7 +227,7 @@ struct OnboardingView: View {
             case .googleSignUp:
                 GoogleRegistrationView(
                     onBack: { withAnimation(.spring(response: 0.45, dampingFraction: 0.9)) { step = .welcome } },
-                    onSuccess: onSuccess 
+                    onSuccess: onSuccess // Передаем колбэк сюда тоже
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
@@ -254,7 +235,7 @@ struct OnboardingView: View {
         .animation(.easeInOut(duration: 0.28), value: step)
         .sheet(isPresented: $showGuestModal) {
             GuestWarningView(
-                
+                // ПЕРЕХОД ПРИ НАЖАТИИ "ГОСТЬ"
                 onStayGuest: {
                     showGuestModal = false
                     TrackingManager.shared.track(.onboardingCompleted(goal: "guest", diet: "none"))
@@ -265,6 +246,18 @@ struct OnboardingView: View {
             .presentationDetents([.fraction(0.48), .medium])
             .presentationDragIndicator(.visible)
             .background(Color(red: 0.12, green: 0.20, blue: 0.18).ignoresSafeArea())
+        }
+        .alert("Sign in with Apple", isPresented: $showAppleAlert) {
+            Button("Continue") { onSuccess() } // Переход при нажатии
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Here you can plug in your real Apple Sign In flow.")
+        }
+        .alert("Sign in with Google", isPresented: $showGoogleAlert) {
+            Button("Continue") { onSuccess() } // Переход при нажатии
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Here you can plug in your real Google Sign In flow.")
         }
         .onAppear {
             TrackingManager.shared.track(.appOpened(source: "onboarding"))
@@ -285,13 +278,13 @@ struct WelcomeStepView: View {
             
             VStack(alignment: .center, spacing: 10) {
                 ZStack(alignment: .center) {
-                    Text("Energize yourself 🌱")
+                    Text("Наполни себя энергией 🌱")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .blur(radius: 6)
                         .opacity(0.6)
                     
-                    Text("Energize yourself 🌱")
+                    Text("Наполни себя энергией 🌱")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .shadow(color: .white.opacity(0.3), radius: 2, x: 0, y: 0)
@@ -299,7 +292,7 @@ struct WelcomeStepView: View {
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
                 
-                Text("We are what we eat and drink. Start your journey to mindful eating, track your water balance, and nourish your body every day. Your health is your greatest investment!")
+                Text("Мы — это то, что мы едим и пьем. Начни свой путь к осознанному питанию, следи за водным балансом и наполняй тело витаминами каждый день. Твое здоровье — твоя главная инвестиция!")
                     .font(.system(size: 14, weight: .medium))
                     .lineSpacing(3)
                     .multilineTextAlignment(.center)
@@ -313,8 +306,8 @@ struct WelcomeStepView: View {
             
             VStack(spacing: 12) {
                 SignInButton(
-                    title: "Continue with Apple",
-                    subtitle: "Quick login",
+                    title: "Продолжить с Apple",
+                    subtitle: "Быстрый вход",
                     icon: "apple.logo",
                     accent: Color.white.opacity(0.15),
                     textColor: .white,
@@ -323,8 +316,8 @@ struct WelcomeStepView: View {
                 .scaleEffect(buttonPulse ? 1.02 : 1.0)
                 
                 SignInButton(
-                    title: "Continue with Google",
-                    subtitle: "Sign up with Google",
+                    title: "Продолжить с Google",
+                    subtitle: "Регистрация через Google",
                     icon: "globe",
                     accent: Color.white.opacity(0.15),
                     textColor: .white,
@@ -332,7 +325,7 @@ struct WelcomeStepView: View {
                 )
                 
                 Button(action: onGuestTap) {
-                    Text("Continue as Guest")
+                    Text("Остаться гостем")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.85))
                         .lineLimit(1)
@@ -420,36 +413,36 @@ struct GuestWarningView: View {
             Color.clear
             
             VStack(alignment: .leading, spacing: 14) {
-                Text("Continue as guest?")
+                Text("Войти как гость?")
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .minimumScaleFactor(0.8)
                     .lineLimit(1)
                     .shadow(color: .white.opacity(0.2), radius: 2)
                 
-                Text("If you continue as a guest, your nutrition, calories, and water balance data will not be saved in the cloud. You will lose your diary if you change devices.")
+                Text("Если остаться гостем, данные о вашем питании, калориях и водном балансе не будут сохраняться в облаке. При смене устройства вы потеряете дневник.")
                     .font(.system(size: 13))
                     .lineSpacing(1)
                     .foregroundStyle(.white.opacity(0.86))
                     .fixedSize(horizontal: false, vertical: true)
                     .minimumScaleFactor(0.8)
                 
-                Text("Why you should sign up:")
+                Text("Почему лучше зарегистрироваться:")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white)
                     .minimumScaleFactor(0.8)
                 
                 VStack(alignment: .leading, spacing: 6) {
-                    bullet("Save your food diary")
-                    bullet("Track water intake across devices")
-                    bullet("Personalized recipes and recommendations")
+                    bullet("Сохранение дневника питания")
+                    bullet("Трекинг выпитой воды на всех устройствах")
+                    bullet("Персональные рецепты и рекомендации")
                 }
                 
                 Spacer(minLength: 8)
                 
                 HStack(spacing: 12) {
                     Button(action: onStayGuest) {
-                        Text("Guest")
+                        Text("Гость")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(.white)
                             .lineLimit(1)
@@ -461,7 +454,7 @@ struct GuestWarningView: View {
                     }
                     
                     Button(action: onSignIn) {
-                        Text("Log in")
+                        Text("Войти")
                             .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(.black)
                             .lineLimit(1)
@@ -499,7 +492,7 @@ struct GoogleRegistrationView: View {
     @State private var email = ""
     @State private var password = ""
     let onBack: () -> Void
-    var onSuccess: () -> Void 
+    var onSuccess: () -> Void // Колбэк для успешной регистрации
     
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -507,7 +500,7 @@ struct GoogleRegistrationView: View {
                 Button(action: onBack) {
                     HStack(spacing: 4) {
                         Image(systemName: "chevron.left")
-                        Text("Back")
+                        Text("Назад")
                     }
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.9))
@@ -519,12 +512,12 @@ struct GoogleRegistrationView: View {
                 .padding(.top, 6)
                 
                 ZStack(alignment: .leading) {
-                    Text("Sign up")
+                    Text("Регистрация")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .blur(radius: 6)
                         .opacity(0.6)
-                    Text("Sign up")
+                    Text("Регистрация")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .shadow(color: .white.opacity(0.3), radius: 2)
@@ -532,7 +525,7 @@ struct GoogleRegistrationView: View {
                 .minimumScaleFactor(0.8)
                 .lineLimit(1)
                 
-                Text("Fill in your details to save your nutrition progress and get personalized recommendations.")
+                Text("Заполни данные, чтобы сохранить свой прогресс в питании и получить персональные рекомендации.")
                     .font(.system(size: 13))
                     .lineSpacing(1)
                     .foregroundStyle(.white.opacity(0.84))
@@ -540,7 +533,7 @@ struct GoogleRegistrationView: View {
                     .minimumScaleFactor(0.8)
                 
                 VStack(spacing: 10) {
-                    TextField("Full name", text: $fullName)
+                    TextField("Имя и фамилия", text: $fullName)
                         .fieldCardStyle()
                     
                     TextField("Email", text: $email)
@@ -548,16 +541,16 @@ struct GoogleRegistrationView: View {
                         .textInputAutocapitalization(.never)
                         .fieldCardStyle()
                     
-                    SecureField("Password", text: $password)
+                    SecureField("Пароль", text: $password)
                         .fieldCardStyle()
                 }
                 .padding(.vertical, 4)
                 
                 Button {
-                    
+                    // ПЕРЕХОД ПРИ НАЖАТИИ ЗАРЕГИСТРИРОВАТЬСЯ
                     onSuccess()
                 } label: {
-                    Text("Sign up")
+                    Text("Зарегистрироваться")
                         .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(.black)
                         .minimumScaleFactor(0.8)
@@ -569,7 +562,7 @@ struct GoogleRegistrationView: View {
                         .shadow(color: .white.opacity(0.2), radius: 8, x: 0, y: 4)
                 }
                 
-                Text("By tapping Sign up, you agree to our Terms of Use and Privacy Policy.")
+                Text("Нажимая «Зарегистрироваться», вы принимаете условия использования и политику конфиденциальности.")
                     .font(.system(size: 11))
                     .lineSpacing(1)
                     .foregroundStyle(.white.opacity(0.7))

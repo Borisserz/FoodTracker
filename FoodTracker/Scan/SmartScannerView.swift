@@ -3,23 +3,22 @@ import AVFoundation
 import VisionKit
 import Combine
 
-// MARK: - SmartScannerView
 struct SmartScannerView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
 
     var onProductFound: (FoodItem) -> Void
-    var onManualEntryRequest: (String?) -> Void
+    var onManualEntryRequest: () -> Void
 
-    var remainingCalories: Int
-    var remainingProtein: Int
+    var remainingCalories: Int = 1000
+    var remainingProtein: Int = 50
 
     @State private var recognizedBarcode: String? = nil
     @State private var isScanning: Bool = false
     @State private var isFlashlightOn: Bool = false
     @State private var isPulseActive: Bool = false
 
-    @State private var selectedMode: ScannerMode
+    @State private var selectedMode: ScannerMode = .barcode
+    // @State for @Observable class (replaces @StateObject for the migrated LiveFoodCameraManager)
     @State private var cameraManager = LiveFoodCameraManager()
     @State private var isAnalyzingAI = false
     @State private var showShutterFlash = false
@@ -29,50 +28,49 @@ struct SmartScannerView: View {
     @State private var isLoading: Bool = false
     @State private var notFoundError: Bool = false
 
-    // Error state for AI failures — surfaced as an in-screen banner
-    @State private var aiErrorMessage: String? = nil
-    @State private var showAIError: Bool = false
-
-    // Camera availability (checked once on appear)
-    @State private var cameraPermissionDenied: Bool = false
-
     enum ScannerMode { case barcode, mealAI, menuAI }
 
-    init(initialMode: ScannerMode = .barcode,
-         remainingCalories: Int = 1000,
-         remainingProtein: Int = 50,
-         onProductFound: @escaping (FoodItem) -> Void,
-         onManualEntryRequest: @escaping (String?) -> Void) {
-        self.onProductFound = onProductFound
-        self.onManualEntryRequest = onManualEntryRequest
-        self.remainingCalories = remainingCalories
-        self.remainingProtein = remainingProtein
-        self._selectedMode = State(initialValue: initialMode)
-    }
-
-    // MARK: - Computed helpers
-    private var barcodeAvailable: Bool {
-        DataScannerViewController.isSupported && DataScannerViewController.isAvailable
-    }
-
-    private var isCameraMode: Bool {
-        selectedMode == .mealAI || selectedMode == .menuAI
-    }
-
-    // MARK: - Body
     var body: some View {
         ZStack {
-            // ── Background layer ──────────────────────────────────────────
-            cameraBackgroundLayer
 
-            // ── Barcode viewfinder dim overlay ───────────────────────────
-            if selectedMode == .barcode {
-                barcodeOverlay
+            if selectedMode == .barcode && DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
+                DataScannerRepresentable(recognizedBarcode: $recognizedBarcode, isScanning: $isScanning)
+                    .ignoresSafeArea()
+            } else if selectedMode == .mealAI || selectedMode == .menuAI {
+                LiveCameraPreviewView(session: cameraManager.session)
+                    .ignoresSafeArea()
+                    .onAppear { cameraManager.checkPermissionAndStart() }
+                    .onDisappear { cameraManager.stop() }
+            } else {
+                Color.black.ignoresSafeArea()
             }
 
-            // ── Main content stack ────────────────────────────────────────
+            if selectedMode == .barcode {
+                Color.black.opacity(0.65)
+                    .ignoresSafeArea()
+                    .mask(
+                        Rectangle()
+                            .overlay(RoundedRectangle(cornerRadius: 24).frame(width: 250, height: 250))
+                            .compositingGroup()
+                            .luminanceToAlpha()
+                    )
+            }
+
             VStack {
-                topBar
+
+                HStack {
+                    Spacer()
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 44, height: 44)
+                            .background(Color.black.opacity(0.4))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 50)
 
                 Spacer()
 
@@ -119,64 +117,113 @@ struct SmartScannerView: View {
                         }
                     }
                 } else {
-                    cameraHintCard
+
+                    if selectedMode == .mealAI {
+                        cameraHint(icon: "viewfinder", text: "Point at your meal\nand snap a photo")
+                    } else if selectedMode == .menuAI {
+                        cameraHint(icon: "text.book.closed.fill", text: "Scan a restaurant menu\nto get smart choices")
+                    }
                 }
 
                 Spacer()
 
-                bottomControls
+                VStack(spacing: 24) {
+                    ScannerModePicker(selectedMode: $selectedMode)
+
+                    HStack {
+                        FloatingActionButton(icon: "pencil") {
+                            HapticManager.shared.impact(style: .medium)
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                onManualEntryRequest()
+                            }
+                        }
+
+                        Spacer()
+
+                        if selectedMode == .mealAI || selectedMode == .menuAI {
+                            Button(action: takePhoto) {
+                                ZStack {
+                                    Circle()
+                                        .fill(selectedMode == .menuAI ? Color.blue : Color.themePink)
+                                        .frame(width: 76, height: 76)
+                                    Circle()
+                                        .stroke(Color.white, lineWidth: 3)
+                                        .frame(width: 66, height: 66)
+                                }
+                                .shadow(color: (selectedMode == .menuAI ? Color.blue : Color.themePink).opacity(0.4), radius: 10, y: 5)
+                            }
+                            .offset(y: -20)
+                            .transition(.scale.combined(with: .opacity))
+                        } else {
+                            Color.clear.frame(width: 76, height: 76)
+                        }
+
+                        Spacer()
+
+                        FloatingActionButton(icon: isFlashlightOn ? "bolt.fill" : "bolt.slash.fill") {
+                            toggleFlashlight()
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                }
+                .padding(.bottom, 40)
             }
 
-            // ── Shutter flash ─────────────────────────────────────────────
             if showShutterFlash {
                 Color.white.ignoresSafeArea()
             }
 
-            // ── AI Analyzing overlay ──────────────────────────────────────
             if isAnalyzingAI {
-                aiAnalyzingOverlay
-                    .transition(.opacity)
-                    .zIndex(100)
+                ZStack {
+                    Color.black.opacity(0.85).ignoresSafeArea()
+                    VStack(spacing: 24) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 60))
+                            .foregroundStyle(LinearGradient(colors: [.themePink, .blue], startPoint: .top, endPoint: .bottom))
+                            .symbolEffect(.pulse)
+
+                        Text(selectedMode == .menuAI ? "AI is reading the menu...\nFinding the best options 🕵️‍♂️" : "AI is analyzing your meal...\nCalculating macros 🪄")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(6)
+                    }
+                }
+                .zIndex(100)
+                .transition(.opacity)
             }
 
-            // ── Menu AI results sheet ─────────────────────────────────────
             if let menu = menuResponse {
-                menuResultsLayer(menu: menu)
-            }
-
-            // ── AI error toast ────────────────────────────────────────────
-            if showAIError, let msg = aiErrorMessage {
-                aiErrorToast(message: msg)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(200)
-            }
-
-            // ── Camera permission denied fallback ─────────────────────────
-            if cameraPermissionDenied {
-                Color.black.opacity(0.7).ignoresSafeArea()
-                CameraUnavailableView(reason: .permissionDenied)
+                ZStack {
+                    Color.black.opacity(0.6).ignoresSafeArea().onTapGesture { menuResponse = nil }
+                    MenuHackerResultsView(response: menu) {
+                        menuResponse = nil
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(101)
+                }
             }
         }
         .onAppear {
-            checkCameraPermission()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 if selectedMode == .barcode { isScanning = true }
             }
         }
         .onDisappear {
             isScanning = false
+
             if isFlashlightOn { toggleFlashlight() }
             cameraManager.stop()
         }
         .onChange(of: selectedMode) { _, newMode in
+
             if isFlashlightOn { toggleFlashlight() }
-            notFoundError = false
-            recognizedBarcode = nil
+
             isScanning = (newMode == .barcode)
             if newMode == .barcode {
                 cameraManager.stop()
             } else {
-                cameraManager.capturedImage = nil
                 cameraManager.checkPermissionAndStart()
             }
         }
@@ -196,326 +243,29 @@ struct SmartScannerView: View {
         }
     }
 
-    // MARK: - View Layers
-
-    @ViewBuilder
-    private var cameraBackgroundLayer: some View {
-        if selectedMode == .barcode {
-            if barcodeAvailable {
-                DataScannerRepresentable(recognizedBarcode: $recognizedBarcode, isScanning: $isScanning)
-                    .ignoresSafeArea()
-            } else {
-                Color.black.ignoresSafeArea()
-            }
-        } else {
-            LiveCameraPreviewView(session: cameraManager.session)
-                .ignoresSafeArea()
-                .onAppear { cameraManager.checkPermissionAndStart() }
-                .onDisappear { cameraManager.stop() }
+    private func takePhoto() {
+        HapticManager.shared.impact(style: .heavy)
+        withAnimation(.linear(duration: 0.1)) { showShutterFlash = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation { showShutterFlash = false }
         }
+        cameraManager.takePhoto()
     }
 
-    private var barcodeOverlay: some View {
-        Color.black.opacity(0.65)
-            .ignoresSafeArea()
-            .mask(
-                Rectangle()
-                    .overlay(RoundedRectangle(cornerRadius: 24).frame(width: 260, height: 260))
-                    .compositingGroup()
-                    .luminanceToAlpha()
-            )
-    }
-
-    private var topBar: some View {
-        HStack {
-            Spacer()
-            Button(action: { dismiss() }) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 44, height: 44)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 56)
-    }
-
-    @ViewBuilder
-    private var barcodeViewfinderContent: some View {
-        ZStack {
-            // Animated corner brackets
-            ScannerBracketFrame()
-                .frame(width: 260, height: 260)
-
-            if isLoading {
-                VStack(spacing: 12) {
-                    ProgressView().tint(.white).scaleEffect(1.5)
-                    Text("Searching database...")
-                        .font(.headline.bold())
-                        .foregroundColor(.white)
-                }
-
-            } else if notFoundError {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.magnifyingglass")
-                        .font(.system(size: 40))
-                        .foregroundColor(.themeOrange)
-
-                    Text("Product not found")
-                        .font(.headline)
-                        .foregroundColor(.white)
-
-                    Text("Scan the package or nutrition label with AI instead!")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 8)
-
-                    VStack(spacing: 12) {
-                        Button(action: {
-                            HapticManager.shared.impact(style: .heavy)
-                            withAnimation(.spring()) {
-                                selectedMode = .mealAI
-                                notFoundError = false
-                            }
-                        }) {
-                            Label("Scan with AI", systemImage: "sparkles")
-                                .font(.headline.bold())
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(LinearGradient(colors: [.themePink, .blue], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .clipShape(Capsule())
-                        }
-                        
-                        HStack(spacing: 12) {
-                            // Retry — reset and re-scan
-                            Button(action: retryBarcodeScan) {
-                                Label("Try Again", systemImage: "arrow.counterclockwise")
-                                    .font(.subheadline.bold())
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 10)
-                                    .background(Color.white.opacity(0.2))
-                                    .clipShape(Capsule())
-                            }
-
-                            // Manual entry fallback
-                            Button(action: {
-                                HapticManager.shared.impact(style: .medium)
-                                dismiss()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    onManualEntryRequest(recognizedBarcode)
-                                }
-                            }) {
-                                Text("Enter Manually")
-                                    .font(.subheadline.bold())
-                                    .foregroundColor(.black)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 10)
-                                    .background(Color.white)
-                                    .clipShape(Capsule())
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 32)
-                }
-
-            } else if !barcodeAvailable {
-                // Device does not support DataScanner
-                VStack(spacing: 12) {
-                    Image(systemName: "viewfinder")
-                        .font(.system(size: 50, weight: .ultraLight))
-                        .foregroundColor(.white.opacity(0.5))
-                    Text("Scanner not supported\non this device")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                }
-            } else {
-                // Idle hint
-                Text("Align barcode or QR code\ninside the frame")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 110) // below the viewfinder centre
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var cameraHintCard: some View {
-        let (icon, text): (String, String) = selectedMode == .mealAI
-            ? ("fork.knife.circle", "Point at your meal\nand snap a photo")
-            : ("text.book.closed.fill", "Scan a restaurant menu\nfor smart recommendations")
-
-        VStack(spacing: 14) {
+    private func cameraHint(icon: String, text: String) -> some View {
+        VStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 56, weight: .ultraLight))
-                .foregroundColor(.white.opacity(0.85))
-                .symbolEffect(.pulse)
-
+                .font(.system(size: 60, weight: .ultraLight))
+                .foregroundColor(.white.opacity(0.8))
             Text(text)
                 .font(.title3.bold())
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .shadow(color: .black.opacity(0.5), radius: 5, y: 2)
         }
-        .padding(24)
-        .background(.ultraThinMaterial)
-        .cornerRadius(24)
-        .padding(.horizontal, 40)
-    }
-
-    private var bottomControls: some View {
-        VStack(spacing: 20) {
-            ScannerModePicker(selectedMode: $selectedMode)
-
-            HStack {
-                FloatingActionButton(icon: "pencil") {
-                    HapticManager.shared.impact(style: .medium)
-                    dismiss()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        onManualEntryRequest(recognizedBarcode)
-                    }
-                }
-
-                Spacer()
-
-                if isCameraMode {
-                    shutterButton
-                } else {
-                    Color.clear.frame(width: 76, height: 76)
-                }
-
-                Spacer()
-
-                FloatingActionButton(icon: isFlashlightOn ? "bolt.fill" : "bolt.slash.fill") {
-                    toggleFlashlight()
-                }
-            }
-            .padding(.horizontal, 24)
-        }
-        .padding(.bottom, 44)
-    }
-
-    private var shutterButton: some View {
-        Button(action: takePhoto) {
-            ZStack {
-                Circle()
-                    .fill(selectedMode == .menuAI ? Color.blue : Color.themePink)
-                    .frame(width: 76, height: 76)
-                    .shadow(color: (selectedMode == .menuAI ? Color.blue : Color.themePink).opacity(0.4), radius: 12, y: 6)
-                Circle()
-                    .stroke(Color.white, lineWidth: 3)
-                    .frame(width: 66, height: 66)
-                Image(systemName: selectedMode == .menuAI ? "text.viewfinder" : "camera.fill")
-                    .font(.title2)
-                    .foregroundColor(.white)
-            }
-        }
-        .offset(y: -20)
-        .transition(.scale.combined(with: .opacity))
-        .animation(.spring(response: 0.3), value: selectedMode)
-    }
-
-    private var aiAnalyzingOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.85).ignoresSafeArea()
-            VStack(spacing: 24) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 60))
-                    .foregroundStyle(
-                        LinearGradient(colors: [.themePink, .blue], startPoint: .top, endPoint: .bottom)
-                    )
-                    .symbolEffect(.pulse)
-
-                Text(selectedMode == .menuAI
-                    ? "AI is reading the menu...\nFinding the best options 🕵️‍♂️"
-                    : "AI is analyzing your meal...\nCalculating macros 🪄")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(6)
-            }
-        }
-    }
-
-    private func menuResultsLayer(menu: VertexAIManager.MenuAIResponse) -> some View {
-        ZStack {
-            Color.black.opacity(0.6)
-                .ignoresSafeArea()
-                .onTapGesture { menuResponse = nil }
-
-            MenuHackerResultsView(response: menu) {
-                menuResponse = nil
-            }
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-            .zIndex(101)
-        }
-    }
-
-    private func aiErrorToast(message: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.themeOrange)
-            Text(message)
-                .font(.subheadline.bold())
-                .foregroundColor(.white)
-            Spacer()
-            Button(action: {
-                withAnimation { showAIError = false }
-            }) {
-                Image(systemName: "xmark")
-                    .font(.caption.bold())
-                    .foregroundColor(.white.opacity(0.6))
-            }
-        }
-        .padding(16)
-        .background(Color.black.opacity(0.85))
-        .cornerRadius(16)
-        .padding(.horizontal, 24)
-        .padding(.top, 60)
-        .frame(maxWidth: .infinity, alignment: .top)
-        .frame(maxHeight: .infinity, alignment: .top)
-    }
-
-    // MARK: - Actions
-
-    private func takePhoto() {
-        HapticManager.shared.impact(style: .heavy)
-        withAnimation(.linear(duration: 0.08)) { showShutterFlash = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-            withAnimation { showShutterFlash = false }
-        }
-        cameraManager.capturedImage = nil   // reset so onChange fires on next capture
-        cameraManager.takePhoto()
-    }
-
-    private func retryBarcodeScan() {
-        HapticManager.shared.impact(style: .medium)
-        notFoundError = false
-        recognizedBarcode = nil
-        isScanning = true
-    }
-
-    private func checkCameraPermission() {
-        let status = AVCaptureDevice.authorizationStatus(for: .video)
-        switch status {
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.async {
-                    if !granted { self.cameraPermissionDenied = true }
-                }
-            }
-        case .denied, .restricted:
-            cameraPermissionDenied = true
-        default:
-            break
-        }
+        .padding()
+        .background(Color.black.opacity(0.2))
+        .cornerRadius(20)
     }
 
     private func searchBarcodeInDatabase(barcode: String) {
@@ -527,17 +277,6 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     isLoading = false
                     HapticManager.shared.impact(style: .heavy)
-                    // ── Auto-save to local cache (zero Firestore) ────────
-                    ScannedFoodRepository.shared.save(
-                        name: foodItem.name,
-                        calories: foodItem.calories,
-                        protein: foodItem.protein,
-                        fat: foodItem.fats,
-                        carbs: foodItem.carbs,
-                        source: "barcode",
-                        barcode: barcode,
-                        in: modelContext
-                    )
                     onProductFound(foodItem)
                     dismiss()
                 }
@@ -559,20 +298,6 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     withAnimation { isAnalyzingAI = false }
                     HapticManager.shared.impact(style: .heavy)
-                    // ── Auto-save AI-recognized food to local cache ───────
-                    if foodItem.calories > 0 {
-                        ScannedFoodRepository.shared.save(
-                            name: foodItem.name,
-                            calories: foodItem.calories,
-                            protein: foodItem.protein,
-                            fat: foodItem.fats,
-                            carbs: foodItem.carbs,
-                            source: "photo",
-                            in: modelContext
-                        )
-                        // ── Upload to Global Cloud Database ───────
-                        BarcodeDatabaseService.shared.saveCommunityFood(item: foodItem)
-                    }
                     onProductFound(foodItem)
                     dismiss()
                 }
@@ -580,7 +305,9 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     withAnimation { isAnalyzingAI = false }
                     cameraManager.capturedImage = nil
-                    showAIError(text: "Couldn't identify the food. Try better lighting or a clearer angle.")
+                    // Better user feedback for AI vision failures (was silent before)
+                    // In a fuller implementation we would surface via appState or a local banner.
+                    print("❌ Meal AI analysis failed - user will see camera reset")
                 }
             }
         }
@@ -588,13 +315,8 @@ struct SmartScannerView: View {
 
     private func analyzeMenuWithAI(_ image: UIImage) {
         withAnimation { isAnalyzingAI = true }
-
         Task {
-            if let response = await VertexAIManager.shared.analyzeMenuImage(
-                image,
-                remainingCalories: remainingCalories,
-                targetProtein: remainingProtein
-            ) {
+            if let response = await VertexAIManager.shared.analyzeMenuImage(image, remainingCalories: remainingCalories, targetProtein: remainingProtein) {
                 await MainActor.run {
                     withAnimation(.spring()) {
                         isAnalyzingAI = false
@@ -606,113 +328,41 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     withAnimation { isAnalyzingAI = false }
                     cameraManager.capturedImage = nil
-                    showAIError(text: "Couldn't read the menu. Make sure the text is visible and well-lit.")
+                    print("❌ Menu AI analysis failed - user will see camera reset")
                 }
             }
         }
     }
 
-    private func showAIError(text: String) {
-        aiErrorMessage = text
-        withAnimation(.spring(response: 0.3)) { showAIError = true }
-        // Auto-dismiss after 4 s
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-            withAnimation { showAIError = false }
-        }
-    }
-
     private func toggleFlashlight() {
         guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }
+
         do {
             try device.lockForConfiguration()
+
             if isFlashlightOn {
                 device.torchMode = .off
             } else {
                 try device.setTorchModeOn(level: 1.0)
             }
+
             device.unlockForConfiguration()
             isFlashlightOn.toggle()
             HapticManager.shared.impact(style: .light)
         } catch {
-            print("❌ Flashlight error: \(error.localizedDescription)")
+            print("❌ Ошибка при включении фонарика: \(error.localizedDescription)")
         }
     }
 }
 
-// MARK: - ScannerBracketFrame
-// Animated corner bracket corners (premium scanner aesthetic)
-private struct ScannerBracketFrame: View {
-    @State private var opacity: Double = 0.4
-    private let cornerLength: CGFloat = 30
-    private let lineWidth: CGFloat = 3
-
-    var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
-            let r: CGFloat = 12
-
-            ZStack {
-                // Top-left corner
-                CornerBracket(width: cornerLength, height: cornerLength, radius: r)
-                    .stroke(Color.white, lineWidth: lineWidth)
-                    .frame(width: cornerLength, height: cornerLength)
-                    .position(x: cornerLength / 2, y: cornerLength / 2)
-
-                // Top-right corner
-                CornerBracket(width: cornerLength, height: cornerLength, radius: r)
-                    .stroke(Color.white, lineWidth: lineWidth)
-                    .frame(width: cornerLength, height: cornerLength)
-                    .rotationEffect(.degrees(90))
-                    .position(x: w - cornerLength / 2, y: cornerLength / 2)
-
-                // Bottom-left corner
-                CornerBracket(width: cornerLength, height: cornerLength, radius: r)
-                    .stroke(Color.white, lineWidth: lineWidth)
-                    .frame(width: cornerLength, height: cornerLength)
-                    .rotationEffect(.degrees(-90))
-                    .position(x: cornerLength / 2, y: h - cornerLength / 2)
-
-                // Bottom-right corner
-                CornerBracket(width: cornerLength, height: cornerLength, radius: r)
-                    .stroke(Color.white, lineWidth: lineWidth)
-                    .frame(width: cornerLength, height: cornerLength)
-                    .rotationEffect(.degrees(180))
-                    .position(x: w - cornerLength / 2, y: h - cornerLength / 2)
-            }
-        }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                opacity = 1.0
-            }
-        }
-    }
-}
-
-private struct CornerBracket: Shape {
-    let width: CGFloat
-    let height: CGFloat
-    let radius: CGFloat
-
-    func path(in rect: CGRect) -> Path {
-        var p = Path()
-        p.move(to: CGPoint(x: 0, y: height))
-        p.addLine(to: CGPoint(x: 0, y: radius))
-        p.addQuadCurve(to: CGPoint(x: radius, y: 0), control: CGPoint(x: 0, y: 0))
-        p.addLine(to: CGPoint(x: width, y: 0))
-        return p
-    }
-}
-
-// MARK: - LiveFoodCameraManager
 @Observable
 final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
+    // Migrated from ObservableObject/@Published to @Observable (plain vars now notify observers)
     var session = AVCaptureSession()
     var capturedImage: UIImage? = nil
 
     private let photoOutput = AVCapturePhotoOutput()
     private var isConfigured = false
-    private let sessionQueue = DispatchQueue(label: "com.foodtracker.camera.sessionQueue")
 
     func checkPermissionAndStart() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -721,36 +371,31 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
                 if granted {
-                    self?.setupAndStart()
+                    DispatchQueue.main.async { self?.setupAndStart() }
                 }
             }
-        case .denied, .restricted:
-            break
-        @unknown default:
+        default:
             break
         }
     }
 
     private func setupAndStart() {
-        sessionQueue.async {
-            guard !self.isConfigured else {
-                if !self.session.isRunning {
-                    self.session.startRunning()
-                }
-                return
+        guard !isConfigured else {
+            if !session.isRunning {
+                DispatchQueue.global(qos: .userInitiated).async { self.session.startRunning() }
             }
+            return
+        }
 
-            self.session.beginConfiguration()
-            self.session.sessionPreset = .photo
+        session.beginConfiguration()
+        session.sessionPreset = .photo
 
-            guard
-                let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-                let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
-                self.session.canAddInput(videoInput)
-            else {
-                self.session.commitConfiguration()
-                return
-            }
+        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+              let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
+              session.canAddInput(videoInput) else {
+            session.commitConfiguration()
+            return
+        }
 
         do {
             try videoDevice.lockForConfiguration()
@@ -771,37 +416,36 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
 
         session.addInput(videoInput)
 
-            if self.session.canAddOutput(self.photoOutput) {
-                self.session.addOutput(self.photoOutput)
-            }
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
+        }
 
-            self.session.commitConfiguration()
-            self.isConfigured = true
+        session.commitConfiguration()
+        isConfigured = true
+
+        DispatchQueue.global(qos: .userInitiated).async {
             self.session.startRunning()
         }
     }
 
     func stop() {
-        sessionQueue.async {
-            if self.session.isRunning {
+        if session.isRunning {
+            DispatchQueue.global(qos: .userInitiated).async {
                 self.session.stopRunning()
             }
         }
     }
 
     func takePhoto() {
-        sessionQueue.async {
-            let settings = AVCapturePhotoSettings()
-            if let connection = self.photoOutput.connection(with: .video) {
-                connection.videoRotationAngle = 90 // portrait orientation
-            }
-            self.photoOutput.capturePhoto(with: settings, delegate: self)
-        }
+        let settings = AVCapturePhotoSettings()
+        photoOutput.capturePhoto(with: settings, delegate: self)
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else { return }
+
         let fixedImage = fixOrientation(img: image)
+
         DispatchQueue.main.async {
             self.capturedImage = fixedImage
         }
@@ -811,13 +455,12 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
         guard img.imageOrientation != .up else { return img }
         UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale)
         img.draw(in: CGRect(origin: .zero, size: img.size))
-        let normalized = UIGraphicsGetImageFromCurrentImageContext()
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return normalized ?? img
+        return normalizedImage ?? img
     }
 }
 
-// MARK: - LiveCameraPreviewView
 struct LiveCameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
 
@@ -836,90 +479,60 @@ struct LiveCameraPreviewView: UIViewRepresentable {
     func updateUIView(_ uiView: VideoPreviewView, context: Context) {}
 }
 
-// MARK: - ScannerModePicker
 struct ScannerModePicker: View {
     @Binding var selectedMode: SmartScannerView.ScannerMode
-
     var body: some View {
         HStack(spacing: 0) {
-            ModeButton(
-                icon: "barcode.viewfinder",
-                title: "Barcode",
-                isActive: selectedMode == .barcode,
-                accent: .green
-            ) {
+            ModeButton(title: "Barcode", isActive: selectedMode == .barcode) {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedMode = .barcode }
             }
-            ModeButton(
-                icon: "camera.macro",
-                title: "Meal AI",
-                isActive: selectedMode == .mealAI,
-                accent: .themePink
-            ) {
+            ModeButton(title: "Meal AI", isActive: selectedMode == .mealAI) {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedMode = .mealAI }
             }
-            ModeButton(
-                icon: "text.viewfinder",
-                title: "Menu AI",
-                isActive: selectedMode == .menuAI,
-                accent: .blue
-            ) {
+            ModeButton(title: "Menu AI", isActive: selectedMode == .menuAI) {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedMode = .menuAI }
             }
         }
         .padding(4)
-        .background(.ultraThinMaterial)
+        .background(Color.black.opacity(0.4))
         .clipShape(Capsule())
     }
 }
 
-// MARK: - ModeButton
 struct ModeButton: View {
-    let icon: String
     let title: String
     let isActive: Bool
-    let accent: Color
     let action: () -> Void
-
     var body: some View {
         Button(action: {
             HapticManager.shared.impact(style: .light)
             action()
         }) {
-            HStack(spacing: 5) {
-                Image(systemName: icon)
-                    .font(.system(size: 13, weight: .semibold))
-                Text(title)
-                    .font(.system(size: 14, weight: isActive ? .semibold : .medium, design: .rounded))
-            }
-            .foregroundColor(isActive ? accent : .white.opacity(0.65))
-            .padding(.vertical, 10)
-            .padding(.horizontal, 14)
-            .background(
-                Capsule().fill(isActive ? Color.white.opacity(0.18) : Color.clear)
-            )
+            Text(title)
+                .font(.system(size: 15, weight: isActive ? .semibold : .medium, design: .rounded))
+                .foregroundColor(isActive ? .green : .white.opacity(0.7))
+                .padding(.vertical, 10)
+                .padding(.horizontal, 20)
+                .background(Capsule().fill(isActive ? Color(white: 0.2) : Color.clear))
         }
     }
 }
 
-// MARK: - FloatingActionButton
 struct FloatingActionButton: View {
     let icon: String
     let action: () -> Void
-
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(.white)
                 .frame(width: 56, height: 56)
-                .background(.ultraThinMaterial)
+                .background(Color.black.opacity(0.4))
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
     }
 }
 
-// MARK: - MenuHackerResultsView
 struct MenuHackerResultsView: View {
     let response: VertexAIManager.MenuAIResponse
     let onClose: () -> Void
@@ -927,13 +540,7 @@ struct MenuHackerResultsView: View {
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("AI Menu Analysis")
-                        .font(.title2.bold())
-                    Text("Based on your remaining macros")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
+                Text("AI Menu Analysis").font(.title2.bold())
                 Spacer()
                 Button(action: onClose) {
                     Image(systemName: "xmark.circle.fill")
@@ -943,22 +550,20 @@ struct MenuHackerResultsView: View {
             }
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 14) {
-                    MenuRecCard(rec: response.ideal,  type: "Ideal Match", icon: "checkmark.seal.fill",        color: .green)
-                    MenuRecCard(rec: response.caution, type: "With Caution", icon: "exclamationmark.triangle.fill", color: .orange)
-                    MenuRecCard(rec: response.avoid,   type: "Avoid Today",  icon: "xmark.octagon.fill",           color: .red)
+                VStack(spacing: 16) {
+                    MenuRecCard(rec: response.ideal, type: "Ideal Match", icon: "checkmark.seal.fill", color: .green)
+                    MenuRecCard(rec: response.caution, type: "Caution", icon: "exclamationmark.triangle.fill", color: .orange)
+                    MenuRecCard(rec: response.avoid, type: "Avoid", icon: "xmark.octagon.fill", color: .red)
                 }
             }
         }
         .padding(24)
         .background(Color.white)
         .cornerRadius(32)
-        .shadow(color: .black.opacity(0.15), radius: 30, y: -10)
         .padding()
     }
 }
 
-// MARK: - MenuRecCard
 struct MenuRecCard: View {
     let rec: VertexAIManager.MenuRecommendation
     let type: String
@@ -969,10 +574,7 @@ struct MenuRecCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon).foregroundColor(color)
-                Text(type)
-                    .font(.caption.bold())
-                    .foregroundColor(color)
-                    .textCase(.uppercase)
+                Text(type).font(.caption.bold()).foregroundColor(color).textCase(.uppercase)
                 Spacer()
                 Text("~ \(rec.estimatedCalories) kcal")
                     .font(.headline)
@@ -986,24 +588,19 @@ struct MenuRecCard: View {
             Text(rec.reasoning)
                 .font(.subheadline)
                 .foregroundColor(.gray)
-                .lineSpacing(3)
 
             HStack {
-                Text("Est. Protein:")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                Text("\(Int(rec.protein))g")
-                    .font(.caption.bold())
-                    .foregroundColor(color)
+                Text("Est. Protein:").font(.caption).foregroundColor(.gray)
+                Text("\(Int(rec.protein))g").font(.caption.bold()).foregroundColor(color)
             }
-            .padding(.top, 2)
+            .padding(.top, 4)
         }
-        .padding(16)
-        .background(color.opacity(0.08))
+        .padding()
+        .background(color.opacity(0.1))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(color.opacity(0.25), lineWidth: 1)
+                .stroke(color.opacity(0.3), lineWidth: 1)
         )
     }
 }

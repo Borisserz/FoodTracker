@@ -50,19 +50,10 @@ final class VertexAIManager {
         let avoid: MenuRecommendation
     }
 
-    /// AI verdict for chef cooking step evaluation
-    struct ChefVerdictResponse: Codable {
-        let score: Int           // 0–100, how well the step is being done
-        let verdict: String      // "perfect" | "good" | "needs_work"
-        let feedback: String     // Main evaluation message
-        let tip: String          // One specific pro chef tip
-    }
-
     func analyzeFoodImage(_ image: UIImage) async -> FoodItem? {
         guard let imageData = image.jpegData(compressionQuality: 0.3) else { return nil }
         let base64Image = imageData.base64EncodedString()
 
-        let language = Locale.current.language.languageCode?.identifier ?? "en"
         let prompt = """
         You are an elite AI nutritionist. Analyze the image with extreme precision.
         1. Check if the image contains food or a drink. If it DOES NOT, set "isFood" to false and write a funny "errorMessage" (e.g., "That's a keyboard, not a sandwich!").
@@ -75,27 +66,11 @@ final class VertexAIManager {
         {"isFood": true, "errorMessage": null, "name": "Avocado Toast", "weight": 150.0, "calories": 220, "protein": 5.0, "fats": 12.0, "carbs": 20.0}
         """
 
-        let schema: [String: Any] = [
-            "type": "OBJECT",
-            "properties": [
-                "isFood": ["type": "BOOLEAN"],
-                "errorMessage": ["type": "STRING", "nullable": true],
-                "name": ["type": "STRING", "nullable": true],
-                "weight": ["type": "NUMBER", "nullable": true],
-                "calories": ["type": "INTEGER", "nullable": true],
-                "protein": ["type": "NUMBER", "nullable": true],
-                "fats": ["type": "NUMBER", "nullable": true],
-                "carbs": ["type": "NUMBER", "nullable": true]
-            ],
-            "required": ["isFood"]
-        ]
-
         do {
             let aiResponse = try await client.fetchJSONWithImage(
                 prompt: prompt,
                 base64Image: base64Image,
-                responseType: AIFoodResponse.self,
-                schema: schema
+                responseType: AIFoodResponse.self
             )
 
             if !aiResponse.isFood {
@@ -121,7 +96,6 @@ final class VertexAIManager {
         guard let imageData = image.jpegData(compressionQuality: 0.3) else { return nil }
         let base64Image = imageData.base64EncodedString()
 
-        let language = Locale.current.language.languageCode?.identifier ?? "en"
         let prompt = """
         You are an elite AI nutritionist and menu analyst. Read the restaurant menu in the image.
         The user has \(remainingCalories) kcal left for today and needs around \(targetProtein)g more protein.
@@ -137,79 +111,14 @@ final class VertexAIManager {
         {"ideal": {"dishName": "Name", "estimatedCalories": 400, "protein": 30.0, "reasoning": "Why"}, "caution": {...}, "avoid": {...}}
         """
 
-        let recommendationSchema: [String: Any] = [
-            "type": "OBJECT",
-            "properties": [
-                "dishName": ["type": "STRING"],
-                "estimatedCalories": ["type": "INTEGER"],
-                "protein": ["type": "NUMBER"],
-                "reasoning": ["type": "STRING"]
-            ],
-            "required": ["dishName", "estimatedCalories", "protein", "reasoning"]
-        ]
-        
-        let schema: [String: Any] = [
-            "type": "OBJECT",
-            "properties": [
-                "ideal": recommendationSchema,
-                "caution": recommendationSchema,
-                "avoid": recommendationSchema
-            ],
-            "required": ["ideal", "caution", "avoid"]
-        ]
-
         do {
             return try await client.fetchJSONWithImage(
                 prompt: prompt,
                 base64Image: base64Image,
-                responseType: MenuAIResponse.self,
-                schema: schema
+                responseType: MenuAIResponse.self
             )
         } catch {
             print("❌ Menu AI Error: \(error)")
-            return nil
-        }
-    }
-
-    /// Evaluates how well the user is executing a specific cooking step using real AI vision.
-    func analyzeChefCookingStep(image: UIImage, stepInstruction: String) async -> ChefVerdictResponse? {
-        guard let imageData = image.jpegData(compressionQuality: 0.4) else { return nil }
-        let base64Image = imageData.base64EncodedString()
-
-        let language = Locale.current.language.languageCode?.identifier ?? "en"
-        let prompt = """
-        You are a Michelin-star AI Chef conducting a live cooking evaluation.
-        The cooking step being evaluated is: "\(stepInstruction)"
-
-        Look at the image carefully and evaluate how well this cooking step is being executed.
-        Please provide the feedback and tip in language code '\(language)'.
-
-        Scoring guide:
-        - 85-100: Perfect execution → verdict = "perfect"
-        - 60-84: Good, minor improvements possible → verdict = "good"
-        - 0-59: Needs attention → verdict = "needs_work"
-        """
-
-        let schema: [String: Any] = [
-            "type": "OBJECT",
-            "properties": [
-                "score": ["type": "INTEGER"],
-                "verdict": ["type": "STRING", "enum": ["perfect", "good", "needs_work"]],
-                "feedback": ["type": "STRING"],
-                "tip": ["type": "STRING"]
-            ],
-            "required": ["score", "verdict", "feedback", "tip"]
-        ]
-
-        do {
-            return try await client.fetchJSONWithImage(
-                prompt: prompt,
-                base64Image: base64Image,
-                responseType: ChefVerdictResponse.self,
-                schema: schema
-            )
-        } catch {
-            print("❌ Chef Step AI Error: \(error)")
             return nil
         }
     }

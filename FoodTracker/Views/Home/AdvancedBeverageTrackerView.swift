@@ -7,14 +7,12 @@ struct WaterGridTrackerView: View {
 
     @Bindable var summary: DailySummary
 
-    var dailyGoalLiters: Double {
-        users.first?.dailyWaterGoal ?? 2.5
-    }
+    let dailyGoalLiters = 2.5
     let volumePerGridCupMl: Double = 250.0
     let gridColumns = 6
 
     var waterBeverages: [Beverage] {
-        (summary.beverages ?? []).filter { $0.name == "Water" }.sorted { $0.date < $1.date }
+        summary.beverages.filter { $0.name == "Water" }.sorted { $0.date < $1.date }
     }
 
     var waterLiters: Double {
@@ -84,10 +82,10 @@ struct WaterGridTrackerView: View {
             }
 
             HStack(spacing: 12) {
-                WaterPresetButton(icon: "drop.fill", title: String(localized: "Water glass"), volume: "+250 ml") {
+                WaterPresetButton(icon: "drop.fill", title: "Glass", volume: "+250 ml") {
                     addWater(ml: 250)
                 }
-                WaterPresetButton(icon: "waterbottle.fill", title: String(localized: "Water bottle"), volume: "+500 ml") {
+                WaterPresetButton(icon: "waterbottle.fill", title: "Bottle", volume: "+500 ml") {
                     addWater(ml: 500)
                 }
             }
@@ -137,10 +135,8 @@ struct WaterGridTrackerView: View {
                    context.insert(summary)
                }
                context.insert(newBeverage)
-               summary.beverages = (summary.beverages ?? []) + [newBeverage]
+               summary.beverages.append(newBeverage)
                try? context.save()
-               let updatedLiters = ((summary.beverages ?? []).filter { $0.name == "Water" }.reduce(0) { $0 + $1.volumeMl }) / 1000.0
-               WorkoutSyncManager.shared.syncWater(updatedLiters, for: Date())
            }
 
            if let user = users.first, user.isHealthKitEnabled {
@@ -153,16 +149,12 @@ struct WaterGridTrackerView: View {
         HapticManager.shared.impact(style: .light)
         guard let lastWater = waterBeverages.last else { return }
 
-        withAnimation {
-            if let index = (summary.beverages ?? []).firstIndex(of: lastWater) {
-                var bevs = summary.beverages ?? []
-                bevs.remove(at: index)
-                summary.beverages = bevs
-                context.delete(lastWater)
-                try? context.save()
-                let updatedLiters = ((summary.beverages ?? []).filter { $0.name == "Water" }.reduce(0) { $0 + $1.volumeMl }) / 1000.0
-                WorkoutSyncManager.shared.syncWater(updatedLiters, for: Date())
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+            if let index = summary.beverages.firstIndex(of: lastWater) {
+                summary.beverages.remove(at: index)
             }
+            context.delete(lastWater)
+            try? context.save()
         }
     }
 }
@@ -175,7 +167,7 @@ struct WaterPresetButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 18))
                     .foregroundColor(.cyan)
@@ -184,21 +176,17 @@ struct WaterPresetButton: View {
                     Text(title)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
                     Text(volume)
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.gray)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
                 }
-                Spacer(minLength: 4)
+                Spacer()
 
                 Image(systemName: "plus.circle.fill")
                     .foregroundColor(.cyan.opacity(0.8))
                     .font(.system(size: 20))
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Color.cyan.opacity(0.08))
             .cornerRadius(16)

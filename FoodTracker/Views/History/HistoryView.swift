@@ -19,7 +19,7 @@ enum FoodsRoute: Hashable {
 struct FoodsDashboardView: View {
     @Environment(\.modelContext) private var context
     @State private var path = NavigationPath()
-    @Environment(RecipeDataLoader.self) private var dataLoader
+    @State private var dataLoader = RecipeDataLoader()
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
 
     @State private var selectedFilter: String = "All"
@@ -78,7 +78,7 @@ struct FoodsDashboardView: View {
                                     Button(action: {
                                         withAnimation(.spring()) { selectedFilter = option }
                                     }) {
-                                        Text(LocalizedStringKey(option))
+                                        Text(option)
                                             .font(.subheadline).bold()
                                             .padding(.horizontal, 16).padding(.vertical, 8)
                                             .background(selectedFilter == option ? Color.themePink : Color.white)
@@ -93,8 +93,8 @@ struct FoodsDashboardView: View {
                         }
 
                         if filteredMeals.isEmpty {
-                            let message = selectedFilter == "All" ? String(localized: "Your logged meals will appear here.") : String(localized: "No meals logged for \(String(localized: LocalizedStringResource(stringLiteral: selectedFilter))).")
-                            EmptyStateView(imageName: "fork.knife", title: String(localized: "No History"), description: message)
+                            let message = selectedFilter == "All" ? "Your logged meals will appear here." : "No meals logged for \(selectedFilter)."
+                            EmptyStateView(imageName: "fork.knife", title: "No History", description: message)
                                 .frame(height: 200).premiumCardStyle()
                                 .padding(.horizontal)
                         } else {
@@ -103,7 +103,7 @@ struct FoodsDashboardView: View {
                                     FrequentMealRow(
                                         timeTag: meal.title,
                                         title: meal.date.formatted(date: .abbreviated, time: .shortened),
-                                        ingredients: (meal.foodItems ?? []).map { $0.name }.joined(separator: ", "),
+                                        ingredients: meal.foodItems.map { $0.name }.joined(separator: ", "),
                                         calories: "\(meal.totalCalories)",
                                         color: colorForMeal(meal.title),
                                         onDelete: { deleteMeal(meal) }
@@ -157,6 +157,7 @@ struct FoodsDashboardView: View {
                 }
             }
         }
+        .environment(dataLoader)
     }
 
     private func deleteMeal(_ meal: Meal) {
@@ -184,10 +185,17 @@ struct RecipesHeroCard: View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
                 // Background image with fallback
-                SmartImageView(
-                    url: "https://image.pollinations.ai/prompt/beautiful%20cinematic%20highly%20detailed%20dark%20moody%20food%20photography%20gourmet%20healthy%20cooking%20in%20a%20modern%20kitchen?width=1200&height=800&nologo=true",
-                    fallbackTitle: "Healthy Cooking"
-                )
+                AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    LinearGradient(
+                        colors: [.themePink.opacity(0.85), .themeOrange.opacity(0.85)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
                 .frame(height: 190)
                 .clipped()
                 
@@ -210,7 +218,7 @@ struct RecipesHeroCard: View {
                                 .background(Color.themePink)
                                 .clipShape(Capsule())
                             
-                            Text("60+ DISHES")
+                            Text("600+ DISHES")
                                 .font(.system(.caption2, design: .rounded, weight: .bold))
                                 .foregroundStyle(Color.themeYellow)
                         }
@@ -248,7 +256,7 @@ struct RecipesHeroCard: View {
         }
         .buttonStyle(BounceButtonStyle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Recipes: Explore Healthy Cooking. 60+ dishes, custom meals, and step-by-step videos.")
+        .accessibilityLabel("Recipes: Explore Healthy Cooking. 600+ dishes, custom meals, and step-by-step videos.")
         .accessibilityAddTraits(.isButton)
     }
 }
@@ -471,7 +479,7 @@ struct FrequentMealRow: View {
     var body: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text(LocalizedStringKey(timeTag))
+                Text(timeTag)
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 6)
@@ -514,7 +522,7 @@ struct FrequentMealRow: View {
 
 struct LearnDashboardView: View {
     @Binding var path: NavigationPath
-    @Environment(AcademyDataLoader.self) private var dataLoader
+    @State private var dataLoader = AcademyDataLoader()
 
     private var totalArticles: Int {
         dataLoader.categories.reduce(0) { $0 + $1.totalCount }
@@ -620,7 +628,7 @@ struct LearnCategorySection: View {
         VStack(alignment: .leading, spacing: 16) {
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(LocalizedStringKey(category.title))
+                Text(category.title)
                     .font(.title3)
                     .bold()
                     .foregroundColor(.primary)
@@ -686,7 +694,7 @@ struct ArticleCardView: View {
 
                 HStack(spacing: 4) {
                     Image(systemName: "clock.fill").font(.system(size: 9))
-                    Text("\(article.readTime) \(String(localized: "MIN"))").font(.system(size: 9, weight: .bold))
+                    Text("\(article.readTime) MIN").font(.system(size: 9, weight: .bold))
                 }
                 .foregroundStyle(.white)
                 .padding(.horizontal, 8).padding(.vertical, 5)
@@ -696,12 +704,12 @@ struct ArticleCardView: View {
             .frame(height: 115).clipped()
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(LocalizedStringKey(article.title))
+                Text(article.title)
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                Text(LocalizedStringKey(article.subtitle))
+                Text(article.subtitle)
                     .font(.system(.caption, weight: .medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -770,7 +778,7 @@ struct ArticleDetailView: View {
                             VStack(alignment: .leading, spacing: 16) {
                                 HStack(spacing: 6) {
                                     Image(systemName: "clock.fill")
-                                    Text("\(article.readTime) \(String(localized: "min read"))")
+                                    Text("\(article.readTime) min read")
                                 }
                                 .font(.caption.bold())
                                 .foregroundStyle(.white)
@@ -780,7 +788,7 @@ struct ArticleDetailView: View {
                                 .environment(\.colorScheme, .dark)
                                 .clipShape(Capsule())
 
-                                Text(LocalizedStringKey(article.title))
+                                Text(article.title)
                                     .font(.system(.largeTitle, design: .rounded, weight: .heavy))
                                     .foregroundStyle(.white)
                                     .lineSpacing(4)

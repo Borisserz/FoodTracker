@@ -14,13 +14,6 @@ struct AIRecipeDTO: Codable {
     let protein: Double
     let fats: Double
     let carbs: Double
-    let omega3: Double?
-    let calcium: Double?
-    let potassium: Double?
-    let magnesium: Double?
-    let iron: Double?
-    let vitaminC: Double?
-    let vitaminD: Double?
     let cookingTime: Int
 }
 
@@ -30,42 +23,27 @@ struct AIFoodItemDTO: Codable {
     let protein: Double
     let fats: Double
     let carbs: Double
-    let omega3: Double
-    let calcium: Double
-    let potassium: Double
-    let magnesium: Double
-    let iron: Double
-    let vitaminC: Double
-    let vitaminD: Double
 }
 
 struct AIWeeklyPlanItemDTO: Codable {
-    let title: String?
-    let type: String?
-    let calories: Int?
-    let protein: Int?
-    let carbs: Int?
-    let fat: Int?
-    let omega3: Double?
-    let calcium: Double?
-    let potassium: Double?
-    let magnesium: Double?
-    let iron: Double?
-    let vitaminC: Double?
-    let vitaminD: Double?
-    let ingredients: String?
-    let instructions: String?
-    let prepTimeMinutes: Int?
-    let imageQuery: String?
+    let title: String
+    let type: String
+    let calories: Int
+    let protein: Int
+    let carbs: Int
+    let fat: Int
+    let ingredients: String
+    let instructions: String
+    let prepTimeMinutes: Int
 }
 
 struct AIWeeklyPlanDayDTO: Codable {
-    let dayIndex: Int?
-    let totalCalories: Int?
-    let totalProtein: Int?
-    let totalCarbs: Int?
-    let totalFat: Int?
-    let meals: [AIWeeklyPlanItemDTO]?
+    let dayIndex: Int
+    let totalCalories: Int
+    let totalProtein: Int
+    let totalCarbs: Int
+    let totalFat: Int
+    let meals: [AIWeeklyPlanItemDTO]
 }
 
 struct AIWeeklyPlanDTO: Codable {
@@ -159,7 +137,7 @@ class AINutritionService {
         Invent a creative, tasty recipe using primarily these ingredients.
         \(languageInstruction)
         Return ONLY a raw JSON object. No Markdown. Format:
-        {"name": "String", "info": "String (a short 1-2 word tag like 'High Protein', 'Keto', or 'Healthy')", "calories": Int, "protein": Double, "fats": Double, "carbs": Double, "cookingTime": Int}
+        {"name": "String", "info": "Short description of how to cook it", "calories": Int, "protein": Double, "fats": Double, "carbs": Double, "cookingTime": Int}
         """
         return await fetchFromGemini(prompt: prompt, responseType: AIRecipeDTO.self)
     }
@@ -205,14 +183,7 @@ class AINutritionService {
           "calories": Int,
           "protein": Double,
           "fats": Double,
-          "carbs": Double,
-          "omega3": Double,
-          "calcium": Double,
-          "potassium": Double,
-          "magnesium": Double,
-          "iron": Double,
-          "vitaminC": Double,
-          "vitaminD": Double
+          "carbs": Double
         }
         """
         
@@ -223,89 +194,19 @@ class AINutritionService {
                 calories: dto.calories,
                 protein: dto.protein,
                 fats: dto.fats,
-                carbs: dto.carbs,
-                omega3: dto.omega3,
-                calcium: dto.calcium,
-                potassium: dto.potassium,
-                magnesium: dto.magnesium,
-                iron: dto.iron,
-                vitaminC: dto.vitaminC,
-                vitaminD: dto.vitaminD
+                carbs: dto.carbs
             )
         }
         return nil
     }
 
-    private func dietRules(for diet: String) -> String {
-        switch diet {
-        case "Keto":
-            return "Keto diet: carbs MUST be under 50g per day total. High fat (60-75% of calories). Moderate protein (20-30%). Strictly avoid: bread, pasta, rice, potatoes, sugar, fruit (except berries in small amounts), legumes, grains."
-        case "Vegan":
-            return "Vegan diet: absolutely NO animal products. No meat, fish, eggs, dairy, honey. Protein sources: tofu, tempeh, lentils, chickpeas, black beans, edamame, quinoa, hemp seeds, nutritional yeast."
-        case "Vegetarian":
-            return "Vegetarian diet: NO meat or fish. Eggs and dairy are allowed. Protein sources: eggs, cheese, yogurt, tofu, legumes, paneer."
-        case "Paleo":
-            return "Paleo diet: only whole foods our ancestors ate. Allowed: meat, fish, eggs, vegetables, fruits, nuts, seeds, olive oil. Strictly avoid: grains, legumes, dairy, processed foods, refined sugar, seed oils."
-        case "Pescatarian":
-            return "Pescatarian diet: fish and seafood allowed, NO other meat (no chicken, beef, pork). Eggs and dairy are fine. Feature fish and seafood prominently in at least 2 meals per day."
-        case "Mediterranean":
-            return "Mediterranean diet: emphasize olive oil, vegetables, whole grains, legumes, fish (3+ times a week), moderate dairy, limited red meat (max once a week). Use herbs and spices generously."
-        case "High Protein":
-            return "High Protein diet: protein MUST be at least 40% of total calories. Every single meal must have a substantial protein source: chicken breast, turkey, lean beef, eggs, Greek yogurt, cottage cheese, fish, protein powder. Minimize processed carbs."
-        case "Low Carb":
-            return "Low Carb diet: total daily carbs must be under 100g. Prioritize protein and healthy fats. Avoid: bread, pasta, rice, potatoes, sugar, juice. Focus on: vegetables, meat, fish, eggs, nuts, cheese."
-        default:
-            return "Balanced diet: varied and nutritious meals with all macronutrients well-represented. No restrictions. Include a variety of proteins, complex carbs, healthy fats, and plenty of vegetables."
-        }
-    }
-    
-    private func complexityRules(for complexity: String) -> String {
-        switch complexity {
-        case "Fast (15m)":
-            return "CRITICAL: Every single meal prep time MUST be 15 minutes or under. Only use quick-cook methods: raw, microwave, quick pan-fry, no-cook, canned/pre-cooked ingredients, salads, smoothies, overnight prep. prepTimeMinutes must be ≤ 15 for all meals."
-        case "Chef (60m)":
-            return "Meals can take up to 60 minutes. Include complex, gourmet dishes with multiple steps, marinating, slow cooking, roasting, multiple components, and restaurant-quality plating. prepTimeMinutes can be up to 60."
-        default: // Medium (30m)
-            return "Meals should take between 15-30 minutes to prepare. Use standard cooking methods: stir-fry, grilling, boiling, baking simple dishes. prepTimeMinutes must be between 15-30 for all meals."
-        }
-    }
-    
     func generateWeeklyPlan(targetCalories: Int, diet: String, complexity: String) async -> WeeklyMealPlan? {
-        let dietInstruction = dietRules(for: diet)
-        let complexityInstruction = complexityRules(for: complexity)
-        let proteinTarget = Int(Double(targetCalories) * 0.25 / 4)
-        let carbTarget: Int
-        let fatTarget: Int
-        
-        switch diet {
-        case "Keto":
-            carbTarget = 40
-            fatTarget = Int(Double(targetCalories) * 0.70 / 9)
-        case "High Protein":
-            carbTarget = Int(Double(targetCalories) * 0.30 / 4)
-            fatTarget = Int(Double(targetCalories) * 0.30 / 9)
-        case "Low Carb":
-            carbTarget = 80
-            fatTarget = Int(Double(targetCalories) * 0.40 / 9)
-        default:
-            carbTarget = Int(Double(targetCalories) * 0.45 / 4)
-            fatTarget = Int(Double(targetCalories) * 0.30 / 9)
-        }
-        
         let prompt = """
-        You are an elite nutritionist. Generate a 7-day meal plan following these STRICT constraints:
+        You are an elite nutritionist. Generate a 7-day meal plan (0 to 6) following these constraints:
+        - Target Calories per day: exactly \(targetCalories) kcal
+        - Diet Type: \(diet)
+        - Cooking Complexity: \(complexity)
         
-        === CALORIE TARGET ===
-        Daily calories: exactly \(targetCalories) kcal per day (±50 kcal tolerance)
-        Daily macro targets: ~\(proteinTarget)g protein, ~\(carbTarget)g carbs, ~\(fatTarget)g fat
-        
-        === DIET RULES (STRICTLY FOLLOW) ===
-        \(dietInstruction)
-        
-        === COOKING TIME (STRICTLY FOLLOW) ===
-        \(complexityInstruction)
-        
-        === STRUCTURE ===
         Generate exactly 4 meals per day: Breakfast, Lunch, Dinner, Snack.
         \(languageInstruction)
         Provide the response STRICTLY as a raw JSON object matching this schema:
@@ -319,199 +220,55 @@ class AINutritionService {
                "totalFat": Int,
                "meals": [
                   {
-                    "title": "String (creative descriptive name)",
-                    "type": "String (Breakfast/Lunch/Dinner/Snack)",
+                    "title": "String",
+                    "type": "String",
                     "calories": Int,
                     "protein": Int,
                     "carbs": Int,
                     "fat": Int,
-                    "ingredients": "String (MUST include quantity for EVERY ingredient, comma-separated, e.g.: '200g chicken breast, 1 cup quinoa, 2 tbsp olive oil, 100g baby spinach, 3 cloves garlic')",
-                    "instructions": "String (2-3 clear step instructions)",
-                    "prepTimeMinutes": Int,
-                    "imageQuery": "String (2-3 word ENGLISH dish description for a photo search, e.g. 'bacon cheese omelette', 'ribeye steak asparagus'. MUST always be in English even if the dish name is in another language.)"
+                    "ingredients": "String",
+                    "instructions": "String",
+                    "prepTimeMinutes": Int
                   }
                ]
              }
           ]
         }
+        Do not include markdown tags. Only output the raw JSON. Ensure all arrays have 7 items for days, and 4 items for meals.
         """
-
         
-        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self, temperature: 0.2) {
+        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self) {
             let plan = WeeklyMealPlan(targetCalories: targetCalories, dietType: diet)
             
             for dayDTO in dto.days {
                 let day = MealPlanDay(
-                    dayIndex: dayDTO.dayIndex ?? 0,
-                    totalCalories: dayDTO.totalCalories ?? 0,
-                    totalProtein: dayDTO.totalProtein ?? 0,
-                    totalCarbs: dayDTO.totalCarbs ?? 0,
-                    totalFat: dayDTO.totalFat ?? 0
+                    dayIndex: dayDTO.dayIndex,
+                    totalCalories: dayDTO.totalCalories,
+                    totalProtein: dayDTO.totalProtein,
+                    totalCarbs: dayDTO.totalCarbs,
+                    totalFat: dayDTO.totalFat
                 )
                 
-                for mealDTO in dayDTO.meals ?? [] {
+                for mealDTO in dayDTO.meals {
                     let meal = MealPlanItem(
-                        title: mealDTO.title ?? "Tasty Meal",
-                        type: mealDTO.type ?? "Snack",
-                        calories: mealDTO.calories ?? 0,
-                        protein: mealDTO.protein ?? 0,
-                        carbs: mealDTO.carbs ?? 0,
-                        fat: mealDTO.fat ?? 0,
-                        omega3: mealDTO.omega3 ?? 0.0,
-                        calcium: mealDTO.calcium ?? 0.0,
-                        potassium: mealDTO.potassium ?? 0.0,
-                        magnesium: mealDTO.magnesium ?? 0.0,
-                        iron: mealDTO.iron ?? 0.0,
-                        vitaminC: mealDTO.vitaminC ?? 0.0,
-                        vitaminD: mealDTO.vitaminD ?? 0.0,
-                        ingredients: mealDTO.ingredients ?? "",
-                        instructions: mealDTO.instructions ?? "",
-                        prepTimeMinutes: mealDTO.prepTimeMinutes ?? 15,
-                        imageUrl: self.imageUrlForDish(title: mealDTO.title ?? ""),
-                        imageQuery: mealDTO.imageQuery ?? mealDTO.title ?? ""
+                        title: mealDTO.title,
+                        type: mealDTO.type,
+                        calories: mealDTO.calories,
+                        protein: mealDTO.protein,
+                        carbs: mealDTO.carbs,
+                        fat: mealDTO.fat,
+                        ingredients: mealDTO.ingredients,
+                        instructions: mealDTO.instructions,
+                        prepTimeMinutes: mealDTO.prepTimeMinutes
                     )
-                    day.meals = (day.meals ?? []) + [meal]
+                    day.meals.append(meal)
                 }
                 
-                plan.days = (plan.days ?? []) + [day]
+                plan.days.append(day)
             }
-            
             return plan
         }
         return nil
-    }
-
-    /// Pre-fetches all meal images sequentially with rate-limit protection.
-    /// Call this BEFORE showing the plan so images are already cached when the user sees them.
-    func prefetchAllImages(for plan: WeeklyMealPlan) async {
-        let allMeals = (plan.days ?? []).flatMap { $0.meals ?? [] }
-        for meal in allMeals {
-            guard let url = URL(string: meal.imageUrl) else { continue }
-            _ = try? await PollinationsImageLoader.shared.fetchImage(url: url)
-        }
-    }
-
-    /// Public wrapper – use this from views to get a remote Unsplash URL for any dish name.
-    func imageUrl(forMealTitle title: String) -> String {
-        imageUrlForDish(title: title)
-    }
-
-    private func imageUrlForDish(title: String) -> String {
-        // AI image generation for recipe
-        let keywords = extractFoodKeywords(from: title).joined(separator: " ")
-        let encoded = keywords.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "delicious%20food"
-        return "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20\(encoded)?width=800&height=800&nologo=true"
-    }
-
-    // Кэш найденных URL в памяти — чтобы не дёргать функцию при прокрутке.
-    private let resolvedURLCache = NSCache<NSString, NSURL>()
-
-    /// Точное фото под блюдо через серверный imageProxy. nil → fallback.
-    func resolveImageURL(forMealTitle title: String) async -> URL? {
-        let cacheKey = title as NSString
-        if let cached = resolvedURLCache.object(forKey: cacheKey) {
-            return cached as URL
-        }
-
-        let keywords = extractFoodKeywords(from: title)
-        guard let url = await MealImageService.shared.resolveImageURL(
-            keywords: keywords, title: title
-        ) else {
-            return nil
-        }
-
-        resolvedURLCache.setObject(url as NSURL, forKey: cacheKey)
-        return url
-    }
-
-    /// Extracts up to 4 food-relevant nouns from a dish title for image search.
-    ///
-    /// Rules:
-    ///  1. Only look at the *primary* part of the title (before " with ") — this
-    ///     stops "Garlic Bread" from overriding "Vegetable Barley Stew".
-    ///  2. Skip culinary stopwords (prepositions, articles, vague adjectives).
-    ///  3. Map common synonyms/abbreviations to more image-search-friendly terms.
-    ///  4. Deduplicate while preserving order.
-    private func extractFoodKeywords(from title: String) -> [String] {
-        // ── 1. Primary part only ─────────────────────────────────────────────
-        // "Vegetable Barley Stew with Garlic Bread" → "Vegetable Barley Stew"
-        let primary = title
-            .components(separatedBy: " with ").first?
-            .components(separatedBy: ", with ").first ?? title
-
-        // ── 2. Stopwords to ignore ───────────────────────────────────────────
-        let stopWords: Set<String> = [
-            "with", "and", "the", "for", "pan", "easy", "classic", "healthy",
-            "fresh", "style", "sliced", "slices", "pieces", "mixed", "recipe",
-            "homemade", "quick", "roasted", "grilled", "baked", "fried",
-            "steamed", "boiled", "sauteed", "sautéed", "slow", "cooked",
-            "crispy", "spicy", "sweet", "savory", "savoury", "mini", "baby",
-            "simple", "light", "low", "high", "whole", "half", "large", "small",
-            "stuffed", "filled", "topped", "served", "seasoned", "herb",
-            "herbed", "creamy", "crunchy", "tangy", "smoky"
-        ]
-
-        // ── 3. Synonym / search-term improvements ────────────────────────────
-        let synonyms: [String: String] = [
-            "stew": "stew soup",
-            "porridge": "oatmeal porridge",
-            "oat": "oatmeal",
-            "oats": "oatmeal",
-            "frittata": "egg frittata",
-            "scramble": "scrambled eggs",
-            "omelet": "omelette egg",
-            "omelette": "omelette egg",
-            "risotto": "risotto rice",
-            "burger": "hamburger burger",
-            "taco": "taco mexican",
-            "sushi": "sushi japanese",
-            "ramen": "ramen noodle soup",
-            "lasagna": "lasagna pasta",
-            "fettuccine": "pasta fettuccine",
-            "couscous": "couscous grain",
-            "quinoa": "quinoa salad",
-            "burrito": "burrito mexican",
-            "wrap": "wrap sandwich",
-            "parfait": "yogurt parfait",
-            "smoothie": "smoothie drink",
-            "brownie": "chocolate brownie",
-            "muffin": "muffin baked"
-        ]
-
-        // ── 4. Tokenise, filter, map synonyms, deduplicate ───────────────────
-        var seen = Set<String>()
-        var result: [String] = []
-
-        let tokens = primary
-            .lowercased()
-            .components(separatedBy: CharacterSet.alphanumerics.inverted)
-            .filter { $0.count >= 3 && !stopWords.contains($0) }
-
-        for token in tokens {
-            if seen.contains(token) { continue }
-            seen.insert(token)
-
-            if let mapped = synonyms[token] {
-                // A synonym can be multiple space-separated words; add them all.
-                for part in mapped.components(separatedBy: " ") {
-                    if !seen.contains(part) {
-                        seen.insert(part)
-                        result.append(part)
-                    }
-                }
-            } else {
-                result.append(token)
-            }
-
-            if result.count >= 4 { break }
-        }
-
-        // Fallback: if we got nothing useful, use "meal dish" as generic tags.
-        return result.isEmpty ? ["meal", "dish"] : result
-    }
-
-    func fallbackLocalImage(for title: String) -> String {
-        return "diet_bg_any"
     }
 
     func sendChatMessage(prompt: String, userContext: String, activeDiet: String) async -> String? {
@@ -586,103 +343,13 @@ class AINutritionService {
         }
     }
 
-    private func fetchFromGemini<T: Codable>(prompt: String, responseType: T.Type, schema: [String: Any]? = nil, temperature: Double? = nil) async -> T? {
+    private func fetchFromGemini<T: Codable>(prompt: String, responseType: T.Type) async -> T? {
         do {
-            return try await client.fetchJSON(prompt: prompt, responseType: responseType, schema: schema, temperature: temperature)
+            return try await client.fetchJSON(prompt: prompt, responseType: responseType)
         } catch {
             // The client already logs detailed decode/raw info on failure.
             print("❌ AI Service Exception: \(error.localizedDescription)")
             return nil
         }
-    }
-}
-
-import UIKit
-
-actor PollinationsImageLoader {
-    static let shared = PollinationsImageLoader()
-    
-    private var lastRequestTime: Date = Date.distantPast
-    private let minimumDelay: TimeInterval = 0.0
-    
-    private let cache = NSCache<NSString, UIImage>()
-    
-    // Disk Cache Directory
-    private var cacheDirectory: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-    }
-    
-    private let session: URLSession = {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 15.0
-        config.timeoutIntervalForResource = 15.0
-        config.httpMaximumConnectionsPerHost = 4 // Native concurrency limit
-        return URLSession(configuration: config)
-    }()
-    
-    func fetchImage(url: URL) async throws -> UIImage {
-        let cacheKey = url.absoluteString as NSString
-        if let cachedImage = cache.object(forKey: cacheKey) {
-            return cachedImage
-        }
-        
-        let safeFileName = url.absoluteString.components(separatedBy: .alphanumerics.inverted).joined() + ".jpg"
-        let fileUrl = cacheDirectory.appendingPathComponent(safeFileName)
-        
-        // 1. Check disk cache
-        if let data = try? Data(contentsOf: fileUrl), let image = UIImage(data: data) {
-            cache.setObject(image, forKey: cacheKey)
-            return image
-        }
-        
-        // 2. Fast path for non-pollinations URLs
-        let isPollinations = url.host?.contains("pollinations.ai") == true
-        if !isPollinations {
-            let (data, _) = try await session.data(from: url)
-            if let image = UIImage(data: data) {
-                cache.setObject(image, forKey: cacheKey)
-                Task.detached {
-                    if let jpegData = image.jpegData(compressionQuality: 0.8) {
-                        try? jpegData.write(to: fileUrl)
-                    }
-                }
-                return image
-            } else {
-                throw URLError(.cannotDecodeRawData)
-            }
-        }
-        
-        // 3. Rate-limited concurrent execution for pollinations.ai
-        // Native URLSession handles concurrency via httpMaximumConnectionsPerHost = 4
-        var attempt = 0
-        while attempt < 3 {
-            do {
-                let (data, response) = try await session.data(from: url)
-                if let http = response as? HTTPURLResponse, http.statusCode == 429 {
-                    attempt += 1
-                    // Add jitter to avoid thundering herd on retry
-                    let jitter = Double.random(in: 0.5...1.5)
-                    try await Task.sleep(nanoseconds: UInt64(Double(attempt * 2) * jitter * 1_000_000_000))
-                    continue
-                }
-                
-                if let image = UIImage(data: data) {
-                    cache.setObject(image, forKey: cacheKey)
-                    // Save to disk cache
-                    Task.detached {
-                        if let jpegData = image.jpegData(compressionQuality: 0.8) {
-                            try? jpegData.write(to: fileUrl)
-                        }
-                    }
-                    return image
-                } else {
-                    throw URLError(.cannotDecodeRawData)
-                }
-            } catch {
-                // Fail fast on timeout/error
-                throw error
-            }
-        }
-        throw URLError(.badServerResponse)
     }
 }

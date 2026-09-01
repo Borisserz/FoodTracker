@@ -9,8 +9,8 @@ final class WeeklyMealPlan {
     var dietType: String = ""
     var isCurrentPlan: Bool = true
     
-    @Relationship(deleteRule: .cascade, inverse: \MealPlanDay.parentPlan)
-    var days: [MealPlanDay]? = []
+    @Relationship(deleteRule: .cascade)
+    var days: [MealPlanDay] = []
     
     init(targetCalories: Int, dietType: String, isCurrentPlan: Bool = true) {
         self.targetCalories = targetCalories
@@ -28,8 +28,8 @@ final class MealPlanDay {
     var totalCarbs: Int = 0
     var totalFat: Int = 0
     
-    @Relationship(deleteRule: .cascade, inverse: \MealPlanItem.parentDay)
-    var meals: [MealPlanItem]? = []
+    @Relationship(deleteRule: .cascade)
+    var meals: [MealPlanItem] = []
     
     var parentPlan: WeeklyMealPlan?
     
@@ -51,41 +51,21 @@ final class MealPlanItem {
     var protein: Int = 0
     var carbs: Int = 0
     var fat: Int = 0
-    var omega3: Double = 0.0
-    var calcium: Double = 0.0
-    var potassium: Double = 0.0
-    var magnesium: Double = 0.0
-    var iron: Double = 0.0
-    var vitaminC: Double = 0.0
-    var vitaminD: Double = 0.0
     var ingredients: String = "" // Comma separated
     var instructions: String = ""
     var prepTimeMinutes: Int = 0
-    var imageUrl: String = ""
-    var imageQuery: String = ""
     
     var parentDay: MealPlanDay?
     
-    init(title: String, type: String, calories: Int, protein: Int, carbs: Int, fat: Int, 
-         omega3: Double = 0, calcium: Double = 0, potassium: Double = 0, magnesium: Double = 0, iron: Double = 0, vitaminC: Double = 0, vitaminD: Double = 0,
-         ingredients: String, instructions: String, prepTimeMinutes: Int, imageUrl: String = "", imageQuery: String = "") {
+    init(title: String, type: String, calories: Int, protein: Int, carbs: Int, fat: Int, ingredients: String, instructions: String, prepTimeMinutes: Int) {
         self.title = title
         self.type = type
         self.calories = calories
         self.protein = protein
         self.carbs = carbs
         self.fat = fat
-        self.omega3 = omega3
-        self.calcium = calcium
-        self.potassium = potassium
-        self.magnesium = magnesium
-        self.iron = iron
-        self.vitaminC = vitaminC
-        self.vitaminD = vitaminD
         self.ingredients = ingredients
         self.instructions = instructions
         self.prepTimeMinutes = prepTimeMinutes
-        self.imageUrl = imageUrl
-        self.imageQuery = imageQuery
     }
 }

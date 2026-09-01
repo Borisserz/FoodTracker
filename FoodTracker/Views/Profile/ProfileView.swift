@@ -2,7 +2,6 @@ import SwiftUI
 import SwiftData
 import Charts
 import FirebaseAuth
-import PhotosUI
 
 struct ProfileWrapperView: View {
     @Query private var users: [User]
@@ -41,21 +40,12 @@ struct ProfileView: View {
                 VStack(spacing: 24) {
 
                     VStack(spacing: 16) {
-                        if let data = user.avatarData, let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
-                        } else {
-                            Image(systemName: "person.crop.circle.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 100, height: 100)
-                                .foregroundStyle(themeManager.current.primaryGradient)
-                                .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
-                        }
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 100, height: 100)
+                            .foregroundStyle(themeManager.current.primaryGradient)
+                            .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
 
                         VStack(spacing: 4) {
                             Text(user.name)
@@ -88,11 +78,11 @@ struct ProfileView: View {
                     .buttonStyle(BounceButtonStyle())
 
                     HStack(spacing: 0) {
-                        ProfileStatItem(value: "\(String(format: "%.1f", user.weight))", unit: String(localized: "kg"), title: String(localized: "Body Weight"))
+                        ProfileStatItem(value: "\(String(format: "%.1f", user.weight))", unit: "kg", title: "Weight")
                         Divider().frame(height: 40)
-                        ProfileStatItem(value: "\(Int(user.height))", unit: String(localized: "cm"), title: String(localized: "Body Height"))
+                        ProfileStatItem(value: "\(Int(user.height))", unit: "cm", title: "Height")
                         Divider().frame(height: 40)
-                        ProfileStatItem(value: "\(user.age)", unit: String(localized: "y.o"), title: String(localized: "Age"))
+                        ProfileStatItem(value: "\(user.age)", unit: "y.o", title: "Age")
                     }
                     .padding(.top, 8)
                 }
@@ -110,9 +100,9 @@ struct ProfileView: View {
                                 .foregroundColor(.primary)
 
                             HStack(spacing: 12) {
-                                MacroDotLabel(color: .themePeach, title: String(localized: "P: \(Int(user.targetProtein))g"))
-                                MacroDotLabel(color: .themeYellow, title: String(localized: "F: \(Int(user.targetFats))g"))
-                                MacroDotLabel(color: .drinkWater, title: String(localized: "C: \(Int(user.targetCarbs))g"))
+                                MacroDotLabel(color: .themePeach, title: "P: \(Int(user.targetProtein))g")
+                                MacroDotLabel(color: .themeYellow, title: "F: \(Int(user.targetFats))g")
+                                MacroDotLabel(color: .drinkWater, title: "C: \(Int(user.targetCarbs))g")
                             }
                         }
                         Spacer()
@@ -173,7 +163,6 @@ struct EditProfileSheet: View {
     @State private var weight: Double
     @State private var height: Double
     @State private var age: Int
-    @State private var avatarItem: PhotosPickerItem? = nil
 
     init(user: User) {
         self._user = Bindable(user)
@@ -185,109 +174,23 @@ struct EditProfileSheet: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.themeBg.ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 24) {
-                        
-                        // Personal Details Card
-                        VStack(spacing: 16) {
-                            HStack {
-                                Spacer()
-                                PhotosPicker(selection: $avatarItem, matching: .images) {
-                                    ZStack(alignment: .bottomTrailing) {
-                                        if let data = user.avatarData, let uiImage = UIImage(data: data) {
-                                            Image(uiImage: uiImage)
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 80, height: 80)
-                                                .clipShape(Circle())
-                                        } else {
-                                            Image(systemName: "person.crop.circle.fill")
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fit)
-                                                .frame(width: 80, height: 80)
-                                                .foregroundColor(.gray.opacity(0.5))
-                                        }
-                                        Image(systemName: "pencil.circle.fill")
-                                            .foregroundColor(.themePink)
-                                            .font(.title3)
-                                            .background(Circle().fill(Color.white))
-                                            .offset(x: 4, y: 4)
-                                    }
-                                }
-                                .padding(.bottom, 8)
-                                .onChange(of: avatarItem) { _, newItem in
-                                    Task {
-                                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                            await MainActor.run { user.avatarData = data }
-                                        }
-                                    }
-                                }
-                                Spacer()
-                            }
-                            
-                            HStack {
-                                Text("Name")
-                                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                                Spacer()
-                                TextField("Name", text: $name)
-                                    .multilineTextAlignment(.trailing)
-                                    .foregroundColor(.gray)
-                                    .font(.system(size: 16, weight: .regular, design: .rounded))
-                            }
-                            
-                            Divider()
-                            
-                            PremiumMetricSlider(
-                                title: "Age",
-                                value: Binding(get: { Double(age) }, set: { age = Int($0) }),
-                                range: 10...100,
-                                step: 1,
-                                unit: "y.o.",
-                                icon: "calendar",
-                                color: .themeOrange
-                            )
-                        }
-                        .premiumCardStyle()
-                        .padding(.horizontal, 20)
-                        .padding(.top, 24)
-                        
-                        // Body Metrics Card
-                        VStack(spacing: 16) {
-                            PremiumMetricSlider(
-                                title: "Body Height",
-                                value: $height,
-                                range: 100...250,
-                                step: 1,
-                                unit: "cm",
-                                icon: "ruler.fill",
-                                color: .blue
-                            )
-                            
-                            Divider()
-                            
-                            PremiumMetricSlider(
-                                title: "Body Weight",
-                                value: $weight,
-                                range: 30...250,
-                                step: 0.1,
-                                unit: "kg",
-                                icon: "scalemass.fill",
-                                color: .themePink
-                            )
-                        }
-                        .premiumCardStyle()
-                        .padding(.horizontal, 20)
-                        
-                        Text("Updating these metrics will automatically recalculate your recommended daily calorie goal.")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
+            Form {
+                Section("Personal Details") {
+                    HStack {
+                        Text("Name")
+                        Spacer()
+                        TextField("Name", text: $name).multilineTextAlignment(.trailing).foregroundColor(.gray)
                     }
-                    .padding(.bottom, 40)
+                    Stepper("Age: \(age) years", value: $age, in: 10...100)
+                }
+
+                Section {
+                    Stepper("Height: \(Int(height)) cm", value: $height, in: 100...250)
+                    Stepper("Weight: \(String(format: "%.1f", weight)) kg", value: $weight, in: 30...250, step: 0.1)
+                } header: {
+                    Text("Body Metrics")
+                } footer: {
+                    Text("Updating these metrics will automatically recalculate your recommended daily calorie goal.")
                 }
             }
             .navigationTitle("Edit Profile")
@@ -323,74 +226,6 @@ struct EditProfileSheet: View {
     }
 }
 
-struct PremiumMetricSlider: View {
-    let title: String
-    @Binding var value: Double
-    let range: ClosedRange<Double>
-    let step: Double
-    let unit: String
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            HStack {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.15))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: icon)
-                        .foregroundColor(color)
-                        .font(.system(size: 16, weight: .semibold))
-                }
-                
-                Text(LocalizedStringKey(title))
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text(String(format: step == 1 ? "%.0f" : "%.1f", value))
-                        .font(.system(size: 24, weight: .heavy, design: .rounded))
-                        .foregroundColor(color)
-                        .contentTransition(.numericText(value: value))
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: value)
-                    
-                    Text(unit)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
-                        .foregroundColor(.gray)
-                }
-            }
-            HStack(spacing: 12) {
-                Button(action: {
-                    HapticManager.shared.impact(style: .light)
-                    value = max(range.lowerBound, value - step)
-                }) {
-                    Image(systemName: "minus.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(color.opacity(0.6))
-                }
-                .buttonStyle(.plain)
-                
-                Slider(value: $value, in: range, step: step)
-                    .tint(color)
-                
-                Button(action: {
-                    HapticManager.shared.impact(style: .light)
-                    value = min(range.upperBound, value + step)
-                }) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(color.opacity(0.6))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.vertical, 4)
-    }
-}
-
 struct NutritionSettingsEditor: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
@@ -408,13 +243,12 @@ struct NutritionSettingsEditor: View {
         let totalCals = Double(cals > 0 ? cals : 1)
         let p = (user.targetProtein * 4 / totalCals) * 100
         let f = (user.targetFats * 9 / totalCals) * 100
-        let c = (user.targetCarbs * 4 / totalCals) * 100
         _pPct = State(initialValue: p)
         _fPct = State(initialValue: f)
-        _cPct = State(initialValue: c)
+        _cPct = State(initialValue: 100 - p - f)
     }
 
-    private var isBalanced: Bool { Int(round(pPct)) + Int(round(fPct)) + Int(round(cPct)) == 100 }
+    private var isBalanced: Bool { Int(pPct + fPct + cPct) == 100 }
 
     var body: some View {
         NavigationStack {
@@ -438,15 +272,15 @@ struct NutritionSettingsEditor: View {
                                 SectorMark(angle: .value("Protein", pPct), innerRadius: .ratio(0.75), angularInset: 2).foregroundStyle(Color.themePeach.gradient)
                             }
                             VStack {
-                                Text("\(Int(round(pPct)) + Int(round(fPct)) + Int(round(cPct)))%").font(.title.bold()).foregroundColor(isBalanced ? .primary : .red)
+                                Text("\(Int(pPct + fPct + cPct))%").font(.title.bold()).foregroundColor(isBalanced ? .primary : .red)
                                 Text(isBalanced ? "Balanced" : "Adjust to 100%").font(.caption).foregroundColor(isBalanced ? .gray : .red)
                             }
                         }.frame(height: 220)
 
                         VStack(spacing: 24) {
-                            MacroAdjusterRow(title: String(localized: "Protein"), color: .themePeach, pct: $pPct, grams: calculateGrams(pct: pPct, multiplier: 4), onAdjust: { adjustMacros(changed: .protein) })
-                            MacroAdjusterRow(title: String(localized: "Fats"), color: .themeYellow, pct: $fPct, grams: calculateGrams(pct: fPct, multiplier: 9), onAdjust: { adjustMacros(changed: .fat) })
-                            MacroAdjusterRow(title: String(localized: "Carbs"), color: .drinkWater, pct: $cPct, grams: calculateGrams(pct: cPct, multiplier: 4), onAdjust: { adjustMacros(changed: .carbs) })
+                            MacroAdjusterRow(title: "Protein", color: .themePeach, pct: $pPct, grams: calculateGrams(pct: pPct, multiplier: 4), onAdjust: { adjustMacros(changed: .protein) })
+                            MacroAdjusterRow(title: "Fat", color: .themeYellow, pct: $fPct, grams: calculateGrams(pct: fPct, multiplier: 9), onAdjust: { adjustMacros(changed: .fat) })
+                            MacroAdjusterRow(title: "Carbs", color: .drinkWater, pct: $cPct, grams: calculateGrams(pct: cPct, multiplier: 4), onAdjust: { adjustMacros(changed: .carbs) })
                         }.padding(20).background(Color.white).cornerRadius(24).shadow(color: .black.opacity(0.04), radius: 10, y: 5).padding(.horizontal, 20)
 
                         Spacer().frame(height: 100)
@@ -480,7 +314,7 @@ struct NutritionSettingsEditor: View {
     private func saveSettings() {
         user.dailyCaloriesGoal = dailyCals
 
-        user.applyDietBreakdown(fatPercent: Int(round(fPct)), proteinPercent: Int(round(pPct)), carbsPercent: Int(round(cPct)), dietKey: "custom")
+        user.applyDietBreakdown(fatPercent: Int(fPct), proteinPercent: Int(pPct), carbsPercent: Int(cPct), dietKey: "custom")
         try? context.save()
         dismiss()
     }
@@ -494,7 +328,6 @@ struct SettingsView: View {
 
     @AppStorage("useMetricSystem") private var useMetricSystem = true
     @Query private var summaries: [DailySummary]
-    @State private var showingWidgetPromo = false
 
     var body: some View {
         NavigationStack {
@@ -505,33 +338,33 @@ struct SettingsView: View {
                     VStack(spacing: 24) {
 
                         VStack(spacing: 0) {
-                            NavigationLink(destination: AccountSettingsView(user: user, loggedDaysCount: summaries.count)) {
-                                SettingsRowView(icon: "person.fill", iconColor: themeManager.current.primaryAccent, title: String(localized: "Account"))
+                            NavigationLink(destination: AccountSettingsView(user: user)) {
+                                SettingsRowView(icon: "person.fill", iconColor: themeManager.current.primaryAccent, title: "Account")
                             }
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: RemindersSettingsView()) {
-                                SettingsRowView(icon: "bell.fill", iconColor: .themeYellow, title: String(localized: "Reminders"))
+                                SettingsRowView(icon: "bell.fill", iconColor: .themeYellow, title: "Reminders")
                             }
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: AppleHealthSettingsView(user: user)) {
-                                SettingsRowView(icon: "heart.fill", iconColor: .red, title: String(localized: "Apple Health"))
+                                SettingsRowView(icon: "heart.fill", iconColor: .red, title: "Apple Health")
                             }
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: UnitsSettingsView(useMetric: $useMetricSystem)) {
-                                SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: String(localized: "Units settings"), value: useMetricSystem ? String(localized: "Metric") : String(localized: "Imperial"))
+                                SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: "Units settings", value: useMetricSystem ? "Metric" : "Imperial")
                             }
                             Divider().padding(.leading, 56)
                             
                             NavigationLink(destination: ThemeSettingsView()) {
-                                SettingsRowView(icon: "paintpalette.fill", iconColor: themeManager.current.secondaryAccent, title: String(localized: "App Theme"), value: String(localized: String.LocalizationValue(themeManager.current.name)))
+                                SettingsRowView(icon: "paintpalette.fill", iconColor: themeManager.current.secondaryAccent, title: "App Theme", value: themeManager.current.name)
                             }
                             Divider().padding(.leading, 56)
 
                             Button(action: { exportData() }) {
-                                SettingsRowView(icon: "square.and.arrow.up.fill", iconColor: .green, title: String(localized: "Export Data to CSV"))
+                                SettingsRowView(icon: "square.and.arrow.up.fill", iconColor: .green, title: "Export Data to CSV")
                             }
                         }
                         .premiumCardStyle()
@@ -539,34 +372,24 @@ struct SettingsView: View {
 
                         VStack(spacing: 0) {
                             Button(action: { rateApp() }) {
-                                SettingsRowView(icon: "star.fill", iconColor: .themeOrange, title: String(localized: "Rate the app"))
+                                SettingsRowView(icon: "star.fill", iconColor: .themeOrange, title: "Rate the app")
                             }
                             Divider().padding(.leading, 56)
 
                             Button(action: { contactSupport() }) {
-                                SettingsRowView(icon: "questionmark.circle.fill", iconColor: .green, title: String(localized: "Help"))
-                            }
-                            Divider().padding(.leading, 56)
-
-                            Button(action: { showingWidgetPromo = true }) {
-                                SettingsRowView(icon: "rectangle.3.group.fill", iconColor: .themePink, title: String(localized: "Widgets Guide"))
-                            }
-                            Divider().padding(.leading, 56)
-
-                            Button(action: { openPrivacyPolicy() }) {
-                                SettingsRowView(icon: "hand.raised.fill", iconColor: .gray, title: String(localized: "Privacy Policy"))
+                                SettingsRowView(icon: "questionmark.circle.fill", iconColor: .green, title: "Help")
                             }
                             Divider().padding(.leading, 56)
 
                             Button(action: { openTerms() }) {
-                                SettingsRowView(icon: "doc.text.fill", iconColor: .gray, title: String(localized: "Terms of Service"))
+                                SettingsRowView(icon: "doc.text.fill", iconColor: .gray, title: "Terms of Service & Privacy")
                             }
                         }
                         .premiumCardStyle()
                         .padding(.horizontal, 20)
 
                         VStack(spacing: 4) {
-                            Text("version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0") global")
+                            Text("version 1.0.0 global")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .textCase(.lowercase)
@@ -594,9 +417,6 @@ struct SettingsView: View {
                             .foregroundColor(.gray.opacity(0.5))
                     }
                 }
-            }
-            .sheet(isPresented: $showingWidgetPromo) {
-                WidgetPromoView()
             }
         }
     }
@@ -629,28 +449,26 @@ struct SettingsView: View {
 
     private func rateApp() {
         HapticManager.shared.impact(style: .medium)
-        if let url = URL(string: "itms-apps://itunes.apple.com/app/id6778506345?action=write-review") {
+        if let url = URL(string: "itms-apps://itunes.apple.com/app/id6445831998?action=write-review") {
             UIApplication.shared.open(url)
         }
     }
 
     private func contactSupport() {
         HapticManager.shared.impact(style: .medium)
-        if let url = URL(string: "https://borisserz.github.io/workouttracker-privacy/Support-%20FoodTracker.html") {
-            UIApplication.shared.open(url)
-        }
-    }
+        let subject = "Help Needed - FoodTracker"
+        let body = "Please describe your issue here...\n\n\n--- App Info ---\nVersion: 1.0.0"
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
 
-    private func openPrivacyPolicy() {
-        HapticManager.shared.impact(style: .light)
-        if let url = URL(string: "https://borisserz.github.io/workouttracker-privacy/Privacy%20Policy%20-%20FoodTracker.html") {
+        if let url = URL(string: "mailto:support@foodtracker.app?subject=\(encodedSubject)&body=\(encodedBody)") {
             UIApplication.shared.open(url)
         }
     }
 
     private func openTerms() {
         HapticManager.shared.impact(style: .light)
-        if let url = URL(string: "https://borisserz.github.io/workouttracker-privacy/Terms%20of%20Use%20-%20FoodTracker.html") {
+        if let url = URL(string: "https://foodtracker.app/privacy") {
             UIApplication.shared.open(url)
         }
     }
@@ -697,14 +515,11 @@ struct SettingsRowView: View {
 
 struct AccountSettingsView: View {
     @Environment(AuthManager.self) private var authManager
-    @Environment(\.modelContext) private var context
     let user: User
-    let loggedDaysCount: Int
 
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showError = false
-    @State private var showDeleteConfirmation = false
 
     var body: some View {
         ZStack {
@@ -713,14 +528,14 @@ struct AccountSettingsView: View {
             VStack(spacing: 24) {
 
                 VStack(alignment: .leading, spacing: 16) {
-                    AccountInfoRow(title: String(localized: "User ID"), value: String(authManager.currentUserId.prefix(8)))
+                    AccountInfoRow(title: "User ID", value: String(authManager.currentUserId.prefix(8)))
                     Divider()
-                    AccountInfoRow(title: String(localized: "Account type"), value: authManager.isAnonymous ? "Guest" : "Registered", valueColor: authManager.isAnonymous ? .gray : .themePink)
+                    AccountInfoRow(title: "Account type", value: authManager.isAnonymous ? "Guest" : "Registered", valueColor: authManager.isAnonymous ? .gray : .themePink)
                     Divider()
                     if !authManager.isAnonymous, let email = authManager.currentUserEmail {
-                        AccountInfoRow(title: String(localized: "Email"), value: email)
+                        AccountInfoRow(title: "Email", value: email)
                     } else {
-                        AccountInfoRow(title: String(localized: "Total logged days"), value: "\(loggedDaysCount)")
+                        AccountInfoRow(title: "Total logged days", value: "42")
                     }
                 }
                 .padding(20)
@@ -739,7 +554,6 @@ struct AccountSettingsView: View {
                                 isLoading = true
                                 do {
                                     try await SocialAuthService.shared.signInWithApple()
-                                    authManager.refresh()
                                 } catch {
                                     errorMessage = error.localizedDescription
                                     showError = true
@@ -765,7 +579,6 @@ struct AccountSettingsView: View {
                                 isLoading = true
                                 do {
                                     try await SocialAuthService.shared.signInWithGoogle()
-                                    authManager.refresh()
                                 } catch {
                                     errorMessage = error.localizedDescription
                                     showError = true
@@ -815,7 +628,18 @@ struct AccountSettingsView: View {
                     }
 
                     Button(action: {
-                        showDeleteConfirmation = true
+                        Task {
+                            isLoading = true
+                            do {
+                                try await SocialAuthService.shared.reauthenticateForDeletion()
+                                try await authManager.deleteCurrentUser()
+                                try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                showError = true
+                            }
+                            isLoading = false
+                        }
                     }) {
                         HStack {
                             Image(systemName: "trash")
@@ -845,55 +669,6 @@ struct AccountSettingsView: View {
         }, message: {
             Text(errorMessage ?? "Unknown error")
         })
-        .alert("Delete Account", isPresented: $showDeleteConfirmation, actions: {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
-                Task {
-                    isLoading = true
-                    do {
-                        try await SocialAuthService.shared.reauthenticateForDeletion()
-                        try await SocialAuthService.shared.deleteServerData()
-                        wipeLocalData()
-                        try await authManager.deleteCurrentUser()
-                        try await AnonymousAuthBootstrap.shared.ensureSignedIn()
-                    } catch {
-                        errorMessage = error.localizedDescription
-                        showError = true
-                    }
-                    isLoading = false
-                }
-            }
-        }, message: {
-            Text("Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.")
-        })
-    }
-
-    private func wipeLocalData() {
-        let userFetch = FetchDescriptor<User>()
-        if let users = try? context.fetch(userFetch) { users.forEach { context.delete($0) } }
-        
-        let summaryFetch = FetchDescriptor<DailySummary>()
-        if let summaries = try? context.fetch(summaryFetch) { summaries.forEach { context.delete($0) } }
-        
-        let recipeFetch = FetchDescriptor<CustomRecipe>()
-        if let recipes = try? context.fetch(recipeFetch) { recipes.forEach { context.delete($0) } }
-        
-        let planFetch = FetchDescriptor<WeeklyMealPlan>()
-        if let plans = try? context.fetch(planFetch) { plans.forEach { context.delete($0) } }
-        
-        let weightFetch = FetchDescriptor<WeightLog>()
-        if let weights = try? context.fetch(weightFetch) { weights.forEach { context.delete($0) } }
-        
-        let chatFetch = FetchDescriptor<AIChatSession>()
-        if let chats = try? context.fetch(chatFetch) { chats.forEach { context.delete($0) } }
-        
-        let shoppingFetch = FetchDescriptor<ShoppingItem>()
-        if let items = try? context.fetch(shoppingFetch) { items.forEach { context.delete($0) } }
-        
-        let cacheFetch = FetchDescriptor<ScannedFoodCache>()
-        if let caches = try? context.fetch(cacheFetch) { caches.forEach { context.delete($0) } }
-        
-        try? context.save()
     }
 }
 
@@ -1125,11 +900,11 @@ struct StreakCardView: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("^[\(streak) Day Streak!](inflect: true)")
+                Text("\(streak) Day Streak!")
                     .font(.title3)
                     .bold()
 
-                Text(streak > 0 ? LocalizedStringKey("Keep it up! You're doing great.") : LocalizedStringKey("Start logging meals to build your streak."))
+                Text(streak > 0 ? "Keep it up! You're doing great." : "Start logging meals to build your streak.")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
@@ -1263,13 +1038,15 @@ struct BMICardView: View {
             HStack(spacing: 6) {
                 Image(systemName: "info.circle.fill")
                     .foregroundColor(category.color)
-                Text("Your BMI indicates: ")
+                Text("Your BMI indicates you are ")
                     .font(.subheadline)
                     .foregroundColor(.gray)
                 + Text(category.text)
                     .font(.subheadline).bold()
                     .foregroundColor(category.color)
-
+                + Text(".")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
             }
         }
         .premiumCardStyle()

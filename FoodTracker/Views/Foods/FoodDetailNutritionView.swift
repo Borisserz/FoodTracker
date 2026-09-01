@@ -8,48 +8,29 @@ struct FoodDetailNutritionView: View {
     var onAdd: (FoodItem) -> Void
 
     @State private var weight: Double
-    
-    // Editable base properties
-    @State private var editedName: String
-    @State private var baseCalories: Int
-    @State private var baseProtein: Double
-    @State private var baseFats: Double
-    @State private var baseCarbs: Double
-    
-    @State private var showAdjustSheet = false
 
     init(food: FoodItem, mealTitle: String, onAdd: @escaping (FoodItem) -> Void) {
         self.food = food
         self.mealTitle = mealTitle
         self.onAdd = onAdd
         self._weight = State(initialValue: food.weight > 0 ? food.weight : 100.0)
-        
-        self._editedName = State(initialValue: food.name.decodingHTMLEntities())
-        self._baseCalories = State(initialValue: food.calories)
-        self._baseProtein = State(initialValue: food.protein)
-        self._baseFats = State(initialValue: food.fats)
-        self._baseCarbs = State(initialValue: food.carbs)
     }
 
     private var multiplier: Double { weight / max(food.weight, 1.0) }
-    private var currentCals: Int { Int(Double(baseCalories) * multiplier) }
-    private var currentP: Double { baseProtein * multiplier }
-    private var currentF: Double { baseFats * multiplier }
-    private var currentC: Double { baseCarbs * multiplier }
+    private var currentCals: Int { Int(Double(food.calories) * multiplier) }
+    private var currentP: Double { food.protein * multiplier }
+    private var currentF: Double { food.fats * multiplier }
+    private var currentC: Double { food.carbs * multiplier }
 
     var body: some View {
-        NavigationStack {
-            ZStack(alignment: .bottom) {
-                Color.themeBg.ignoresSafeArea()
+        ZStack(alignment: .bottom) {
+            Color.themeBg.ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
 
                     VStack(spacing: 0) {
-                        FoodDetailHeader(food: food, name: editedName) {
-                            HapticManager.shared.impact(style: .medium)
-                            showAdjustSheet = true
-                        }
+                        FoodDetailHeader(name: food.name)
 
                         MacroDonutChartCard(
                             calories: currentCals,
@@ -66,25 +47,25 @@ struct FoodDetailNutritionView: View {
                         .padding(.horizontal, 20)
 
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(LocalizedStringKey("Nutrition Facts"))
+                        Text("Nutrition Facts")
                             .font(.title3.bold())
                             .padding(.horizontal, 20)
                             .padding(.bottom, 12)
 
                         VStack(spacing: 0) {
-                            NutritionRow(title: String(localized: "Proteins"), value: currentP, unit: "g")
-                            NutritionRow(title: String(localized: "Total Fat"), value: currentF, unit: "g")
-                            NutritionRow(title: String(localized: "Carbs"), value: currentC, unit: "g")
+                            NutritionRow(title: "Proteins", value: currentP, unit: "g")
+                            NutritionRow(title: "Total Fat", value: currentF, unit: "g")
+                            NutritionRow(title: "Carbs", value: currentC, unit: "g")
 
-                            NutritionSectionHeader(title: String(localized: "Vitamins & Minerals"))
+                            NutritionSectionHeader(title: "Vitamins & Minerals")
 
-                            NutritionRow(title: String(localized: "Vitamin C"), value: food.vitaminC * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: String(localized: "Vitamin D"), value: food.vitaminD * multiplier, unit: "mcg", isPro: true)
-                            NutritionRow(title: String(localized: "Calcium"), value: food.calcium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: String(localized: "Iron"), value: food.iron * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: String(localized: "Magnesium"), value: food.magnesium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: String(localized: "Potassium"), value: food.potassium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: String(localized: "Omega-3"), value: food.omega3 * multiplier, unit: "g", isPro: true)
+                            NutritionRow(title: "Vitamin C", value: food.vitaminC * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: "Vitamin D", value: food.vitaminD * multiplier, unit: "mcg", isPro: true)
+                            NutritionRow(title: "Calcium", value: food.calcium * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: "Iron", value: food.iron * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: "Magnesium", value: food.magnesium * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: "Potassium", value: food.potassium * multiplier, unit: "mg", isPro: true)
+                            NutritionRow(title: "Omega-3", value: food.omega3 * multiplier, unit: "g", isPro: true)
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
@@ -97,7 +78,6 @@ struct FoodDetailNutritionView: View {
                     Spacer().frame(height: 100)
                 }
             }
-            .scrollDismissesKeyboard(.interactively)
             .ignoresSafeArea(edges: .top)
 
             VStack {
@@ -111,7 +91,7 @@ struct FoodDetailNutritionView: View {
                     Button(action: {
                         HapticManager.shared.impact(style: .heavy)
                         let addedFood = FoodItem(
-                            name: editedName,
+                            name: food.name,
                             weight: weight,
                             calories: currentCals,
                             protein: currentP,
@@ -129,7 +109,7 @@ struct FoodDetailNutritionView: View {
                         dismiss()
                     }) {
                         HStack {
-                            Text("\(String(localized: "Add to")) \(String(localized: String.LocalizationValue(mealTitle)))")
+                            Text("Add to \(mealTitle)")
                                 .font(.headline)
                             Spacer()
                             Text("\(currentCals) kcal")
@@ -150,32 +130,14 @@ struct FoodDetailNutritionView: View {
             .ignoresSafeArea(edges: .bottom)
         }
         .navigationBarHidden(true)
-        .sheet(isPresented: $showAdjustSheet) {
-                AdjustMacrosSheet(
-                    name: $editedName,
-                    calories: $baseCalories,
-                    protein: $baseProtein,
-                    fats: $baseFats,
-                    carbs: $baseCarbs
-                )
-                .presentationDetents([.fraction(0.7), .large])
-                .presentationCornerRadius(32)
-                .presentationDragIndicator(.visible)
-            }
-        }
     }
 }
 
 private struct FoodDetailHeader: View {
     @Environment(\.dismiss) var dismiss
     @State private var isFavorite = false
-    
-    @State private var showingReportReasons = false
-    @State private var reportReason = ""
 
-    let food: FoodItem
     let name: String
-    var onAdjust: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -201,38 +163,6 @@ private struct FoodDetailHeader: View {
                         .background(Color.black.opacity(0.2))
                         .clipShape(Circle())
                 }
-                Button(action: onAdjust) {
-                    Image(systemName: "slider.horizontal.3")
-                        .font(.title3)
-                        .foregroundColor(.white)
-                        .frame(width: 40, height: 40)
-                        .background(Color.black.opacity(0.2))
-                        .clipShape(Circle())
-                }
-                
-                Menu {
-                    Button(role: .destructive) {
-                        HapticManager.shared.impact(style: .medium)
-                        showingReportReasons = true
-                    } label: {
-                        Label("Report Content", systemImage: "exclamationmark.triangle")
-                    }
-                    
-                    Button(role: .destructive) {
-                        HapticManager.shared.impact(style: .heavy)
-                        BarcodeDatabaseService.shared.blockCommunityFood(item: food)
-                        dismiss()
-                    } label: {
-                        Label("Block Product", systemImage: "nosign")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.title3)
-                        .foregroundColor(.white)
-                        .frame(width: 40, height: 40)
-                        .background(Color.black.opacity(0.2))
-                        .clipShape(Circle())
-                }
             }
             .padding(.top, 50)
 
@@ -250,23 +180,6 @@ private struct FoodDetailHeader: View {
 
         .clipShape(RoundedCorner(radius: 32, corners: [.bottomLeft, .bottomRight]))
         .shadow(color: Color.themePink.opacity(0.3), radius: 15, y: 10)
-        .confirmationDialog("Report Content", isPresented: $showingReportReasons, titleVisibility: .visible) {
-            Button("Offensive Content", role: .destructive) {
-                BarcodeDatabaseService.shared.reportCommunityFood(item: food, reason: "Offensive Content")
-                dismiss()
-            }
-            Button("Spam or Fake", role: .destructive) {
-                BarcodeDatabaseService.shared.reportCommunityFood(item: food, reason: "Spam")
-                dismiss()
-            }
-            Button("Inaccurate Macros", role: .destructive) {
-                BarcodeDatabaseService.shared.reportCommunityFood(item: food, reason: "Inaccurate")
-                dismiss()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Why are you reporting \(name)? This will notify our moderators.")
-        }
     }
 }
 
@@ -324,9 +237,9 @@ private struct MacroDonutChartCard: View {
             Spacer()
 
             HStack(spacing: 16) {
-                MacroColumnInfo(percent: cPercent, grams: c, title: String(localized: "Carbs"), color: .drinkWater)
-                MacroColumnInfo(percent: fPercent, grams: f, title: String(localized: "Fats"), color: .themeYellow)
-                MacroColumnInfo(percent: pPercent, grams: p, title: String(localized: "Protein"), color: .themePeach)
+                MacroColumnInfo(percent: cPercent, grams: c, title: "Carbs", color: .drinkWater)
+                MacroColumnInfo(percent: fPercent, grams: f, title: "Fat", color: .themeYellow)
+                MacroColumnInfo(percent: pPercent, grams: p, title: "Protein", color: .themePeach)
             }
         }
         .padding(20)
@@ -436,7 +349,6 @@ private struct ServingSizeEditor: View {
                             .foregroundColor(weight == Double(amount) ? .white : .primary)
                             .cornerRadius(12)
                     }
-                    .buttonStyle(PlainButtonStyle())
                 }
             }
         }
@@ -500,135 +412,5 @@ struct RoundedCorner: Shape {
     func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         return Path(path.cgPath)
-    }
-}
-
-// MARK: - AdjustMacrosSheet
-struct AdjustMacrosSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var name: String
-    @Binding var calories: Int
-    @Binding var protein: Double
-    @Binding var fats: Double
-    @Binding var carbs: Double
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.themeBg.ignoresSafeArea()
-                    .onTapGesture { hideKeyboard() }
-                
-            VStack(spacing: 24) {
-                Capsule()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 40, height: 5)
-                    .padding(.top, 10)
-
-                HStack {
-                    Text(String(localized: "Adjust Results"))
-                        .font(.title2.bold())
-                    Spacer()
-                    Button(String(localized: "Done")) {
-                        hideKeyboard()
-                        HapticManager.shared.impact(style: .medium)
-                        dismiss()
-                    }
-                    .font(.headline)
-                    .foregroundColor(.themePink)
-                }
-                .padding(.horizontal, 24)
-
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 20) {
-                        AdjustInputField(title: String(localized: "Food Name"), icon: "pencil", text: $name)
-                        
-                        HStack(spacing: 16) {
-                            AdjustNumberField(title: String(localized: "Calories"), icon: "flame.fill", color: .themeOrange, value: Binding(get: { Double(calories) }, set: { calories = Int($0) }))
-                            AdjustNumberField(title: String(localized: "Protein"), icon: "bolt.fill", color: .themePeach, value: $protein)
-                        }
-                        
-                        HStack(spacing: 16) {
-                            AdjustNumberField(title: String(localized: "Fats"), icon: "drop.fill", color: .themeYellow, value: $fats)
-                            AdjustNumberField(title: String(localized: "Carbs"), icon: "leaf.fill", color: .drinkWater, value: $carbs)
-                        }
-                        
-                        Spacer().frame(height: 40)
-                    }
-                    .padding(.horizontal, 24)
-                }
-                .scrollDismissesKeyboard(.interactively)
-            }
-        }
-    }
-}
-    
-    private func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-}
-
-struct AdjustInputField: View {
-    let title: String
-    let icon: String
-    @Binding var text: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.subheadline.bold()).foregroundColor(.gray)
-            HStack {
-                Image(systemName: icon).foregroundColor(.themePink)
-                TextField(title, text: $text)
-                    .font(.headline)
-            }
-            .padding()
-            .background(Color(uiColor: .secondarySystemGroupedBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
-        }
-    }
-}
-
-struct AdjustNumberField: View {
-    let title: String
-    let icon: String
-    let color: Color
-    @Binding var value: Double
-    
-    private var textBinding: Binding<String> {
-        Binding(
-            get: { value == 0 ? "" : (value.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", value) : String(format: "%.1f", value)) },
-            set: {
-                let filtered = $0.filter { "0123456789.".contains($0) }
-                if let val = Double(filtered) { value = val }
-                else if filtered.isEmpty { value = 0 }
-            }
-        )
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.subheadline.bold()).foregroundColor(.gray)
-            HStack {
-                Image(systemName: icon).foregroundColor(color)
-                TextField("0", text: textBinding)
-                    .keyboardType(.decimalPad)
-                    .font(.headline.bold())
-                    .multilineTextAlignment(.trailing)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button("Done") {
-                                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                            }
-                            .font(.headline)
-                            .foregroundColor(.themePink)
-                        }
-                    }
-            }
-            .padding()
-            .background(Color(uiColor: .secondarySystemGroupedBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
-        }
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import FirebaseFirestore
 struct PremiumRecipe: Identifiable, Hashable, Codable {
-    var id: String? = UUID().uuidString
+    @DocumentID var id: String? // Оставляем так
     let title: String
     let description: String
     let time: String
@@ -35,6 +35,36 @@ struct NutritionFact: Hashable {
     let isSubItem: Bool
 }
 
+var mockRecipesData: [PremiumRecipe] = [
+    PremiumRecipe(
+        title: "Baked Apples with Honey & Walnuts",
+        description: "Simple to make, comforting to enjoy, and perfect for cozy evenings. 🍂",
+        time: "20 min", caloriesPerServing: 249,
+        imageUrl: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+        isFavorite: true, tags: ["Breakfast", "Snack", "Vegetarian"], baseServings: 4,
+        protein: 3.0, fat: 11.0, carbs: 40.5,
+        ingredients: [RecipeIngredient(name: "Walnuts", amount: "65 g", weightGrams: 65, calories: 425)],
+        directions: ["Core apples.", "Bake at 180°C."]
+    ),
+    PremiumRecipe(
+        title: "Creamy Pumpkin Risotto with Gorgonzola",
+        description: "A rich and creamy autumn classic.",
+        time: "40 min", caloriesPerServing: 441,
+        imageUrl: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?q=80&w=800&auto=format&fit=crop",
+        isFavorite: false, tags: ["Dinner", "Vegetarian"], baseServings: 2,
+        protein: 14.0, fat: 18.0, carbs: 55.0,
+        ingredients: [], directions: []
+    ),
+    PremiumRecipe(
+        title: "Chicken and Wild Rice Bowl",
+        description: "High protein, low calorie perfect lunch.",
+        time: "25 min", caloriesPerServing: 504,
+        imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+        isFavorite: true, tags: ["Lunch", "High Protein"], baseServings: 2,
+        protein: 38.8, fat: 8.6, carbs: 66.5,
+        ingredients: [], directions: []
+    )
+]
 
 struct RecipesContainerView: View {
     @Binding var path: NavigationPath
@@ -52,8 +82,8 @@ struct RecipesContainerView: View {
         VStack(spacing: 0) {
 
             HStack {
-                TabButton(title: String(localized: "Discover"), tabIndex: 0, selectedTab: $selectedTab, animation: animation)
-                TabButton(title: String(localized: "My Recipes"), tabIndex: 1, selectedTab: $selectedTab, animation: animation)
+                TabButton(title: "Discover", tabIndex: 0, selectedTab: $selectedTab, animation: animation)
+                TabButton(title: "My Recipes", tabIndex: 1, selectedTab: $selectedTab, animation: animation)
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 10)
@@ -186,17 +216,17 @@ struct DiscoverTabView: View {
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            MealTypeCard(title: String(localized: "Breakfast"), subtitle: String(localized: "Start your day right"), imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=400", color: .themeYellow) {
-                                openFiltered(title: String(localized: "Breakfast"), tags: ["Breakfast"])
+                            MealTypeCard(title: "Breakfast", subtitle: "Start your day right", imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=400", color: .themeYellow) {
+                                openFiltered(title: "Breakfast", tags: ["Breakfast"])
                             }
-                            MealTypeCard(title: String(localized: "Lunch"), subtitle: String(localized: "Healthy & filling"), imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400", color: .green) {
-                                openFiltered(title: String(localized: "Lunch"), tags: ["Lunch"])
+                            MealTypeCard(title: "Lunch", subtitle: "Healthy & filling", imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400", color: .green) {
+                                openFiltered(title: "Lunch", tags: ["Lunch"])
                             }
-                            MealTypeCard(title: String(localized: "Dinner"), subtitle: String(localized: "Cozy evenings"), imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400", color: .themePink) {
-                                openFiltered(title: String(localized: "Dinner"), tags: ["Dinner"])
+                            MealTypeCard(title: "Dinner", subtitle: "Cozy evenings", imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400", color: .themePink) {
+                                openFiltered(title: "Dinner", tags: ["Dinner"])
                             }
-                            MealTypeCard(title: String(localized: "Snack"), subtitle: String(localized: "Quick bites"), imageUrl: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?q=80&w=400", color: .themeOrange) {
-                                openFiltered(title: String(localized: "Snack"), tags: ["Snack"])
+                            MealTypeCard(title: "Snack", subtitle: "Quick bites", imageUrl: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?q=80&w=400", color: .themeOrange) {
+                                openFiltered(title: "Snack", tags: ["Snack"])
                             }
                         }
                         .padding(.horizontal, 20)
@@ -229,19 +259,19 @@ struct DiscoverTabView: View {
                 }
 
                 if !highProtein.isEmpty {
-                    RecipeHorizontalSection(title: String(localized: "High Protein Power"), recipes: highProtein, path: $path)
+                    RecipeHorizontalSection(title: "High Protein Power", recipes: highProtein, path: $path)
                 }
                 if !ketoLowCarb.isEmpty {
-                    RecipeHorizontalSection(title: String(localized: "Low Carb & Keto"), recipes: ketoLowCarb, path: $path)
+                    RecipeHorizontalSection(title: "Low Carb & Keto", recipes: ketoLowCarb, path: $path)
                 }
                 if !quickEasy.isEmpty {
-                    RecipeHorizontalSection(title: String(localized: "Quick & Easy"), recipes: quickEasy, path: $path)
+                    RecipeHorizontalSection(title: "Quick & Easy", recipes: quickEasy, path: $path)
                 }
                 if !plantBased.isEmpty {
-                    RecipeHorizontalSection(title: String(localized: "Plant-Based"), recipes: plantBased, path: $path)
+                    RecipeHorizontalSection(title: "Plant-Based", recipes: plantBased, path: $path)
                 }
                 if !chefsSpecials.isEmpty {
-                    RecipeHorizontalSection(title: String(localized: "Chef's Specials"), recipes: chefsSpecials, path: $path)
+                    RecipeHorizontalSection(title: "Chef's Specials", recipes: chefsSpecials, path: $path)
                 }
 
             }
@@ -269,7 +299,19 @@ struct MealTypeCard: View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
                 // Background food image with placeholder
-                SmartImageView(url: imageUrl, fallbackTitle: title)
+                AsyncImage(url: URL(string: imageUrl)) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        LinearGradient(
+                            colors: [color.opacity(0.85), color],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
+                }
                 .frame(width: 260, height: 110)
                 .clipped()
                 
@@ -326,7 +368,7 @@ struct CalorieRangeCard: View {
                 .font(.system(size: 14))
                 .foregroundColor(color)
 
-            Text(LocalizedStringKey(title))
+            Text(title)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundColor(.primary)
         }
@@ -403,8 +445,8 @@ struct MyRecipesTabView: View {
                     if customRecipes.isEmpty {
                         EmptyStateView(
                             imageName: "frying.pan",
-                            title: String(localized: "No custom recipes yet"),
-                            description: String(localized: "Your culinary masterpieces will appear here.")
+                            title: "No custom recipes yet",
+                            description: "Your culinary masterpieces will appear here."
                         )
                         .frame(height: 150)
                     } else {
@@ -465,44 +507,16 @@ struct CustomRecipePremiumCard: View {
         let macros = recipe.toFoodItem()
 
         VStack(spacing: 0) {
-            
-            // Hero Image
-            ZStack(alignment: .bottomLeading) {
-                if recipe.imageUrl.isEmpty {
-                    ZStack {
-                        LinearGradient(colors: [.themeOrange.opacity(0.6), .themePink.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                        VStack(spacing: 8) {
-                            Image(systemName: "frying.pan")
-                                .font(.system(size: 40))
-                                .foregroundColor(.white)
-                            Text("Custom Recipe")
-                                .font(.caption.bold())
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-                    }
-                    .frame(height: 140)
-                    .clipped()
-                } else {
-                    SmartImageView(url: recipe.imageUrl, fallbackTitle: recipe.name)
-                        .frame(height: 140)
-                        .clipped()
-                }
-                
-                LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
-                
-                let displayInfo = recipe.info.count > 20 ? "AI RECIPE" : recipe.info.uppercased()
-                Text(displayInfo)
-                    .font(.system(size: 10, weight: .black, design: .rounded))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.themePink.opacity(0.8))
-                    .clipShape(Capsule())
-                    .padding(12)
-            }
 
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 8) {
+                    Text(recipe.info.uppercased())
+                        .font(.system(size: 10, weight: .black, design: .rounded))
+                        .foregroundColor(.themePink)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.themePink.opacity(0.15))
+                        .clipShape(Capsule())
 
                     Text(recipe.name)
                         .font(.system(size: 20, weight: .bold, design: .rounded))
@@ -542,9 +556,9 @@ struct CustomRecipePremiumCard: View {
             Divider().padding(.horizontal, 20)
 
             HStack(spacing: 20) {
-                MacroPill(title: String(localized: "Carbs"), value: macros.carbs, color: .drinkWater)
-                MacroPill(title: String(localized: "Fats"), value: macros.fats, color: .themeYellow)
-                MacroPill(title: String(localized: "Protein"), value: macros.protein, color: .themePeach)
+                MacroPill(title: "Carbs", value: macros.carbs, color: .drinkWater)
+                MacroPill(title: "Fat", value: macros.fats, color: .themeYellow)
+                MacroPill(title: "Protein", value: macros.protein, color: .themePeach)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
@@ -617,9 +631,9 @@ struct AdvancedRecipeFilterSheet: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 32) {
-                        FilterIconSection(title: String(localized: "Meals"), items: meals, selection: $selectedTags)
-                        FilterIconSection(title: String(localized: "Preparation Method"), items: prep, selection: $selectedTags)
-                        FilterColoredSection(title: String(localized: "Diets"), items: diets, selection: $selectedTags)
+                        FilterIconSection(title: "Meals", items: meals, selection: $selectedTags)
+                        FilterIconSection(title: "Preparation Method", items: prep, selection: $selectedTags)
+                        FilterColoredSection(title: "Diets", items: diets, selection: $selectedTags)
                     }
                     .padding(20)
                     .padding(.bottom, 100)
@@ -677,7 +691,7 @@ struct FilterIconSection: View {
                         HStack(spacing: 6) {
                             Image(systemName: item.1)
                                 .font(.system(size: 14))
-                            Text(LocalizedStringKey(item.0))
+                            Text(item.0)
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                         }
                         .foregroundColor(selection.contains(item.0) ? .white : .gray)
@@ -712,7 +726,7 @@ struct FilterColoredSection: View {
                             Image(systemName: item.1)
                                 .font(.system(size: 14))
                                 .foregroundColor(selection.contains(item.0) ? .white : item.2)
-                            Text(LocalizedStringKey(item.0))
+                            Text(item.0)
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                         }
                         .foregroundColor(selection.contains(item.0) ? .white : .gray)
@@ -788,21 +802,16 @@ struct PremiumRecipeCard: View {
     var width: CGFloat? = nil
 
     var body: some View {
-        // Always resolve an image — use stored URL or generate one from the title.
-        let effectiveUrl = recipe.imageUrl.isEmpty
-            ? AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
-            : recipe.imageUrl
-
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .bottomLeading) {
-                SmartImageView(url: effectiveUrl, fallbackTitle: recipe.title)
-                    .frame(height: 160).clipped()
+                AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
+                    if let image = phase.image { image.resizable().aspectRatio(contentMode: .fill) } else { Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView()) }
+                }.frame(height: 160).clipped()
 
                 LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
 
                 if let firstTag = recipe.tags.first {
-                    Text(LocalizedStringKey(firstTag))
-                        .textCase(.uppercase)
+                    Text(firstTag.uppercased())
                         .font(.system(.caption2, design: .rounded, weight: .black))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8).padding(.vertical, 4)
@@ -824,7 +833,7 @@ struct PremiumRecipeCard: View {
             .frame(height: 160)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(LocalizedStringKey(recipe.title)).font(.system(.headline, design: .rounded, weight: .bold)).foregroundStyle(.primary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                Text(recipe.title).font(.system(.headline, design: .rounded, weight: .bold)).foregroundStyle(.primary).lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 12) {
                     Text(recipe.time)
                     Text("\(recipe.caloriesPerServing) Cal")
@@ -879,49 +888,20 @@ struct PremiumRecipeDetailView: View {
     private var dynamicFat: Int { Int(recipe.fat * Double(recipe.baseServings) * multiplier) }
     private var dynamicCarbs: Int { Int(recipe.carbs * Double(recipe.baseServings) * multiplier) }
 
-    private func generateAI() {
-        guard !isGeneratingRecipe else { return }
-        isGeneratingRecipe = true
-        HapticManager.shared.impact(style: .medium)
-        
-        Task {
-            let ingredientsList = recipe.ingredients.map { "\($0.name) (\($0.amount))" }
-            if let dto = await AINutritionService.shared.generateCookingSteps(for: recipe.title, ingredients: ingredientsList) {
-                let ai = AIChefRecipe(
-                    title: dto.title,
-                    calories: dto.calories,
-                    protein: dto.protein,
-                    heroImage: recipe.imageUrl.isEmpty ? "sparkles" : "fork.knife",
-                    cookTime: dto.cookTime,
-                    difficulty: dto.difficulty,
-                    history: dto.history,
-                    ingredients: dto.ingredients,
-                    steps: dto.steps.map { RecipeStep(instruction: $0.instruction, imageName: "sparkles", aiTip: $0.aiTip) },
-                    platingTip: dto.platingTip
-                )
-                await MainActor.run {
-                    self.generatedRecipe = ai
-                    self.isGeneratingRecipe = false
-                    self.showAIFlow = true
-                }
-            } else {
-                await MainActor.run { self.isGeneratingRecipe = false }
-            }
-        }
-    }
-
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     ZStack(alignment: .bottomLeading) {
-                        // Always show a matching image
-                        let effectiveDetailUrl = recipe.imageUrl.isEmpty
-                            ? AINutritionService.shared.imageUrl(forMealTitle: recipe.title)
-                            : recipe.imageUrl
 
-                        SmartImageView(url: effectiveDetailUrl, fallbackTitle: recipe.title)
+                        AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
+                            if let image = phase.image {
+                                image.resizable().aspectRatio(contentMode: .fill)
+                            } else {
+                                Rectangle().fill(Color.gray.opacity(0.2))
+                            }
+                        }
                         .frame(maxWidth: .infinity)
                         .frame(height: 320)
                         .clipped()
@@ -929,7 +909,7 @@ struct PremiumRecipeDetailView: View {
                         LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
 
                         VStack(alignment: .leading, spacing: 12) {
-                            Text(LocalizedStringKey(recipe.title))
+                            Text(recipe.title)
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                                 .lineLimit(3)
@@ -948,8 +928,8 @@ struct PremiumRecipeDetailView: View {
 
                     VStack(alignment: .leading, spacing: 32) {
                         VStack(alignment: .leading, spacing: 16) {
-                            Text(LocalizedStringKey(recipe.description)).font(.body).foregroundColor(.gray).lineSpacing(4)
-                            RecipeTagLayout(spacing: 8) { ForEach(recipe.tags, id: \.self) { tag in Text(LocalizedStringKey(tag)).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundColor(.gray).padding(.horizontal, 12).padding(.vertical, 8).background(Color.gray.opacity(0.15)).cornerRadius(16) } }
+                            Text(recipe.description).font(.body).foregroundColor(.gray).lineSpacing(4)
+                            RecipeTagLayout(spacing: 8) { ForEach(recipe.tags, id: \.self) { tag in Text(tag).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundColor(.gray).padding(.horizontal, 12).padding(.vertical, 8).background(Color.gray.opacity(0.15)).cornerRadius(16) } }
                         }.padding(.horizontal, 20)
 
                         VStack(alignment: .leading, spacing: 24) {
@@ -984,13 +964,6 @@ struct PremiumRecipeDetailView: View {
                                                                     context.insert(item)
                                                                 }
                                                                 try? context.save()
-                                                                
-                                                                withAnimation(.spring()) {
-                                                                    showAddedToast = true
-                                                                }
-                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                                    withAnimation(.spring()) { showAddedToast = false }
-                                                                }
 
                                                             }) {
                                                                 HStack(spacing: 4) {
@@ -1086,10 +1059,7 @@ struct PremiumRecipeDetailView: View {
                     Spacer(); Text("Recipe Info").font(.headline).foregroundColor(.white).shadow(radius: 2); Spacer()
                     HStack(spacing: 12) {
 
-                        ShareLink(
-                            item: "Check out this recipe on FoodTracker: \(recipe.title)! It has \(recipe.caloriesPerServing) kcal per serving and takes \(recipe.time).\n\nGet the FoodTracker app: https://apps.apple.com/app/foodtracker",
-                            subject: Text(recipe.title)
-                        ) {
+                        Button(action: {  }) {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.title3)
                                 .foregroundColor(.white)
@@ -1126,27 +1096,6 @@ struct PremiumRecipeDetailView: View {
                 }
             }.ignoresSafeArea(edges: .bottom)
         }
-        .overlay(
-            VStack {
-                if showAddedToast {
-                    HStack(spacing: 12) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                        Text("Added to Grocery List!")
-                            .font(.subheadline.bold())
-                            .foregroundColor(.primary)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 14)
-                    .background(Color.white)
-                    .clipShape(Capsule())
-                    .shadow(color: Color.black.opacity(0.15), radius: 10, y: 5)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .padding(.top, 100)
-                }
-                Spacer()
-            }
-        )
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showMealSheet) {
@@ -1206,8 +1155,8 @@ struct FilteredRecipesListView: View {
 
                     EmptyStateView(
                         imageName: "magnifyingglass",
-                        title: String(localized: "No Recipes Found"),
-                        description: String(localized: "Try adjusting your filters to see more results.")
+                        title: "No Recipes Found",
+                        description: "Try adjusting your filters to see more results."
                     )
                     .padding(.top, 80)
                 } else {
@@ -1281,18 +1230,14 @@ struct ChooseMealSheet: View {
 
         let newFood = FoodItem(name: recipe.title, weight: 100, calories: calories, protein: p, fats: f, carbs: c)
         // Attach via relationship; explicit insert for the item/meal is kept for safety with current cascades
-        if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
-            meal.foodItems = (meal.foodItems ?? []) + [newFood]
+        if let meal = summary.meals.first(where: { $0.title == selectedMeal }) {
+            meal.foodItems.append(newFood)
         } else {
             let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
             context.insert(newMeal)
-            summary.meals = (summary.meals ?? []) + [newMeal]
+            summary.meals.append(newMeal)
         }
         try? context.save()
-        
-        if let user = try? context.fetch(FetchDescriptor<User>()).first, user.isHealthKitEnabled {
-            await HealthKitManager.shared.saveDietaryEnergy(calories: calories, date: .now)
-        }
     }
 }
 

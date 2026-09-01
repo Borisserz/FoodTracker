@@ -59,11 +59,11 @@ struct EatenCaloriesRing: View {
                         .foregroundColor(consumed > target ? .red : .primary)
                         .contentTransition(.numericText())
 
-                    Text(LocalizedStringKey("kcal eaten"))
+                    Text("kcal eaten")
                         .font(.system(.headline, design: .rounded))
                         .foregroundColor(.textGray)
 
-                    Text(String(format: String(localized: "Goal: %d"), target))
+                    Text("Goal: \(target)")
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(.textGray)
                 }
@@ -76,18 +76,11 @@ struct EatenCaloriesRing: View {
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                withAnimation(.spring(response: 0.9, dampingFraction: 0.85)) {
                     animC = cEnd
                     animF = fEnd
                     animP = pEnd
                 }
-            }
-        }
-        .onChange(of: consumed) { _, _ in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-                animC = cEnd
-                animF = fEnd
-                animP = pEnd
             }
         }
     }
@@ -118,11 +111,11 @@ struct BurnedCaloriesRing: View {
                     .foregroundColor(.themeOrange)
                     .contentTransition(.numericText())
 
-                Text(LocalizedStringKey("kcal burned"))
+                Text("kcal burned")
                     .font(.system(.headline, design: .rounded))
                     .foregroundColor(.textGray)
 
-                Text(String(format: String(localized: "Goal: %d"), targetBurn))
+                Text("Goal: \(targetBurn)")
                     .font(.system(size: 16, weight: .medium, design: .rounded))
                     .foregroundColor(.textGray)
             }
@@ -132,12 +125,7 @@ struct BurnedCaloriesRing: View {
         .frame(width: 240, height: 240)
         .padding(.top, 10)
         .onAppear {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                animProgress = progress
-            }
-        }
-        .onChange(of: burned) { _, _ in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
                 animProgress = progress
             }
         }
@@ -172,11 +160,11 @@ struct NetCaloriesRing: View {
                     .foregroundColor(ringColor)
                     .contentTransition(.numericText())
 
-                Text(LocalizedStringKey("net kcal"))
+                Text("net kcal")
                     .font(.system(.headline, design: .rounded))
                     .foregroundColor(.textGray)
 
-                Text(remaining >= 0 ? String(format: String(localized: "%d left"), remaining) : String(format: String(localized: "%d over"), abs(remaining)))
+                Text(remaining >= 0 ? "\(remaining) left" : "\(abs(remaining)) over")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(ringColor)
                     .padding(.horizontal, 10).padding(.vertical, 4)
@@ -189,12 +177,7 @@ struct NetCaloriesRing: View {
         .frame(width: 240, height: 240)
         .padding(.top, 10)
         .onAppear {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                animProgress = abs(progress)
-            }
-        }
-        .onChange(of: net) { _, _ in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
                 animProgress = abs(progress)
             }
         }

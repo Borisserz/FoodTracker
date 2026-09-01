@@ -88,20 +88,6 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // === Custom Barcodes (Shared Crowdsourced DB) ===
-    match /custom_barcodes/{barcode} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
-    }
-
-    // === Global Community Foods (AI & Manual) ===
-    match /global_community_foods/{foodId} {
-      allow read: if true;
-      allow create, update: if request.auth != null;
-      allow delete: if false;
-    }
-
     // === Default deny for everything else ===
     match /{document=**} {
       allow read, write: if false;

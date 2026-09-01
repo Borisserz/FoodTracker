@@ -292,7 +292,7 @@ struct AddMealView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
-            .navigationTitle("Add Meal")
+            .navigationTitle("Log Meal")
             .navigationBarTitleDisplayMode(.inline)
             .tint(.themePink)
             .sheet(isPresented: $showingAddFood) {
@@ -367,20 +367,11 @@ struct AddMealView: View {
             existingMeal.foodItems = selectedFoods
         } else {
             let newMeal = Meal(title: selectedMealType, date: selectedDate, foodItems: selectedFoods)
-            summaryToUse.meals = (summaryToUse.meals ?? []) + [newMeal]
+            summaryToUse.meals.append(newMeal)
         }
         
         do {
             try modelContext.save()
-            
-            if let user = users.first, user.isHealthKitEnabled {
-                let caloriesToSave = totalMealCalories
-                let dateToSave = selectedDate
-                Task {
-                    await HealthKitManager.shared.saveDietaryEnergy(calories: caloriesToSave, date: dateToSave)
-                }
-            }
-            
             dismiss()
         } catch {
             print("Failed to save meal: \(error.localizedDescription)")
@@ -460,9 +451,9 @@ private struct AddMealSummaryCard: View {
             
             // Macro Grid/Pills
             HStack(spacing: 12) {
-                MacroSummaryMiniProgress(title: String(localized: "Proteins"), current: protein, goal: proteinGoal, color: .themePink)
-                MacroSummaryMiniProgress(title: String(localized: "Carbs"), current: carbs, goal: carbsGoal, color: .blue)
-                MacroSummaryMiniProgress(title: String(localized: "Fats"), current: fats, goal: fatsGoal, color: .orange)
+                MacroSummaryMiniProgress(title: "Protein", current: protein, goal: proteinGoal, color: .themePink)
+                MacroSummaryMiniProgress(title: "Carbs", current: carbs, goal: carbsGoal, color: .blue)
+                MacroSummaryMiniProgress(title: "Fat", current: fats, goal: fatsGoal, color: .orange)
             }
         }
         .padding(20)
@@ -484,12 +475,12 @@ private struct MacroSummaryMiniProgress: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.system(size: 11, weight: .bold, design: .rounded))
                     .foregroundColor(.gray)
                 Spacer()
-                Text(String(format: "%.1f g", current))
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                Text("\(Int(current))g")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
             }
             
@@ -522,18 +513,18 @@ private struct FoodItemRowCard: View {
     
     private func emojiForFood(_ name: String) -> String {
         let nameLower = name.lowercased()
-        if nameLower.contains("yogurt") { return "🥛" }
-        if nameLower.contains("granola") || nameLower.contains("oat") { return "🥣" }
-        if nameLower.contains("coffee") { return "☕️" }
-        if nameLower.contains("apple") { return "🍎" }
-        if nameLower.contains("chicken") { return "🍗" }
-        if nameLower.contains("avocado") { return "🥑" }
-        if nameLower.contains("egg") { return "🍳" }
-        if nameLower.contains("salad") { return "🥗" }
-        if nameLower.contains("meat") || nameLower.contains("steak") { return "🥩" }
-        if nameLower.contains("banana") { return "🍌" }
-        if nameLower.contains("fish") || nameLower.contains("salmon") { return "🐟" }
-        if nameLower.contains("water") { return "💧" }
+        if nameLower.contains("yogurt") || nameLower.contains("йогурт") { return "🥛" }
+        if nameLower.contains("granola") || nameLower.contains("гранола") || nameLower.contains("овсян") || nameLower.contains("oat") { return "🥣" }
+        if nameLower.contains("coffee") || nameLower.contains("кофе") { return "☕️" }
+        if nameLower.contains("apple") || nameLower.contains("яблоко") { return "🍎" }
+        if nameLower.contains("chicken") || nameLower.contains("куриц") { return "🍗" }
+        if nameLower.contains("avocado") || nameLower.contains("авокадо") { return "🥑" }
+        if nameLower.contains("egg") || nameLower.contains("яйцо") || nameLower.contains("яиц") { return "🍳" }
+        if nameLower.contains("salad") || nameLower.contains("салат") { return "🥗" }
+        if nameLower.contains("meat") || nameLower.contains("мясо") || nameLower.contains("steak") || nameLower.contains("стейк") { return "🥩" }
+        if nameLower.contains("banana") || nameLower.contains("банан") { return "🍌" }
+        if nameLower.contains("fish") || nameLower.contains("рыба") || nameLower.contains("salmon") || nameLower.contains("лосось") { return "🐟" }
+        if nameLower.contains("water") || nameLower.contains("вода") { return "💧" }
         return "🥘"
     }
     
@@ -554,8 +545,8 @@ private struct FoodItemRowCard: View {
                             .multilineTextAlignment(.leading)
                             .lineLimit(1)
                         
-                        Text(String(format: "%dg • P: %.1f g • F: %.1f g • C: %.1f g", Int(food.weight), food.protein, food.fats, food.carbs))
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                        Text("\(Int(food.weight))g • \(food.calories) kcal")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
                     }
                     

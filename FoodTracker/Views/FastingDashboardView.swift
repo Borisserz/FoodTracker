@@ -37,47 +37,47 @@ struct FastingPlan: Identifiable, Hashable, Codable {
     var color: Color { Color.fromHex(colorHex) ?? .blue }
 
     static let defaultPlans: [FastingPlan] = [
-            FastingPlan(category: .beginner, title: String(localized: "12:12"), description: String(localized: "Circadian rhythm fast. Great for beginners."), icon: "sun.and.horizon.fill", colorHex: "32ADE6", isPopular: false, fastingHours: 12, eatingHours: 12,
+            FastingPlan(category: .beginner, title: "12:12", description: String(localized: "Circadian rhythm fast. Great for beginners."), icon: "sun.and.horizon.fill", colorHex: "32ADE6", isPopular: false, fastingHours: 12, eatingHours: 12,
                         difficultyRating: 1,
                         benefits: [FastingBenefit(icon: "moon.zzz.fill", text: String(localized: "Better Sleep")), FastingBenefit(icon: "brain.head.profile", text: String(localized: "Mental Clarity"))],
                         breakFastTip: String(localized: "A simple balanced breakfast like eggs and avocado is perfect.")),
 
-            FastingPlan(category: .beginner, title: String(localized: "14:10"), description: String(localized: "Ease your way into fasting. Burns fat smoothly."), icon: "leaf.fill", colorHex: "34C759", isPopular: false, fastingHours: 14, eatingHours: 10,
+            FastingPlan(category: .beginner, title: "14:10", description: String(localized: "Ease your way into fasting. Burns fat smoothly."), icon: "leaf.fill", colorHex: "34C759", isPopular: false, fastingHours: 14, eatingHours: 10,
                         difficultyRating: 2,
                         benefits: [FastingBenefit(icon: "flame.fill", text: String(localized: "Light Fat Burn")), FastingBenefit(icon: "heart.fill", text: String(localized: "Heart Health"))],
                         breakFastTip: String(localized: "Oatmeal with berries or a protein smoothie will keep you energized.")),
 
-            FastingPlan(category: .beginner, title: String(localized: "16:8"), description: String(localized: "The golden standard of fasting. Perfect for fat loss."), icon: "flame.fill", colorHex: "F25C78", isPopular: true, fastingHours: 16, eatingHours: 8,
+            FastingPlan(category: .beginner, title: "16:8", description: String(localized: "The golden standard of fasting. Perfect for fat loss."), icon: "flame.fill", colorHex: "F25C78", isPopular: true, fastingHours: 16, eatingHours: 8,
                         difficultyRating: 3,
                         benefits: [FastingBenefit(icon: "flame.fill", text: String(localized: "Deep Fat Burn")), FastingBenefit(icon: "bolt.fill", text: String(localized: "Energy Boost")), FastingBenefit(icon: "arrow.down.right.circle.fill", text: String(localized: "Insulin Drop")), FastingBenefit(icon: "figure.walk", text: String(localized: "Weight Loss"))],
                         breakFastTip: String(localized: "Break it with lean protein (chicken/fish) and veggies. Avoid heavy carbs immediately.")),
 
-            FastingPlan(category: .intermediate, title: String(localized: "18:6"), description: String(localized: "Less flexibility, for experienced users."), icon: "target", colorHex: "F28B66", isPopular: false, fastingHours: 18, eatingHours: 6,
+            FastingPlan(category: .intermediate, title: "18:6", description: String(localized: "Less flexibility, for experienced users."), icon: "target", colorHex: "F28B66", isPopular: false, fastingHours: 18, eatingHours: 6,
                         difficultyRating: 3,
                         benefits: [FastingBenefit(icon: "flame.fill", text: String(localized: "Max Fat Burn")), FastingBenefit(icon: "drop.fill", text: String(localized: "Autophagy Starts"))],
                         breakFastTip: String(localized: "Start with a small portion of easily digestible food, wait 30 mins, then eat a full meal.")),
 
-            FastingPlan(category: .intermediate, title: String(localized: "20:4"), description: String(localized: "The Warrior Diet. 1-2 meals in a tight window."), icon: "shield.fill", colorHex: "FF3B30", isPopular: false, fastingHours: 20, eatingHours: 4,
+            FastingPlan(category: .intermediate, title: "20:4", description: String(localized: "The Warrior Diet. 1-2 meals in a tight window."), icon: "shield.fill", colorHex: "FF3B30", isPopular: false, fastingHours: 20, eatingHours: 4,
                         difficultyRating: 4,
                         benefits: [FastingBenefit(icon: "shield.fill", text: String(localized: "Immunity Boost")), FastingBenefit(icon: "brain", text: String(localized: "Laser Focus"))],
                         breakFastTip: String(localized: "Bone broth or a light salad first. Your digestive system is asleep, wake it up gently.")),
 
-            FastingPlan(category: .intermediate, title: String(localized: "Alternate Day"), description: String(localized: "One day on, one day off. Breaks plateaus."), icon: "arrow.triangle.2.circlepath", colorHex: "5856D6", isPopular: false, fastingHours: 24, eatingHours: 24,
+            FastingPlan(category: .intermediate, title: "Alternate Day", description: String(localized: "One day on, one day off. Breaks plateaus."), icon: "arrow.triangle.2.circlepath", colorHex: "5856D6", isPopular: false, fastingHours: 24, eatingHours: 24,
                         difficultyRating: 4,
                         benefits: [FastingBenefit(icon: "chart.line.downtrend.xyaxis", text: String(localized: "Breaks Plateaus")), FastingBenefit(icon: "clock.arrow.2.circlepath", text: String(localized: "Anti-Aging"))],
                         breakFastTip: String(localized: "Focus heavily on hydration and electrolytes on your fasting days.")),
 
-            FastingPlan(category: .expert, title: String(localized: "23:1 (OMAD)"), description: String(localized: "One Meal A Day. Extreme fat burn and repair."), icon: "crown.fill", colorHex: "E5A93B", isPopular: false, fastingHours: 23, eatingHours: 1,
+            FastingPlan(category: .expert, title: "23:1 (OMAD)", description: String(localized: "One Meal A Day. Extreme fat burn and repair."), icon: "crown.fill", colorHex: "E5A93B", isPopular: false, fastingHours: 23, eatingHours: 1,
                         difficultyRating: 5,
                         benefits: [FastingBenefit(icon: "crown.fill", text: String(localized: "Ultimate Discipline")), FastingBenefit(icon: "cell.cell", text: String(localized: "Deep Autophagy")), FastingBenefit(icon: "flame.fill", text: String(localized: "Rapid Fat Loss"))],
                         breakFastTip: String(localized: "Eat a massive, nutrient-dense meal. Make sure to hit your daily protein and fat macros in this window!")),
 
-            FastingPlan(category: .expert, title: String(localized: "36-Hour"), description: String(localized: "Monk Fast. Full day water fast for a reset."), icon: "drop.fill", colorHex: "AF52DE", isPopular: false, fastingHours: 36, eatingHours: 0,
+            FastingPlan(category: .expert, title: "36-Hour", description: String(localized: "Monk Fast. Full day water fast for a reset."), icon: "drop.fill", colorHex: "AF52DE", isPopular: false, fastingHours: 36, eatingHours: 0,
                         difficultyRating: 5,
                         benefits: [FastingBenefit(icon: "arrow.triangle.2.circlepath", text: String(localized: "Full Reset")), FastingBenefit(icon: "cross.case.fill", text: String(localized: "Cellular Repair"))],
                         breakFastTip: String(localized: "DANGER: Do not break with heavy carbs. Start with bone broth, wait an hour, eat steamed veggies and fish.")),
 
-            FastingPlan(category: .expert, title: String(localized: "5:2 Diet"), description: String(localized: "5 normal days, 2 days under 500 kcal."), icon: "calendar.badge.minus", colorHex: "00C7BE", isPopular: false, fastingHours: 48, eatingHours: 0,
+            FastingPlan(category: .expert, title: "5:2 Diet", description: String(localized: "5 normal days, 2 days under 500 kcal."), icon: "calendar.badge.minus", colorHex: "00C7BE", isPopular: false, fastingHours: 48, eatingHours: 0,
                         difficultyRating: 4,
                         benefits: [FastingBenefit(icon: "calendar", text: String(localized: "Weekly Balance")), FastingBenefit(icon: "scale.3d", text: String(localized: "Steady Loss"))],
                         breakFastTip: String(localized: "On your 500 kcal days, focus entirely on lean protein and leafy greens to stay full."))
@@ -194,7 +194,7 @@ struct PremiumFastingCard: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center) {
-                    Text(LocalizedStringKey(plan.title))
+                    Text(plan.title)
                         .font(.system(size: 20, weight: .black, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -222,7 +222,7 @@ struct PremiumFastingCard: View {
                     }
                 }
 
-                Text(LocalizedStringKey(plan.description))
+                Text(plan.description)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundColor(.secondary)
                     .lineLimit(2)
@@ -289,7 +289,7 @@ struct PremiumFastingDetailView: View {
                                     .foregroundColor(.white.opacity(0.8))
                                     .tracking(2)
 
-                                Text(LocalizedStringKey(plan.title))
+                                Text(plan.title)
                                     .font(.system(size: 56, weight: .heavy, design: .rounded))
                                     .foregroundColor(.white)
                                     .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
@@ -350,7 +350,7 @@ struct PremiumFastingDetailView: View {
                             .padding(.bottom, -30)
                         }
 
-                        Text(LocalizedStringKey(plan.description))
+                        Text(plan.description)
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .lineSpacing(6)
                             .foregroundColor(.primary.opacity(0.8))
@@ -365,7 +365,7 @@ struct PremiumFastingDetailView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: benefit.icon)
                                             .foregroundColor(plan.color)
-                                        Text(LocalizedStringKey(benefit.text))
+                                        Text(benefit.text)
                                             .font(.caption.bold())
                                             .foregroundColor(.primary)
                                         Spacer()
@@ -421,7 +421,7 @@ struct PremiumFastingDetailView: View {
                                     .font(.headline)
                             }
 
-                            Text(LocalizedStringKey(plan.breakFastTip))
+                            Text(plan.breakFastTip)
                                 .font(.subheadline)
                                 .foregroundColor(.primary.opacity(0.8))
                                 .lineSpacing(4)
@@ -456,7 +456,7 @@ struct PremiumFastingDetailView: View {
                     }) {
                         HStack {
                             Image(systemName: "timer")
-                            Text(String(localized: "Start \(plan.title) Protocol"))
+                            Text("Start \(plan.title) Protocol")
                         }
                         .font(.headline)
                         .foregroundColor(.white)
@@ -593,9 +593,9 @@ struct FastingTimelineRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(hour).font(.system(size: 16, weight: .black, design: .rounded)).foregroundColor(color)
-                    Text(LocalizedStringKey(title)).font(.headline).foregroundColor(.primary)
+                    Text(title).font(.headline).foregroundColor(.primary)
                 }
-                Text(LocalizedStringKey(desc))
+                Text(desc)
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .lineSpacing(2)
@@ -607,123 +607,82 @@ struct FastingTimelineRow: View {
 }
 
 struct ActiveFastingCard: View {
+    var manager = FastingManager.shared
+    @State private var showEndAlert = false
+
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                ActiveFastingPhaseHeader()
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Current Fast: \(manager.planName)")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+
+                    HStack(spacing: 6) {
+                        Image(systemName: manager.currentPhase.icon)
+                        Text(manager.currentPhase.name)
+                    }
+                    .font(.caption.bold())
+                    .foregroundColor(manager.currentPhase.color)
+                    .padding(.horizontal, 10).padding(.vertical, 4)
+                    .background(manager.currentPhase.color.opacity(0.15))
+                    .clipShape(Capsule())
+                }
                 Spacer()
-                ActiveFastingProgressCircle()
+
+                ZStack {
+                    Circle().stroke(Color.gray.opacity(0.15), lineWidth: 6)
+                    Circle()
+                        .trim(from: 0, to: manager.progress)
+                        .stroke(manager.currentPhase.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .shadow(color: manager.currentPhase.color.opacity(0.6), radius: 8, y: 0)
+                        .animation(.linear(duration: 1.0), value: manager.progress)
+
+                    Text("\(Int(manager.progress * 100))%")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                }
+                .frame(width: 50, height: 50)
             }
 
             HStack(alignment: .firstTextBaseline) {
-                ActiveFastingTimerText()
+                Text(manager.elapsedTimeString)
+                    .font(.system(size: 38, weight: .heavy, design: .rounded))
+                    .foregroundColor(.primary)
+                    .contentTransition(.numericText())
                 Spacer()
             }
 
             HStack {
-                ActiveFastingRemainingText()
+                Text(manager.remainingTimeString)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+
                 Spacer()
-                EndFastButton()
+
+                Button(action: { showEndAlert = true }) {
+                    Text("End Fast")
+                        .font(.subheadline.bold())
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(Color.red)
+                        .clipShape(Capsule())
+                        .shadow(color: .red.opacity(0.3), radius: 5, y: 2)
+                }
+                .buttonStyle(BounceButtonStyle())
             }
         }
         .padding(20)
         .background(Color.white)
         .cornerRadius(24)
-        .modifier(ActiveFastingCardOverlay())
-    }
-}
-
-struct ActiveFastingPhaseHeader: View {
-    var manager = FastingManager.shared
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Current Fast: \(manager.planName)")
-                .font(.headline)
-                .foregroundColor(.primary)
-
-            HStack(spacing: 6) {
-                Image(systemName: manager.currentPhase.icon)
-                Text(manager.currentPhase.name)
-            }
-            .font(.caption.bold())
-            .foregroundColor(manager.currentPhase.color)
-            .padding(.horizontal, 10).padding(.vertical, 4)
-            .background(manager.currentPhase.color.opacity(0.15))
-            .clipShape(Capsule())
-        }
-    }
-}
-
-struct ActiveFastingProgressCircle: View {
-    var manager = FastingManager.shared
-    var body: some View {
-        ZStack {
-            Circle().stroke(Color.gray.opacity(0.15), lineWidth: 6)
-            Circle()
-                .trim(from: 0, to: manager.progress)
-                .stroke(manager.currentPhase.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-                .shadow(color: manager.currentPhase.color.opacity(0.6), radius: 8, y: 0)
-                .animation(.linear(duration: 1.0), value: manager.progress)
-
-            Text("\(Int(manager.progress * 100))%")
-                .font(.system(size: 12, weight: .bold, design: .rounded))
-        }
-        .frame(width: 50, height: 50)
-    }
-}
-
-struct ActiveFastingTimerText: View {
-    var manager = FastingManager.shared
-    var body: some View {
-        Text(manager.elapsedTimeString)
-            .font(.system(size: 38, weight: .heavy, design: .rounded))
-            .foregroundColor(.primary)
-            .contentTransition(.numericText())
-    }
-}
-
-struct ActiveFastingRemainingText: View {
-    var manager = FastingManager.shared
-    var body: some View {
-        Text(manager.remainingTimeString)
-            .font(.subheadline)
-            .foregroundColor(.gray)
-    }
-}
-
-struct ActiveFastingCardOverlay: ViewModifier {
-    var manager = FastingManager.shared
-    func body(content: Content) -> some View {
-        content
-            .shadow(color: manager.currentPhase.color.opacity(0.15), radius: 15, y: 8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(manager.currentPhase.color.opacity(0.3), lineWidth: 2)
-                    .opacity(manager.progress >= 1.0 ? 1 : 0)
-                    .animation(.easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
-                    .allowsHitTesting(false)
-            )
-    }
-}
-
-struct EndFastButton: View {
-    var manager = FastingManager.shared
-    @State private var showEndAlert = false
-    
-    var body: some View {
-        Button(action: { showEndAlert = true }) {
-            Text("End Fast")
-                .font(.subheadline.bold())
-                .foregroundColor(.white)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .background(Color.red)
-                .clipShape(Capsule())
-                .shadow(color: .red.opacity(0.3), radius: 5, y: 2)
-                .contentShape(Capsule())
-        }
-        .buttonStyle(BounceButtonStyle())
+        .shadow(color: manager.currentPhase.color.opacity(0.15), radius: 15, y: 8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(manager.currentPhase.color.opacity(0.3), lineWidth: 2)
+                .opacity(manager.progress >= 1.0 ? 1 : 0)
+                .animation(.easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
+        )
         .alert("End Fast?", isPresented: $showEndAlert) {
             Button("Cancel", role: .cancel) { }
             Button("End Fast", role: .destructive) {

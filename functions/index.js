@@ -6,12 +6,9 @@ const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { GoogleAuth } = require("google-auth-library");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getAuth } = require("firebase-admin/auth");
-const { defineSecret } = require("firebase-functions/params");
-const PEXELS_API_KEY = defineSecret("PEXELS_API_KEY");
-
 // Per-user AI rate limit (abuse / cost control for the paid Vertex proxy).
 const AI_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;     // 7 days in ms
-const DEFAULT_AI_WEEKLY_LIMIT = 150;              // default requests per rolling 7-day window
+const DEFAULT_AI_WEEKLY_LIMIT = 10;               // default requests per rolling 7-day window
 initializeApp();
 
 // ==========================================
@@ -19,7 +16,7 @@ initializeApp();
 // ==========================================
 const PROJECT_ID = "serzhanovich-ecosystem-ce700";
 const LOCATION = "us-central1";
-const MODEL = "gemini-1.5-flash";
+const MODEL = "gemini-3.5-flash";
 const AUTO_BLOCK_REPORT_THRESHOLD = 3;
 const SERVICE_ACCOUNT =
   "firebase-adminsdk-fbsvc@serzhanovich-ecosystem-ce700.iam.gserviceaccount.com";
@@ -157,17 +154,6 @@ try {
   await enforceRateLimit(uid);
 } catch (e) {
   if (e instanceof RateLimitError) {
-    // Log the limit hit to Firestore so the admin can monitor it
-    try {
-      await getFirestore().collection("limit_hits").add({
-        uid: uid,
-        limit: e.limit,
-        timestamp: FieldValue.serverTimestamp()
-      });
-    } catch (logErr) {
-      console.error("Failed to log limit hit:", logErr);
-    }
-
     res.set("Retry-After", String(e.retryAfterSeconds));
     res.status(429).json({
       error: "weekly_limit_reached",
@@ -423,102 +409,5 @@ exports.deleteAccount = onCall(
     // await getAuth().deleteUser(uid);
 
     return { ok: true };
-  }
-);
-
-// ==========================================
-// 5) Meal image resolver — Pexels + глобальный Firestore-кэш
-//    Поиск в Pexels = 1 раз на уникальный набор keywords НАВСЕГДА.
-//    Раздача картинок (images.pexels.com) лимитов не имеет.
-// ==========================================
-function normalizeImageKey(keywords, title) {
-  let parts = Array.isArray(keywords)
-    ? keywords.map((k) => String(k).toLowerCase().trim()).filter(Boolean)
-    : [];
-  if (parts.length === 0 && title) {
-    parts = String(title)
-      .toLowerCase()
-      .split(/[^a-z0-9]+/)
-      .filter((w) => w.length >= 3);
-  }
-  // dedupe + sort → "salmon quinoa" и "quinoa salmon" дают один ключ
-  parts = [...new Set(parts)].sort();
-  return parts.slice(0, 4).join("-") || "food-meal";
-}
-
-exports.imageProxy = onRequest(
-  {
-    region: "us-central1",
-    serviceAccount: SERVICE_ACCOUNT,
-    secrets: [PEXELS_API_KEY],
-    memory: "256MiB",
-    timeoutSeconds: 30,
-  },
-  async (req, res) => {
-    // --- App Check ---
-    const appCheckToken = req.header("X-Firebase-AppCheck");
-    if (!appCheckToken) {
-      res.status(401).json({ error: "Missing App Check token" });
-      return;
-    }
-    try {
-      await getAppCheck().verifyToken(appCheckToken);
-    } catch (e) {
-      res.status(401).json({ error: "Invalid App Check token" });
-      return;
-    }
-
-    const body = req.body || {};
-    const keywords = body.keywords;
-    const title = body.title || "";
-    const key = normalizeImageKey(keywords, title);
-
-    const db = getFirestore();
-    const ref = db.collection("meal_images").doc(key);
-
-    // --- 1) Cache hit? ---
-    try {
-      const snap = await ref.get();
-      if (snap.exists && snap.data().url) {
-        res.status(200).json({ url: snap.data().url, cached: true });
-        return;
-      }
-    } catch (e) {
-      console.error("meal_images read error:", e);
-    }
-
-    // --- 2) Cache miss → 1 запрос в Pexels ---
-    const query =
-      Array.isArray(keywords) && keywords.length
-        ? keywords.join(" ")
-        : title || "food meal";
-    try {
-      const pexUrl =
-        "https://api.pexels.com/v1/search?per_page=1&orientation=landscape&query=" +
-        encodeURIComponent(query);
-      const r = await fetch(pexUrl, {
-        headers: { Authorization: PEXELS_API_KEY.value() },
-      });
-      if (!r.ok) {
-        console.error("PEXELS ERROR", r.status, (await r.text()).slice(0, 200));
-        res.status(200).json({ url: null });
-        return;
-      }
-      const data = await r.json();
-      const photoUrl = data?.photos?.[0]?.src?.large || null;
-      console.log("PEXELS OK", { query, total: data?.total_results, photoUrl });
-      
-      if (photoUrl) {
-        await ref.set({
-          url: photoUrl,
-          query,
-          createdAt: FieldValue.serverTimestamp(),
-        });
-      }
-      res.status(200).json({ url: photoUrl });
-    } catch (e) {
-      console.error("pexels error:", e);
-      res.status(200).json({ url: null });
-    }
   }
 );

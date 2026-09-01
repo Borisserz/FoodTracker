@@ -29,15 +29,15 @@ struct NutritionLevelProgressBar: View {
 
         VStack(spacing: 12) {
             HStack {
-                Text(String(format: String(localized: "Level %d"), progressManager.user.level))
+                Text("Level \(progressManager.user.level)")
                     .font(.caption).bold()
                     .foregroundColor(progress > 0 ? .themeOrange : .gray)
                 Spacer()
-                Text(String(format: String(localized: "%d XP"), progressManager.currentXPInLevel))
+                Text("\(progressManager.currentXPInLevel) XP")
                     .font(.subheadline).bold()
                     .foregroundColor(.themePink)
                 Spacer()
-                Text(String(format: String(localized: "Level %d"), progressManager.user.level + 1))
+                Text("Level \(progressManager.user.level + 1)")
                     .font(.caption).bold()
                     .foregroundColor(.gray)
             }

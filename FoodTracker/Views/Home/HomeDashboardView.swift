@@ -114,8 +114,6 @@ struct HomeDashboardContentView: View {
                           HeaderView(selectedDate: selectedDate, user: currentUser, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
                           CalendarCarouselView(selectedDate: $selectedDate)
                           InsightsWidget(summary: currentSummary, user: currentUser)
-                          
-                          AnalyticsQuickGlanceWidget(summary: currentSummary, user: currentUser)
 
                           DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
                               .spotlightTarget(step: .macroRings)
@@ -123,7 +121,7 @@ struct HomeDashboardContentView: View {
 
                           VStack(spacing: 16) {
                               HStack {
-                                  Text(LocalizedStringKey("Nutrition"))
+                                  Text("Nutrition")
                                       .font(.title2).bold()
                                   Spacer()
                                   Button(action: {
@@ -131,7 +129,7 @@ struct HomeDashboardContentView: View {
                                       showDailyLog = true
                                   }) {
                                       HStack(spacing: 4) {
-                                          Text(LocalizedStringKey("Daily Log"))
+                                          Text("Daily Log")
                                           Image(systemName: "list.bullet.clipboard")
                                       }
                                       .font(.subheadline.bold())
@@ -141,7 +139,7 @@ struct HomeDashboardContentView: View {
                               .padding(.horizontal, 20)
 
                               ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
-                                  let meal = (currentSummary.meals ?? []).first(where: { $0.title == mealType })
+                                  let meal = currentSummary.meals.first(where: { $0.title == mealType })
 
                                   MealCardView(
                                       title: localizedMealType(mealType),
@@ -167,10 +165,10 @@ struct HomeDashboardContentView: View {
                           }) {
                               HStack {
                                   Image(systemName: "flag.checkered")
-                                  Text(LocalizedStringKey("Finish Day"))
+                                  Text("Finish Day")
                               }
                               .font(.headline)
-                              .foregroundColor(.black)
+                              .foregroundColor(.white)
                               .frame(maxWidth: .infinity)
                               .padding()
                               .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -182,7 +180,7 @@ struct HomeDashboardContentView: View {
                           
                           AllTimeStatsCardView(totalCalories: allTimeCalories)
                       }
-                      .padding(.bottom, 120) 
+                      .padding(.bottom, 120) // Оставили место для плавающей кнопки
                   }
                   .blur(radius: isMenuExpanded ? 4 : 0)
                   .disabled(isMenuExpanded)
@@ -243,7 +241,7 @@ struct HomeDashboardContentView: View {
                       .zIndex(99)
                   }
                   
-                  
+                  // ПЛАВАЮЩАЯ КНОПКА QUICK ADD (ПЕРЕНЕСЕНА СЮДА)
                   Button(action: {
                       HapticManager.shared.impact(style: .medium)
                       withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
@@ -411,13 +409,13 @@ struct HomeDashboardContentView: View {
             newFoodItems.append(copiedItem)
         }
 
-        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == title }) {
-            existingMeal.foodItems = (existingMeal.foodItems ?? []) + newFoodItems
+        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
+            existingMeal.foodItems.append(contentsOf: newFoodItems)
             existingMeal.date = .now
         } else {
             let newMeal = Meal(title: title, date: .now, foodItems: newFoodItems)
             context.insert(newMeal)
-            summary.meals = (summary.meals ?? []) + [newMeal]
+            summary.meals.append(newMeal)
         }
 
         // Ensured via repo task; save on main context for live @Query updates.
@@ -430,7 +428,7 @@ struct HomeDashboardContentView: View {
     
     private func shareDailySummary() {
         let card = MealShareCard(summary: currentSummary)
-        ShareSheetManager.renderAndShare(view: card, title: String(localized: "My Nutrition Day"))
+        ShareSheetManager.renderAndShare(view: card, title: "My Nutrition Day")
     }
     
     private func finishDayAndCalculateXP() {
@@ -577,7 +575,7 @@ struct InsightsWidget: View {
     let summary: DailySummary
     let user: User?
 
-    private var insightData: (message: LocalizedStringKey, icon: String, color: Color) {
+    private var insightData: (message: String, icon: String, color: Color) {
         let baseGoal = user?.dailyCaloriesGoal ?? 2400
         let remaining = (baseGoal + summary.activeCaloriesBurned) - summary.totalCalories
 
@@ -644,15 +642,13 @@ struct MealDetailView: View {
     @Environment(DIContainer.self) private var di
 
     private var meal: Meal? {
-        return summaries.first?.meals?.first { $0.title == title }
+        return summaries.first?.meals.first { $0.title == title }
     }
 
     private func deleteFoodItem(_ food: FoodItem) {
-        if let meal = meal, let index = (meal.foodItems ?? []).firstIndex(where: { $0.id == food.id }) {
+        if let meal = meal, let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
             withAnimation {
-                var items = meal.foodItems ?? []
-                items.remove(at: index)
-                meal.foodItems = items
+                meal.foodItems.remove(at: index)
                 context.delete(food)
                 try? context.save()
             }
@@ -661,7 +657,7 @@ struct MealDetailView: View {
     
     private func generateRecipe(from meal: Meal) {
         let mealName = title
-        let ingredients = (meal.foodItems ?? []).map { $0.name }
+        let ingredients = meal.foodItems.map { $0.name }
         isGeneratingRecipe = true
         HapticManager.shared.impact(style: .medium)
         
@@ -724,7 +720,7 @@ struct MealDetailView: View {
                             .font(.subheadline)
                             .foregroundColor(.themeOrange)
                         } else {
-                            Text(LocalizedStringKey("No foods logged yet"))
+                            Text("No foods logged yet")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
@@ -732,7 +728,7 @@ struct MealDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
 
-                    if let meal = meal, !(meal.foodItems ?? []).isEmpty {
+                    if let meal = meal, !meal.foodItems.isEmpty {
                         VStack(spacing: 16) {
                             Text("\(meal.totalCalories) kcal")
                                 .font(.system(size: 48, weight: .heavy, design: .rounded))
@@ -744,23 +740,23 @@ struct MealDetailView: View {
                                 let targetF = (user?.targetFats ?? 70.0) / 3
                                 let targetC = (user?.targetCarbs ?? 250.0) / 3
 
-                                MiniProgressView(title: String(localized: "Protein"), progress: meal.totalProtein / max(targetP, 1), value: meal.totalProtein, color: .themePeach)
-                                MiniProgressView(title: String(localized: "Fats"), progress: meal.totalFats / max(targetF, 1), value: meal.totalFats, color: .themeYellow)
-                                MiniProgressView(title: String(localized: "Carbs"), progress: meal.totalCarbs / max(targetC, 1), value: meal.totalCarbs, color: .drinkWater)
+                                MiniProgressView(title: "Protein", progress: meal.totalProtein / max(targetP, 1), color: .themePeach)
+                                MiniProgressView(title: "Fats", progress: meal.totalFats / max(targetF, 1), color: .themeYellow)
+                                MiniProgressView(title: "Carbs", progress: meal.totalCarbs / max(targetC, 1), color: .drinkWater)
                             }
                         }
                         .ultraPremiumCardStyle()
                         .padding(.horizontal)
 
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(LocalizedStringKey("What you ate"))
+                            Text("What you ate")
                                 .font(.title3.bold())
                                 .padding(.horizontal)
                                 .padding(.bottom, 12)
 
                             VStack(spacing: 0) {
 
-                                ForEach(meal.foodItems ?? []) { food in
+                                ForEach(meal.foodItems) { food in
                                     FoodItemDetailedRow(food: food, onDelete: {
                                         deleteFoodItem(food)
                                     })
@@ -777,7 +773,7 @@ struct MealDetailView: View {
                                         }
                                     }
 
-                                    if food.id != (meal.foodItems ?? []).last?.id {
+                                    if food.id != meal.foodItems.last?.id {
                                         Divider().padding(.leading, 20)
                                     }
                                 }
@@ -788,7 +784,7 @@ struct MealDetailView: View {
                         }
                         .padding(.horizontal)
                         
-                        if (meal.foodItems ?? []).count > 2 {
+                        if meal.foodItems.count > 2 {
                             Button(action: {
                                 generateRecipe(from: meal)
                             }) {
@@ -799,7 +795,7 @@ struct MealDetailView: View {
                                     } else {
                                         Image(systemName: "sparkles")
                                     }
-                                    Text(isGeneratingRecipe ? LocalizedStringKey("Chef is writing recipe...") : LocalizedStringKey("Cook with Chef"))
+                                    Text(isGeneratingRecipe ? "Chef is writing recipe..." : "Cook with Chef")
                                 }
                                 .font(.headline)
                                 .foregroundColor(.white)
@@ -824,7 +820,7 @@ struct MealDetailView: View {
                         }
 
                         VStack(alignment: .leading, spacing: 16) {
-                            Text(LocalizedStringKey("Key Micronutrients"))
+                            Text("Key Micronutrients")
                                 .font(.title3.bold())
                                 .padding(.horizontal)
 
@@ -834,8 +830,8 @@ struct MealDetailView: View {
                     } else {
                         EmptyStateView(
                             imageName: "fork.knife.circle",
-                            title: String(localized: "No Food Logged"),
-                            description: String(localized: "Tap 'Add Food' below to log your \(title).")
+                            title: "No Food Logged",
+                            description: "Tap 'Add Food' below to log your \(title)."
                         )
                         .frame(height: 300)
                         .ultraPremiumCardStyle()
@@ -848,7 +844,7 @@ struct MealDetailView: View {
             Button(action: { showingAddFood.toggle() }) {
                 HStack {
                     Image(systemName: "plus.circle.fill")
-                    Text(LocalizedStringKey("Add Food"))
+                    Text("Add Food")
                 }
                 .font(.headline)
                 .foregroundColor(.white)
@@ -887,9 +883,9 @@ struct MealDetailView: View {
         }
         .alert(isPresented: $showingRecipeError) {
             Alert(
-                title: Text(LocalizedStringKey("Generation Failed")),
-                message: Text(LocalizedStringKey(recipeGenerationError ?? "Unknown error")),
-                dismissButton: .default(Text(LocalizedStringKey("OK")))
+                title: Text("Generation Failed"),
+                message: Text(recipeGenerationError ?? "Unknown error"),
+                dismissButton: .default(Text("OK"))
             )
         }
     }
@@ -918,13 +914,13 @@ struct MealDetailView: View {
             newFoodItems.append(copiedItem)
         }
 
-        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == title }) {
-            existingMeal.foodItems = (existingMeal.foodItems ?? []) + newFoodItems
+        if let existingMeal = summary.meals.first(where: { $0.title == title }) {
+            existingMeal.foodItems.append(contentsOf: newFoodItems)
             existingMeal.date = .now
         } else {
             let newMeal = Meal(title: title, date: .now, foodItems: newFoodItems)
             context.insert(newMeal)
-            summary.meals = (summary.meals ?? []) + [newMeal]
+            summary.meals.append(newMeal)
         }
 
         // Ensured via repo task; save on main context for live @Query updates.
@@ -1001,9 +997,9 @@ struct MicronutrientRingsView: View {
             .frame(width: 112, height: 112)
 
             VStack(alignment: .leading, spacing: 16) {
-                RingLegendRow(color: .themePink, title: String(localized: "Omega-3"), value: meal.totalOmega3, unit: "g", target: targetOmega3)
-                RingLegendRow(color: .themeYellow, title: String(localized: "Potassium"), value: meal.totalPotassium, unit: "mg", target: targetPotassium)
-                RingLegendRow(color: .themeOrange, title: String(localized: "Magnesium"), value: meal.totalMagnesium, unit: "mg", target: targetMagnesium)
+                RingLegendRow(color: .themePink, title: "Omega-3", value: meal.totalOmega3, unit: "g", target: targetOmega3)
+                RingLegendRow(color: .themeYellow, title: "Potassium", value: meal.totalPotassium, unit: "mg", target: targetPotassium)
+                RingLegendRow(color: .themeOrange, title: "Magnesium", value: meal.totalMagnesium, unit: "mg", target: targetMagnesium)
             }
             Spacer(minLength: 0)
         }
@@ -1047,7 +1043,7 @@ private struct ActivityRing: View {
                 .rotationEffect(.degrees(-90))
         }
         .frame(width: radius * 2, height: radius * 2)
-        .animation(.spring(response: 0.3), value: progress)
+        .animation(.spring(response: 0.8), value: progress)
     }
 }
 
@@ -1081,15 +1077,15 @@ struct MealCardView: View {
     }
 
     var body: some View {
-        let meta = iconAndColor
-        HStack(spacing: 12) {
+        HStack(spacing: 16) {
+            let meta = iconAndColor
             ZStack {
-                Circle().fill(meta.1.opacity(0.15)).frame(width: 46, height: 46)
-                Image(systemName: meta.0).font(.system(size: 20, weight: .semibold)).foregroundColor(meta.1)
+                Circle().fill(meta.1.opacity(0.15)).frame(width: 50, height: 50)
+                Image(systemName: meta.0).font(.system(size: 22, weight: .semibold)).foregroundColor(meta.1)
             }
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.system(size: 16, weight: .bold, design: .rounded)).foregroundColor(.primary)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.primary)
                 HStack(spacing: 6) {
                     if let cals = calories, cals > 0 {
                         Text("\(cals) kcal").font(.subheadline).foregroundColor(meta.1).bold()
@@ -1097,7 +1093,7 @@ struct MealCardView: View {
                             Text("• \(logTime.formatted(date: .omitted, time: .shortened))").font(.caption2).foregroundColor(.gray)
                         }
                     } else {
-                        Text(LocalizedStringKey("Add Meal")).font(.subheadline).foregroundColor(.gray.opacity(0.7))
+                        Text("Log Meal").font(.subheadline).foregroundColor(.gray.opacity(0.7))
                     }
                 }
                 
@@ -1120,27 +1116,26 @@ struct MealCardView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text(LocalizedStringKey("Target")).font(.system(size: 9, weight: .bold)).foregroundColor(.gray.opacity(0.6))
-                Text("\(recommendedCalories)").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundColor(.gray.opacity(0.8))
-                Text("kcal").font(.system(size: 7)).foregroundColor(.gray.opacity(0.5))
+                Text("Target").font(.system(size: 10, weight: .bold)).foregroundColor(.gray.opacity(0.6))
+                Text("\(recommendedCalories)").font(.system(size: 14, weight: .bold, design: .rounded)).foregroundColor(.gray.opacity(0.8))
+                Text("kcal").font(.system(size: 8)).foregroundColor(.gray.opacity(0.5))
             }
-            .padding(.trailing, 4)
+            .padding(.trailing, 8)
 
             Button(action: {
                 HapticManager.shared.impact(style: .medium)
                 onQuickAdd()
             }) {
                 ZStack {
-                    Circle().fill(meta.1.opacity(0.15)).frame(width: 36, height: 36)
-                    Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundColor(meta.1)
+                    Circle().fill(Color.gray.opacity(0.12)).frame(width: 36, height: 36)
+                    Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundColor(Color.gray.opacity(0.8))
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(16)
         .background(Color.white)
         .cornerRadius(24)
-        .shadow(color: meta.1.opacity(0.08), radius: 12, x: 0, y: 6)
+        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
         .contentShape(Rectangle())
         .onTapGesture {
             HapticManager.shared.impact(style: .light)
@@ -1151,6 +1146,8 @@ struct MealCardView: View {
 
 struct ActionSearchBar: View {
     @Binding var text: String
+    var onBarcodeTap: () -> Void
+    var onManualAddTap: () -> Void
 
     var body: some View {
         VStack(spacing: 12) {
@@ -1207,10 +1204,6 @@ struct ActionSearchBar: View {
                 }
             }
         }
-        .padding(12)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
     }
 }
 struct InteractiveFoodRow: View {
@@ -1288,8 +1281,8 @@ struct FloatingCartButton: View {
             Button(action: action) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(String(format: String(localized: "%d items selected"), count)).font(.caption).foregroundColor(.white.opacity(0.8))
-                        Text(String(format: String(localized: "Add • %d kcal"), calories)).font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
+                        Text("\(count) items selected").font(.caption).foregroundColor(.white.opacity(0.8))
+                        Text("Add • \(calories) kcal").font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
                     }
                     Spacer()
                     Image(systemName: "checkmark.circle.fill").font(.title).foregroundColor(.white)
@@ -1402,8 +1395,8 @@ struct AllTimeStatsCardView: View {
             HStack(spacing: 12) {
                 Image(systemName: "flame.circle.fill").font(.largeTitle).foregroundStyle(LinearGradient(colors: [.white, .white.opacity(0.7)], startPoint: .top, endPoint: .bottom))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(LocalizedStringKey("All-Time Total")).font(.headline).foregroundColor(.white)
-                    Text(LocalizedStringKey("Since your first entry")).font(.caption).foregroundColor(.white.opacity(0.8))
+                    Text("All-Time Total").font(.headline).foregroundColor(.white)
+                    Text("Since your first entry").font(.caption).foregroundColor(.white.opacity(0.8))
                 }
             }
             Spacer(minLength: 20)
@@ -1508,10 +1501,10 @@ struct DailyNoteSheet: View {
                 .padding(.top, 10)
 
             HStack {
-                Text(LocalizedStringKey("Your Day"))
+                Text("Your Day")
                     .font(.title2.bold())
                 Spacer()
-                Button(String(localized: "Save")) {
+                Button("Save") {
                     HapticManager.shared.impact(style: .heavy)
                     try? context.save()
                     clearAIMoodStates()
@@ -1522,7 +1515,7 @@ struct DailyNoteSheet: View {
             }
             .padding(.horizontal, 24)
 
-            TextField(String(localized: "Write about your meals, feelings, or workouts..."), text: $summary.dayNote, axis: .vertical)
+            TextField("Write about your meals, feelings, or workouts...", text: $summary.dayNote, axis: .vertical)
                 .lineLimit(4...8)
                 .padding(16)
                 .background(Color.gray.opacity(0.05))
@@ -1532,7 +1525,7 @@ struct DailyNoteSheet: View {
                 .accessibilityLabel("Daily note")
 
             VStack(alignment: .leading, spacing: 12) {
-                Text(LocalizedStringKey("Tags & Mood"))
+                Text("Tags & Mood")
                     .font(.headline)
                     .padding(.horizontal, 24)
 
@@ -1570,7 +1563,7 @@ struct DailyNoteSheet: View {
                                         )
                                         .cornerRadius(20)
 
-                                    Text(LocalizedStringKey(mood.1))
+                                    Text(mood.1)
                                         .font(.caption)
                                         .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
                                         .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
@@ -1641,11 +1634,9 @@ struct DailyLogDetailView: View {
     let summary: DailySummary
 
     private func deleteFoodItem(_ food: FoodItem, from meal: Meal) {
-        if let index = (meal.foodItems ?? []).firstIndex(where: { $0.id == food.id }) {
+        if let index = meal.foodItems.firstIndex(where: { $0.id == food.id }) {
             withAnimation {
-                var items = meal.foodItems ?? []
-                items.remove(at: index)
-                meal.foodItems = items
+                meal.foodItems.remove(at: index)
                 context.delete(food)
                 try? context.save()
             }
@@ -1668,10 +1659,10 @@ struct DailyLogDetailView: View {
                     }
                     .padding(.vertical, 20)
 
-                    let activeMeals = (summary.meals ?? []).filter { !($0.foodItems ?? []).isEmpty }
+                    let activeMeals = summary.meals.filter { !$0.foodItems.isEmpty }
 
                     if activeMeals.isEmpty {
-                        EmptyStateView(imageName: "doc.text.magnifyingglass", title: String(localized: "No Food Logged"), description: String(localized: "You haven't logged any food for this day yet."))
+                        EmptyStateView(imageName: "doc.text.magnifyingglass", title: "No Food Logged", description: "You haven't logged any food for this day yet.")
                             .padding(.top, 40)
                     } else {
                         ForEach(activeMeals) { meal in
@@ -1690,7 +1681,7 @@ struct DailyLogDetailView: View {
                                 .padding(.bottom, 12)
 
                                 VStack(spacing: 0) {
-                                    ForEach(meal.foodItems ?? []) { food in
+                                    ForEach(meal.foodItems) { food in
                                         HStack(spacing: 16) {
                                             ZStack {
                                                 Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
@@ -1698,7 +1689,7 @@ struct DailyLogDetailView: View {
                                             }
 
                                             VStack(alignment: .leading, spacing: 4) {
-                                                Text(food.name.decodingHTMLEntities())
+                                                Text(food.name)
                                                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                                                     .foregroundColor(.primary)
 
@@ -1728,7 +1719,7 @@ struct DailyLogDetailView: View {
                                         .padding(.horizontal, 20)
                                         .padding(.vertical, 12)
 
-                                        if food.id != (meal.foodItems ?? []).last?.id {
+                                        if food.id != meal.foodItems.last?.id {
                                             Divider().padding(.leading, 70)
                                         }
                                     }
@@ -1799,10 +1790,9 @@ struct SmartAddFoodView: View {
 
     @State private var showingScanner = false
     @State private var showingManualAdd = false
-    @State private var failedBarcodeForManualAdd: String? = nil
+    @State private var selectedFoods: [FoodItem] = []
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
-    @State private var scannerMode: SmartScannerView.ScannerMode = .barcode
 
     @State private var apiSearchResults: [FoodItem] = []
     @State private var isSearchingAPI = false
@@ -1813,7 +1803,7 @@ struct SmartAddFoodView: View {
     var allAvailableFoods: [FoodItem] {
         var uniqueItems: [String: FoodItem] = [:]
         for meal in pastMeals {
-            for item in (meal.foodItems ?? []) {
+            for item in meal.foodItems {
                 if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
             }
         }
@@ -1835,7 +1825,7 @@ struct SmartAddFoodView: View {
         var foodCounts: [String: Int] = [:]
 
         for meal in pastMeals {
-            for food in (meal.foodItems ?? []) { foodCounts[food.name, default: 0] += 1 }
+            for food in meal.foodItems { foodCounts[food.name, default: 0] += 1 }
         }
 
         switch selectedCategory {
@@ -1847,8 +1837,7 @@ struct SmartAddFoodView: View {
         }
 
         if !searchText.isEmpty {
-            let queryRoots = SmartSearch.getRoots(for: searchText)
-            items = items.filter { SmartSearch.matches(name: $0.name, queryRoots: queryRoots) }
+            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
         if selectedCategory == "Recent" || selectedCategory == "My Recipes" {
             items.sort { $0.name < $1.name }
@@ -1856,36 +1845,7 @@ struct SmartAddFoodView: View {
         return items
     }
 
-    private var currentMealItems: [FoodItem] {
-        return pastMeals.first(where: { $0.title == mealTitle && Calendar.current.isDateInToday($0.date) })?.foodItems ?? []
-    }
-
-    private var smartSuggestions: [FoodItem] {
-        let currentItems = currentMealItems
-        guard !currentItems.isEmpty else { return [] }
-        let selectedNames = Set(currentItems.map { $0.name })
-        var coOccurrences: [String: (count: Int, item: FoodItem)] = [:]
-
-        for meal in pastMeals {
-            let items = meal.foodItems ?? []
-            let mealFoodNames = Set(items.map { $0.name })
-            
-            if !selectedNames.isDisjoint(with: mealFoodNames) {
-                for item in items {
-                    if !selectedNames.contains(item.name) {
-                        if let existing = coOccurrences[item.name] {
-                            coOccurrences[item.name] = (count: existing.count + 1, item: item)
-                        } else {
-                            coOccurrences[item.name] = (count: 1, item: item)
-                        }
-                    }
-                }
-            }
-        }
-        
-        let sorted = coOccurrences.values.sorted { $0.count > $1.count }
-        return sorted.prefix(5).map { $0.item }
-    }
+    var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -1907,103 +1867,14 @@ struct SmartAddFoodView: View {
                         }
                     }.padding(.horizontal, 20)
 
-                    ActionSearchBar(text: $searchText)
+                    ActionSearchBar(
+                        text: $searchText,
+                        onBarcodeTap: { showingScanner = true },
+                        onManualAddTap: { showingManualAdd = true }
+                    )
                     .padding(.horizontal, 20)
 
-                    if !smartSuggestions.isEmpty && searchText.isEmpty {
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack {
-                                Image(systemName: "sparkles")
-                                    .foregroundColor(.themePink)
-                                Text("Often eaten together")
-                                    .font(.subheadline.bold())
-                                    .foregroundColor(.gray)
-                            }
-                            .padding(.horizontal, 24)
-                            .padding(.top, 4)
-                            
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    ForEach(smartSuggestions, id: \.id) { suggestion in
-                                        Button(action: {
-                                            HapticManager.shared.impact(style: .heavy)
-                                            onSave([suggestion])
-                                        }) {
-                                            HStack(spacing: 6) {
-                                                Image(systemName: "plus.circle.fill")
-                                                    .foregroundColor(.white)
-                                                Text("\(suggestion.name.decodingHTMLEntities()) (\(Int(suggestion.weight))g)")
-                                                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                                                    .foregroundColor(.white)
-                                            }
-                                            .padding(.horizontal, 14)
-                                            .padding(.vertical, 8)
-                                            .background(
-                                                LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing)
-                                            )
-                                            .cornerRadius(20)
-                                            .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 3)
-                                        }
-                                        .buttonStyle(BounceButtonStyle())
-                                    }
-                                }
-                                .padding(.horizontal, 20)
-                                .padding(.bottom, 8)
-                            }
-                        }
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                    }
-
                     if searchText.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                FeatureCard(
-                                    title: String(localized: "Meal AI"),
-                                    subtitle: String(localized: "AI Photo Scan - snap a photo of food"),
-                                    icon: "camera.viewfinder",
-                                    gradient: [.themePink, .themeOrange],
-                                    action: {
-                                        scannerMode = .mealAI
-                                        showingScanner = true
-                                    }
-                                )
-                                
-                                FeatureCard(
-                                    title: String(localized: "Barcode"),
-                                    subtitle: String(localized: "Barcode Scan - scan product package"),
-                                    icon: "barcode.viewfinder",
-                                    gradient: [.cyan, .blue],
-                                    action: {
-                                        scannerMode = .barcode
-                                        showingScanner = true
-                                    }
-                                )
-                                
-                                FeatureCard(
-                                    title: String(localized: "Menu AI"),
-                                    subtitle: String(localized: "AI Menu Reader - scan restaurant menus"),
-                                    icon: "text.book.closed.fill",
-                                    gradient: [.purple, .indigo],
-                                    action: {
-                                        scannerMode = .menuAI
-                                        showingScanner = true
-                                    }
-                                )
-                                
-                                FeatureCard(
-                                    title: String(localized: "Manual Entry"),
-                                    subtitle: String(localized: "Log Manually - input custom food"),
-                                    icon: "pencil.line",
-                                    gradient: [.green, .mint],
-                                    action: {
-                                        showingManualAdd = true
-                                    }
-                                )
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 8)
-                        }
-                        
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
                                 ForEach(categories, id: \.self) { category in
@@ -2076,35 +1947,10 @@ struct SmartAddFoodView: View {
                                     }
                                     .padding(.top, 40)
                                 }
-                                
-                                if !apiSearchResults.isEmpty || !filteredLocalFoods.isEmpty {
-                                    VStack(spacing: 12) {
-                                        Divider().padding(.horizontal, 40)
-                                        Text("Didn't find what you're looking for?")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-                                        
-                                        Button(action: {
-                                            HapticManager.shared.impact(style: .medium)
-                                            showingManualAdd = true
-                                        }) {
-                                            HStack {
-                                                Image(systemName: "plus.circle.fill")
-                                                Text("Create Custom Food")
-                                            }
-                                            .font(.subheadline.bold()).foregroundColor(.white).padding(.vertical, 12).padding(.horizontal, 20)
-                                            .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                            .cornerRadius(20).shadow(color: Color.green.opacity(0.3), radius: 6, y: 3)
-                                        }
-                                        .buttonStyle(BounceButtonStyle())
-                                    }
-                                    .padding(.top, 24)
-                                    .padding(.bottom, 10)
-                                }
                             }
                         } else {
                             if filteredLocalFoods.isEmpty {
-                                EmptyStateView(imageName: "tray", title: String(localized: "No history"), description: String(localized: "Your recent meals will appear here."))
+                                EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
                                     .padding(.top, 60)
                             } else {
                                 ForEach(filteredLocalFoods, id: \.self) { food in
@@ -2113,32 +1959,36 @@ struct SmartAddFoodView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, 40)
+                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
                 }
+            }
+
+            if !selectedFoods.isEmpty {
+                FloatingCartButton(count: selectedFoods.count, calories: cartCalories) {
+                    HapticManager.shared.impact(style: .heavy)
+                    onSave(selectedFoods)
+                    dismiss()
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
             }
         }
         .onChange(of: searchText) { _, newValue in performSearch(query: newValue) }
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
         .fullScreenCover(item: $selectedFoodForDetail) { food in
             FoodDetailNutritionView(food: food, mealTitle: mealTitle) { addedFood in
-                HapticManager.shared.impact(style: .heavy)
-                onSave([addedFood])
+                withAnimation(.spring()) { selectedFoods.append(addedFood) }
             }
         }
         .fullScreenCover(isPresented: $showingScanner) {
             SmartScannerView(
-                initialMode: scannerMode,
                 onProductFound: { foundFood in selectedFoodForDetail = foundFood },
-                onManualEntryRequest: { barcode in
-                    failedBarcodeForManualAdd = barcode
-                    showingManualAdd = true
-                }
+                onManualEntryRequest: { showingManualAdd = true }
             )
         }
         .sheet(isPresented: $showingManualAdd) {
-            AddIngredientModalView(failedBarcode: failedBarcodeForManualAdd) { newCustomItem in
-                HapticManager.shared.impact(style: .heavy)
-                onSave([newCustomItem])
+            AddIngredientModalView { newCustomItem in
+                withAnimation(.spring()) { selectedFoods.append(newCustomItem) }
             }
             .presentationDetents([.fraction(0.85), .large])
             .presentationCornerRadius(32)
@@ -2158,7 +2008,7 @@ struct SmartAddFoodView: View {
             do {
                 try await Task.sleep(nanoseconds: 500_000_000)
                 guard !Task.isCancelled else { return }
-                let results = await NetworkManager.shared.searchFoodByText(query: query, modelContext: context)
+                let results = await NetworkManager.shared.searchFoodByText(query: query)
                 await MainActor.run {
                     if !Task.isCancelled {
                         self.apiSearchResults = results

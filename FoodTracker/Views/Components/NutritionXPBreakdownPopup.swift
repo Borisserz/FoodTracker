@@ -41,27 +41,27 @@ struct NutritionXPBreakdownPopup: View {
                 
                 Text("Great job hitting your targets today!")
                     .font(.subheadline)
-                    .foregroundColor(.primary.opacity(0.8))
+                    .foregroundColor(.white.opacity(0.8))
                     .opacity(showContent ? 1 : 0)
                     .animation(.easeIn.delay(0.4), value: showContent)
                 
                 VStack(spacing: 16) {
-                    xpRow(title: String(localized: "Base Logging XP"), value: animatedBase)
+                    xpRow(title: "Base Logging XP", value: animatedBase)
                     
                     if breakdown.proteinGoalXP > 0 {
-                        xpRow(title: String(localized: "Protein Goal Bonus"), value: animatedProtein, color: .themePink)
+                        xpRow(title: "Protein Goal Bonus", value: animatedProtein, color: .themePink)
                     }
                     
                     if breakdown.calorieGoalXP > 0 {
-                        xpRow(title: String(localized: "Calorie Match Bonus"), value: animatedCalories, color: .themeOrange)
+                        xpRow(title: "Calorie Match Bonus", value: animatedCalories, color: .themeOrange)
                     }
                     
-                    Divider().background(Color.black.opacity(0.1))
+                    Divider().background(Color.white.opacity(0.3))
                     
                     HStack {
                         Text("Total XP Earned")
                             .font(.headline)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white)
                         Spacer()
                         Text("+\(animatedTotal) XP")
                             .font(.title3.bold().monospacedDigit())
@@ -69,7 +69,7 @@ struct NutritionXPBreakdownPopup: View {
                     }
                 }
                 .padding()
-                .background(Color.black.opacity(0.03))
+                .background(Color.white.opacity(0.05))
                 .cornerRadius(16)
                 .opacity(showContent ? 1 : 0)
                 
@@ -103,7 +103,7 @@ struct NutritionXPBreakdownPopup: View {
         }
     }
     
-    private func xpRow(title: String, value: Int, color: Color = .primary) -> some View {
+    private func xpRow(title: String, value: Int, color: Color = .white) -> some View {
         HStack {
             Text(title)
                 .font(.subheadline)

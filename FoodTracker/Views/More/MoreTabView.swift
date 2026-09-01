@@ -85,28 +85,19 @@ struct MoreTabView: View {
         [
             MoreItem(
                 id: 0,
-                title: String(localized: "Goals & Progress"),
+                title: "Goals & Progress",
                 subtitle: weightLogs.isEmpty
-                    ? String(localized: "Set your weight goal")
-                    : String(format: String(localized: "Current: %.1f kg"), currentWeight),
+                    ? "Set your weight goal"
+                    : String(format: "Current: %.1f kg", currentWeight),
                 icon: "target",
                 gradient: [.themePink, .themeOrange],
                 badge: nil,
                 destination: AnyView(GoalsTabView())
             ),
             MoreItem(
-                id: 3,
-                title: String(localized: "Visual Progress Analysis"),
-                subtitle: String(localized: "Compare photos & track changes"),
-                icon: "photo.on.rectangle.angled",
-                gradient: [.purple, .themePink],
-                badge: "AI",
-                destination: AnyView(AIVisualProgressView())
-            ),
-            MoreItem(
                 id: 1,
-                title: String(localized: "AI Coach"),
-                subtitle: String(localized: "Your proactive nutritionist"),
+                title: "AI Coach",
+                subtitle: "Your proactive nutritionist",
                 icon: "sparkles",
                 gradient: [Color(hex: 0x9B59B6), Color(hex: 0xF25C78)],
                 badge: nil,
@@ -114,8 +105,8 @@ struct MoreTabView: View {
             ),
             MoreItem(
                 id: 2,
-                title: String(localized: "Profile & Settings"),
-                subtitle: user.map { String(format: String(localized: "Hello, %@!"), $0.name) } ?? String(localized: "Edit your profile"),
+                title: "Profile & Settings",
+                subtitle: user.map { "Hello, \($0.name)!" } ?? "Edit your profile",
                 icon: "person.crop.circle.fill",
                 gradient: [Color(hex: 0x3498DB), Color(hex: 0x6BB8F2)],
                 badge: nil,
@@ -154,16 +145,12 @@ struct MoreTabView: View {
 
     private var footerSection: some View {
         VStack(spacing: 6) {
-            Text(LocalizedStringKey("FoodTracker"))
+            Text("FoodTracker")
                 .font(.caption.bold())
                 .foregroundStyle(.secondary)
-            Text("\(String(localized: "Version")) \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
+            Text("Version 1.0.0")
                 .font(.caption2)
                 .foregroundStyle(Color.secondary.opacity(0.6))
-                
-            Link("Photos provided by Pexels", destination: URL(string: "https://www.pexels.com")!)
-                .font(.system(size: 9))
-                .foregroundStyle(Color.secondary.opacity(0.3))
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)

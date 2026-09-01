@@ -7,10 +7,6 @@ import FirebaseAppCheck
 /// Handles auth (Firebase ID + AppCheck), request construction, and response cleaning.
 final class GeminiProxyClient {
     static let shared = GeminiProxyClient()
-    
-    // For testing purposes
-    var session: URLSession = .shared
-    
     private init() {}
 
     private let proxyUrl = "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/vertexProxy"
@@ -18,8 +14,8 @@ final class GeminiProxyClient {
     // MARK: - Public API (used by services)
 
     /// Sends a text-only prompt expecting a JSON response. Returns decoded type.
-    func fetchJSON<T: Decodable>(prompt: String, responseType: T.Type, schema: [String: Any]? = nil, temperature: Double? = nil) async throws -> T {
-        let raw = try await performRequest(prompt: prompt, includeImage: nil, forceJSON: true, responseSchema: schema, temperature: temperature)
+    func fetchJSON<T: Decodable>(prompt: String, responseType: T.Type) async throws -> T {
+        let raw = try await performRequest(prompt: prompt, includeImage: nil, forceJSON: true)
         let cleaned = cleanJSONResponse(raw)
         return try decode(cleaned, as: T.self, rawForLogging: cleaned)
     }
@@ -34,31 +30,23 @@ final class GeminiProxyClient {
         prompt: String,
         base64Image: String,
         mimeType: String = "image/jpeg",
-        responseType: T.Type,
-        schema: [String: Any]? = nil,
-        temperature: Double? = nil
+        responseType: T.Type
     ) async throws -> T {
-        let raw = try await performRequest(prompt: prompt, includeImage: (base64Image, mimeType), forceJSON: true, responseSchema: schema, temperature: temperature)
+        let raw = try await performRequest(prompt: prompt, includeImage: (base64Image, mimeType), forceJSON: true)
         let cleaned = cleanJSONResponse(raw)
         return try decode(cleaned, as: T.self, rawForLogging: cleaned)
     }
 
     // MARK: - Core Request
 
-    private func performRequest(prompt: String, includeImage: (base64: String, mime: String)?, forceJSON: Bool, responseSchema: [String: Any]? = nil, temperature: Double? = nil) async throws -> String {
+    private func performRequest(prompt: String, includeImage: (base64: String, mime: String)?, forceJSON: Bool) async throws -> String {
         let (authToken, appCheckToken) = try await getFirebaseTokens()
 
         guard let url = URL(string: proxyUrl) else {
             throw GeminiProxyError.invalidURL
         }
 
-        var localizedPrompt = prompt
-        if let preferredLang = Locale.preferredLanguages.first {
-            let langName = Locale.current.localizedString(forIdentifier: preferredLang) ?? preferredLang
-            localizedPrompt += "\n\nIMPORTANT: You MUST respond in \(langName) (\(preferredLang)) unless instructed otherwise. Maintain JSON keys in English if a JSON schema is requested."
-        }
-
-        var parts: [[String: Any]] = [["text": localizedPrompt]]
+        var parts: [[String: Any]] = [["text": prompt]]
 
         if let image = includeImage {
             parts.append([
@@ -70,13 +58,10 @@ final class GeminiProxyClient {
         }
 
         var generationConfig: [String: Any] = [
-            "temperature": temperature ?? (includeImage == nil ? 0.7 : 0.4)   // slightly more deterministic for vision
+            "temperature": includeImage == nil ? 0.7 : 0.4   // slightly more deterministic for vision
         ]
         if forceJSON {
             generationConfig["responseMimeType"] = "application/json"
-        }
-        if let schema = responseSchema {
-            generationConfig["responseSchema"] = schema
         }
 
         let requestBody: [String: Any] = [
@@ -91,13 +76,12 @@ final class GeminiProxyClient {
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.timeoutInterval = 180 // 3 minutes timeout for long AI generations
         request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
         request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             if httpResponse.statusCode == 429 {

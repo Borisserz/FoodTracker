@@ -9,14 +9,14 @@ struct DietsListView: View {
 
     var body: some View {
         ZStack {
-            
+            // Защита: если диеты еще не загрузились с сервера
             if DietDataLoader.shared.diets.isEmpty {
                 VStack {
                     ProgressView()
                     Text("Loading Diet Plans...").foregroundColor(.gray).padding(.top)
                 }
             } else {
-                
+                // Данные загружены, отображаем интерфейс
                 let currentDietColor = DietDataLoader.shared.diets[selectedIndex].color
                 currentDietColor.opacity(0.15)
                     .ignoresSafeArea()
@@ -72,29 +72,22 @@ struct DietHeroCard: View {
         VStack(alignment: .leading, spacing: 0) {
 
             ZStack(alignment: .topLeading) {
-                if diet.imageUrl.starts(with: "http") {
-                    AsyncImage(url: URL(string: diet.imageUrl)) { phase in
-                        if let image = phase.image {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } else {
-                            LinearGradient(
-                                colors: [diet.color.opacity(0.85), diet.color],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        }
+                // Background Unsplash food photo
+                AsyncImage(url: URL(string: diet.imageUrl)) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        LinearGradient(
+                            colors: [diet.color.opacity(0.85), diet.color],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     }
-                    .frame(height: 240)
-                    .clipped()
-                } else {
-                    Image(diet.imageUrl)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: 240)
-                        .clipped()
                 }
+                .frame(height: 240)
+                .clipped()
 
                 // Overlay gradient for readability
                 LinearGradient(
@@ -119,15 +112,12 @@ struct DietHeroCard: View {
 
                     Spacer(minLength: 80)
 
-                    Text(LocalizedStringKey(diet.name))
+                    Text(diet.name)
                         .font(.system(.largeTitle, design: .rounded, weight: .heavy))
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.5)
-                        .multilineTextAlignment(.leading)
                         .foregroundStyle(.white)
                         .shadow(color: .black.opacity(0.3), radius: 3, y: 2)
 
-                    Text(LocalizedStringKey(diet.tagline))
+                    Text(diet.tagline)
                         .font(.headline)
                         .foregroundStyle(.white.opacity(0.95))
                         .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
@@ -138,13 +128,13 @@ struct DietHeroCard: View {
 
             VStack(spacing: 20) {
                 HStack(spacing: 24) {
-                    MacroMiniStat(title: String(localized: "Fats"), value: diet.macroBreakdown.fat, color: .themeYellow)
-                    MacroMiniStat(title: String(localized: "Protein"), value: diet.macroBreakdown.protein, color: .themePeach)
-                    MacroMiniStat(title: String(localized: "Carbs"), value: diet.macroBreakdown.carbs, color: .drinkWater)
+                    MacroMiniStat(title: "Fat", value: diet.macroBreakdown.fat, color: .themeYellow)
+                    MacroMiniStat(title: "Protein", value: diet.macroBreakdown.protein, color: .themePeach)
+                    MacroMiniStat(title: "Carbs", value: diet.macroBreakdown.carbs, color: .drinkWater)
                 }
 
                 HStack {
-                    Text(LocalizedStringKey("Learn more"))
+                    Text("Learn more")
                         .font(.headline)
                     Spacer()
                     Image(systemName: "arrow.right.circle.fill")
@@ -210,31 +200,22 @@ struct PremiumDietDetailView: View {
 
                         ZStack(alignment: .bottomLeading) {
 
-                            if diet.imageUrl.starts(with: "http") {
-                                AsyncImage(url: URL(string: diet.imageUrl)) { phase in
-                                    if let image = phase.image {
-                                        image
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                    } else {
-                                        LinearGradient(
-                                            colors: [diet.color.opacity(0.7), diet.color],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    }
+                            AsyncImage(url: URL(string: diet.imageUrl)) { phase in
+                                if let image = phase.image {
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                } else {
+                                    LinearGradient(
+                                        colors: [diet.color.opacity(0.7), diet.color],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
                                 }
-                                .frame(height: isScrollingDown ? 350 + minY : 350)
-                                .clipped()
-                                .offset(y: isScrollingDown ? -minY : 0)
-                            } else {
-                                Image(diet.imageUrl)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(height: isScrollingDown ? 350 + minY : 350)
-                                    .clipped()
-                                    .offset(y: isScrollingDown ? -minY : 0)
                             }
+                            .frame(height: isScrollingDown ? 350 + minY : 350)
+                            .clipped()
+                            .offset(y: isScrollingDown ? -minY : 0)
 
                             Image(systemName: "sparkles")
                                 .font(.system(size: 150))
@@ -242,14 +223,14 @@ struct PremiumDietDetailView: View {
                                 .offset(x: 150, y: -40)
 
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(LocalizedStringKey(diet.name))
+                                Text(diet.name)
                                     .font(.system(size: 48, weight: .heavy, design: .rounded))
                                     .foregroundColor(.white)
                                     .shadow(color: .black.opacity(0.3), radius: 4, y: 2)
                                     .lineLimit(2)
                                     .minimumScaleFactor(0.8)
 
-                                Text(LocalizedStringKey(diet.tagline))
+                                Text(diet.tagline)
                                     .font(.title3.bold())
                                     .foregroundColor(.white.opacity(0.95))
                                     .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
@@ -264,11 +245,11 @@ struct PremiumDietDetailView: View {
                     VStack(spacing: 24) {
 
                         HStack(spacing: 0) {
-                            MacroDonutStat(title: String(localized: "Fats"), percent: diet.macroBreakdown.fat, color: .themeYellow)
+                            MacroDonutStat(title: "Fat", percent: diet.macroBreakdown.fat, color: .themeYellow)
                             Divider().frame(height: 50)
-                            MacroDonutStat(title: String(localized: "Protein"), percent: diet.macroBreakdown.protein, color: .themePeach)
+                            MacroDonutStat(title: "Protein", percent: diet.macroBreakdown.protein, color: .themePeach)
                             Divider().frame(height: 50)
-                            MacroDonutStat(title: String(localized: "Carbs"), percent: diet.macroBreakdown.carbs, color: .drinkWater)
+                            MacroDonutStat(title: "Carbs", percent: diet.macroBreakdown.carbs, color: .drinkWater)
                         }
                         .padding(20)
                         .background(Color.white)
@@ -277,7 +258,7 @@ struct PremiumDietDetailView: View {
                         .offset(y: -40)
                         .padding(.bottom, -40)
 
-                        Text(LocalizedStringKey(diet.description))
+                        Text(diet.description)
                             .font(.body)
                             .lineSpacing(6)
                             .foregroundColor(.primary.opacity(0.8))
@@ -289,9 +270,9 @@ struct PremiumDietDetailView: View {
                                 .padding(.horizontal, 24)
 
                             VStack(spacing: 12) {
-                                DietFeatureRow(icon: "chart.pie.fill", color: .themePink, text: String(localized: "Auto-adjusts your daily Protein, Fat, and Carbs targets."))
-                                DietFeatureRow(icon: "magnifyingglass", color: .green, text: String(localized: "Highlights compatible & forbidden foods while searching."))
-                                DietFeatureRow(icon: "sparkles", color: .blue, text: String(localized: "AI Coach adapts its advice strictly to the \(diet.name) rules."))
+                                DietFeatureRow(icon: "chart.pie.fill", color: .themePink, text: "Auto-adjusts your daily Protein, Fat, and Carbs targets.")
+                                DietFeatureRow(icon: "magnifyingglass", color: .green, text: "Highlights compatible & forbidden foods while searching.")
+                                DietFeatureRow(icon: "sparkles", color: .blue, text: "AI Coach adapts its advice strictly to the \(diet.name) rules.")
                             }
                             .padding(.horizontal, 24)
                         }
@@ -438,7 +419,7 @@ struct PremiumFoodCategorySection: View {
         VStack(spacing: 0) {
             Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
                 HStack {
-                    Text(LocalizedStringKey(category.title)).font(.headline).foregroundColor(.primary)
+                    Text(category.title).font(.headline).foregroundColor(.primary)
                     Spacer()
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
@@ -454,7 +435,7 @@ struct PremiumFoodCategorySection: View {
                     ForEach(category.items) { item in
                         HStack(spacing: 16) {
                             Text(item.icon).font(.title2).frame(width: 40, height: 40).background(dietColor.opacity(0.1)).clipShape(Circle())
-                            Text(LocalizedStringKey(item.name)).font(.system(size: 16, weight: .medium, design: .rounded))
+                            Text(item.name).font(.system(size: 16, weight: .medium, design: .rounded))
                             Spacer()
                             Text("\(item.calories) kcal").font(.subheadline.bold()).foregroundColor(dietColor)
                         }
@@ -471,17 +452,11 @@ struct PremiumFoodCategorySection: View {
 extension DietPlan {
     var imageUrl: String {
         switch key {
-        case "keto": return "diet_bg_keto"
-        case "vegan": return "diet_bg_vegan"
-        case "high_protein": return "diet_bg_highprotein"
-        case "mediterranean": return "diet_bg_mediterranean"
-        case "carnivore": return "diet_carnivore"
-        case "intermittent_fasting": return "diet_intermittent_fasting"
-        case "pescatarian": return "diet_pescatarian"
-        case "paleo": return "diet_paleo"
-        case "dash": return "diet_dash"
-        case "vegetarian": return "diet_vegetarian"
-        default: return "diet_bg_any"
+        case "keto": return "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600"
+        case "vegan": return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600"
+        case "high_protein": return "https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=80&w=600"
+        case "mediterranean": return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=600"
+        default: return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600"
         }
     }
 }

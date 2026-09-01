@@ -26,12 +26,7 @@ struct MacroBatteryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.textGray)
-                    .bold()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
+                Text(title).font(.caption).foregroundColor(.textGray).bold()
                 Spacer()
                 let textColor = color == .themeYellow ? Color.themeDarkYellow : color
                 Text("\(current)/\(total)g").font(.caption.bold()).foregroundColor(textColor)
@@ -58,14 +53,10 @@ struct MacroSummaryView: View {
     let targetProtein: Double; let targetFats: Double; let targetCarbs: Double
 
     var body: some View {
-        let tp = targetProtein > 0 ? targetProtein : 150.0
-        let tf = targetFats > 0 ? targetFats : 70.0
-        let tc = targetCarbs > 0 ? targetCarbs : 250.0
-
-        HStack(spacing: 8) {
-            MacroBatteryView(title: String(localized: "Protein"), current: Int(protein), total: Int(tp), color: .themePeach)
-            MacroBatteryView(title: String(localized: "Fats"), current: Int(fats), total: Int(tf), color: .themeYellow)
-            MacroBatteryView(title: String(localized: "Carbs"), current: Int(carbs), total: Int(tc), color: .drinkWater)
+        HStack(spacing: 15) {
+            MacroBatteryView(title: "Protein", current: Int(protein), total: Int(targetProtein), color: .themePeach)
+            MacroBatteryView(title: "Fats", current: Int(fats), total: Int(targetFats), color: .themeYellow)
+            MacroBatteryView(title: "Carbs", current: Int(carbs), total: Int(targetCarbs), color: .drinkWater)
         }
     }
 }
@@ -73,17 +64,11 @@ struct MacroSummaryView: View {
 struct MiniProgressView: View {
     let title: String
     let progress: Double
-    var value: Double? = nil
     let color: Color
 
     var body: some View {
         VStack(spacing: 6) {
-            HStack(spacing: 4) {
-                Text(title).font(.caption).bold().foregroundColor(.textGray)
-                if let val = value {
-                    Text("\(Int(val))g").font(.caption).bold().foregroundColor(color)
-                }
-            }
+            Text(title).font(.caption).bold().foregroundColor(.textGray)
 
             ProgressView(value: min(max(progress, 0.0), 1.0)).tint(color)
         }
@@ -172,7 +157,7 @@ struct DynamicEnergyDashboard: View {
                             selectedTab = tab
                         }
                     }) {
-                        Text(LocalizedStringKey(tab.rawValue))
+                        Text(tab.rawValue)
                             .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -284,28 +269,21 @@ struct BurnedDetailsCard: View {
 
             VStack(spacing: 0) {
 
-                Button(action: {
-                    if let url = URL(string: "https://apps.apple.com/app/id6774895106") {
-                        UIApplication.shared.open(url)
-                    }
-                }) {
-                    ActivitySourceRow(
-                        icon: "dumbbell.fill",
-                        iconColor: .themeOrange,
-                        title: String(localized: "Workouts"),
-                        subtitle: String(localized: "Workout Tracker"),
-                        calories: appWorkoutCalories
-                    )
-                }
-                .buttonStyle(.plain)
+                ActivitySourceRow(
+                    icon: "dumbbell.fill",
+                    iconColor: .themeOrange,
+                    title: "Workouts",
+                    subtitle: "Workout Tracker",
+                    calories: appWorkoutCalories
+                )
 
                 Divider().padding(.leading, 80)
 
                 ActivitySourceRow(
                     icon: "applewatch",
                     iconColor: .themePink,
-                    title: String(localized: "Apple Fitness"),
-                    subtitle: String(localized: "System & Other Apps"),
+                    title: "Apple Fitness",
+                    subtitle: "System & Other Apps",
                     calories: appleFitnessCalories
                 )
 
@@ -314,8 +292,8 @@ struct BurnedDetailsCard: View {
                 ActivitySourceRow(
                     icon: "figure.walk",
                     iconColor: .green,
-                    title: String(localized: "Daily Activity"),
-                    subtitle: String(localized: "\(summary.stepsCount) steps"),
+                    title: "Daily Activity",
+                    subtitle: "\(summary.stepsCount) steps",
                     calories: stepCalories
                 )
             }
@@ -332,10 +310,10 @@ struct BurnedDetailsCard: View {
                     Image(systemName: "flame.fill").foregroundColor(.white)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(LocalizedStringKey("Every Movement Counts!"))
+                    Text("Every Movement Counts!")
                         .font(.subheadline.bold())
                         .foregroundColor(.white)
-                    Text(LocalizedStringKey("All your steps, gym sessions, and Apple Watch workouts are synced here perfectly."))
+                    Text("All your steps, gym sessions, and Apple Watch workouts are synced here perfectly.")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.9))
                         .lineLimit(2)
@@ -448,9 +426,9 @@ struct NetDetailsCard: View {
             }
 
             HStack(spacing: 12) {
-                EquationBlock(title: String(localized: "Eaten"), value: summary.totalCalories, color: .themePink, icon: "fork.knife")
+                EquationBlock(title: "Eaten", value: summary.totalCalories, color: .themePink, icon: "fork.knife")
                 Text("–").font(.title.bold()).foregroundColor(.gray.opacity(0.3))
-                EquationBlock(title: String(localized: "Burned"), value: summary.activeCaloriesBurned, color: .themeOrange, icon: "flame.fill")
+                EquationBlock(title: "Burned", value: summary.activeCaloriesBurned, color: .themeOrange, icon: "flame.fill")
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -508,10 +486,7 @@ struct EquationBlock: View {
         VStack(spacing: 8) {
             HStack(spacing: 4) {
                 Image(systemName: icon).font(.caption2)
-                Text(title)
-                    .font(.caption.bold())
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
+                Text(title).font(.caption.bold())
             }
             .foregroundColor(color)
             .textCase(.uppercase)
@@ -669,25 +644,25 @@ struct DetailedMacroRingsCard: View {
     private var smartInsight: (title: String, text: String, icon: String, color: Color) {
         let p = summary.totalProtein; let targetP = user?.targetProtein ?? 150
         let f = summary.totalFats; let targetF = user?.targetFats ?? 70
-        let c = summary.totalCarbs; let targetC = (user?.targetCarbs ?? 250) > 0 ? (user?.targetCarbs ?? 250) : 250
+        let c = summary.totalCarbs; let targetC = user?.targetCarbs ?? 250
 
         if summary.totalFoodCalories == 0 {
-            return (String(localized: "Fresh Start"), String(localized: "Log your first meal to see your macro balance."), "leaf.fill", .green)
+            return ("Fresh Start", "Log your first meal to see your macro balance.", "leaf.fill", .green)
         } else if p < targetP * 0.4 && summary.totalFoodCalories > 800 {
-            return (String(localized: "Protein Alert"), String(localized: "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal."), "dumbbell.fill", .themePeach)
+            return ("Protein Alert", "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal.", "dumbbell.fill", .themePeach)
         } else if f > targetF {
-            return (String(localized: "High Fat"), String(localized: "You've exceeded your daily fat limit. Focus on lean proteins and veggies."), "exclamationmark.triangle.fill", .themeYellow)
+            return ("High Fat", "You've exceeded your daily fat limit. Focus on lean proteins and veggies.", "exclamationmark.triangle.fill", .themeYellow)
         } else if c < targetC * 0.3 {
-            return (String(localized: "Low Energy?"), String(localized: "Your carbs are quite low. Complex carbs like oats or rice can boost your energy."), "bolt.fill", .drinkWater)
+            return ("Low Energy?", "Your carbs are quite low. Complex carbs like oats or rice can boost your energy.", "bolt.fill", .drinkWater)
         } else {
-            return (String(localized: "Perfect Balance"), String(localized: "Your macros are looking great today! Keep it up."), "checkmark.seal.fill", .themePink)
+            return ("Perfect Balance", "Your macros are looking great today! Keep it up.", "checkmark.seal.fill", .themePink)
         }
     }
 
     var body: some View {
         let targetP = user?.targetProtein ?? 150
         let targetF = user?.targetFats ?? 70
-        let targetC = (user?.targetCarbs ?? 250) > 0 ? (user?.targetCarbs ?? 250) : 250
+        let targetC = user?.targetCarbs ?? 250
 
         VStack(spacing: 24) {
             Text("Macronutrients")
@@ -695,9 +670,9 @@ struct DetailedMacroRingsCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 15) {
-                IndividualMacroRing(title: String(localized: "Carbs"), current: summary.totalCarbs, target: targetC, color: .drinkWater)
-                IndividualMacroRing(title: String(localized: "Fats"), current: summary.totalFats, target: targetF, color: .themeYellow)
-                IndividualMacroRing(title: String(localized: "Protein"), current: summary.totalProtein, target: targetP, color: .themePeach)
+                IndividualMacroRing(title: "Carbs", current: summary.totalCarbs, target: targetC, color: .drinkWater)
+                IndividualMacroRing(title: "Fat", current: summary.totalFats, target: targetF, color: .themeYellow)
+                IndividualMacroRing(title: "Protein", current: summary.totalProtein, target: targetP, color: .themePeach)
             }
             .padding(.vertical, 4)
 
@@ -747,8 +722,6 @@ struct IndividualMacroRing: View {
             Text(title)
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .foregroundColor(color)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
 
             ZStack {
                 Circle()
@@ -786,15 +759,15 @@ struct IndividualMacroRing: View {
 struct MicronutrientsFocusCard: View {
     let summary: DailySummary
 
-    private var totalOmega3: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalOmega3 } }
-    private var totalMagnesium: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalMagnesium } }
-    private var totalCalcium: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalCalcium } }
-    private var totalIron: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalIron } }
+    private var totalOmega3: Double { summary.meals.reduce(0) { $0 + $1.totalOmega3 } }
+    private var totalMagnesium: Double { summary.meals.reduce(0) { $0 + $1.totalMagnesium } }
+    private var totalCalcium: Double { summary.meals.reduce(0) { $0 + $1.totalCalcium } }
+    private var totalIron: Double { summary.meals.reduce(0) { $0 + $1.totalIron } }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
-                Text(LocalizedStringKey("Health Focus"))
+                Text("Health Focus")
                     .font(.headline)
                 Spacer()
                 Image(systemName: "heart.text.square.fill")
@@ -802,18 +775,18 @@ struct MicronutrientsFocusCard: View {
             }
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                CompactMicroCard(title: String(localized: "Omega-3"), icon: "fish.fill", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
-                CompactMicroCard(title: String(localized: "Magnesium"), icon: "bolt.heart.fill", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
-                CompactMicroCard(title: String(localized: "Calcium"), icon: "bone.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
-                CompactMicroCard(title: String(localized: "Iron"), icon: "drop.fill", current: totalIron, target: 18, unit: "mg", color: .red.opacity(0.8))
+                CompactMicroCard(title: "Omega-3", icon: "fish.fill", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
+                CompactMicroCard(title: "Magnesium", icon: "bolt.heart.fill", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
+                CompactMicroCard(title: "Calcium", icon: "bone.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
+                CompactMicroCard(title: "Iron", icon: "drop.fill", current: totalIron, target: 18, unit: "mg", color: .red.opacity(0.8))
             }
 
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(LocalizedStringKey("Boost your minerals"))
+                    Text("Boost your minerals")
                         .font(.caption.bold())
                         .foregroundColor(.white)
-                    Text(LocalizedStringKey("Add spinach, nuts, or salmon to your next meal to easily hit these goals."))
+                    Text("Add spinach, nuts, or salmon to your next meal to easily hit these goals.")
                         .font(.caption2)
                         .foregroundColor(.white.opacity(0.9))
                 }
@@ -943,7 +916,7 @@ struct MealBreakdownCard: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text(LocalizedStringKey("Meals Breakdown"))
+            Text("Meals Breakdown")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -955,7 +928,7 @@ struct MealBreakdownCard: View {
                             selectedMeal = meal
                         }
                     }) {
-                        Text(LocalizedStringKey(meal))
+                        Text(meal)
                             .font(.system(size: 13, weight: selectedMeal == meal ? .bold : .medium))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -967,16 +940,16 @@ struct MealBreakdownCard: View {
                 }
             }
 
-            let currentMealData = (summary.meals ?? []).first(where: { $0.title == selectedMeal })
+            let currentMealData = summary.meals.first(where: { $0.title == selectedMeal })
 
             VStack(spacing: 16) {
-                MealMacroRow(title: String(localized: "Calories"), value: Double(currentMealData?.totalCalories ?? 0), unit: "kcal", color: .themePink)
+                MealMacroRow(title: "Calories", value: Double(currentMealData?.totalCalories ?? 0), unit: "kcal", color: .themePink)
                 Divider()
-                MealMacroRow(title: String(localized: "Carbs"), value: currentMealData?.totalCarbs ?? 0, unit: "g", color: .drinkWater)
+                MealMacroRow(title: "Carbs", value: currentMealData?.totalCarbs ?? 0, unit: "g", color: .drinkWater)
                 Divider()
-                MealMacroRow(title: String(localized: "Protein"), value: currentMealData?.totalProtein ?? 0, unit: "g", color: .themePeach)
+                MealMacroRow(title: "Protein", value: currentMealData?.totalProtein ?? 0, unit: "g", color: .themePeach)
                 Divider()
-                MealMacroRow(title: String(localized: "Fats"), value: currentMealData?.totalFats ?? 0, unit: "g", color: .themeYellow)
+                MealMacroRow(title: "Fat", value: currentMealData?.totalFats ?? 0, unit: "g", color: .themeYellow)
             }
             .padding(20)
             .background(
@@ -1070,7 +1043,7 @@ struct EatenRingCard: View {
                 carbs: summary.totalCarbs,
                 targetProtein: user?.targetProtein ?? 150,
                 targetFats: user?.targetFats ?? 70,
-                targetCarbs: (user?.targetCarbs ?? 250) > 0 ? (user?.targetCarbs ?? 250) : 250
+                targetCarbs: user?.targetCarbs ?? 250
             )
             .padding(.top, 8)
         }
@@ -1197,9 +1170,9 @@ struct ActivityIntensityCard: View {
             Text("Burn Intensity").font(.headline)
 
             HStack(alignment: .bottom, spacing: 20) {
-                IntensityBar(title: String(localized: "Steps"), value: stepCals, total: totalActive, color: .green)
-                IntensityBar(title: String(localized: "Apple"), value: appleCals, total: totalActive, color: .themePink)
-                IntensityBar(title: String(localized: "Workout"), value: workoutCals, total: totalActive, color: .themeOrange)
+                IntensityBar(title: "Steps", value: stepCals, total: totalActive, color: .green)
+                IntensityBar(title: "Apple", value: appleCals, total: totalActive, color: .themePink)
+                IntensityBar(title: "Workout", value: workoutCals, total: totalActive, color: .themeOrange)
             }
             .frame(height: 150)
             .padding(.vertical, 10)
@@ -1244,39 +1217,6 @@ struct IntensityBar: View {
                 }
             }
             Text(title).font(.caption2).foregroundColor(.gray)
-        }
-    }
-}
-
-// MARK: - 🖼 Smart Image View (AI Image Loader)
-struct SmartImageView: View {
-    let url: String
-    let fallbackTitle: String
-    @State private var image: UIImage? = nil
-    @State private var hasError = false
-    
-    var body: some View {
-        ZStack {
-            if let image = image {
-                Image(uiImage: image).resizable().aspectRatio(contentMode: .fill)
-            } else if hasError {
-                Image(AINutritionService.shared.fallbackLocalImage(for: fallbackTitle))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } else {
-                Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView())
-            }
-        }
-        .task(id: url) {
-            guard let parsed = URL(string: url) else {
-                hasError = true
-                return
-            }
-            do {
-                image = try await PollinationsImageLoader.shared.fetchImage(url: parsed)
-            } catch {
-                hasError = true
-            }
         }
     }
 }

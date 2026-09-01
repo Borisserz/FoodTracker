@@ -75,7 +75,7 @@ struct AICoachDashboardView: View {
 
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(LocalizedStringKey("AI Coach"))
+                                        Text("AI Coach")
                                             .font(.system(size: 34, weight: .heavy, design: .rounded))
                                             .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
                                         
@@ -121,8 +121,24 @@ struct AICoachDashboardView: View {
                                     onAnalyze: { if let u = currentUser { viewModel.runDailyAnalysis(currentSummary: currentSummary, currentUser: u) } }
                                 )
 
-                                AIChatPromptRow(currentUser: currentUser, currentSummary: currentSummary)
-                                fridgeToRecipeSection
+                                HStack(spacing: 16) {
+                                    AIFixCard(
+                                        title: "Fix Macros",
+                                        icon: "chart.pie.fill",
+                                        color: .themeYellow,
+                                        isLoading: viewModel.isFixingMacros,
+                                        action: { if let u = currentUser { viewModel.analyzeMacros(currentSummary: currentSummary, currentUser: u) } }
+                                    )
+
+                                    AIFixCard(
+                                        title: "Hydration",
+                                        icon: "drop.fill",
+                                        color: .cyan,
+                                        isLoading: viewModel.isFixingHydration,
+                                        action: { viewModel.analyzeHydration(currentSummary: currentSummary) }
+                                    )
+                                }
+                                .padding(.horizontal)
 
                                 bioHackingTipsSection
 
@@ -169,36 +185,36 @@ struct AICoachDashboardView: View {
 
     private let tips: [BioHackingTip] = [
         BioHackingTip(
-            title: String(localized: "Iron Synergy"),
-            text: String(localized: "Pair iron-rich foods (spinach, lentils) with Vitamin C (citrus, peppers) to increase iron absorption by up to 300%."),
+            title: "Iron Synergy",
+            text: "Pair iron-rich foods (spinach, lentils) with Vitamin C (citrus, peppers) to increase iron absorption by up to 300%.",
             icon: "leaf.fill",
             category: "🧬 NUTRIENT SYNERGY",
             gradientColors: [.green, .mint]
         ),
         BioHackingTip(
-            title: String(localized: "Protein Pacing"),
-            text: String(localized: "Distribute your protein intake in 30-40g portions every 3-4 hours to keep muscle protein synthesis optimized."),
+            title: "Protein Pacing",
+            text: "Distribute your protein intake in 30-40g portions every 3-4 hours to keep muscle protein synthesis optimized.",
             icon: "flame.fill",
             category: "🔋 MUSCLE RECOVERY",
             gradientColors: [.themePink, .themeOrange]
         ),
         BioHackingTip(
-            title: String(localized: "Circadian Fasting"),
-            text: String(localized: "Finish eating at least 3 hours before sleep. This lowers insulin levels and improves deep sleep recovery phases."),
+            title: "Circadian Fasting",
+            text: "Finish eating at least 3 hours before sleep. This lowers insulin levels and improves deep sleep recovery phases.",
             icon: "moon.stars.fill",
             category: "🌙 SLEEP & DIGESTION",
             gradientColors: [.purple, .indigo]
         ),
         BioHackingTip(
-            title: String(localized: "Hydration Window"),
-            text: String(localized: "Drink 500ml of water immediately upon waking to kickstart metabolism and offset overnight dehydration."),
+            title: "Hydration Window",
+            text: "Drink 500ml of water immediately upon waking to kickstart metabolism and offset overnight dehydration.",
             icon: "drop.fill",
             category: "💧 CELLULAR HYDRATION",
             gradientColors: [.cyan, .blue]
         ),
         BioHackingTip(
-            title: String(localized: "Sodium Balance"),
-            text: String(localized: "Feeling bloated? Increase potassium intake (avocados, bananas) to assist kidneys in flushing out excess sodium."),
+            title: "Sodium Balance",
+            text: "Feeling bloated? Increase potassium intake (avocados, bananas) to assist kidneys in flushing out excess sodium.",
             icon: "sparkles",
             category: "⚖️ FLUID BALANCE",
             gradientColors: [.themeYellow, .themeOrange]
@@ -527,7 +543,7 @@ struct DailyVerdictGlassCard: View {
                 Button(action: onAnalyze) {
                     HStack {
                         Image(systemName: "sparkles")
-                        Text(LocalizedStringKey("Analyze My Day"))
+                        Text("Analyze My Day")
                     }
                     .font(.system(.headline, design: .rounded, weight: .bold))
                     .foregroundColor(.white)
@@ -579,19 +595,18 @@ struct DailyVerdictGlassCard: View {
     }
 }
 
-struct AIChatPromptRow: View {
-    let currentUser: User?
-    let currentSummary: DailySummary
-    
-    @State private var isAnimating = false
-    
+struct AIFixCard: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let isLoading: Bool
+    let action: () -> Void
+
     var body: some View {
-        NavigationLink(destination: AICoachChatView(
-            userGoal: currentUser?.dailyCaloriesGoal ?? 2000,
-            consumed: currentSummary.totalCalories,
-            activeDiet: currentUser?.activeDietPlan?.name ?? String(localized: "Balanced")
-        )) {
-            HStack(spacing: 16) {
+        Button(action: {
+            if !isLoading { action() }
+        }) {
+            VStack(alignment: .leading, spacing: 16) {
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.12))
@@ -604,7 +619,7 @@ struct AIChatPromptRow: View {
                         .foregroundColor(color)
                         .font(.system(size: 18, weight: .semibold))
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 15, weight: .bold, design: .rounded))
@@ -627,13 +642,6 @@ struct AIChatPromptRow: View {
                         }
                     }
                 }
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right.circle.fill")
-                    .font(.system(size: 28))
-                    .foregroundColor(.themePink)
-                    .shadow(color: Color.themePink.opacity(0.3), radius: 5, y: 2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(18)
@@ -664,11 +672,6 @@ struct AIChatPromptRow: View {
                     .stroke(isLoading ? color.opacity(0.4) : Color.clear, lineWidth: 2)
                     .animation(.easeInOut(duration: 1).repeatForever(), value: isLoading)
             )
-            .shadow(color: Color.black.opacity(0.04), radius: 12, y: 6)
-            .padding(.horizontal)
-            .onAppear {
-                isAnimating = true
-            }
         }
         .buttonStyle(BounceButtonStyle())
     }

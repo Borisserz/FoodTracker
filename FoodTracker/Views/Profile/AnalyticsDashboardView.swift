@@ -3,9 +3,9 @@ import SwiftData
 import Charts
 
 enum AnalyticsPeriod: String, CaseIterable, Identifiable {
-    case day = "Daily"
-    case week = "Weekly"
-    case month = "Monthly"
+    case day = "Day"
+    case week = "Week"
+    case month = "Month"
     var id: String { self.rawValue }
 
     var daysCount: Int {
@@ -98,11 +98,10 @@ struct AnalyticsTabView: View {
     @State private var globalPeriod: AnalyticsPeriod = .day
     @State private var bgPhase = 0.0
 
-    @State private var animateIn = false
-
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
+            ZStack {
+
                 Color.themeBg.ignoresSafeArea()
 
                 ZStack {
@@ -128,34 +127,26 @@ struct AnalyticsTabView: View {
                 if let user = users.first {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 24) {
-                            
-                            // Header
-                            VStack(spacing: 16) {
-                                HStack {
-                                    Text(LocalizedStringKey("Dashboard"))
-                                        .font(.system(size: 38, weight: .heavy, design: .rounded))
-                                    Spacer()
-                                    Image(systemName: "chart.bar.xaxis")
-                                        .font(.title2.bold())
-                                        .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
-                                }
-                                .padding(.horizontal, 24)
-                                
-                                GlobalPeriodPicker(selection: $globalPeriod)
-                                    .padding(.horizontal, 20)
-                                    .onChange(of: globalPeriod) { _, newValue in
-                                        viewModel?.loadData(for: newValue)
-                                    }
-                            }
-                            .padding(.top, 10)
-                            .opacity(animateIn ? 1 : 0)
-                            .offset(y: animateIn ? 0 : -20)
 
-                            MetabolicScoreCard(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
+                            HStack {
+                                Text("Analytics")
+                                    .font(.system(size: 38, weight: .heavy, design: .rounded))
+                                Spacer()
+                                Image(systemName: "chart.bar.xaxis")
+                                    .font(.title2.bold())
+                                    .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
+                            }
+                            .padding(.horizontal, 24)
+                            .padding(.top, 10)
+
+                            GlobalPeriodPicker(selection: $globalPeriod)
                                 .padding(.horizontal, 20)
-                                .opacity(animateIn ? 1 : 0)
-                                .offset(y: animateIn ? 0 : 30)
-                                .zIndex(2)
+                                .onChange(of: globalPeriod) { _, newValue in
+                                    viewModel?.loadData(for: newValue)
+                                }
+
+                            AIWeeklyInsightCard(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
+                                .padding(.horizontal, 20)
 
                             if globalPeriod == .day {
                                 DailyAnalyticsInsightView(summaries: viewModel?.summaries ?? [], user: user) {
@@ -167,6 +158,9 @@ struct AnalyticsTabView: View {
                                     .padding(.horizontal, 20)
                             }
 
+                            ConsistencyHeatmapCard(summaries: viewModel?.summaries ?? [], user: user)
+                                .padding(.horizontal, 20)
+
                         }
                         .padding(.bottom, 120)
                         .onAppear {
@@ -174,14 +168,10 @@ struct AnalyticsTabView: View {
                                 viewModel = di.makeAnalyticsViewModel()
                             }
                             viewModel?.loadData(for: globalPeriod)
-                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                                animateIn = true
-                            }
                         }
                     }
-                    
                 } else {
-                    EmptyStateView(imageName: "chart.bar.xaxis", title: String(localized: "No Data"), description: String(localized: "User data not found."))
+                    EmptyStateView(imageName: "chart.bar.xaxis", title: "No Data", description: "User data not found.")
                 }
             }
             .navigationBarHidden(true)
@@ -189,264 +179,6 @@ struct AnalyticsTabView: View {
     }
 }
 
-// MARK: - Metabolic Score Hero
-struct MetabolicScoreCard: View {
-    let summaries: [DailySummary]
-    let user: User
-    let period: AnalyticsPeriod
-
-    @State private var animScore: Double = 0
-    @State private var tiltAngle: Double = 0
-    @State private var tiltAxis: (CGFloat, CGFloat, CGFloat) = (0, 1, 0)
-
-    private var subScores: (cal: Double, hyd: Double, macro: Double) {
-        var totalCals = 0.0
-        var totalHydration = 0.0
-        let sortedSummaries = summaries.sorted { $0.date > $1.date }
-        let days = max(1, min(sortedSummaries.count, period.daysCount))
-
-        for s in sortedSummaries.prefix(days) {
-            totalCals += Double(s.totalFoodCalories)
-            totalHydration += s.totalHydrationLiters
-        }
-
-        let avgCals = days > 0 ? totalCals / Double(days) : 0
-        let avgHydration = days > 0 ? totalHydration / Double(days) : 0
-
-        // Calorie Score (0-50)
-        let targetCals = user.dailyCaloriesGoal
-        let calRatio = targetCals > 0 ? min(avgCals / Double(targetCals), 1.5) : 0
-        var calScore = 0.0
-        if calRatio <= 1.0 {
-            calScore = calRatio * 50
-        } else {
-            calScore = max(0, 50 - ((calRatio - 1.0) * 100))
-        }
-
-        // Hydration Score (0-30)
-        let hydRatio = min(avgHydration / 2.5, 1.0)
-        let hydScore = hydRatio * 30
-
-        // Consistency/Macros (0-20)
-        var macroScore = 0.0
-        if days > 0 {
-            var totalP = 0.0, totalF = 0.0, totalC = 0.0
-            for s in sortedSummaries.prefix(days) {
-                totalP += s.totalProtein
-                totalF += s.totalFats
-                totalC += s.totalCarbs
-            }
-            let avgP = totalP / Double(days)
-            let avgF = totalF / Double(days)
-            let avgC = totalC / Double(days)
-            
-            let targetP = user.targetProtein > 0 ? user.targetProtein : 1
-            let targetF = user.targetFats > 0 ? user.targetFats : 1
-            let targetC = user.targetCarbs > 0 ? user.targetCarbs : 1
-            
-            let pRatio = min(avgP / Double(targetP), 1.0)
-            let fRatio = min(avgF / Double(targetF), 1.0)
-            let cRatio = min(avgC / Double(targetC), 1.0)
-            
-            let avgMacroRatio = (pRatio + fRatio + cRatio) / 3.0
-            macroScore = avgMacroRatio * 20.0
-        }
-
-        return (calScore, hydScore, macroScore)
-    }
-
-    private var score: Int {
-        let subs = subScores
-        let finalScore = Int(subs.cal + subs.hyd + subs.macro)
-        return min(max(finalScore, 0), 100)
-    }
-
-    private var scoreColor: Color {
-        if score >= 90 { return .green }
-        if score >= 70 { return .themeOrange }
-        return .themePink
-    }
-
-    var body: some View {
-        let subs = subScores
-        VStack(spacing: 24) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Metabolic Health")
-                        .font(.title3.bold())
-                        .foregroundColor(.primary)
-                    Text("Calculated overall synergy")
-                        .font(.caption.bold())
-                        .foregroundColor(.primary.opacity(0.75))
-                }
-                Spacer()
-                Image(systemName: "heart.text.square.fill")
-                    .font(.title2)
-                    .foregroundColor(scoreColor)
-            }
-
-            ZStack {
-                Circle()
-                    .stroke(scoreColor.opacity(0.1), lineWidth: 20)
-                    .frame(width: 200, height: 200)
-
-                Circle()
-                    .trim(from: 0, to: CGFloat(animScore / 100.0))
-                    .stroke(
-                        AngularGradient(gradient: Gradient(colors: [scoreColor.opacity(0.5), scoreColor, scoreColor.opacity(0.5)]), center: .center),
-                        style: StrokeStyle(lineWidth: 20, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
-                    .frame(width: 200, height: 200)
-                    .shadow(color: scoreColor.opacity(0.6), radius: 15, x: 0, y: 0)
-
-                VStack(spacing: -5) {
-                    Text("\(Int(animScore))")
-                        .font(.system(size: 64, weight: .heavy, design: .rounded))
-                        .foregroundColor(.primary)
-                        .contentTransition(.numericText())
-                    Text("out of 100")
-                        .font(.caption.bold())
-                        .foregroundColor(.primary.opacity(0.75))
-                }
-            }
-            .padding(.vertical, 10)
-            .rotation3DEffect(.degrees(tiltAngle), axis: tiltAxis)
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        let maxTilt: CGFloat = 20
-                        let w = 200.0
-                        let h = 200.0
-                        let x = min(max(value.location.x, 0), w) - (w / 2)
-                        let y = min(max(value.location.y, 0), h) - (h / 2)
-                        
-                        let pctX = x / (w / 2)
-                        let pctY = y / (h / 2)
-                        
-                        tiltAxis = (-pctY, pctX, 0)
-                        withAnimation(.interactiveSpring) {
-                            tiltAngle = maxTilt * sqrt(pctX*pctX + pctY*pctY)
-                        }
-                    }
-                    .onEnded { _ in
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.5)) {
-                            tiltAngle = 0
-                        }
-                    }
-            )
-
-            // Detailed Breakdown
-            VStack(alignment: .leading, spacing: 14) {
-                Divider()
-                
-                Text("Metabolic Health Breakdown")
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                
-                VStack(spacing: 10) {
-                    MetabolicBreakdownRow(icon: "flame.fill", title: String(localized: "Caloric Adherence"), value: subs.cal, total: 50, color: .themeOrange)
-                    MetabolicBreakdownRow(icon: "drop.fill", title: String(localized: "Hydration Status"), value: subs.hyd, total: 30, color: .blue)
-                    MetabolicBreakdownRow(icon: "chart.bar.fill", title: String(localized: "Macro & Logging Stability"), value: subs.macro, total: 20, color: .green)
-                }
-                
-                HStack(alignment: .center, spacing: 14) {
-                    Image(systemName: "info.circle.fill")
-                        .foregroundColor(scoreColor)
-                        .font(.system(size: 22, weight: .bold))
-                    
-                    Text("Your metabolic score shows energy & hydration efficiency. Keep it above **90** for peak performance!")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                        .lineSpacing(4)
-                }
-                .padding(16)
-                .background(
-                    RoundedRectangle(cornerRadius: 18)
-                        .fill(scoreColor.opacity(0.08))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(scoreColor.opacity(0.4), lineWidth: 2.0)
-                )
-                .shadow(color: scoreColor.opacity(0.12), radius: 8, x: 0, y: 4)
-                .padding(.top, 8)
-            }
-            .padding(.top, 4)
-        }
-        .divineCardStyle()
-        .onAppear {
-            withAnimation(.spring(response: 1.5, dampingFraction: 0.7)) {
-                animScore = Double(score)
-            }
-        }
-        .onChange(of: score) { _, nv in
-            withAnimation(.spring(response: 1.0, dampingFraction: 0.7)) {
-                animScore = Double(nv)
-            }
-        }
-    }
-}
-
-// MARK: - Metabolic Breakdown Row
-struct MetabolicBreakdownRow: View {
-    let icon: String
-    let title: String
-    let value: Double
-    let total: Double
-    let color: Color
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: icon)
-                        .foregroundColor(color)
-                        .font(.system(size: 12, weight: .bold))
-                    Text(title)
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                }
-                
-                Spacer()
-                
-                Text("\(Int(value)) / \(Int(total)) pts")
-                    .font(.system(size: 11, weight: .black, design: .rounded))
-                    .foregroundColor(color)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(color.opacity(0.1))
-                    .cornerRadius(8)
-            }
-            
-            // Custom premium progress bar
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color.gray.opacity(0.06))
-                        .frame(height: 6)
-                    
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [color.opacity(0.8), color],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: max(6, geo.size.width * CGFloat(value / total)), height: 6)
-                        .shadow(color: color.opacity(0.2), radius: 2, y: 1)
-                }
-            }
-            .frame(height: 6)
-        }
-        .padding(12)
-        .background(Color.gray.opacity(0.03))
-        .cornerRadius(14)
-    }
-}
-
-// MARK: - Period Picker
 struct GlobalPeriodPicker: View {
     @Binding var selection: AnalyticsPeriod
     @Namespace private var animation
@@ -455,16 +187,16 @@ struct GlobalPeriodPicker: View {
         HStack(spacing: 0) {
             ForEach(AnalyticsPeriod.allCases) { period in
                 Button(action: {
-                    selection = period
-                }) {
-                    ZStack {
-                        Text("Monthly").font(.system(size: 15, weight: .bold)).hidden()
-                        Text(LocalizedStringKey(period.rawValue))
-                            .font(.system(size: 15, weight: selection == period ? .bold : .medium, design: .rounded))
-                            .foregroundColor(selection == period ? .white : .primary.opacity(0.7))
+                    HapticManager.shared.impact(style: .light)
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        selection = period
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                }) {
+                    Text(period.rawValue)
+                        .font(.system(size: 15, weight: selection == period ? .bold : .medium, design: .rounded))
+                        .foregroundColor(selection == period ? .white : .gray)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
                         .background(
                             ZStack {
                                 if selection == period {
@@ -490,9 +222,9 @@ struct GlobalPeriodPicker: View {
     }
 }
 
-// MARK: - Typewriter AI Text
-struct AITypewriterCard: View {
-    let score: Int
+struct AIWeeklyInsightCard: View {
+    let summaries: [DailySummary]
+    let user: User
     let period: AnalyticsPeriod
 
     private var insight: (title: String, text: String, color: Color) {
@@ -610,19 +342,12 @@ struct AITypewriterCard: View {
                     .foregroundColor(.secondary)
                     .lineSpacing(3)
             }
-            
-            Text(displayedText)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-                .foregroundColor(.primary.opacity(0.95))
-                .lineSpacing(4)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(minHeight: 80, alignment: .topLeading)
+            Spacer()
         }
         .ultraPremiumCardStyle()
     }
 }
 
-// MARK: - Daily Insight
 struct DailyAnalyticsInsightView: View {
     let summaries: [DailySummary]
     let user: User
@@ -634,8 +359,6 @@ struct DailyAnalyticsInsightView: View {
         let calendar = Calendar.current
         return summaries.first(where: { calendar.isDateInToday($0.date) })
     }
-
-    let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
 
     var body: some View {
         VStack(spacing: 24) {
@@ -654,28 +377,6 @@ struct DailyAnalyticsInsightView: View {
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
         }
-    }
-    
-    private func calculateScore() -> Int {
-        var totalCals = 0.0
-        var totalHydration = 0.0
-        let sortedSummaries = summaries.sorted { $0.date > $1.date }
-        let days = 1
-        for s in sortedSummaries.prefix(days) {
-            totalCals += Double(s.totalFoodCalories)
-            totalHydration += s.totalHydrationLiters
-        }
-        let avgCals = days > 0 ? totalCals / Double(days) : 0
-        let avgHydration = days > 0 ? totalHydration / Double(days) : 0
-        let targetCals = user.dailyCaloriesGoal
-        let calRatio = targetCals > 0 ? min(avgCals / Double(targetCals), 1.5) : 0
-        var calScore = 0.0
-        if calRatio <= 1.0 { calScore = calRatio * 50 } else { calScore = max(0, 50 - ((calRatio - 1.0) * 100)) }
-        let hydRatio = min(avgHydration / 2.5, 1.0)
-        let hydScore = hydRatio * 30
-        let macroScore = 20.0
-        let finalScore = Int(calScore + hydScore + macroScore)
-        return min(max(finalScore, 0), 100)
     }
 }
 
@@ -1083,56 +784,19 @@ struct TrendsAnalyticsInsightView: View {
     let summaries: [DailySummary]
     let user: User
     let period: AnalyticsPeriod
-    @State private var animateIn = false
 
     var body: some View {
         VStack(spacing: 24) {
-            
-            AITypewriterCard(score: calculateScore(), period: period)
-                .opacity(animateIn ? 1 : 0)
-                .offset(y: animateIn ? 0 : 30)
-
             DivineCaloriesChart(summaries: summaries, user: user, period: period)
             TrendsMicroChart(summaries: summaries, period: period)
             TrendsWaterChart(summaries: summaries, period: period)
-                .opacity(animateIn ? 1 : 0)
-                .offset(y: animateIn ? 0 : 30)
         }
-        .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
-                animateIn = true
-            }
-        }
-    }
-    
-    private func calculateScore() -> Int {
-        var totalCals = 0.0
-        var totalHydration = 0.0
-        let sortedSummaries = summaries.sorted { $0.date > $1.date }
-        let days = max(1, min(sortedSummaries.count, period.daysCount))
-        for s in sortedSummaries.prefix(days) {
-            totalCals += Double(s.totalFoodCalories)
-            totalHydration += s.totalHydrationLiters
-        }
-        let avgCals = days > 0 ? totalCals / Double(days) : 0
-        let avgHydration = days > 0 ? totalHydration / Double(days) : 0
-        let targetCals = user.dailyCaloriesGoal
-        let calRatio = targetCals > 0 ? min(avgCals / Double(targetCals), 1.5) : 0
-        var calScore = 0.0
-        if calRatio <= 1.0 { calScore = calRatio * 50 } else { calScore = max(0, 50 - ((calRatio - 1.0) * 100)) }
-        let hydRatio = min(avgHydration / 2.5, 1.0)
-        let hydScore = hydRatio * 30
-        let macroScore = 20.0
-        let finalScore = Int(calScore + hydScore + macroScore)
-        return min(max(finalScore, 0), 100)
+        .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
     }
 }
 
-// MARK: - Interactive Calories Chart
 struct DivineCaloriesChart: View {
     let summaries: [DailySummary]; let user: User; let period: AnalyticsPeriod
-    
-    @State private var selectedDate: Date?
 
     private var chartData: [(date: Date, eaten: Double)] {
         let calendar = Calendar.current
@@ -1148,8 +812,8 @@ struct DivineCaloriesChart: View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(LocalizedStringKey("Energy Trend")).font(.title3.bold())
-                    Text(LocalizedStringKey("Daily Caloric Intake")).font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
+                    Text("Energy Trend").font(.title3.bold())
+                    Text("Daily Caloric Intake").font(.caption).foregroundColor(.gray)
                 }
                 Spacer()
                 Image(systemName: "chart.xyaxis.line").font(.title2).foregroundColor(.themePink)
@@ -1160,7 +824,7 @@ struct DivineCaloriesChart: View {
                     .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
                     .foregroundStyle(Color.themeOrange.opacity(0.8))
                     .annotation(position: .top, alignment: .leading) {
-                        Text(LocalizedStringKey("GOAL")).font(.system(size: 10, weight: .black)).foregroundColor(.themeOrange)
+                        Text("GOAL").font(.system(size: 10, weight: .black)).foregroundColor(.themeOrange)
                     }
 
                 ForEach(chartData, id: \.date) { point in
@@ -1171,7 +835,7 @@ struct DivineCaloriesChart: View {
                     .interpolationMethod(.catmullRom)
                     .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
                     .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
-                    .symbol { Circle().fill(.white).overlay(Circle().stroke(Color.themePink, lineWidth: 2)).frame(width: 8, height: 8).shadow(color: .themePink, radius: 5) }
+                    .symbol { Circle().fill(.white).overlay(Circle().stroke(Color.themePink, lineWidth: 2)).frame(width: 8, height: 8) }
 
                     AreaMark(
                         x: .value("Date", point.date),
@@ -1180,44 +844,11 @@ struct DivineCaloriesChart: View {
                     .interpolationMethod(.catmullRom)
                     .foregroundStyle(LinearGradient(colors: [Color.themePink.opacity(0.35), Color.clear], startPoint: .top, endPoint: .bottom))
                 }
-                
-                // Scrubbing Overlay
-                if let selectedDate, let point = chartData.first(where: { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }) {
-                    RuleMark(x: .value("Date", selectedDate))
-                        .foregroundStyle(Color.gray.opacity(0.5))
-                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
-                        .annotation(position: .top, alignment: .center, spacing: 0) {
-                            VStack(spacing: 4) {
-                                Text("\(Int(point.eaten)) kcal")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
-                                Text(selectedDate.formatted(.dateTime.month().day()))
-                                    .font(.caption2.bold())
-                                    .foregroundColor(.primary.opacity(0.75))
-                            }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1))
-                            .shadow(radius: 5)
-                        }
-                    
-                    PointMark(
-                        x: .value("Date", point.date),
-                        y: .value("Eaten", point.eaten)
-                    )
-                    .symbol { Circle().fill(Color.themePink).frame(width: 12, height: 12).shadow(color: .themePink, radius: 10) }
-                }
-            }
-            .chartXSelection(value: $selectedDate)
-            .onChange(of: selectedDate) { _, _ in
-                // No haptics on chart drag
             }
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) {
-                        AxisValueLabel(format: .dateTime.weekday(.abbreviated)).font(.caption2.bold()).foregroundStyle(Color.primary.opacity(0.75))
+                        AxisValueLabel(format: .dateTime.weekday(.abbreviated)).font(.caption2.bold()).foregroundStyle(Color.gray)
                     }
                 }
             }
@@ -1364,7 +995,6 @@ struct TrendsMicroChart: View {
 
 struct TrendsWaterChart: View {
     let summaries: [DailySummary]; let period: AnalyticsPeriod
-    @State private var selectedDate: Date?
 
     private var chartData: [(date: Date, liters: Double)] {
         let calendar = Calendar.current
@@ -1384,7 +1014,7 @@ struct TrendsWaterChart: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text(LocalizedStringKey("Fluid Intake")).font(.title3.bold())
+                Text("Fluid Intake Trend").font(.title3.bold())
                 Spacer()
                 Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title2)
             }
@@ -1414,44 +1044,18 @@ struct TrendsWaterChart: View {
                     )
                     .cornerRadius(6)
                 }
-                
-                if let selectedDate, let point = chartData.first(where: { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }) {
-                    RuleMark(x: .value("Date", selectedDate))
-                        .foregroundStyle(Color.cyan.opacity(0.5))
-                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
-                        .annotation(position: .top, alignment: .center, spacing: 0) {
-                            VStack(spacing: 4) {
-                                Text("\(String(format: "%.1f", point.liters)) L")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundColor(.cyan)
-                                Text(selectedDate.formatted(.dateTime.month().day()))
-                                    .font(.caption2.bold())
-                                    .foregroundColor(.primary.opacity(0.75))
-                            }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1))
-                            .shadow(radius: 5)
-                        }
-                }
-            }
-            .chartXSelection(value: $selectedDate)
-            .onChange(of: selectedDate) { _, _ in
-                // No haptics on chart drag
             }
             .chartYScale(domain: 0...maxLiters)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
-                    if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.primary.opacity(0.75)) }
+                    if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray) }
                 }
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: [0, 1, 2, 3]) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.12))
                     if let val = value.as(Double.self), val >= 0 {
-                        AxisValueLabel("\(Int(val))L").font(.caption2.bold()).foregroundStyle(Color.primary.opacity(0.75))
+                        AxisValueLabel("\(Int(val))L").font(.caption2).foregroundStyle(Color.gray)
                     }
                 }
             }
@@ -1495,7 +1099,7 @@ struct ConsistencyHeatmapCard: View {
             HStack {
                 Text("Consistency").font(.title3.bold())
                 Spacer()
-                Text("Last 14 Days").font(.caption.bold()).foregroundColor(.primary.opacity(0.75))
+                Text("Last 14 Days").font(.caption).foregroundColor(.gray)
             }
 
             HStack(spacing: 8) {
@@ -1525,15 +1129,13 @@ struct ConsistencyHeatmapCard: View {
                             .shadow(color: level > 0 ? color.opacity(0.35) : Color.clear, radius: 5, x: 0, y: 3)
                     }
                 }
-                .padding(.horizontal, 2)
-                .padding(.bottom, 8)
             }
             .frame(maxWidth: .infinity, alignment: .center)
 
             HStack(spacing: 12) {
-                LegendDot(color: .green, text: String(localized: "Perfect"))
-                LegendDot(color: .themeOrange, text: String(localized: "Over"))
-                LegendDot(color: .themeYellow, text: String(localized: "Under"))
+                LegendDot(color: .green, text: "Perfect")
+                LegendDot(color: .themeOrange, text: "Over")
+                LegendDot(color: .themeYellow, text: "Under")
             }.padding(.top, 8)
         }
         .ultraPremiumCardStyle()
@@ -1594,7 +1196,7 @@ struct TopMicroSourcesSheetView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-                Spacer()
+                Spacer(minLength: 0)
             }
 
             Button(action: { dismiss() }) {
@@ -1606,6 +1208,7 @@ struct TopMicroSourcesSheetView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 20)
         }
+        .background(Color.themeBg.ignoresSafeArea())
     }
 
     private func getValue(for food: FoodItem) -> Double {

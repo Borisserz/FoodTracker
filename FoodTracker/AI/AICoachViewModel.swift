@@ -14,8 +14,8 @@ class AICoachViewModel {
 
     var isAnalyzing = false
     var hasAnalyzedToday = false
-    var verdictTitle: String = String(localized: "AI Daily Review")
-    var verdictMessage: String = String(localized: "Tap the button below to analyze your calories, macros, and get a personalized summary for today.")
+    var verdictTitle: String = "AI Daily Review"
+    var verdictMessage: String = "Tap the button below to analyze your calories, macros, and get a personalized summary for today."
     var verdictMood: String = "neutral"
 
     var fridgeInput: String = ""
@@ -49,8 +49,8 @@ class AICoachViewModel {
             } else {
                 withAnimation(.spring()) {
                     if cals > goal { self.verdictMood = "danger" } else if cals < goal / 2 { self.verdictMood = "warning" } else { self.verdictMood = "perfect" }
-                    self.verdictTitle = String(localized: "Data Collected")
-                    self.verdictMessage = String(format: String(localized: "You've eaten %d kcal out of %d."), cals, goal)
+                    self.verdictTitle = "Data Collected"
+                    self.verdictMessage = "You've eaten \(cals) kcal out of \(goal)."
                     self.hasAnalyzedToday = true
                     self.isAnalyzing = false
                 }
@@ -59,8 +59,8 @@ class AICoachViewModel {
     }
 
     func generateSmartRecipe(currentSummary: DailySummary, currentUser: User) {
-        let missingCals = max(250, currentUser.dailyCaloriesGoal - currentSummary.totalCalories)
-        let missingProtein = max(15, Int(currentUser.targetProtein - currentSummary.totalProtein))
+        let missingCals = max(0, currentUser.dailyCaloriesGoal - currentSummary.totalCalories)
+        let missingProtein = max(0, Int(currentUser.targetProtein - currentSummary.totalProtein))
 
         HapticManager.shared.impact(style: .medium)
         withAnimation { isGeneratingRecipe = true }
@@ -94,7 +94,7 @@ class AICoachViewModel {
                 self.isFixingMacros = false
                 HapticManager.shared.impact(style: .heavy)
             } else {
-                print("Log output removed for English localization")
+                print("❌ Не удалось получить совет по макросам от ИИ")
                 self.isFixingMacros = false
             }
         }

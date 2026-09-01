@@ -4,7 +4,7 @@ import Observation
 import FirebaseFirestore
 
 struct ArticleCategory: Identifiable, Codable, Hashable {
-    var id: String?
+    @DocumentID var id: String?
     let title: String
     var completedCount: Int = 0
     let articles: [Article]
@@ -58,28 +58,27 @@ class AcademyDataLoader {
     }
 
     func fetchCategoriesFromFirestore() {
-        let langCode = Locale.current.language.languageCode?.identifier ?? "en"
-        var fileName = "academy_\(langCode)"
-        
-        var url = Bundle.main.url(forResource: fileName, withExtension: "json")
-        if url == nil {
-            fileName = "academy"
-            url = Bundle.main.url(forResource: fileName, withExtension: "json")
-        }
-        
-        guard let url = url else { return }
-        
-        do {
-            let data = try Data(contentsOf: url)
-            let fetchedCategories = try JSONDecoder().decode([ArticleCategory].self, from: data)
+        db.collection("academy_categories").addSnapshotListener { [weak self] snapshot, error in
+            guard let self = self else { return }
             
-            DispatchQueue.main.async {
-                self.categories = fetchedCategories.sorted { $0.title < $1.title } 
-                self.recalculateProgress()
-                print("✅ Academy loaded from JSON: \(self.categories.count) categories.")
+            if let error = error {
+                print("❌ Ошибка загрузки Академии: \(error.localizedDescription)")
+                return
             }
-        } catch {
-            print("❌ Error parsing Academy JSON: \(error)")
+            
+            guard let documents = snapshot?.documents else { return }
+            
+            do {
+                let fetchedCategories = try documents.compactMap { try $0.data(as: ArticleCategory.self) }
+                
+                DispatchQueue.main.async {
+                    self.categories = fetchedCategories.sorted { $0.title < $1.title } // Или добавь поле order для сортировки
+                    self.recalculateProgress()
+                    print("✅ Академия загружена: \(self.categories.count) категорий.")
+                }
+            } catch {
+                print("❌ Ошибка парсинга Академии: \(error)")
+            }
         }
     }
 }
@@ -91,7 +90,6 @@ class FirebaseUploader {
     private let db = Firestore.firestore()
     
     func seedDatabaseIfNeeded() {
-#if DEBUG
         db.collection("diets").limit(to: 1).getDocuments { [weak self] snapshot, _ in
             if let snapshot = snapshot, snapshot.documents.isEmpty {
                 print("🌱 Seeding diets...")
@@ -119,106 +117,82 @@ class FirebaseUploader {
                 self?.uploadAcademyFromJSON()
             }
         }
-#endif
     }
     
-    
+    // 1. Выгрузка рецептов
     func uploadRecipesFromJSON() {
         guard let url = Bundle.main.url(forResource: "recipes", withExtension: "json") else { return }
         
         do {
             let data = try Data(contentsOf: url)
-            
+            // Парсим твою старую модель (где ID был UUID)
             let recipes = try JSONDecoder().decode([PremiumRecipe].self, from: data)
             
             for recipe in recipes {
                 do {
-                    
+                    // Создаем новый документ в коллекции
                     let docRef = db.collection("premium_recipes").document()
                     try docRef.setData(from: recipe)
-                    print("Log output removed for English localization")
+                    print("⬆️ Загружен рецепт: \(recipe.title)")
                 } catch {
-                    print("Log output removed for English localization")
+                    print("Ошибка при загрузке рецепта: \(error)")
                 }
             }
-            print("Log output removed for English localization")
+            print("✅ Все рецепты успешно загружены в Firestore!")
         } catch {
-            print("Log output removed for English localization")
+            print("Ошибка чтения recipes.json: \(error)")
         }
     }
-    
-    
-    func uploadNewRecipesFromJSON() {
-        guard let url = Bundle.main.url(forResource: "new_recipes", withExtension: "json") else { return }
-        
-        do {
-            let data = try Data(contentsOf: url)
-            let newRecipes = try JSONDecoder().decode([PremiumRecipe].self, from: data)
-            
-            for recipe in newRecipes {
-                do {
-                    let docRef = db.collection("premium_recipes").document()
-                    try docRef.setData(from: recipe)
-                    print("Log output removed for English localization")
-                } catch {
-                    print("Log output removed for English localization")
-                }
-            }
-            print("Log output removed for English localization")
-        } catch {
-            print("Log output removed for English localization")
-        }
-    }
-    
+    // Выгрузка диет
         func uploadDiets() {
-            for diet in DietPlan.defaultDiets { 
+            for diet in DietPlan.defaultDiets { // defaultDiets - тот самый массив, который мы переименовали
                 do {
                     try db.collection("diets").document(diet.key).setData(from: diet)
-                    print("Log output removed for English localization")
+                    print("⬆️ Загружена диета: \(diet.name)")
                 } catch {
-                    print("Log output removed for English localization")
+                    print("❌ Ошибка диеты: \(error)")
                 }
             }
         }
         
-        
+        // Выгрузка планов голодания
         func uploadFastingPlans() {
-            for plan in FastingPlan.defaultPlans { 
+            for plan in FastingPlan.defaultPlans { // defaultPlans - массив планов
                 do {
                     try db.collection("fasting_plans").document().setData(from: plan)
-                    print("Log output removed for English localization")
+                    print("⬆️ Загружен план: \(plan.title)")
                 } catch {
-                    print("Log output removed for English localization")
+                    print("❌ Ошибка плана: \(error)")
                 }
             }
         }
-    
+    // 2. Выгрузка Академии
     func uploadAcademyFromJSON() {
            guard let url = Bundle.main.url(forResource: "academy", withExtension: "json") else { return }
            
            do {
                let data = try Data(contentsOf: url)
                
-               
+               // Читаем как сырой массив словарей (чтобы обойти конфликт Codable и @DocumentID)
                guard let categoriesArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-                   print("Log output removed for English localization")
+                   print("❌ Не удалось распарсить academy.json как массив словарей")
                    return
                }
                
                for categoryDict in categoriesArray {
                    let docRef = db.collection("academy_categories").document()
-                   
+                   // Заливаем данные напрямую
                    docRef.setData(categoryDict) { error in
                        if let error = error {
-                           print("Log output removed for English localization")
+                           print("❌ Ошибка при загрузке категории: \(error)")
                        } else {
-                           print("Log output removed for English localization")
+                           print("⬆️ Загружена категория из Академии")
                        }
                    }
                }
-               print("Log output removed for English localization")
+               print("✅ Скрипт загрузки Академии завершен!")
            } catch {
-               print("Log output removed for English localization")
+               print("❌ Ошибка чтения academy.json: \(error)")
            }
        }
 }
