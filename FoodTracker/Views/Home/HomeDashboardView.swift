@@ -152,6 +152,7 @@ struct HomeDashboardContentView: View {
                               }
                               .padding(.horizontal)
                           }
+                          .spotlightTarget(step: .aiChef)
 
                           HydrationFlaskCardView(summary: currentSummary)
                               .spotlightTarget(step: .fastingWater)
@@ -540,6 +541,7 @@ struct HeaderView: View {
                         .foregroundColor(.textGray)
                     
                     StreakFireBadgeView(streakDays: max(1, user?.streakDays ?? 1))
+                        .spotlightTarget(step: .streakFire)
                 }
             }
             Spacer()

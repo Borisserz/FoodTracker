@@ -5,38 +5,68 @@ enum SpotlightStep: Int, CaseIterable, Identifiable {
     case addMeal = 0
     case macroRings = 1
     case fastingWater = 2
+    case streakFire = 3
+    case aiChef = 4
     
     var id: Int { rawValue }
     
     var icon: String {
         switch self {
-        case .addMeal: return "plus.circle.fill"
-        case .macroRings: return "chart.pie.fill"
+        case .addMeal: return "camera.viewfinder"
+        case .macroRings: return "flame.fill"
         case .fastingWater: return "drop.fill"
+        case .streakFire: return "bolt.fill"
+        case .aiChef: return "sparkles"
+        }
+    }
+    
+    var category: String {
+        switch self {
+        case .addMeal: return "ИИ-СКАНИРОВАНИЕ & ЛОГИНГ"
+        case .macroRings: return "МЕТАБОЛИЗМ & БЖУ"
+        case .fastingWater: return "ВОДНЫЙ БАЛАНС"
+        case .streakFire: return "ГЕЙМИФИКАЦИЯ & XP"
+        case .aiChef: return "ПЕРСОНАЛЬНЫЙ ШЕФ"
         }
     }
     
     var title: String {
         switch self {
-        case .addMeal: return "Нажмите, чтобы добавить еду"
-        case .macroRings: return "Нажмите, чтобы открыть баланс БЖУ"
-        case .fastingWater: return "Нажмите, чтобы записать воду"
+        case .addMeal: return "Умное добавление еды"
+        case .macroRings: return "Энергетический баланс и БЖУ"
+        case .fastingWater: return "3D Колба гидратации"
+        case .streakFire: return "Огненный стрик и уровень"
+        case .aiChef: return "Студия питания и рецепты"
         }
     }
     
     var description: String {
         switch self {
         case .addMeal:
-            return "Сфотографируйте блюдо, отсканируйте штрихкод или запишите приём пищи — ИИ моментально рассчитает калории."
+            return "Сфотографируйте блюдо, отсканируйте штрихкод или запишите голосом — нейросеть моментально определит калории и макросы."
         case .macroRings:
-            return "Здесь отображается ваша суточная норма калорий, белков, жиров и углеводов."
+            return "Интерактивные кольца суточной нормы калорий, белков, жиров и углеводов с авто-синхронизацией активности Apple Health."
         case .fastingWater:
-            return "Быстро отмечайте выпитую воду в один тап для поддержания водного баланса."
+            return "Живая колба с синусоидальной физикой волн и мерной шкалой. Быстро отмечайте стакан или бутылку воды в один тап."
+        case .streakFire:
+            return "Сохраняйте серию дней без пропусков, зарабатывайте XP за закрытие целей и открывайте редкие достижения."
+        case .aiChef:
+            return "Генерируйте уникальные рецепты из продуктов в холодильнике с идеальной подгонкой под оставшиеся на день калории."
         }
     }
     
     var tag: String {
         return "Шаг \(rawValue + 1) из \(SpotlightStep.allCases.count)"
+    }
+    
+    var accentColor: Color {
+        switch self {
+        case .addMeal: return Color(red: 0.18, green: 0.86, blue: 0.38)
+        case .macroRings: return Color(red: 1.0, green: 0.55, blue: 0.0)
+        case .fastingWater: return Color.cyan
+        case .streakFire: return Color(red: 1.0, green: 0.82, blue: 0.1)
+        case .aiChef: return Color(red: 0.75, green: 0.35, blue: 0.95)
+        }
     }
 }
 
@@ -59,7 +89,7 @@ final class SpotlightTourManager {
     var targetFrames: [SpotlightStep: CGRect] = [:]
     
     @ObservationIgnored
-    private let storageKey = "hasCompletedSpotlightTour_v4"
+    private let storageKey = "hasCompletedSpotlightTour_v5"
     
     var hasCompletedTour: Bool {
         get { UserDefaults.standard.bool(forKey: storageKey) }
@@ -77,6 +107,13 @@ final class SpotlightTourManager {
         }
     }
     
+    func startTourForcefully() {
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+            self.currentStep = .addMeal
+            self.isTourActive = true
+        }
+    }
+    
     func nextStep() {
         let all = SpotlightStep.allCases
         if let idx = all.firstIndex(of: currentStep), idx + 1 < all.count {
@@ -85,6 +122,15 @@ final class SpotlightTourManager {
             }
         } else {
             finishTour()
+        }
+    }
+    
+    func previousStep() {
+        let all = SpotlightStep.allCases
+        if let idx = all.firstIndex(of: currentStep), idx > 0 {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                currentStep = all[idx - 1]
+            }
         }
     }
     
@@ -97,6 +143,6 @@ final class SpotlightTourManager {
     
     func resetTour() {
         hasCompletedTour = false
-        startTourIfNeeded()
+        startTourForcefully()
     }
 }

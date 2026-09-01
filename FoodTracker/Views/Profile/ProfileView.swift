@@ -363,6 +363,16 @@ struct SettingsView: View {
                             }
                             Divider().padding(.leading, 56)
 
+                            Button(action: { 
+                                dismiss()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    SpotlightTourManager.shared.resetTour()
+                                }
+                            }) {
+                                SettingsRowView(icon: "sparkles", iconColor: .cyan, title: "Интерактивный тур по функциям")
+                            }
+                            Divider().padding(.leading, 56)
+
                             Button(action: { exportData() }) {
                                 SettingsRowView(icon: "square.and.arrow.up.fill", iconColor: .green, title: "Export Data to CSV")
                             }
