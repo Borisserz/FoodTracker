@@ -31,7 +31,7 @@ struct HydrationFlaskCardView: View {
         waterLiters >= dailyGoalLiters
     }
     
-    public var body: some View {
+    var body: some View {
         VStack(spacing: 18) {
             // Header Row
             HStack(alignment: .center) {
@@ -123,13 +123,12 @@ struct HydrationFlaskCardView: View {
             }
             .frame(height: 220)
             
-            // MARK: ⚡ Interactive Preset Add Buttons
-            HStack(spacing: 12) {
+            // MARK: ⚡ Clean Modern Preset Add Buttons
+            HStack(spacing: 10) {
                 // Glass +250ml Button
                 FlaskActionButton(
                     icon: "drop.fill",
                     title: "+250 мл",
-                    subtitle: "Стакан",
                     color: Color.cyan
                 ) {
                     addWater(ml: 250)
@@ -139,7 +138,6 @@ struct HydrationFlaskCardView: View {
                 FlaskActionButton(
                     icon: "waterbottle.fill",
                     title: "+500 мл",
-                    subtitle: "Бутылка",
                     color: Color.blue
                 ) {
                     addWater(ml: 500)
@@ -149,12 +147,16 @@ struct HydrationFlaskCardView: View {
                 if !waterBeverages.isEmpty {
                     Button(action: removeLastWaterEntry) {
                         ZStack {
-                            Circle()
-                                .fill(Color.gray.opacity(0.12))
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(Color(UIColor.tertiarySystemGroupedBackground))
                                 .frame(width: 48, height: 48)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                                )
                             
                             Image(systemName: "arrow.uturn.backward")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: 15, weight: .bold))
                                 .foregroundStyle(Color.secondary)
                         }
                     }
@@ -404,48 +406,31 @@ private struct FlaskTickMark: View {
     }
 }
 
-// MARK: - Preset Action Button
+// MARK: - Clean Modern Preset Action Button
 private struct FlaskActionButton: View {
     let icon: String
     let title: String
-    let subtitle: String
     let color: Color
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 10) {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.18))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: icon)
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(color)
-                }
-                
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(title)
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.primary)
-                    Text(subtitle)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(Color.secondary)
-                }
-                
-                Spacer()
-                
-                Image(systemName: "plus")
-                    .font(.system(size: 12, weight: .bold))
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(color)
+                
+                Text(title)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.primary)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(Color(UIColor.tertiarySystemGroupedBackground))
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(color.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(color.opacity(0.25), lineWidth: 1.0)
+                    .strokeBorder(color.opacity(0.3), lineWidth: 1.2)
             )
         }
         .buttonStyle(BouncyFlaskButtonStyle())
@@ -456,7 +441,7 @@ private struct FlaskActionButton: View {
 private struct BouncyFlaskButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.spring(response: 0.25, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }

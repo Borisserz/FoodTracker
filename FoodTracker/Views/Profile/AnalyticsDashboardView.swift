@@ -572,201 +572,255 @@ struct AIHydrationAnalyticsCard: View {
     let summary: DailySummary?
     var onUpdate: () -> Void = {}
     
-    @State private var animProgress: Double = 0
-    
     var body: some View {
         let liters = summary?.totalHydrationLiters ?? 0
         let goal = 2.5
-        let progress = min(liters / goal, 1.0)
+        let progress = min(max(liters / goal, 0.0), 1.0)
+        let isGoalReached = liters >= goal
         
         let advice = generateMockAdvice(liters: liters)
         
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 18) {
             // Header
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("AI Hydration Coach").font(.title3.bold())
-                    Text("Optimizing your pH & metabolism").font(.caption).foregroundColor(.gray)
+                HStack(spacing: 8) {
+                    ZStack {
+                        Circle().fill(Color.cyan.opacity(0.15)).frame(width: 36, height: 36)
+                        Image(systemName: "drop.fill").foregroundColor(.cyan).font(.system(size: 16, weight: .bold))
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("AI HYDRATION COACH")
+                            .font(.system(size: 11, weight: .black, design: .monospaced))
+                            .foregroundStyle(Color.cyan)
+                        Text("Баланс и метаболизм")
+                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.primary)
+                    }
                 }
                 Spacer()
-                ZStack {
-                    Circle().fill(Color.cyan.opacity(0.15)).frame(width: 40, height: 40)
-                    Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title3)
+                
+                HStack(spacing: 4) {
+                    if isGoalReached {
+                        Image(systemName: "checkmark.seal.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(Color.green)
+                    }
+                    Text("\(Int(progress * 100))%")
+                        .font(.system(size: 14, weight: .black, design: .rounded))
+                        .foregroundStyle(isGoalReached ? Color.green : Color.cyan)
                 }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(isGoalReached ? Color.green.opacity(0.12) : Color.cyan.opacity(0.12))
+                .clipShape(Capsule())
             }
             
-            // Progress Section
-            HStack(spacing: 20) {
-                // Liquid capsule representing a modern glass
-                ZStack(alignment: .bottom) {
-                    // Glass background container
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.cyan.opacity(0.08))
-                        .frame(width: 45, height: 130)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.cyan.opacity(0.2), lineWidth: 1.5)
-                        )
-                    
-                    // Liquid level with subtle wave effect using a soft vertical gradient and corner clipping
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.cyan.opacity(0.9), Color.blue],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .frame(width: 41, height: max(126 * CGFloat(animProgress), 0))
-                        .padding(2)
-                        .animation(.spring(response: 0.9, dampingFraction: 0.75), value: animProgress)
-                    
-                    // Measurement tick marks inside the glass
-                    VStack(spacing: 16) {
-                        ForEach(0..<4) { _ in
-                            Rectangle()
-                                .fill(Color.white.opacity(0.35))
-                                .frame(width: 12, height: 1.5)
-                        }
-                    }
-                    .padding(.bottom, 15)
-                }
-                .shadow(color: Color.cyan.opacity(0.15), radius: 8, x: 0, y: 4)
+            // 🧪 3D Glass Flask Container with Wave Simulation & Metrics
+            ZStack(alignment: .bottom) {
+                AnalyticsFlaskGlassContainer(fillRatio: progress)
+                    .frame(height: 180)
                 
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text("\(String(format: "%.2f", liters)) L")
-                            .font(.system(size: 32, weight: .heavy, design: .rounded))
-                            .foregroundColor(.cyan)
-                            .contentTransition(.numericText())
-                        Text("/ \(String(format: "%.2f", goal)) L")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                HStack(alignment: .bottom) {
+                    // Metric Markings on left
+                    VStack(alignment: .leading, spacing: 0) {
+                        AnalyticsFlaskTickMark(label: "2.5L", isFilled: progress >= 1.0)
+                        Spacer()
+                        AnalyticsFlaskTickMark(label: "2.0L", isFilled: progress >= 0.8)
+                        Spacer()
+                        AnalyticsFlaskTickMark(label: "1.5L", isFilled: progress >= 0.6)
+                        Spacer()
+                        AnalyticsFlaskTickMark(label: "1.0L", isFilled: progress >= 0.4)
+                        Spacer()
+                        AnalyticsFlaskTickMark(label: "0.5L", isFilled: progress >= 0.2)
                     }
+                    .frame(width: 48, height: 130)
+                    .padding(.leading, 20)
+                    .padding(.bottom, 16)
                     
-                    // Advice Box
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 8) {
-                            Image(systemName: advice.icon)
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(advice.color)
-                            Text(advice.title)
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
+                    Spacer()
+                    
+                    // Main Readout on right
+                    VStack(alignment: .trailing, spacing: 2) {
+                        HStack(alignment: .firstTextBaseline, spacing: 3) {
+                            Text(String(format: "%.2f", liters))
+                                .font(.system(size: 32, weight: .heavy, design: .rounded))
+                                .foregroundStyle(Color.primary)
+                                .contentTransition(.numericText(value: liters))
+                            Text("Л")
+                                .font(.system(size: 17, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color.cyan)
                         }
-                        Text(advice.message)
+                        Text("из \(goal, specifier: "%.1f") Л цели")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundColor(.gray)
-                            .lineSpacing(3)
-                            .lineLimit(3)
-                            .fixedSize(horizontal: false, vertical: true)
+                            .foregroundStyle(Color.secondary)
                     }
-                    .padding(14)
-                    .background(
-                        LinearGradient(
-                            colors: [advice.color.opacity(0.12), advice.color.opacity(0.04)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(advice.color.opacity(0.2), lineWidth: 1)
-                    )
-                    .cornerRadius(16)
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 18)
                 }
             }
+            .frame(height: 180)
             
-            // Educational Nudge
+            // Advice Box
             HStack(spacing: 12) {
-                Image(systemName: "info.circle.fill")
-                    .foregroundColor(.gray.opacity(0.5))
-                Text("Water maintains blood volume, flushes out excess sodium, and keeps your body's pH perfectly balanced.")
-                    .font(.caption2)
-                    .foregroundColor(.gray)
-            }
-            
-            // Quick Add Water Buttons
-            HStack(spacing: 16) {
-                Button(action: {
-                    HapticManager.shared.impact(style: .medium)
-                    let today = Calendar.current.startOfDay(for: Date())
-                    var targetSummary: DailySummary? = summary
-                    if targetSummary == nil {
-                        let descriptor = FetchDescriptor<DailySummary>(
-                            predicate: #Predicate<DailySummary> { $0.date == today }
-                        )
-                        if let existing = try? context.fetch(descriptor).first {
-                            targetSummary = existing
-                        }
-                    }
-                    if let targetSummary = targetSummary {
-                        if let lastWater = targetSummary.beverages.last(where: { $0.name == "Water" }) {
-                            if let index = targetSummary.beverages.firstIndex(of: lastWater) {
-                                targetSummary.beverages.remove(at: index)
-                            }
-                            context.delete(lastWater)
-                            try? context.save()
-                            onUpdate()
-                        }
-                    }
-                }) {
-                    Image(systemName: "minus")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.cyan)
-                        .frame(width: 50, height: 50)
-                        .background(Color.cyan.opacity(0.15))
-                        .clipShape(Circle())
-                }
+                Image(systemName: advice.icon)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(advice.color)
                 
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(advice.title)
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                    Text(advice.message)
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(advice.color.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(advice.color.opacity(0.25), lineWidth: 1)
+            )
+            
+            // Clean Modern Action Buttons
+            HStack(spacing: 10) {
                 Button(action: {
-                    HapticManager.shared.impact(style: .medium)
-                    let today = Calendar.current.startOfDay(for: Date())
-                    var targetSummary: DailySummary? = summary
-                    if targetSummary == nil {
-                        let descriptor = FetchDescriptor<DailySummary>(
-                            predicate: #Predicate<DailySummary> { $0.date == today }
-                        )
-                        if let existing = try? context.fetch(descriptor).first {
-                            targetSummary = existing
-                        } else {
-                            let newSummary = DailySummary(date: today)
-                            context.insert(newSummary)
-                            targetSummary = newSummary
-                        }
-                    }
-                    if let targetSummary = targetSummary {
-                        let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250.0)
-                        context.insert(newBeverage)
-                        targetSummary.beverages.append(newBeverage)
-                        try? context.save()
-                        onUpdate()
-                        
-                        if let user = users.first, user.isHealthKitEnabled {
-                            Task {
-                                await HealthKitManager.shared.saveWater(liters: 0.25, date: Date())
-                            }
-                        }
-                    }
+                    addWaterVolume(ml: 250)
                 }) {
                     HStack(spacing: 8) {
-                        Image(systemName: "plus")
-                        Text("Add 250ml")
+                        Image(systemName: "drop.fill")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(Color.cyan)
+                        Text("+250 мл")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.primary)
                     }
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing))
-                    .cornerRadius(25)
-                    .shadow(color: Color.cyan.opacity(0.3), radius: 8, y: 4)
+                    .frame(height: 46)
+                    .background(Color.cyan.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .strokeBorder(Color.cyan.opacity(0.3), lineWidth: 1.2)
+                    )
+                }
+                .buttonStyle(BounceButtonStyle())
+                
+                Button(action: {
+                    addWaterVolume(ml: 500)
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "waterbottle.fill")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(Color.blue)
+                        Text("+500 мл")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.primary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 46)
+                    .background(Color.blue.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .strokeBorder(Color.blue.opacity(0.3), lineWidth: 1.2)
+                    )
+                }
+                .buttonStyle(BounceButtonStyle())
+                
+                Button(action: {
+                    removeLastWater()
+                }) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Color(UIColor.tertiarySystemGroupedBackground))
+                            .frame(width: 46, height: 46)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                            )
+                        Image(systemName: "arrow.uturn.backward")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+                .buttonStyle(BounceButtonStyle())
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .strokeBorder(isGoalReached ? Color.green.opacity(0.35) : Color.cyan.opacity(0.2), lineWidth: 1.2)
+        )
+        .shadow(color: Color.black.opacity(0.04), radius: 15, y: 6)
+    }
+    
+    private func addWaterVolume(ml: Double) {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.prepare()
+        generator.impactOccurred()
+        
+        let today = Calendar.current.startOfDay(for: Date())
+        var targetSummary: DailySummary? = summary
+        if targetSummary == nil {
+            let descriptor = FetchDescriptor<DailySummary>(
+                predicate: #Predicate<DailySummary> { $0.date == today }
+            )
+            if let existing = try? context.fetch(descriptor).first {
+                targetSummary = existing
+            } else {
+                let newSummary = DailySummary(date: today)
+                context.insert(newSummary)
+                targetSummary = newSummary
+            }
+        }
+        if let targetSummary = targetSummary {
+            let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
+            context.insert(newBeverage)
+            targetSummary.beverages.append(newBeverage)
+            try? context.save()
+            onUpdate()
+            
+            if let user = users.first, user.isHealthKitEnabled {
+                Task {
+                    await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: Date())
                 }
             }
-            .padding(.top, 4)
         }
-        .ultraPremiumCardStyle()
-        .onAppear { withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) { animProgress = progress } }
-        .onChange(of: progress) { _, nv in withAnimation { animProgress = nv } }
+    }
+    
+    private func removeLastWater() {
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.prepare()
+        generator.impactOccurred()
+        
+        let today = Calendar.current.startOfDay(for: Date())
+        var targetSummary: DailySummary? = summary
+        if targetSummary == nil {
+            let descriptor = FetchDescriptor<DailySummary>(
+                predicate: #Predicate<DailySummary> { $0.date == today }
+            )
+            if let existing = try? context.fetch(descriptor).first {
+                targetSummary = existing
+            }
+        }
+        if let targetSummary = targetSummary {
+            if let lastWater = targetSummary.beverages.last(where: { $0.name == "Water" }) {
+                if let index = targetSummary.beverages.firstIndex(of: lastWater) {
+                    targetSummary.beverages.remove(at: index)
+                }
+                context.delete(lastWater)
+                try? context.save()
+                onUpdate()
+            }
+        }
     }
     
     private func generateMockAdvice(liters: Double) -> (title: String, message: String, color: Color, icon: String) {
@@ -776,6 +830,185 @@ struct AIHydrationAnalyticsCard: View {
             return ("Keep Hydrating", "You're on track. A bit more water will help flush excess salt.", .themeYellow, "drop.circle.fill")
         } else {
             return ("Perfect Balance", "Your hydration is optimal! Your body's pH and sodium levels are perfectly balanced.", .green, "checkmark.seal.fill")
+        }
+    }
+}
+
+// MARK: - Analytics 3D Glass Flask Container with Wave Simulation
+private struct AnalyticsFlaskGlassContainer: View {
+    let fillRatio: Double
+    
+    @State private var bubbleStates: [(xNorm: Double, yNorm: Double, size: CGFloat, speed: Double)] = (0..<8).map { _ in
+        (
+            xNorm: Double.random(in: 0.15...0.85),
+            yNorm: Double.random(in: 0.2...0.9),
+            size: CGFloat.random(in: 3...7),
+            speed: Double.random(in: 1.8...3.0)
+        )
+    }
+    
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSinceReferenceDate
+            
+            GeometryReader { geo in
+                let width = geo.size.width
+                let height = geo.size.height
+                let fillHeight = height * CGFloat(max(0.04, min(0.96, fillRatio)))
+                let baseWaterLevel = height - fillHeight
+                
+                ZStack {
+                    // Flask Ambient Background Gradient
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.cyan.opacity(0.04),
+                                    Color.blue.opacity(0.08)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    
+                    // Deep Ocean Wave Layer
+                    AnalyticsFlaskWaveShape(
+                        phase: time * 1.5,
+                        amplitude: 5.0,
+                        waterLevel: baseWaterLevel + 3
+                    )
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.0, green: 0.55, blue: 0.90).opacity(0.55),
+                                Color(red: 0.0, green: 0.35, blue: 0.75).opacity(0.75)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    
+                    // Vibrant Turquoise Wave Layer
+                    AnalyticsFlaskWaveShape(
+                        phase: time * 2.2,
+                        amplitude: 7.0,
+                        waterLevel: baseWaterLevel
+                    )
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.0, green: 0.85, blue: 0.98).opacity(0.90),
+                                Color(red: 0.0, green: 0.65, blue: 0.92).opacity(0.95),
+                                Color(red: 0.0, green: 0.45, blue: 0.82)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    
+                    // Rising Micro Bubbles
+                    ForEach(bubbleStates.indices, id: \.self) { idx in
+                        let b = bubbleStates[idx]
+                        let bubbleY = baseWaterLevel + (fillHeight * CGFloat(b.yNorm)) - CGFloat(time * 22 * b.speed).truncatingRemainder(dividingBy: max(fillHeight, 1))
+                        
+                        Circle()
+                            .fill(Color.white.opacity(0.55))
+                            .frame(width: b.size, height: b.size)
+                            .position(
+                                x: width * CGFloat(b.xNorm) + sin(time * 3 + Double(idx)) * 4,
+                                y: max(baseWaterLevel + 5, bubbleY)
+                            )
+                    }
+                    
+                    // Glass Refraction & Specular Highlights
+                    HStack {
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.5),
+                                        Color.white.opacity(0.1),
+                                        Color.clear
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: 7)
+                            .padding(.leading, 8)
+                            .padding(.vertical, 14)
+                        
+                        Spacer()
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.6),
+                                    Color.cyan.opacity(0.3),
+                                    Color.white.opacity(0.2)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Analytics Wave Shape
+private struct AnalyticsFlaskWaveShape: Shape {
+    var phase: Double
+    var amplitude: CGFloat
+    var waterLevel: CGFloat
+    
+    var animatableData: Double {
+        get { phase }
+        set { phase = newValue }
+    }
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+        
+        path.move(to: CGPoint(x: 0, y: height))
+        path.addLine(to: CGPoint(x: 0, y: waterLevel))
+        
+        let wavelength = width * 0.75
+        for x in stride(from: 0, through: width + 6, by: 4) {
+            let relativeX = x / wavelength
+            let sine = sin(relativeX * 2 * .pi + phase)
+            let y = waterLevel + amplitude * CGFloat(sine)
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        
+        path.addLine(to: CGPoint(x: width, y: height))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Analytics Metric Tick Mark
+private struct AnalyticsFlaskTickMark: View {
+    let label: String
+    let isFilled: Bool
+    
+    var body: some View {
+        HStack(spacing: 5) {
+            Rectangle()
+                .fill(isFilled ? Color.white.opacity(0.9) : Color.primary.opacity(0.3))
+                .frame(width: 12, height: 1.5)
+            
+            Text(label)
+                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .foregroundStyle(isFilled ? Color.white : Color.secondary)
         }
     }
 }
