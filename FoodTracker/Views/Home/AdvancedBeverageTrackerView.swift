@@ -65,20 +65,30 @@ struct WaterGridTrackerView: View {
                 Spacer()
 
                 ZStack {
-                    Circle().stroke(Color.cyan.opacity(0.15), lineWidth: 6)
+                    // Fluid Wave Circle Container
                     Circle()
-                        .trim(from: 0, to: progress)
-                        .stroke(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom), style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                        .animation(.spring(response: 0.8, dampingFraction: 0.7), value: progress)
-
+                        .fill(Color.cyan.opacity(0.12))
+                        .overlay(
+                            FluidWaveView(
+                                progress: progress,
+                                waveColor: .cyan,
+                                secondaryWaveColor: .blue.opacity(0.35)
+                            )
+                            .clipShape(Circle())
+                        )
+                        .overlay(
+                            Circle()
+                                .stroke(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom), lineWidth: 2.5)
+                        )
+                    
                     Image(systemName: isGoalReached ? "checkmark" : "drop.fill")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(isGoalReached ? .blue : .cyan)
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.2), radius: 3)
                         .contentTransition(.symbolEffect(.replace))
                 }
-                .frame(width: 56, height: 56)
-                .shadow(color: Color.cyan.opacity(isGoalReached ? 0.3 : 0.1), radius: 8, x: 0, y: 4)
+                .frame(width: 60, height: 60)
+                .shadow(color: Color.cyan.opacity(isGoalReached ? 0.4 : 0.2), radius: 10, x: 0, y: 4)
             }
 
             HStack(spacing: 12) {

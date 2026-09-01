@@ -15,9 +15,10 @@ extension View {
     }
 }
 
-// MARK: - Interactive Clean Green Spotlight Overlay (No Dimming, No Arrows)
+// MARK: - Interactive Clean Green Spotlight Overlay (No Dimming, No Arrows, Laser Glow)
 struct SpotlightOverlayView: View {
     @Bindable var manager: SpotlightTourManager = .shared
+    @State private var laserAngle: Double = 0
     @State private var pulseGlow = false
     
     var body: some View {
@@ -37,12 +38,25 @@ struct SpotlightOverlayView: View {
                                 advanceWithHaptic()
                             }
                         
-                        // MARK: 🟢 Clean Vibrant Green Highlight Outline
+                        // MARK: 🟢 Travelling Apple Intelligence Style Laser Beam
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .stroke(Color(red: 0.18, green: 0.86, blue: 0.38), lineWidth: 3.0)
+                            .stroke(
+                                AngularGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(red: 0.18, green: 0.86, blue: 0.38),
+                                        Color(red: 0.20, green: 0.95, blue: 0.70),
+                                        Color(red: 0.18, green: 0.86, blue: 0.38).opacity(0.2),
+                                        Color(red: 0.18, green: 0.86, blue: 0.38)
+                                    ]),
+                                    center: .center,
+                                    startAngle: .degrees(laserAngle),
+                                    endAngle: .degrees(laserAngle + 360)
+                                ),
+                                lineWidth: 3.0
+                            )
                             .frame(width: paddedRect.width, height: paddedRect.height)
                             .position(x: paddedRect.midX, y: paddedRect.midY)
-                            .shadow(color: Color(red: 0.18, green: 0.86, blue: 0.38).opacity(pulseGlow ? 0.8 : 0.3), radius: pulseGlow ? 10 : 4)
+                            .shadow(color: Color(red: 0.18, green: 0.86, blue: 0.38).opacity(pulseGlow ? 0.85 : 0.4), radius: pulseGlow ? 12 : 5)
                             .onTapGesture {
                                 advanceWithHaptic()
                             }
@@ -78,6 +92,9 @@ struct SpotlightOverlayView: View {
             .transition(.opacity)
             .animation(.spring(response: 0.38, dampingFraction: 0.8), value: manager.currentStep)
             .onAppear {
+                withAnimation(.linear(duration: 2.8).repeatForever(autoreverses: false)) {
+                    laserAngle = 360
+                }
                 withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
                     pulseGlow = true
                 }

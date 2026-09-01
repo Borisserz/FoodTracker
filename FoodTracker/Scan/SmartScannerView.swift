@@ -39,6 +39,11 @@ struct SmartScannerView: View {
             } else if selectedMode == .mealAI || selectedMode == .menuAI {
                 LiveCameraPreviewView(session: cameraManager.session)
                     .ignoresSafeArea()
+                    .overlay {
+                        if selectedMode == .mealAI {
+                            ARFoodHUDOverlay()
+                        }
+                    }
                     .onAppear { cameraManager.checkPermissionAndStart() }
                     .onDisappear { cameraManager.stop() }
             } else {

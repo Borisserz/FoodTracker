@@ -59,6 +59,7 @@ struct Achievement: Identifiable {
     
     var totalXP: Int = 0
     var level: Int = 1
+    var streakDays: Int = 3
     
     // Goals
     var targetWeight: Double?

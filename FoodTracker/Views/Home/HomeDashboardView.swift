@@ -265,8 +265,8 @@ struct HomeDashboardContentView: View {
                   .zIndex(100)
                   
                   if showXPPopup, let breakdown = xpBreakdown {
-                      NutritionXPBreakdownPopup(breakdown: breakdown) {
-                          withAnimation {
+                      ParticleConfettiBurstView(xpEarned: breakdown.totalXP) {
+                          withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                               showXPPopup = false
                           }
                       }
@@ -533,10 +533,14 @@ struct HeaderView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(greetingString)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                Text(relativeDateString)
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundColor(.textGray)
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                HStack(spacing: 8) {
+                    Text(relativeDateString)
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundColor(.textGray)
+                    
+                    StreakFireBadgeView(streakDays: max(1, user?.streakDays ?? 1))
+                }
             }
             Spacer()
 
@@ -1137,6 +1141,10 @@ struct MealCardView: View {
         .padding(16)
         .background(Color.white)
         .cornerRadius(24)
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(calories != nil && (calories ?? 0) > 0 ? iconAndColor.1.opacity(0.25) : Color.clear, lineWidth: 1.2)
+        )
         .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
         .contentShape(Rectangle())
         .onTapGesture {
