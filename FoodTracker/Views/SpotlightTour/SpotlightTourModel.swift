@@ -20,28 +20,28 @@ enum SpotlightStep: Int, CaseIterable, Identifiable {
     
     var title: String {
         switch self {
-        case .addMeal: return "Quick Meal Scanner"
-        case .macroRings: return "Daily Macro Engine"
-        case .fastingWater: return "Fasting & Hydration"
-        case .aiCoach: return "AI Nutrition Coach"
+        case .addMeal: return "Нажмите, чтобы добавить еду"
+        case .macroRings: return "Нажмите, чтобы открыть баланс БЖУ"
+        case .fastingWater: return "Нажмите, чтобы записать воду и голодание"
+        case .aiCoach: return "Нажмите, чтобы спросить ИИ-тренера"
         }
     }
     
     var description: String {
         switch self {
         case .addMeal:
-            return "Tap here to instantly snap a photo of your dish or scan a barcode. AI detects macros in seconds!"
+            return "Сфотографируйте блюдо, отсканируйте штрихкод или введите название — ИИ мгновенно рассчитает калории и БЖУ."
         case .macroRings:
-            return "Monitor your real-time caloric deficit, protein synthesis, and daily nutrient targets."
+            return "Следите за суточной нормой калорий, белков, жиров и углеводов в реальном времени."
         case .fastingWater:
-            return "Track your 16:8 fasting window and log water with interactive fluid waves."
+            return "Ведите учет выпитой воды в один тап и контролируйте таймер интервального голодания."
         case .aiCoach:
-            return "Get personalized meal recommendations and ask your AI coach for nutritional advice."
+            return "Персональный ИИ-нутрициолог подберет рацион, ответит на любые вопросы и поможет достичь цели."
         }
     }
     
     var tag: String {
-        return "\(rawValue + 1)/\(SpotlightStep.allCases.count)"
+        return "Шаг \(rawValue + 1) из \(SpotlightStep.allCases.count)"
     }
 }
 
@@ -64,7 +64,7 @@ final class SpotlightTourManager {
     var targetFrames: [SpotlightStep: CGRect] = [:]
     
     @ObservationIgnored
-    private let storageKey = "hasCompletedSpotlightTour_v2"
+    private let storageKey = "hasCompletedSpotlightTour_v3"
     
     var hasCompletedTour: Bool {
         get { UserDefaults.standard.bool(forKey: storageKey) }
@@ -74,7 +74,7 @@ final class SpotlightTourManager {
     func startTourIfNeeded() {
         if !hasCompletedTour {
             // Small delay to allow the dashboard to render and measure frames
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                 withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                     self.currentStep = .addMeal
                     self.isTourActive = true
@@ -101,11 +101,8 @@ final class SpotlightTourManager {
         }
     }
     
-    func replayTour() {
+    func resetTour() {
         hasCompletedTour = false
-        currentStep = .addMeal
-        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
-            isTourActive = true
-        }
+        startTourIfNeeded()
     }
 }
