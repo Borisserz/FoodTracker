@@ -117,6 +117,8 @@ struct ProfileView: View {
                 }
                 .buttonStyle(BounceButtonStyle())
 
+                DailyXPQuestsCardView(user: user)
+
                 StreakCardView(streak: viewModel?.currentStreak ?? 0)
 
                 NutritionAchievementsCarousel(user: user)

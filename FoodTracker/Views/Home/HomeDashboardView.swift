@@ -141,10 +141,13 @@ struct HomeDashboardContentView: View {
                               ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
                                   let meal = currentSummary.meals.first(where: { $0.title == mealType })
 
-                                  MealCardView(
+                                  BentoMealCardView(
                                       title: localizedMealType(mealType),
                                       calories: meal?.totalCalories,
                                       recommendedCalories: getRecommendedCalories(for: mealType),
+                                      protein: meal?.totalProtein,
+                                      fats: meal?.totalFats,
+                                      carbs: meal?.totalCarbs,
                                       time: meal?.date,
                                       onCardTap: { self.selectedMealForDetail = mealType },
                                       onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }

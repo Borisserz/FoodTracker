@@ -81,6 +81,11 @@ struct GoalsTabView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
                         
+                        // Metabolic Engine & Goal Archetypes
+                        if let u = user {
+                            MetabolicTDEEGaugeView(user: u, currentWeight: currentWeight, targetWeight: targetWeight)
+                        }
+                        
                         // Current Status Card
                         statusCard
                         
