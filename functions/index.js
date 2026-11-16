@@ -1,67 +1,68 @@
 const { onRequest } = require("firebase-functions/v2/https");
-const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { initializeApp } = require("firebase-admin/app");
 const { getAppCheck } = require("firebase-admin/app-check");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
-const { GoogleAuth } = require("google-auth-library");
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getAuth } = require("firebase-admin/auth");
-// Per-user AI rate limit (abuse / cost control for the paid Vertex proxy).
-const AI_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;     // 7 days in ms
-const DEFAULT_AI_WEEKLY_LIMIT = 10;               // default requests per rolling 7-day window
+const { defineSecret } = require("firebase-functions/params");
+
+const AI_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const DEFAULT_AI_WEEKLY_LIMIT = 200;
+const UPSTREAM_TIMEOUT_MS = 45000;
+
 initializeApp();
 
-// ==========================================
-// Configuration
-// ==========================================
-const PROJECT_ID = "serzhanovich-ecosystem-ce700";
-const LOCATION = "us-central1";
-const MODEL = "gemini-3.5-flash";
-const AUTO_BLOCK_REPORT_THRESHOLD = 3;
+// Stored in Secret Manager (comma-separate for key rotation).
+const openRouterApiKey = defineSecret("OPENROUTER_API_KEY");
+
+const PROJECT_HINT = "serzhanovich-ecosystem-ce700";
 const SERVICE_ACCOUNT =
   "firebase-adminsdk-fbsvc@serzhanovich-ecosystem-ce700.iam.gserviceaccount.com";
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-const auth = new GoogleAuth({
-  scopes: "https://www.googleapis.com/auth/cloud-platform",
-});
-
-// Safety thresholds for user-facing Vertex traffic.
-// Closes App Review [1.1]: server forces these, client cannot bypass.
-const SAFETY_SETTINGS_USER = [
-  { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-  { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-  { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_LOW_AND_ABOVE" },
-  { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+// 10-model text fallback chain (verified live :free OpenRouter catalog + openrouter/free).
+const TEXT_MODEL_CHAIN = [
+  "inclusionai/ling-3.2-flash:free",
+  "baidu/ernie-5.5-flash-preview:free",
+  "liquid/lfm-3-1.7b:free",
+  "particle-ai/particle-1:free",
+  "dots-studio/dots-3-note-preview:free",
+  "nvidia/nemotron-3.5-super-vl:free",
+  "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "recursive/flint-v1.0:free",
+  "openrouter/free",
 ];
 
-// For the moderator pass we want Gemini to SEE flagged input so it can classify it.
-const SAFETY_SETTINGS_MODERATOR = [
-  { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-  { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-  { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-  { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+// Multimodal fallback chain for food/menu photos (image-capable models only).
+const VISION_MODEL_CHAIN = [
+  "nvidia/nemotron-3.5-super-vl:free",
+  "inclusionai/ling-3.2-flash:free",
+  "particle-ai/particle-1:free",
+  "dots-studio/dots-3-note-preview:free",
+  "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "thinkingmachines/inkling-2-small:free",
+  "openrouter/free",
 ];
 
-async function vertexFetch(body) {
-  const client = await auth.getClient();
-  const accessToken = (await client.getAccessToken()).token;
-  const url =
-    `https://aiplatform.googleapis.com/v1/projects/${PROJECT_ID}` +
-    `/locations/global/publishers/google/models/${MODEL}:generateContent`;
-  const resp = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  const text = await resp.text();
-  if (!resp.ok) {
-    throw new Error(`Vertex error ${resp.status}: ${text}`);
-  }
-  return JSON.parse(text);
-}
+const STRUCTURED_MODELS = new Set([
+  "inclusionai/ling-3.2-flash:free",
+  "baidu/ernie-5.5-flash-preview:free",
+  "liquid/lfm-3-1.7b:free",
+  "particle-ai/particle-1:free",
+  "dots-studio/dots-3-note-preview:free",
+  "nvidia/nemotron-3.5-super-vl:free",
+  "openrouter/free",
+]);
+
+const JSON_OBJECT_MODELS = new Set([
+  ...STRUCTURED_MODELS,
+  "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "recursive/flint-v1.0:free",
+]);
+
 class RateLimitError extends Error {
   constructor(retryAfterSeconds, limit) {
     super("rate_limited");
@@ -70,17 +71,295 @@ class RateLimitError extends Error {
   }
 }
 
-// Atomically enforces a rolling 7-day per-user limit on AI proxy calls.
-// Counts on entry (so aborted/failed calls still count — abuse-resistant).
-async function enforceRateLimit(uid) {
-  const db = getFirestore();
-  
-  // Fetch current global limit from Firestore (config/ai_settings)
-  const configSnap = await db.collection("config").doc("ai_settings").get();
-  const configData = configSnap.data() || {};
-  const aiWeeklyLimit = typeof configData.weeklyLimit === "number" ? configData.weeklyLimit : DEFAULT_AI_WEEKLY_LIMIT;
+function parseApiKeys(raw) {
+  const seen = new Set();
+  const keys = [];
+  for (const part of String(raw || "").split(",")) {
+    const trimmed = part.trim();
+    if (trimmed && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      keys.push(trimmed);
+    }
+  }
+  return keys;
+}
 
-  const ref = db.collection("ai_usage").doc(uid);
+function hasImageContent(body) {
+  if (!Array.isArray(body?.contents)) return false;
+  return body.contents.some(
+    (c) =>
+      Array.isArray(c?.parts) &&
+      c.parts.some((p) => p?.inlineData && p.inlineData.data)
+  );
+}
+
+function modelChainForRequest(body, overrides = {}) {
+  if (hasImageContent(body)) {
+    if (Array.isArray(overrides.visionModels) && overrides.visionModels.length > 0) {
+      return overrides.visionModels;
+    }
+    return VISION_MODEL_CHAIN;
+  }
+  if (Array.isArray(overrides.textModels) && overrides.textModels.length > 0) {
+    return overrides.textModels;
+  }
+  return TEXT_MODEL_CHAIN;
+}
+
+function geminiTypeToJson(type) {
+  if (!type) return "string";
+  switch (String(type).toUpperCase()) {
+    case "OBJECT":
+      return "object";
+    case "ARRAY":
+      return "array";
+    case "INTEGER":
+      return "integer";
+    case "NUMBER":
+      return "number";
+    case "BOOLEAN":
+      return "boolean";
+    case "STRING":
+    default:
+      return "string";
+  }
+}
+
+function convertGeminiSchema(schema) {
+  if (!schema || typeof schema !== "object") return undefined;
+  const out = { type: geminiTypeToJson(schema.type) };
+  if (schema.description) out.description = schema.description;
+  if (schema.properties && typeof schema.properties === "object") {
+    out.properties = {};
+    for (const [key, value] of Object.entries(schema.properties)) {
+      out.properties[key] = convertGeminiSchema(value);
+    }
+  }
+  if (schema.items) out.items = convertGeminiSchema(schema.items);
+  if (Array.isArray(schema.required)) out.required = schema.required;
+  return out;
+}
+
+function geminiBodyToOpenAI(body, { streaming, model }) {
+  const messages = [];
+  const systemParts = body?.systemInstruction?.parts;
+  if (Array.isArray(systemParts)) {
+    const systemText = systemParts
+      .map((p) => (typeof p?.text === "string" ? p.text : ""))
+      .filter(Boolean)
+      .join("\n");
+    if (systemText) messages.push({ role: "system", content: systemText });
+  }
+
+  if (Array.isArray(body?.contents)) {
+    for (const content of body.contents) {
+      const role =
+        content.role === "model" ? "assistant" : content.role || "user";
+      const parts = Array.isArray(content.parts) ? content.parts : [];
+      const hasInline = parts.some((p) => p?.inlineData && p.inlineData.data);
+
+      if (!hasInline) {
+        const text = parts
+          .map((p) => (typeof p?.text === "string" ? p.text : ""))
+          .filter(Boolean)
+          .join("\n");
+        if (text) messages.push({ role, content: text });
+        continue;
+      }
+
+      const contentParts = [];
+      for (const p of parts) {
+        if (typeof p?.text === "string" && p.text.length > 0) {
+          contentParts.push({ type: "text", text: p.text });
+        } else if (p?.inlineData?.data) {
+          const mime = p.inlineData.mimeType || "image/jpeg";
+          contentParts.push({
+            type: "image_url",
+            image_url: { url: `data:${mime};base64,${p.inlineData.data}` },
+          });
+        }
+      }
+      if (contentParts.length > 0) {
+        messages.push({ role, content: contentParts });
+      }
+    }
+  }
+
+  const gen = body?.generationConfig || {};
+  const temperature =
+    typeof gen.temperature === "number" ? gen.temperature : 0.4;
+  const wantsJson =
+    gen.responseMimeType === "application/json" || Boolean(gen.responseSchema);
+
+  const openAIBody = {
+    model,
+    messages,
+    temperature,
+    stream: Boolean(streaming),
+  };
+
+  if (wantsJson) {
+    openAIBody.plugins = [{ id: "response-healing" }];
+    if (gen.responseSchema && STRUCTURED_MODELS.has(model)) {
+      const jsonSchema = convertGeminiSchema(gen.responseSchema);
+      if (jsonSchema) {
+        openAIBody.response_format = {
+          type: "json_schema",
+          json_schema: {
+            name: "food_tracker_response",
+            strict: false,
+            schema: jsonSchema,
+          },
+        };
+      }
+    } else if (JSON_OBJECT_MODELS.has(model)) {
+      openAIBody.response_format = { type: "json_object" };
+    }
+  }
+
+  return openAIBody;
+}
+
+function extractBalancedJSON(text) {
+  for (let start = 0; start < text.length; start++) {
+    const opener = text[start];
+    if (opener !== "{" && opener !== "[") continue;
+    const closer = opener === "{" ? "}" : "]";
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+
+    for (let i = start; i < text.length; i++) {
+      const ch = text[i];
+      if (inString) {
+        if (escaped) {
+          escaped = false;
+        } else if (ch === "\\") {
+          escaped = true;
+        } else if (ch === '"') {
+          inString = false;
+        }
+        continue;
+      }
+      if (ch === '"') {
+        inString = true;
+      } else if (ch === opener) {
+        depth++;
+      } else if (ch === closer) {
+        depth--;
+        if (depth === 0) {
+          const candidate = text.slice(start, i + 1);
+          try {
+            JSON.parse(candidate);
+            return candidate;
+          } catch {
+            break;
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function stripModelJSON(raw) {
+  let text = String(raw || "").trim();
+  const fenceMatch = text.match(/```(?:json|JSON)?\s*([\s\S]*?)```/);
+  if (fenceMatch && fenceMatch[1]) {
+    const inner = fenceMatch[1].trim();
+    try {
+      JSON.parse(inner);
+      return inner;
+    } catch {
+      const balanced = extractBalancedJSON(inner);
+      if (balanced) return balanced;
+    }
+  }
+  try {
+    JSON.parse(text);
+    return text;
+  } catch {
+    // Fall back to balanced scan across the full response.
+  }
+  return extractBalancedJSON(text) || text;
+}
+
+function extractMessageText(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .filter(Boolean)
+      .join("\n");
+  }
+  return "";
+}
+
+function openAIToGeminiResponse(data, { expectJSON = false } = {}) {
+  const rawContent =
+    data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? "";
+  let text = extractMessageText(rawContent);
+  if (expectJSON && text) {
+    text = stripModelJSON(text);
+  }
+  return {
+    candidates: [
+      {
+        content: {
+          parts: [{ text }],
+        },
+      },
+    ],
+  };
+}
+
+function openAIStreamChunkToGemini(line) {
+  if (!line.startsWith("data:")) return null;
+  const payload = line.slice(5).trim();
+  if (!payload) return null;
+  if (payload === "[DONE]") return "[DONE]";
+  try {
+    const parsed = JSON.parse(payload);
+    const delta = extractMessageText(
+      parsed?.choices?.[0]?.delta?.content ??
+        parsed?.choices?.[0]?.message?.content ??
+        ""
+    );
+    if (!delta) return null;
+    return JSON.stringify({
+      candidates: [{ content: { parts: [{ text: delta }] } }],
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function loadAISettings() {
+  try {
+    const db = getFirestore();
+    const snap = await db.collection("config").doc("food_ai_settings").get();
+    const data = snap.exists ? snap.data() || {} : {};
+    return {
+      weeklyLimit:
+        typeof data.weeklyLimit === "number"
+          ? data.weeklyLimit
+          : DEFAULT_AI_WEEKLY_LIMIT,
+      textModels: Array.isArray(data.textModels) ? data.textModels : null,
+      visionModels: Array.isArray(data.visionModels) ? data.visionModels : null,
+    };
+  } catch (e) {
+    console.warn("Could not load config/food_ai_settings, using defaults:", e);
+    return {
+      weeklyLimit: DEFAULT_AI_WEEKLY_LIMIT,
+      textModels: null,
+      visionModels: null,
+    };
+  }
+}
+
+async function enforceRateLimit(uid, weeklyLimit) {
+  const db = getFirestore();
+  const ref = db.collection("food_ai_usage").doc(uid);
 
   await db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
@@ -92,36 +371,131 @@ async function enforceRateLimit(uid) {
       const data = snap.data() || {};
       const ws = typeof data.windowStart === "number" ? data.windowStart : 0;
       if (now - ws < AI_WINDOW_MS) {
-        windowStart = ws;          // still inside the current 7-day window
+        windowStart = ws;
         count = data.count || 0;
       }
-      // else: window expired → reset (windowStart = now, count = 0)
     }
 
-    if (count >= aiWeeklyLimit) {
-      const retryAfterSeconds = Math.ceil((windowStart + AI_WINDOW_MS - now) / 1000);
-      throw new RateLimitError(retryAfterSeconds, aiWeeklyLimit);
+    if (count >= weeklyLimit) {
+      const retryAfterSeconds = Math.ceil(
+        (windowStart + AI_WINDOW_MS - now) / 1000
+      );
+      throw new RateLimitError(retryAfterSeconds, weeklyLimit);
     }
-
-    tx.set(ref, {
-      windowStart,
-      count: count + 1,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
   });
 }
-// ==========================================
-// 1) HTTP proxy for the iOS client
-// ==========================================
-exports.vertexProxy = onRequest(
+
+async function recordSuccessfulAIUse(uid) {
+  const db = getFirestore();
+  const ref = db.collection("food_ai_usage").doc(uid);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const now = Date.now();
+    let windowStart = now;
+    let count = 0;
+    if (snap.exists) {
+      const data = snap.data() || {};
+      const ws = typeof data.windowStart === "number" ? data.windowStart : 0;
+      if (now - ws < AI_WINDOW_MS) {
+        windowStart = ws;
+        count = data.count || 0;
+      }
+    }
+    tx.set(
+      ref,
+      {
+        windowStart,
+        count: count + 1,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+  });
+}
+
+function openRouterHeaders(apiKey) {
+  return {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+    "HTTP-Referer": `https://${PROJECT_HINT}.web.app`,
+    "X-OpenRouter-Title": "FoodTracker",
+  };
+}
+
+async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
+  const chain = modelChainForRequest(geminiBody, overrides);
+  const expectJSON =
+    geminiBody?.generationConfig?.responseMimeType === "application/json" ||
+    Boolean(geminiBody?.generationConfig?.responseSchema);
+
+  let lastError = null;
+  for (const apiKey of apiKeys) {
+    for (const model of chain) {
+      const attempt = geminiBodyToOpenAI(geminiBody, {
+        streaming: false,
+        model,
+      });
+
+      try {
+        const resp = await fetch(OPENROUTER_URL, {
+          method: "POST",
+          headers: openRouterHeaders(apiKey),
+          body: JSON.stringify(attempt),
+          signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+        });
+        const text = await resp.text();
+        if (!resp.ok) {
+          lastError = new Error(
+            `OpenRouter ${resp.status} ${model}: ${text.slice(0, 400)}`
+          );
+          console.warn(lastError.message);
+          continue;
+        }
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          lastError = new Error(`Non-JSON envelope from ${model}: ${e.message}`);
+          continue;
+        }
+
+        const gemini = openAIToGeminiResponse(data, { expectJSON });
+        const outText = gemini.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        if (!outText) {
+          lastError = new Error(`Empty completion from ${model}`);
+          console.warn(lastError.message);
+          continue;
+        }
+        if (expectJSON) {
+          try {
+            JSON.parse(outText);
+          } catch (e) {
+            lastError = new Error(
+              `Invalid JSON output from ${model}: ${e.message}`
+            );
+            console.warn(lastError.message);
+            continue;
+          }
+        }
+        return gemini;
+      } catch (e) {
+        lastError = e;
+        console.warn(`OpenRouter error on ${model}:`, e?.message || e);
+      }
+    }
+  }
+  throw lastError || new Error("All OpenRouter models/keys failed");
+}
+
+exports.foodAiProxy = onRequest(
   {
     region: "us-central1",
     serviceAccount: SERVICE_ACCOUNT,
     memory: "512MiB",
     timeoutSeconds: 300,
+    secrets: [openRouterApiKey],
   },
   async (req, res) => {
-    // App Check verification
     const appCheckToken = req.header("X-Firebase-AppCheck");
     if (!appCheckToken) {
       res.status(401).json({ error: "Missing App Check token" });
@@ -133,281 +507,151 @@ exports.vertexProxy = onRequest(
       res.status(401).json({ error: "Invalid App Check token" });
       return;
     }
-// --- Per-user auth (needed for rate limiting) ---
-const authHeader = req.header("Authorization") || "";
-const m = authHeader.match(/^Bearer (.+)$/i);
-if (!m) {
-  res.status(401).json({ error: "Missing Firebase ID token" });
-  return;
-}
-let uid;
-try {
-  const decoded = await getAuth().verifyIdToken(m[1]);
-  uid = decoded.uid;
-} catch (e) {
-  res.status(401).json({ error: "Invalid Firebase ID token" });
-  return;
-}
 
-// --- Per-user weekly rate limit ---
-try {
-  await enforceRateLimit(uid);
-} catch (e) {
-  if (e instanceof RateLimitError) {
-    res.set("Retry-After", String(e.retryAfterSeconds));
-    res.status(429).json({
-      error: "weekly_limit_reached",
-      message: `You've reached your weekly limit of ${e.limit} AI requests.`,
-      retryAfter: e.retryAfterSeconds,
-    });
-    return;
-  }
-  console.error("Rate limit check failed:", e);
-  res.status(500).json({ error: "Rate limit check failed" });
-  return;
-}
-    // Force server-side safety settings (the client cannot override them).
-    const body = req.body || {};
-    body.safetySettings = SAFETY_SETTINGS_USER;
-
-    // Get a fresh access token from the function's runtime service account.
-    const client = await auth.getClient();
-    const accessToken = (await client.getAccessToken()).token;
-
-    const streaming = req.query.stream === "true";
-    const method = streaming ? "streamGenerateContent" : "generateContent";
-    const sse = streaming ? "?alt=sse" : "";
-    const url =
-      `https://aiplatform.googleapis.com/v1/projects/${PROJECT_ID}` +
-      `/locations/global/publishers/google/models/${MODEL}:${method}${sse}`;
-
-    const upstream = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!streaming) {
-      const data = await upstream.text();
-      res
-        .status(upstream.status)
-        .set("Content-Type", "application/json")
-        .send(data);
+    const authHeader = req.header("Authorization") || "";
+    const m = authHeader.match(/^Bearer (.+)$/i);
+    if (!m) {
+      res.status(401).json({ error: "Missing Firebase ID token" });
+      return;
+    }
+    let uid;
+    try {
+      const decoded = await getAuth().verifyIdToken(m[1]);
+      uid = decoded.uid;
+    } catch (e) {
+      res.status(401).json({ error: "Invalid Firebase ID token" });
       return;
     }
 
-    res.status(upstream.status).set("Content-Type", "text/event-stream");
-    const reader = upstream.body.getReader();
-    const decoder = new TextDecoder();
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      res.write(decoder.decode(value, { stream: true }));
-    }
-    res.end();
-  }
-);
-
-// ==========================================
-// 2) Auto-moderation of every new shared workout
-// ==========================================
-exports.moderateSharedWorkout = onDocumentCreated(
-  {
-    document: "shared_workouts/{workoutId}",
-    region: "us-central1",
-    serviceAccount: SERVICE_ACCOUNT,
-  },
-  async (event) => {
-    const snap = event.data;
-    if (!snap) return;
-    const data = snap.data() || {};
-    const ref = snap.ref;
-
-    const title = String(data.title || "").slice(0, 300);
-    const description = String(data.description || "").slice(0, 2000);
-    const exercises = Array.isArray(data.exercises) ? data.exercises.slice(0, 50) : [];
-    const exerciseTexts = exercises
-      .map((e) => {
-        const name = String(e?.name || "").slice(0, 200);
-        const notes = String(e?.notes || "").slice(0, 500);
-        return notes ? `${name} — ${notes}` : name;
-      })
-      .filter(Boolean)
-      .join("\n");
-
-    const systemPrompt = `You are a strict content moderator for a fitness app.
-Decide if user-submitted workout text is acceptable on a public platform that may be used by minors.
-BLOCK any of:
-- Sexual content, suggestive language, or pornography
-- Hate speech, slurs, harassment of any group
-- Threats, violence promotion, self-harm encouragement
-- Illegal activity, drug promotion (including PEDs as instructions), spam, advertising
-- Personal data (phone numbers, emails, home addresses)
-- Off-topic content unrelated to fitness/workouts
-APPROVE otherwise.
-Respond ONLY with JSON: {"decision":"approved"|"blocked","reason":"short reason"}.`;
-
-    const userPayload =
-      `TITLE: ${title}\n` +
-      `DESCRIPTION: ${description}\n` +
-      `EXERCISES:\n${exerciseTexts}`;
-
-    let decision = "blocked";
-    let reason = "Moderation service error";
+    const settings = await loadAISettings();
 
     try {
-      const body = {
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: "user", parts: [{ text: userPayload }] }],
-        generationConfig: {
-          temperature: 0.0,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              decision: { type: "string", enum: ["approved", "blocked"] },
-              reason: { type: "string" },
-            },
-            required: ["decision", "reason"],
-          },
-        },
-        safetySettings: SAFETY_SETTINGS_MODERATOR,
-      };
-      const resp = await vertexFetch(body);
-      const text = resp?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      const parsed = JSON.parse(text);
-      if (parsed.decision === "approved" || parsed.decision === "blocked") {
-        decision = parsed.decision;
-        reason = String(parsed.reason || "").slice(0, 500);
+      await enforceRateLimit(uid, settings.weeklyLimit);
+    } catch (e) {
+      if (e instanceof RateLimitError) {
+        res.set("Retry-After", String(e.retryAfterSeconds));
+        res.status(429).json({
+          error: "weekly_limit_reached",
+          message: `You've reached your weekly limit of ${e.limit} AI requests.`,
+          retryAfter: e.retryAfterSeconds,
+        });
+        return;
       }
-    } catch (e) {
-      console.error("Moderation error:", e);
-      decision = "blocked";
-      reason = "Moderation service error";
-    }
-
-    await ref.update({
-      status: decision,
-      moderationReason: reason,
-      moderatedAt: FieldValue.serverTimestamp(),
-    });
-
-    console.log(
-      `Moderated workout ${event.params.workoutId}: ${decision} — ${reason}`
-    );
-  }
-);
-
-// ==========================================
-// 3) On every report — increment count + auto-block past threshold
-// ==========================================
-exports.onReportCreated = onDocumentCreated(
-  {
-    document: "reports/{reportId}",
-    region: "us-central1",
-    serviceAccount: SERVICE_ACCOUNT,
-  },
-  async (event) => {
-    const snap = event.data;
-    if (!snap) return;
-    const data = snap.data() || {};
-    const workoutId = data.workoutId;
-    if (!workoutId || typeof workoutId !== "string") {
-      console.warn("Report has no workoutId:", event.params.reportId);
+      console.error("Rate limit check failed:", e);
+      res.status(500).json({ error: "Rate limit check failed" });
       return;
     }
 
-    const db = getFirestore();
-    const workoutRef = db.collection("shared_workouts").doc(workoutId);
+    const apiKeys = parseApiKeys(openRouterApiKey.value());
+    if (apiKeys.length === 0) {
+      res.status(500).json({ error: "OPENROUTER_API_KEY not configured" });
+      return;
+    }
+
+    const body = req.body || {};
+    const streaming = req.query.stream === "true";
 
     try {
-      await db.runTransaction(async (tx) => {
-        const doc = await tx.get(workoutRef);
-        if (!doc.exists) {
-          console.warn(`Reported workout ${workoutId} does not exist`);
-          return;
+      if (!streaming) {
+        const gemini = await callOpenRouterText({
+          apiKeys,
+          geminiBody: body,
+          overrides: settings,
+        });
+        await recordSuccessfulAIUse(uid);
+        res.status(200).json(gemini);
+        return;
+      }
+
+      const chain = modelChainForRequest(body, settings);
+      let upstream = null;
+      let lastError = null;
+      for (const apiKey of apiKeys) {
+        for (const model of chain) {
+          const attempt = geminiBodyToOpenAI(body, { streaming: true, model });
+          try {
+            const resp = await fetch(OPENROUTER_URL, {
+              method: "POST",
+              headers: openRouterHeaders(apiKey),
+              body: JSON.stringify(attempt),
+              signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+            });
+            if (!resp.ok || !resp.body) {
+              lastError = new Error(
+                `stream ${resp.status} ${model}: ${(await resp.text()).slice(0, 300)}`
+              );
+              console.warn(lastError.message);
+              continue;
+            }
+            upstream = resp;
+            break;
+          } catch (e) {
+            lastError = e;
+            console.warn(`Stream attempt failed on ${model}:`, e?.message || e);
+          }
         }
-        const current = doc.data() || {};
-        const newCount = (current.reportCount || 0) + 1;
-        const updates = { reportCount: newCount };
-        if (
-          newCount >= AUTO_BLOCK_REPORT_THRESHOLD &&
-          current.status !== "blocked"
-        ) {
-          updates.status = "blocked";
-          updates.moderationReason = `Auto-blocked after ${newCount} user reports`;
-          updates.moderatedAt = FieldValue.serverTimestamp();
+        if (upstream) break;
+      }
+
+      if (!upstream) {
+        throw lastError || new Error("All streaming models failed");
+      }
+
+      res.status(200).set("Content-Type", "text/event-stream");
+      const reader = upstream.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let yielded = false;
+
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const rawLine of lines) {
+          const line = rawLine.trimEnd();
+          if (!line) continue;
+          const converted = openAIStreamChunkToGemini(line);
+          if (converted === "[DONE]") {
+            res.write("data: [DONE]\n\n");
+            continue;
+          }
+          if (converted) {
+            yielded = true;
+            res.write(`data: ${converted}\n\n`);
+          }
         }
-        tx.update(workoutRef, updates);
-      });
-      console.log(
-        `Report ${event.params.reportId} processed for workout ${workoutId}`
-      );
+      }
+      if (yielded) {
+        await recordSuccessfulAIUse(uid);
+      }
+      res.end();
     } catch (e) {
-      console.error("Report processing error:", e);
+      console.error("foodAiProxy OpenRouter error:", e);
+      if (!res.headersSent) {
+        res.status(502).json({
+          error: "upstream_failed",
+          message: String(e?.message || e).slice(0, 500),
+        });
+      } else {
+        res.end();
+      }
     }
   }
 );
-// ==========================================
-// 4) Full account + data deletion (Guideline 5.1.1(v))
-//    Deletes ALL server-side data tied to the caller's uid,
-//    then the Auth account is removed by the client.
-// ==========================================
-exports.deleteAccount = onCall(
-  {
-    region: "us-central1",
-    serviceAccount: SERVICE_ACCOUNT,
-    enforceAppCheck: true,
-    memory: "512MiB",
-    timeoutSeconds: 300,
-  },
-  async (request) => {
-    const uid = request.auth?.uid;
-    if (!uid) {
-      throw new HttpsError(
-        "unauthenticated",
-        "You must be signed in to delete your account."
-      );
-    }
 
-    const db = getFirestore();
-
-    // 1) shared_workouts created by this user (creatorUid == uid)
-    const sharedSnap = await db
-      .collection("shared_workouts")
-      .where("creatorUid", "==", uid)
-      .get();
-
-    // 2) reports filed by this user (reporterUid == uid)
-    const reportsSnap = await db
-      .collection("reports")
-      .where("reporterUid", "==", uid)
-      .get();
-
-    // Batched delete (chunks of 500 — Firestore batch limit)
-    const refs = [
-      ...sharedSnap.docs.map((d) => d.ref),
-      ...reportsSnap.docs.map((d) => d.ref),
-    ];
-    for (let i = 0; i < refs.length; i += 450) {
-      const batch = db.batch();
-      refs.slice(i, i + 450).forEach((ref) => batch.delete(ref));
-      await batch.commit();
-    }
-
-    // 3) users/{uid} doc + all subcollections (incl. blocked/*)
-    await db.recursiveDelete(db.collection("users").doc(uid));
-
-    // NOTE: we intentionally do NOT call getAuth().deleteUser(uid) here.
-    // The client calls Auth.auth().currentUser?.delete() right after this
-    // resolves, per the required flow. (If you prefer server-side auth
-    // deletion instead, uncomment the next line and have the client just
-    // sign out.)
-    // await getAuth().deleteUser(uid);
-
-    return { ok: true };
-  }
-);
+module.exports._test = {
+  TEXT_MODEL_CHAIN,
+  VISION_MODEL_CHAIN,
+  STRUCTURED_MODELS,
+  JSON_OBJECT_MODELS,
+  parseApiKeys,
+  hasImageContent,
+  modelChainForRequest,
+  geminiBodyToOpenAI,
+  stripModelJSON,
+  openAIToGeminiResponse,
+  openAIStreamChunkToGemini,
+  callOpenRouterText,
+};
