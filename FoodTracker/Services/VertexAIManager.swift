@@ -23,7 +23,7 @@ final class VertexAIManager {
     }
 
     private var languageInstruction: String {
-        "CRITICAL: RESPOND EXCLUSIVELY IN THIS LANGUAGE: \\(currentLanguage). If returning JSON, keep JSON keys in English, but translate ALL string values to \\(currentLanguage)."
+        "CRITICAL: RESPOND EXCLUSIVELY IN THIS LANGUAGE: \(currentLanguage). If returning JSON, keep JSON keys in English, but translate ALL string values to \(currentLanguage)."
     }
 
     struct AIFoodResponse: Codable {

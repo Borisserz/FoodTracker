@@ -2,14 +2,20 @@ import Foundation
 import FirebaseAuth
 import FirebaseAppCheck
 
-/// Centralized client for the Gemini/Vertex proxy.
-/// Eliminates duplication between AINutritionService and VertexAIManager.
-/// Handles auth (Firebase ID + AppCheck), request construction, and response cleaning.
+/// Centralized client for the FoodTracker OpenRouter AI proxy (`foodAiProxy`).
+/// Handles auth (Firebase ID + AppCheck), Remote Config URL resolution, timeouts, and JSON extraction.
 final class GeminiProxyClient {
     static let shared = GeminiProxyClient()
-    private init() {}
 
-    private let proxyUrl = "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/vertexProxy"
+    private let urlSession: URLSession
+
+    private init() {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 60.0
+        config.timeoutIntervalForResource = 120.0
+        config.waitsForConnectivity = true
+        self.urlSession = URLSession(configuration: config)
+    }
 
     // MARK: - Public API (used by services)
 
@@ -42,9 +48,8 @@ final class GeminiProxyClient {
     private func performRequest(prompt: String, includeImage: (base64: String, mime: String)?, forceJSON: Bool) async throws -> String {
         let (authToken, appCheckToken) = try await getFirebaseTokens()
 
-        guard let url = URL(string: proxyUrl) else {
-            throw GeminiProxyError.invalidURL
-        }
+        let configuredURL = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.remoteConfigKey)
+        let url = AIProxyEndpoint.resolve(configured: configuredURL)
 
         var parts: [[String: Any]] = [["text": prompt]]
 
@@ -81,12 +86,11 @@ final class GeminiProxyClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await urlSession.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             if httpResponse.statusCode == 429 {
-                // Try to extract Retry-After
-                let retryAfter = httpResponse.value(forHTTPHeaderField: "Retry-After")
+                let retryAfter = Self.extractRetryAfter(httpResponse: httpResponse, data: data)
                 throw GeminiProxyError.rateLimited(retryAfter: retryAfter)
             }
             let body = String(data: data, encoding: .utf8) ?? ""
@@ -114,41 +118,36 @@ final class GeminiProxyClient {
     // MARK: - Auth (moved from duplicated code in services)
 
     private func getFirebaseTokens() async throws -> (authToken: String, appCheckToken: String) {
-        guard let user = Auth.auth().currentUser else {
-            throw URLError(.userAuthenticationRequired)
+        let user: FirebaseAuth.User
+        if let current = Auth.auth().currentUser {
+            user = current
+        } else {
+            user = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
         }
         let authToken = try await user.getIDToken()
         let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: false).token
         return (authToken, appCheckToken)
     }
 
-    // MARK: - JSON Cleaning (centralized, previously duplicated & slightly inconsistent)
+    // MARK: - Helpers
+
+    nonisolated static func extractRetryAfter(httpResponse: HTTPURLResponse, data: Data) -> String? {
+        if let header = httpResponse.value(forHTTPHeaderField: "Retry-After"), !header.isEmpty {
+            return header
+        }
+        if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let seconds = obj["retryAfter"] {
+            if let intVal = seconds as? Int { return String(intVal) }
+            if let dblVal = seconds as? Double { return String(Int(dblVal)) }
+            if let strVal = seconds as? String, !strVal.isEmpty { return strVal }
+        }
+        return nil
+    }
+
+    // MARK: - JSON Cleaning (delegated to AIResponseParsing)
 
     private func cleanJSONResponse(_ raw: String) -> String {
-        var cleaned = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // Remove common Gemini code fences (multiple variants)
-        let prefixes = ["```json", "```JSON", "```"]
-        for prefix in prefixes {
-            if cleaned.hasPrefix(prefix) {
-                cleaned = String(cleaned.dropFirst(prefix.count))
-                break
-            }
-        }
-
-        let suffixes = ["```"]
-        for suffix in suffixes {
-            if cleaned.hasSuffix(suffix) {
-                cleaned = String(cleaned.dropLast(suffix.count))
-                break
-            }
-        }
-
-        // Remove leading/trailing whitespace and any stray backticks
-        cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
-            .trimmingCharacters(in: CharacterSet(charactersIn: "`"))
-
-        return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+        AIResponseParsing.extractJSON(from: raw)
     }
 
     private func decode<T: Decodable>(_ jsonString: String, as type: T.Type, rawForLogging: String) throws -> T {
