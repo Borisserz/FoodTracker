@@ -37,6 +37,24 @@ nonisolated enum AIResponseParsing {
         return (try? JSONSerialization.jsonObject(with: data)) != nil
     }
 
+    static func rateLimitMessage(retryAfter: String?) -> String {
+        guard let raw = retryAfter?.trimmingCharacters(in: .whitespacesAndNewlines),
+              let seconds = Double(raw),
+              seconds > 0 else {
+            return String(localized: "You've reached your weekly AI limit. Please try again later.")
+        }
+        if seconds >= 86_400 {
+            let days = max(1, Int(ceil(seconds / 86_400)))
+            return String(localized: "You've reached your weekly AI limit. Please try again in \(days)d.")
+        }
+        if seconds >= 3_600 {
+            let hours = max(1, Int(ceil(seconds / 3_600)))
+            return String(localized: "You've reached your weekly AI limit. Please try again in \(hours)h.")
+        }
+        let minutes = max(1, Int(ceil(seconds / 60)))
+        return String(localized: "You've reached your weekly AI limit. Please try again in \(minutes)m.")
+    }
+
     private static func extractBalancedJSON(from text: String) -> String? {
         var index = text.startIndex
         while index < text.endIndex {

@@ -1,11 +1,15 @@
 import Foundation
+import Observation
 import FirebaseAuth
 import FirebaseAppCheck
 
 /// Centralized client for the FoodTracker OpenRouter AI proxy (`foodAiProxy`).
 /// Handles auth (Firebase ID + AppCheck), Remote Config URL resolution, timeouts, and JSON extraction.
+@Observable
 final class GeminiProxyClient {
     static let shared = GeminiProxyClient()
+
+    var rateLimitAlertMessage: String?
 
     private let urlSession: URLSession
 
@@ -91,6 +95,7 @@ final class GeminiProxyClient {
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             if httpResponse.statusCode == 429 {
                 let retryAfter = Self.extractRetryAfter(httpResponse: httpResponse, data: data)
+                rateLimitAlertMessage = AIResponseParsing.rateLimitMessage(retryAfter: retryAfter)
                 throw GeminiProxyError.rateLimited(retryAfter: retryAfter)
             }
             let body = String(data: data, encoding: .utf8) ?? ""

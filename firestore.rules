@@ -1,6 +1,10 @@
 rules_version = '2';
 
 // =====================================================
+// DO NOT DEPLOY FROM THIS REPOSITORY.
+// `serzhanovich-ecosystem-ce700` uses merged rules across all apps.
+// `firebase.json` intentionally omits the `firestore` section for safety.
+// =====================================================
 // Firestore security rules for WorkoutTracker & FoodTracker
 // =====================================================
 service cloud.firestore {

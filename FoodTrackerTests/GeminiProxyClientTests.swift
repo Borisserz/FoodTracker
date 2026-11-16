@@ -56,4 +56,11 @@ final class GeminiProxyClientTests: XCTestCase {
         let body = #"{"error":"weekly_limit_reached","retryAfter":3600}"#.data(using: .utf8)!
         XCTAssertEqual(GeminiProxyClient.extractRetryAfter(httpResponse: noHeaderResp, data: body), "3600")
     }
+
+    func testRateLimitMessageFormatting() {
+        XCTAssertTrue(AIResponseParsing.rateLimitMessage(retryAfter: "172800").contains("2d"))
+        XCTAssertTrue(AIResponseParsing.rateLimitMessage(retryAfter: "7200").contains("2h"))
+        XCTAssertTrue(AIResponseParsing.rateLimitMessage(retryAfter: "90").contains("2m"))
+        XCTAssertTrue(AIResponseParsing.rateLimitMessage(retryAfter: nil).contains("later"))
+    }
 }

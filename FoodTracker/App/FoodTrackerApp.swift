@@ -26,6 +26,7 @@ struct FoodTrackerApp: App {
 
     // Migrated from @StateObject/ObservableObject to @Observable per system-rules and swiftui-pro
     @State private var versionManager = VersionManager.shared
+    @State private var geminiClient = GeminiProxyClient.shared
 
     @State private var diContainer: DIContainer?
     @State private var databaseLoadError: Error?
@@ -67,6 +68,14 @@ struct FoodTrackerApp: App {
                 Button("Later", role: .cancel) { versionManager.hasDismissedSoftUpdate = true }
             } message: {
                 Text("A new version of FoodTracker is available.")
+            }
+            .alert("AI Limit Reached", isPresented: Binding(
+                get: { geminiClient.rateLimitAlertMessage != nil },
+                set: { if !$0 { geminiClient.rateLimitAlertMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) { geminiClient.rateLimitAlertMessage = nil }
+            } message: {
+                Text(geminiClient.rateLimitAlertMessage ?? "")
             }
             .onAppear {
                 TrackingManager.shared.track(.appOpened(source: "launch"))
@@ -113,11 +122,6 @@ struct FoodTrackerApp: App {
                 print("🚀 [setupDependencies] Attempting Anonymous Firebase sign-in...")
                 _ = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
                 print("🚀 [setupDependencies] Firebase Sign-in Complete!")
-                
-                // Trigger auto-seeding if Firestore database is empty
-                DispatchQueue.main.async {
-                    FirebaseUploader.shared.seedDatabaseIfNeeded()
-                }
             } catch {
                 print("⚠️ Anonymous auth failed: \(error)")
             }
