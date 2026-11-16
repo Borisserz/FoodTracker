@@ -6,9 +6,11 @@ process.env.GCLOUD_PROJECT = "serzhanovich-ecosystem-ce700";
 const mod = require("./index.js");
 const t = mod._test;
 
-test("exports _test helpers and only foodAiProxy Cloud Function", () => {
+test("exports _test helpers and only FoodTracker Cloud Functions", () => {
   assert.ok(t, "_test helpers must be exported");
   assert.equal(typeof mod.foodAiProxy, "function");
+  assert.equal(typeof mod.foodSearchProxy, "function");
+  assert.equal(typeof mod.foodDeleteAccount, "function");
   assert.equal(mod.vertexProxy, undefined);
   assert.equal(mod.moderateSharedWorkout, undefined);
   assert.equal(mod.onReportCreated, undefined);
@@ -160,4 +162,94 @@ test("shouldTryNextKeyForError only retries key on key-scoped errors", () => {
   assert.equal(t.shouldTryNextKeyForError(400, "invalid_image_url"), false);
   assert.equal(t.shouldTryNextKeyForError(403, "not available in your region"), false);
   assert.equal(t.shouldTryNextKeyForError(422, "media could not be screened"), false);
+});
+
+test("parseNumericValue handles numbers, comma decimals, and bad values", () => {
+  assert.equal(t.parseNumericValue(12.5), 12.5);
+  assert.equal(t.parseNumericValue(" 14,25 "), 14.25);
+  assert.equal(t.parseNumericValue(null), 0);
+  assert.equal(t.parseNumericValue("abc"), 0);
+});
+
+test("isTokenValid enforces 60s safety margin", () => {
+  const now = 1_000_000;
+  assert.equal(t.isTokenValid(null, now), false);
+  assert.equal(t.isTokenValid({ token: "abc", expiresAtMs: now + 30_000 }, now), false);
+  assert.equal(t.isTokenValid({ token: "abc", expiresAtMs: now + 120_000 }, now), true);
+});
+
+test("normalizeFatSecretFood handles array/object servings and defaults weight to 100", () => {
+  const fromArray = t.normalizeFatSecretFood({
+    food_name: "Chicken Breast",
+    servings: {
+      serving: [
+        { metric_serving_amount: "0", calories: "165", protein: "31.0", fat: "3,6", carbohydrate: "0" },
+        { metric_serving_amount: "200", calories: "330", protein: "62", fat: "7.2", carbohydrate: "0" },
+      ],
+    },
+  });
+  assert.deepEqual(fromArray, {
+    name: "Chicken Breast",
+    weight: 100,
+    calories: 165,
+    protein: 31,
+    fats: 3.6,
+    carbs: 0,
+  });
+
+  const fromObject = t.normalizeFatSecretFood({
+    food_name: "Greek Yogurt",
+    servings: {
+      serving: { metric_serving_amount: "150", calories: "95", protein: "15", fat: "0.5", carbohydrate: "6" },
+    },
+  });
+  assert.deepEqual(fromObject, {
+    name: "Greek Yogurt",
+    weight: 150,
+    calories: 95,
+    protein: 15,
+    fats: 0.5,
+    carbs: 6,
+  });
+});
+
+test("normalizeFatSecretSearch and normalizeFatSecretBarcode handle single and empty payloads", () => {
+  const singleSearch = t.normalizeFatSecretSearch({
+    foods_search: {
+      results: {
+        food: {
+          food_name: "Apple",
+          servings: { serving: { metric_serving_amount: "100", calories: "52", protein: "0.3", fat: "0.2", carbohydrate: "14" } },
+        },
+      },
+    },
+  });
+  assert.equal(singleSearch.length, 1);
+  assert.equal(singleSearch[0].name, "Apple");
+  assert.deepEqual(t.normalizeFatSecretSearch({}), []);
+
+  const barcodeHit = t.normalizeFatSecretBarcode({
+    food: {
+      food_name: "Oats",
+      servings: { serving: { metric_serving_amount: "40", calories: "150", protein: "5", fat: "3", carbohydrate: "27" } },
+    },
+  });
+  assert.equal(barcodeHit.name, "Oats");
+  assert.equal(barcodeHit.weight, 40);
+  assert.equal(t.normalizeFatSecretBarcode({}), null);
+});
+
+test("parseSearchPayload validates mode, inputs, and clamps maxResults", () => {
+  assert.deepEqual(t.parseSearchPayload({ mode: "search", query: "  oats ", maxResults: 99 }), {
+    mode: "search",
+    query: "oats",
+    maxResults: 25,
+  });
+  assert.deepEqual(t.parseSearchPayload({ mode: "barcode", barcode: " 46012345 " }), {
+    mode: "barcode",
+    barcode: "46012345",
+  });
+  assert.throws(() => t.parseSearchPayload({ mode: "search", query: "  " }), /Missing search query/);
+  assert.throws(() => t.parseSearchPayload({ mode: "barcode", barcode: "1" }), /Invalid barcode/);
+  assert.throws(() => t.parseSearchPayload({ mode: "unknown" }), /Invalid mode/);
 });

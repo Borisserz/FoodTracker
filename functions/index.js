@@ -13,11 +13,18 @@ initializeApp();
 
 // Stored in Secret Manager (comma-separate for key rotation).
 const openRouterApiKey = defineSecret("OPENROUTER_API_KEY");
+const fatSecretClientId = defineSecret("FATSECRET_CLIENT_ID");
+const fatSecretClientSecret = defineSecret("FATSECRET_CLIENT_SECRET");
 
 const PROJECT_HINT = "serzhanovich-ecosystem-ce700";
 const SERVICE_ACCOUNT =
   "firebase-adminsdk-fbsvc@serzhanovich-ecosystem-ce700.iam.gserviceaccount.com";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const FATSECRET_TOKEN_URL = "https://oauth.fatsecret.com/connect/token";
+const FATSECRET_API_BASE = "https://platform.fatsecret.com/rest";
+const FATSECRET_TIMEOUT_MS = 10000;
+
+let fatSecretTokenCache = null;
 
 // 10-model text fallback chain ordered by live reliability and structured JSON support.
 const TEXT_MODEL_CHAIN = [
@@ -504,6 +511,180 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
   throw lastError || new Error("All OpenRouter models/keys failed");
 }
 
+async function verifyAppCheck(req, res) {
+  const appCheckToken = req.header("X-Firebase-AppCheck");
+  if (!appCheckToken) {
+    res.status(401).json({ error: "Missing App Check token" });
+    return false;
+  }
+  try {
+    await getAppCheck().verifyToken(appCheckToken);
+    return true;
+  } catch (e) {
+    res.status(401).json({ error: "Invalid App Check token" });
+    return false;
+  }
+}
+
+async function verifyFirebaseUser(req, res) {
+  const authHeader = req.header("Authorization") || "";
+  const m = authHeader.match(/^Bearer (.+)$/i);
+  if (!m) {
+    res.status(401).json({ error: "Missing Firebase ID token" });
+    return null;
+  }
+  try {
+    const decoded = await getAuth().verifyIdToken(m[1]);
+    return decoded.uid;
+  } catch (e) {
+    res.status(401).json({ error: "Invalid Firebase ID token" });
+    return null;
+  }
+}
+
+function parseNumericValue(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const cleaned = value.trim().replace(",", ".");
+    if (!cleaned) return 0;
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+}
+
+function isTokenValid(cacheEntry, nowMs = Date.now()) {
+  return Boolean(
+    cacheEntry &&
+      typeof cacheEntry.token === "string" &&
+      cacheEntry.token.length > 0 &&
+      typeof cacheEntry.expiresAtMs === "number" &&
+      cacheEntry.expiresAtMs - nowMs > 60_000
+  );
+}
+
+function normalizeFatSecretFood(food) {
+  const name = typeof food?.food_name === "string" ? food.food_name.trim() : "";
+  const servingData = food?.servings?.serving;
+  const serving = Array.isArray(servingData) ? servingData[0] : servingData;
+  if (!name || !serving || typeof serving !== "object") return null;
+
+  const weightRaw = parseNumericValue(serving.metric_serving_amount);
+  const weight = weightRaw > 0 ? weightRaw : 100;
+
+  return {
+    name,
+    weight,
+    calories: Math.round(parseNumericValue(serving.calories)),
+    protein: parseNumericValue(serving.protein),
+    fats: parseNumericValue(serving.fat),
+    carbs: parseNumericValue(serving.carbohydrate),
+  };
+}
+
+function normalizeFatSecretSearch(json) {
+  const foodData = json?.foods_search?.results?.food;
+  if (!foodData) return [];
+  const list = Array.isArray(foodData) ? foodData : [foodData];
+  return list.map(normalizeFatSecretFood).filter(Boolean);
+}
+
+function normalizeFatSecretBarcode(json) {
+  if (!json?.food) return null;
+  return normalizeFatSecretFood(json.food);
+}
+
+function parseSearchPayload(body) {
+  const mode = body?.mode;
+  if (mode === "search") {
+    const query = typeof body?.query === "string" ? body.query.trim() : "";
+    if (!query || query.length > 120) {
+      throw new Error("Missing search query");
+    }
+    const rawMax = Number(body?.maxResults);
+    const maxResults = Number.isFinite(rawMax)
+      ? Math.max(1, Math.min(25, Math.floor(rawMax)))
+      : 15;
+    return { mode: "search", query, maxResults };
+  }
+  if (mode === "barcode") {
+    const barcode =
+      typeof body?.barcode === "string" ? body.barcode.trim() : "";
+    if (!/^[A-Za-z0-9_-]{3,32}$/.test(barcode)) {
+      throw new Error("Invalid barcode");
+    }
+    return { mode: "barcode", barcode };
+  }
+  throw new Error("Invalid mode");
+}
+
+async function getFatSecretAccessToken({
+  clientId,
+  clientSecret,
+  forceRefresh = false,
+}) {
+  if (!forceRefresh && isTokenValid(fatSecretTokenCache)) {
+    return fatSecretTokenCache.token;
+  }
+  if (!clientId || !clientSecret) {
+    throw new Error("FatSecret credentials not configured");
+  }
+
+  const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+  const resp = await fetch(FATSECRET_TOKEN_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials&scope=basic",
+    signal: AbortSignal.timeout(FATSECRET_TIMEOUT_MS),
+  });
+  const text = await resp.text();
+  if (!resp.ok) {
+    fatSecretTokenCache = null;
+    throw new Error(`FatSecret token error ${resp.status}: ${text.slice(0, 200)}`);
+  }
+  const data = JSON.parse(text);
+  if (!data?.access_token) {
+    fatSecretTokenCache = null;
+    throw new Error("FatSecret token missing access_token");
+  }
+  const expiresSec =
+    typeof data.expires_in === "number" && data.expires_in > 120
+      ? data.expires_in
+      : 3600;
+  fatSecretTokenCache = {
+    token: data.access_token,
+    expiresAtMs: Date.now() + expiresSec * 1000,
+  };
+  return fatSecretTokenCache.token;
+}
+
+async function fetchFatSecretWithRetry({ url, clientId, clientSecret }) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const token = await getFatSecretAccessToken({
+      clientId,
+      clientSecret,
+      forceRefresh: attempt > 0,
+    });
+    const resp = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(FATSECRET_TIMEOUT_MS),
+    });
+    if (resp.status === 401 && attempt === 0) {
+      fatSecretTokenCache = null;
+      continue;
+    }
+    const text = await resp.text();
+    if (!resp.ok) {
+      throw new Error(`FatSecret API ${resp.status}: ${text.slice(0, 200)}`);
+    }
+    return JSON.parse(text);
+  }
+  throw new Error("FatSecret API unauthorized after refresh");
+}
+
 exports.foodAiProxy = onRequest(
   {
     region: "us-central1",
@@ -513,32 +694,9 @@ exports.foodAiProxy = onRequest(
     secrets: [openRouterApiKey],
   },
   async (req, res) => {
-    const appCheckToken = req.header("X-Firebase-AppCheck");
-    if (!appCheckToken) {
-      res.status(401).json({ error: "Missing App Check token" });
-      return;
-    }
-    try {
-      await getAppCheck().verifyToken(appCheckToken);
-    } catch (e) {
-      res.status(401).json({ error: "Invalid App Check token" });
-      return;
-    }
-
-    const authHeader = req.header("Authorization") || "";
-    const m = authHeader.match(/^Bearer (.+)$/i);
-    if (!m) {
-      res.status(401).json({ error: "Missing Firebase ID token" });
-      return;
-    }
-    let uid;
-    try {
-      const decoded = await getAuth().verifyIdToken(m[1]);
-      uid = decoded.uid;
-    } catch (e) {
-      res.status(401).json({ error: "Invalid Firebase ID token" });
-      return;
-    }
+    if (!(await verifyAppCheck(req, res))) return;
+    const uid = await verifyFirebaseUser(req, res);
+    if (!uid) return;
 
     const settings = await loadAISettings();
 
@@ -662,6 +820,87 @@ exports.foodAiProxy = onRequest(
   }
 );
 
+exports.foodSearchProxy = onRequest(
+  {
+    region: "us-central1",
+    serviceAccount: SERVICE_ACCOUNT,
+    memory: "256MiB",
+    timeoutSeconds: 30,
+    secrets: [fatSecretClientId, fatSecretClientSecret],
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
+    if (!(await verifyAppCheck(req, res))) return;
+
+    let parsed;
+    try {
+      parsed = parseSearchPayload(req.body);
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+
+    const clientId = fatSecretClientId.value().trim();
+    const clientSecret = fatSecretClientSecret.value().trim();
+
+    try {
+      if (parsed.mode === "search") {
+        const url =
+          `${FATSECRET_API_BASE}/foods/search/v1?search_expression=${encodeURIComponent(
+            parsed.query
+          )}&format=json&max_results=${parsed.maxResults}`;
+        const data = await fetchFatSecretWithRetry({ url, clientId, clientSecret });
+        res.status(200).json({ items: normalizeFatSecretSearch(data) });
+        return;
+      }
+
+      const url =
+        `${FATSECRET_API_BASE}/food/barcode/find-by-id/v2?barcode=${encodeURIComponent(
+          parsed.barcode
+        )}&format=json`;
+      const data = await fetchFatSecretWithRetry({ url, clientId, clientSecret });
+      res.status(200).json({ item: normalizeFatSecretBarcode(data) });
+    } catch (e) {
+      console.error("foodSearchProxy error:", e?.message || e);
+      res.status(502).json({
+        error: "fatsecret_upstream_failed",
+        message: String(e?.message || e).slice(0, 300),
+      });
+    }
+  }
+);
+
+exports.foodDeleteAccount = onRequest(
+  {
+    region: "us-central1",
+    serviceAccount: SERVICE_ACCOUNT,
+    memory: "256MiB",
+    timeoutSeconds: 60,
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
+    if (!(await verifyAppCheck(req, res))) return;
+    const uid = await verifyFirebaseUser(req, res);
+    if (!uid) return;
+
+    try {
+      const db = getFirestore();
+      // Delete only FoodTracker-scoped per-user server docs (never touch shared `users/{uid}`).
+      await db.collection("food_ai_usage").doc(uid).delete();
+      res.status(200).json({ ok: true });
+    } catch (e) {
+      console.error("foodDeleteAccount error:", e?.message || e);
+      res.status(500).json({ error: "Failed to delete server data" });
+    }
+  }
+);
+
 module.exports._test = {
   TEXT_MODEL_CHAIN,
   VISION_MODEL_CHAIN,
@@ -676,4 +915,10 @@ module.exports._test = {
   openAIToGeminiResponse,
   openAIStreamChunkToGemini,
   callOpenRouterText,
+  parseNumericValue,
+  isTokenValid,
+  normalizeFatSecretFood,
+  normalizeFatSecretSearch,
+  normalizeFatSecretBarcode,
+  parseSearchPayload,
 };
