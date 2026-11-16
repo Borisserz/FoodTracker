@@ -6,13 +6,15 @@
   "functions": [
     {
       "source": "functions",
-      "codebase": "default",
+      "codebase": "foodtracker",
       "ignore": [
         "node_modules",
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log",
-        "*.local"
+        "*.local",
+        "test_proxy.js",
+        "smoke_openrouter.js"
       ]
     }
   ]
