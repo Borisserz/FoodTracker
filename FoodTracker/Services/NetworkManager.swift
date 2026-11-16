@@ -1,10 +1,21 @@
 import Foundation
+import FirebaseAppCheck
 
 class NetworkManager {
     static let shared = NetworkManager()
-    private init() {}
 
-    private var fatSecretAccessToken: String?
+    var session: URLSession
+    var appCheckTokenProvider: () async -> String? = {
+        try? await AppCheck.appCheck().token(forcingRefresh: false).token
+    }
+    var searchProxyURLProvider: (() async -> URL)?
+
+    private init() {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15.0
+        config.timeoutIntervalForResource = 30.0
+        self.session = URLSession(configuration: config)
+    }
 
     private var currentLanguage: String {
         return Locale.current.language.languageCode?.identifier ?? "en"
@@ -78,7 +89,7 @@ class NetworkManager {
         request.setValue("FoodTrackerApp - iOS - Version 1.0", forHTTPHeaderField: "User-Agent")
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await session.data(for: request)
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return [] }
 
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -113,7 +124,7 @@ class NetworkManager {
         request.setValue("FoodTrackerApp/1.0", forHTTPHeaderField: "User-Agent")
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, _) = try await session.data(for: request)
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let status = json["status"] as? Int, status == 1,
                   let p = json["product"] as? [String: Any],
@@ -131,119 +142,67 @@ class NetworkManager {
         } catch { return nil }
     }
 
-    private func ensureToken() async -> String? {
-            if let token = fatSecretAccessToken { return token }
+    // MARK: - Server-Proxied FatSecret (secrets live in Firebase Secret Manager)
 
-            // 1. Берем ключи из Firebase
-            let clientId = await RemoteConfigManager.shared.getString(forKey: "fatsecret_client_id")
-            let clientSecret = await RemoteConfigManager.shared.getString(forKey: "fatsecret_secret")
+    private struct ProxyFoodItemDTO: Decodable {
+        let name: String
+        let weight: Double
+        let calories: Int
+        let protein: Double
+        let fats: Double
+        let carbs: Double
 
-            let urlString = "https://oauth.fatsecret.com/connect/token"
-            guard let url = URL(string: urlString) else { return nil }
+        func toFoodItem() -> FoodItem {
+            FoodItem(name: name, weight: weight, calories: calories, protein: protein, fats: fats, carbs: carbs)
+        }
+    }
 
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            
-            // 2. Используем скачанные ключи
-            let auth = "\(clientId):\(clientSecret)".data(using: .utf8)!.base64EncodedString()
-            request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
-            
-        request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = "grant_type=client_credentials&scope=basic".data(using: .utf8)
+    private struct ProxySearchResponse: Decodable {
+        let items: [ProxyFoodItemDTO]
+    }
+
+    private struct ProxyBarcodeResponse: Decodable {
+        let item: ProxyFoodItemDTO?
+    }
+
+    private func resolveSearchProxyURL() async -> URL {
+        if let provider = searchProxyURLProvider {
+            return await provider()
+        }
+        let configured = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.searchRemoteConfigKey)
+        return AIProxyEndpoint.resolve(configured: configured, fallback: AIProxyEndpoint.searchFallbackURL)
+    }
+
+    private func performSearchProxyRequest<T: Decodable>(payload: [String: Any], as type: T.Type) async -> T? {
+        guard let appCheckToken = await appCheckTokenProvider(), !appCheckToken.isEmpty else {
+            print("⚠️ foodSearchProxy skipped: missing App Check token")
+            return nil
+        }
+        let url = await resolveSearchProxyURL()
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            if let http = response as? HTTPURLResponse, http.statusCode != 200 { return nil }
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let token = json["access_token"] as? String else { return nil }
-
-            self.fatSecretAccessToken = token
-            return token
-        } catch { return nil }
+            let (data, response) = try await session.data(for: request)
+            guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            return nil
+        }
     }
 
     private func searchFromFatSecret(query: String) async -> [FoodItem] {
-        guard let token = await ensureToken(),
-              let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return [] }
-
-        let urlString = "https://platform.fatsecret.com/rest/foods/search/v1?search_expression=\(encodedQuery)&format=json&max_results=15"
-        guard let url = URL(string: urlString) else { return [] }
-
-        var request = URLRequest(url: url)
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            if let http = response as? HTTPURLResponse, http.statusCode != 200 { return [] }
-
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let foodsSearch = json["foods_search"] as? [String: Any],
-                  let results = foodsSearch["results"] as? [String: Any],
-                  let foodData = results["food"] else { return [] }
-
-            var foodsArray: [[String: Any]] = []
-            if let arr = foodData as? [[String: Any]] { foodsArray = arr }
-            else if let dict = foodData as? [String: Any] { foodsArray = [dict] }
-
-            var items: [FoodItem] = []
-            for f in foodsArray {
-                guard let name = f["food_name"] as? String,
-                      let servings = f["servings"] as? [String: Any],
-                      let servingData = servings["serving"] else { continue }
-
-                var srv: [String: Any]? = nil
-                if let srvArr = servingData as? [[String: Any]] { srv = srvArr.first }
-                else if let srvDict = servingData as? [String: Any] { srv = srvDict }
-
-                guard let s = srv else { continue }
-
-                let weightRaw = parseDouble(s["metric_serving_amount"])
-                let weight = weightRaw > 0 ? weightRaw : 100.0
-
-                let cals = parseDouble(s["calories"])
-                let protein = parseDouble(s["protein"])
-                let fat = parseDouble(s["fat"])
-                let carbs = parseDouble(s["carbohydrate"])
-
-                items.append(FoodItem(name: name, weight: weight, calories: Int(cals), protein: protein, fats: fat, carbs: carbs))
-            }
-            return items
-        } catch { return [] }
+        let payload: [String: Any] = ["mode": "search", "query": query, "maxResults": 15]
+        let response = await performSearchProxyRequest(payload: payload, as: ProxySearchResponse.self)
+        return response?.items.map { $0.toFoodItem() } ?? []
     }
 
     private func fetchBarcodeFromFatSecretBarcode(barcode: String) async -> FoodItem? {
-        guard let token = await ensureToken() else { return nil }
-
-        let urlString = "https://platform.fatsecret.com/rest/food/barcode/find-by-id/v2?barcode=\(barcode)&format=json"
-        guard let url = URL(string: urlString) else { return nil }
-
-        var request = URLRequest(url: url)
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let food = json["food"] as? [String: Any],
-                  let name = food["food_name"] as? String,
-                  let servings = food["servings"] as? [String: Any],
-                  let servingData = servings["serving"] else { return nil }
-
-            var srv: [String: Any]? = nil
-            if let srvArr = servingData as? [[String: Any]] { srv = srvArr.first }
-            else if let srvDict = servingData as? [String: Any] { srv = srvDict }
-
-            guard let s = srv else { return nil }
-
-            let weightRaw = parseDouble(s["metric_serving_amount"])
-            let weight = weightRaw > 0 ? weightRaw : 100.0
-
-            let cals = parseDouble(s["calories"])
-            let protein = parseDouble(s["protein"])
-            let fat = parseDouble(s["fat"])
-            let carbs = parseDouble(s["carbohydrate"])
-
-            return FoodItem(name: name, weight: weight, calories: Int(cals), protein: protein, fats: fat, carbs: carbs)
-        } catch { return nil }
+        let payload: [String: Any] = ["mode": "barcode", "barcode": barcode]
+        let response = await performSearchProxyRequest(payload: payload, as: ProxyBarcodeResponse.self)
+        return response?.item?.toFoodItem()
     }
 }

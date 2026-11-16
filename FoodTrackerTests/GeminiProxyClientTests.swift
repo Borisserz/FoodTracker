@@ -14,6 +14,14 @@ final class GeminiProxyClientTests: XCTestCase {
         XCTAssertEqual(AIProxyEndpoint.resolve(configured: ""), AIProxyEndpoint.fallbackURL)
         XCTAssertEqual(AIProxyEndpoint.resolve(configured: "http://insecure.example.com"), AIProxyEndpoint.fallbackURL)
         XCTAssertEqual(AIProxyEndpoint.resolve(configured: "not a url"), AIProxyEndpoint.fallbackURL)
+        XCTAssertEqual(
+            AIProxyEndpoint.resolve(configured: "http://bad.example.com", fallback: AIProxyEndpoint.searchFallbackURL),
+            AIProxyEndpoint.searchFallbackURL
+        )
+        XCTAssertEqual(
+            AIProxyEndpoint.resolve(configured: nil, fallback: AIProxyEndpoint.deleteAccountFallbackURL),
+            AIProxyEndpoint.deleteAccountFallbackURL
+        )
     }
 
     func testExtractJSONStripsFencesAndSurroundingProse() {
