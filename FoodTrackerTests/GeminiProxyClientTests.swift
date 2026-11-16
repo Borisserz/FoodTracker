@@ -22,6 +22,10 @@ final class GeminiProxyClientTests: XCTestCase {
             AIProxyEndpoint.resolve(configured: nil, fallback: AIProxyEndpoint.deleteAccountFallbackURL),
             AIProxyEndpoint.deleteAccountFallbackURL
         )
+        XCTAssertEqual(
+            AIProxyEndpoint.resolve(configured: "", fallback: AIProxyEndpoint.imageFallbackURL),
+            AIProxyEndpoint.imageFallbackURL
+        )
     }
 
     func testExtractJSONStripsFencesAndSurroundingProse() {

@@ -1,3 +1,4 @@
+const crypto = require("node:crypto");
 const { onRequest } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getAppCheck } = require("firebase-admin/app-check");
@@ -22,6 +23,7 @@ const SERVICE_ACCOUNT =
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const FATSECRET_TOKEN_URL = "https://oauth.fatsecret.com/connect/token";
 const FATSECRET_API_BASE = "https://platform.fatsecret.com/rest";
+const FATSECRET_OAUTH1_URL = "https://platform.fatsecret.com/rest/server.api";
 const FATSECRET_TIMEOUT_MS = 10000;
 
 let fatSecretTokenCache = null;
@@ -563,27 +565,101 @@ function isTokenValid(cacheEntry, nowMs = Date.now()) {
   );
 }
 
-function normalizeFatSecretFood(food) {
-  const name = typeof food?.food_name === "string" ? food.food_name.trim() : "";
-  const servingData = food?.servings?.serving;
-  const serving = Array.isArray(servingData) ? servingData[0] : servingData;
-  if (!name || !serving || typeof serving !== "object") return null;
+function oauthPercentEncode(str) {
+  return encodeURIComponent(String(str)).replace(
+    /[!'()*]/g,
+    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
+  );
+}
 
-  const weightRaw = parseNumericValue(serving.metric_serving_amount);
-  const weight = weightRaw > 0 ? weightRaw : 100;
+function buildOAuth1FatSecretURL({
+  consumerKey,
+  consumerSecret,
+  method,
+  extraParams = {},
+}) {
+  const params = {
+    oauth_consumer_key: consumerKey,
+    oauth_nonce: crypto.randomBytes(8).toString("hex"),
+    oauth_signature_method: "HMAC-SHA1",
+    oauth_timestamp: String(Math.floor(Date.now() / 1000)),
+    oauth_version: "1.0",
+    format: "json",
+    method,
+    ...extraParams,
+  };
+  const sortedQuery = Object.keys(params)
+    .sort()
+    .map((k) => `${oauthPercentEncode(k)}=${oauthPercentEncode(params[k])}`)
+    .join("&");
+  const baseString = `GET&${oauthPercentEncode(
+    FATSECRET_OAUTH1_URL
+  )}&${oauthPercentEncode(sortedQuery)}`;
+  const signingKey = `${oauthPercentEncode(consumerSecret)}&`;
+  const signature = crypto
+    .createHmac("sha1", signingKey)
+    .update(baseString)
+    .digest("base64");
+  return `${FATSECRET_OAUTH1_URL}?${sortedQuery}&oauth_signature=${oauthPercentEncode(
+    signature
+  )}`;
+}
+
+function parseFatSecretDescription(description) {
+  if (typeof description !== "string" || !description) return null;
+  const calMatch = description.match(/Calories:\s*([0-9.,]+)\s*kcal/i);
+  const fatMatch = description.match(/Fat:\s*([0-9.,]+)\s*g/i);
+  const carbMatch = description.match(/Carbs:\s*([0-9.,]+)\s*g/i);
+  const protMatch = description.match(/Protein:\s*([0-9.,]+)\s*g/i);
+  if (!calMatch && !fatMatch && !carbMatch && !protMatch) return null;
+
+  const weightMatch = description.match(/^Per\s+([0-9.,]+)\s*(g|ml)\b/i);
+  const parsedWeight = weightMatch ? parseNumericValue(weightMatch[1]) : 0;
 
   return {
-    name,
-    weight,
-    calories: Math.round(parseNumericValue(serving.calories)),
-    protein: parseNumericValue(serving.protein),
-    fats: parseNumericValue(serving.fat),
-    carbs: parseNumericValue(serving.carbohydrate),
+    weight: parsedWeight > 0 ? parsedWeight : 100,
+    calories: Math.round(parseNumericValue(calMatch?.[1] || 0)),
+    fats: parseNumericValue(fatMatch?.[1] || 0),
+    carbs: parseNumericValue(carbMatch?.[1] || 0),
+    protein: parseNumericValue(protMatch?.[1] || 0),
   };
 }
 
+function normalizeFatSecretFood(food) {
+  const baseName =
+    typeof food?.food_name === "string" ? food.food_name.trim() : "";
+  if (!baseName) return null;
+
+  const brand =
+    typeof food?.brand_name === "string" ? food.brand_name.trim() : "";
+  const name =
+    brand && !baseName.toLowerCase().includes(brand.toLowerCase())
+      ? `${baseName} (${brand})`
+      : baseName;
+
+  const servingData = food?.servings?.serving;
+  const serving = Array.isArray(servingData) ? servingData[0] : servingData;
+  if (serving && typeof serving === "object") {
+    const weightRaw = parseNumericValue(serving.metric_serving_amount);
+    return {
+      name,
+      weight: weightRaw > 0 ? weightRaw : 100,
+      calories: Math.round(parseNumericValue(serving.calories)),
+      protein: parseNumericValue(serving.protein),
+      fats: parseNumericValue(serving.fat),
+      carbs: parseNumericValue(serving.carbohydrate),
+    };
+  }
+
+  const fromDesc = parseFatSecretDescription(food?.food_description);
+  if (fromDesc) {
+    return { name, ...fromDesc };
+  }
+  return null;
+}
+
 function normalizeFatSecretSearch(json) {
-  const foodData = json?.foods_search?.results?.food;
+  const foodData = json?.foods_search?.results?.food ?? json?.foods?.food;
   if (!foodData) return [];
   const list = Array.isArray(foodData) ? foodData : [foodData];
   return list.map(normalizeFatSecretFood).filter(Boolean);
@@ -820,6 +896,23 @@ exports.foodAiProxy = onRequest(
   }
 );
 
+async function callFatSecretOAuth1({ consumerKey, consumerSecret, method, extraParams }) {
+  const url = buildOAuth1FatSecretURL({
+    consumerKey,
+    consumerSecret,
+    method,
+    extraParams,
+  });
+  const resp = await fetch(url, {
+    signal: AbortSignal.timeout(FATSECRET_TIMEOUT_MS),
+  });
+  const text = await resp.text();
+  if (!resp.ok) {
+    throw new Error(`FatSecret OAuth1 ${resp.status}: ${text.slice(0, 200)}`);
+  }
+  return JSON.parse(text);
+}
+
 exports.foodSearchProxy = onRequest(
   {
     region: "us-central1",
@@ -845,9 +938,32 @@ exports.foodSearchProxy = onRequest(
 
     const clientId = fatSecretClientId.value().trim();
     const clientSecret = fatSecretClientSecret.value().trim();
+    if (!clientId || !clientSecret) {
+      res.status(500).json({ error: "FatSecret credentials not configured" });
+      return;
+    }
 
     try {
       if (parsed.mode === "search") {
+        // Try OAuth 1.0 Consumer Key/Secret first (stateless, works with Basic FatSecret keys).
+        const oauth1Data = await callFatSecretOAuth1({
+          consumerKey: clientId,
+          consumerSecret: clientSecret,
+          method: "foods.search",
+          extraParams: {
+            search_expression: parsed.query,
+            max_results: String(parsed.maxResults),
+          },
+        });
+        if (!oauth1Data?.error) {
+          res.status(200).json({ items: normalizeFatSecretSearch(oauth1Data) });
+          return;
+        }
+        // Only fall back to OAuth 2.0 if keys are rejected as OAuth 1.0 consumer credentials.
+        const errCode = Number(oauth1Data.error?.code);
+        if (errCode !== 2 && errCode !== 8) {
+          throw new Error(`FatSecret error ${errCode}: ${oauth1Data.error?.message}`);
+        }
         const url =
           `${FATSECRET_API_BASE}/foods/search/v1?search_expression=${encodeURIComponent(
             parsed.query
@@ -855,6 +971,37 @@ exports.foodSearchProxy = onRequest(
         const data = await fetchFatSecretWithRetry({ url, clientId, clientSecret });
         res.status(200).json({ items: normalizeFatSecretSearch(data) });
         return;
+      }
+
+      const oauth1Barcode = await callFatSecretOAuth1({
+        consumerKey: clientId,
+        consumerSecret: clientSecret,
+        method: "food.find_id_for_barcode",
+        extraParams: { barcode: parsed.barcode },
+      });
+      if (!oauth1Barcode?.error) {
+        const foodId = oauth1Barcode?.food_id?.value;
+        if (!foodId) {
+          res.status(200).json({ item: null });
+          return;
+        }
+        const detail = await callFatSecretOAuth1({
+          consumerKey: clientId,
+          consumerSecret: clientSecret,
+          method: "food.get",
+          extraParams: { food_id: String(foodId) },
+        });
+        res.status(200).json({ item: normalizeFatSecretBarcode(detail) });
+        return;
+      }
+      const bCode = Number(oauth1Barcode.error?.code);
+      if (bCode === 10) {
+        // Basic OAuth 1.0 plan has no barcode method; return null cleanly so OFF/AI proceed.
+        res.status(200).json({ item: null });
+        return;
+      }
+      if (bCode !== 2 && bCode !== 8) {
+        throw new Error(`FatSecret barcode error ${bCode}: ${oauth1Barcode.error?.message}`);
       }
 
       const url =
@@ -917,6 +1064,8 @@ module.exports._test = {
   callOpenRouterText,
   parseNumericValue,
   isTokenValid,
+  buildOAuth1FatSecretURL,
+  parseFatSecretDescription,
   normalizeFatSecretFood,
   normalizeFatSecretSearch,
   normalizeFatSecretBarcode,

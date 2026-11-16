@@ -12,6 +12,9 @@ nonisolated enum AIProxyEndpoint {
     static let deleteAccountFallbackURLString = "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/foodDeleteAccount"
     static let deleteAccountRemoteConfigKey = "food_delete_account_url"
 
+    static let imageFallbackURLString = "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/imageProxy"
+    static let imageRemoteConfigKey = "food_image_proxy_url"
+
     static var fallbackURL: URL {
         URL(string: fallbackURLString)!
     }
@@ -22,6 +25,10 @@ nonisolated enum AIProxyEndpoint {
 
     static var deleteAccountFallbackURL: URL {
         URL(string: deleteAccountFallbackURLString)!
+    }
+
+    static var imageFallbackURL: URL {
+        URL(string: imageFallbackURLString)!
     }
 
     static func resolve(configured: String?, fallback: URL = fallbackURL) -> URL {

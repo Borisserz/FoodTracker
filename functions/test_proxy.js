@@ -253,3 +253,59 @@ test("parseSearchPayload validates mode, inputs, and clamps maxResults", () => {
   assert.throws(() => t.parseSearchPayload({ mode: "barcode", barcode: "1" }), /Invalid barcode/);
   assert.throws(() => t.parseSearchPayload({ mode: "unknown" }), /Invalid mode/);
 });
+
+test("parseFatSecretDescription parses OAuth 1.0 description strings", () => {
+  assert.deepEqual(
+    t.parseFatSecretDescription(
+      "Per 101g - Calories: 197kcal | Fat: 7.79g | Carbs: 0.00g | Protein: 29.80g"
+    ),
+    { weight: 101, calories: 197, fats: 7.79, carbs: 0, protein: 29.8 }
+  );
+  assert.deepEqual(
+    t.parseFatSecretDescription(
+      "Per 1 serving - Calories: 90kcal | Fat: 1g | Carbs: 12g | Protein: 4g"
+    ),
+    { weight: 100, calories: 90, fats: 1, carbs: 12, protein: 4 }
+  );
+  assert.equal(t.parseFatSecretDescription("invalid"), null);
+});
+
+test("normalizeFatSecretSearch supports OAuth 1.0 foods.food items", () => {
+  const items = t.normalizeFatSecretSearch({
+    foods: {
+      food: [
+        {
+          food_name: "Apples",
+          food_description:
+            "Per 100g - Calories: 52kcal | Fat: 0.17g | Carbs: 13.81g | Protein: 0.26g",
+        },
+        {
+          food_name: "Kirkland Chicken",
+          brand_name: "Kirkland Signature",
+          food_description:
+            "Per 4 oz - Calories: 90kcal | Fat: 1g | Carbs: 0g | Protein: 20g",
+        },
+      ],
+    },
+  });
+  assert.equal(items.length, 2);
+  assert.equal(items[0].name, "Apples");
+  assert.equal(items[0].calories, 52);
+  assert.equal(items[1].name, "Kirkland Chicken (Kirkland Signature)");
+  assert.equal(items[1].protein, 20);
+});
+
+test("buildOAuth1FatSecretURL builds signed OAuth 1.0 URL", () => {
+  const url = t.buildOAuth1FatSecretURL({
+    consumerKey: "ck123",
+    consumerSecret: "cs456",
+    method: "foods.search",
+    extraParams: { search_expression: "apple", max_results: "5" },
+  });
+  const parsed = new URL(url);
+  assert.equal(parsed.origin + parsed.pathname, "https://platform.fatsecret.com/rest/server.api");
+  assert.equal(parsed.searchParams.get("oauth_consumer_key"), "ck123");
+  assert.equal(parsed.searchParams.get("oauth_signature_method"), "HMAC-SHA1");
+  assert.equal(parsed.searchParams.get("method"), "foods.search");
+  assert.ok(parsed.searchParams.get("oauth_signature"));
+});

@@ -7,11 +7,9 @@ final class MealImageService {
     static let shared = MealImageService()
     private init() {}
 
-    private let endpoint =
-        "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/imageProxy"
-
     func resolveImageURL(keywords: [String], title: String) async -> URL? {
-        guard let url = URL(string: endpoint) else { return nil }
+        let configured = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.imageRemoteConfigKey)
+        let url = AIProxyEndpoint.resolve(configured: configured, fallback: AIProxyEndpoint.imageFallbackURL)
         guard let appCheckToken = try? await AppCheck.appCheck()
             .token(forcingRefresh: false).token else { return nil }
 
