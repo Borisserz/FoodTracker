@@ -4,7 +4,7 @@ import XCTest
 final class DietModelTests: XCTestCase {
 
     func testDietPlanDefaultDietsCount() {
-        XCTAssertEqual(DietPlan.defaultDiets.count, 9, "There should be 9 default diets defined")
+        XCTAssertEqual(DietPlan.defaultDiets.count, 4, "There should be 4 default diets defined")
     }
 
     func testDietPlanMacroBreakdowns() {

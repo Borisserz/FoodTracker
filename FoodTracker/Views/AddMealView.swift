@@ -312,8 +312,8 @@ struct AddMealView: View {
     }
     
     private func loadExistingFoods() {
-        if let existingMeal = summaries.first?.meals.first(where: { $0.title == selectedMealType }) {
-            selectedFoods = existingMeal.foodItems
+        if let existingMeal = summaries.first?.meals?.first(where: { $0.title == selectedMealType }) {
+            selectedFoods = existingMeal.foodItems ?? []
         } else {
             selectedFoods = []
         }
@@ -356,9 +356,9 @@ struct AddMealView: View {
             modelContext.insert(summaryToUse)
         }
         
-        if let existingMeal = summaryToUse.meals.first(where: { $0.title == selectedMealType }) {
+        if let existingMeal = (summaryToUse.meals ?? []).first(where: { $0.title == selectedMealType }) {
             // Delete removed items
-            let removedFoods = existingMeal.foodItems.filter { existing in
+            let removedFoods = (existingMeal.foodItems ?? []).filter { existing in
                 !selectedFoods.contains(where: { $0.id == existing.id })
             }
             for food in removedFoods {
@@ -367,7 +367,7 @@ struct AddMealView: View {
             existingMeal.foodItems = selectedFoods
         } else {
             let newMeal = Meal(title: selectedMealType, date: selectedDate, foodItems: selectedFoods)
-            summaryToUse.meals.append(newMeal)
+            summaryToUse.addMeal(newMeal)
         }
         
         do {

@@ -12,7 +12,7 @@ struct WaterGridTrackerView: View {
     let gridColumns = 6
 
     var waterBeverages: [Beverage] {
-        summary.beverages.filter { $0.name == "Water" }.sorted { $0.date < $1.date }
+        (summary.beverages ?? []).filter { $0.name == "Water" }.sorted { $0.date < $1.date }
     }
 
     var waterLiters: Double {
@@ -145,7 +145,7 @@ struct WaterGridTrackerView: View {
                    context.insert(summary)
                }
                context.insert(newBeverage)
-               summary.beverages.append(newBeverage)
+               summary.addBeverage(newBeverage)
                try? context.save()
            }
 
@@ -160,8 +160,8 @@ struct WaterGridTrackerView: View {
         guard let lastWater = waterBeverages.last else { return }
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
-            if let index = summary.beverages.firstIndex(of: lastWater) {
-                summary.beverages.remove(at: index)
+            if let index = summary.beverages?.firstIndex(of: lastWater) {
+                summary.beverages?.remove(at: index)
             }
             context.delete(lastWater)
             try? context.save()

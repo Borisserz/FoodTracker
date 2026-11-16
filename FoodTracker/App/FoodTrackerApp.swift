@@ -88,7 +88,7 @@ struct FoodTrackerApp: App {
         print("🚀 [setupDependencies] Starting initialization...")
         do {
             let schema = Schema([
-                User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
+                User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
                 WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
             ])
             
@@ -228,48 +228,11 @@ struct ContentView: View {
     }
     
     private func completeOnboarding(metrics: OnboardingMetrics) {
-        let bmr = 10.0 * Double(metrics.weight) + 6.25 * Double(metrics.height) - 5.0 * Double(metrics.age) + 5.0
-        
-        var multiplier = 1.2
-        switch metrics.activityLevel {
-        case .none: multiplier = 1.2
-        case .office: multiplier = 1.2
-        case .light: multiplier = 1.375
-        case .active: multiplier = 1.55
-        case .beast: multiplier = 1.725
-        }
-        
-        var tdee = bmr * multiplier
-        
-        if metrics.goal == "Lose Weight" {
-            tdee -= 500
-        } else if metrics.goal == "Build Muscle" {
-            tdee += 300
-        }
-        
-        let cals = Int(tdee)
+        OnboardingPersistence.save(metrics: metrics, existingUser: users.first, in: context)
 
-        if let existingUser = users.first {
-            existingUser.age = metrics.age
-            existingUser.height = Double(metrics.height)
-            existingUser.weight = Double(metrics.weight)
-            existingUser.dailyCaloriesGoal = cals
-        } else {
-            let newUser = User(
-                name: "Champion",
-                weight: Double(metrics.weight),
-                height: Double(metrics.height),
-                age: metrics.age,
-                gender: "Male"
-            )
-            newUser.dailyCaloriesGoal = cals
-            context.insert(newUser)
-        }
-        try? context.save()
-        
         // Track onboarding completion
         TrackingManager.shared.track(.onboardingCompleted(goal: metrics.goal, diet: "Standard"))
-        
+
         hasCompletedOnboarding = true
     }
 }

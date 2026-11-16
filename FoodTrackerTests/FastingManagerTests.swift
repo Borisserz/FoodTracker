@@ -22,8 +22,24 @@ final class FastingManagerTests: XCTestCase {
         manager = nil
     }
 
+    private func makeTestPlan(title: String = "16:8", fastingHours: Int = 16) -> FastingPlan {
+        FastingPlan(
+            category: .intermediate,
+            title: title,
+            description: "Test",
+            icon: "timer",
+            colorHex: "FF9500",
+            isPopular: false,
+            fastingHours: fastingHours,
+            eatingHours: 24 - fastingHours,
+            difficultyRating: 3,
+            benefits: [],
+            breakFastTip: "Water"
+        )
+    }
+
     func testStartFast() {
-        let plan = FastingPlan(title: "16:8", fastingHours: 16, info: "Test", icon: "timer")
+        let plan = makeTestPlan()
         manager.startFast(plan: plan)
         
         XCTAssertTrue(manager.isFasting)
@@ -33,7 +49,7 @@ final class FastingManagerTests: XCTestCase {
     }
 
     func testEndFast() {
-        let plan = FastingPlan(title: "16:8", fastingHours: 16, info: "Test", icon: "timer")
+        let plan = makeTestPlan()
         manager.startFast(plan: plan)
         XCTAssertTrue(manager.isFasting)
         
@@ -45,7 +61,7 @@ final class FastingManagerTests: XCTestCase {
     }
 
     func testCurrentPhase() {
-        let plan = FastingPlan(title: "16:8", fastingHours: 16, info: "Test", icon: "timer")
+        let plan = makeTestPlan()
         manager.startFast(plan: plan)
         
         // Simulate elapsed time
@@ -66,7 +82,7 @@ final class FastingManagerTests: XCTestCase {
     }
 
     func testRemainingTimeString() {
-        let plan = FastingPlan(title: "16:8", fastingHours: 16, info: "Test", icon: "timer")
+        let plan = makeTestPlan()
         manager.startFast(plan: plan)
         
         manager.elapsedTime = 15 * 3600 + 30 * 60 // 15h 30m
@@ -75,5 +91,51 @@ final class FastingManagerTests: XCTestCase {
         
         manager.elapsedTime = 16 * 3600 // 16h
         XCTAssertEqual(manager.remainingTimeString, "Goal Reached! 🎉")
+    }
+
+    func testFastingLifecycleNotifiesLiveActivityManager() {
+        let mockLiveActivity = MockFastingLiveActivityManager()
+        manager.liveActivityManager = mockLiveActivity
+        defer { manager.liveActivityManager = FastingLiveActivityManager.shared }
+
+        let plan = makeTestPlan(title: "18:6", fastingHours: 18)
+        manager.startFast(plan: plan)
+
+        XCTAssertEqual(mockLiveActivity.startedCalls.count, 1)
+        XCTAssertEqual(mockLiveActivity.startedCalls.first?.planName, "18:6")
+        XCTAssertEqual(mockLiveActivity.startedCalls.first?.targetHours, 18)
+        XCTAssertGreaterThanOrEqual(mockLiveActivity.updatedCalls.count, 1)
+
+        manager.endFast()
+        XCTAssertEqual(mockLiveActivity.endCallCount, 1)
+    }
+}
+
+@MainActor
+private final class MockFastingLiveActivityManager: FastingLiveActivityManaging {
+    struct StartCall {
+        let planName: String
+        let targetHours: Int
+        let startTime: Date
+    }
+    struct UpdateCall {
+        let currentStage: String
+        let progressPct: Double
+    }
+
+    var startedCalls: [StartCall] = []
+    var updatedCalls: [UpdateCall] = []
+    var endCallCount: Int = 0
+
+    func startActivity(planName: String, targetHours: Int, startTime: Date) {
+        startedCalls.append(StartCall(planName: planName, targetHours: targetHours, startTime: startTime))
+    }
+
+    func updateActivity(currentStage: String, progressPct: Double) {
+        updatedCalls.append(UpdateCall(currentStage: currentStage, progressPct: progressPct))
+    }
+
+    func endActivity() {
+        endCallCount += 1
     }
 }

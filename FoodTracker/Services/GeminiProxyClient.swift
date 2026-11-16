@@ -11,14 +11,15 @@ final class GeminiProxyClient {
 
     var rateLimitAlertMessage: String?
 
-    private let urlSession: URLSession
+    @ObservationIgnored var session: URLSession
+    @ObservationIgnored var tokenProvider: (() async throws -> (authToken: String, appCheckToken: String))?
 
     private init() {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 60.0
         config.timeoutIntervalForResource = 120.0
         config.waitsForConnectivity = true
-        self.urlSession = URLSession(configuration: config)
+        self.session = URLSession(configuration: config)
     }
 
     // MARK: - Public API (used by services)
@@ -90,7 +91,7 @@ final class GeminiProxyClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-        let (data, response) = try await urlSession.data(for: request)
+        let (data, response) = try await session.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             if httpResponse.statusCode == 429 {
@@ -123,6 +124,9 @@ final class GeminiProxyClient {
     // MARK: - Auth (moved from duplicated code in services)
 
     private func getFirebaseTokens() async throws -> (authToken: String, appCheckToken: String) {
+        if let tokenProvider {
+            return try await tokenProvider()
+        }
         let user: FirebaseAuth.User
         if let current = Auth.auth().currentUser {
             user = current

@@ -8,7 +8,7 @@ public final class SharedModelContainer: @unchecked Sendable {
     
     private init() {
         let schema = Schema([
-            User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, DailySummary.self, ShoppingItem.self,
+            User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
             WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
         ])
         

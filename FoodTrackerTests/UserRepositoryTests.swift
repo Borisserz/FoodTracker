@@ -6,7 +6,7 @@ final class UserRepositoryTests: XCTestCase {
     var container: ModelContainer!
 
     override func setUpWithError() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         container = try ModelContainer(for: User.self, configurations: config)
     }
 

@@ -14,7 +14,7 @@ struct WeeklyPlanOverview: View {
     @State private var showGrocerySuccess = false
     
     var selectedDay: MealPlanDay? {
-        plan.days.first(where: { $0.dayIndex == selectedDayIndex })
+        (plan.days ?? []).first(where: { $0.dayIndex == selectedDayIndex })
     }
     
     let dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -78,7 +78,7 @@ struct WeeklyPlanOverview: View {
                         }
                         .padding(.bottom, 8)
                         
-                        ForEach(day.meals.sorted(by: { typePriority($0.type) < typePriority($1.type) })) { meal in
+                        ForEach((day.meals ?? []).sorted(by: { typePriority($0.type) < typePriority($1.type) })) { meal in
                             MealPlanItemCard(meal: meal)
                         }
                     }
@@ -173,13 +173,13 @@ struct WeeklyPlanOverview: View {
         }
         
         if let day = selectedDay {
-            for planMeal in day.meals {
+            for planMeal in (day.meals ?? []) {
                 let meal = Meal(title: planMeal.type, date: startOfDay, foodItems: [])
                 
                 let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: Int(planMeal.calories), protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs))
                 
-                meal.foodItems.append(foodItem)
-                currentSummary.meals.append(meal)
+                meal.addFoodItem(foodItem)
+                currentSummary.addMeal(meal)
             }
         }
         
@@ -198,8 +198,8 @@ struct WeeklyPlanOverview: View {
         HapticManager.shared.impact(style: .medium)
         
         var allIngredients: Set<String> = []
-        for day in plan.days {
-            for meal in day.meals {
+        for day in (plan.days ?? []) {
+            for meal in (day.meals ?? []) {
                 let parts = meal.ingredients.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 for part in parts where !part.isEmpty {
                     allIngredients.insert(part)

@@ -9,7 +9,7 @@ final class AnalyticsViewModelTests: XCTestCase {
     var repository: SummaryRepository!
 
     override func setUpWithError() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         container = try ModelContainer(for: DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
         repository = SummaryRepository(modelContainer: container)
         viewModel = AnalyticsViewModel(summaryRepository: repository)

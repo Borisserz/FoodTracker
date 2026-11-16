@@ -23,7 +23,7 @@ enum AnalyticsMacro: String, Identifiable {
 
     var id: String { self.rawValue }
 
-    var color: Color {
+    @MainActor var color: Color {
         switch self {
         case .protein: return .themePeach
         case .fat: return .themeYellow
@@ -75,7 +75,7 @@ enum AnalyticsMicro: String, CaseIterable, Identifiable {
         }
     }
 
-    var color: Color {
+    @MainActor var color: Color {
         switch self {
         case .omega3: return .purple
         case .potassium: return .pink
@@ -784,7 +784,7 @@ struct AIHydrationAnalyticsCard: View {
         if let targetSummary = targetSummary {
             let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
             context.insert(newBeverage)
-            targetSummary.beverages.append(newBeverage)
+            targetSummary.addBeverage(newBeverage)
             try? context.save()
             onUpdate()
             
@@ -812,9 +812,9 @@ struct AIHydrationAnalyticsCard: View {
             }
         }
         if let targetSummary = targetSummary {
-            if let lastWater = targetSummary.beverages.last(where: { $0.name == "Water" }) {
-                if let index = targetSummary.beverages.firstIndex(of: lastWater) {
-                    targetSummary.beverages.remove(at: index)
+            if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" }) {
+                if let index = targetSummary.beverages?.firstIndex(of: lastWater) {
+                    targetSummary.beverages?.remove(at: index)
                 }
                 context.delete(lastWater)
                 try? context.save()
@@ -1382,7 +1382,7 @@ struct TopMicroSourcesSheetView: View {
 
     private var topFoods: [FoodItem] {
         guard let summary = summary else { return [] }
-        let allFoods = summary.meals.flatMap { $0.foodItems }
+        let allFoods = (summary.meals ?? []).flatMap { $0.foodItems ?? [] }
         switch micro {
         case .omega3: return Array(allFoods.filter { $0.omega3 > 0 }.sorted { $0.omega3 > $1.omega3 }.prefix(3))
         case .potassium: return Array(allFoods.filter { $0.potassium > 0 }.sorted { $0.potassium > $1.potassium }.prefix(3))

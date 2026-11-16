@@ -729,6 +729,7 @@ struct OnboardingWarpScreen: View {
 }
 
 // MARK: - Warp Engine
+@MainActor
 class WarpEngine {
     struct Star { var x, y, z, pz: Double; var color: Color }
     var stars: [Star] = []

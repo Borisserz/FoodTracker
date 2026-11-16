@@ -9,34 +9,15 @@ struct SwissBentoOnboardingFlow: View {
     @State private var metrics = OnboardingMetrics()
     
     // Live calculated nutrition metrics
-    private var calculatedBMR: Int {
-        // Mifflin-St Jeor Formula
-        let s = 5 // Male approx baseline
-        let bmr = Double(10 * metrics.weight) + (6.25 * Double(metrics.height)) - Double(5 * metrics.age) + Double(s)
-        return max(1200, Int(bmr))
+    private var blueprint: MetabolicBlueprint {
+        MetabolicBlueprintCalculator.calculate(for: metrics)
     }
-    
-    private var dailyTargetCalories: Int {
-        let base = calculatedBMR
-        let multiplier: Double
-        switch metrics.activityLevel {
-        case .none, .office: multiplier = 1.2
-        case .light: multiplier = 1.375
-        case .active: multiplier = 1.55
-        case .beast: multiplier = 1.725
-        }
-        let tdee = Double(base) * multiplier
-        
-        switch metrics.goal {
-        case "Lose Weight": return Int(tdee - 450)
-        case "Build Muscle": return Int(tdee + 350)
-        default: return Int(tdee)
-        }
-    }
-    
-    private var targetProtein: Int { Int(Double(metrics.weight) * 2.1) }
-    private var targetCarbs: Int { max(100, (dailyTargetCalories - (targetProtein * 4) - (targetFats * 9)) / 4) }
-    private var targetFats: Int { Int(Double(dailyTargetCalories) * 0.25 / 9.0) }
+
+    private var calculatedBMR: Int { blueprint.bmr }
+    private var dailyTargetCalories: Int { blueprint.dailyCalories }
+    private var targetProtein: Int { blueprint.proteinGrams }
+    private var targetCarbs: Int { blueprint.carbsGrams }
+    private var targetFats: Int { blueprint.fatGrams }
     
     private let stageNames = ["INTRO", "BIOMETRICS", "PROTOCOL", "TOOLS", "BLUEPRINT"]
     
@@ -296,6 +277,18 @@ private struct Stage2GoalProtocolView: View {
                         let isSelected = metrics.goal == item.name
                         Button(action: {
                             metrics.goal = item.name
+                            switch item.name {
+                            case "Lose Weight":
+                                if metrics.targetWeight >= metrics.weight {
+                                    metrics.targetWeight = max(40, metrics.weight - 5)
+                                }
+                            case "Build Muscle":
+                                if metrics.targetWeight <= metrics.weight {
+                                    metrics.targetWeight = min(200, metrics.weight + 5)
+                                }
+                            default:
+                                metrics.targetWeight = metrics.weight
+                            }
                             let generator = UIImpactFeedbackGenerator(style: .medium)
                             generator.prepare()
                             generator.impactOccurred()
@@ -335,7 +328,17 @@ private struct Stage2GoalProtocolView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                
+
+                if metrics.goal != "Maintain Weight" {
+                    SwissTapeRuler(
+                        title: "Target Weight",
+                        unit: "kg",
+                        range: 40...200,
+                        value: $metrics.targetWeight
+                    )
+                    .padding(.horizontal, 20)
+                }
+
                 // Activity Level Chips
                 VStack(alignment: .leading, spacing: 10) {
                     Text("DAILY ACTIVITY EXPENDITURE")

@@ -25,7 +25,7 @@ struct CalendarCarouselView: View {
         }
         if summary.totalCalories > 0 {
             return .completed
-        } else if !summary.beverages.isEmpty || !summary.activities.isEmpty || summary.weight != nil {
+        } else if !(summary.beverages ?? []).isEmpty || !(summary.activities ?? []).isEmpty || summary.weight != nil {
             return .logged
         }
         return .empty

@@ -40,7 +40,7 @@ struct MetabolicTDEEGaugeView: View {
             }
         }
         
-        var color: Color {
+        @MainActor var color: Color {
             switch self {
             case .cut: return Color.cyan
             case .leanBulk: return Color.green

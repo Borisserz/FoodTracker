@@ -750,9 +750,9 @@ struct RecipeDetailView: View {
            try? context.save()
            dismiss()
        }
-    var totalProtein: Double { recipe.foodItems.reduce(0) { $0 + $1.protein } }
-    var totalFat: Double { recipe.foodItems.reduce(0) { $0 + $1.fats } }
-    var totalCarbs: Double { recipe.foodItems.reduce(0) { $0 + $1.carbs } }
+    var totalProtein: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.protein } }
+    var totalFat: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.fats } }
+    var totalCarbs: Double { (recipe.foodItems ?? []).reduce(0) { $0 + $1.carbs } }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -784,11 +784,11 @@ struct RecipeDetailView: View {
                     )
                     .padding(.horizontal, 20)
 
-                    if !recipe.foodItems.isEmpty {
+                    if let items = recipe.foodItems, !items.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Ingredients").font(.title2).bold()
                             VStack(spacing: 16) {
-                                ForEach(recipe.foodItems) { item in
+                                ForEach(items) { item in
                                     HStack {
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(item.name).font(.headline)
@@ -797,7 +797,7 @@ struct RecipeDetailView: View {
                                         }
                                         Spacer()
                                     }
-                                    if item.id != recipe.foodItems.last?.id {
+                                    if item.id != items.last?.id {
                                         Divider()
                                     }
                                 }
@@ -1049,12 +1049,12 @@ struct RecipeDetailView: View {
             guard let summary = summaries.first else { return }
 
             let newFood = recipe.toFoodItem()
-            if let meal = summary.meals.first(where: { $0.title == selectedMeal }) {
-                meal.foodItems.append(newFood)
+            if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
+                meal.addFoodItem(newFood)
             } else {
                 let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
                 context.insert(newMeal)
-                summary.meals.append(newMeal)
+                summary.addMeal(newMeal)
             }
             try? context.save()
         }
@@ -1062,10 +1062,11 @@ struct RecipeDetailView: View {
 
 extension CustomRecipe {
     func toAIChefRecipe() -> AIChefRecipe {
+        let items = foodItems ?? []
         let recipeSteps = directions.map { step in
             RecipeStep(instruction: step, imageName: "fork.knife", aiTip: nil)
         }
-        let ingredientNames = foodItems.map { "\($0.name) (\(Int($0.weight))g)" }
+        let ingredientNames = items.map { "\($0.name) (\(Int($0.weight))g)" }
         let diff: Int
         switch difficulty.lowercased() {
         case "easy": diff = 2
@@ -1077,9 +1078,9 @@ extension CustomRecipe {
             id: UUID().uuidString,
             title: name,
             calories: totalCalories,
-            protein: Int(foodItems.reduce(0.0) { $0 + $1.protein }),
-            fat: Int(foodItems.reduce(0.0) { $0 + $1.fats }),
-            carbs: Int(foodItems.reduce(0.0) { $0 + $1.carbs }),
+            protein: Int(items.reduce(0.0) { $0 + $1.protein }),
+            fat: Int(items.reduce(0.0) { $0 + $1.fats }),
+            carbs: Int(items.reduce(0.0) { $0 + $1.carbs }),
             heroImage: "fork.knife",
             cookTime: cookingTime,
             difficulty: diff,

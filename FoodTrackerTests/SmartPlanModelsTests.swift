@@ -8,7 +8,7 @@ final class SmartPlanModelsTests: XCTestCase {
     var context: ModelContext!
 
     override func setUpWithError() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         container = try ModelContainer(for: WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, configurations: config)
         context = container.mainContext
     }

@@ -10,7 +10,7 @@ final class AICoachViewModelTests: XCTestCase {
     var userRepository: UserRepository!
 
     override func setUpWithError() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         container = try ModelContainer(for: DailySummary.self, User.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
         repository = SummaryRepository(modelContainer: container)
         userRepository = UserRepository(modelContainer: container)
@@ -19,6 +19,7 @@ final class AICoachViewModelTests: XCTestCase {
         let sessionConfig = URLSessionConfiguration.ephemeral
         sessionConfig.protocolClasses = [MockURLProtocol.self]
         GeminiProxyClient.shared.session = URLSession(configuration: sessionConfig)
+        GeminiProxyClient.shared.tokenProvider = { ("mock-auth-token", "mock-appcheck-token") }
     }
 
     override func tearDownWithError() throws {
@@ -27,6 +28,7 @@ final class AICoachViewModelTests: XCTestCase {
         userRepository = nil
         container = nil
         GeminiProxyClient.shared.session = .shared
+        GeminiProxyClient.shared.tokenProvider = nil
         MockURLProtocol.requestHandler = nil
     }
 
@@ -62,7 +64,12 @@ final class AICoachViewModelTests: XCTestCase {
         let user = User(name: "Test", weight: 70, height: 175, age: 25)
         user.dailyCaloriesGoal = 2000
         let summary = DailySummary(date: Date())
-        summary.totalFoodCalories = 2500 // Over goal
+        let meal = Meal(
+            title: "Dinner",
+            date: Date(),
+            foodItems: [FoodItem(name: "Feast", weight: 500, calories: 2500, protein: 80, fats: 100, carbs: 300)]
+        )
+        summary.meals = [meal] // Over goal (2500 > 2000)
         
         MockURLProtocol.requestHandler = { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!

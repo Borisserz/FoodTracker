@@ -18,6 +18,7 @@ final class DIContainer: @unchecked Sendable {
     let userRepository: UserRepositoryProtocol
     let summaryRepository: SummaryRepositoryProtocol
 
+    @MainActor
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
         self.appState = AppStateManager()

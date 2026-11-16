@@ -261,10 +261,10 @@ class AINutritionService {
                         instructions: mealDTO.instructions,
                         prepTimeMinutes: mealDTO.prepTimeMinutes
                     )
-                    day.meals.append(meal)
+                    day.addMeal(meal)
                 }
                 
-                plan.days.append(day)
+                plan.addDay(day)
             }
             return plan
         }

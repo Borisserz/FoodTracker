@@ -103,7 +103,7 @@ struct FoodsDashboardView: View {
                                     FrequentMealRow(
                                         timeTag: meal.title,
                                         title: meal.date.formatted(date: .abbreviated, time: .shortened),
-                                        ingredients: meal.foodItems.map { $0.name }.joined(separator: ", "),
+                                        ingredients: (meal.foodItems ?? []).map { $0.name }.joined(separator: ", "),
                                         calories: "\(meal.totalCalories)",
                                         color: colorForMeal(meal.title),
                                         onDelete: { deleteMeal(meal) }

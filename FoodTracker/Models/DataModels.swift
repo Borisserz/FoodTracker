@@ -114,6 +114,7 @@ struct Achievement: Identifiable {
     var colorHex: String = ""
     var caloriesPerGlass: Int = 0
     var volumeMl: Double = 0.0
+    var parentDailySummary: DailySummary?
 
     init(date: Date = Date(), name: String, icon: String, colorHex: String, caloriesPerGlass: Int, volumeMl: Double = 250.0) {
         self.date = date
@@ -141,6 +142,8 @@ struct Achievement: Identifiable {
     var iron: Double = 0.0
     var vitaminC: Double = 0.0
     var vitaminD: Double = 0.0
+    var parentMeal: Meal?
+    var parentRecipe: CustomRecipe?
 
     init(name: String, weight: Double, calories: Int, protein: Double, fats: Double, carbs: Double,
          omega3: Double = 0, calcium: Double = 0, potassium: Double = 0,
@@ -158,39 +161,50 @@ struct Achievement: Identifiable {
 @Model final class Meal {
     var title: String = ""
     var date: Date = Date()
-    @Relationship(deleteRule: .cascade) var foodItems: [FoodItem] = []
+    @Relationship(deleteRule: .cascade, inverse: \FoodItem.parentMeal) var foodItems: [FoodItem]? = []
+    var parentDailySummary: DailySummary?
 
-    var totalCalories: Int { foodItems.reduce(0) { $0 + $1.calories } }
-    var totalProtein: Double { foodItems.reduce(0) { $0 + $1.protein } }
-    var totalFats: Double { foodItems.reduce(0) { $0 + $1.fats } }
-    var totalCarbs: Double { foodItems.reduce(0) { $0 + $1.carbs } }
+    var totalCalories: Int { (foodItems ?? []).reduce(0) { $0 + $1.calories } }
+    var totalProtein: Double { (foodItems ?? []).reduce(0) { $0 + $1.protein } }
+    var totalFats: Double { (foodItems ?? []).reduce(0) { $0 + $1.fats } }
+    var totalCarbs: Double { (foodItems ?? []).reduce(0) { $0 + $1.carbs } }
 
-    var totalOmega3: Double { foodItems.reduce(0) { $0 + $1.omega3 } }
-    var totalPotassium: Double { foodItems.reduce(0) { $0 + $1.potassium } }
-    var totalMagnesium: Double { foodItems.reduce(0) { $0 + $1.magnesium } }
-    var totalCalcium: Double { foodItems.reduce(0) { $0 + $1.calcium } }
-    var totalIron: Double { foodItems.reduce(0) { $0 + $1.iron } }
-    var totalVitaminC: Double { foodItems.reduce(0) { $0 + $1.vitaminC } }
-    var totalVitaminD: Double { foodItems.reduce(0) { $0 + $1.vitaminD } }
+    var totalOmega3: Double { (foodItems ?? []).reduce(0) { $0 + $1.omega3 } }
+    var totalPotassium: Double { (foodItems ?? []).reduce(0) { $0 + $1.potassium } }
+    var totalMagnesium: Double { (foodItems ?? []).reduce(0) { $0 + $1.magnesium } }
+    var totalCalcium: Double { (foodItems ?? []).reduce(0) { $0 + $1.calcium } }
+    var totalIron: Double { (foodItems ?? []).reduce(0) { $0 + $1.iron } }
+    var totalVitaminC: Double { (foodItems ?? []).reduce(0) { $0 + $1.vitaminC } }
+    var totalVitaminD: Double { (foodItems ?? []).reduce(0) { $0 + $1.vitaminD } }
 
     init(title: String, date: Date, foodItems: [FoodItem] = []) {
         self.title = title
         self.date = date
         self.foodItems = foodItems
     }
+
+    func addFoodItem(_ item: FoodItem) {
+        if foodItems == nil { foodItems = [] }
+        foodItems?.append(item)
+    }
+
+    func addFoodItems(_ items: [FoodItem]) {
+        if foodItems == nil { foodItems = [] }
+        foodItems?.append(contentsOf: items)
+    }
 }
 
 @Model final class CustomRecipe {
     var name: String = ""
     var info: String = ""
-    @Relationship(deleteRule: .cascade) var foodItems: [FoodItem] = []
+    @Relationship(deleteRule: .cascade, inverse: \FoodItem.parentRecipe) var foodItems: [FoodItem]? = []
     var cookingTime: Int = 0
     var difficulty: String = ""
 
     var servings: Int = 1
     var directions: [String] = []
 
-    var totalCalories: Int { foodItems.reduce(0) { $0 + $1.calories } }
+    var totalCalories: Int { (foodItems ?? []).reduce(0) { $0 + $1.calories } }
 
     init(name: String, info: String, foodItems: [FoodItem] = [], cookingTime: Int, difficulty: String, servings: Int = 1, directions: [String] = []) {
         self.name = name; self.info = info; self.foodItems = foodItems
@@ -206,6 +220,7 @@ struct Achievement: Identifiable {
     var durationMinutes: Int = 0
     var calories: Int = 0
     var date: Date = Date()
+    var parentDailySummary: DailySummary?
 
     init(title: String, icon: String, durationMinutes: Int, calories: Int, date: Date = Date()) {
         self.title = title
@@ -217,10 +232,10 @@ struct Achievement: Identifiable {
 }
 
 @Model final class DailySummary {
-    @Attribute(.unique) var date: Date = Date()
-    @Relationship(deleteRule: .cascade) var meals: [Meal] = []
-    @Relationship(deleteRule: .cascade) var beverages: [Beverage] = []
-    @Relationship(deleteRule: .cascade) var activities: [ActivityLog] = []
+    var date: Date = Date()
+    @Relationship(deleteRule: .cascade, inverse: \Meal.parentDailySummary) var meals: [Meal]? = []
+    @Relationship(deleteRule: .cascade, inverse: \Beverage.parentDailySummary) var beverages: [Beverage]? = []
+    @Relationship(deleteRule: .cascade, inverse: \ActivityLog.parentDailySummary) var activities: [ActivityLog]? = []
     var weight: Double?
     var activeCaloriesBurned: Int = 0
     var dayNote: String = ""
@@ -263,14 +278,30 @@ struct Achievement: Identifiable {
         self.stepsCount = 0
         self.workoutCalories = 0
     }
+
+    func addMeal(_ meal: Meal) {
+        if meals == nil { meals = [] }
+        meals?.append(meal)
+    }
+
+    func addBeverage(_ beverage: Beverage) {
+        if beverages == nil { beverages = [] }
+        beverages?.append(beverage)
+    }
+
+    func addActivity(_ activity: ActivityLog) {
+        if activities == nil { activities = [] }
+        activities?.append(activity)
+    }
 }
 
 extension CustomRecipe {
     func toFoodItem() -> FoodItem {
-        let totalWeight = foodItems.reduce(0) { $0 + $1.weight }
-        let totalProtein = foodItems.reduce(0) { $0 + $1.protein }
-        let totalFats = foodItems.reduce(0) { $0 + $1.fats }
-        let totalCarbs = foodItems.reduce(0) { $0 + $1.carbs }
+        let items = foodItems ?? []
+        let totalWeight = items.reduce(0) { $0 + $1.weight }
+        let totalProtein = items.reduce(0) { $0 + $1.protein }
+        let totalFats = items.reduce(0) { $0 + $1.fats }
+        let totalCarbs = items.reduce(0) { $0 + $1.carbs }
 
         return FoodItem(
             name: self.name,

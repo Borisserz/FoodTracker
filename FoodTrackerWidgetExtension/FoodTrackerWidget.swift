@@ -8,6 +8,7 @@ struct FoodTrackerWidgetBundle: WidgetBundle {
         MacroRingsWidget()
         MetabolicScoreWidget()
         ShoppingListWidget()
+        FastingActivityWidget()
     }
 }
 

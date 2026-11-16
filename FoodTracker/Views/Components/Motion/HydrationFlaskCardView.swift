@@ -16,7 +16,7 @@ struct HydrationFlaskCardView: View {
     }
     
     private var waterBeverages: [Beverage] {
-        summary.beverages.filter { $0.name == "Water" }.sorted { $0.date < $1.date }
+        (summary.beverages ?? []).filter { $0.name == "Water" }.sorted { $0.date < $1.date }
     }
     
     private var waterLiters: Double {
@@ -190,7 +190,7 @@ struct HydrationFlaskCardView: View {
                 context.insert(summary)
             }
             context.insert(newBeverage)
-            summary.beverages.append(newBeverage)
+            summary.addBeverage(newBeverage)
             try? context.save()
         }
         
@@ -209,8 +209,8 @@ struct HydrationFlaskCardView: View {
         guard let lastWater = waterBeverages.last else { return }
         
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-            if let index = summary.beverages.firstIndex(of: lastWater) {
-                summary.beverages.remove(at: index)
+            if let index = summary.beverages?.firstIndex(of: lastWater) {
+                summary.beverages?.remove(at: index)
             }
             context.delete(lastWater)
             try? context.save()

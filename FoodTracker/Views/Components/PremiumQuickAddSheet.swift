@@ -195,12 +195,12 @@ struct PremiumQuickAddSheet: View {
         let quickFood = FoodItem(name: "Quick Entry", weight: 0, calories: Int(quickCalories), protein: 0, fats: 0, carbs: 0)
         context.insert(quickFood)
 
-        if let snackMeal = summary.meals.first(where: { $0.title == "Snack" }) {
-            snackMeal.foodItems.append(quickFood)
+        if let snackMeal = (summary.meals ?? []).first(where: { $0.title == "Snack" }) {
+            snackMeal.addFoodItem(quickFood)
         } else {
             let newMeal = Meal(title: "Snack", date: selectedDate, foodItems: [quickFood])
             context.insert(newMeal)
-            summary.meals.append(newMeal)
+            summary.addMeal(newMeal)
         }
 
         try? context.save()

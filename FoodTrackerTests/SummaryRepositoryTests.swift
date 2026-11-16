@@ -6,7 +6,7 @@ final class SummaryRepositoryTests: XCTestCase {
     var container: ModelContainer!
 
     override func setUpWithError() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         container = try ModelContainer(for: DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
     }
 
@@ -24,6 +24,20 @@ final class SummaryRepositoryTests: XCTestCase {
         // Fetching again should return the same summary
         let summary2 = try await repo.ensureSummary(for: date)
         XCTAssertEqual(summary1.persistentModelID, summary2.persistentModelID)
+    }
+
+    func testEnsureSummarySameDayDifferentTimes() async throws {
+        let repo = SummaryRepository(modelContainer: container)
+        let calendar = Calendar.current
+        let morning = calendar.date(bySettingHour: 8, minute: 30, second: 0, of: Date())!
+        let evening = calendar.date(bySettingHour: 21, minute: 45, second: 0, of: Date())!
+
+        let s1 = try await repo.ensureSummary(for: morning)
+        let s2 = try await repo.ensureSummary(for: evening)
+
+        XCTAssertEqual(s1.persistentModelID, s2.persistentModelID)
+        let all = try await repo.fetchSummaries(startDate: calendar.startOfDay(for: morning), endDate: calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: morning))!)
+        XCTAssertEqual(all.count, 1)
     }
 
     func testStreakCalculation() async throws {
@@ -45,13 +59,19 @@ final class SummaryRepositoryTests: XCTestCase {
         var streak = try await repo.calculateCurrentStreak()
         XCTAssertEqual(streak, 0)
         
-        // Add calories to make them count
-        let meal = Meal(title: "Test", date: today, foodItems: [FoodItem(name: "Apple", weight: 100, calories: 100, protein: 0, fats: 0, carbs: 0)])
-        
-        s1.meals = [meal]
-        s2.meals = [meal]
-        s3.meals = [meal]
-        
+        // Add calories to make them count (each day owns its own Meal because of the inverse relationship)
+        let makeMeal: (Date) -> Meal = { d in
+            Meal(
+                title: "Test",
+                date: d,
+                foodItems: [FoodItem(name: "Apple", weight: 100, calories: 100, protein: 0, fats: 0, carbs: 0)]
+            )
+        }
+
+        s1.addMeal(makeMeal(today))
+        s2.addMeal(makeMeal(yesterday))
+        s3.addMeal(makeMeal(twoDaysAgo))
+
         try await repo.saveSummary(s1)
         try await repo.saveSummary(s2)
         try await repo.saveSummary(s3)

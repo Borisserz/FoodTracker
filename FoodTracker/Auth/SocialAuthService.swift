@@ -10,7 +10,7 @@ import AuthenticationServices
 import CryptoKit
 import FirebaseAuth
 import FirebaseCore
- import GoogleSignIn
+import GoogleSignIn
 import UIKit
 
 @MainActor
@@ -83,16 +83,21 @@ final class SocialAuthService {
           throw AuthError.noPresentingController
         }
         let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
-        guard let idToken = result.user.idToken?.tokenString else {
-           throw AuthError.invalidGoogleCredential
-        }
-        throw AuthError.invalidGoogleCredential
-
-        let credential = GoogleAuthProvider.credential(
-           withIDToken: idToken,
-           accessToken: result.user.accessToken.tokenString
-         )
+        let credential = try Self.makeGoogleCredential(
+            idToken: result.user.idToken?.tokenString,
+            accessToken: result.user.accessToken.tokenString
+        )
         try await linkOrSignIn(with: credential)
+    }
+
+    nonisolated static func makeGoogleCredential(idToken: String?, accessToken: String) throws -> AuthCredential {
+        guard let idToken, !idToken.isEmpty else {
+            throw AuthError.invalidGoogleCredential
+        }
+        return GoogleAuthProvider.credential(
+            withIDToken: idToken,
+            accessToken: accessToken
+        )
     }
 
     // MARK: - Linking core
@@ -207,20 +212,16 @@ final class SocialAuthService {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw AuthError.missingGoogleClientID
         }
-  GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-         guard let presenter = Self.topViewController() else {
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        guard let presenter = Self.topViewController() else {
             throw AuthError.noPresentingController
-         }
-         let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
-         guard let idToken = result.user.idToken?.tokenString else {
-            throw AuthError.invalidGoogleCredential
-         }
-        throw AuthError.invalidGoogleCredential
-         let credential = GoogleAuthProvider.credential(
-            withIDToken: idToken,
+        }
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
+        let credential = try Self.makeGoogleCredential(
+            idToken: result.user.idToken?.tokenString,
             accessToken: result.user.accessToken.tokenString
-         )
-         try await user.reauthenticate(with: credential)
+        )
+        try await user.reauthenticate(with: credential)
         // Google does not require token revocation for App Store account deletion.
     }
 

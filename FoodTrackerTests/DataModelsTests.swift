@@ -8,7 +8,7 @@ final class DataModelsTests: XCTestCase {
     var context: ModelContext!
 
     override func setUpWithError() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         container = try ModelContainer(for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self, DailySummary.self, ShoppingItem.self, WeightLog.self, AIChatSession.self, configurations: config)
         context = container.mainContext
     }
@@ -59,8 +59,8 @@ final class DataModelsTests: XCTestCase {
         let meal = Meal(title: "Breakfast", date: Date(), foodItems: [apple, banana])
         
         XCTAssertEqual(meal.totalCalories, 141)
-        XCTAssertEqual(meal.totalProtein, 1.4)
-        XCTAssertEqual(meal.totalFats, 0.5)
+        XCTAssertEqual(meal.totalProtein, 1.4, accuracy: 0.0001)
+        XCTAssertEqual(meal.totalFats, 0.5, accuracy: 0.0001)
         XCTAssertEqual(meal.totalCarbs, 37)
     }
 
@@ -89,5 +89,38 @@ final class DataModelsTests: XCTestCase {
         let remaining = summary.remainingCalories(userGoal: 2000)
         // (2000 + 300) - 280 = 2020
         XCTAssertEqual(remaining, 2020)
+    }
+
+    func testCloudKitSchemaCompatibility() throws {
+        let schema = Schema([
+            User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self,
+            ActivityLog.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
+            WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
+        ])
+
+        for entity in schema.entities {
+            XCTAssertTrue(
+                entity.uniquenessConstraints.isEmpty,
+                "CloudKit forbids @Attribute(.unique) on \(entity.name): \(entity.uniquenessConstraints)"
+            )
+
+            for attr in entity.attributes where !attr.isOptional {
+                XCTAssertNotNil(
+                    attr.defaultValue,
+                    "CloudKit requires defaultValue for non-optional attribute \(entity.name).\(attr.name)"
+                )
+            }
+
+            for rel in entity.relationships {
+                XCTAssertTrue(
+                    rel.isOptional,
+                    "CloudKit requires relationship \(entity.name).\(rel.name) to be optional"
+                )
+                XCTAssertNotNil(
+                    rel.inverseName,
+                    "CloudKit requires inverse relationship on \(entity.name).\(rel.name)"
+                )
+            }
+        }
     }
 }

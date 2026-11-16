@@ -1,11 +1,20 @@
 import Foundation
 import ActivityKit
 
+@MainActor
+protocol FastingLiveActivityManaging: AnyObject {
+    func startActivity(planName: String, targetHours: Int, startTime: Date)
+    func updateActivity(currentStage: String, progressPct: Double)
+    func endActivity()
+}
+
 @Observable
-final class FastingLiveActivityManager {
+final class FastingLiveActivityManager: FastingLiveActivityManaging {
     static let shared = FastingLiveActivityManager()
     
-    private var currentActivity: Activity<FastingAttributes>?
+    @ObservationIgnored private var currentActivity: Activity<FastingAttributes>?
+    @ObservationIgnored private var lastSentStage: String?
+    @ObservationIgnored private var lastSentProgress: Double = -1.0
     
     private init() {}
     
@@ -36,6 +45,8 @@ final class FastingLiveActivityManager {
                 content: content,
                 pushType: nil
             )
+            lastSentStage = "Anabolic"
+            lastSentProgress = 0.0
             print("Live Activity started successfully: \(currentActivity?.id ?? "")")
         } catch {
             print("Failed to start Live Activity: \(error.localizedDescription)")
@@ -44,6 +55,12 @@ final class FastingLiveActivityManager {
     
     func updateActivity(currentStage: String, progressPct: Double) {
         guard let activity = currentActivity else { return }
+        // Avoid spamming ActivityKit every 1-second timer tick unless stage changed or progress moved >= 1%
+        if currentStage == lastSentStage && abs(progressPct - lastSentProgress) < 0.01 {
+            return
+        }
+        lastSentStage = currentStage
+        lastSentProgress = progressPct
         
         let updatedState = FastingAttributes.ContentState(
             currentStage: currentStage,
@@ -78,6 +95,8 @@ final class FastingLiveActivityManager {
         Task {
             await activity.end(finalContent, dismissalPolicy: .default)
             currentActivity = nil
+            lastSentStage = nil
+            lastSentProgress = -1.0
         }
     }
 }

@@ -2,16 +2,6 @@ import WidgetKit
 import SwiftUI
 import ActivityKit
 
-// Import the module where FastingAttributes is located.
-// Assuming it's in the same target or shared.
-
-@main
-struct FoodTrackerWidgetsBundle: WidgetBundle {
-    var body: some Widget {
-        FastingActivityWidget()
-    }
-}
-
 struct FastingActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: FastingAttributes.self) { context in

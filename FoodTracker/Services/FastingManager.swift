@@ -2,6 +2,7 @@ import SwiftUI
 import Observation
 import UserNotifications
 
+@MainActor
 @Observable
 final class FastingManager {
     static let shared = FastingManager()
@@ -21,6 +22,8 @@ final class FastingManager {
         loadState()
     }
 
+    var liveActivityManager: FastingLiveActivityManaging = FastingLiveActivityManager.shared
+
     func startFast(plan: FastingPlan) {
         let now = Date()
         self.startTime = now
@@ -29,6 +32,7 @@ final class FastingManager {
         self.isFasting = true
 
         saveState()
+        liveActivityManager.startActivity(planName: plan.title, targetHours: plan.fastingHours, startTime: now)
         startUpdateTask()
         HapticManager.shared.impact(style: .heavy)
 
@@ -43,6 +47,7 @@ final class FastingManager {
 
         saveState()
         stopUpdateTask()
+        liveActivityManager.endActivity()
         HapticManager.shared.impact(style: .rigid)
 
         cancelFastingNotifications()
@@ -108,6 +113,7 @@ final class FastingManager {
 
         let totalTargetSeconds = Double(targetHours * 3600)
         progress = min(elapsedTime / totalTargetSeconds, 1.0)
+        liveActivityManager.updateActivity(currentStage: currentPhase.name, progressPct: progress)
     }
 
     private func saveState() {

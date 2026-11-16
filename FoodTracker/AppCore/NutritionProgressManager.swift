@@ -26,7 +26,7 @@ struct NutritionProgressManager {
         if n <= 1 { return 0 }
         let power = pow(multiplier, Double(n - 1))
         let total = baseXP * (power - 1) / (multiplier - 1)
-        return Int(total)
+        return Int(total.rounded())
     }
     
     var xpToNextLevel: Int {
