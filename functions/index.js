@@ -7,7 +7,7 @@ const { defineSecret } = require("firebase-functions/params");
 
 const AI_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const DEFAULT_AI_WEEKLY_LIMIT = 200;
-const UPSTREAM_TIMEOUT_MS = 45000;
+const UPSTREAM_TIMEOUT_MS = 22000;
 
 initializeApp();
 
@@ -19,25 +19,25 @@ const SERVICE_ACCOUNT =
   "firebase-adminsdk-fbsvc@serzhanovich-ecosystem-ce700.iam.gserviceaccount.com";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-// 10-model text fallback chain (verified live :free OpenRouter catalog + openrouter/free).
+// 10-model text fallback chain ordered by live reliability and structured JSON support.
 const TEXT_MODEL_CHAIN = [
-  "inclusionai/ling-3.2-flash:free",
+  "particle-ai/particle-1:free",
+  "nvidia/nemotron-3.5-super-vl:free",
   "baidu/ernie-5.5-flash-preview:free",
   "liquid/lfm-3-1.7b:free",
-  "particle-ai/particle-1:free",
   "dots-studio/dots-3-note-preview:free",
-  "nvidia/nemotron-3.5-super-vl:free",
+  "inclusionai/ling-3.2-flash:free",
+  "recursive/flint-v1.0:free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
-  "recursive/flint-v1.0:free",
   "openrouter/free",
 ];
 
 // Multimodal fallback chain for food/menu photos (image-capable models only).
 const VISION_MODEL_CHAIN = [
   "nvidia/nemotron-3.5-super-vl:free",
-  "inclusionai/ling-3.2-flash:free",
   "particle-ai/particle-1:free",
+  "inclusionai/ling-3.2-flash:free",
   "dots-studio/dots-3-note-preview:free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
@@ -422,20 +422,35 @@ function openRouterHeaders(apiKey) {
   };
 }
 
+function shouldTryNextKeyForError(status, errText) {
+  if (status === 401 || status === 402) return true;
+  if (status === 429) {
+    return !String(errText || "").includes("upstream_provider_shared_pool");
+  }
+  return false;
+}
+
+function rotatedKeys(apiKeys) {
+  if (apiKeys.length <= 1) return apiKeys;
+  const offset = Math.floor(Math.random() * apiKeys.length);
+  return [...apiKeys.slice(offset), ...apiKeys.slice(0, offset)];
+}
+
 async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
   const chain = modelChainForRequest(geminiBody, overrides);
   const expectJSON =
     geminiBody?.generationConfig?.responseMimeType === "application/json" ||
     Boolean(geminiBody?.generationConfig?.responseSchema);
+  const keys = rotatedKeys(apiKeys);
 
   let lastError = null;
-  for (const apiKey of apiKeys) {
-    for (const model of chain) {
-      const attempt = geminiBodyToOpenAI(geminiBody, {
-        streaming: false,
-        model,
-      });
+  for (const model of chain) {
+    const attempt = geminiBodyToOpenAI(geminiBody, {
+      streaming: false,
+      model,
+    });
 
+    for (const apiKey of keys) {
       try {
         const resp = await fetch(OPENROUTER_URL, {
           method: "POST",
@@ -449,6 +464,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
             `OpenRouter ${resp.status} ${model}: ${text.slice(0, 400)}`
           );
           console.warn(lastError.message);
+          if (!shouldTryNextKeyForError(resp.status, text)) break;
           continue;
         }
         let data;
@@ -456,7 +472,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
           data = JSON.parse(text);
         } catch (e) {
           lastError = new Error(`Non-JSON envelope from ${model}: ${e.message}`);
-          continue;
+          break;
         }
 
         const gemini = openAIToGeminiResponse(data, { expectJSON });
@@ -464,7 +480,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
         if (!outText) {
           lastError = new Error(`Empty completion from ${model}`);
           console.warn(lastError.message);
-          continue;
+          break;
         }
         if (expectJSON) {
           try {
@@ -474,13 +490,14 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
               `Invalid JSON output from ${model}: ${e.message}`
             );
             console.warn(lastError.message);
-            continue;
+            break;
           }
         }
         return gemini;
       } catch (e) {
         lastError = e;
         console.warn(`OpenRouter error on ${model}:`, e?.message || e);
+        break;
       }
     }
   }
@@ -564,11 +581,12 @@ exports.foodAiProxy = onRequest(
       }
 
       const chain = modelChainForRequest(body, settings);
+      const keys = rotatedKeys(apiKeys);
       let upstream = null;
       let lastError = null;
-      for (const apiKey of apiKeys) {
-        for (const model of chain) {
-          const attempt = geminiBodyToOpenAI(body, { streaming: true, model });
+      for (const model of chain) {
+        const attempt = geminiBodyToOpenAI(body, { streaming: true, model });
+        for (const apiKey of keys) {
           try {
             const resp = await fetch(OPENROUTER_URL, {
               method: "POST",
@@ -577,10 +595,12 @@ exports.foodAiProxy = onRequest(
               signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
             });
             if (!resp.ok || !resp.body) {
+              const errText = await resp.text();
               lastError = new Error(
-                `stream ${resp.status} ${model}: ${(await resp.text()).slice(0, 300)}`
+                `stream ${resp.status} ${model}: ${errText.slice(0, 300)}`
               );
               console.warn(lastError.message);
+              if (!shouldTryNextKeyForError(resp.status, errText)) break;
               continue;
             }
             upstream = resp;
@@ -588,6 +608,7 @@ exports.foodAiProxy = onRequest(
           } catch (e) {
             lastError = e;
             console.warn(`Stream attempt failed on ${model}:`, e?.message || e);
+            break;
           }
         }
         if (upstream) break;
@@ -647,6 +668,7 @@ module.exports._test = {
   STRUCTURED_MODELS,
   JSON_OBJECT_MODELS,
   parseApiKeys,
+  shouldTryNextKeyForError,
   hasImageContent,
   modelChainForRequest,
   geminiBodyToOpenAI,

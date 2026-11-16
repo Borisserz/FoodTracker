@@ -148,3 +148,16 @@ test("openAIStreamChunkToGemini converts SSE delta lines and DONE", () => {
   assert.equal(t.openAIStreamChunkToGemini("data: [DONE]"), "[DONE]");
   assert.equal(t.openAIStreamChunkToGemini(": keep-alive"), null);
 });
+
+test("shouldTryNextKeyForError only retries key on key-scoped errors", () => {
+  assert.equal(t.shouldTryNextKeyForError(401, "Invalid key"), true);
+  assert.equal(t.shouldTryNextKeyForError(402, "Insufficient credits"), true);
+  assert.equal(t.shouldTryNextKeyForError(429, "Per-key rate limit exceeded"), true);
+  assert.equal(
+    t.shouldTryNextKeyForError(429, '{"limit_source":"upstream_provider_shared_pool"}'),
+    false
+  );
+  assert.equal(t.shouldTryNextKeyForError(400, "invalid_image_url"), false);
+  assert.equal(t.shouldTryNextKeyForError(403, "not available in your region"), false);
+  assert.equal(t.shouldTryNextKeyForError(422, "media could not be screened"), false);
+});
