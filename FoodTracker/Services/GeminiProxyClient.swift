@@ -41,9 +41,18 @@ private enum DeviceInstallIdentifier {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
             kSecValueData as String: data
         ]
-        SecItemAdd(query as CFDictionary, nil)
+        let status = SecItemAdd(query as CFDictionary, nil)
+        if status == errSecDuplicateItem {
+            let matchQuery: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: service,
+                kSecAttrAccount as String: account
+            ]
+            SecItemUpdate(matchQuery as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+        }
     }
 }
 
@@ -57,6 +66,7 @@ final class GeminiProxyClient {
 
     @ObservationIgnored var session: URLSession
     @ObservationIgnored var tokenProvider: (() async throws -> (authToken: String, appCheckToken: String))?
+    @ObservationIgnored var refreshingTokenProvider: ((_ forceRefresh: Bool) async throws -> (authToken: String, appCheckToken: String))?
 
     private init() {
         let config = URLSessionConfiguration.default
@@ -108,8 +118,6 @@ final class GeminiProxyClient {
     // MARK: - Core Request
 
     private func performRequest(prompt: String, images: [(base64: String, mime: String)] = [], forceJSON: Bool) async throws -> String {
-        let (authToken, appCheckToken) = try await getFirebaseTokens()
-
         let configuredURL = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.remoteConfigKey)
         let url = AIProxyEndpoint.resolve(configured: configuredURL)
 
@@ -140,16 +148,13 @@ final class GeminiProxyClient {
             ],
             "generationConfig": generationConfig
         ]
+        let encodedBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-        request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
-        request.setValue(DeviceInstallIdentifier.current, forHTTPHeaderField: "X-Device-Install-ID")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await executeAuthorizedRequest(
+            url: url,
+            body: encodedBody,
+            allowRefreshRetry: refreshingTokenProvider != nil || tokenProvider == nil
+        )
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             if httpResponse.statusCode == 429 {
@@ -188,7 +193,45 @@ final class GeminiProxyClient {
 
     // MARK: - Auth (moved from duplicated code in services)
 
-    private func getFirebaseTokens() async throws -> (authToken: String, appCheckToken: String) {
+    private func executeAuthorizedRequest(
+        url: URL,
+        body: Data,
+        allowRefreshRetry: Bool
+    ) async throws -> (Data, URLResponse) {
+        let (authToken, appCheckToken) = try await getFirebaseTokens(forceRefresh: false)
+        var request = makeAuthorizedRequest(url: url, body: body, authToken: authToken, appCheckToken: appCheckToken)
+        let (data, response) = try await session.data(for: request)
+
+        if allowRefreshRetry,
+           let httpResponse = response as? HTTPURLResponse,
+           httpResponse.statusCode == 401 {
+            let (freshAuth, freshAppCheck) = try await getFirebaseTokens(forceRefresh: true)
+            request = makeAuthorizedRequest(url: url, body: body, authToken: freshAuth, appCheckToken: freshAppCheck)
+            return try await session.data(for: request)
+        }
+        return (data, response)
+    }
+
+    private func makeAuthorizedRequest(
+        url: URL,
+        body: Data,
+        authToken: String,
+        appCheckToken: String
+    ) -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+        request.setValue(DeviceInstallIdentifier.current, forHTTPHeaderField: "X-Device-Install-ID")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = body
+        return request
+    }
+
+    private func getFirebaseTokens(forceRefresh: Bool = false) async throws -> (authToken: String, appCheckToken: String) {
+        if let refreshingTokenProvider {
+            return try await refreshingTokenProvider(forceRefresh)
+        }
         if let tokenProvider {
             return try await tokenProvider()
         }
@@ -198,8 +241,8 @@ final class GeminiProxyClient {
         } else {
             user = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
         }
-        let authToken = try await user.getIDToken()
-        let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: false).token
+        let authToken = try await user.getIDToken(forcingRefresh: forceRefresh)
+        let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: forceRefresh).token
         return (authToken, appCheckToken)
     }
 

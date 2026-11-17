@@ -28,6 +28,8 @@ struct SmartScannerView: View {
     @State private var isLoading: Bool = false
     @State private var notFoundError: Bool = false
     @State private var scanErrorMessage: String? = nil
+    @State private var barcodeTask: Task<Void, Never>? = nil
+    @State private var aiTask: Task<Void, Never>? = nil
 
     enum ScannerMode { case barcode, mealAI, menuAI }
 
@@ -48,7 +50,24 @@ struct SmartScannerView: View {
                     .onAppear { cameraManager.checkPermissionAndStart() }
                     .onDisappear { cameraManager.stop() }
             } else {
-                Color.black.ignoresSafeArea()
+                ZStack {
+                    Color.black.ignoresSafeArea()
+                    VStack(spacing: 16) {
+                        Image(systemName: "barcode.viewfinder")
+                            .font(.system(size: 48))
+                            .foregroundColor(.white.opacity(0.6))
+                        Text("Live barcode scanning is unavailable on this device.")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                        Button("Use Meal AI Photo") {
+                            selectedMode = .mealAI
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.themePink)
+                    }
+                }
             }
 
             if selectedMode == .barcode {
@@ -275,11 +294,22 @@ struct SmartScannerView: View {
         }
         .onDisappear {
             isScanning = false
+            barcodeTask?.cancel()
+            barcodeTask = nil
+            aiTask?.cancel()
+            aiTask = nil
 
             if isFlashlightOn { toggleFlashlight() }
             cameraManager.stop()
         }
         .onChange(of: selectedMode) { _, newMode in
+            barcodeTask?.cancel()
+            barcodeTask = nil
+            aiTask?.cancel()
+            aiTask = nil
+            isLoading = false
+            isAnalyzingAI = false
+            recognizedBarcode = nil
 
             if isFlashlightOn { toggleFlashlight() }
 
@@ -332,20 +362,21 @@ struct SmartScannerView: View {
     }
 
     private func searchBarcodeInDatabase(barcode: String) {
+        guard !isLoading else { return }
         isLoading = true
         notFoundError = false
+        barcodeTask?.cancel()
 
-        Task {
-            if let foodItem = await NetworkManager.shared.fetchProduct(barcode: barcode) {
-                await MainActor.run {
-                    isLoading = false
+        barcodeTask = Task {
+            let foodItem = await NetworkManager.shared.fetchProduct(barcode: barcode)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                isLoading = false
+                if let foodItem {
                     HapticManager.shared.impact(style: .heavy)
                     onProductFound(foodItem)
                     dismiss()
-                }
-            } else {
-                await MainActor.run {
-                    isLoading = false
+                } else {
                     notFoundError = true
                     HapticManager.shared.impact(style: .rigid)
                 }
@@ -354,10 +385,13 @@ struct SmartScannerView: View {
     }
 
     private func analyzeMealWithAI(_ image: UIImage) {
+        guard !isAnalyzingAI else { return }
         withAnimation { isAnalyzingAI = true }
+        aiTask?.cancel()
 
-        Task {
+        aiTask = Task {
             let result = await VertexAIManager.shared.analyzeFoodImageDetailed(image)
+            guard !Task.isCancelled else { return }
             await MainActor.run {
                 withAnimation { isAnalyzingAI = false }
                 switch result {
@@ -379,21 +413,25 @@ struct SmartScannerView: View {
     }
 
     private func analyzeMenuWithAI(_ image: UIImage) {
+        guard !isAnalyzingAI else { return }
         withAnimation { isAnalyzingAI = true }
-        Task {
-            if let response = await VertexAIManager.shared.analyzeMenuImage(image, remainingCalories: remainingCalories, targetProtein: remainingProtein) {
-                await MainActor.run {
+        aiTask?.cancel()
+        aiTask = Task {
+            let response = await VertexAIManager.shared.analyzeMenuImage(image, remainingCalories: remainingCalories, targetProtein: remainingProtein)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                cameraManager.capturedImage = nil
+                if let response {
                     withAnimation(.spring()) {
                         isAnalyzingAI = false
                         menuResponse = response
                         HapticManager.shared.impact(style: .heavy)
                     }
-                }
-            } else {
-                await MainActor.run {
-                    withAnimation { isAnalyzingAI = false }
-                    cameraManager.capturedImage = nil
-                    scanErrorMessage = String(localized: "Couldn't analyze this menu right now. Please try a clearer photo.")
+                } else {
+                    withAnimation {
+                        isAnalyzingAI = false
+                        scanErrorMessage = String(localized: "Couldn't analyze this menu right now. Please try a clearer photo.")
+                    }
                 }
             }
         }
@@ -431,6 +469,7 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     private let photoOutput = AVCapturePhotoOutput()
     private let sessionQueue = DispatchQueue(label: "com.borisdev.FoodTracker.cameraSession")
     private var isConfigured = false
+    private var shouldBeRunning = false
 
     func checkPermissionAndStart() {
         guard AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) != nil else {
@@ -458,67 +497,76 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     }
 
     private func setupAndStart() {
-        guard !isConfigured else {
-            if !session.isRunning {
-                sessionQueue.async { self.session.startRunning() }
+        shouldBeRunning = true
+        sessionQueue.async { [weak self] in
+            guard let self, self.shouldBeRunning else { return }
+
+            if self.isConfigured {
+                if !self.session.isRunning {
+                    self.session.startRunning()
+                }
+                return
             }
-            return
-        }
 
-        session.beginConfiguration()
-        session.sessionPreset = .photo
+            self.session.beginConfiguration()
+            self.session.sessionPreset = .photo
 
-        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-              let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
-              session.canAddInput(videoInput) else {
-            session.commitConfiguration()
-            isCameraUnavailable = true
-            return
-        }
-
-        do {
-            try videoDevice.lockForConfiguration()
-            if videoDevice.isFocusModeSupported(.continuousAutoFocus) {
-                videoDevice.focusMode = .continuousAutoFocus
+            guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+                  let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
+                  self.session.canAddInput(videoInput) else {
+                self.session.commitConfiguration()
+                DispatchQueue.main.async { self.isCameraUnavailable = true }
+                return
             }
-            if videoDevice.isExposureModeSupported(.continuousAutoExposure) {
-                videoDevice.exposureMode = .continuousAutoExposure
+
+            do {
+                try videoDevice.lockForConfiguration()
+                if videoDevice.isFocusModeSupported(.continuousAutoFocus) {
+                    videoDevice.focusMode = .continuousAutoFocus
+                }
+                if videoDevice.isExposureModeSupported(.continuousAutoExposure) {
+                    videoDevice.exposureMode = .continuousAutoExposure
+                }
+                if videoDevice.isLowLightBoostSupported {
+                    videoDevice.automaticallyEnablesLowLightBoostWhenAvailable = true
+                }
+                videoDevice.isSubjectAreaChangeMonitoringEnabled = true
+                videoDevice.unlockForConfiguration()
+            } catch {
+                print("❌ Failed to configure camera: \(error.localizedDescription)")
             }
-            if videoDevice.isLowLightBoostSupported {
-                videoDevice.automaticallyEnablesLowLightBoostWhenAvailable = true
+
+            self.session.addInput(videoInput)
+
+            if self.session.canAddOutput(self.photoOutput) {
+                self.session.addOutput(self.photoOutput)
             }
-            videoDevice.isSubjectAreaChangeMonitoringEnabled = true
-            videoDevice.unlockForConfiguration()
-        } catch {
-            print("❌ Failed to configure camera: \(error.localizedDescription)")
-        }
 
-        session.addInput(videoInput)
+            self.session.commitConfiguration()
+            self.isConfigured = true
 
-        if session.canAddOutput(photoOutput) {
-            session.addOutput(photoOutput)
-        }
-
-        session.commitConfiguration()
-        isConfigured = true
-
-        sessionQueue.async {
-            self.session.startRunning()
+            if self.shouldBeRunning {
+                self.session.startRunning()
+            }
         }
     }
 
     func stop() {
-        if session.isRunning {
-            sessionQueue.async {
+        shouldBeRunning = false
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
+            if self.session.isRunning {
                 self.session.stopRunning()
             }
         }
     }
 
     func takePhoto() {
-        guard !isCameraUnavailable, isConfigured else { return }
-        let settings = AVCapturePhotoSettings()
-        photoOutput.capturePhoto(with: settings, delegate: self)
+        sessionQueue.async { [weak self] in
+            guard let self, self.isConfigured, self.session.isRunning else { return }
+            let settings = AVCapturePhotoSettings()
+            self.photoOutput.capturePhoto(with: settings, delegate: self)
+        }
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {

@@ -61,6 +61,7 @@ struct BeforeAfterView: View {
     @State private var analysisResult: VertexAIManager.TransformationAnalysisDTO?
     @State private var analysisError: String?
     @State private var didRestorePersisted = false
+    @State private var analysisTask: Task<Void, Never>?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -72,6 +73,8 @@ struct BeforeAfterView: View {
                 
                 if beforeImage != nil || afterImage != nil {
                     Button("Reset") {
+                        analysisTask?.cancel()
+                        analysisTask = nil
                         withAnimation {
                             beforeItem = nil
                             afterItem = nil
@@ -124,25 +127,27 @@ struct BeforeAfterView: View {
         }
         .onAppear {
             guard !didRestorePersisted else { return }
-            didRestorePersisted = true
             beforeImage = BeforeAfterStorage.loadImage(slot: "before")
             afterImage = BeforeAfterStorage.loadImage(slot: "after")
             analysisResult = BeforeAfterStorage.loadAnalysis()
+            didRestorePersisted = true
         }
-        .onChange(of: beforeImage) { _, newValue in
+        .onChange(of: beforeImage) { oldValue, newValue in
             guard didRestorePersisted, let newValue else { return }
+            guard oldValue !== newValue else { return }
             BeforeAfterStorage.saveImage(newValue, slot: "before")
             analysisResult = nil
             if afterImage != nil {
-                triggerAnalysis()
+                triggerAnalysis(force: true)
             }
         }
-        .onChange(of: afterImage) { _, newValue in
+        .onChange(of: afterImage) { oldValue, newValue in
             guard didRestorePersisted, let newValue else { return }
+            guard oldValue !== newValue else { return }
             BeforeAfterStorage.saveImage(newValue, slot: "after")
             analysisResult = nil
             if beforeImage != nil {
-                triggerAnalysis()
+                triggerAnalysis(force: true)
             }
         }
     }
@@ -319,10 +324,15 @@ struct BeforeAfterView: View {
             .cornerRadius(16)
         }
         .frame(height: 350)
-        .animation(.interactiveSpring, value: sliderPosition)
+        .animation(isDragging ? nil : .interactiveSpring, value: sliderPosition)
     }
     
     private func triggerAnalysis(force: Bool = false) {
+        if force {
+            analysisTask?.cancel()
+            analysisTask = nil
+            isAnalyzing = false
+        }
         guard !isAnalyzing else { return }
         if !force && analysisResult != nil { return }
         guard let before = beforeImage, let after = afterImage else { return }
@@ -331,7 +341,7 @@ struct BeforeAfterView: View {
         analysisError = nil
         let goal = users.first?.weightGoalType
 
-        Task {
+        analysisTask = Task {
             HapticManager.shared.impact(style: .medium)
             do {
                 let result = try await VertexAIManager.shared.analyzeBeforeAfterPhotos(
@@ -339,6 +349,7 @@ struct BeforeAfterView: View {
                     after: after,
                     goal: goal
                 )
+                guard !Task.isCancelled else { return }
                 await MainActor.run {
                     BeforeAfterStorage.saveAnalysis(result)
                     HapticManager.shared.notification(type: .success)
@@ -348,6 +359,7 @@ struct BeforeAfterView: View {
                     }
                 }
             } catch {
+                guard !Task.isCancelled else { return }
                 await MainActor.run {
                     HapticManager.shared.notification(type: .error)
                     withAnimation {

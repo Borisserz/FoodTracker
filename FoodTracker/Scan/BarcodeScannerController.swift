@@ -20,6 +20,8 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
+        guard context.coordinator.lastIsScanning != isScanning else { return }
+        context.coordinator.lastIsScanning = isScanning
         if isScanning {
             try? uiViewController.startScanning()
         } else {
@@ -33,6 +35,7 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
 
     class Coordinator: NSObject, DataScannerViewControllerDelegate {
         var parent: DataScannerRepresentable
+        var lastIsScanning: Bool?
 
         init(_ parent: DataScannerRepresentable) {
             self.parent = parent

@@ -146,8 +146,7 @@ final class VertexAIManager {
     }
 
     func analyzeMenuImage(_ image: UIImage, remainingCalories: Int, targetProtein: Int) async -> MenuAIResponse? {
-        guard let imageData = image.jpegData(compressionQuality: 0.3) else { return nil }
-        let base64Image = imageData.base64EncodedString()
+        guard let base64Image = encodedJPEG(image, maxDimension: 1024, quality: 0.45) else { return nil }
 
         let prompt = """
         You are an elite AI nutritionist and menu analyst. Read the restaurant menu in the image.

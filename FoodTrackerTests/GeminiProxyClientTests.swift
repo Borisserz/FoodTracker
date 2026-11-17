@@ -77,4 +77,42 @@ final class GeminiProxyClientTests: XCTestCase {
         XCTAssertEqual(decoded.protein, 35)
         XCTAssertEqual(decoded.carbs, 50)
     }
+
+    func testPerformRequestRetriesOnceWithForcedTokenRefreshOn401() async throws {
+        let client = GeminiProxyClient.shared
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let originalSession = client.session
+        client.session = URLSession(configuration: config)
+        defer {
+            MockURLProtocol.requestHandler = nil
+            client.session = originalSession
+            client.refreshingTokenProvider = nil
+        }
+
+        var refreshFlags: [Bool] = []
+        client.refreshingTokenProvider = { forceRefresh in
+            refreshFlags.append(forceRefresh)
+            return (authToken: forceRefresh ? "fresh-token" : "stale-token", appCheckToken: "appcheck")
+        }
+
+        var callCount = 0
+        MockURLProtocol.requestHandler = { request in
+            callCount += 1
+            if callCount == 1 {
+                XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer stale-token")
+                let resp = HTTPURLResponse(url: request.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!
+                return (resp, Data())
+            } else {
+                XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer fresh-token")
+                let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (resp, Data("Hello after refresh".utf8))
+            }
+        }
+
+        let reply = try await client.fetchText(prompt: "Hi")
+        XCTAssertEqual(reply, "Hello after refresh")
+        XCTAssertEqual(refreshFlags, [false, true])
+        XCTAssertEqual(callCount, 2)
+    }
 }

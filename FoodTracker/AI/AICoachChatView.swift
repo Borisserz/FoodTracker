@@ -18,6 +18,7 @@ struct AICoachChatView: View {
     @FocusState private var isInputFocused: Bool
 
     @State private var showHistorySheet = false
+    @State private var activeTask: Task<Void, Never>? = nil
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -110,17 +111,31 @@ struct AICoachChatView: View {
                 Button { showHistorySheet = true } label: {
                     Image(systemName: "clock.arrow.circlepath").foregroundColor(.primary)
                 }
+                .disabled(isGenerating)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button { clearChat() } label: {
                     Image(systemName: "square.and.pencil").foregroundColor(.primary)
                 }
+                .disabled(isGenerating)
             }
         }
         .sheet(isPresented: $showHistorySheet) {
-            FoodChatHistorySheet(sessions: allSessions) { session in
-                loadSession(session)
-            }
+            FoodChatHistorySheet(
+                sessions: allSessions,
+                onSelect: { session in
+                    loadSession(session)
+                },
+                onDeleteCurrent: { deletedSession in
+                    if currentSession?.persistentModelID == deletedSession.persistentModelID {
+                        clearChat()
+                    }
+                }
+            )
+        }
+        .onDisappear {
+            activeTask?.cancel()
+            activeTask = nil
         }
         .onAppear {
             TrackingManager.shared.track(.featureDiscovered(feature: "AI Coach Chat"))
@@ -145,39 +160,60 @@ struct AICoachChatView: View {
         isGenerating = true
         isInputFocused = false
 
-        var isFirstMessage = false
-        if currentSession == nil {
+        let isFirstMessage: Bool
+        let targetSession: AIChatSession
+        if let existing = currentSession {
+            isFirstMessage = false
+            targetSession = existing
+        } else {
             isFirstMessage = true
             let newSession = AIChatSession()
             context.insert(newSession)
             currentSession = newSession
+            targetSession = newSession
         }
 
-        currentSession?.messages.append(userMsg)
+        targetSession.messages.append(userMsg)
         try? context.save()
 
-        Task {
+        let priorMessages = Array(chatHistory.dropLast().suffix(8))
+        activeTask = Task {
             if isFirstMessage {
                 let title = await AINutritionService.shared.generateChatTitle(for: text)
-                await MainActor.run { self.currentSession?.title = title; try? context.save() }
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    targetSession.title = title
+                    try? self.context.save()
+                }
             }
 
             let userContext = "User's goal is \(userGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(userGoal - consumed) kcal."
 
-            let priorMessages = Array(chatHistory.dropLast().suffix(8))
             let aiResponseText = await AINutritionService.shared.sendChatMessage(
                 prompt: text,
                 userContext: userContext,
                 activeDiet: activeDiet,
                 history: priorMessages
-            ) ?? "I couldn't process that right now."
+            )
+            guard !Task.isCancelled else { return }
 
             await MainActor.run {
-                let aiMsg = AIChatMessage(isUser: false, text: aiResponseText, isAnimating: true)
-                self.chatHistory.append(aiMsg)
-                self.currentSession?.messages.append(aiMsg)
-                try? self.context.save()
                 self.isGenerating = false
+                guard self.currentSession?.persistentModelID == targetSession.persistentModelID else { return }
+                if let aiResponseText {
+                    let aiMsg = AIChatMessage(isUser: false, text: aiResponseText, isAnimating: true)
+                    self.chatHistory.append(aiMsg)
+                    targetSession.messages.append(aiMsg)
+                    try? self.context.save()
+                } else {
+                    // Show transient error message in UI without persisting fake AI text into SwiftData history.
+                    let errorMsg = AIChatMessage(
+                        isUser: false,
+                        text: String(localized: "I couldn't process that right now."),
+                        isAnimating: false
+                    )
+                    self.chatHistory.append(errorMsg)
+                }
             }
         }
     }
@@ -297,6 +333,7 @@ struct FoodAILoadingIndicator: View {
 struct FoodChatHistorySheet: View {
     let sessions: [AIChatSession]
     var onSelect: (AIChatSession) -> Void
+    var onDeleteCurrent: ((AIChatSession) -> Void)? = nil
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
 
@@ -317,7 +354,11 @@ struct FoodChatHistorySheet: View {
                         }
                     }
                     .onDelete { indexSet in
-                        for i in indexSet { context.delete(sessions[i]) }
+                        for i in indexSet {
+                            let session = sessions[i]
+                            onDeleteCurrent?(session)
+                            context.delete(session)
+                        }
                         try? context.save()
                     }
                 }

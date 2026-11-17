@@ -90,10 +90,15 @@ class NetworkManager {
     }
 
     private func searchFromOpenFoodFacts(query: String) async -> [FoodItem] {
-        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return [] }
-
-        let urlString = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=\(encodedQuery)&search_simple=1&action=process&json=1&page_size=15"
-        guard let url = URL(string: urlString) else { return [] }
+        var components = URLComponents(string: "https://world.openfoodfacts.org/cgi/search.pl")
+        components?.queryItems = [
+            URLQueryItem(name: "search_terms", value: query),
+            URLQueryItem(name: "search_simple", value: "1"),
+            URLQueryItem(name: "action", value: "process"),
+            URLQueryItem(name: "json", value: "1"),
+            URLQueryItem(name: "page_size", value: "15")
+        ]
+        guard let url = components?.url else { return [] }
 
         var request = URLRequest(url: url)
         request.setValue("FoodTrackerApp - iOS - Version 1.0", forHTTPHeaderField: "User-Agent")
@@ -127,14 +132,16 @@ class NetworkManager {
     }
 
     private func fetchBarcodeFromOFF(barcode: String) async -> FoodItem? {
-        let urlString = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json"
+        guard let encodedBarcode = barcode.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else { return nil }
+        let urlString = "https://world.openfoodfacts.org/api/v0/product/\(encodedBarcode).json"
         guard let url = URL(string: urlString) else { return nil }
 
         var request = URLRequest(url: url)
         request.setValue("FoodTrackerApp/1.0", forHTTPHeaderField: "User-Agent")
 
         do {
-            let (data, _) = try await session.data(for: request)
+            let (data, response) = try await session.data(for: request)
+            guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let status = json["status"] as? Int, status == 1,
                   let p = json["product"] as? [String: Any],

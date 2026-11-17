@@ -259,8 +259,7 @@ class AINutritionService {
                "meals": [
                   {
                     "title": "String",
-                    "type": "Breakfast | Lunch | Dinner | Snack (keep EXACT English key)"
-        \(languageInstruction) — translate titles, ingredients, and instructions ONLY; keep JSON keys and `"type"` values in English ("Breakfast", "Lunch", "Dinner", "Snack").,
+                    "type": "Breakfast | Lunch | Dinner | Snack",
                     "calories": Int,
                     "protein": Int,
                     "carbs": Int,
@@ -273,6 +272,7 @@ class AINutritionService {
              }
           ]
         }
+        CRITICAL: Keep JSON keys and "type" values strictly in English ("Breakfast", "Lunch", "Dinner", "Snack"). Translate ONLY "title", "ingredients", and "instructions".
         Do not include markdown tags. Only output the raw JSON. Ensure all arrays have 7 items for days, and 4 items for meals.
         """
         

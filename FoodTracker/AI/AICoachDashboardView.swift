@@ -169,10 +169,12 @@ struct AICoachDashboardView: View {
             }
             .sheet(isPresented: Binding(get: { viewModel?.hydrationAdvice != nil }, set: { if !$0 { viewModel?.hydrationAdvice = nil } })) {
                 if let advice = viewModel?.hydrationAdvice {
-                    HydrationFixResultSheet(advice: advice, color: .cyan)
-                        .presentationDetents([.height(320)])
-                        .presentationCornerRadius(32)
-                        .presentationDragIndicator(.visible)
+                    HydrationFixResultSheet(advice: advice, color: .cyan) {
+                        logQuickWaterGlass()
+                    }
+                    .presentationDetents([.height(320)])
+                    .presentationCornerRadius(32)
+                    .presentationDragIndicator(.visible)
                 }
             }
             .onAppear {
@@ -190,6 +192,23 @@ struct AICoachDashboardView: View {
                 Button("OK", role: .cancel) { viewModel?.errorMessage = nil }
             } message: {
                 Text(viewModel?.errorMessage ?? "")
+            }
+        }
+    }
+
+    private func logQuickWaterGlass() {
+        let logDate = Calendar.current.isDateInToday(selectedDate) ? Date() : selectedDate
+        let summary = DailySummary.fetchOrCreate(for: selectedDate, in: context)
+        let water = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        context.insert(water)
+        summary.addBeverage(water)
+        try? context.save()
+        WidgetReloader.reloadAll()
+        HapticManager.shared.notification(type: .success)
+
+        if currentUser?.isHealthKitEnabled == true {
+            Task {
+                await HealthKitManager.shared.saveWater(liters: 0.25, date: logDate)
             }
         }
     }
@@ -804,6 +823,7 @@ struct HydrationFixResultSheet: View {
     @Environment(\.dismiss) var dismiss
     let advice: HydrationAdviceDTO
     let color: Color
+    var onDrinkNow: (() -> Void)? = nil
 
     var body: some View {
         ZStack {
@@ -859,7 +879,10 @@ struct HydrationFixResultSheet: View {
                             .cornerRadius(20)
                     }
 
-                    Button(action: { dismiss() }) {
+                    Button(action: {
+                        onDrinkNow?()
+                        dismiss()
+                    }) {
                         Text("Drink Now")
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
