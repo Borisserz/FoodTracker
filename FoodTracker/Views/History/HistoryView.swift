@@ -220,7 +220,7 @@ struct RecipesHeroCard: View {
                                 .background(Color.themePink)
                                 .clipShape(Capsule())
                             
-                            Text("600+ DISHES")
+                            Text("CHEF COLLECTION")
                                 .font(.system(.caption2, design: .rounded, weight: .bold))
                                 .foregroundStyle(Color.themeYellow)
                         }
@@ -229,7 +229,7 @@ struct RecipesHeroCard: View {
                             .font(.system(.title3, design: .rounded, weight: .heavy))
                             .foregroundStyle(.white)
                         
-                        Text("Custom meals, step-by-step videos, and chef creations.")
+                        Text("Custom meals, balanced macros, and chef creations.")
                             .font(.system(.caption, weight: .medium))
                             .foregroundStyle(.white.opacity(0.85))
                             .lineLimit(1)
@@ -258,7 +258,7 @@ struct RecipesHeroCard: View {
         }
         .buttonStyle(BounceButtonStyle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Recipes: Explore Healthy Cooking. 600+ dishes, custom meals, and step-by-step videos.")
+        .accessibilityLabel("Recipes: Explore Healthy Cooking. Custom meals, balanced macros, and chef creations.")
         .accessibilityAddTraits(.isButton)
     }
 }

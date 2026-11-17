@@ -1,6 +1,35 @@
 import Foundation
 import SwiftData
 
+/// Activity intensity levels selectable during onboarding.
+enum ActivityType: String, CaseIterable {
+    case none = "Пока не выбрано"
+    case office = "Офисный дзен"
+    case light = "Легкий тонус"
+    case active = "Активный метаболизм"
+    case beast = "Турбо-режим"
+
+    var emoji: String {
+        switch self {
+        case .none: return "😶"
+        case .office: return "👨‍💻"
+        case .light: return "🚶‍♂️"
+        case .active: return "⚡️"
+        case .beast: return "🔥"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .none: return ""
+        case .office: return "Сидячая работа, минимум шагов"
+        case .light: return "Прогулки, йога 1-2 раза в неделю"
+        case .active: return "Спорт 3-4 раза, регулярное движение"
+        case .beast: return "Ежедневные нагрузки, высокий расход калорий"
+        }
+    }
+}
+
 /// Computed daily energy and macro targets shared between onboarding preview UI and user persistence.
 struct MetabolicBlueprint: Equatable {
     let bmr: Int

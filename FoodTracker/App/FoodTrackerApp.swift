@@ -39,7 +39,7 @@ struct FoodTrackerApp: App {
                             .font(.title).bold()
                         Text("Please update to the latest version to continue.")
                             .multilineTextAlignment(.center).padding()
-                        Button("Update Now") { AppReviewManager.openAppStoreReview() }
+                        Button("Update Now") { AppReviewManager.openAppStoreProductPage() }
                             .buttonStyle(.borderedProminent)
                     }
                 } else if let error = databaseLoadError {
@@ -63,7 +63,7 @@ struct FoodTrackerApp: App {
                 get: { versionManager.updateRequirement == .softUpdate && !versionManager.hasDismissedSoftUpdate },
                 set: { if !$0 { versionManager.hasDismissedSoftUpdate = true } }
             )) {
-                Button("Update Now") { AppReviewManager.openAppStoreReview() }
+                Button("Update Now") { AppReviewManager.openAppStoreProductPage() }
                 Button("Later", role: .cancel) { versionManager.hasDismissedSoftUpdate = true }
             } message: {
                 Text("A new version of FoodTracker is available.")
@@ -86,19 +86,16 @@ struct FoodTrackerApp: App {
     private func setupDependencies() async {
         print("🚀 [setupDependencies] Starting initialization...")
         do {
-            let schema = Schema([
-                User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
-                WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
-            ])
-            
-            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
+            let schema = SharedModelContainer.sharedSchema
+
+            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedModelContainer.appGroupIdentifier) ?? FileManager.default.temporaryDirectory
             let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
             print("🚀 [setupDependencies] dbURL resolved: \(dbURL)")
-            
+
             let cloudConfig = ModelConfiguration(
                 schema: schema,
                 url: dbURL,
-                cloudKitDatabase: .private("iCloud.com.borisdev.FoodTracker2026")
+                cloudKitDatabase: .private(SharedModelContainer.iCloudContainerIdentifier)
             )
 
             let container: ModelContainer

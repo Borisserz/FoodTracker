@@ -3,6 +3,7 @@ import SwiftData
 import Charts
 import FirebaseAuth
 import UserNotifications
+import AuthenticationServices
 
 struct ProfileWrapperView: View {
     @Query private var users: [User]
@@ -358,6 +359,7 @@ struct SettingsView: View {
 
     @AppStorage("useMetricSystem") private var useMetricSystem = true
     @Query private var summaries: [DailySummary]
+    @State private var showLegalOptions = false
 
     var body: some View {
         NavigationStack {
@@ -399,7 +401,7 @@ struct SettingsView: View {
                                     SpotlightTourManager.shared.resetTour()
                                 }
                             }) {
-                                SettingsRowView(icon: "sparkles", iconColor: .cyan, title: String(localized: "Interactive Feature Tour"))
+                                SettingsRowView(icon: "sparkles", iconColor: .cyan, title: "Interactive Feature Tour")
                             }
                             Divider().padding(.leading, 56)
 
@@ -421,8 +423,21 @@ struct SettingsView: View {
                             }
                             Divider().padding(.leading, 56)
 
-                            Button(action: { openTerms() }) {
+                            Button(action: { showLegalOptions = true }) {
                                 SettingsRowView(icon: "doc.text.fill", iconColor: .gray, title: "Terms of Service & Privacy")
+                            }
+                            .confirmationDialog(
+                                "Terms of Service & Privacy",
+                                isPresented: $showLegalOptions,
+                                titleVisibility: .visible
+                            ) {
+                                Button("Privacy Policy") {
+                                    UIApplication.shared.open(Constants.Legal.privacyPolicyURL)
+                                }
+                                Button("Terms of Use") {
+                                    UIApplication.shared.open(Constants.Legal.eulaURL)
+                                }
+                                Button("Cancel", role: .cancel) {}
                             }
                         }
                         .premiumCardStyle()
@@ -489,9 +504,7 @@ struct SettingsView: View {
 
     private func rateApp() {
         HapticManager.shared.impact(style: .medium)
-        if let url = URL(string: "itms-apps://itunes.apple.com/app/id6445831998?action=write-review") {
-            UIApplication.shared.open(url)
-        }
+        AppReviewManager.openAppStoreReview()
     }
 
     private var appVersionString: String {
@@ -504,17 +517,12 @@ struct SettingsView: View {
         HapticManager.shared.impact(style: .medium)
         UIApplication.shared.open(Constants.Legal.supportURL)
     }
-
-    private func openTerms() {
-        HapticManager.shared.impact(style: .light)
-        UIApplication.shared.open(Constants.Legal.privacyPolicyURL)
-    }
 }
 
 struct SettingsRowView: View {
     let icon: String
     let iconColor: Color
-    let title: String
+    let title: LocalizedStringKey
     var value: String? = nil
 
     var body: some View {
@@ -590,41 +598,39 @@ struct AccountSettingsView: View {
 
                 VStack(spacing: 16) {
                     if authManager.isAnonymous {
-                        Button(action: {
+                        SignInWithAppleButton(.signIn) { request in
+                            SocialAuthService.shared.prepareAppleRequest(request)
+                        } onCompletion: { result in
                             Task {
                                 isLoading = true
+                                defer { isLoading = false }
                                 do {
-                                    try await SocialAuthService.shared.signInWithApple()
+                                    try await SocialAuthService.shared.handleAppleAuthorization(result)
                                 } catch {
-                                    errorMessage = error.localizedDescription
-                                    showError = true
+                                    if !SocialAuthService.isCancellationError(error) {
+                                        errorMessage = error.localizedDescription
+                                        showError = true
+                                    }
                                 }
-                                isLoading = false
                             }
-                        }) {
-                            HStack {
-                                Image(systemName: "applelogo")
-                                Text("Sign in with Apple")
-                            }
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.black)
-                            .cornerRadius(20)
                         }
-                        .buttonStyle(BounceButtonStyle())
+                        .signInWithAppleButtonStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
                         Button(action: {
                             Task {
                                 isLoading = true
+                                defer { isLoading = false }
                                 do {
                                     try await SocialAuthService.shared.signInWithGoogle()
                                 } catch {
-                                    errorMessage = error.localizedDescription
-                                    showError = true
+                                    if !SocialAuthService.isCancellationError(error) {
+                                        errorMessage = error.localizedDescription
+                                        showError = true
+                                    }
                                 }
-                                isLoading = false
                             }
                         }) {
                             HStack {
@@ -691,6 +697,7 @@ struct AccountSettingsView: View {
                         Button("Delete Account", role: .destructive) {
                             Task {
                                 isLoading = true
+                                defer { isLoading = false }
                                 do {
                                     try await SocialAuthService.shared.reauthenticateForDeletion()
                                     try await authManager.deleteCurrentUser()
@@ -698,10 +705,11 @@ struct AccountSettingsView: View {
                                     try await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                     dismiss()
                                 } catch {
-                                    errorMessage = error.localizedDescription
-                                    showError = true
+                                    if !SocialAuthService.isCancellationError(error) {
+                                        errorMessage = error.localizedDescription
+                                        showError = true
+                                    }
                                 }
-                                isLoading = false
                             }
                         }
                         Button("Cancel", role: .cancel) {}

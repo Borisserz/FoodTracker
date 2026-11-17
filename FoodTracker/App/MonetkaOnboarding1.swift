@@ -4,6 +4,8 @@
 //
 
 import SwiftUI
+import AuthenticationServices
+import GoogleSignIn
 
 // MARK: - 3D Летающий фон (Тематика ЗОЖ)
 struct FloatingGlassShapes: View {
@@ -190,20 +192,12 @@ struct HyperRealisticApple: View {
 
 // MARK: - ОСНОВНОЙ ЭКРАН И КНОПКИ
 struct OnboardingView: View {
-    // ЗАМЫКАНИЕ ДЛЯ ПЕРЕХОДА
     var onSuccess: () -> Void
-    
-    enum Step {
-        case welcome
-        case googleSignUp
-    }
-    
-    @Environment(\.openURL) var openURL
-    @State private var step: Step = .welcome
+
     @State private var showGuestModal = false
-    @State private var showAppleAlert = false
-    @State private var showGoogleAlert = false
-    
+    @State private var isAuthenticating = false
+    @State private var authErrorMessage: String?
+
     var body: some View {
         ZStack {
             LinearGradient(
@@ -212,30 +206,33 @@ struct OnboardingView: View {
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
-            
+
             FloatingGlassShapes()
-            
-            switch step {
-            case .welcome:
-                WelcomeStepView(
-                    onAppleTap: { showAppleAlert = true },
-                    onGoogleTap: { showGoogleAlert = true },
-                    onGuestTap: { showGuestModal = true }
-                )
-                .transition(.move(edge: .trailing).combined(with: .opacity))
-                
-            case .googleSignUp:
-                GoogleRegistrationView(
-                    onBack: { withAnimation(.spring(response: 0.45, dampingFraction: 0.9)) { step = .welcome } },
-                    onSuccess: onSuccess // Передаем колбэк сюда тоже
-                )
-                .transition(.move(edge: .trailing).combined(with: .opacity))
-            }
+
+            WelcomeStepView(
+                onAppleRequest: { request in
+                    SocialAuthService.shared.prepareAppleRequest(request)
+                },
+                onAppleCompletion: { result in
+                    Task {
+                        await authenticate {
+                            try await SocialAuthService.shared.handleAppleAuthorization(result)
+                        }
+                    }
+                },
+                onGoogleTap: {
+                    Task {
+                        await authenticate {
+                            try await SocialAuthService.shared.signInWithGoogle()
+                        }
+                    }
+                },
+                onGuestTap: { showGuestModal = true },
+                isAuthenticating: isAuthenticating
+            )
         }
-        .animation(.easeInOut(duration: 0.28), value: step)
         .sheet(isPresented: $showGuestModal) {
             GuestWarningView(
-                // ПЕРЕХОД ПРИ НАЖАТИИ "ГОСТЬ"
                 onStayGuest: {
                     showGuestModal = false
                     TrackingManager.shared.track(.onboardingCompleted(goal: "guest", diet: "none"))
@@ -247,35 +244,49 @@ struct OnboardingView: View {
             .presentationDragIndicator(.visible)
             .background(Color(red: 0.12, green: 0.20, blue: 0.18).ignoresSafeArea())
         }
-        .alert("Sign in with Apple", isPresented: $showAppleAlert) {
-            Button("Continue") { onSuccess() } // Переход при нажатии
-            Button("Cancel", role: .cancel) { }
+        .alert("Couldn't log in",
+               isPresented: Binding(get: { authErrorMessage != nil },
+                                    set: { if !$0 { authErrorMessage = nil } })) {
+            Button("OK", role: .cancel) { }
         } message: {
-            Text("Here you can plug in your real Apple Sign In flow.")
-        }
-        .alert("Sign in with Google", isPresented: $showGoogleAlert) {
-            Button("Continue") { onSuccess() } // Переход при нажатии
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Here you can plug in your real Google Sign In flow.")
+            Text(authErrorMessage ?? "")
         }
         .onAppear {
             TrackingManager.shared.track(.appOpened(source: "onboarding"))
         }
     }
+
+    @MainActor
+    private func authenticate(_ action: @escaping () async throws -> Void) async {
+        guard !isAuthenticating else { return }
+        isAuthenticating = true
+        defer { isAuthenticating = false }
+        do {
+            try await action()
+            onSuccess()
+        } catch {
+            if !SocialAuthService.isCancellationError(error) {
+                authErrorMessage = error.localizedDescription
+            }
+        }
+    }
 }
 
 struct WelcomeStepView: View {
-    let onAppleTap: () -> Void
+    let onAppleRequest: (ASAuthorizationAppleIDRequest) -> Void
+    let onAppleCompletion: (Result<ASAuthorization, Error>) -> Void
     let onGoogleTap: () -> Void
     let onGuestTap: () -> Void
-    
-    @State private var buttonPulse = false
-    
+    var isAuthenticating: Bool
+
+    private let controlWidth: CGFloat = 320
+    private let controlHeight: CGFloat = 54
+    private let corner: CGFloat = 16
+
     var body: some View {
         VStack(alignment: .center, spacing: 12) {
             Spacer(minLength: 8)
-            
+
             VStack(alignment: .center, spacing: 10) {
                 ZStack(alignment: .center) {
                     Text("Наполни себя энергией 🌱")
@@ -283,7 +294,7 @@ struct WelcomeStepView: View {
                         .foregroundStyle(.white)
                         .blur(radius: 6)
                         .opacity(0.6)
-                    
+
                     Text("Наполни себя энергией 🌱")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
@@ -291,7 +302,7 @@ struct WelcomeStepView: View {
                 }
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
-                
+
                 Text("Мы — это то, что мы едим и пьем. Начни свой путь к осознанному питанию, следи за водным балансом и наполняй тело витаминами каждый день. Твое здоровье — твоя главная инвестиция!")
                     .font(.system(size: 14, weight: .medium))
                     .lineSpacing(3)
@@ -301,47 +312,35 @@ struct WelcomeStepView: View {
                     .minimumScaleFactor(0.6)
                     .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
             }
-            
+
             Spacer()
-            
+
             VStack(spacing: 12) {
-                SignInButton(
-                    title: "Продолжить с Apple",
-                    subtitle: "Быстрый вход",
-                    icon: "apple.logo",
-                    accent: Color.white.opacity(0.15),
-                    textColor: .white,
-                    action: onAppleTap
-                )
-                .scaleEffect(buttonPulse ? 1.02 : 1.0)
-                
-                SignInButton(
-                    title: "Продолжить с Google",
-                    subtitle: "Регистрация через Google",
-                    icon: "globe",
-                    accent: Color.white.opacity(0.15),
-                    textColor: .white,
-                    action: onGoogleTap
-                )
-                
-                Button(action: onGuestTap) {
-                    Text("Остаться гостем")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.85))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                        .frame(maxWidth: 300)
-                        .padding(.vertical, 14)
-                        .background(Color.clear)
-                        .overlay {
-                            Capsule()
-                                .stroke(LinearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .top, endPoint: .bottom), lineWidth: 1)
-                        }
+                SignInWithAppleButton(.continue,
+                                      onRequest: onAppleRequest,
+                                      onCompletion: onAppleCompletion)
+                    .signInWithAppleButtonStyle(.white)
+                    .frame(maxWidth: controlWidth)
+                    .frame(height: controlHeight)
+                    .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+
+                Button(action: onGoogleTap) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "globe")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Продолжить с Google")
+                    }
                 }
+                .buttonStyle(OnboardingGlassAuthButtonStyle(width: controlWidth, height: controlHeight, corner: corner))
+
+                Button("Остаться гостем", action: onGuestTap)
+                    .buttonStyle(OnboardingGhostAuthButtonStyle(width: controlWidth, height: controlHeight, corner: corner))
             }
-            .onAppear {
-                withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-                    buttonPulse = true
+            .disabled(isAuthenticating)
+            .opacity(isAuthenticating ? 0.6 : 1)
+            .overlay {
+                if isAuthenticating {
+                    ProgressView().tint(.white)
                 }
             }
         }
@@ -350,57 +349,44 @@ struct WelcomeStepView: View {
     }
 }
 
-struct SignInButton: View {
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
-    let icon: String
-    let accent: Color
-    let textColor: Color
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                ZStack {
-                    Circle()
-                        .fill(textColor.opacity(0.15))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: icon)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(textColor)
-                }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.system(size: 13, weight: .bold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                    Text(subtitle)
-                        .font(.system(size: 10, weight: .medium))
-                        .opacity(0.8)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                }
-                
-                Spacer(minLength: 0)
-                
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .bold))
-                    .opacity(0.5)
-            }
-            .foregroundStyle(textColor)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .frame(maxWidth: 300)
-            .background(.ultraThinMaterial)
-            .clipShape(Capsule())
-            .overlay {
-                Capsule()
-                    .stroke(LinearGradient(colors: [.white.opacity(0.5), .white.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
-            }
-            .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 5)
-        }
+private struct OnboardingGlassAuthButtonStyle: ButtonStyle {
+    var width: CGFloat
+    var height: CGFloat
+    var corner: CGFloat
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold, design: .rounded))
+            .foregroundStyle(.white)
+            .frame(maxWidth: width)
+            .frame(height: height)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: corner, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: corner, style: .continuous)
+                    .strokeBorder(.white.opacity(0.18), lineWidth: 1)
+            )
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
+private struct OnboardingGhostAuthButtonStyle: ButtonStyle {
+    var width: CGFloat
+    var height: CGFloat
+    var corner: CGFloat
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(.white.opacity(0.85))
+            .frame(maxWidth: width)
+            .frame(height: height)
+            .overlay(
+                RoundedRectangle(cornerRadius: corner, style: .continuous)
+                    .strokeBorder(.white.opacity(0.22), lineWidth: 1)
+            )
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
@@ -484,114 +470,5 @@ struct GuestWarningView: View {
                 .foregroundStyle(.white.opacity(0.92))
                 .minimumScaleFactor(0.8)
         }
-    }
-}
-
-struct GoogleRegistrationView: View {
-    @State private var fullName = ""
-    @State private var email = ""
-    @State private var password = ""
-    let onBack: () -> Void
-    var onSuccess: () -> Void // Колбэк для успешной регистрации
-    
-    var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 14) {
-                Button(action: onBack) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("Назад")
-                    }
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-                }
-                .padding(.top, 6)
-                
-                ZStack(alignment: .leading) {
-                    Text("Регистрация")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .blur(radius: 6)
-                        .opacity(0.6)
-                    Text("Регистрация")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .shadow(color: .white.opacity(0.3), radius: 2)
-                }
-                .minimumScaleFactor(0.8)
-                .lineLimit(1)
-                
-                Text("Заполни данные, чтобы сохранить свой прогресс в питании и получить персональные рекомендации.")
-                    .font(.system(size: 13))
-                    .lineSpacing(1)
-                    .foregroundStyle(.white.opacity(0.84))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .minimumScaleFactor(0.8)
-                
-                VStack(spacing: 10) {
-                    TextField("Имя и фамилия", text: $fullName)
-                        .fieldCardStyle()
-                    
-                    TextField("Email", text: $email)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .fieldCardStyle()
-                    
-                    SecureField("Пароль", text: $password)
-                        .fieldCardStyle()
-                }
-                .padding(.vertical, 4)
-                
-                Button {
-                    // ПЕРЕХОД ПРИ НАЖАТИИ ЗАРЕГИСТРИРОВАТЬСЯ
-                    onSuccess()
-                } label: {
-                    Text("Зарегистрироваться")
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundStyle(.black)
-                        .minimumScaleFactor(0.8)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(LinearGradient(colors: [.white, Color(white: 0.9)], startPoint: .top, endPoint: .bottom))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .shadow(color: .white.opacity(0.2), radius: 8, x: 0, y: 4)
-                }
-                
-                Text("Нажимая «Зарегистрироваться», вы принимаете условия использования и политику конфиденциальности.")
-                    .font(.system(size: 11))
-                    .lineSpacing(1)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .minimumScaleFactor(0.8)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 4)
-                
-                Spacer(minLength: 40)
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
-        }
-    }
-}
-
-extension View {
-    func fieldCardStyle() -> some View {
-        self
-            .font(.system(size: 14))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(LinearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-            }
-            .foregroundStyle(.white)
-            .accentColor(.orange)
     }
 }

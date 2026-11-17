@@ -1,5 +1,7 @@
 import XCTest
+import AuthenticationServices
 import FirebaseAuth
+import GoogleSignIn
 @testable import FoodTracker
 
 @MainActor
@@ -22,5 +24,16 @@ final class SocialAuthServiceTests: XCTestCase {
                 return
             }
         }
+    }
+
+    func testIsCancellationErrorRecognizesAppleAndGoogleCancellations() {
+        let appleCancel = ASAuthorizationError(.canceled)
+        let googleCancel = NSError(domain: kGIDSignInErrorDomain, code: GIDSignInError.canceled.rawValue)
+        let networkFailure = NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet)
+
+        XCTAssertTrue(SocialAuthService.isCancellationError(appleCancel))
+        XCTAssertTrue(SocialAuthService.isCancellationError(googleCancel))
+        XCTAssertFalse(SocialAuthService.isCancellationError(networkFailure))
+        XCTAssertFalse(SocialAuthService.isCancellationError(AuthError.invalidAppleCredential))
     }
 }

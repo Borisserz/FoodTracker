@@ -14,16 +14,22 @@ public enum WidgetReloader {
 
 public final class SharedModelContainer: @unchecked Sendable {
     public static let shared = SharedModelContainer()
-    
-    public let container: ModelContainer
-    
-    private init() {
-        let schema = Schema([
+
+    public static let appGroupIdentifier = "group.com.borisdev.FoodTracker2026"
+    public static let iCloudContainerIdentifier = "iCloud.com.borisdev.FoodTracker2026"
+
+    public static var sharedSchema: Schema {
+        Schema([
             User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
             WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
         ])
-        
-        let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
+    }
+
+    public let container: ModelContainer
+
+    private init() {
+        let schema = Self.sharedSchema
+        let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.appGroupIdentifier) ?? FileManager.default.temporaryDirectory
         let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
         let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
 
@@ -35,7 +41,7 @@ public final class SharedModelContainer: @unchecked Sendable {
             let cloudConfig = ModelConfiguration(
                 schema: schema,
                 url: url,
-                cloudKitDatabase: .private("iCloud.com.borisdev.FoodTracker2026")
+                cloudKitDatabase: .private(iCloudContainerIdentifier)
             )
             if let cloudContainer = try? ModelContainer(for: schema, configurations: [cloudConfig]) {
                 return cloudContainer

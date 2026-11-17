@@ -371,8 +371,7 @@ struct HomeDashboardContentView: View {
       }
 
     private func fetchHealthData(for summary: DailySummary) async {
-
-            let workoutCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: summary.date)
+            let localCals = summary.localActivityCalories
 
             var fetchedSteps = summary.stepsCount
             var fetchedActiveCals = summary.activeCaloriesBurned
@@ -384,17 +383,17 @@ struct HomeDashboardContentView: View {
 
                 do {
                     let totalHealthCals = try await HealthKitManager.shared.fetchTotalActiveCalories(for: summary.date)
-                    fetchedActiveCals = max(totalHealthCals, workoutCals, summary.localActivityCalories)
+                    fetchedActiveCals = max(totalHealthCals, localCals)
                 } catch { print("Health cals error: \(error)") }
             } else {
-                fetchedActiveCals = max(workoutCals, summary.localActivityCalories)
+                fetchedActiveCals = max(summary.workoutCalories, localCals)
             }
 
             await MainActor.run {
                 var needsSave = false
 
-                if summary.workoutCalories != workoutCals {
-                    summary.workoutCalories = workoutCals
+                if summary.workoutCalories != localCals {
+                    summary.workoutCalories = localCals
                     needsSave = true
                 }
 

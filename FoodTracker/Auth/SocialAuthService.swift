@@ -1,6 +1,6 @@
 //
 //  SocialAuthService.swift
-//  WorkoutTracker
+//  FoodTracker
 //
 //  Created by Boris Serzhanovich on 30.05.2026.
 //
@@ -31,6 +31,7 @@ final class SocialAuthService {
     }
 
     func handleAppleAuthorization(_ result: Result<ASAuthorization, Error>) async throws {
+        defer { currentNonce = nil }
         let authorization = try result.get()
 
         guard
@@ -48,7 +49,22 @@ final class SocialAuthService {
             fullName: credential.fullName
         )
         try await linkOrSignIn(with: firebaseCredential)
-        currentNonce = nil
+    }
+
+    nonisolated static func isCancellationError(_ error: Error) -> Bool {
+        if let authError = error as? ASAuthorizationError, authError.code == .canceled {
+            return true
+        }
+        let nsError = error as NSError
+        if nsError.domain == ASAuthorizationError.errorDomain,
+           nsError.code == ASAuthorizationError.canceled.rawValue {
+            return true
+        }
+        if nsError.domain == kGIDSignInErrorDomain,
+           nsError.code == GIDSignInError.canceled.rawValue {
+            return true
+        }
+        return false
     }
 
     func signInWithApple() async throws {
