@@ -28,13 +28,15 @@ struct GoalsTabView: View {
     }
     
     var progressPercentage: Double {
-        guard let target = targetWeight, let startWeight = user?.weight else { return 0 }
-        
-        let totalToChange = abs(target - startWeight)
-        let changed = abs(currentWeight - startWeight)
-        
-        if totalToChange == 0 { return 1.0 }
-        let progress = changed / totalToChange
+        guard let target = targetWeight else { return 0 }
+        let startWeight = weightLogs.first?.weight ?? user?.weight
+        guard let startWeight else { return 0 }
+
+        let totalDelta = target - startWeight
+        if abs(totalDelta) < 0.01 { return 1.0 }
+
+        let currentDelta = currentWeight - startWeight
+        let progress = currentDelta / totalDelta
         return min(max(progress, 0.0), 1.0)
     }
     
@@ -110,11 +112,14 @@ struct GoalsTabView: View {
             .navigationTitle("Goals & Progress")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showSetGoalSheet = true }) {
+                    Button(action: {
+                        ensureUserAndOpenGoalSheet()
+                    }) {
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundColor(themeManager.current.primaryAccent)
                     }
+                    .accessibilityLabel("Goal Settings")
                 }
             }
             .sheet(isPresented: $showAddWeightSheet) {
@@ -132,6 +137,15 @@ struct GoalsTabView: View {
                 }
             }
         }
+    }
+
+    private func ensureUserAndOpenGoalSheet() {
+        if user == nil {
+            let fallbackUser = User(name: "Champion", weight: currentWeight > 0 ? currentWeight : 70.0, height: 175.0, age: 28, gender: "Male")
+            context.insert(fallbackUser)
+            try? context.save()
+        }
+        showSetGoalSheet = true
     }
     
     // MARK: - Subviews
@@ -185,7 +199,7 @@ struct GoalsTabView: View {
                 .background(themeManager.current.primaryAccent.opacity(0.08))
                 .cornerRadius(12)
             } else {
-                Button(action: { showSetGoalSheet = true }) {
+                Button(action: { ensureUserAndOpenGoalSheet() }) {
                     HStack {
                         Image(systemName: "target")
                         Text("Set a Goal")

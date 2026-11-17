@@ -155,11 +155,16 @@ struct CreateRecipeView: View {
             directions: cleanDirections
         )
 
+        for item in ingredients {
+            modelContext.insert(item)
+        }
         modelContext.insert(newRecipe)
 
         do {
             try modelContext.save()
-            path.removeLast()
+            if !path.isEmpty {
+                path.removeLast()
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 path.append(FoodsRoute.recipeDetail(newRecipe))
             }
@@ -290,46 +295,45 @@ struct Step2IngredientsView: View {
 
                 if !ingredients.isEmpty {
                     VStack(spacing: 0) {
-                        ForEach(0..<ingredients.count, id: \.self) { index in
-                            if index < ingredients.count {
-                                let item = ingredients[index]
-                                HStack {
-                                    ZStack {
-                                        Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
-                                        Text(String(item.name.first ?? "🥗")).font(.headline)
-                                    }
-
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(item.name)
-                                            .font(.system(size: 16, weight: .bold, design: .rounded))
-
-                                        HStack {
-                                            Text("\(item.calories) kcal — \(Int(item.weight))g")
-                                                .foregroundColor(.gray)
-                                            if item.protein > 0 || item.fats > 0 || item.carbs > 0 {
-                                                Text("• P:\(Int(item.protein)) F:\(Int(item.fats)) C:\(Int(item.carbs))")
-                                                    .foregroundColor(.themePink.opacity(0.8))
-                                            }
-                                        }
-                                        .font(.caption)
-                                    }
-                                    Spacer()
-
-                                    Button(action: {
-                                        HapticManager.shared.impact(style: .light)
-                                        withAnimation {
-                                            if index < ingredients.count { ingredients.remove(at: index) }
-                                        }
-                                    }) {
-                                        Image(systemName: "minus.circle.fill")
-                                            .foregroundColor(.red.opacity(0.7))
-                                            .font(.title2)
-                                    }
+                        ForEach(ingredients) { item in
+                            HStack {
+                                ZStack {
+                                    Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
+                                    Text(String(item.name.first ?? "🥗")).font(.headline)
                                 }
-                                .padding(.vertical, 12).padding(.horizontal, 20)
 
-                                if index < ingredients.count - 1 { Divider().padding(.leading, 70) }
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.name)
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+
+                                    HStack {
+                                        Text("\(item.calories) kcal — \(Int(item.weight))g")
+                                            .foregroundColor(.gray)
+                                        if item.protein > 0 || item.fats > 0 || item.carbs > 0 {
+                                            Text("• P:\(Int(item.protein)) F:\(Int(item.fats)) C:\(Int(item.carbs))")
+                                                .foregroundColor(.themePink.opacity(0.8))
+                                        }
+                                    }
+                                    .font(.caption)
+                                }
+                                Spacer()
+
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .light)
+                                    withAnimation {
+                                        if let idx = ingredients.firstIndex(where: { $0 === item }) {
+                                            ingredients.remove(at: idx)
+                                        }
+                                    }
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(.red.opacity(0.7))
+                                        .font(.title2)
+                                }
                             }
+                            .padding(.vertical, 12).padding(.horizontal, 20)
+
+                            if item !== ingredients.last { Divider().padding(.leading, 70) }
                         }
                     }
                     .background(Color.white)
@@ -652,9 +656,6 @@ struct AddIngredientModalView: View {
 
         let newFood = FoodItem(name: name, weight: w, calories: cals, protein: p, fats: f, carbs: c)
 
-        context.insert(newFood)
-        try? context.save()
-
         onSave(newFood)
         dismiss()
     }
@@ -744,6 +745,7 @@ struct RecipeDetailView: View {
 
     @State private var showMealSheet = false
     @State private var showAICooking = false
+    @State private var showDeleteConfirmation = false
 
        private func deleteRecipe() {
            context.delete(recipe)
@@ -873,7 +875,7 @@ struct RecipeDetailView: View {
 
                                       Button(action: {
                                           HapticManager.shared.impact(style: .heavy)
-                                          deleteRecipe()
+                                          showDeleteConfirmation = true
                                       }) {
                                           Image(systemName: "trash")
                                               .font(.title3.bold())
@@ -882,6 +884,12 @@ struct RecipeDetailView: View {
                                               .background(Color.red.opacity(0.8))
                                               .clipShape(Circle())
                                               .shadow(color: .red.opacity(0.3), radius: 5, y: 2)
+                                      }
+                                      .confirmationDialog("Delete Recipe?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+                                          Button("Delete", role: .destructive) {
+                                              deleteRecipe()
+                                          }
+                                          Button("Cancel", role: .cancel) {}
                                       }
                                   }
                                   .padding(.horizontal)

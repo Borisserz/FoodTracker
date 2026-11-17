@@ -18,7 +18,8 @@ struct FastingActivityWidget: Widget {
                 DynamicIslandExpandedRegion(.trailing) {
                     FastingCountdownText(targetEndDate: context.attributes.targetEndDate)
                         .multilineTextAlignment(.trailing)
-                        .frame(width: 50)
+                        .frame(minWidth: 50)
+                        .lineLimit(1)
                         .monospacedDigit()
                 }
                 DynamicIslandExpandedRegion(.bottom) {
@@ -35,7 +36,8 @@ struct FastingActivityWidget: Widget {
             } compactTrailing: {
                 FastingCountdownText(targetEndDate: context.attributes.targetEndDate)
                     .monospacedDigit()
-                    .frame(width: 45)
+                    .frame(minWidth: 45)
+                    .lineLimit(1)
                     .font(.caption2)
             } minimal: {
                 Image(systemName: "flame.fill")
@@ -84,6 +86,7 @@ struct LockScreenFastingView: View {
                         .foregroundColor(.gray)
                     Text(context.state.currentStage)
                         .font(.body.bold())
+                        .foregroundColor(.white)
                     
                     HStack {
                         Text("Ends in:")

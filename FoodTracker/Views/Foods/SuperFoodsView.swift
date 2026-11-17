@@ -17,7 +17,9 @@ struct DietsListView: View {
                 }
             } else {
                 // Данные загружены, отображаем интерфейс
-                let currentDietColor = DietDataLoader.shared.diets[selectedIndex].color
+                let diets = DietDataLoader.shared.diets
+                let safeIndex = diets.indices.contains(selectedIndex) ? selectedIndex : 0
+                let currentDietColor = diets[safeIndex].color
                 currentDietColor.opacity(0.15)
                     .ignoresSafeArea()
                     .animation(.easeInOut(duration: 0.8), value: selectedIndex)
@@ -322,6 +324,7 @@ struct PremiumDietDetailView: View {
                                     )
                                 }
                                 try? context.save()
+                                WidgetReloader.reloadAll()
                             }
                         }) {
                             HStack {

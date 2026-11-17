@@ -367,6 +367,23 @@ struct Achievement: Identifiable {
         return newSummary
     }
 
+    static func canonicalMealSlot(_ raw: String) -> String {
+        let lower = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if ["breakfast", "завтрак", "frühstück", "desayuno", "petit-déjeuner", "petit dejeuner", "colazione", "pequeno-almoço", "pequeno almoco"].contains(where: { lower.contains($0) }) {
+            return "Breakfast"
+        }
+        if ["lunch", "обед", "mittagessen", "almuerzo", "comida", "déjeuner", "dejeuner", "pranzo", "almoço", "almoco"].contains(where: { lower.contains($0) }) {
+            return "Lunch"
+        }
+        if ["dinner", "ужин", "abendessen", "cena", "dîner", "diner", "jantar"].contains(where: { lower.contains($0) }) {
+            return "Dinner"
+        }
+        if ["snack", "перекус", "zwischenmahlzeit", "merienda", "collation", "spuntino", "lanche"].contains(where: { lower.contains($0) }) {
+            return "Snack"
+        }
+        return "Snack"
+    }
+
     private static func mergeDuplicates(_ matches: [DailySummary], in context: ModelContext) -> DailySummary? {
         guard let primary = matches.first else { return nil }
         guard matches.count > 1 else { return primary }
@@ -375,7 +392,17 @@ struct Achievement: Identifiable {
             let dupMeals = duplicate.meals ?? []
             duplicate.meals = []
             for meal in dupMeals {
-                primary.addMeal(meal)
+                let targetSlot = canonicalMealSlot(meal.title)
+                if let existingMeal = (primary.meals ?? []).first(where: {
+                    canonicalMealSlot($0.title) == targetSlot
+                }) {
+                    let items = meal.foodItems ?? []
+                    meal.foodItems = []
+                    existingMeal.addFoodItems(items)
+                    context.delete(meal)
+                } else {
+                    primary.addMeal(meal)
+                }
             }
 
             let dupBeverages = duplicate.beverages ?? []

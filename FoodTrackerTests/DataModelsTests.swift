@@ -486,4 +486,39 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(fullSnapshot.totalCalories, 1850)
         XCTAssertGreaterThanOrEqual(fullSnapshot.metabolicScore, 95)
     }
+
+    func testFetchOrCreateCoalescesDuplicateSameSlotMealsAndSameDayWeight() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: User.self, WeightLog.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self,
+            configurations: config
+        )
+        let context = container.mainContext
+        let today = Calendar.current.startOfDay(for: Date())
+
+        let s1 = DailySummary(
+            date: today,
+            meals: [Meal(title: "Breakfast", date: today, foodItems: [FoodItem(name: "Oats", weight: 80, calories: 300, protein: 10, fats: 5, carbs: 54)])]
+        )
+        let s2 = DailySummary(
+            date: today,
+            meals: [Meal(title: "Завтрак", date: today, foodItems: [FoodItem(name: "Eggs", weight: 100, calories: 150, protein: 12, fats: 10, carbs: 1)])]
+        )
+        context.insert(s1)
+        context.insert(s2)
+        try context.save()
+
+        let merged = DailySummary.fetchOrCreate(for: today, in: context)
+        XCTAssertEqual(merged.meals?.count, 1)
+        XCTAssertEqual(merged.totalFoodCalories, 450)
+
+        let user = User(name: "Alex", weight: 80, height: 180, age: 30, gender: "Male")
+        context.insert(user)
+        NutritionMath.recordWeight(79.5, date: today, for: user, in: context)
+        NutritionMath.recordWeight(79.2, date: today, for: user, in: context)
+
+        let weightLogs = try context.fetch(FetchDescriptor<WeightLog>())
+        XCTAssertEqual(weightLogs.count, 1)
+        XCTAssertEqual(weightLogs.first?.weight ?? -1, 79.2, accuracy: 0.01)
+    }
 }

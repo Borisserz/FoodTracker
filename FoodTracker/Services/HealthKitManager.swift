@@ -5,8 +5,25 @@ import Observation
 @Observable final class HealthKitManager {
     static let shared = HealthKitManager()
     private let healthStore = HKHealthStore()
+    private let hasRequestedKey = "healthKitAuthRequested_v1"
 
     var isAuthorized: Bool = false
+
+    private init() {
+        if HKHealthStore.isHealthDataAvailable(),
+           let water = HKObjectType.quantityType(forIdentifier: .dietaryWater) {
+            let status = healthStore.authorizationStatus(for: water)
+            self.isAuthorized = (status == .sharingAuthorized) ||
+                (status != .sharingDenied && UserDefaults.standard.bool(forKey: hasRequestedKey))
+        }
+    }
+
+    private func canWrite(_ sampleType: HKObjectType) -> Bool {
+        guard HKHealthStore.isHealthDataAvailable() else { return false }
+        let status = healthStore.authorizationStatus(for: sampleType)
+        if status == .sharingAuthorized { return true }
+        return status != .sharingDenied && isAuthorized
+    }
 
     func requestAuthorization() async throws {
         guard HKHealthStore.isHealthDataAvailable() else { return }
@@ -21,7 +38,6 @@ import Observation
         let typesToRead: Set<HKObjectType> = [bodyMass, steps, activeEnergy, HKObjectType.workoutType()]
         let typesToWrite: Set<HKSampleType> = [water, dietaryEnergy, HKObjectType.workoutType()]
 
-        let hasRequestedKey = "healthKitAuthRequested_v1"
         let hasRequested = UserDefaults.standard.bool(forKey: hasRequestedKey)
         // Only write types expose real authorizationStatus; read types (.stepCount) always report .notDetermined.
         let waterWriteStatus = healthStore.authorizationStatus(for: water)
@@ -31,9 +47,11 @@ import Observation
             UserDefaults.standard.set(true, forKey: hasRequestedKey)
         }
 
-        let updatedWaterStatus = healthStore.authorizationStatus(for: water)
+        let anyWriteAllowed = [water, dietaryEnergy, HKObjectType.workoutType()].contains {
+            healthStore.authorizationStatus(for: $0) != .sharingDenied
+        }
         await MainActor.run {
-            self.isAuthorized = (updatedWaterStatus != .sharingDenied) && UserDefaults.standard.bool(forKey: hasRequestedKey)
+            self.isAuthorized = anyWriteAllowed && UserDefaults.standard.bool(forKey: hasRequestedKey)
         }
     }
 
@@ -59,8 +77,9 @@ import Observation
     }
 
     func saveWater(liters: Double, date: Date) async {
-        guard isAuthorized else { return }
-        guard let waterType = HKQuantityType.quantityType(forIdentifier: .dietaryWater) else { return }
+        guard liters > 0,
+              let waterType = HKQuantityType.quantityType(forIdentifier: .dietaryWater),
+              canWrite(waterType) else { return }
 
         let quantity = HKQuantity(unit: .liter(), doubleValue: liters)
         let sample = HKQuantitySample(type: waterType, quantity: quantity, start: date, end: date)
@@ -73,10 +92,11 @@ import Observation
         }
     }
 
-    // New: write dietary energy consumed (previously declared in Info/entitlements but never implemented)
+    // Write dietary energy consumed synced from food logging
     func saveDietaryEnergy(calories: Int, date: Date) async {
-        guard isAuthorized else { return }
-        guard let energyType = HKQuantityType.quantityType(forIdentifier: .dietaryEnergyConsumed) else { return }
+        guard calories > 0,
+              let energyType = HKQuantityType.quantityType(forIdentifier: .dietaryEnergyConsumed),
+              canWrite(energyType) else { return }
 
         let quantity = HKQuantity(unit: .kilocalorie(), doubleValue: Double(calories))
         let sample = HKQuantitySample(type: energyType, quantity: quantity, start: date, end: date)
@@ -90,7 +110,8 @@ import Observation
     }
 
     func saveWorkout(activityType: HKWorkoutActivityType, calories: Int, durationMinutes: Int, date: Date) async {
-        guard isAuthorized else { return }
+        guard calories > 0, durationMinutes > 0,
+              canWrite(HKObjectType.workoutType()) else { return }
         let duration = TimeInterval(durationMinutes * 60)
         let energyBurned = HKQuantity(unit: .kilocalorie(), doubleValue: Double(calories))
 

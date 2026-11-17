@@ -33,45 +33,41 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     func startActivity(planName: String, targetHours: Int, startTime: Date) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled, targetHours > 0 else { return }
 
-        // Clean up any existing fasting activities so cold-restart orphans don't linger
-        let existingActivities = Activity<FastingAttributes>.activities
-        if !existingActivities.isEmpty {
-            Task {
-                for existing in existingActivities {
-                    await existing.end(nil, dismissalPolicy: .immediate)
-                }
-            }
-        }
-
         let targetEndDate = startTime.addingTimeInterval(TimeInterval(targetHours * 3600))
-        
         let attributes = FastingAttributes(
             planName: planName,
             targetEndDate: targetEndDate
         )
-        
+        let initialStage = "Blood Sugar Normalizing"
         let initialContentState = FastingAttributes.ContentState(
-            currentStage: "Anabolic",
+            currentStage: initialStage,
             progressPct: 0.0
         )
-        
         let content = ActivityContent(
             state: initialContentState,
-            staleDate: nil,
+            staleDate: targetEndDate,
             relevanceScore: 100
         )
-        
-        do {
-            currentActivity = try Activity.request(
-                attributes: attributes,
-                content: content,
-                pushType: nil
-            )
-            lastSentStage = "Anabolic"
-            lastSentProgress = 0.0
-            print("Live Activity started successfully: \(currentActivity?.id ?? "")")
-        } catch {
-            print("Failed to start Live Activity: \(error.localizedDescription)")
+
+        // Ensure stale activities finish ending BEFORE requesting the new Live Activity so IDs don't race.
+        let existingActivities = Activity<FastingAttributes>.activities
+        Task { @MainActor [weak self] in
+            for existing in existingActivities {
+                await existing.end(nil, dismissalPolicy: .immediate)
+            }
+            guard let self else { return }
+            do {
+                self.currentActivity = try Activity.request(
+                    attributes: attributes,
+                    content: content,
+                    pushType: nil
+                )
+                self.lastSentStage = initialStage
+                self.lastSentProgress = 0.0
+                print("Live Activity started successfully: \(self.currentActivity?.id ?? "")")
+            } catch {
+                print("Failed to start Live Activity: \(error.localizedDescription)")
+            }
         }
     }
     

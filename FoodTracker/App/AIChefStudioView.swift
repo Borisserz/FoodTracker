@@ -912,7 +912,12 @@ struct InteractiveCookingView: View {
     init(recipe: AIChefRecipe, isPresented: Binding<Bool>, startWithAllSteps: Bool = false) {
         self.recipe = recipe
         self._isPresented = isPresented
-        self._visibleStepsCount = State(initialValue: startWithAllSteps ? recipe.steps.count : 1)
+        let initialCount = recipe.steps.isEmpty ? 0 : (startWithAllSteps ? recipe.steps.count : 1)
+        self._visibleStepsCount = State(initialValue: initialCount)
+    }
+
+    private var clampedVisibleCount: Int {
+        min(visibleStepsCount, recipe.steps.count)
     }
     
     var body: some View {
@@ -928,11 +933,11 @@ struct InteractiveCookingView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack(spacing: 20) {
-                            ForEach(0..<visibleStepsCount, id: \.self) { index in
+                            ForEach(0..<clampedVisibleCount, id: \.self) { index in
                                 CookingStepRow(step: recipe.steps[index], stepNumber: index + 1).id(index).transition(.move(edge: .top).combined(with: .opacity))
                             }
                             
-                            if visibleStepsCount == recipe.steps.count {
+                            if clampedVisibleCount >= recipe.steps.count {
                                 VStack(alignment: .leading, spacing: 12) {
                                     HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Final Touch: Plating").font(.headline) }
                                     Text(recipe.platingTip).font(.body.italic()).foregroundColor(.primary).lineSpacing(4)
@@ -944,9 +949,9 @@ struct InteractiveCookingView: View {
                         }.padding(.top, 10).padding(.bottom, 120)
                     }.onChange(of: visibleStepsCount) { _, newValue in
                         withAnimation {
-                            if newValue == recipe.steps.count {
+                            if newValue >= recipe.steps.count {
                                 proxy.scrollTo("platingTip", anchor: .bottom)
-                            } else {
+                            } else if newValue > 0 {
                                 proxy.scrollTo(newValue - 1, anchor: .bottom)
                             }
                         }
@@ -957,8 +962,8 @@ struct InteractiveCookingView: View {
                 Spacer()
                 Button(action: nextStep) {
                     HStack {
-                        Text(visibleStepsCount == recipe.steps.count ? "Finish & Enjoy!" : "Next Step")
-                        if visibleStepsCount < recipe.steps.count { Image(systemName: "arrow.down") }
+                        Text(clampedVisibleCount >= recipe.steps.count ? "Finish & Enjoy!" : "Next Step")
+                        if clampedVisibleCount < recipe.steps.count { Image(systemName: "arrow.down") }
                     }.font(.title3.bold()).foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 20).background(Color.themePink).cornerRadius(24)
                 }.padding(.horizontal).padding(.bottom, 20)
             }
@@ -966,7 +971,7 @@ struct InteractiveCookingView: View {
     }
     private func nextStep() {
         HapticManager.shared.impact(style: .rigid)
-        if visibleStepsCount < recipe.steps.count { withAnimation(.spring()) { visibleStepsCount += 1 } } else { isPresented = false }
+        if clampedVisibleCount < recipe.steps.count { withAnimation(.spring()) { visibleStepsCount = clampedVisibleCount + 1 } } else { isPresented = false }
     }
 }
 

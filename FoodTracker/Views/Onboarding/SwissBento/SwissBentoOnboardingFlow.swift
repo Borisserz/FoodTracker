@@ -412,7 +412,8 @@ private struct Stage2GoalProtocolView: View {
                 Button(action: onNext) {
                     Text("Lock Protocol →")
                 }
-                .buttonStyle(SwissPillCTAButtonStyle())
+                .buttonStyle(SwissPillCTAButtonStyle(isEnabled: metrics.activityLevel != .none))
+                .disabled(metrics.activityLevel == .none)
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
                 .padding(.bottom, 32)
@@ -474,6 +475,7 @@ private struct Stage4BlueprintRevealView: View {
     
     @State private var progressCount: Int = 0
     @State private var isCompleted: Bool = false
+    @State private var progressTimer: Timer?
     
     var body: some View {
         VStack(spacing: 24) {
@@ -539,17 +541,23 @@ private struct Stage4BlueprintRevealView: View {
             .padding(.bottom, 24)
         }
         .onAppear {
-            Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { timer in
+            progressTimer?.invalidate()
+            progressTimer = Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { timer in
                 if progressCount < 100 {
                     progressCount += 2
                 } else {
                     timer.invalidate()
+                    progressTimer = nil
                     isCompleted = true
                     let generator = UINotificationFeedbackGenerator()
                     generator.prepare()
                     generator.notificationOccurred(.success)
                 }
             }
+        }
+        .onDisappear {
+            progressTimer?.invalidate()
+            progressTimer = nil
         }
     }
 }

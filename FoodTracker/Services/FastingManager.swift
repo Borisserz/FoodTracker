@@ -94,9 +94,12 @@ final class FastingManager {
         updateTask = Task { [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(1))
-                await MainActor.run {
-                    self?.updateCalculations()
+                let shouldContinue = await MainActor.run { () -> Bool in
+                    guard let self, self.isFasting else { return false }
+                    self.updateCalculations()
+                    return self.targetHours <= 0 || self.progress < 1.0
                 }
+                if !shouldContinue { break }
             }
         }
     }
@@ -146,11 +149,16 @@ final class FastingManager {
             planName = UserDefaults.standard.string(forKey: "fastingPlanName") ?? "Custom"
             targetHours = UserDefaults.standard.integer(forKey: "fastingTargetHours")
             let savedTime = UserDefaults.standard.double(forKey: "fastingStartTime")
+            guard savedTime > 0 else {
+                isFasting = false
+                startTime = nil
+                saveState()
+                return
+            }
             startTime = Date(timeIntervalSince1970: savedTime)
+            liveActivityManager.startActivity(planName: planName, targetHours: targetHours, startTime: Date(timeIntervalSince1970: savedTime))
             // Re-establish live updates (structured task) and ensure notifications are scheduled
             startUpdateTask()
-            // Note: notifications are one-shot from original start time; if they fired or were removed they won't re-fire.
-            // For full resilience we could re-schedule remaining phases here based on elapsed.
         }
     }
 
@@ -160,27 +168,30 @@ final class FastingManager {
 
         center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
 
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             guard granted else { return }
+            Task { @MainActor [weak self] in
+                guard let self, self.isFasting else { return }
 
-            self.scheduleAlert(
-                id: "fasting_goal_reached",
-                title: "Goal Reached! 🏆",
-                body: "You've successfully completed your \(target)-hour fast. It's time to eat!",
-                delayInSeconds: TimeInterval(target * 3600)
-            )
+                self.scheduleAlert(
+                    id: "fasting_goal_reached",
+                    title: "Goal Reached! 🏆",
+                    body: "You've successfully completed your \(target)-hour fast. It's time to eat!",
+                    delayInSeconds: TimeInterval(target * 3600)
+                )
 
-            if target > 4 {
-                self.scheduleAlert(id: "phase_4h", title: "Blood Sugar Normalizing 🩸", body: "Your insulin is dropping. Your body is resting. Stay hydrated!", delayInSeconds: 4 * 3600)
-            }
-            if target > 8 {
-                self.scheduleAlert(id: "phase_8h", title: "Fat Burning Mode 🔥", body: "Glycogen is depleted. Your body is switching to fat for fuel.", delayInSeconds: 8 * 3600)
-            }
-            if target > 12 {
-                self.scheduleAlert(id: "phase_12h", title: "Ketosis Achieved 🧠", body: "Your liver is now producing ketones for energy and mental clarity.", delayInSeconds: 12 * 3600)
-            }
-            if target > 16 {
-                self.scheduleAlert(id: "phase_16h", title: "Autophagy Started 🧬", body: "Cellular repair and anti-aging processes are fully active.", delayInSeconds: 16 * 3600)
+                if target > 4 {
+                    self.scheduleAlert(id: "phase_4h", title: "Blood Sugar Normalizing 🩸", body: "Your insulin is dropping. Your body is resting. Stay hydrated!", delayInSeconds: 4 * 3600)
+                }
+                if target > 8 {
+                    self.scheduleAlert(id: "phase_8h", title: "Fat Burning Mode 🔥", body: "Glycogen is depleted. Your body is switching to fat for fuel.", delayInSeconds: 8 * 3600)
+                }
+                if target > 12 {
+                    self.scheduleAlert(id: "phase_12h", title: "Ketosis Achieved 🧠", body: "Your liver is now producing ketones for energy and mental clarity.", delayInSeconds: 12 * 3600)
+                }
+                if target > 16 {
+                    self.scheduleAlert(id: "phase_16h", title: "Autophagy Started 🧬", body: "Cellular repair and anti-aging processes are fully active.", delayInSeconds: 16 * 3600)
+                }
             }
         }
     }

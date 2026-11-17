@@ -102,7 +102,7 @@ struct HydrationWidgetView: View {
         .containerBackground(for: .widget) {
             WidgetPremiumBackground()
         }
-        .widgetURL(URL(string: "foodtracker://hydration")!)
+        .widgetURL(URL(string: "foodtracker://hydration"))
     }
 }
 
@@ -155,7 +155,7 @@ struct MacroRingsWidgetView: View {
         .containerBackground(for: .widget) {
             WidgetPremiumBackground()
         }
-        .widgetURL(URL(string: "foodtracker://macros")!)
+        .widgetURL(URL(string: "foodtracker://macros"))
     }
 }
 
@@ -256,7 +256,7 @@ struct MetabolicScoreWidgetView: View {
         .containerBackground(for: .widget) {
             WidgetPremiumBackground()
         }
-        .widgetURL(URL(string: "foodtracker://metabolic")!)
+        .widgetURL(URL(string: "foodtracker://metabolic"))
     }
     
     var scoreColor: Color {
@@ -349,7 +349,7 @@ struct ShoppingListWidgetView: View {
                 )
             }
         }
-        .widgetURL(URL(string: "foodtracker://shopping")!)
+        .widgetURL(URL(string: "foodtracker://shopping"))
     }
 }
 

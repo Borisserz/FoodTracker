@@ -99,9 +99,11 @@ struct HomeDashboardContentView: View {
                       .ignoresSafeArea()
                   }
 
-                  // Ensure canonical summary whenever selectedDate changes (single task, reactive with @Query)
+                  // Ensure canonical summary whenever selectedDate changes, then sync HealthKit onto that persisted summary
                   .task(id: selectedDate) {
                       await ensureCurrentSummary()
+                      let persisted = DailySummary.fetchOrCreate(for: selectedDate, in: context)
+                      await fetchHealthData(for: persisted)
                   }
 
                   ScrollViewReader { scrollProxy in
@@ -284,9 +286,6 @@ struct HomeDashboardContentView: View {
                   }
               }
               .navigationBarHidden(true)
-              .task(id: selectedDate) {
-                  await fetchHealthData(for: currentSummary)
-              }
               .onAppear {
                   TrackingManager.shared.track(.appOpened(source: "home_dashboard"))
                   Task { allTimeCalories = (try? await di.summaryRepository.fetchAllTimeCalories()) ?? 0 }
@@ -294,6 +293,7 @@ struct HomeDashboardContentView: View {
               }
               .onChange(of: currentSummary.totalCalories) { _, _ in
                   syncStreakAndAchievements()
+                  Task { allTimeCalories = (try? await di.summaryRepository.fetchAllTimeCalories()) ?? 0 }
               }
               .onChange(of: currentSummary.totalHydrationLiters) { _, _ in
                   syncStreakAndAchievements()
@@ -447,6 +447,11 @@ struct HomeDashboardContentView: View {
         
         let addedCals = newFoodItems.reduce(0) { $0 + $1.calories }
         TrackingManager.shared.track(.mealLogged(mealType: canonicalTitle, totalCalories: addedCals))
+        if currentUser?.isHealthKitEnabled == true && addedCals > 0 {
+            Task {
+                await HealthKitManager.shared.saveDietaryEnergy(calories: addedCals, date: mealTimestamp)
+            }
+        }
     }
     
     private func shareDailySummary() {
@@ -1563,10 +1568,13 @@ struct DailyNoteSheet: View {
                                         clearAIMoodStates() // prevent stale chat state from previous mood
                                         
                                         // Trigger AI Advice popup with a small delay for nice animation feel
+                                        let tappedMood = mood.0
                                         Task {
                                             try? await Task.sleep(for: .milliseconds(250))
                                             await MainActor.run {
-                                                selectedMoodForAI = mood.0
+                                                if summary.dayMoodEmoji == tappedMood {
+                                                    selectedMoodForAI = tappedMood
+                                                }
                                             }
                                         }
                                     }

@@ -22,7 +22,14 @@ enum LocalDataResetService {
         "xpClaimedDateKeys",
         "healthKitAuthRequested_v1",
         "isPremiumActivated",
-        "SelectedThemeIndex"
+        "SelectedThemeIndex",
+        "dailyQuestStates_v1",
+        "dailyQuestClaimed_v1",
+        "favoriteRecipeIDs",
+        "blockedCommunityFoods",
+        "loggedMealsCount",
+        "lastReviewPromptAppVersion",
+        "app_first_launch_date"
     ]
 
     /// Wipes all local SwiftData records, resets active fasting timers, clears app-specific defaults, and refreshes widgets.
@@ -56,6 +63,10 @@ enum LocalDataResetService {
 
         for key in onboardingAndFeatureDefaultsKeys {
             defaults.removeObject(forKey: key)
+        }
+
+        if defaults === UserDefaults.standard {
+            ThemeManager.shared.currentThemeIndex = 0
         }
 
         WidgetReloader.reloadAll()

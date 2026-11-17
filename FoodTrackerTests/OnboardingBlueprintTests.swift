@@ -150,4 +150,18 @@ final class OnboardingBlueprintTests: XCTestCase {
         XCTAssertEqual(logs.first?.weight ?? -1, 62.0, accuracy: 0.01)
         XCTAssertEqual(summaries.first?.weight ?? -1, 62.0, accuracy: 0.01)
     }
+
+    func testLoseWeightClampsToSafeMinimum1200Kcal() {
+        let smallUser = OnboardingMetrics(
+            age: 45,
+            height: 150,
+            weight: 48,
+            targetWeight: 46,
+            goal: "Lose Weight",
+            activityLevel: .office,
+            gender: "Female"
+        )
+        let blueprint = MetabolicBlueprintCalculator.calculate(for: smallUser)
+        XCTAssertGreaterThanOrEqual(blueprint.dailyCalories, 1200)
+    }
 }

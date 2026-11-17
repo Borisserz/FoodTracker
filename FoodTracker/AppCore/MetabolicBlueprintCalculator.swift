@@ -68,11 +68,11 @@ enum MetabolicBlueprintCalculator {
         let dailyCalories: Int
         switch metrics.goal {
         case "Lose Weight":
-            dailyCalories = Int(tdee - 450)
+            dailyCalories = max(1200, Int(tdee - 450))
         case "Build Muscle":
             dailyCalories = Int(tdee + 350)
         default:
-            dailyCalories = Int(tdee)
+            dailyCalories = max(1200, Int(tdee))
         }
 
         let proteinGrams = Int(Double(metrics.weight) * 2.1)

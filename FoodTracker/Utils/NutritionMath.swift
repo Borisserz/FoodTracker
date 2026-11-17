@@ -258,20 +258,7 @@ enum NutritionMath {
 
     /// Normalizes localized or variant meal slot titles back to canonical SwiftData keys.
     static func canonicalMealType(_ raw: String) -> String {
-        let lower = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if ["breakfast", "завтрак", "frühstück", "desayuno", "petit-déjeuner", "petit dejeuner", "colazione", "pequeno-almoço", "pequeno almoco"].contains(where: { lower.contains($0) }) {
-            return "Breakfast"
-        }
-        if ["lunch", "обед", "mittagessen", "almuerzo", "comida", "déjeuner", "dejeuner", "pranzo", "almoço", "almoco"].contains(where: { lower.contains($0) }) {
-            return "Lunch"
-        }
-        if ["dinner", "ужин", "abendessen", "cena", "dîner", "diner", "jantar"].contains(where: { lower.contains($0) }) {
-            return "Dinner"
-        }
-        if ["snack", "перекус", "zwischenmahlzeit", "merienda", "collation", "spuntino", "lanche"].contains(where: { lower.contains($0) }) {
-            return "Snack"
-        }
-        return "Snack"
+        DailySummary.canonicalMealSlot(raw)
     }
 
     struct RemainingMacros: Equatable {
@@ -313,16 +300,25 @@ enum NutritionMath {
     ) {
         guard newWeight > 0 else { return }
 
-        let log = WeightLog(date: date, weight: newWeight)
-        context.insert(log)
+        let calendar = Calendar.current
+        let existingLogs = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)]))) ?? []
+
+        let activeLog: WeightLog
+        if let sameDayLog = existingLogs.first(where: { calendar.isDate($0.date, inSameDayAs: date) }) {
+            sameDayLog.weight = newWeight
+            sameDayLog.date = date
+            activeLog = sameDayLog
+        } else {
+            let log = WeightLog(date: date, weight: newWeight)
+            context.insert(log)
+            activeLog = log
+        }
 
         let summary = DailySummary.fetchOrCreate(for: date, in: context)
         summary.weight = newWeight
 
         if let user {
-            let calendar = Calendar.current
-            let existingLogs = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)]))) ?? []
-            let latestOtherDate = existingLogs.first(where: { $0.persistentModelID != log.persistentModelID })?.date
+            let latestOtherDate = existingLogs.first(where: { $0.persistentModelID != activeLog.persistentModelID })?.date
 
             let isCurrentOrNewest = calendar.isDateInToday(date) || latestOtherDate.map { date >= $0 } ?? true
             if isCurrentOrNewest {
