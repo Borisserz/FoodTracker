@@ -76,11 +76,11 @@ public struct ParticleConfettiBurstView: View {
                 }
                 
                 VStack(spacing: 6) {
-                    Text("ДЕНЬ ЗАВЕРШЁН! 🏆")
+                    Text("DAY COMPLETE! 🏆")
                         .font(.system(size: 20, weight: .black, design: .rounded))
                         .foregroundStyle(.white)
                     
-                    Text("Вы закрыли все цели по питанию")
+                    Text("You hit all your nutrition goals")
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(.white.opacity(0.75))
                 }
@@ -91,7 +91,7 @@ public struct ParticleConfettiBurstView: View {
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(Color.yellow)
                     
-                    Text("+\(xpEarned) ОЧКОВ ОПЫТА")
+                    Text("+\(xpEarned) XP")
                         .font(.system(size: 16, weight: .black, design: .rounded))
                         .foregroundStyle(Color.yellow)
                 }
@@ -105,7 +105,7 @@ public struct ParticleConfettiBurstView: View {
                 )
                 
                 Button(action: dismissWithAnimation) {
-                    Text("ЗАБРАТЬ НАГРАДУ ⚡")
+                    Text("CLAIM REWARD ⚡")
                         .font(.system(size: 14, weight: .black, design: .rounded))
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)

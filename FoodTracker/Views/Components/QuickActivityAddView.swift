@@ -12,6 +12,7 @@ struct QuickActivityAddView: View {
     @State private var selectedActivity: ActivityOption?
     @State private var durationMinutes: Double = 30
     @State private var caloriesBurned: Double = 300
+    @State private var isSaving: Bool = false
     
     struct ActivityOption: Identifiable, Hashable {
         let id = UUID()
@@ -153,18 +154,31 @@ struct QuickActivityAddView: View {
     }
     
     private func saveActivity() {
-        guard let activity = selectedActivity else { return }
+        guard !isSaving, let activity = selectedActivity else { return }
+        isSaving = true
+
         let cals = Int(caloriesBurned)
         let duration = Int(durationMinutes)
-        
+        let targetSummary = DailySummary.fetchOrCreate(for: summary.date, in: context)
+
         let log = ActivityLog(title: activity.name, icon: activity.icon, durationMinutes: duration, calories: cals)
         context.insert(log)
-        summary.addActivity(log)
+        targetSummary.addActivity(log)
         try? context.save()
         WidgetReloader.reloadAll()
-        
+
+        let shouldSyncHealthKit = users.first?.isHealthKitEnabled == true
+        let workoutDate = Calendar.current.isDateInToday(summary.date) ? Date() : summary.date
+
         Task {
-            await HealthKitManager.shared.saveWorkout(activityType: activity.hkType, calories: cals, durationMinutes: duration, date: Date())
+            if shouldSyncHealthKit {
+                await HealthKitManager.shared.saveWorkout(
+                    activityType: activity.hkType,
+                    calories: cals,
+                    durationMinutes: duration,
+                    date: workoutDate
+                )
+            }
             await MainActor.run {
                 dismiss()
             }

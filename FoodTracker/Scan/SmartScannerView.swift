@@ -27,6 +27,7 @@ struct SmartScannerView: View {
 
     @State private var isLoading: Bool = false
     @State private var notFoundError: Bool = false
+    @State private var scanErrorMessage: String? = nil
 
     enum ScannerMode { case barcode, mealAI, menuAI }
 
@@ -118,15 +119,52 @@ struct SmartScannerView: View {
                                         .background(Color.white)
                                         .clipShape(Capsule())
                                 }
+
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .light)
+                                    notFoundError = false
+                                    recognizedBarcode = nil
+                                    isScanning = true
+                                }) {
+                                    Text("Scan Again")
+                                        .font(.subheadline.bold())
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 8)
+                                        .background(Color.white.opacity(0.2))
+                                        .clipShape(Capsule())
+                                }
                             }
                         }
                     }
                 } else {
 
-                    if selectedMode == .mealAI {
-                        cameraHint(icon: "viewfinder", text: "Point at your meal\nand snap a photo")
-                    } else if selectedMode == .menuAI {
-                        cameraHint(icon: "text.book.closed.fill", text: "Scan a restaurant menu\nto get smart choices")
+                    if selectedMode == .mealAI || selectedMode == .menuAI {
+                        if cameraManager.isPermissionDenied {
+                            VStack(spacing: 14) {
+                                Image(systemName: "camera.fill")
+                                    .font(.system(size: 36))
+                                    .foregroundColor(.themeOrange)
+                                Text("Camera access is needed to scan meals and menus.")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.center)
+                                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                                    Link("Open Settings", destination: settingsURL)
+                                        .font(.subheadline.bold())
+                                        .foregroundColor(.black)
+                                        .padding(.horizontal, 18)
+                                        .padding(.vertical, 8)
+                                        .background(Color.white)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                            .padding(.horizontal, 32)
+                        } else if selectedMode == .mealAI {
+                            cameraHint(icon: "viewfinder", text: "Point at your meal\nand snap a photo")
+                        } else if selectedMode == .menuAI {
+                            cameraHint(icon: "text.book.closed.fill", text: "Scan a restaurant menu\nto get smart choices")
+                        }
                     }
                 }
 
@@ -215,6 +253,26 @@ struct SmartScannerView: View {
                 if selectedMode == .barcode { isScanning = true }
             }
         }
+        .alert(
+            "Analysis Failed",
+            isPresented: Binding(
+                get: { scanErrorMessage != nil },
+                set: { if !$0 { scanErrorMessage = nil } }
+            )
+        ) {
+            Button("Enter Manually") {
+                scanErrorMessage = nil
+                dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    onManualEntryRequest()
+                }
+            }
+            Button("Try Again", role: .cancel) {
+                scanErrorMessage = nil
+            }
+        } message: {
+            Text(scanErrorMessage ?? "")
+        }
         .onDisappear {
             isScanning = false
 
@@ -299,20 +357,22 @@ struct SmartScannerView: View {
         withAnimation { isAnalyzingAI = true }
 
         Task {
-            if let foodItem = await VertexAIManager.shared.analyzeFoodImage(image) {
-                await MainActor.run {
-                    withAnimation { isAnalyzingAI = false }
+            let result = await VertexAIManager.shared.analyzeFoodImageDetailed(image)
+            await MainActor.run {
+                withAnimation { isAnalyzingAI = false }
+                switch result {
+                case .food(let foodItem):
                     HapticManager.shared.impact(style: .heavy)
                     onProductFound(foodItem)
                     dismiss()
-                }
-            } else {
-                await MainActor.run {
-                    withAnimation { isAnalyzingAI = false }
+                case .notFood(let message):
                     cameraManager.capturedImage = nil
-                    // Better user feedback for AI vision failures (was silent before)
-                    // In a fuller implementation we would surface via appState or a local banner.
-                    print("❌ Meal AI analysis failed - user will see camera reset")
+                    HapticManager.shared.notification(type: .warning)
+                    scanErrorMessage = message
+                case .failed:
+                    cameraManager.capturedImage = nil
+                    HapticManager.shared.notification(type: .error)
+                    scanErrorMessage = String(localized: "Couldn't recognize food in this photo or the AI service is temporarily unavailable. Please try again or enter manually.")
                 }
             }
         }
@@ -333,7 +393,7 @@ struct SmartScannerView: View {
                 await MainActor.run {
                     withAnimation { isAnalyzingAI = false }
                     cameraManager.capturedImage = nil
-                    print("❌ Menu AI analysis failed - user will see camera reset")
+                    scanErrorMessage = String(localized: "Couldn't analyze this menu right now. Please try a clearer photo.")
                 }
             }
         }
@@ -365,29 +425,42 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     // Migrated from ObservableObject/@Published to @Observable (plain vars now notify observers)
     var session = AVCaptureSession()
     var capturedImage: UIImage? = nil
+    var isPermissionDenied: Bool = false
+    var isCameraUnavailable: Bool = false
 
     private let photoOutput = AVCapturePhotoOutput()
+    private let sessionQueue = DispatchQueue(label: "com.borisdev.FoodTracker.cameraSession")
     private var isConfigured = false
 
     func checkPermissionAndStart() {
+        guard AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) != nil else {
+            isCameraUnavailable = true
+            return
+        }
+        isCameraUnavailable = false
+
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
+            isPermissionDenied = false
             setupAndStart()
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
-                if granted {
-                    DispatchQueue.main.async { self?.setupAndStart() }
+                DispatchQueue.main.async {
+                    self?.isPermissionDenied = !granted
+                    if granted {
+                        self?.setupAndStart()
+                    }
                 }
             }
         default:
-            break
+            isPermissionDenied = true
         }
     }
 
     private func setupAndStart() {
         guard !isConfigured else {
             if !session.isRunning {
-                DispatchQueue.global(qos: .userInitiated).async { self.session.startRunning() }
+                sessionQueue.async { self.session.startRunning() }
             }
             return
         }
@@ -399,6 +472,7 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
               let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
               session.canAddInput(videoInput) else {
             session.commitConfiguration()
+            isCameraUnavailable = true
             return
         }
 
@@ -428,20 +502,21 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
         session.commitConfiguration()
         isConfigured = true
 
-        DispatchQueue.global(qos: .userInitiated).async {
+        sessionQueue.async {
             self.session.startRunning()
         }
     }
 
     func stop() {
         if session.isRunning {
-            DispatchQueue.global(qos: .userInitiated).async {
+            sessionQueue.async {
                 self.session.stopRunning()
             }
         }
     }
 
     func takePhoto() {
+        guard !isCameraUnavailable, isConfigured else { return }
         let settings = AVCapturePhotoSettings()
         photoOutput.capturePhoto(with: settings, delegate: self)
     }
@@ -458,11 +533,10 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
 
     private func fixOrientation(img: UIImage) -> UIImage {
         guard img.imageOrientation != .up else { return img }
-        UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale)
-        img.draw(in: CGRect(origin: .zero, size: img.size))
-        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return normalizedImage ?? img
+        let renderer = UIGraphicsImageRenderer(size: img.size)
+        return renderer.image { _ in
+            img.draw(in: CGRect(origin: .zero, size: img.size))
+        }
     }
 }
 

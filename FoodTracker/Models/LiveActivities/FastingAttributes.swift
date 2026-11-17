@@ -20,3 +20,11 @@ public struct FastingAttributes: ActivityAttributes {
         self.targetEndDate = targetEndDate
     }
 }
+
+public enum FastingActivityTiming {
+    /// Returns a valid ascending range for countdown timers, or `nil` once the target end date has passed.
+    public static func remainingInterval(now: Date = Date(), targetEndDate: Date) -> ClosedRange<Date>? {
+        guard now < targetEndDate else { return nil }
+        return now...targetEndDate
+    }
+}

@@ -164,11 +164,13 @@ struct AICoachChatView: View {
 
             let userContext = "User's goal is \(userGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(userGoal - consumed) kcal."
 
-                       let aiResponseText = await AINutritionService.shared.sendChatMessage(
-                           prompt: text,
-                           userContext: userContext,
-                           activeDiet: activeDiet
-                       ) ?? "I couldn't process that right now."
+            let priorMessages = Array(chatHistory.dropLast().suffix(8))
+            let aiResponseText = await AINutritionService.shared.sendChatMessage(
+                prompt: text,
+                userContext: userContext,
+                activeDiet: activeDiet,
+                history: priorMessages
+            ) ?? "I couldn't process that right now."
 
             await MainActor.run {
                 let aiMsg = AIChatMessage(isUser: false, text: aiResponseText, isAnimating: true)

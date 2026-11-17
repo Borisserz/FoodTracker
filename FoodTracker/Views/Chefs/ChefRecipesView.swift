@@ -19,8 +19,52 @@ struct PremiumRecipe: Identifiable, Hashable, Codable {
 
     let ingredients: [RecipeIngredient]
     let directions: [String]
+}
 
-    
+extension PremiumRecipe {
+    func toAIChefRecipe() -> AIChefRecipe {
+        let parsedCookTime = Int(time.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()) ?? 20
+        let cookTime = parsedCookTime > 0 ? parsedCookTime : 20
+        let stepIcons = ["flame.fill", "scalemass.fill", "clock.fill", "fork.knife", "sparkles"]
+        let mappedSteps: [RecipeStep] = directions.enumerated().map { idx, stepText in
+            RecipeStep(
+                instruction: stepText,
+                imageName: stepIcons[idx % stepIcons.count],
+                aiTip: nil
+            )
+        }
+        let fallbackSteps = mappedSteps.isEmpty
+            ? [RecipeStep(instruction: description, imageName: "fork.knife", aiTip: nil)]
+            : mappedSteps
+
+        let difficultyScore: Int
+        if tags.contains(where: { $0.localizedCaseInsensitiveContains("Easy") }) {
+            difficultyScore = 1
+        } else if tags.contains(where: { $0.localizedCaseInsensitiveContains("Hard") }) {
+            difficultyScore = 4
+        } else {
+            difficultyScore = min(max(fallbackSteps.count / 2 + 1, 1), 5)
+        }
+
+        let formattedIngredients = ingredients.map { "\($0.name) (\($0.amount))" }
+
+        return AIChefRecipe(
+            id: id ?? title,
+            title: title,
+            calories: caloriesPerServing,
+            protein: Int(protein.rounded()),
+            fat: Int(fat.rounded()),
+            carbs: Int(carbs.rounded()),
+            heroImage: imageUrl,
+            cookTime: cookTime,
+            difficulty: difficultyScore,
+            history: description,
+            ingredients: formattedIngredients,
+            steps: fallbackSteps,
+            platingTip: String(localized: "Serve warm and garnish cleanly for best presentation."),
+            tags: tags
+        )
+    }
 }
 struct RecipeIngredient: Hashable, Codable {
     let name: String
@@ -1222,14 +1266,11 @@ struct ChooseMealSheet: View {
     }
 
     private func saveToDiary() async {
-        // Route summary creation/ensure through the @ModelActor-powered repository
-        _ = try? await di.summaryRepository.ensureSummary(for: Date.now)
-
-        // Prefer the one from the local @Query (live from main context)
-        guard let summary = summaries.first else { return }
+        let startOfDay = Calendar.current.startOfDay(for: Date.now)
+        let summary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
 
         let newFood = FoodItem(name: recipe.title, weight: 100, calories: calories, protein: p, fats: f, carbs: c)
-        // Attach via relationship; explicit insert for the item/meal is kept for safety with current cascades
+        context.insert(newFood)
         if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
             meal.addFoodItem(newFood)
         } else {
@@ -1251,29 +1292,4 @@ struct RecipeTagLayout: Layout {
     private func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [Row] { var rows: [Row] = []; var currentRow = Row(); var currentX: CGFloat = 0; let maxWidth = proposal.width ?? UIScreen.main.bounds.width; for subview in subviews { let size = subview.sizeThatFits(.unspecified); if currentX + size.width > maxWidth && !currentRow.elements.isEmpty { rows.append(currentRow); currentRow = Row(); currentX = 0 }; currentRow.elements.append(Element(view: subview, size: size)); currentRow.maxHeight = max(currentRow.maxHeight, size.height); currentX += size.width + spacing }; if !currentRow.elements.isEmpty { rows.append(currentRow) }; return rows }
     private struct Row { var elements: [Element] = []; var maxHeight: CGFloat = 0 }
     private struct Element { let view: LayoutSubview; let size: CGSize }
-}
-
-extension PremiumRecipe {
-    func toAIChefRecipe() -> AIChefRecipe {
-        let recipeSteps = directions.map { step in
-            RecipeStep(instruction: step, imageName: "fork.knife", aiTip: nil)
-        }
-        let ingredientNames = ingredients.map { "\($0.name) (\($0.amount))" }
-        let cleanTime = Int(time.replacingOccurrences(of: " min", with: "").replacingOccurrences(of: " min.", with: "")) ?? 20
-        return AIChefRecipe(
-            id: id ?? UUID().uuidString,
-            title: title,
-            calories: caloriesPerServing,
-            protein: Int(protein),
-            fat: Int(fat),
-            carbs: Int(carbs),
-            heroImage: "fork.knife",
-            cookTime: cleanTime,
-            difficulty: 3,
-            history: description,
-            ingredients: ingredientNames,
-            steps: recipeSteps,
-            platingTip: "Serve hot and enjoy your healthy meal!"
-        )
-    }
 }

@@ -644,11 +644,11 @@ struct AddIngredientModalView: View {
     private func saveIngredient() {
         HapticManager.shared.impact(style: .heavy)
 
-        let w = Double(weight) ?? 100.0
-        let cals = Int(calories) ?? 0
-        let p = Double(protein) ?? 0.0
-        let f = Double(fats) ?? 0.0
-        let c = Double(carbs) ?? 0.0
+        let w = NutritionMath.parsePositiveDecimal(weight) ?? 100.0
+        let cals = Int(NutritionMath.parseNonNegativeDecimal(calories) ?? 0)
+        let p = NutritionMath.parseNonNegativeDecimal(protein) ?? 0.0
+        let f = NutritionMath.parseNonNegativeDecimal(fats) ?? 0.0
+        let c = NutritionMath.parseNonNegativeDecimal(carbs) ?? 0.0
 
         let newFood = FoodItem(name: name, weight: w, calories: cals, protein: p, fats: f, carbs: c)
 
@@ -1043,12 +1043,11 @@ struct RecipeDetailView: View {
         }
 
         private func saveToDiary() async {
-            // Use @ModelActor repo to ensure the day's summary (removes detached creation)
-            _ = try? await di.summaryRepository.ensureSummary(for: Date.now)
-
-            guard let summary = summaries.first else { return }
+            let startOfDay = Calendar.current.startOfDay(for: Date.now)
+            let summary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
 
             let newFood = recipe.toFoodItem()
+            context.insert(newFood)
             if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
                 meal.addFoodItem(newFood)
             } else {

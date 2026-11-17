@@ -46,10 +46,10 @@ struct HydrationFlaskCardView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("ГИДРАТАЦИЯ")
+                        Text("HYDRATION")
                             .font(.system(size: 11, weight: .black, design: .monospaced))
                             .foregroundStyle(Color.cyan)
-                        Text("Баланс воды")
+                        Text("Water Balance")
                             .font(.system(size: 17, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.primary)
                     }
@@ -108,12 +108,12 @@ struct HydrationFlaskCardView: View {
                                 .foregroundStyle(Color.primary)
                                 .contentTransition(.numericText(value: waterLiters))
                             
-                            Text("Л")
+                            Text("L")
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
                                 .foregroundStyle(Color.cyan)
                         }
                         
-                        Text("из \(dailyGoalLiters, specifier: "%.1f") Л цели")
+                        Text("of \(dailyGoalLiters, specifier: "%.1f") L goal")
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundStyle(Color.secondary)
                     }
@@ -128,7 +128,7 @@ struct HydrationFlaskCardView: View {
                 // Glass +250ml Button
                 FlaskActionButton(
                     icon: "drop.fill",
-                    title: "+250 мл",
+                    title: "+250 ml",
                     color: Color.cyan
                 ) {
                     addWater(ml: 250)
@@ -137,7 +137,7 @@ struct HydrationFlaskCardView: View {
                 // Bottle +500ml Button
                 FlaskActionButton(
                     icon: "waterbottle.fill",
-                    title: "+500 мл",
+                    title: "+500 ml",
                     color: Color.blue
                 ) {
                     addWater(ml: 500)

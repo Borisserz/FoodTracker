@@ -1,20 +1,66 @@
 import SwiftUI
+import SwiftData
 import PhotosUI
+
+enum BeforeAfterStorage {
+    private static let analysisDefaultsKey = "beforeAfterAnalysis_v1"
+
+    private static var storageDirectory: URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("BeforeAfterPhotos", isDirectory: true)
+    }
+
+    static func saveImage(_ image: UIImage, slot: String) {
+        guard let dir = storageDirectory else { return }
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent("\(slot).jpg")
+        if let data = image.jpegData(compressionQuality: 0.8) {
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+
+    static func loadImage(slot: String) -> UIImage? {
+        guard let url = storageDirectory?.appendingPathComponent("\(slot).jpg"),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return UIImage(data: data)
+    }
+
+    static func saveAnalysis(_ analysis: VertexAIManager.TransformationAnalysisDTO) {
+        if let encoded = try? JSONEncoder().encode(analysis) {
+            UserDefaults.standard.set(encoded, forKey: analysisDefaultsKey)
+        }
+    }
+
+    static func loadAnalysis() -> VertexAIManager.TransformationAnalysisDTO? {
+        guard let data = UserDefaults.standard.data(forKey: analysisDefaultsKey) else { return nil }
+        return try? JSONDecoder().decode(VertexAIManager.TransformationAnalysisDTO.self, from: data)
+    }
+
+    static func clearAll() {
+        UserDefaults.standard.removeObject(forKey: analysisDefaultsKey)
+        if let dir = storageDirectory {
+            try? FileManager.default.removeItem(at: dir)
+        }
+    }
+}
 
 struct BeforeAfterView: View {
     @Environment(ThemeManager.self) private var themeManager
-    
+    @Query private var users: [User]
+
     @State private var beforeItem: PhotosPickerItem?
     @State private var afterItem: PhotosPickerItem?
-    
+
     @State private var beforeImage: UIImage?
     @State private var afterImage: UIImage?
-    
+
     @State private var sliderPosition: CGFloat = 0.5 // 0.0 to 1.0
     @State private var isDragging = false
-    
+
     @State private var isAnalyzing = false
-    @State private var hasAnalyzed = false
+    @State private var analysisResult: VertexAIManager.TransformationAnalysisDTO?
+    @State private var analysisError: String?
+    @State private var didRestorePersisted = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -33,7 +79,9 @@ struct BeforeAfterView: View {
                             afterImage = nil
                             sliderPosition = 0.5
                             isAnalyzing = false
-                            hasAnalyzed = false
+                            analysisResult = nil
+                            analysisError = nil
+                            BeforeAfterStorage.clearAll()
                         }
                     }
                     .font(.caption.bold())
@@ -74,13 +122,26 @@ struct BeforeAfterView: View {
             }
             .shadow(color: .black.opacity(0.04), radius: 10, y: 4)
         }
+        .onAppear {
+            guard !didRestorePersisted else { return }
+            didRestorePersisted = true
+            beforeImage = BeforeAfterStorage.loadImage(slot: "before")
+            afterImage = BeforeAfterStorage.loadImage(slot: "after")
+            analysisResult = BeforeAfterStorage.loadAnalysis()
+        }
         .onChange(of: beforeImage) { _, newValue in
-            if newValue != nil && afterImage != nil {
+            guard didRestorePersisted, let newValue else { return }
+            BeforeAfterStorage.saveImage(newValue, slot: "before")
+            analysisResult = nil
+            if afterImage != nil {
                 triggerAnalysis()
             }
         }
         .onChange(of: afterImage) { _, newValue in
-            if newValue != nil && beforeImage != nil {
+            guard didRestorePersisted, let newValue else { return }
+            BeforeAfterStorage.saveImage(newValue, slot: "after")
+            analysisResult = nil
+            if beforeImage != nil {
                 triggerAnalysis()
             }
         }
@@ -261,45 +322,66 @@ struct BeforeAfterView: View {
         .animation(.interactiveSpring, value: sliderPosition)
     }
     
-    private func triggerAnalysis() {
-        guard !isAnalyzing && !hasAnalyzed else { return }
+    private func triggerAnalysis(force: Bool = false) {
+        guard !isAnalyzing else { return }
+        if !force && analysisResult != nil { return }
+        guard let before = beforeImage, let after = afterImage else { return }
+
         isAnalyzing = true
-        hasAnalyzed = false
-        
-        Task { @MainActor in
+        analysisError = nil
+        let goal = users.first?.weightGoalType
+
+        Task {
             HapticManager.shared.impact(style: .medium)
-            try? await Task.sleep(for: .seconds(2.5))
-            HapticManager.shared.notification(type: .success)
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                isAnalyzing = false
-                hasAnalyzed = true
+            do {
+                let result = try await VertexAIManager.shared.analyzeBeforeAfterPhotos(
+                    before: before,
+                    after: after,
+                    goal: goal
+                )
+                await MainActor.run {
+                    BeforeAfterStorage.saveAnalysis(result)
+                    HapticManager.shared.notification(type: .success)
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                        isAnalyzing = false
+                        analysisResult = result
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    HapticManager.shared.notification(type: .error)
+                    withAnimation {
+                        isAnalyzing = false
+                        analysisError = String(localized: "Couldn't analyze these photos right now. Check your connection and try again.")
+                    }
+                }
             }
         }
     }
-    
+
     private var aiPhotoAnalysisSection: some View {
         VStack(alignment: .leading, spacing: 14) {
             Divider()
                 .background(themeManager.current.primaryAccent.opacity(0.15))
                 .padding(.vertical, 4)
-            
+
             HStack(spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(themeManager.current.primaryAccent.opacity(0.15))
                         .frame(width: 32, height: 32)
-                    
+
                     Image(systemName: "sparkles")
                         .font(.subheadline)
                         .foregroundStyle(themeManager.current.primaryAccent)
                 }
-                
+
                 Text("AI Fitness Scanner")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.primary)
-                
+
                 Spacer()
-                
+
                 if isAnalyzing {
                     Text("Scanning...")
                         .font(.caption2.bold())
@@ -308,25 +390,30 @@ struct BeforeAfterView: View {
                         .padding(.vertical, 4)
                         .background(themeManager.current.primaryAccent.opacity(0.1))
                         .cornerRadius(6)
-                } else if hasAnalyzed {
-                    Text("Analysis Complete")
-                        .font(.caption2.bold())
-                        .foregroundStyle(.green)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(6)
+                } else if analysisResult != nil {
+                    Button {
+                        triggerAnalysis(force: true)
+                    } label: {
+                        Label("Re-analyze", systemImage: "arrow.clockwise")
+                            .font(.caption2.bold())
+                            .foregroundStyle(.green)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.green.opacity(0.1))
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            
+
             if isAnalyzing {
                 VStack(spacing: 12) {
                     ProgressView()
                         .tint(themeManager.current.primaryAccent)
                         .scaleEffect(1.2)
                         .padding(.top, 10)
-                    
-                    Text("Aligning frames & estimating body fat composition...")
+
+                    Text("Comparing posture, lighting, and visual composition...")
                         .font(.caption)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
@@ -337,48 +424,48 @@ struct BeforeAfterView: View {
                 .background(Color.gray.opacity(0.03))
                 .cornerRadius(16)
                 .transition(.opacity)
-            } else if hasAnalyzed {
-                VStack(alignment: .leading, spacing: 16) {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        MetricDeltaCard(
-                            label: "Waist / Abs",
-                            delta: "-4.2 cm",
-                            desc: "Fat Reduction",
-                            color: themeManager.current.primaryAccent,
-                            isLoss: true
-                        )
-                        
-                        MetricDeltaCard(
-                            label: "Shoulders / Back",
-                            delta: "+1.8 cm",
-                            desc: "Muscle Gained",
-                            color: .green,
-                            isLoss: false
-                        )
-                        
-                        MetricDeltaCard(
-                            label: "Upper Arms",
-                            delta: "+0.6 cm",
-                            desc: "Tone Gained",
-                            color: .green,
-                            isLoss: false
-                        )
-                        
-                        MetricDeltaCard(
-                            label: "Est. Body Fat",
-                            delta: "-3.4%",
-                            desc: "Overall Lean",
-                            color: themeManager.current.primaryAccent,
-                            isLoss: true
-                        )
+            } else if let error = analysisError {
+                VStack(spacing: 12) {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    Button("Retry Analysis") {
+                        triggerAnalysis(force: true)
                     }
-                    
+                    .font(.caption.bold())
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(themeManager.current.primaryAccent.opacity(0.15))
+                    .foregroundStyle(themeManager.current.primaryAccent)
+                    .cornerRadius(10)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(16)
+                .background(Color.red.opacity(0.05))
+                .cornerRadius(14)
+            } else if let result = analysisResult {
+                VStack(alignment: .leading, spacing: 16) {
+                    if !result.metrics.isEmpty {
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                            ForEach(result.metrics.prefix(4)) { metric in
+                                MetricDeltaCard(
+                                    label: metric.label,
+                                    delta: metric.value,
+                                    desc: metric.detail,
+                                    color: metric.isPositive ? .green : themeManager.current.primaryAccent,
+                                    isLoss: !metric.isPositive
+                                )
+                            }
+                        }
+                    }
+
                     VStack(alignment: .leading, spacing: 6) {
                         Text("AI Feedback:")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(.primary)
-                        
-                        Text("AI analysis detected noticeable chest and shoulder hypertrophy (+1.8cm). The abdominal region shows significant tightening (-4.2cm waist), corresponding to a fat reduction of ~3.4%. Posture alignment is also visibly improved, indicating stronger core stabilization. Keep up the high-protein pacing!")
+
+                        Text(result.feedback)
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.gray)
                             .lineSpacing(3)

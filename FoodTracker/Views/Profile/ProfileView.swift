@@ -367,7 +367,7 @@ struct SettingsView: View {
                                     SpotlightTourManager.shared.resetTour()
                                 }
                             }) {
-                                SettingsRowView(icon: "sparkles", iconColor: .cyan, title: "Интерактивный тур по функциям")
+                                SettingsRowView(icon: "sparkles", iconColor: .cyan, title: String(localized: "Interactive Feature Tour"))
                             }
                             Divider().padding(.leading, 56)
 
@@ -523,11 +523,15 @@ struct SettingsRowView: View {
 
 struct AccountSettingsView: View {
     @Environment(AuthManager.self) private var authManager
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    @Query private var summaries: [DailySummary]
     let user: User
 
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showError = false
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         ZStack {
@@ -538,12 +542,12 @@ struct AccountSettingsView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     AccountInfoRow(title: "User ID", value: String(authManager.currentUserId.prefix(8)))
                     Divider()
-                    AccountInfoRow(title: "Account type", value: authManager.isAnonymous ? "Guest" : "Registered", valueColor: authManager.isAnonymous ? .gray : .themePink)
+                    AccountInfoRow(title: "Account type", value: authManager.isAnonymous ? String(localized: "Guest") : String(localized: "Registered"), valueColor: authManager.isAnonymous ? .gray : .themePink)
                     Divider()
                     if !authManager.isAnonymous, let email = authManager.currentUserEmail {
                         AccountInfoRow(title: "Email", value: email)
                     } else {
-                        AccountInfoRow(title: "Total logged days", value: "42")
+                        AccountInfoRow(title: "Total logged days", value: "\(summaries.count)")
                     }
                 }
                 .padding(20)
@@ -636,18 +640,7 @@ struct AccountSettingsView: View {
                     }
 
                     Button(action: {
-                        Task {
-                            isLoading = true
-                            do {
-                                try await SocialAuthService.shared.reauthenticateForDeletion()
-                                try await authManager.deleteCurrentUser()
-                                try await AnonymousAuthBootstrap.shared.ensureSignedIn()
-                            } catch {
-                                errorMessage = error.localizedDescription
-                                showError = true
-                            }
-                            isLoading = false
-                        }
+                        showDeleteConfirmation = true
                     }) {
                         HStack {
                             Image(systemName: "trash")
@@ -661,6 +654,31 @@ struct AccountSettingsView: View {
                         .cornerRadius(20)
                     }
                     .buttonStyle(BounceButtonStyle())
+                    .confirmationDialog(
+                        "Delete account and all local data?",
+                        isPresented: $showDeleteConfirmation,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Delete Account", role: .destructive) {
+                            Task {
+                                isLoading = true
+                                do {
+                                    try await SocialAuthService.shared.reauthenticateForDeletion()
+                                    try await authManager.deleteCurrentUser()
+                                    LocalDataResetService.wipeAllData(in: context)
+                                    try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+                                    dismiss()
+                                } catch {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                }
+                                isLoading = false
+                            }
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("This permanently deletes your account and clears all meals, recipes, weight logs, and settings from this device.")
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 40)
@@ -681,7 +699,7 @@ struct AccountSettingsView: View {
 }
 
 struct AccountInfoRow: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: String
     var valueColor: Color = .primary
 

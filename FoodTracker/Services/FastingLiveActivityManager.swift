@@ -16,11 +16,33 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     @ObservationIgnored private var lastSentStage: String?
     @ObservationIgnored private var lastSentProgress: Double = -1.0
     
-    private init() {}
-    
+    private init() {
+        currentActivity = Activity<FastingAttributes>.activities.first
+    }
+
+    private func activeActivity() -> Activity<FastingAttributes>? {
+        if let current = currentActivity,
+           Activity<FastingAttributes>.activities.contains(where: { $0.id == current.id }) {
+            return current
+        }
+        let rehydrated = Activity<FastingAttributes>.activities.first
+        currentActivity = rehydrated
+        return rehydrated
+    }
+
     func startActivity(planName: String, targetHours: Int, startTime: Date) {
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
-        
+        guard ActivityAuthorizationInfo().areActivitiesEnabled, targetHours > 0 else { return }
+
+        // Clean up any existing fasting activities so cold-restart orphans don't linger
+        let existingActivities = Activity<FastingAttributes>.activities
+        if !existingActivities.isEmpty {
+            Task {
+                for existing in existingActivities {
+                    await existing.end(nil, dismissalPolicy: .immediate)
+                }
+            }
+        }
+
         let targetEndDate = startTime.addingTimeInterval(TimeInterval(targetHours * 3600))
         
         let attributes = FastingAttributes(
@@ -54,7 +76,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     }
     
     func updateActivity(currentStage: String, progressPct: Double) {
-        guard let activity = currentActivity else { return }
+        guard let activity = activeActivity() else { return }
         // Avoid spamming ActivityKit every 1-second timer tick unless stage changed or progress moved >= 1%
         if currentStage == lastSentStage && abs(progressPct - lastSentProgress) < 0.01 {
             return
@@ -79,8 +101,10 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     }
     
     func endActivity() {
-        guard let activity = currentActivity else { return }
-        
+        let activitiesToEnd = Activity<FastingAttributes>.activities
+        guard !activitiesToEnd.isEmpty || currentActivity != nil else { return }
+        let fallbackCurrent = currentActivity
+
         let finalState = FastingAttributes.ContentState(
             currentStage: "Completed",
             progressPct: 1.0
@@ -91,12 +115,18 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
             staleDate: nil,
             relevanceScore: 0
         )
-        
+
+        currentActivity = nil
+        lastSentStage = nil
+        lastSentProgress = -1.0
+
         Task {
-            await activity.end(finalContent, dismissalPolicy: .default)
-            currentActivity = nil
-            lastSentStage = nil
-            lastSentProgress = -1.0
+            for activity in activitiesToEnd {
+                await activity.end(finalContent, dismissalPolicy: .default)
+            }
+            if let fallbackCurrent, !activitiesToEnd.contains(where: { $0.id == fallbackCurrent.id }) {
+                await fallbackCurrent.end(finalContent, dismissalPolicy: .default)
+            }
         }
     }
 }

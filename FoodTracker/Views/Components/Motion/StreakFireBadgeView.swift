@@ -52,7 +52,7 @@ public struct StreakFireBadgeView: View {
             }
             .frame(width: 24, height: 24)
             
-            Text("\(streakDays) ДНЕЙ СТРАЙК")
+            Text("\(streakDays) DAY STREAK")
                 .font(.system(size: 12, weight: .black, design: .rounded))
                 .foregroundStyle(
                     LinearGradient(

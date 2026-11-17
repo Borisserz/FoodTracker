@@ -79,8 +79,8 @@ public struct ARFoodHUDOverlay: View {
                 if calloutsAppeared {
                     // Top-Left: Protein Badge
                     ARNutrientBadge(
-                        title: "БЕЛКИ",
-                        value: "+32г",
+                        title: String(localized: "PROTEIN"),
+                        value: "+32g",
                         color: Color.cyan,
                         icon: "figure.strengthtraining.traditional"
                     )
@@ -89,8 +89,8 @@ public struct ARFoodHUDOverlay: View {
                     
                     // Top-Right: Healthy Fats Badge
                     ARNutrientBadge(
-                        title: "ПОЛЕЗНЫЕ ЖИРЫ",
-                        value: "+18г",
+                        title: String(localized: "HEALTHY FATS"),
+                        value: "+18g",
                         color: Color.green,
                         icon: "leaf.fill"
                     )
@@ -99,8 +99,8 @@ public struct ARFoodHUDOverlay: View {
                     
                     // Bottom-Right: Complex Carbs Badge
                     ARNutrientBadge(
-                        title: "УГЛЕВОДЫ",
-                        value: "+24г",
+                        title: String(localized: "CARBS"),
+                        value: "+24g",
                         color: Color.orange,
                         icon: "bolt.fill"
                     )

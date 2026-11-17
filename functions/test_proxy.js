@@ -309,3 +309,59 @@ test("buildOAuth1FatSecretURL builds signed OAuth 1.0 URL", () => {
   assert.equal(parsed.searchParams.get("method"), "foods.search");
   assert.ok(parsed.searchParams.get("oauth_signature"));
 });
+
+test("computeRateLimitTransition reserves atomically and rejects at limit", () => {
+  const now = 1_700_000_000_000;
+  const fresh = t.computeRateLimitTransition(null, now, 200, 7 * 24 * 60 * 60 * 1000);
+  assert.deepEqual(fresh, {
+    allowed: true,
+    nextWindowStart: now,
+    nextCount: 1,
+    retryAfterSeconds: 0,
+  });
+
+  const atLimit = t.computeRateLimitTransition(
+    { windowStart: now - 1000, count: 200 },
+    now,
+    200,
+    7 * 24 * 60 * 60 * 1000
+  );
+  assert.equal(atLimit.allowed, false);
+  assert.ok(atLimit.retryAfterSeconds > 0);
+
+  const expiredWindow = t.computeRateLimitTransition(
+    { windowStart: now - 8 * 24 * 60 * 60 * 1000, count: 200 },
+    now,
+    200,
+    7 * 24 * 60 * 60 * 1000
+  );
+  assert.equal(expiredWindow.allowed, true);
+  assert.equal(expiredWindow.nextCount, 1);
+  assert.equal(expiredWindow.nextWindowStart, now);
+});
+
+test("upstreamTimeoutForBody allocates extended budget for heavy weekly plan & vision prompts", () => {
+  const shortPrompt = { contents: [{ role: "user", parts: [{ text: "Hi coach" }] }] };
+  const heavyPlanPrompt = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: "Generate a 7-day meal plan (0 to 6) with 4 meals per day " + "x".repeat(700),
+          },
+        ],
+      },
+    ],
+  };
+  const visionPrompt = {
+    contents: [{ role: "user", parts: [{ inlineData: { mimeType: "image/jpeg", data: "abc" } }] }],
+  };
+
+  const normalMs = t.upstreamTimeoutForBody(shortPrompt);
+  const heavyMs = t.upstreamTimeoutForBody(heavyPlanPrompt);
+  const visionMs = t.upstreamTimeoutForBody(visionPrompt);
+
+  assert.ok(heavyMs > normalMs, "Heavy 7-day plan must receive higher timeout than short chat");
+  assert.ok(visionMs >= heavyMs || visionMs >= 35000);
+});

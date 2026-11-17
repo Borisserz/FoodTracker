@@ -79,12 +79,12 @@ struct BentoMealCardView: View {
                                 .font(.system(size: 18, weight: .heavy, design: .rounded))
                                 .foregroundStyle(Color.primary)
                             
-                            Text("ккал")
+                            Text("kcal")
                                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Color.secondary)
                         }
                     } else {
-                        Text("Не заполнено")
+                        Text("Not logged")
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundStyle(Color.secondary.opacity(0.7))
                     }
@@ -94,7 +94,7 @@ struct BentoMealCardView: View {
                 
                 // Target info
                 VStack(alignment: .trailing, spacing: 1) {
-                    Text("Цель")
+                    Text("Goal")
                         .font(.system(size: 10, weight: .semibold, design: .rounded))
                         .foregroundStyle(Color.secondary.opacity(0.8))
                     
@@ -102,7 +102,7 @@ struct BentoMealCardView: View {
                         .font(.system(size: 14, weight: .bold, design: .monospaced))
                         .foregroundStyle(Color.secondary)
                     
-                    Text("ккал")
+                    Text("kcal")
                         .font(.system(size: 9, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.secondary.opacity(0.6))
                 }
@@ -132,20 +132,20 @@ struct BentoMealCardView: View {
             if isLogged {
                 HStack(spacing: 8) {
                     BentoMacroPill(
-                        label: "Белки",
-                        value: "\(Int(protein ?? 0))г",
+                        label: String(localized: "Protein"),
+                        value: String(localized: "\(Int(protein ?? 0))g"),
                         color: Color.themePeach
                     )
                     
                     BentoMacroPill(
-                        label: "Жиры",
-                        value: "\(Int(fats ?? 0))г",
+                        label: String(localized: "Fat"),
+                        value: String(localized: "\(Int(fats ?? 0))g"),
                         color: Color.themeYellow
                     )
                     
                     BentoMacroPill(
-                        label: "Углеводы",
-                        value: "\(Int(carbs ?? 0))г",
+                        label: String(localized: "Carbs"),
+                        value: String(localized: "\(Int(carbs ?? 0))g"),
                         color: Color.drinkWater
                     )
                     

@@ -15,7 +15,7 @@ struct HomeDashboardContentView: View {
     @Environment(\.modelContext) private var context
     @Environment(DIContainer.self) private var di
     @Query private var users: [User]
-    @Query private var summaries: [DailySummary]
+    @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
     @Environment(\.scenePhase) private var scenePhase
     @Binding var selectedDate: Date
     @State private var navigateToProfile = false
@@ -38,10 +38,6 @@ struct HomeDashboardContentView: View {
 
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
-        let startOfDay = Calendar.current.startOfDay(for: selectedDate.wrappedValue)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
-        let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
-        self._summaries = Query(filter: predicate)
     }
 
     private var currentUser: User? { users.first }
@@ -51,15 +47,16 @@ struct HomeDashboardContentView: View {
         if let existing = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
             return existing
         } else {
-            // Never return a detached object. The ensure task below (or callers) will create via the actor repo.
-            // Return a transient placeholder; UI code should ensure before heavy mutation.
             return DailySummary(date: startOfDay)
         }
     }
 
     private func ensureCurrentSummary() async {
-        // Route creation through the @ModelActor-powered repository so the write is isolated.
-        _ = try? await di.summaryRepository.ensureSummary(for: selectedDate)
+        // Ensure canonical summary on the view's mainContext so @Query and child bindings stay attached for any selectedDate.
+        _ = DailySummary.fetchOrCreate(for: selectedDate, in: context)
+        if context.hasChanges {
+            try? context.save()
+        }
     }
 
     private func getRecommendedCalories(for mealType: String) -> Int {
@@ -101,11 +98,8 @@ struct HomeDashboardContentView: View {
                       .ignoresSafeArea()
                   }
 
-                  // Ensure the day's summary exists via the actor-isolated repo (removes detached main-context creation).
+                  // Ensure canonical summary whenever selectedDate changes (single task, reactive with @Query)
                   .task(id: selectedDate) {
-                      await ensureCurrentSummary()
-                  }
-                  .task {
                       await ensureCurrentSummary()
                   }
 
@@ -333,9 +327,13 @@ struct HomeDashboardContentView: View {
                   AddMealView(selectedDate: selectedDate, initialMealType: mealInfo.value)
               }
               .fullScreenCover(isPresented: $showingScanner) {
+                  let remainingCals = max(0, (currentUser?.dailyCaloriesGoal ?? 2000) - Int(currentSummary.totalCalories))
+                  let remainingProt = max(0, Int(currentUser?.targetProtein ?? 130) - Int(currentSummary.totalProtein))
                   SmartScannerView(
                       onProductFound: { foundFood in selectedFoodForDetail = foundFood },
-                      onManualEntryRequest: { showingManualAdd = true }
+                      onManualEntryRequest: { showingManualAdd = true },
+                      remainingCalories: remainingCals,
+                      remainingProtein: remainingProt
                   )
               }
               .fullScreenCover(item: $selectedFoodForDetail) { food in
@@ -401,7 +399,9 @@ struct HomeDashboardContentView: View {
             }
         }
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
-        let summary = currentSummary
+        let canonicalTitle = NutritionMath.canonicalMealType(title)
+        let summary = DailySummary.fetchOrCreate(for: selectedDate, in: context)
+        let mealTimestamp = Calendar.current.isDateInToday(selectedDate) ? Date.now : Calendar.current.startOfDay(for: selectedDate)
         var newFoodItems: [FoodItem] = []
 
         for item in items {
@@ -415,22 +415,21 @@ struct HomeDashboardContentView: View {
             newFoodItems.append(copiedItem)
         }
 
-        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == title }) {
+        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == canonicalTitle }) {
             existingMeal.addFoodItems(newFoodItems)
-            existingMeal.date = .now
+            existingMeal.date = mealTimestamp
         } else {
-            let newMeal = Meal(title: title, date: .now, foodItems: newFoodItems)
+            let newMeal = Meal(title: canonicalTitle, date: mealTimestamp, foodItems: newFoodItems)
             context.insert(newMeal)
             summary.addMeal(newMeal)
         }
 
-        // Ensured via repo task; save on main context for live @Query updates.
         try? context.save()
         WidgetReloader.reloadAll()
         AppReviewManager.shared.userDidLogMeal()
         
         let addedCals = newFoodItems.reduce(0) { $0 + $1.calories }
-        TrackingManager.shared.track(.mealLogged(mealType: title, totalCalories: addedCals))
+        TrackingManager.shared.track(.mealLogged(mealType: canonicalTitle, totalCalories: addedCals))
     }
     
     private func shareDailySummary() {
@@ -441,32 +440,11 @@ struct HomeDashboardContentView: View {
     private func finishDayAndCalculateXP() {
         HapticManager.shared.impact(style: .medium)
         
-        let baseXP = 50
-        var proteinXP = 0
-        var calorieXP = 0
-        
-        if let user = currentUser {
-            let totalProtein = Int(currentSummary.totalProtein)
-            let totalCalories = Int(currentSummary.totalCalories)
-            
-            if totalProtein >= Int(user.targetProtein) {
-                proteinXP = 100
-            } else if totalProtein >= Int(user.targetProtein) - 20 {
-                proteinXP = 50
-            }
-            
-            if totalCalories <= user.dailyCaloriesGoal {
-                calorieXP = 150
-            } else if totalCalories <= user.dailyCaloriesGoal + 200 {
-                calorieXP = 50
-            }
-        }
-        
-        let breakdown = NutritionXPBreakdown(baseXP: baseXP, proteinGoalXP: proteinXP, calorieGoalXP: calorieXP)
+        let breakdown = NutritionMath.finishDayXP(for: currentSummary, user: currentUser)
         xpBreakdown = breakdown
         showXPPopup = true
         
-        if let user = currentUser {
+        if let user = currentUser, NutritionMath.claimFinishDayXP(for: selectedDate) {
             var manager = NutritionProgressManager(user: user)
             manager.addXP(from: breakdown)
             try? context.save()
@@ -902,8 +880,10 @@ struct MealDetailView: View {
         }
     }
     private func addFoodsToMeal(items: [FoodItem]) {
+        let canonicalTitle = NutritionMath.canonicalMealType(title)
         let startOfDay = Calendar.current.startOfDay(for: date)
         let summary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
+        let mealTimestamp = Calendar.current.isDateInToday(date) ? Date.now : startOfDay
 
         var newFoodItems: [FoodItem] = []
         for item in items {
@@ -917,16 +897,15 @@ struct MealDetailView: View {
             newFoodItems.append(copiedItem)
         }
 
-        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == title }) {
+        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == canonicalTitle }) {
             existingMeal.addFoodItems(newFoodItems)
-            existingMeal.date = .now
+            existingMeal.date = mealTimestamp
         } else {
-            let newMeal = Meal(title: title, date: .now, foodItems: newFoodItems)
+            let newMeal = Meal(title: canonicalTitle, date: mealTimestamp, foodItems: newFoodItems)
             context.insert(newMeal)
             summary.addMeal(newMeal)
         }
 
-        // Ensured via repo task; save on main context for live @Query updates.
         try? context.save()
         WidgetReloader.reloadAll()
     }
@@ -1514,6 +1493,11 @@ struct DailyNoteSheet: View {
                 Spacer()
                 Button("Save") {
                     HapticManager.shared.impact(style: .heavy)
+                    if summary.modelContext == nil {
+                        let persisted = DailySummary.fetchOrCreate(for: summary.date, in: context)
+                        persisted.dayNote = summary.dayNote
+                        persisted.dayMoodEmoji = summary.dayMoodEmoji
+                    }
                     try? context.save()
                     clearAIMoodStates()
                     dismiss()
@@ -1599,15 +1583,8 @@ struct DailyNoteSheet: View {
             get: { selectedMoodForAI.map { IdentifiableString(value: $0) } },
             set: { selectedMoodForAI = $0?.value }
         )) { wrappedEmoji in
-            let emoji = wrappedEmoji.value
-            let moodName = moods.first(where: { $0.0 == emoji })?.1 ?? "Mood"
-            AIMoodAdvicePopup(moodEmoji: emoji, moodName: moodName) {
-                // Force-clear the advice item BEFORE opening chat to prevent re-presentation loop
-                selectedMoodForAI = nil
-                moodContextForChat = "I feel \(moodName) \(emoji) right now. Can we talk about it?"
-                showAIChat = true
-            }
-            .presentationDetents([.medium, .large])
+            moodAdviceSheet(for: wrappedEmoji.value)
+                .presentationDetents([.medium, .large])
         }
         .fullScreenCover(isPresented: $showAIChat) {
             if let user = try? context.fetch(FetchDescriptor<User>()).first {
@@ -1626,6 +1603,25 @@ struct DailyNoteSheet: View {
                 // Clean up after chat is dismissed so it doesn't re-trigger anything
                 moodContextForChat = nil
             }
+        }
+    }
+
+    @ViewBuilder
+    private func moodAdviceSheet(for emoji: String) -> some View {
+        let moodName = moods.first(where: { $0.0 == emoji })?.1 ?? "Mood"
+        let user: User? = try? context.fetch(FetchDescriptor<User>()).first
+        AIMoodAdvicePopup(
+            moodEmoji: emoji,
+            moodName: moodName,
+            dayNote: summary.dayNote,
+            consumedCalories: Int(summary.totalCalories),
+            goalCalories: user?.dailyCaloriesGoal ?? 2000,
+            waterLiters: summary.totalHydrationLiters,
+            activeDiet: user?.activeDietKey ?? "Balanced"
+        ) {
+            selectedMoodForAI = nil
+            moodContextForChat = "I feel \(moodName) \(emoji) right now. Can we talk about it?"
+            showAIChat = true
         }
     }
 
@@ -1989,9 +1985,16 @@ struct SmartAddFoodView: View {
             }
         }
         .fullScreenCover(isPresented: $showingScanner) {
+            let todayStart = Calendar.current.startOfDay(for: Date())
+            let todaySummary = (try? context.fetch(FetchDescriptor<DailySummary>(predicate: #Predicate { $0.date >= todayStart })).first)
+            let user = (try? context.fetch(FetchDescriptor<User>()).first)
+            let remainingCals = max(0, (user?.dailyCaloriesGoal ?? 2000) - Int(todaySummary?.totalCalories ?? 0))
+            let remainingProt = max(0, Int(user?.targetProtein ?? 130) - Int(todaySummary?.totalProtein ?? 0))
             SmartScannerView(
                 onProductFound: { foundFood in selectedFoodForDetail = foundFood },
-                onManualEntryRequest: { showingManualAdd = true }
+                onManualEntryRequest: { showingManualAdd = true },
+                remainingCalories: remainingCals,
+                remainingProtein: remainingProt
             )
         }
         .sheet(isPresented: $showingManualAdd) {

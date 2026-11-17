@@ -9,7 +9,10 @@ final class DataModelsTests: XCTestCase {
 
     override func setUpWithError() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
-        container = try ModelContainer(for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self, DailySummary.self, ShoppingItem.self, WeightLog.self, AIChatSession.self, configurations: config)
+        container = try ModelContainer(
+            for: User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self, DailySummary.self, ShoppingItem.self, WeightLog.self, AIChatSession.self, WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self,
+            configurations: config
+        )
         context = container.mainContext
     }
 
@@ -178,5 +181,215 @@ final class DataModelsTests: XCTestCase {
         let unreachableURL = URL(fileURLWithPath: "/System/Library/NonWritablePath/\(UUID().uuidString)/Food.sqlite")
         let container = SharedModelContainer.makeContainer(schema: schema, url: unreachableURL, enableCloudKit: false)
         XCTAssertNotNil(container)
+    }
+
+    func testLocalDataResetServiceWipesSwiftDataAndDefaults() throws {
+        let defaultsSuite = "test.LocalDataReset.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: defaultsSuite)!
+        defer { defaults.removePersistentDomain(forName: defaultsSuite) }
+
+        defaults.set(true, forKey: "hasCompletedOnboarding_v2")
+        defaults.set(true, forKey: "hasCompletedInitialOnboarding_v2")
+        defaults.set(true, forKey: "hasCompletedOnboarding")
+        defaults.set(["article_1"], forKey: "CompletedAcademyArticles")
+
+        let user = User(name: "DeleteMe", weight: 70, height: 175, age: 30)
+        let summary = DailySummary(date: Date(), meals: [Meal(title: "Lunch", date: Date(), foodItems: [FoodItem(name: "Soup", weight: 200, calories: 150, protein: 5, fats: 4, carbs: 20)])])
+        let recipe = CustomRecipe(name: "Soup", info: "Warm", foodItems: [], cookingTime: 10, difficulty: "Easy")
+        let shopping = ShoppingItem(name: "Milk")
+        let weightLog = WeightLog(weight: 70)
+        let chat = AIChatSession(title: "Test Chat")
+        let plan = WeeklyMealPlan(targetCalories: 2000, dietType: "balanced")
+
+        context.insert(user)
+        context.insert(summary)
+        context.insert(recipe)
+        context.insert(shopping)
+        context.insert(weightLog)
+        context.insert(chat)
+        context.insert(plan)
+        try context.save()
+
+        LocalDataResetService.wipeAllData(in: context, defaults: defaults)
+
+        XCTAssertEqual(try context.fetch(FetchDescriptor<User>()).count, 0)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<DailySummary>()).count, 0)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<Meal>()).count, 0)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<FoodItem>()).count, 0)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<CustomRecipe>()).count, 0)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<ShoppingItem>()).count, 0)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<WeightLog>()).count, 0)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<AIChatSession>()).count, 0)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<WeeklyMealPlan>()).count, 0)
+        XCTAssertFalse(defaults.bool(forKey: "hasCompletedOnboarding_v2"))
+        XCTAssertFalse(defaults.bool(forKey: "hasCompletedInitialOnboarding_v2"))
+        XCTAssertFalse(defaults.bool(forKey: "hasCompletedOnboarding"))
+        XCTAssertNil(defaults.array(forKey: "CompletedAcademyArticles"))
+    }
+
+    func testLocalDataResetServiceClearsRealSpotlightAndFeatureKeys() {
+        let defaultsSuite = "test.SpotlightReset.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: defaultsSuite)!
+        defer { defaults.removePersistentDomain(forName: defaultsSuite) }
+
+        defaults.set(true, forKey: "hasCompletedSpotlightTour_v5")
+        defaults.set(true, forKey: "remindMeals")
+        defaults.set(false, forKey: "useMetricSystem")
+        defaults.set(["2026-11-17"], forKey: "xpClaimedDateKeys")
+        defaults.set(true, forKey: "healthKitAuthRequested_v1")
+
+        LocalDataResetService.wipeAllData(in: context, defaults: defaults)
+
+        XCTAssertFalse(defaults.bool(forKey: "hasCompletedSpotlightTour_v5"))
+        XCTAssertNil(defaults.object(forKey: "remindMeals"))
+        XCTAssertNil(defaults.object(forKey: "useMetricSystem"))
+        XCTAssertNil(defaults.array(forKey: "xpClaimedDateKeys"))
+        XCTAssertNil(defaults.object(forKey: "healthKitAuthRequested_v1"))
+    }
+
+    func testCustomRecipeToFoodItemScalesPerServing() {
+        let oats = FoodItem(name: "Oats", weight: 200, calories: 600, protein: 20, fats: 10, carbs: 100)
+        let recipe = CustomRecipe(
+            name: "Oatmeal Bowl",
+            info: "Tasty",
+            foodItems: [oats],
+            cookingTime: 10,
+            difficulty: "Easy",
+            servings: 2
+        )
+
+        let singleServing = recipe.toFoodItem()
+
+        XCTAssertEqual(singleServing.weight, 100, accuracy: 0.01)
+        XCTAssertEqual(singleServing.calories, 300)
+        XCTAssertEqual(singleServing.protein, 10, accuracy: 0.01)
+        XCTAssertEqual(singleServing.fats, 5, accuracy: 0.01)
+        XCTAssertEqual(singleServing.carbs, 50, accuracy: 0.01)
+    }
+
+    func testNutritionMathZeroWeightDoesNotMultiply100x() {
+        let scaled = NutritionMath.scaledValues(
+            baseWeight: 0,
+            baseCalories: 350,
+            baseProtein: 20,
+            baseFats: 10,
+            baseCarbs: 40,
+            targetWeight: 100
+        )
+
+        XCTAssertEqual(scaled.calories, 350)
+        XCTAssertEqual(scaled.protein, 20, accuracy: 0.01)
+        XCTAssertEqual(scaled.fats, 10, accuracy: 0.01)
+        XCTAssertEqual(scaled.carbs, 40, accuracy: 0.01)
+    }
+
+    func testNutritionMathParsesLocaleDecimalCommaAndRejectsNonPositive() {
+        XCTAssertEqual(NutritionMath.parsePositiveDecimal("125,5") ?? -1, 125.5, accuracy: 0.001)
+        XCTAssertEqual(NutritionMath.parsePositiveDecimal(" 75.25 ") ?? -1, 75.25, accuracy: 0.001)
+        XCTAssertNil(NutritionMath.parsePositiveDecimal("0"))
+        XCTAssertNil(NutritionMath.parsePositiveDecimal("-10"))
+        XCTAssertNil(NutritionMath.parsePositiveDecimal("abc"))
+    }
+
+    func testEditableFoodDraftPreservesBaselineAcrossMultipleResizes() {
+        let existing: FoodItem? = nil
+        var draft = EditableFoodDraft(
+            id: UUID(),
+            existingItem: existing,
+            name: "Chicken Breast",
+            baseWeight: 100,
+            baseCalories: 165,
+            baseProtein: 31,
+            baseFats: 3.6,
+            baseCarbs: 0,
+            weight: 100
+        )
+
+        draft.weight = 5
+        XCTAssertEqual(draft.calories, 8)
+        draft.weight = 100
+        XCTAssertEqual(draft.calories, 165)
+        draft.weight = 200
+        XCTAssertEqual(draft.calories, 330)
+    }
+
+    func testFinishDayXPRequiresNonZeroCaloriesAndSingleClaimPerDay() {
+        let emptySummary = DailySummary(date: Date())
+        let user = User(name: "Alex", weight: 75, height: 180, age: 28)
+        user.dailyCaloriesGoal = 2000
+        user.targetProtein = 130
+
+        let breakdown = NutritionMath.finishDayXP(for: emptySummary, user: user)
+        XCTAssertEqual(breakdown.calorieGoalXP, 0)
+
+        let defaultsSuite = "test.XPClaim.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: defaultsSuite)!
+        defer { defaults.removePersistentDomain(forName: defaultsSuite) }
+
+        let day = Date()
+        XCTAssertTrue(NutritionMath.claimFinishDayXP(for: day, defaults: defaults))
+        XCTAssertFalse(NutritionMath.claimFinishDayXP(for: day, defaults: defaults))
+    }
+
+    func testCanonicalMealTypeNormalization() {
+        XCTAssertEqual(NutritionMath.canonicalMealType("Завтрак"), "Breakfast")
+        XCTAssertEqual(NutritionMath.canonicalMealType("Обед"), "Lunch")
+        XCTAssertEqual(NutritionMath.canonicalMealType("Ужин"), "Dinner")
+        XCTAssertEqual(NutritionMath.canonicalMealType("Перекус"), "Snack")
+        XCTAssertEqual(NutritionMath.canonicalMealType("Breakfast"), "Breakfast")
+    }
+
+    func testPremiumRecipeToAIChefRecipeConversion() {
+        let premium = PremiumRecipe(
+            title: "Salmon Bowl",
+            description: "Fresh omega-rich bowl.",
+            time: "25 min",
+            caloriesPerServing: 480,
+            imageUrl: "https://example.com/salmon.jpg",
+            isFavorite: true,
+            tags: ["High Protein", "Dinner"],
+            baseServings: 2,
+            protein: 38.0,
+            fat: 18.0,
+            carbs: 42.0,
+            ingredients: [RecipeIngredient(name: "Salmon", amount: "200 g", weightGrams: 200, calories: 350)],
+            directions: ["Season salmon.", "Sear 4 minutes per side."]
+        )
+
+        let chefRecipe = premium.toAIChefRecipe()
+
+        XCTAssertEqual(chefRecipe.title, "Salmon Bowl")
+        XCTAssertEqual(chefRecipe.calories, 480)
+        XCTAssertEqual(chefRecipe.protein, 38)
+        XCTAssertEqual(chefRecipe.fat, 18)
+        XCTAssertEqual(chefRecipe.carbs, 42)
+        XCTAssertEqual(chefRecipe.cookTime, 25)
+        XCTAssertEqual(chefRecipe.steps.count, 2)
+        XCTAssertEqual(chefRecipe.ingredients.first, "Salmon (200 g)")
+    }
+
+    func testRecipeDataLoaderLoadsBundledRecipesOffline() {
+        let enRecipes = RecipeDataLoader.loadBundledRecipes(languageCode: "en")
+        let ruRecipes = RecipeDataLoader.loadBundledRecipes(languageCode: "ru")
+        XCTAssertGreaterThan(enRecipes.count, 10)
+        XCTAssertGreaterThan(ruRecipes.count, 10)
+    }
+
+    func testNutritionMathRemainingMacrosFromUserAndSummary() {
+        let user = User(name: "Alex", weight: 75, height: 180, age: 28)
+        user.dailyCaloriesGoal = 2200
+        user.targetProtein = 150
+        user.targetFats = 70
+        user.targetCarbs = 240
+
+        let food = FoodItem(name: "Breakfast", weight: 200, calories: 600, protein: 40, fats: 20, carbs: 65)
+        let meal = Meal(title: "Breakfast", date: Date(), foodItems: [food])
+        let summary = DailySummary(date: Date(), meals: [meal])
+
+        let remaining = NutritionMath.remainingMacros(user: user, summary: summary)
+        XCTAssertEqual(remaining.calories, 1600)
+        XCTAssertEqual(remaining.protein, 110)
+        XCTAssertEqual(remaining.fat, 50)
+        XCTAssertEqual(remaining.carbs, 175)
     }
 }

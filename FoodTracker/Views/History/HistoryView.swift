@@ -19,7 +19,8 @@ enum FoodsRoute: Hashable {
 struct FoodsDashboardView: View {
     @Environment(\.modelContext) private var context
     @State private var path = NavigationPath()
-    @State private var dataLoader = RecipeDataLoader()
+    @State private var dataLoader = RecipeDataLoader.shared
+    @State private var academyLoader = AcademyDataLoader()
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
 
     @State private var selectedFilter: String = "All"
@@ -158,6 +159,7 @@ struct FoodsDashboardView: View {
             }
         }
         .environment(dataLoader)
+        .environment(academyLoader)
     }
 
     private func deleteMeal(_ meal: Meal) {
@@ -522,7 +524,7 @@ struct FrequentMealRow: View {
 
 struct LearnDashboardView: View {
     @Binding var path: NavigationPath
-    @State private var dataLoader = AcademyDataLoader()
+    @Environment(AcademyDataLoader.self) private var dataLoader
 
     private var totalArticles: Int {
         dataLoader.categories.reduce(0) { $0 + $1.totalCount }

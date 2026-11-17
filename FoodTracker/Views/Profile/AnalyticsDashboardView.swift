@@ -592,7 +592,7 @@ struct AIHydrationAnalyticsCard: View {
                         Text("AI HYDRATION COACH")
                             .font(.system(size: 11, weight: .black, design: .monospaced))
                             .foregroundStyle(Color.cyan)
-                        Text("Баланс и метаболизм")
+                        Text("Water & Metabolism")
                             .font(.system(size: 17, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.primary)
                     }
@@ -646,11 +646,11 @@ struct AIHydrationAnalyticsCard: View {
                                 .font(.system(size: 32, weight: .heavy, design: .rounded))
                                 .foregroundStyle(Color.primary)
                                 .contentTransition(.numericText(value: liters))
-                            Text("Л")
+                            Text("L")
                                 .font(.system(size: 17, weight: .bold, design: .rounded))
                                 .foregroundStyle(Color.cyan)
                         }
-                        Text("из \(goal, specifier: "%.1f") Л цели")
+                        Text("of \(goal, specifier: "%.1f") L goal")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Color.secondary)
                     }
@@ -694,7 +694,7 @@ struct AIHydrationAnalyticsCard: View {
                         Image(systemName: "drop.fill")
                             .font(.system(size: 15, weight: .bold))
                             .foregroundStyle(Color.cyan)
-                        Text("+250 мл")
+                        Text("+250 ml")
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.primary)
                     }
@@ -716,7 +716,7 @@ struct AIHydrationAnalyticsCard: View {
                         Image(systemName: "waterbottle.fill")
                             .font(.system(size: 15, weight: .bold))
                             .foregroundStyle(Color.blue)
-                        Text("+500 мл")
+                        Text("+500 ml")
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.primary)
                     }

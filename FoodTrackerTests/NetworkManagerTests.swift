@@ -13,6 +13,7 @@ final class NetworkManagerTests: XCTestCase {
         networkManager = NetworkManager.shared
         networkManager.session = session
         networkManager.appCheckTokenProvider = { "mock-appcheck-token" }
+        networkManager.authTokenProvider = { "mock-auth-token" }
         networkManager.searchProxyURLProvider = { URL(string: "https://mock.local/foodSearchProxy")! }
     }
     
@@ -49,6 +50,10 @@ final class NetworkManagerTests: XCTestCase {
         """
         
         MockURLProtocol.requestHandler = { request in
+            if request.url?.host == "mock.local" {
+                XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer mock-auth-token")
+                XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), "mock-appcheck-token")
+            }
             let payload = request.url?.host == "mock.local" ? proxyJSON : offJSON
             let data = payload.data(using: .utf8)!
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!

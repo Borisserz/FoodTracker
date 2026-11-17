@@ -106,10 +106,23 @@ final class FastingManager {
         updateTask = nil
     }
 
+    private static let fastingNotificationIDs = [
+        "fasting_goal_reached",
+        "phase_4h",
+        "phase_8h",
+        "phase_12h",
+        "phase_16h"
+    ]
+
     private func updateCalculations() {
         guard let start = startTime else { return }
         let now = Date()
-        elapsedTime = now.timeIntervalSince(start)
+        elapsedTime = max(0, now.timeIntervalSince(start))
+
+        guard targetHours > 0 else {
+            progress = 0
+            return
+        }
 
         let totalTargetSeconds = Double(targetHours * 3600)
         progress = min(elapsedTime / totalTargetSeconds, 1.0)
@@ -142,9 +155,10 @@ final class FastingManager {
     }
 
     private func scheduleFastingNotifications(target: Int) {
+        guard target > 0 else { return }
         let center = UNUserNotificationCenter.current()
 
-        center.removeAllPendingNotificationRequests()
+        center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
 
         center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             guard granted else { return }
@@ -172,6 +186,7 @@ final class FastingManager {
     }
 
     private func scheduleAlert(id: String, title: String, body: String, delayInSeconds: TimeInterval) {
+        guard delayInSeconds > 0 else { return }
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -188,6 +203,6 @@ final class FastingManager {
     }
 
     private func cancelFastingNotifications() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
     }
 }

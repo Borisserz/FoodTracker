@@ -8,7 +8,10 @@ const { defineSecret } = require("firebase-functions/params");
 
 const AI_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const DEFAULT_AI_WEEKLY_LIMIT = 200;
+const DEFAULT_SEARCH_WEEKLY_LIMIT = 1000;
 const UPSTREAM_TIMEOUT_MS = 22000;
+const HEAVY_UPSTREAM_TIMEOUT_MS = 45000;
+const TOTAL_CHAIN_BUDGET_MS = 105000;
 
 initializeApp();
 
@@ -100,6 +103,35 @@ function hasImageContent(body) {
       Array.isArray(c?.parts) &&
       c.parts.some((p) => p?.inlineData && p.inlineData.data)
   );
+}
+
+function upstreamTimeoutForBody(body) {
+  if (hasImageContent(body)) {
+    return HEAVY_UPSTREAM_TIMEOUT_MS;
+  }
+  const contents = Array.isArray(body?.contents) ? body.contents : [];
+  let totalPromptChars = 0;
+  let mentionsHeavyPlan = false;
+  for (const c of contents) {
+    const parts = Array.isArray(c?.parts) ? c.parts : [];
+    for (const p of parts) {
+      if (typeof p?.text === "string") {
+        totalPromptChars += p.text.length;
+        if (
+          p.text.includes("7-day") ||
+          p.text.includes("dayIndex") ||
+          p.text.includes('"days"')
+        ) {
+          mentionsHeavyPlan = true;
+        }
+      }
+    }
+  }
+  const maxTokens = Number(body?.generationConfig?.maxOutputTokens || 0);
+  if (totalPromptChars >= 600 || mentionsHeavyPlan || maxTokens >= 2000) {
+    return HEAVY_UPSTREAM_TIMEOUT_MS;
+  }
+  return UPSTREAM_TIMEOUT_MS;
 }
 
 function modelChainForRequest(body, overrides = {}) {
@@ -366,60 +398,79 @@ async function loadAISettings() {
   }
 }
 
-async function enforceRateLimit(uid, weeklyLimit) {
-  const db = getFirestore();
-  const ref = db.collection("food_ai_usage").doc(uid);
+function computeRateLimitTransition(existingData, nowMs, limit, windowMs = AI_WINDOW_MS) {
+  let windowStart = nowMs;
+  let count = 0;
 
-  await db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
-    const now = Date.now();
-    let windowStart = now;
-    let count = 0;
-
-    if (snap.exists) {
-      const data = snap.data() || {};
-      const ws = typeof data.windowStart === "number" ? data.windowStart : 0;
-      if (now - ws < AI_WINDOW_MS) {
-        windowStart = ws;
-        count = data.count || 0;
-      }
+  if (existingData && typeof existingData === "object") {
+    const ws = typeof existingData.windowStart === "number" ? existingData.windowStart : 0;
+    if (nowMs - ws < windowMs) {
+      windowStart = ws;
+      count = existingData.count || 0;
     }
+  }
 
-    if (count >= weeklyLimit) {
-      const retryAfterSeconds = Math.ceil(
-        (windowStart + AI_WINDOW_MS - now) / 1000
-      );
-      throw new RateLimitError(retryAfterSeconds, weeklyLimit);
-    }
-  });
+  if (count >= limit) {
+    const retryAfterSeconds = Math.max(1, Math.ceil((windowStart + windowMs - nowMs) / 1000));
+    return { allowed: false, nextWindowStart: windowStart, nextCount: count, retryAfterSeconds };
+  }
+
+  return { allowed: true, nextWindowStart: windowStart, nextCount: count + 1, retryAfterSeconds: 0 };
 }
 
-async function recordSuccessfulAIUse(uid) {
+async function reserveRateLimitSlot(collectionName, docId, limit, windowMs = AI_WINDOW_MS) {
   const db = getFirestore();
-  const ref = db.collection("food_ai_usage").doc(uid);
+  const ref = db.collection(collectionName).doc(docId);
+
   await db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const now = Date.now();
-    let windowStart = now;
-    let count = 0;
-    if (snap.exists) {
-      const data = snap.data() || {};
-      const ws = typeof data.windowStart === "number" ? data.windowStart : 0;
-      if (now - ws < AI_WINDOW_MS) {
-        windowStart = ws;
-        count = data.count || 0;
-      }
+    const transition = computeRateLimitTransition(snap.exists ? snap.data() : null, now, limit, windowMs);
+
+    if (!transition.allowed) {
+      throw new RateLimitError(transition.retryAfterSeconds, limit);
     }
+
     tx.set(
       ref,
       {
-        windowStart,
-        count: count + 1,
+        windowStart: transition.nextWindowStart,
+        count: transition.nextCount,
         updatedAt: FieldValue.serverTimestamp(),
       },
       { merge: true }
     );
   });
+}
+
+async function refundRateLimitSlot(collectionName, docId) {
+  try {
+    const db = getFirestore();
+    const ref = db.collection(collectionName).doc(docId);
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) return;
+      const data = snap.data() || {};
+      const current = typeof data.count === "number" ? data.count : 0;
+      if (current <= 0) return;
+      tx.set(
+        ref,
+        {
+          count: current - 1,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    });
+  } catch (e) {
+    console.warn(`Failed to refund slot in ${collectionName}/${docId}:`, e?.message || e);
+  }
+}
+
+function hashDeviceInstallId(raw) {
+  const cleaned = String(raw || "").trim();
+  if (!/^[A-Za-z0-9-]{16,128}$/.test(cleaned)) return null;
+  return crypto.createHash("sha256").update(cleaned).digest("hex");
 }
 
 function openRouterHeaders(apiKey) {
@@ -451,9 +502,16 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
     geminiBody?.generationConfig?.responseMimeType === "application/json" ||
     Boolean(geminiBody?.generationConfig?.responseSchema);
   const keys = rotatedKeys(apiKeys);
+  const attemptTimeoutMs = upstreamTimeoutForBody(geminiBody);
+  const deadlineAt = Date.now() + TOTAL_CHAIN_BUDGET_MS;
 
   let lastError = null;
   for (const model of chain) {
+    const remainingMs = deadlineAt - Date.now();
+    if (remainingMs < 5000) {
+      break;
+    }
+    const perCallTimeout = Math.min(attemptTimeoutMs, remainingMs);
     const attempt = geminiBodyToOpenAI(geminiBody, {
       streaming: false,
       model,
@@ -465,7 +523,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
           method: "POST",
           headers: openRouterHeaders(apiKey),
           body: JSON.stringify(attempt),
-          signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+          signal: AbortSignal.timeout(perCallTimeout),
         });
         const text = await resp.text();
         if (!resp.ok) {
@@ -770,14 +828,27 @@ exports.foodAiProxy = onRequest(
     secrets: [openRouterApiKey],
   },
   async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
     if (!(await verifyAppCheck(req, res))) return;
     const uid = await verifyFirebaseUser(req, res);
     if (!uid) return;
 
     const settings = await loadAISettings();
+    const deviceHash = hashDeviceInstallId(req.header("X-Device-Install-ID"));
 
     try {
-      await enforceRateLimit(uid, settings.weeklyLimit);
+      await reserveRateLimitSlot("food_ai_usage", uid, settings.weeklyLimit);
+      if (deviceHash) {
+        try {
+          await reserveRateLimitSlot("food_ai_device_usage", deviceHash, settings.weeklyLimit * 2);
+        } catch (deviceErr) {
+          await refundRateLimitSlot("food_ai_usage", uid);
+          throw deviceErr;
+        }
+      }
     } catch (e) {
       if (e instanceof RateLimitError) {
         res.set("Retry-After", String(e.retryAfterSeconds));
@@ -788,13 +859,21 @@ exports.foodAiProxy = onRequest(
         });
         return;
       }
-      console.error("Rate limit check failed:", e);
+      console.error("Rate limit reservation failed:", e);
       res.status(500).json({ error: "Rate limit check failed" });
       return;
     }
 
+    const refundReservedSlots = async () => {
+      await refundRateLimitSlot("food_ai_usage", uid);
+      if (deviceHash) {
+        await refundRateLimitSlot("food_ai_device_usage", deviceHash);
+      }
+    };
+
     const apiKeys = parseApiKeys(openRouterApiKey.value());
     if (apiKeys.length === 0) {
+      await refundReservedSlots();
       res.status(500).json({ error: "OPENROUTER_API_KEY not configured" });
       return;
     }
@@ -809,12 +888,12 @@ exports.foodAiProxy = onRequest(
           geminiBody: body,
           overrides: settings,
         });
-        await recordSuccessfulAIUse(uid);
         res.status(200).json(gemini);
         return;
       }
 
       const chain = modelChainForRequest(body, settings);
+      const streamTimeoutMs = upstreamTimeoutForBody(body);
       const keys = rotatedKeys(apiKeys);
       let upstream = null;
       let lastError = null;
@@ -826,7 +905,7 @@ exports.foodAiProxy = onRequest(
               method: "POST",
               headers: openRouterHeaders(apiKey),
               body: JSON.stringify(attempt),
-              signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+              signal: AbortSignal.timeout(streamTimeoutMs),
             });
             if (!resp.ok || !resp.body) {
               const errText = await resp.text();
@@ -878,11 +957,12 @@ exports.foodAiProxy = onRequest(
           }
         }
       }
-      if (yielded) {
-        await recordSuccessfulAIUse(uid);
+      if (!yielded) {
+        await refundReservedSlots();
       }
       res.end();
     } catch (e) {
+      await refundReservedSlots();
       console.error("foodAiProxy OpenRouter error:", e);
       if (!res.headersSent) {
         res.status(502).json({
@@ -927,6 +1007,8 @@ exports.foodSearchProxy = onRequest(
       return;
     }
     if (!(await verifyAppCheck(req, res))) return;
+    const uid = await verifyFirebaseUser(req, res);
+    if (!uid) return;
 
     let parsed;
     try {
@@ -936,9 +1018,27 @@ exports.foodSearchProxy = onRequest(
       return;
     }
 
+    try {
+      await reserveRateLimitSlot("food_search_usage", uid, DEFAULT_SEARCH_WEEKLY_LIMIT);
+    } catch (e) {
+      if (e instanceof RateLimitError) {
+        res.set("Retry-After", String(e.retryAfterSeconds));
+        res.status(429).json({
+          error: "search_limit_reached",
+          message: "Weekly food search limit reached. Please try again later.",
+          retryAfter: e.retryAfterSeconds,
+        });
+        return;
+      }
+      console.error("Search rate limit reservation failed:", e);
+      res.status(500).json({ error: "Rate limit check failed" });
+      return;
+    }
+
     const clientId = fatSecretClientId.value().trim();
     const clientSecret = fatSecretClientSecret.value().trim();
     if (!clientId || !clientSecret) {
+      await refundRateLimitSlot("food_search_usage", uid);
       res.status(500).json({ error: "FatSecret credentials not configured" });
       return;
     }
@@ -1011,6 +1111,7 @@ exports.foodSearchProxy = onRequest(
       const data = await fetchFatSecretWithRetry({ url, clientId, clientSecret });
       res.status(200).json({ item: normalizeFatSecretBarcode(data) });
     } catch (e) {
+      await refundRateLimitSlot("food_search_usage", uid);
       console.error("foodSearchProxy error:", e?.message || e);
       res.status(502).json({
         error: "fatsecret_upstream_failed",
@@ -1056,6 +1157,8 @@ module.exports._test = {
   parseApiKeys,
   shouldTryNextKeyForError,
   hasImageContent,
+  upstreamTimeoutForBody,
+  computeRateLimitTransition,
   modelChainForRequest,
   geminiBodyToOpenAI,
   stripModelJSON,

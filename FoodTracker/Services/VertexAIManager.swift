@@ -50,9 +50,60 @@ final class VertexAIManager {
         let avoid: MenuRecommendation
     }
 
+    struct CookingStepEvaluation: Codable {
+        let isGood: Bool
+        let feedback: String
+    }
+
+    struct TransformationMetric: Codable, Identifiable, Equatable {
+        var id: String { label }
+        let label: String
+        let value: String
+        let detail: String
+        let isPositive: Bool
+    }
+
+    struct TransformationAnalysisDTO: Codable {
+        let metrics: [TransformationMetric]
+        let feedback: String
+    }
+
+    private func encodedJPEG(_ image: UIImage, maxDimension: CGFloat = 1024, quality: CGFloat = 0.45) -> String? {
+        let size = image.size
+        let longest = max(size.width, size.height)
+        let resized: UIImage
+        if longest > maxDimension, longest > 0 {
+            let scale = maxDimension / longest
+            let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+            let renderer = UIGraphicsImageRenderer(size: newSize)
+            resized = renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: newSize))
+            }
+        } else {
+            resized = image
+        }
+        return resized.jpegData(compressionQuality: quality)?.base64EncodedString()
+    }
+
+    enum FoodImageAnalysisResult {
+        case food(FoodItem)
+        case notFood(String)
+        case failed
+    }
+
     func analyzeFoodImage(_ image: UIImage) async -> FoodItem? {
-        guard let imageData = image.jpegData(compressionQuality: 0.3) else { return nil }
-        let base64Image = imageData.base64EncodedString()
+        switch await analyzeFoodImageDetailed(image) {
+        case .food(let item):
+            return item
+        case .notFood, .failed:
+            return nil
+        }
+    }
+
+    func analyzeFoodImageDetailed(_ image: UIImage) async -> FoodImageAnalysisResult {
+        guard let base64Image = encodedJPEG(image, maxDimension: 1024, quality: 0.45) else {
+            return .failed
+        }
 
         let prompt = """
         You are an elite AI nutritionist. Analyze the image with extreme precision.
@@ -74,11 +125,12 @@ final class VertexAIManager {
             )
 
             if !aiResponse.isFood {
-                print("❌ AI Says: \(aiResponse.errorMessage ?? "Not food")")
-                return nil
+                let reason = aiResponse.errorMessage?.trimmingCharacters(in: .whitespacesAndNewlines)
+                let fallback = String(localized: "No food detected in this photo. Please point at a meal or drink.")
+                return .notFood((reason?.isEmpty == false ? reason! : fallback))
             }
 
-            return FoodItem(
+            let item = FoodItem(
                 name: aiResponse.name ?? String(localized: "Unknown Meal"),
                 weight: aiResponse.weight ?? 100.0,
                 calories: aiResponse.calories ?? 0,
@@ -86,9 +138,10 @@ final class VertexAIManager {
                 fats: aiResponse.fats ?? 0,
                 carbs: aiResponse.carbs ?? 0
             )
+            return .food(item)
         } catch {
             print("❌ Vertex AI Error: \(error)")
-            return nil
+            return .failed
         }
     }
 
@@ -121,5 +174,65 @@ final class VertexAIManager {
             print("❌ Menu AI Error: \(error)")
             return nil
         }
+    }
+
+    func evaluateCookingStep(image: UIImage, dishTitle: String, stepInstruction: String) async throws -> CookingStepEvaluation {
+        guard let base64Image = encodedJPEG(image, maxDimension: 1024, quality: 0.45) else {
+            throw GeminiProxyError.invalidResponse
+        }
+
+        let prompt = """
+        You are an expert Michelin-star chef assisting a home cook via live camera.
+        Dish: "\(dishTitle)"
+        Current Step: "\(stepInstruction)"
+
+        Inspect the photo and evaluate how this step looks (sear/browning, seasoning, sauce consistency, doneness, prep readiness).
+        If the image does NOT show food or cooking, set "isGood" to false and politely tell them what to aim the camera at.
+        Keep "feedback" short, practical, and encouraging (1-2 sentences).
+
+        \(languageInstruction)
+        Respond ONLY with a raw JSON object (no Markdown):
+        {"isGood": true, "feedback": "Short chef verdict"}
+        """
+
+        return try await client.fetchJSONWithImage(
+            prompt: prompt,
+            base64Image: base64Image,
+            responseType: CookingStepEvaluation.self
+        )
+    }
+
+    func analyzeBeforeAfterPhotos(before: UIImage, after: UIImage, goal: String? = nil) async throws -> TransformationAnalysisDTO {
+        guard let beforeB64 = encodedJPEG(before, maxDimension: 960, quality: 0.45),
+              let afterB64 = encodedJPEG(after, maxDimension: 960, quality: 0.45) else {
+            throw GeminiProxyError.invalidResponse
+        }
+
+        let goalContext = goal.map { "User's fitness goal: \($0)." } ?? ""
+        let prompt = """
+        You are an encouraging, objective fitness & physique progress coach.
+        Compare the FIRST image (Before) and SECOND image (After). \(goalContext)
+        Give an honest visual comparison of posture, framing, visible muscle tone, and overall composition changes.
+        IMPORTANT: Do NOT invent exact tape measurements like exact centimeters or exact percentages unless clearly caveated as visual cues; keep metric "value" labels qualitative or visual-trend oriented (e.g. "Leaner", "Improved", "Defined", "Balanced").
+        Provide up to 4 metric cards and 2-3 sentences of constructive feedback (remind briefly that lighting/pose affect visual appearance).
+
+        \(languageInstruction)
+        Respond ONLY with a raw JSON object (no Markdown):
+        {
+          "metrics": [
+            {"label": "Posture", "value": "Aligned", "detail": "Shoulder symmetry", "isPositive": true},
+            {"label": "Midsection", "value": "Tighter", "detail": "Visual waist contour", "isPositive": true},
+            {"label": "Upper Body", "value": "Fuller", "detail": "Shoulder & arm tone", "isPositive": true},
+            {"label": "Overall Trend", "value": "Recomp", "detail": "Steadier conditioning", "isPositive": true}
+          ],
+          "feedback": "Constructive 2-3 sentence assessment."
+        }
+        """
+
+        return try await client.fetchJSONWithImages(
+            prompt: prompt,
+            images: [(beforeB64, "image/jpeg"), (afterB64, "image/jpeg")],
+            responseType: TransformationAnalysisDTO.self
+        )
     }
 }

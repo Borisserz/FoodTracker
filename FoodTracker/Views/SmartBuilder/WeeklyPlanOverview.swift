@@ -150,7 +150,7 @@ struct WeeklyPlanOverview: View {
     }
     
     private func typePriority(_ type: String) -> Int {
-        switch type {
+        switch NutritionMath.canonicalMealType(type) {
         case "Breakfast": return 0
         case "Lunch": return 1
         case "Dinner": return 2
@@ -167,12 +167,18 @@ struct WeeklyPlanOverview: View {
         
         if let day = selectedDay {
             for planMeal in (day.meals ?? []) {
-                let meal = Meal(title: planMeal.type, date: startOfDay, foodItems: [])
-                
+                let canonicalType = NutritionMath.canonicalMealType(planMeal.type)
                 let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: Int(planMeal.calories), protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs))
-                
-                meal.addFoodItem(foodItem)
-                currentSummary.addMeal(meal)
+                context.insert(foodItem)
+
+                if let existingMeal = (currentSummary.meals ?? []).first(where: { $0.title == canonicalType }) {
+                    existingMeal.addFoodItem(foodItem)
+                    existingMeal.date = Date.now
+                } else {
+                    let meal = Meal(title: canonicalType, date: Date.now, foodItems: [foodItem])
+                    context.insert(meal)
+                    currentSummary.addMeal(meal)
+                }
             }
         }
         

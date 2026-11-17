@@ -14,6 +14,7 @@ struct SmartPlanBuilderFlow: View {
     @State private var complexity = "Medium"
     @State private var isGenerating = false
     @State private var generatedPlan: WeeklyMealPlan? = nil
+    @State private var generationError: String? = nil
     
     let dietTypes = ["Any", "Keto", "Vegan", "Paleo", "Mediterranean"]
     let complexities = ["Fast (15m)", "Medium (30m)", "Chef (60m)"]
@@ -55,7 +56,7 @@ struct SmartPlanBuilderFlow: View {
                         
                         HStack {
                             if currentStep > 0 {
-                                Button("Назад") {
+                                Button(String(localized: "Back")) {
                                     withAnimation { currentStep -= 1 }
                                 }
                                 .font(.system(.body, design: .rounded, weight: .bold))
@@ -73,7 +74,7 @@ struct SmartPlanBuilderFlow: View {
                                     startGeneration()
                                 }
                             }) {
-                                Text(currentStep < 2 ? "Далее" : "Создать план")
+                                Text(currentStep < 2 ? String(localized: "Next") : String(localized: "Create Plan"))
                                     .font(.system(.headline, design: .rounded, weight: .bold))
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 32)
@@ -87,12 +88,12 @@ struct SmartPlanBuilderFlow: View {
                     }
                 }
             }
-            .navigationTitle(isGenerating ? "" : (generatedPlan != nil ? "Недельное меню" : "Умный конструктор"))
+            .navigationTitle(isGenerating ? "" : (generatedPlan != nil ? String(localized: "Weekly Menu") : String(localized: "Smart Builder")))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if !isGenerating && generatedPlan == nil {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Отмена") { dismiss() }
+                        Button(String(localized: "Cancel")) { dismiss() }
                             .foregroundColor(.gray)
                     }
                 }
@@ -102,6 +103,23 @@ struct SmartPlanBuilderFlow: View {
                     targetCalories = Double(user.dailyCaloriesGoal)
                 }
             }
+            .alert(
+                "Plan Generation Failed",
+                isPresented: Binding(
+                    get: { generationError != nil },
+                    set: { if !$0 { generationError = nil } }
+                )
+            ) {
+                Button("Try Again") {
+                    generationError = nil
+                    startGeneration()
+                }
+                Button("Cancel", role: .cancel) {
+                    generationError = nil
+                }
+            } message: {
+                Text(generationError ?? "")
+            }
         }
     }
     
@@ -109,7 +127,7 @@ struct SmartPlanBuilderFlow: View {
     
     private var dietStepView: some View {
         VStack(spacing: 24) {
-            Text("Какую диету ты предпочитаешь?")
+            Text("Which diet do you prefer?")
                 .font(.system(.title2, design: .rounded, weight: .bold))
                 .foregroundColor(.primary)
                 .padding(.top, 30)
@@ -154,7 +172,7 @@ struct SmartPlanBuilderFlow: View {
                             
                             // Diet label text
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(russianNameForDiet(diet))
+                                Text(localizedNameForDiet(diet))
                                     .font(.system(.subheadline, design: .rounded, weight: .black))
                                     .foregroundColor(.white)
                                     .lineLimit(1)
@@ -178,12 +196,12 @@ struct SmartPlanBuilderFlow: View {
     
     private var calorieStepView: some View {
         VStack(spacing: 24) {
-            Text("Укажи дневную цель калорий")
+            Text("Set your daily calorie goal")
                 .font(.system(.title2, design: .rounded, weight: .bold))
                 .foregroundColor(.primary)
                 .padding(.top, 30)
             
-            Text("\(Int(targetCalories)) ккал")
+            Text("\(Int(targetCalories)) kcal")
                 .font(.system(size: 42, weight: .black, design: .rounded))
                 .foregroundColor(themeManager.current.primaryAccent)
             
@@ -197,7 +215,7 @@ struct SmartPlanBuilderFlow: View {
                     Image(systemName: "lightbulb.fill")
                         .foregroundColor(.themeYellow)
                         .font(.system(size: 14))
-                    Text("СОВЕТ ШЕФА 👨‍🍳")
+                    Text("CHEF TIP 👨‍🍳")
                         .font(.system(size: 9, weight: .black, design: .rounded))
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
@@ -208,11 +226,11 @@ struct SmartPlanBuilderFlow: View {
                 .padding(.horizontal, 4)
                 
                 VStack(spacing: 0) {
-                    TableCell(icon: "flame.fill", title: "Баланс энергии", desc: "Дефицит запускает жиросжигание, профицит строит мышцы.", color: .themePink)
+                    TableCell(icon: "flame.fill", title: String(localized: "Energy Balance"), desc: String(localized: "Deficit drives fat loss, surplus supports muscle growth."), color: .themePink)
                     Divider()
-                    TableCell(icon: "heart.text.square.fill", title: "Защита метаболизма", desc: "Уберегает от экстремального голода и упадка сил.", color: .mintGreen)
+                    TableCell(icon: "heart.text.square.fill", title: String(localized: "Metabolic Protection"), desc: String(localized: "Prevents extreme hunger and fatigue."), color: .mintGreen)
                     Divider()
-                    TableCell(icon: "target", title: "Точность плана", desc: "Помогает ИИ распределить баланс БЖУ в твоем меню.", color: .cyberBlue)
+                    TableCell(icon: "target", title: String(localized: "Plan Precision"), desc: String(localized: "Helps AI balance protein, fats, and carbs in your menu."), color: .cyberBlue)
                 }
                 .background(Color.primary.opacity(0.01))
                 .cornerRadius(14)
@@ -236,7 +254,7 @@ struct SmartPlanBuilderFlow: View {
     
     private var complexityStepView: some View {
         VStack(spacing: 24) {
-            Text("Сколько времени уделять готовке?")
+            Text("How much time for cooking?")
                 .font(.system(.title2, design: .rounded, weight: .bold))
                 .multilineTextAlignment(.center)
                 .padding(.top, 30)
@@ -249,7 +267,7 @@ struct SmartPlanBuilderFlow: View {
                         complexity = comp
                     }) {
                         HStack {
-                            Text(russianNameForComplexity(comp))
+                            Text(localizedNameForComplexity(comp))
                                 .font(.system(.headline, design: .rounded, weight: .bold))
                                 .foregroundColor(complexity == comp ? .white : .primary)
                             Spacer()
@@ -285,13 +303,13 @@ struct SmartPlanBuilderFlow: View {
         }
     }
     
-    private func russianNameForDiet(_ diet: String) -> String {
+    private func localizedNameForDiet(_ diet: String) -> String {
         switch diet {
-        case "Keto": return "Кето"
-        case "Vegan": return "Веганская"
-        case "Paleo": return "Палео"
-        case "Mediterranean": return "Средиземноморская"
-        default: return "Любая"
+        case "Keto": return String(localized: "Keto")
+        case "Vegan": return String(localized: "Vegan")
+        case "Paleo": return String(localized: "Paleo")
+        case "Mediterranean": return String(localized: "Mediterranean")
+        default: return String(localized: "Any")
         }
     }
     
@@ -310,10 +328,10 @@ struct SmartPlanBuilderFlow: View {
         }
     }
     
-    private func russianNameForComplexity(_ comp: String) -> String {
-        if comp.contains("Fast") { return "Быстро (15 мин)" }
-        if comp.contains("Medium") { return "Средне (30 мин)" }
-        if comp.contains("Chef") { return "Шеф (60 мин)" }
+    private func localizedNameForComplexity(_ comp: String) -> String {
+        if comp.contains("Fast") { return String(localized: "Fast (15 min)") }
+        if comp.contains("Medium") { return String(localized: "Medium (30 min)") }
+        if comp.contains("Chef") { return String(localized: "Chef (60 min)") }
         return comp
     }
     
@@ -342,7 +360,8 @@ struct SmartPlanBuilderFlow: View {
             } else {
                 await MainActor.run {
                     withAnimation { isGenerating = false }
-                    // Fallback handled silently or with alert in real app
+                    generationError = String(localized: "Couldn't generate a 7-day plan right now. Please try again.")
+                    HapticManager.shared.notification(type: .error)
                 }
             }
         }

@@ -22,41 +22,41 @@ enum SpotlightStep: Int, CaseIterable, Identifiable {
     
     var category: String {
         switch self {
-        case .addMeal: return "ИИ-СКАНИРОВАНИЕ & ЛОГИНГ"
-        case .macroRings: return "МЕТАБОЛИЗМ & БЖУ"
-        case .fastingWater: return "ВОДНЫЙ БАЛАНС"
-        case .streakFire: return "ГЕЙМИФИКАЦИЯ & XP"
-        case .aiChef: return "ПЕРСОНАЛЬНЫЙ ШЕФ"
+        case .addMeal: return String(localized: "AI SCAN & LOGGING")
+        case .macroRings: return String(localized: "METABOLISM & MACROS")
+        case .fastingWater: return String(localized: "HYDRATION")
+        case .streakFire: return String(localized: "GAMIFICATION & XP")
+        case .aiChef: return String(localized: "PERSONAL CHEF")
         }
     }
     
     var title: String {
         switch self {
-        case .addMeal: return "Умное добавление еды"
-        case .macroRings: return "Энергетический баланс и БЖУ"
-        case .fastingWater: return "3D Колба гидратации"
-        case .streakFire: return "Огненный стрик и уровень"
-        case .aiChef: return "Студия питания и рецепты"
+        case .addMeal: return String(localized: "Smart Meal Logging")
+        case .macroRings: return String(localized: "Energy & Macro Balance")
+        case .fastingWater: return String(localized: "3D Hydration Flask")
+        case .streakFire: return String(localized: "Streak Fire & Level")
+        case .aiChef: return String(localized: "AI Chef & Recipes")
         }
     }
     
     var description: String {
         switch self {
         case .addMeal:
-            return "Сфотографируйте блюдо, отсканируйте штрихкод или запишите голосом — нейросеть моментально определит калории и макросы."
+            return String(localized: "Snap a photo, scan a barcode, or log by text — AI instantly estimates calories and macros.")
         case .macroRings:
-            return "Интерактивные кольца суточной нормы калорий, белков, жиров и углеводов с авто-синхронизацией активности Apple Health."
+            return String(localized: "Interactive daily rings for calories, protein, fats, and carbs with automatic Apple Health activity sync.")
         case .fastingWater:
-            return "Живая колба с синусоидальной физикой волн и мерной шкалой. Быстро отмечайте стакан или бутылку воды в один тап."
+            return String(localized: "Live wave-physics flask with volume ticks. Log a glass or bottle of water in one tap.")
         case .streakFire:
-            return "Сохраняйте серию дней без пропусков, зарабатывайте XP за закрытие целей и открывайте редкие достижения."
+            return String(localized: "Keep your daily streak alive, earn XP for hitting nutrition goals, and unlock achievements.")
         case .aiChef:
-            return "Генерируйте уникальные рецепты из продуктов в холодильнике с идеальной подгонкой под оставшиеся на день калории."
+            return String(localized: "Generate custom recipes from ingredients in your fridge tailored to your remaining daily calories.")
         }
     }
     
     var tag: String {
-        return "Шаг \(rawValue + 1) из \(SpotlightStep.allCases.count)"
+        return String(localized: "Step \(rawValue + 1) of \(SpotlightStep.allCases.count)")
     }
     
     var accentColor: Color {

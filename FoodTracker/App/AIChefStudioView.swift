@@ -7,35 +7,7 @@
 
 import SwiftUI
 import SwiftData
-
-// MARK: - 🗄 База Данных с реальными фото
-let mockDatabase: [AIChefRecipe] = [
-    AIChefRecipe(
-        title: "Лосось с киноа", calories: 420, protein: 35, heroImage: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600&q=80", cookTime: 25, difficulty: 2,
-        history: "Киноа — это не просто крупа, а подлинное «золото инков». Более трех тысяч лет назад высоко в горах Анд древние племена называли её «чизия мама» (матерь всех семян). Лосось же даст тебе премиальный белок и полезные жиры Омега-3.",
-        ingredients: ["Филе лосося (200г)", "Киноа (50г сухой)", "Спаржа (100г)", "Лимон (30г / половинка)", "Оливковое масло (10мл)", "Морская соль (2г)", "Белый перец", "Сушеный чеснок"],
-        steps: [
-            RecipeStep(instruction: "Подготовка рыбы. Тщательно промокни филе лосося бумажным полотенцем. Лишняя влага — враг корочки! Вотри каплю масла в рыбу массажными движениями.", imageName: "hand.draw.fill", aiTip: "Масло поможет специям раскрыться и проникнуть в волокна."),
-            RecipeStep(instruction: "Магия специй. Возьми крупную морскую соль, щепотку белого перца и немного сушеного чеснока. Равномерно посыпь филе со всех сторон.", imageName: "sparkles", aiTip: "Не используй черный перец, он перебьет нежный вкус лосося!"),
-            RecipeStep(instruction: "Запекание. Разогрей духовку до 200°C. Выложи лосось на пергамент кожей вниз. Рядом брось спаржу, слегка сбрызнув её лимоном. Запекай ровно 12-15 минут.", imageName: "flame.fill", aiTip: "Сделай фото для ИИ через 10 минут, чтобы мы проверили цвет корочки!"),
-            RecipeStep(instruction: "Варка киноа. Пока рыба в духовке, промой киноа кипятком. Вари 15 минут в пропорции 1:2 на слабом огне.", imageName: "drop.fill", aiTip: "Промывка кипятком убивает сапонины — вещества, дающие горечь.")
-        ],
-        platingTip: "Выложи киноа через кулинарное кольцо в центр тарелки. Сверху аккуратно помести лосось. Спаржу уложи рядом, скрестив стебли. Сбрызни всё каплей оливкового масла экстра-класса и укрась долькой лимона."
-    ),
-    AIChefRecipe(
-        title: "Стейк Рибай", calories: 550, protein: 50, heroImage: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80", cookTime: 15, difficulty: 4,
-        history: "Рибай — неоспоримый король среди стейков. Его мраморность тает при жарке, пропитывая мясо изнутри. Сегодня ты научишься готовить его как шеф-повар мишленовского ресторана.",
-        ingredients: ["Стейк Рибай (250г)", "Сливочное масло (20г)", "Чеснок (2 зубчика)", "Розмарин (1 свежая веточка)", "Крупная морская соль (4г)", "Черный перец горошком"],
-        steps: [
-            RecipeStep(instruction: "Адаптация мяса. Достань стейк из холодильника минимум за 30 минут до жарки. Он должен стать комнатной температуры. Насухо вытри его полотенцем.", imageName: "thermometer.sun", aiTip: "Холодное мясо на сковороде просто сварится в собственном соку."),
-            RecipeStep(instruction: "Соль и Перец. Забудь про мелкую соль! Возьми крупную морскую соль и свежемолотый черный перец. Щедро обсыпь стейк с обеих сторон и впечатай специи руками.", imageName: "hand.tap.fill", aiTip: "Крупная соль создаст ту самую хрустящую карамельную корочку."),
-            RecipeStep(instruction: "Шоковая жарка. Раскали чугунную сковороду до легкого дымка. Капни масло. Бросай стейк! Жарь ровно 2 минуты, не трогая и не двигая его.", imageName: "flame", aiTip: "Сделай фото! ИИ проверит, достаточно ли дымится сковорода."),
-            RecipeStep(instruction: "Ароматная ванна (Бастинг). Переверни стейк. Сразу кинь сливочное масло, чеснок и розмарин. Наклони сковороду и ложкой поливай стейк кипящим маслом!", imageName: "drop.fill", aiTip: "Розмарин отдаст эфирные масла, это изменит вкус блюда на 100%."),
-            RecipeStep(instruction: "Отдых. Сними стейк и положи на доску. Не режь! Дай ему отдохнуть 5 минут.", imageName: "clock.fill", aiTip: "За это время соки распределятся от центра к краям.")
-        ],
-        platingTip: "Обязательно подавай стейк на предварительно подогретой теплой тарелке или деревянной доске. Нарежь его поперек волокон на слайсы толщиной 1.5 см. Посыпь срез крупными хлопьями морской соли — это даст невероятный визуальный и вкусовой хруст."
-    )
-]
+import PhotosUI
 
 // MARK: - 🎨 Вспомогательные визуальные элементы (Shimmer & Image)
 struct ShimmerView: View {
@@ -117,19 +89,54 @@ struct RecipeImageView: View {
 // MARK: - 👨‍🍳 Главный Экран
 struct AIChefStudioView: View {
     @Environment(ThemeManager.self) private var themeManager
-    @State private var remainingCalories: Int = 450
-    @State private var remainingProtein: Int = 32
-    @State private var remainingFat: Int = 18
-    @State private var remainingCarbs: Int = 45
-    
+    @Query private var users: [User]
+    @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
+    @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
+
+    @State private var recipeLoader = RecipeDataLoader.shared
     @State private var searchText = ""
     @State private var showAIAssistantFlow = false
     @State private var showSmartBuilder = false
-    
+    @State private var isGeneratingAIRecipe = false
+    @State private var generatedAIRecipe: AIChefRecipe? = nil
+    @State private var generationError: String? = nil
+
     @State private var bgPhase = 0.0
-    
-    var filteredRecipes: [AIChefRecipe] { mockDatabase.filter { $0.title.localizedCaseInsensitiveContains(searchText) } }
-    var suggestedRecipes: [AIChefRecipe] { mockDatabase.filter { $0.calories <= remainingCalories + 150 } }
+
+    private var currentUser: User? { users.first }
+
+    private var todaySummary: DailySummary? {
+        let start = Calendar.current.startOfDay(for: Date())
+        return summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: start) })
+    }
+
+    private var remaining: NutritionMath.RemainingMacros {
+        NutritionMath.remainingMacros(user: currentUser, summary: todaySummary)
+    }
+
+    private var allRecipes: [AIChefRecipe] {
+        let custom = customRecipes.map { $0.toAIChefRecipe() }
+        let library = recipeLoader.recipes.map { $0.toAIChefRecipe() }
+        return custom + library
+    }
+
+    var filteredRecipes: [AIChefRecipe] {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return allRecipes
+        }
+        return allRecipes.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    var suggestedRecipes: [AIChefRecipe] {
+        let ceiling = max(remaining.calories + 150, 250)
+        let matching = allRecipes.filter { $0.calories > 0 && $0.calories <= ceiling }
+        let pool = matching.isEmpty ? allRecipes : matching
+        return Array(
+            pool.sorted { lhs, rhs in
+                abs(lhs.calories - remaining.calories) < abs(rhs.calories - remaining.calories)
+            }.prefix(12)
+        )
+    }
 
     var body: some View {
         NavigationStack {
@@ -164,12 +171,12 @@ struct AIChefStudioView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     HStack(spacing: 6) {
                                         Image(systemName: "sparkles.tv")
-                                        Text("ИИ-Ассистент")
+                                        Text("AI Assistant")
                                     }
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
                                     .foregroundColor(.white.opacity(0.85))
                                     
-                                    Text("Опробуй готовку с ИИ")
+                                    Text("Try AI Cooking")
                                         .font(.system(.title3, design: .rounded, weight: .black))
                                         .foregroundColor(.white)
                                 }
@@ -212,7 +219,7 @@ struct AIChefStudioView: View {
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
                                     .foregroundColor(.white.opacity(0.85))
                                     
-                                    Text("Составить меню на 7 дней")
+                                    Text("Create 7-Day Menu")
                                         .font(.system(.title3, design: .rounded, weight: .black))
                                         .foregroundColor(.white)
                                 }
@@ -235,7 +242,15 @@ struct AIChefStudioView: View {
                         .padding(.horizontal)
                         
                         // 2. ВИДЖЕТ МАКРОСОВ
-                        DailyMacroWidget(calories: remainingCalories, protein: remainingProtein, fat: remainingFat, carbs: remainingCarbs)
+                        DailyMacroWidget(
+                            calories: remaining.calories,
+                            protein: remaining.protein,
+                            fat: remaining.fat,
+                            carbs: remaining.carbs,
+                            maxProtein: max(Int(currentUser?.targetProtein ?? 120), 1),
+                            maxFat: max(Int(currentUser?.targetFats ?? 70), 1),
+                            maxCarbs: max(Int(currentUser?.targetCarbs ?? 250), 1)
+                        )
                         
                         // 3. ПОИСК (Glassmorphic)
                         HStack(spacing: 12) {
@@ -243,7 +258,7 @@ struct AIChefStudioView: View {
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(themeManager.current.primaryAccent)
                             
-                            TextField("Найти блюдо в базе...", text: $searchText)
+                            TextField("Search dishes...", text: $searchText)
                                 .font(.system(.body, design: .rounded))
                             
                             if !searchText.isEmpty {
@@ -289,17 +304,40 @@ struct AIChefStudioView: View {
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                 }
-                                if filteredRecipes.isEmpty {
-                                    Text("Блюдо не найдено")
-                                        .font(.system(.subheadline, design: .rounded, weight: .bold))
-                                        .foregroundColor(.secondary)
-                                        .padding()
+
+                                Button {
+                                    generateCustomRecipe(named: searchText)
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        if isGeneratingAIRecipe {
+                                            ProgressView().tint(.white)
+                                        } else {
+                                            Image(systemName: "wand.and.stars")
+                                                .foregroundColor(.white)
+                                        }
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(isGeneratingAIRecipe ? "AI Chef is crafting a recipe..." : "Ask AI Chef to cook \"\(searchText)\"")
+                                                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                                .foregroundColor(.white)
+                                            Text("Tailored to \(remaining.calories) kcal remaining")
+                                                .font(.caption2)
+                                                .foregroundColor(.white.opacity(0.85))
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption.bold())
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                    .padding(14)
+                                    .background(themeManager.current.primaryGradient)
+                                    .cornerRadius(18)
                                 }
+                                .disabled(isGeneratingAIRecipe)
                             }
                             .padding(.horizontal)
                         } else {
                             VStack(alignment: .leading, spacing: 16) {
-                                Text("ИИ подобрал под твои макросы:")
+                                Text("AI picked for your macros:")
                                     .font(.system(.title3, design: .rounded, weight: .bold))
                                     .foregroundColor(.primary)
                                     .padding(.horizontal)
@@ -330,7 +368,7 @@ struct AIChefStudioView: View {
                     .padding(.vertical)
                 }
             }
-            .navigationTitle("AI Шеф")
+            .navigationTitle("AI Chef")
             .onAppear {
                 TrackingManager.shared.track(.featureDiscovered(feature: "ai_chef_studio"))
                 withAnimation(.easeInOut(duration: 8.0).repeatForever(autoreverses: true)) {
@@ -338,10 +376,52 @@ struct AIChefStudioView: View {
                 }
             }
             .fullScreenCover(isPresented: $showAIAssistantFlow) {
-                AIAssistantFlowView(isPresented: $showAIAssistantFlow)
+                AIAssistantFlowView(
+                    isPresented: $showAIAssistantFlow,
+                    recipes: allRecipes,
+                    remainingCalories: remaining.calories,
+                    activeDiet: currentUser?.activeDietKey ?? "Balanced"
+                )
             }
             .sheet(isPresented: $showSmartBuilder) {
                 SmartPlanBuilderFlow()
+            }
+            .navigationDestination(item: $generatedAIRecipe) { recipe in
+                RecipeDetailAIView(recipe: recipe)
+            }
+            .alert(
+                "AI Chef",
+                isPresented: Binding(
+                    get: { generationError != nil },
+                    set: { if !$0 { generationError = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) { generationError = nil }
+            } message: {
+                Text(generationError ?? "")
+            }
+        }
+    }
+
+    private func generateCustomRecipe(named query: String) {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !isGeneratingAIRecipe else { return }
+        isGeneratingAIRecipe = true
+        let budget = remaining.calories > 0 ? remaining.calories : 500
+        let diet = currentUser?.activeDietKey ?? "Balanced"
+        Task {
+            let recipe = await AINutritionService.shared.generateChefRecipe(
+                dishQuery: trimmed,
+                remainingCalories: budget,
+                activeDiet: diet
+            )
+            await MainActor.run {
+                isGeneratingAIRecipe = false
+                if let recipe {
+                    generatedAIRecipe = recipe
+                } else {
+                    generationError = String(localized: "Could not generate that recipe right now. Please try again.")
+                }
             }
         }
     }
@@ -353,6 +433,9 @@ struct DailyMacroWidget: View {
     let protein: Int
     let fat: Int
     let carbs: Int
+    var maxProtein: Int = 120
+    var maxFat: Int = 70
+    var maxCarbs: Int = 250
     
     @Environment(ThemeManager.self) private var themeManager
     
@@ -360,7 +443,7 @@ struct DailyMacroWidget: View {
         VStack(spacing: 20) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Осталось на сегодня")
+                    Text("Remaining today")
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundColor(.secondary)
                     
@@ -368,7 +451,7 @@ struct DailyMacroWidget: View {
                         Text("\(calories)")
                             .font(.system(size: 38, weight: .black, design: .rounded))
                             .foregroundColor(.primary)
-                        Text("ккал")
+                        Text("kcal")
                             .font(.system(.title3, design: .rounded, weight: .bold))
                             .foregroundColor(.secondary)
                     }
@@ -381,9 +464,9 @@ struct DailyMacroWidget: View {
             }
             
             HStack(spacing: 10) {
-                MacroPillView(title: "Белки", value: "\(protein)г", amount: protein, maxAmount: 100, color: .themePeach)
-                MacroPillView(title: "Жиры", value: "\(fat)г", amount: fat, maxAmount: 80, color: .themeYellow)
-                MacroPillView(title: "Углеводы", value: "\(carbs)г", amount: carbs, maxAmount: 250, color: .drinkWater)
+                MacroPillView(title: String(localized: "Protein"), value: String(localized: "\(protein) g"), amount: protein, maxAmount: max(maxProtein, 1), color: .themePeach)
+                MacroPillView(title: String(localized: "Fat"), value: String(localized: "\(fat) g"), amount: fat, maxAmount: max(maxFat, 1), color: .themeYellow)
+                MacroPillView(title: String(localized: "Carbs"), value: String(localized: "\(carbs) g"), amount: carbs, maxAmount: max(maxCarbs, 1), color: .drinkWater)
             }
         }
         .padding(20)
@@ -464,13 +547,13 @@ struct SearchResultRow: View {
                     .foregroundColor(.primary)
                 
                 HStack(spacing: 6) {
-                    Text("\(recipe.calories) ккал")
+                    Text("\(recipe.calories) kcal")
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
                         .foregroundColor(themeManager.current.primaryAccent)
                     Text("•")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("\(recipe.cookTime) мин")
+                    Text("\(recipe.cookTime) min")
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                 }
@@ -518,7 +601,7 @@ struct RecipeCardView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "clock.fill")
                         .font(.system(size: 8, weight: .bold))
-                    Text("\(recipe.cookTime) мин")
+                    Text("\(recipe.cookTime) min")
                         .font(.system(size: 8, weight: .black, design: .rounded))
                 }
                 .foregroundColor(.white)
@@ -538,7 +621,7 @@ struct RecipeCardView: View {
                     .lineLimit(1)
                 
                 HStack(spacing: 8) {
-                    Text("\(recipe.calories) ккал")
+                    Text("\(recipe.calories) kcal")
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundColor(themeManager.current.primaryAccent)
                     
@@ -565,7 +648,9 @@ struct RecipeCardView: View {
 // MARK: - 📖 Экран Деталей Рецепта
 struct RecipeDetailAIView: View {
     let recipe: AIChefRecipe
+    @Environment(\.modelContext) private var context
     @State private var isCookingModeActive = false
+    @State private var didLogToDiary = false
     @Environment(ThemeManager.self) private var themeManager
     
     var body: some View {
@@ -602,7 +687,7 @@ struct RecipeDetailAIView: View {
                         Image(systemName: "clock.fill")
                             .font(.headline)
                             .foregroundColor(themeManager.current.primaryAccent)
-                        Text("\(recipe.cookTime) мин")
+                        Text("\(recipe.cookTime) min")
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
@@ -618,7 +703,7 @@ struct RecipeDetailAIView: View {
                                     .foregroundColor(.themeYellow)
                             }
                         }
-                        Text("Сложность")
+                        Text("Difficulty")
                             .font(.system(.caption, design: .rounded, weight: .medium))
                             .foregroundColor(.secondary)
                     }
@@ -629,33 +714,50 @@ struct RecipeDetailAIView: View {
                 }
                 .padding(.horizontal)
                 
-                // Action Button
-                Button(action: {
-                    HapticManager.shared.impact(style: .medium)
-                    isCookingModeActive = true
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "play.circle.fill")
-                            .font(.title3)
-                        Text("Начать готовку")
-                            .font(.system(.headline, design: .rounded, weight: .bold))
+                // Action Buttons
+                VStack(spacing: 12) {
+                    Button(action: {
+                        HapticManager.shared.impact(style: .medium)
+                        isCookingModeActive = true
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "play.circle.fill")
+                                .font(.title3)
+                            Text("Start Cooking")
+                                .font(.system(.headline, design: .rounded, weight: .bold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(themeManager.current.primaryGradient)
+                        .cornerRadius(20)
+                        .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 8, x: 0, y: 4)
                     }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(themeManager.current.primaryGradient)
-                    .cornerRadius(20)
-                    .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 8, x: 0, y: 4)
+                    .buttonStyle(BounceButtonStyle())
+
+                    Button(action: logRecipeToToday) {
+                        HStack(spacing: 8) {
+                            Image(systemName: didLogToDiary ? "checkmark.circle.fill" : "plus.circle.fill")
+                                .font(.subheadline.bold())
+                            Text(didLogToDiary ? "Added to Today's Diary" : "Log to Today's Diary (\(recipe.calories) kcal)")
+                                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        }
+                        .foregroundColor(didLogToDiary ? .green : themeManager.current.primaryAccent)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(didLogToDiary ? Color.green.opacity(0.1) : themeManager.current.primaryAccent.opacity(0.1))
+                        .cornerRadius(16)
+                    }
+                    .disabled(didLogToDiary)
                 }
                 .padding(.horizontal)
-                .buttonStyle(BounceButtonStyle())
                 
                 // Ingredients Section
                 VStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 8) {
                         Image(systemName: "list.bullet.clipboard.fill")
                             .foregroundColor(themeManager.current.primaryAccent)
-                        Text("Ингредиенты")
+                        Text("Ingredients")
                             .font(.system(.title3, design: .rounded, weight: .bold))
                     }
                     
@@ -694,7 +796,7 @@ struct RecipeDetailAIView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "book.pages.fill")
                             .foregroundColor(themeManager.current.primaryAccent)
-                        Text("История блюда")
+                        Text("Dish History")
                             .font(.system(.title3, design: .rounded, weight: .bold))
                     }
                     
@@ -725,7 +827,7 @@ struct RecipeDetailAIView: View {
                         Image(systemName: "sparkles")
                             .font(.title3)
                             .foregroundColor(.themeOrange)
-                        Text("Совет шеф-повара по подаче")
+                        Text("Chef's Plating Tip")
                             .font(.system(.headline, design: .rounded, weight: .bold))
                             .foregroundColor(.themeOrange)
                     }
@@ -765,11 +867,39 @@ struct RecipeDetailAIView: View {
                     .offset(x: 120, y: 150)
             }
         )
-        .navigationTitle("Рецепт")
+        .navigationTitle("Recipe")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $isCookingModeActive) {
             InteractiveCookingView(recipe: recipe, isPresented: $isCookingModeActive)
         }
+    }
+
+    private func logRecipeToToday() {
+        HapticManager.shared.notification(type: .success)
+        let summary = DailySummary.fetchOrCreate(for: Date(), in: context)
+        let hour = Calendar.current.component(.hour, from: Date())
+        let mealTitle = hour < 11 ? "Breakfast" : (hour < 16 ? "Lunch" : (hour < 21 ? "Dinner" : "Snack"))
+        let food = FoodItem(
+            name: recipe.title,
+            weight: 300,
+            calories: recipe.calories,
+            protein: Double(recipe.protein),
+            fats: Double(recipe.fat),
+            carbs: Double(recipe.carbs)
+        )
+        context.insert(food)
+        if let existing = (summary.meals ?? []).first(where: { $0.title == mealTitle }) {
+            existing.addFoodItem(food)
+            existing.date = Date()
+        } else {
+            let meal = Meal(title: mealTitle, date: Date(), foodItems: [food])
+            context.insert(meal)
+            summary.addMeal(meal)
+        }
+        try? context.save()
+        WidgetReloader.reloadAll()
+        AppReviewManager.shared.userDidLogMeal()
+        withAnimation { didLogToDiary = true }
     }
 }
 
@@ -791,7 +921,7 @@ struct InteractiveCookingView: View {
             VStack(spacing: 0) {
                 HStack {
                     Button(action: { isPresented = false }) { Image(systemName: "xmark.circle.fill").font(.title).foregroundColor(.gray.opacity(0.5)) }
-                    Spacer(); Text("Готовка: \(recipe.title)").font(.headline); Spacer()
+                    Spacer(); Text("Cooking: \(recipe.title)").font(.headline); Spacer()
                     Image(systemName: "eye.fill").foregroundColor(.themePink.opacity(0.6))
                 }.padding()
                 
@@ -804,7 +934,7 @@ struct InteractiveCookingView: View {
                             
                             if visibleStepsCount == recipe.steps.count {
                                 VStack(alignment: .leading, spacing: 12) {
-                                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Финальный штрих: Подача").font(.headline) }
+                                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Final Touch: Plating").font(.headline) }
                                     Text(recipe.platingTip).font(.body.italic()).foregroundColor(.primary).lineSpacing(4)
                                 }
                                 .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeOrange.opacity(0.1)).cornerRadius(16).padding(.horizontal)
@@ -827,7 +957,7 @@ struct InteractiveCookingView: View {
                 Spacer()
                 Button(action: nextStep) {
                     HStack {
-                        Text(visibleStepsCount == recipe.steps.count ? "Завершить и съесть!" : "Следующий шаг")
+                        Text(visibleStepsCount == recipe.steps.count ? "Finish & Enjoy!" : "Next Step")
                         if visibleStepsCount < recipe.steps.count { Image(systemName: "arrow.down") }
                     }.font(.title3.bold()).foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 20).background(Color.themePink).cornerRadius(24)
                 }.padding(.horizontal).padding(.bottom, 20)
@@ -865,25 +995,66 @@ struct CookingStepRow: View {
 // ==========================================
 struct AIAssistantFlowView: View {
     @Binding var isPresented: Bool
+    var recipes: [AIChefRecipe] = []
+    var remainingCalories: Int = 500
+    var activeDiet: String = "Balanced"
+
     @State private var searchAgentText = ""
     @State private var selectedRecipe: AIChefRecipe? = nil
     @State private var isPrepPhase = false
-    
-    var agentResults: [AIChefRecipe] { searchAgentText.isEmpty ? mockDatabase : mockDatabase.filter { $0.title.localizedCaseInsensitiveContains(searchAgentText) } }
-    
+    @State private var isGeneratingAI = false
+    @State private var generationError: String? = nil
+
+    var agentResults: [AIChefRecipe] {
+        let trimmed = searchAgentText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            return Array(recipes.prefix(20))
+        }
+        return recipes.filter { $0.title.localizedCaseInsensitiveContains(trimmed) }
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.themeBg.ignoresSafeArea()
                 VStack(spacing: 20) {
-                    Text("Что приготовим с ИИ?").font(.largeTitle.bold()).padding(.top)
+                    Text("What shall we cook with AI?").font(.largeTitle.bold()).padding(.top)
                     HStack {
                         Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                        TextField("Например: Рибай...", text: $searchAgentText)
+                        TextField("For example: Ribeye...", text: $searchAgentText)
                     }.padding().background(Color.white).cornerRadius(16).padding(.horizontal)
-                    
+
                     ScrollView {
                         VStack(spacing: 12) {
+                            let trimmed = searchAgentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                            if !trimmed.isEmpty {
+                                Button {
+                                    generateRecipeForAssistant(query: trimmed)
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        if isGeneratingAI {
+                                            ProgressView().tint(.white)
+                                        } else {
+                                            Image(systemName: "wand.and.stars")
+                                                .foregroundColor(.white)
+                                        }
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(isGeneratingAI ? "AI Chef is creating your recipe..." : "Generate AI step-by-step for \"\(trimmed)\"")
+                                                .font(.subheadline.bold())
+                                                .foregroundColor(.white)
+                                            Text("Fits ~\(max(remainingCalories, 350)) kcal • \(activeDiet)")
+                                                .font(.caption2)
+                                                .foregroundColor(.white.opacity(0.85))
+                                        }
+                                        Spacer()
+                                    }
+                                    .padding()
+                                    .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
+                                    .cornerRadius(16)
+                                }
+                                .disabled(isGeneratingAI)
+                            }
+
                             ForEach(agentResults) { recipe in
                                 Button(action: {
                                     HapticManager.shared.impact(style: .medium)
@@ -891,7 +1062,7 @@ struct AIAssistantFlowView: View {
                                 }) { SearchResultRow(recipe: recipe) }.buttonStyle(PlainButtonStyle())
                             }
                         }.padding(.horizontal)
-                        
+
                         // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР
                         Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
                             .font(.caption2)
@@ -903,8 +1074,41 @@ struct AIAssistantFlowView: View {
                     }
                 }
             }
-            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Отмена") { isPresented = false }.foregroundColor(.themePink) } }
+            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Cancel") { isPresented = false }.foregroundColor(.themePink) } }
             .navigationDestination(isPresented: $isPrepPhase) { if let r = selectedRecipe { PrepChecklistView(recipe: r, isFlowPresented: $isPresented) } }
+            .alert(
+                "AI Chef",
+                isPresented: Binding(
+                    get: { generationError != nil },
+                    set: { if !$0 { generationError = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) { generationError = nil }
+            } message: {
+                Text(generationError ?? "")
+            }
+        }
+    }
+
+    private func generateRecipeForAssistant(query: String) {
+        guard !isGeneratingAI else { return }
+        isGeneratingAI = true
+        Task {
+            let budget = max(remainingCalories, 400)
+            let recipe = await AINutritionService.shared.generateChefRecipe(
+                dishQuery: query,
+                remainingCalories: budget,
+                activeDiet: activeDiet
+            )
+            await MainActor.run {
+                isGeneratingAI = false
+                if let recipe {
+                    selectedRecipe = recipe
+                    isPrepPhase = true
+                } else {
+                    generationError = String(localized: "Could not generate that recipe right now. Please try again.")
+                }
+            }
         }
     }
 }
@@ -918,9 +1122,9 @@ struct PrepChecklistView: View {
     
     var body: some View {
         VStack {
-            Text("Подготовка продуктов").font(.title2.bold()).padding()
+            Text("Prep Ingredients").font(.title2.bold()).padding()
             List {
-                Section(header: Text("Отметь, что у тебя есть на столе")) {
+                Section(header: Text("Check what you have on the counter")) {
                     ForEach(recipe.ingredients, id: \.self) { item in
                         HStack {
                             Text(item).font(.body); Spacer()
@@ -937,7 +1141,7 @@ struct PrepChecklistView: View {
             }.listStyle(InsetGroupedListStyle())
             
             Button(action: { HapticManager.shared.impact(style: .medium); isCookingPhase = true }) {
-                Text(allChecked ? "Все готово, начинаем!" : "Продолжить")
+                Text(allChecked ? "All ready, let's start!" : "Continue")
                     .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
                     .padding().background(allChecked ? Color.green : Color.themePink).cornerRadius(16)
             }.padding()
@@ -973,7 +1177,7 @@ struct AgentCookingView: View {
                         HStack {
                             Circle().fill(Color.themePink.opacity(0.2)).frame(width: 36, height: 36)
                                 .overlay(Text("\(index + 1)").font(.headline).foregroundColor(.themePink))
-                            Text("Инструкция от ИИ").font(.headline).foregroundColor(.secondary)
+                            Text("AI Instruction").font(.headline).foregroundColor(.secondary)
                             Spacer()
                         }
                         
@@ -993,7 +1197,7 @@ struct AgentCookingView: View {
                         }) {
                             HStack {
                                 Image(systemName: "camera.viewfinder")
-                                Text("Проверить этот шаг через камеру")
+                                Text("Check this step with camera")
                             }
                             .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding(14).background(Color.themePink).cornerRadius(16)
                         }
@@ -1001,7 +1205,7 @@ struct AgentCookingView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Финальный штрих: Подача").font(.title3.bold()) }
+                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Final Touch: Plating").font(.title3.bold()) }
                     Text(recipe.platingTip)
                         .font(.body.italic())
                         .lineSpacing(6)
@@ -1009,7 +1213,7 @@ struct AgentCookingView: View {
                 }
                 .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeOrange.opacity(0.1)).cornerRadius(20).padding(.horizontal)
                 
-                Button("Завершить готовку") {
+                Button("Finish Cooking") {
                     HapticManager.shared.impact(style: .rigid)
                     isFlowPresented = false
                 }
@@ -1017,10 +1221,12 @@ struct AgentCookingView: View {
             }.padding(.top, 16)
         }
         .background(Color.themeBg.ignoresSafeArea())
-        .navigationTitle("ИИ Шеф следит")
+        .navigationTitle("AI Chef Watching")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $showCameraScanner) {
-            if let step = currentStepForCamera { AICameraScannerView(step: step, isPresented: $showCameraScanner) }
+            if let step = currentStepForCamera {
+                AICameraScannerView(step: step, dishTitle: recipe.title, isPresented: $showCameraScanner)
+            }
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -1039,51 +1245,220 @@ struct AgentCookingView: View {
 
 struct AICameraScannerView: View {
     let step: RecipeStep
+    var dishTitle: String = ""
     @Binding var isPresented: Bool
+
+    @State private var cameraManager = LiveFoodCameraManager()
+    @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var isAnalyzing = false
     @State private var showResult = false
     @State private var aiVerdict = ""
     @State private var isSuccess = true
-    
-    let successPhrases = ["Идеально! Температура и цвет то что нужно.", "Специи легли отлично. Продолжай!", "Корочка схватилась правильно. Переходи к следующему шагу."]
-    let errorPhrases = ["Маловато соли. Добавь еще щепотку!", "Сковорода недостаточно раскалена. Подожди 30 секунд.", "Цвет бледноват, дай блюду еще немного времени."]
-    
+    @State private var evaluationError: String? = nil
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
+
+            if !cameraManager.isCameraUnavailable && !cameraManager.isPermissionDenied {
+                LiveCameraPreviewView(session: cameraManager.session)
+                    .ignoresSafeArea()
+            }
+
             VStack {
-                HStack { Button("Закрыть") { isPresented = false }.foregroundColor(.white).padding(); Spacer() }
+                HStack {
+                    Button("Close") { isPresented = false }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Color.black.opacity(0.45))
+                        .clipShape(Capsule())
+                    Spacer()
+                    PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
+                        Image(systemName: "photo.on.rectangle")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .background(Color.black.opacity(0.45))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding()
+
                 Spacer()
+
                 ZStack {
-                    RoundedRectangle(cornerRadius: 24).stroke(Color.white.opacity(0.3), lineWidth: 2).frame(width: 300, height: 400)
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.white.opacity(0.45), lineWidth: 2)
+                        .frame(width: 300, height: 380)
+                        .background(Color.black.opacity(showResult || isAnalyzing || evaluationError != nil || cameraManager.isCameraUnavailable || cameraManager.isPermissionDenied ? 0.55 : 0.1).cornerRadius(24))
+
                     if isAnalyzing {
-                        VStack { ProgressView().tint(.white).scaleEffect(2); Text("ИИ анализирует...").foregroundColor(.white).padding(.top) }
+                        VStack(spacing: 12) {
+                            ProgressView().tint(.white).scaleEffect(1.8)
+                            Text("AI analyzing...").foregroundColor(.white).font(.headline)
+                        }
+                    } else if let error = evaluationError {
+                        VStack(spacing: 14) {
+                            Image(systemName: "wifi.exclamationmark")
+                                .foregroundColor(.orange)
+                                .font(.system(size: 46))
+                            Text(error)
+                                .font(.subheadline.bold())
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                            Button("Try Again") {
+                                resetForRetry()
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Color.white.opacity(0.25))
+                            .cornerRadius(12)
+                            .foregroundColor(.white)
+                        }
+                        .frame(width: 280)
                     } else if showResult {
                         VStack(spacing: 16) {
                             Image(systemName: isSuccess ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                                .foregroundColor(isSuccess ? .green : .yellow).font(.system(size: 60))
-                            Text(aiVerdict).font(.title3.bold()).foregroundColor(.white).multilineTextAlignment(.center).padding()
-                            Button("Понял") { isPresented = false }.padding().background(Color.white.opacity(0.2)).cornerRadius(12).foregroundColor(.white)
+                                .foregroundColor(isSuccess ? .green : .yellow)
+                                .font(.system(size: 56))
+                            Text(aiVerdict)
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                            HStack(spacing: 12) {
+                                Button("Try Again") { resetForRetry() }
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 10)
+                                    .background(Color.white.opacity(0.18))
+                                    .cornerRadius(12)
+                                    .foregroundColor(.white)
+                                Button("Got it") { isPresented = false }
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(Color.themePink)
+                                    .cornerRadius(12)
+                                    .foregroundColor(.white)
+                            }
                         }
-                    } else { Text("Наведи камеру на блюдо").foregroundColor(.white.opacity(0.6)) }
+                        .frame(width: 280)
+                    } else if cameraManager.isPermissionDenied {
+                        VStack(spacing: 12) {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 36))
+                                .foregroundColor(.themeOrange)
+                            Text("Camera access is needed to inspect cooking steps.")
+                                .font(.subheadline.bold())
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                                Link("Open Settings", destination: settingsURL)
+                                    .font(.caption.bold())
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(Color.white)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .padding()
+                        .frame(width: 280)
+                    } else if cameraManager.isCameraUnavailable {
+                        VStack(spacing: 12) {
+                            Image(systemName: "photo.badge.plus")
+                                .font(.system(size: 36))
+                                .foregroundColor(.white.opacity(0.8))
+                            Text("Camera unavailable on this device. Pick a photo from your library above.")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.85))
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding()
+                        .frame(width: 280)
+                    } else {
+                        Text("Point the camera at the dish")
+                            .font(.subheadline.bold())
+                            .foregroundColor(.white.opacity(0.85))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.black.opacity(0.35))
+                            .cornerRadius(10)
+                    }
                 }
+
                 Spacer()
-                if !isAnalyzing && !showResult {
-                    Button(action: takePhoto) {
+
+                if !isAnalyzing && !showResult && evaluationError == nil && !cameraManager.isCameraUnavailable && !cameraManager.isPermissionDenied {
+                    Button(action: capturePhoto) {
                         Circle().stroke(Color.white, lineWidth: 4).frame(width: 70, height: 70)
                             .overlay(Circle().fill(Color.white).frame(width: 60, height: 60))
-                    }.padding(.bottom, 40)
+                    }
+                    .padding(.bottom, 40)
+                }
+            }
+        }
+        .onAppear {
+            cameraManager.checkPermissionAndStart()
+        }
+        .onDisappear {
+            cameraManager.stop()
+        }
+        .onChange(of: cameraManager.capturedImage) { _, newImage in
+            guard let img = newImage else { return }
+            analyzeCapturedStepImage(img)
+        }
+        .onChange(of: selectedPhotoItem) { _, newItem in
+            Task {
+                if let data = try? await newItem?.loadTransferable(type: Data.self),
+                   let img = UIImage(data: data) {
+                    await MainActor.run {
+                        analyzeCapturedStepImage(img)
+                    }
                 }
             }
         }
     }
-    
-    func takePhoto() {
-        HapticManager.shared.impact(style: .rigid); isAnalyzing = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isAnalyzing = false; showResult = true; isSuccess = Bool.random()
-            aiVerdict = isSuccess ? successPhrases.randomElement()! : errorPhrases.randomElement()!
-            HapticManager.shared.impact(style: .medium)
+
+    private func capturePhoto() {
+        HapticManager.shared.impact(style: .rigid)
+        cameraManager.takePhoto()
+    }
+
+    private func resetForRetry() {
+        cameraManager.capturedImage = nil
+        selectedPhotoItem = nil
+        showResult = false
+        evaluationError = nil
+    }
+
+    private func analyzeCapturedStepImage(_ image: UIImage) {
+        guard !isAnalyzing else { return }
+        isAnalyzing = true
+        evaluationError = nil
+
+        Task {
+            do {
+                let evaluation = try await VertexAIManager.shared.evaluateCookingStep(
+                    image: image,
+                    dishTitle: dishTitle,
+                    stepInstruction: step.instruction
+                )
+                await MainActor.run {
+                    isAnalyzing = false
+                    showResult = true
+                    isSuccess = evaluation.isGood
+                    aiVerdict = evaluation.feedback
+                    HapticManager.shared.notification(type: evaluation.isGood ? .success : .warning)
+                }
+            } catch {
+                await MainActor.run {
+                    isAnalyzing = false
+                    evaluationError = String(localized: "Couldn't evaluate this step right now. Check your connection and try again.")
+                    HapticManager.shared.notification(type: .error)
+                }
+            }
         }
     }
 }

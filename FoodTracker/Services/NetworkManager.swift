@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseAuth
 import FirebaseAppCheck
 
 class NetworkManager {
@@ -7,6 +8,15 @@ class NetworkManager {
     var session: URLSession
     var appCheckTokenProvider: () async -> String? = {
         try? await AppCheck.appCheck().token(forcingRefresh: false).token
+    }
+    var authTokenProvider: () async -> String? = {
+        let user: FirebaseAuth.User?
+        if let current = Auth.auth().currentUser {
+            user = current
+        } else {
+            user = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
+        }
+        return try? await user?.getIDToken()
     }
     var searchProxyURLProvider: (() async -> URL)?
 
@@ -178,9 +188,14 @@ class NetworkManager {
             print("⚠️ foodSearchProxy skipped: missing App Check token")
             return nil
         }
+        guard let authToken = await authTokenProvider(), !authToken.isEmpty else {
+            print("⚠️ foodSearchProxy skipped: missing Firebase ID token")
+            return nil
+        }
         let url = await resolveSearchProxyURL()
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
         request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: payload)

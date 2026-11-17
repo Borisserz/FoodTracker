@@ -9,7 +9,8 @@ struct AddMealView: View {
     @Query private var users: [User]
     
     @State private var selectedMealType: String
-    @State private var selectedFoods: [FoodItem] = []
+    @State private var selectedDrafts: [EditableFoodDraft] = []
+    @State private var existingMealHadItems: Bool = false
     @State private var showingAddFood = false
     @State private var expandedFoodId: UUID? = nil
     
@@ -44,19 +45,23 @@ struct AddMealView: View {
     
     // Current meal nutrients
     private var totalMealCalories: Int {
-        selectedFoods.reduce(0) { $0 + $1.calories }
+        selectedDrafts.reduce(0) { $0 + $1.calories }
     }
     
     private var totalMealProtein: Double {
-        selectedFoods.reduce(0) { $0 + $1.protein }
+        selectedDrafts.reduce(0) { $0 + $1.protein }
     }
     
     private var totalMealCarbs: Double {
-        selectedFoods.reduce(0) { $0 + $1.carbs }
+        selectedDrafts.reduce(0) { $0 + $1.carbs }
     }
     
     private var totalMealFats: Double {
-        selectedFoods.reduce(0) { $0 + $1.fats }
+        selectedDrafts.reduce(0) { $0 + $1.fats }
+    }
+
+    private var canSaveMeal: Bool {
+        !selectedDrafts.isEmpty || existingMealHadItems
     }
     
     func localizedMealType(_ type: String) -> String {
@@ -138,15 +143,15 @@ struct AddMealView: View {
                                 Text("Food Items")
                                     .font(.system(size: 18, weight: .bold, design: .rounded))
                                 Spacer()
-                                if !selectedFoods.isEmpty {
-                                    Text("\(selectedFoods.count) items")
+                                if !selectedDrafts.isEmpty {
+                                    Text("\(selectedDrafts.count) items")
                                         .font(.caption.bold())
                                         .foregroundColor(.gray)
                                 }
                             }
                             .padding(.horizontal)
                             
-                            if selectedFoods.isEmpty {
+                            if selectedDrafts.isEmpty {
                                 // Empty State View
                                 VStack(spacing: 16) {
                                     Image(systemName: "fork.knife")
@@ -183,28 +188,26 @@ struct AddMealView: View {
                             } else {
                                 // Food List with inline expansion
                                 LazyVStack(spacing: 12) {
-                                    ForEach(selectedFoods, id: \.id) { food in
+                                    ForEach(selectedDrafts) { draft in
                                         FoodItemRowCard(
-                                            food: food,
-                                            isExpanded: expandedFoodId == food.id,
+                                            draft: draft,
+                                            isExpanded: expandedFoodId == draft.id,
                                             onToggleExpand: {
                                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                    if expandedFoodId == food.id {
+                                                    if expandedFoodId == draft.id {
                                                         expandedFoodId = nil
                                                     } else {
-                                                        expandedFoodId = food.id
+                                                        expandedFoodId = draft.id
                                                     }
                                                 }
                                                 HapticManager.shared.impact(style: .light)
                                             },
                                             onUpdateWeight: { newWeight in
-                                                updateFoodItemWeight(food: food, newWeight: newWeight)
+                                                updateDraftWeight(draftId: draft.id, newWeight: newWeight)
                                             },
                                             onDelete: {
                                                 withAnimation(.spring()) {
-                                                    if let idx = selectedFoods.firstIndex(where: { $0.id == food.id }) {
-                                                        selectedFoods.remove(at: idx)
-                                                    }
+                                                    selectedDrafts.removeAll { $0.id == draft.id }
                                                 }
                                             }
                                         )
@@ -274,16 +277,16 @@ struct AddMealView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 16)
                                     .background {
-                                        if selectedFoods.isEmpty {
+                                        if !canSaveMeal {
                                             Color.gray.opacity(0.3)
                                         } else {
                                             ThemeManager.shared.current.primaryGradient
                                         }
                                     }
                                     .cornerRadius(20)
-                                    .shadow(color: selectedFoods.isEmpty ? Color.clear : ThemeManager.shared.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
+                                    .shadow(color: !canSaveMeal ? Color.clear : ThemeManager.shared.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
                             }
-                            .disabled(selectedFoods.isEmpty)
+                            .disabled(!canSaveMeal)
                             .buttonStyle(BounceButtonStyle())
                         }
                         .padding(.horizontal, 24)
@@ -297,7 +300,8 @@ struct AddMealView: View {
             .tint(.themePink)
             .sheet(isPresented: $showingAddFood) {
                 SmartAddFoodView(mealTitle: localizedMealType(selectedMealType)) { newItems in
-                    self.selectedFoods.append(contentsOf: newItems)
+                    let newDrafts = newItems.map { EditableFoodDraft(food: $0) }
+                    self.selectedDrafts.append(contentsOf: newDrafts)
                 }
                 .presentationDetents([.fraction(0.85), .large])
                 .presentationCornerRadius(32)
@@ -313,59 +317,62 @@ struct AddMealView: View {
     
     private func loadExistingFoods() {
         if let existingMeal = summaries.first?.meals?.first(where: { $0.title == selectedMealType }) {
-            selectedFoods = existingMeal.foodItems ?? []
+            let items = existingMeal.foodItems ?? []
+            selectedDrafts = items.map { EditableFoodDraft(food: $0) }
+            existingMealHadItems = !items.isEmpty
         } else {
-            selectedFoods = []
+            selectedDrafts = []
+            existingMealHadItems = false
         }
     }
     
-    // Scaling helpers
-    private func updateFoodItemWeight(food: FoodItem, newWeight: Double) {
-        let oldWeight = food.weight > 0 ? food.weight : 100.0
-        let multiplier = newWeight / oldWeight
-        
-        food.weight = newWeight
-        food.calories = Int(Double(food.calories) * multiplier)
-        food.protein = food.protein * multiplier
-        food.fats = food.fats * multiplier
-        food.carbs = food.carbs * multiplier
-        
-        food.omega3 *= multiplier
-        food.calcium *= multiplier
-        food.potassium *= multiplier
-        food.magnesium *= multiplier
-        food.iron *= multiplier
-        food.vitaminC *= multiplier
-        food.vitaminD *= multiplier
-        
-        // Force view refresh by updating the array reference
-        if let index = selectedFoods.firstIndex(where: { $0.id == food.id }) {
-            selectedFoods[index] = food
-        }
+    // Non-destructive baseline scaling (prevents Int truncation loss & unsaved SwiftData mutations)
+    private func updateDraftWeight(draftId: UUID, newWeight: Double) {
+        guard newWeight > 0, let index = selectedDrafts.firstIndex(where: { $0.id == draftId }) else { return }
+        selectedDrafts[index].weight = newWeight
     }
     
     private func saveMealAndDismiss() {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
         let summaryToUse = DailySummary.fetchOrCreate(for: startOfDay, in: modelContext)
+        let mealTimestamp = calendar.isDateInToday(selectedDate) ? Date.now : startOfDay
+
+        var persistedItems: [FoodItem] = []
+        for draft in selectedDrafts {
+            if let existingItem = draft.existingItem {
+                draft.apply(to: existingItem)
+                persistedItems.append(existingItem)
+            } else {
+                let newItem = draft.makeFoodItem()
+                modelContext.insert(newItem)
+                persistedItems.append(newItem)
+            }
+        }
         
         if let existingMeal = (summaryToUse.meals ?? []).first(where: { $0.title == selectedMealType }) {
-            // Delete removed items
-            let removedFoods = (existingMeal.foodItems ?? []).filter { existing in
-                !selectedFoods.contains(where: { $0.id == existing.id })
-            }
+            let keptIDs = Set(persistedItems.map { $0.id })
+            let removedFoods = (existingMeal.foodItems ?? []).filter { !keptIDs.contains($0.id) }
             for food in removedFoods {
                 modelContext.delete(food)
             }
-            existingMeal.foodItems = selectedFoods
-        } else {
-            let newMeal = Meal(title: selectedMealType, date: selectedDate, foodItems: selectedFoods)
+            if persistedItems.isEmpty {
+                summaryToUse.meals?.removeAll { $0.id == existingMeal.id }
+                modelContext.delete(existingMeal)
+            } else {
+                existingMeal.foodItems = persistedItems
+                existingMeal.date = mealTimestamp
+            }
+        } else if !persistedItems.isEmpty {
+            let newMeal = Meal(title: selectedMealType, date: mealTimestamp, foodItems: persistedItems)
+            modelContext.insert(newMeal)
             summaryToUse.addMeal(newMeal)
         }
         
         do {
             try modelContext.save()
             WidgetReloader.reloadAll()
+            AppReviewManager.shared.userDidLogMeal()
             dismiss()
         } catch {
             print("Failed to save meal: \(error.localizedDescription)")
@@ -496,7 +503,7 @@ private struct MacroSummaryMiniProgress: View {
 }
 
 private struct FoodItemRowCard: View {
-    let food: FoodItem
+    let draft: EditableFoodDraft
     let isExpanded: Bool
     let onToggleExpand: () -> Void
     let onUpdateWeight: (Double) -> Void
@@ -526,20 +533,20 @@ private struct FoodItemRowCard: View {
         VStack(spacing: 0) {
             Button(action: onToggleExpand) {
                 HStack(spacing: 16) {
-                    Text(emojiForFood(food.name))
+                    Text(emojiForFood(draft.name))
                         .font(.system(size: 26))
                         .frame(width: 46, height: 46)
                         .background(Color.themeBg.opacity(0.6))
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(food.name)
+                        Text(draft.name)
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                             .multilineTextAlignment(.leading)
                             .lineLimit(1)
                         
-                        Text("\(Int(food.weight))g • \(food.calories) kcal")
+                        Text("\(Int(draft.scaled.weight))g • \(draft.calories) kcal")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
                     }
@@ -547,7 +554,7 @@ private struct FoodItemRowCard: View {
                     Spacer()
                     
                     HStack(spacing: 8) {
-                        Text("\(food.calories) kcal")
+                        Text("\(draft.calories) kcal")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(.themePink)
                         
@@ -586,7 +593,7 @@ private struct FoodItemRowCard: View {
                                     .background(Color.themeBg.opacity(0.5))
                                     .cornerRadius(10)
                                     .onChange(of: textInput) { _, newValue in
-                                        if let val = Double(newValue), val > 0 {
+                                        if let val = NutritionMath.parsePositiveDecimal(newValue) {
                                             localWeight = val
                                             onUpdateWeight(val)
                                         }
@@ -622,8 +629,8 @@ private struct FoodItemRowCard: View {
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 6)
-                                    .background(food.weight == Double(amount) ? Color.themePink.opacity(0.15) : Color.gray.opacity(0.06))
-                                    .foregroundColor(food.weight == Double(amount) ? .themePink : .primary)
+                                    .background(draft.weight == Double(amount) ? Color.themePink.opacity(0.15) : Color.gray.opacity(0.06))
+                                    .foregroundColor(draft.weight == Double(amount) ? .themePink : .primary)
                                     .cornerRadius(10)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -656,10 +663,10 @@ private struct FoodItemRowCard: View {
         )
         .shadow(color: Color.black.opacity(0.02), radius: 6, x: 0, y: 3)
         .onAppear {
-            localWeight = food.weight > 0 ? food.weight : 100.0
+            localWeight = draft.weight > 0 ? draft.weight : 100.0
             textInput = String(format: "%.0f", localWeight)
         }
-        .onChange(of: food.weight) { _, newWeight in
+        .onChange(of: draft.weight) { _, newWeight in
             if localWeight != newWeight {
                 localWeight = newWeight
                 textInput = String(format: "%.0f", newWeight)

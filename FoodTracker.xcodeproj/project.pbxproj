@@ -42,6 +42,7 @@
 		ACF45AAD2F9E4A4C00206681 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAC2F9E4A4C00206681 /* FirebaseRemoteConfig */; };
 		BFD2BC57AFEEF0B63D402827 /* FoodTrackerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1717DB868603E5AC754381B0 /* FoodTrackerWidget.swift */; };
 		C64DA9CFA8D80562F914A838 /* WidgetTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E14A366AF7D10BEB62996BE /* WidgetTimelineProvider.swift */; };
+		D8C97A640158A90893E7316F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6A756F1A52BC138EA763B578 /* PrivacyInfo.xcprivacy */; };
 		DC19BACC4B8A11186D17CCB9 /* WidgetIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5A3EF1AEDA75F9D3127E7E /* WidgetIntents.swift */; };
 		DFDB0F8AB3BBDFB25E8FDF00 /* FastingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE49F9484B31620583B3BDC /* FastingManagerTests.swift */; };
 		EC025169B1B3720B5CEEDD13 /* FastingActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDAC78C0A7D93A557E994339 /* FastingActivityWidget.swift */; };
@@ -100,6 +101,7 @@
 		61EB37C18B8E437824E8A9F1 /* VertexAIManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VertexAIManagerTests.swift; sourceTree = "<group>"; };
 		624F8E88E001D77022133FAF /* FoodTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FoodTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6296CF42AF90F9467D2A0EC4 /* SmartPlanModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SmartPlanModels.swift; sourceTree = "<group>"; };
+		6A756F1A52BC138EA763B578 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6EE49F9484B31620583B3BDC /* FastingManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FastingManagerTests.swift; sourceTree = "<group>"; };
 		71D0782EF74519AAD03B5AAE /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7DDCF33702ED0DC7C043FAE1 /* FoodTrackerWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = FoodTrackerWidget.entitlements; sourceTree = "<group>"; };
@@ -258,6 +260,7 @@
 				5C65665AAF6D5C3991BC081B /* FoodTrackerWidgets */,
 				FCC358B088413B6889E0056D /* FoodTrackerTests */,
 				A2A271C381CEF58B2BB031C7 /* FoodTrackerUITests */,
+				6A756F1A52BC138EA763B578 /* PrivacyInfo.xcprivacy */,
 			);
 			sourceTree = "<group>";
 		};
@@ -482,6 +485,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */,
+				D8C97A640158A90893E7316F /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,6 +501,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		A8E93B9035C662EEC7D5AB5B /* Firebase Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -869,11 +874,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FoodTracker/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "FoodTracker needs access to your camera to scan food barcodes";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized";
-				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you and improve analytics.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -908,11 +908,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FoodTracker/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "FoodTracker needs access to your camera to scan food barcodes";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "FoodTracker needs access to your Health data to read active energy burned. This allows us to accurately calculate and adjust your daily calorie goals based on your activity.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized";
-				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you and improve analytics.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

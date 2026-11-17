@@ -16,7 +16,7 @@ struct FastingActivityWidget: Widget {
                         .foregroundColor(.orange)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text(timerInterval: Date()...context.attributes.targetEndDate, countsDown: true)
+                    FastingCountdownText(targetEndDate: context.attributes.targetEndDate)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 50)
                         .monospacedDigit()
@@ -33,7 +33,7 @@ struct FastingActivityWidget: Widget {
                 Image(systemName: "flame.fill")
                     .foregroundColor(.orange)
             } compactTrailing: {
-                Text(timerInterval: Date()...context.attributes.targetEndDate, countsDown: true)
+                FastingCountdownText(targetEndDate: context.attributes.targetEndDate)
                     .monospacedDigit()
                     .frame(width: 45)
                     .font(.caption2)
@@ -89,7 +89,7 @@ struct LockScreenFastingView: View {
                         Text("Ends in:")
                             .font(.caption)
                             .foregroundColor(.gray)
-                        Text(timerInterval: Date()...context.attributes.targetEndDate, countsDown: true)
+                        FastingCountdownText(targetEndDate: context.attributes.targetEndDate)
                             .font(.caption.bold())
                             .monospacedDigit()
                             .foregroundColor(.orange)
@@ -101,5 +101,17 @@ struct LockScreenFastingView: View {
         }
         .padding()
         .background(Color.black.opacity(0.8))
+    }
+}
+
+private struct FastingCountdownText: View {
+    let targetEndDate: Date
+
+    var body: some View {
+        if let interval = FastingActivityTiming.remainingInterval(targetEndDate: targetEndDate) {
+            Text(timerInterval: interval, countsDown: true)
+        } else {
+            Text("Done")
+        }
     }
 }

@@ -404,20 +404,37 @@ struct Achievement: Identifiable {
 }
 
 extension CustomRecipe {
-    func toFoodItem() -> FoodItem {
+    func toFoodItem(servingsCount: Int = 1) -> FoodItem {
         let items = foodItems ?? []
         let totalWeight = items.reduce(0) { $0 + $1.weight }
         let totalProtein = items.reduce(0) { $0 + $1.protein }
         let totalFats = items.reduce(0) { $0 + $1.fats }
         let totalCarbs = items.reduce(0) { $0 + $1.carbs }
+        let totalOmega3 = items.reduce(0) { $0 + $1.omega3 }
+        let totalCalcium = items.reduce(0) { $0 + $1.calcium }
+        let totalPotassium = items.reduce(0) { $0 + $1.potassium }
+        let totalMagnesium = items.reduce(0) { $0 + $1.magnesium }
+        let totalIron = items.reduce(0) { $0 + $1.iron }
+        let totalVitaminC = items.reduce(0) { $0 + $1.vitaminC }
+        let totalVitaminD = items.reduce(0) { $0 + $1.vitaminD }
+
+        let recipeServings = max(Double(self.servings), 1.0)
+        let portionFactor = Double(max(servingsCount, 1)) / recipeServings
 
         return FoodItem(
             name: self.name,
-            weight: totalWeight,
-            calories: self.totalCalories,
-            protein: totalProtein,
-            fats: totalFats,
-            carbs: totalCarbs
+            weight: totalWeight * portionFactor,
+            calories: max(0, Int((Double(self.totalCalories) * portionFactor).rounded())),
+            protein: totalProtein * portionFactor,
+            fats: totalFats * portionFactor,
+            carbs: totalCarbs * portionFactor,
+            omega3: totalOmega3 * portionFactor,
+            calcium: totalCalcium * portionFactor,
+            potassium: totalPotassium * portionFactor,
+            magnesium: totalMagnesium * portionFactor,
+            iron: totalIron * portionFactor,
+            vitaminC: totalVitaminC * portionFactor,
+            vitaminD: totalVitaminD * portionFactor
         )
     }
 }

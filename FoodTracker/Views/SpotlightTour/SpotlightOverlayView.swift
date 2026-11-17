@@ -202,7 +202,7 @@ private struct FloatingTourCard: View {
                 Button(action: onNext) {
                     HStack {
                         Spacer()
-                        Text(isLastStep ? "Завершить тур 🚀" : "Далее →")
+                        Text(isLastStep ? String(localized: "Finish Tour 🚀") : String(localized: "Next →"))
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
                         Spacer()

@@ -109,6 +109,26 @@ final class FastingManagerTests: XCTestCase {
         manager.endFast()
         XCTAssertEqual(mockLiveActivity.endCallCount, 1)
     }
+
+    func testFastingCalculationsGuardZeroTargetHoursAndCountdownRange() {
+        let invalidRange = FastingActivityTiming.remainingInterval(
+            now: Date().addingTimeInterval(60),
+            targetEndDate: Date()
+        )
+        XCTAssertNil(invalidRange)
+
+        let validEnd = Date().addingTimeInterval(3600)
+        let validRange = FastingActivityTiming.remainingInterval(
+            now: Date(),
+            targetEndDate: validEnd
+        )
+        XCTAssertNotNil(validRange)
+
+        let planZero = makeTestPlan(title: "Broken", fastingHours: 0)
+        manager.startFast(plan: planZero)
+        XCTAssertFalse(manager.progress.isNaN)
+        XCTAssertEqual(manager.progress, 0)
+    }
 }
 
 @MainActor

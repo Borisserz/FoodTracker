@@ -21,17 +21,19 @@ import Observation
         let typesToRead: Set<HKObjectType> = [bodyMass, steps, activeEnergy, HKObjectType.workoutType()]
         let typesToWrite: Set<HKSampleType> = [water, dietaryEnergy, HKObjectType.workoutType()]
 
-        // Check current status before requesting (don't over-request; respect denial)
-        let status = healthStore.authorizationStatus(for: steps)
-        if status == .notDetermined {
+        let hasRequestedKey = "healthKitAuthRequested_v1"
+        let hasRequested = UserDefaults.standard.bool(forKey: hasRequestedKey)
+        // Only write types expose real authorizationStatus; read types (.stepCount) always report .notDetermined.
+        let waterWriteStatus = healthStore.authorizationStatus(for: water)
+
+        if !hasRequested || waterWriteStatus == .notDetermined {
             try await healthStore.requestAuthorization(toShare: typesToWrite, read: typesToRead)
+            UserDefaults.standard.set(true, forKey: hasRequestedKey)
         }
 
-        // Re-check after possible prompt
-        let newStatus = healthStore.authorizationStatus(for: steps)
+        let updatedWaterStatus = healthStore.authorizationStatus(for: water)
         await MainActor.run {
-            // .sharingAuthorized for write; for read we treat notDenied as usable (read denial is opaque)
-            self.isAuthorized = (newStatus != .sharingDenied)
+            self.isAuthorized = (updatedWaterStatus != .sharingDenied) && UserDefaults.standard.bool(forKey: hasRequestedKey)
         }
     }
 

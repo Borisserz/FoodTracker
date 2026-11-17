@@ -21,6 +21,7 @@ class AICoachViewModel {
     var fridgeInput: String = ""
     var isGeneratingRecipe = false
     var generatedRecipe: AIRecipeDTO? = nil
+    var errorMessage: String? = nil
 
     init(summaryRepository: SummaryRepositoryProtocol, userRepository: UserRepositoryProtocol) {
         self.summaryRepository = summaryRepository
@@ -34,6 +35,7 @@ class AICoachViewModel {
         let targetP = currentUser.targetProtein
 
         HapticManager.shared.impact(style: .medium)
+        errorMessage = nil
         isAnalyzing = true
 
         Task {
@@ -48,11 +50,9 @@ class AICoachViewModel {
                 }
             } else {
                 withAnimation(.spring()) {
-                    if cals > goal { self.verdictMood = "danger" } else if cals < goal / 2 { self.verdictMood = "warning" } else { self.verdictMood = "perfect" }
-                    self.verdictTitle = "Data Collected"
-                    self.verdictMessage = "You've eaten \(cals) kcal out of \(goal)."
-                    self.hasAnalyzedToday = true
                     self.isAnalyzing = false
+                    self.errorMessage = String(localized: "Couldn't analyze your day right now. Please check your connection and try again.")
+                    HapticManager.shared.notification(type: .error)
                 }
             }
         }
@@ -63,6 +63,7 @@ class AICoachViewModel {
         let missingProtein = max(0, Int(currentUser.targetProtein - currentSummary.totalProtein))
 
         HapticManager.shared.impact(style: .medium)
+        errorMessage = nil
         withAnimation { isGeneratingRecipe = true }
 
         Task {
@@ -75,12 +76,15 @@ class AICoachViewModel {
                 }
             } else {
                 self.isGeneratingRecipe = false
+                self.errorMessage = String(localized: "Couldn't generate a recipe right now. Please try again.")
+                HapticManager.shared.notification(type: .error)
             }
         }
     }
 
     func analyzeMacros(currentSummary: DailySummary, currentUser: User) {
         HapticManager.shared.impact(style: .medium)
+        errorMessage = nil
         isFixingMacros = true
 
         let missingCals = currentUser.dailyCaloriesGoal - currentSummary.totalCalories
@@ -94,14 +98,16 @@ class AICoachViewModel {
                 self.isFixingMacros = false
                 HapticManager.shared.impact(style: .heavy)
             } else {
-                print("❌ Не удалось получить совет по макросам от ИИ")
                 self.isFixingMacros = false
+                self.errorMessage = String(localized: "Couldn't fetch macro advice right now. Please try again.")
+                HapticManager.shared.notification(type: .error)
             }
         }
     }
 
     func analyzeHydration(currentSummary: DailySummary) {
         HapticManager.shared.impact(style: .medium)
+        errorMessage = nil
         isFixingHydration = true
         let drank = currentSummary.totalHydrationLiters
 
@@ -112,6 +118,8 @@ class AICoachViewModel {
                 HapticManager.shared.impact(style: .heavy)
             } else {
                 self.isFixingHydration = false
+                self.errorMessage = String(localized: "Couldn't fetch hydration advice right now. Please try again.")
+                HapticManager.shared.notification(type: .error)
             }
         }
     }

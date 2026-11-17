@@ -1,6 +1,39 @@
 import Foundation
 import FirebaseAuth
 import FirebaseAppCheck
+
+@propertyWrapper
+struct FlexibleInt: Codable, Hashable {
+    var wrappedValue: Int
+
+    init(wrappedValue: Int) {
+        self.wrappedValue = wrappedValue
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let intVal = try? container.decode(Int.self) {
+            self.wrappedValue = intVal
+        } else if let doubleVal = try? container.decode(Double.self), doubleVal.isFinite {
+            self.wrappedValue = Int(doubleVal.rounded())
+        } else if let strVal = try? container.decode(String.self) {
+            let cleaned = strVal.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
+            if let doubleVal = Double(cleaned), doubleVal.isFinite {
+                self.wrappedValue = Int(doubleVal.rounded())
+            } else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid integer value: \(strVal)")
+            }
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Expected numeric value for FlexibleInt")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(wrappedValue)
+    }
+}
+
 struct DailyVerdictDTO: Codable {
     let title: String
     let message: String
@@ -10,16 +43,16 @@ struct DailyVerdictDTO: Codable {
 struct AIRecipeDTO: Codable {
     let name: String
     let info: String
-    let calories: Int
+    @FlexibleInt var calories: Int
     let protein: Double
     let fats: Double
     let carbs: Double
-    let cookingTime: Int
+    @FlexibleInt var cookingTime: Int
 }
 
 struct AIFoodItemDTO: Codable {
     let name: String
-    let calories: Int
+    @FlexibleInt var calories: Int
     let protein: Double
     let fats: Double
     let carbs: Double
@@ -28,21 +61,21 @@ struct AIFoodItemDTO: Codable {
 struct AIWeeklyPlanItemDTO: Codable {
     let title: String
     let type: String
-    let calories: Int
-    let protein: Int
-    let carbs: Int
-    let fat: Int
+    @FlexibleInt var calories: Int
+    @FlexibleInt var protein: Int
+    @FlexibleInt var carbs: Int
+    @FlexibleInt var fat: Int
     let ingredients: String
     let instructions: String
-    let prepTimeMinutes: Int
+    @FlexibleInt var prepTimeMinutes: Int
 }
 
 struct AIWeeklyPlanDayDTO: Codable {
-    let dayIndex: Int
-    let totalCalories: Int
-    let totalProtein: Int
-    let totalCarbs: Int
-    let totalFat: Int
+    @FlexibleInt var dayIndex: Int
+    @FlexibleInt var totalCalories: Int
+    @FlexibleInt var totalProtein: Int
+    @FlexibleInt var totalCarbs: Int
+    @FlexibleInt var totalFat: Int
     let meals: [AIWeeklyPlanItemDTO]
 }
 
@@ -52,10 +85,10 @@ struct AIWeeklyPlanDTO: Codable {
 
 struct AIChefRecipeDTO: Codable {
     let title: String
-    let calories: Int
-    let protein: Int
-    let cookTime: Int
-    let difficulty: Int
+    @FlexibleInt var calories: Int
+    @FlexibleInt var protein: Int
+    @FlexibleInt var cookTime: Int
+    @FlexibleInt var difficulty: Int
     let history: String
     let ingredients: [String]
     let steps: [RecipeStepDTO]
@@ -75,8 +108,8 @@ struct MacroFixAdviceDTO: Codable, Identifiable {
 
     struct SnackIdea: Codable, Hashable {
         let name: String
-        let calories: Int
-        let protein: Int
+        @FlexibleInt var calories: Int
+        @FlexibleInt var protein: Int
     }
 }
 
@@ -84,7 +117,12 @@ struct HydrationAdviceDTO: Codable, Identifiable {
     var id: UUID { UUID() }
     let title: String
     let message: String
-    let nextGlassTimeMinutes: Int
+    @FlexibleInt var nextGlassTimeMinutes: Int
+}
+
+struct MoodAdviceDTO: Codable {
+    let title: String
+    let message: String
 }
 
 class AINutritionService {
@@ -179,7 +217,7 @@ class AINutritionService {
         Provide the response STRICTLY as a raw JSON object (no markdown formatting, no ```json tags).
         Use this exact schema:
         {
-          "name": "String (best name for the food in Russian or English)",
+          "name": "String (concise localized food name)",
           "calories": Int,
           "protein": Double,
           "fats": Double,
@@ -221,7 +259,8 @@ class AINutritionService {
                "meals": [
                   {
                     "title": "String",
-                    "type": "String",
+                    "type": "Breakfast | Lunch | Dinner | Snack (keep EXACT English key)"
+        \(languageInstruction) — translate titles, ingredients, and instructions ONLY; keep JSON keys and `"type"` values in English ("Breakfast", "Lunch", "Dinner", "Snack").,
                     "calories": Int,
                     "protein": Int,
                     "carbs": Int,
@@ -271,13 +310,17 @@ class AINutritionService {
         return nil
     }
 
-    func sendChatMessage(prompt: String, userContext: String, activeDiet: String) async -> String? {
+    func sendChatMessage(prompt: String, userContext: String, activeDiet: String, history: [AIChatMessage] = []) async -> String? {
+          let recentHistory = history.suffix(8).map { msg in
+              "\(msg.isUser ? "USER" : "COACH"): \(msg.text)"
+          }.joined(separator: "\n")
+          let historyBlock = recentHistory.isEmpty ? "" : "\nRecent conversation:\n\(recentHistory)\n"
           let systemPrompt = """
           You are a friendly, elite AI Nutritionist.
           Context about the user today: \(userContext)
           CRITICAL: The user is currently strictly following the "\(activeDiet)" diet.
           Tailor all your advice, food suggestions, and judgments based on the rules of the \(activeDiet) diet.
-
+          \(historyBlock)
           USER SAYS: "\(prompt)"
 
           Respond conversationally, warmly, and concisely. Keep answers under 4 sentences.
@@ -328,6 +371,75 @@ class AINutritionService {
         }
         """
         return await fetchFromGemini(prompt: prompt, responseType: HydrationAdviceDTO.self)
+    }
+
+    func getMoodAdvice(
+        moodEmoji: String,
+        moodName: String,
+        note: String,
+        consumedCalories: Int,
+        goalCalories: Int,
+        waterLiters: Double,
+        activeDiet: String
+    ) async -> MoodAdviceDTO? {
+        let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        let noteLine = trimmedNote.isEmpty ? "" : "Journal note: \"\(trimmedNote)\"."
+        let prompt = """
+        You are an empathetic, smart AI Nutrition & Wellness Coach.
+        User's selected mood: \(moodName) \(moodEmoji).
+        Today's nutrition: \(consumedCalories) / \(goalCalories) kcal consumed, \(String(format: "%.1f", waterLiters))L water, diet: \(activeDiet).
+        \(noteLine)
+
+        Write a warm, practical title (2-4 words) and concise 2-sentence advice tailored to their mood and nutrition status. No guilt-tripping on cheat/binge days; offer calm, actionable next steps.
+        \(languageInstruction)
+        Respond ONLY with a raw JSON object. No Markdown:
+        {"title": "Short encouraging title", "message": "2 concise, helpful sentences."}
+        """
+        return await fetchFromGemini(prompt: prompt, responseType: MoodAdviceDTO.self)
+    }
+
+    func generateChefRecipe(dishQuery: String, remainingCalories: Int, activeDiet: String) async -> AIChefRecipe? {
+        let prompt = """
+        You are a Michelin-star AI Chef and nutritionist.
+        The user wants to cook: "\(dishQuery)".
+        Remaining calories today: \(remainingCalories) kcal. Active diet: \(activeDiet).
+        Create a tailored, step-by-step recipe with accurate macros per serving.
+        \(languageInstruction)
+        Respond ONLY with a raw JSON object matching this exact schema (no Markdown):
+        {
+          "title": "String",
+          "calories": Int,
+          "protein": Int,
+          "cookTime": Int,
+          "difficulty": Int (1 to 5),
+          "history": "String (1-2 intriguing culinary sentences)",
+          "ingredients": ["String (ingredient with exact gram/ml amount)"],
+          "steps": [
+            {"instruction": "String", "aiTip": "String or null"}
+          ],
+          "platingTip": "String"
+        }
+        """
+
+        guard let dto = await fetchFromGemini(prompt: prompt, responseType: AIChefRecipeDTO.self) else {
+            return nil
+        }
+        let stepIcons = ["hand.draw.fill", "sparkles", "flame.fill", "drop.fill", "clock.fill"]
+        let steps = dto.steps.enumerated().map { idx, stepDTO in
+            RecipeStep(instruction: stepDTO.instruction, imageName: stepIcons[idx % stepIcons.count], aiTip: stepDTO.aiTip)
+        }
+        return AIChefRecipe(
+            title: dto.title,
+            calories: dto.calories,
+            protein: dto.protein,
+            heroImage: "fork.knife",
+            cookTime: dto.cookTime,
+            difficulty: dto.difficulty,
+            history: dto.history,
+            ingredients: dto.ingredients,
+            steps: steps,
+            platingTip: dto.platingTip
+        )
     }
 
     // All transport, auth, and parsing now lives in the shared client.

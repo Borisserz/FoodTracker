@@ -60,7 +60,7 @@ struct DailyXPQuestsCardView: View {
                         .font(.system(size: 10, weight: .black, design: .monospaced))
                         .foregroundStyle(Color(red: 1.0, green: 0.72, blue: 0.0))
                     
-                    Text("\(user.name.isEmpty ? "Атлет" : user.name)")
+                    Text(user.name.isEmpty ? String(localized: "Athlete") : user.name)
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.primary)
                     
@@ -82,20 +82,20 @@ struct DailyXPQuestsCardView: View {
             // Daily Quests Checklist
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text("КВЕСТЫ ДНЯ")
+                    Text("DAILY QUESTS")
                         .font(.system(size: 11, weight: .black, design: .monospaced))
                         .foregroundStyle(Color.secondary)
                     
                     Spacer()
                     
-                    Text("Бонус до +400 XP")
+                    Text("Up to +400 XP")
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundStyle(Color(red: 1.0, green: 0.72, blue: 0.0))
                 }
                 
                 XPQuestRow(
                     icon: "figure.walk",
-                    title: "Пройти 10,000 шагов",
+                    title: String(localized: "Walk 10,000 steps"),
                     xp: 150,
                     isDone: $quest1Done
                 ) {
@@ -104,7 +104,7 @@ struct DailyXPQuestsCardView: View {
                 
                 XPQuestRow(
                     icon: "fork.knife",
-                    title: "Записать все приёмы пищи",
+                    title: String(localized: "Log all meals"),
                     xp: 100,
                     isDone: $quest2Done
                 ) {
@@ -113,7 +113,7 @@ struct DailyXPQuestsCardView: View {
                 
                 XPQuestRow(
                     icon: "drop.fill",
-                    title: "Выпить 2.5L воды",
+                    title: String(localized: "Drink 2.5L of water"),
                     xp: 150,
                     isDone: $quest3Done
                 ) {

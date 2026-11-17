@@ -3,7 +3,6 @@ import SwiftData
 import FirebaseCore
 import FirebaseAppCheck
 import GoogleSignIn
-import AppTrackingTransparency
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -222,11 +221,6 @@ struct ContentView: View {
                     try? await HealthKitManager.shared.requestAuthorization()
                 }
             }
-            
-            Task {
-                try? await Task.sleep(nanoseconds: 1_500_000_000)
-                _ = await ATTrackingManager.requestTrackingAuthorization()
-            }
         }
     }
 
@@ -256,33 +250,20 @@ struct RootLaunchView: View {
     @Environment(AppStateManager.self) private var appState
 
     // Persist whether user has already completed the initial Monetka/account entry screen.
-    // Without this the fancy onboarding re-appears on every cold launch.
+    // Observing @AppStorage directly lets account reset transition immediately without a cold restart.
     @AppStorage("hasCompletedInitialOnboarding_v2") private var hasCompletedInitialOnboarding = false
-
-    @State private var currentStep: AppLaunchStep
-
-    init() {
-        // Initialize step from persisted flag so we don't force the account screen every launch
-        let completed = UserDefaults.standard.bool(forKey: "hasCompletedInitialOnboarding_v2")
-        _currentStep = State(initialValue: completed ? .mainApp : .screen1)
-    }
 
     var body: some View {
         ZStack {
-            switch currentStep {
-            case .screen1:
-                // ЭКРАН 1 ИЗ МОНЕТКИ (3D-еда и вход)
+            if !hasCompletedInitialOnboarding {
                 OnboardingView(onSuccess: {
-                    hasCompletedInitialOnboarding = true
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                        currentStep = .mainApp
+                        hasCompletedInitialOnboarding = true
                     }
                 })
                 .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading).combined(with: .opacity)))
-
-            case .mainApp:
-                // Переход в главное приложение
-                ContentView() // Главный экран FoodTracker
+            } else {
+                ContentView()
                     .transition(.opacity)
             }
         }

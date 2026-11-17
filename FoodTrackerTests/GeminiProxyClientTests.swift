@@ -67,4 +67,18 @@ final class GeminiProxyClientTests: XCTestCase {
         XCTAssertTrue(AIResponseParsing.rateLimitMessage(retryAfter: "90").contains("2m"))
         XCTAssertTrue(AIResponseParsing.rateLimitMessage(retryAfter: nil).contains("later"))
     }
+
+    func testFlexibleIntDecodesIntDoubleAndNumericString() throws {
+        struct SampleDTO: Decodable {
+            @FlexibleInt var calories: Int
+            @FlexibleInt var protein: Int
+            @FlexibleInt var carbs: Int
+        }
+
+        let json = #"{"calories": 420.6, "protein": "35.2", "carbs": 50}"#.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(SampleDTO.self, from: json)
+        XCTAssertEqual(decoded.calories, 421)
+        XCTAssertEqual(decoded.protein, 35)
+        XCTAssertEqual(decoded.carbs, 50)
+    }
 }

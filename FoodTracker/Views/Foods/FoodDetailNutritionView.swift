@@ -16,11 +16,28 @@ struct FoodDetailNutritionView: View {
         self._weight = State(initialValue: food.weight > 0 ? food.weight : 100.0)
     }
 
-    private var multiplier: Double { weight / max(food.weight, 1.0) }
-    private var currentCals: Int { Int(Double(food.calories) * multiplier) }
-    private var currentP: Double { food.protein * multiplier }
-    private var currentF: Double { food.fats * multiplier }
-    private var currentC: Double { food.carbs * multiplier }
+    private var scaled: ScaledNutritionValues {
+        NutritionMath.scaledValues(
+            baseWeight: food.weight,
+            baseCalories: food.calories,
+            baseProtein: food.protein,
+            baseFats: food.fats,
+            baseCarbs: food.carbs,
+            omega3: food.omega3,
+            calcium: food.calcium,
+            potassium: food.potassium,
+            magnesium: food.magnesium,
+            iron: food.iron,
+            vitaminC: food.vitaminC,
+            vitaminD: food.vitaminD,
+            targetWeight: weight
+        )
+    }
+
+    private var currentCals: Int { scaled.calories }
+    private var currentP: Double { scaled.protein }
+    private var currentF: Double { scaled.fats }
+    private var currentC: Double { scaled.carbs }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -59,13 +76,13 @@ struct FoodDetailNutritionView: View {
 
                             NutritionSectionHeader(title: "Vitamins & Minerals")
 
-                            NutritionRow(title: "Vitamin C", value: food.vitaminC * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Vitamin D", value: food.vitaminD * multiplier, unit: "mcg", isPro: true)
-                            NutritionRow(title: "Calcium", value: food.calcium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Iron", value: food.iron * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Magnesium", value: food.magnesium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Potassium", value: food.potassium * multiplier, unit: "mg", isPro: true)
-                            NutritionRow(title: "Omega-3", value: food.omega3 * multiplier, unit: "g", isPro: true)
+                            NutritionRow(title: "Vitamin C", value: scaled.vitaminC, unit: "mg", isPro: true)
+                            NutritionRow(title: "Vitamin D", value: scaled.vitaminD, unit: "mcg", isPro: true)
+                            NutritionRow(title: "Calcium", value: scaled.calcium, unit: "mg", isPro: true)
+                            NutritionRow(title: "Iron", value: scaled.iron, unit: "mg", isPro: true)
+                            NutritionRow(title: "Magnesium", value: scaled.magnesium, unit: "mg", isPro: true)
+                            NutritionRow(title: "Potassium", value: scaled.potassium, unit: "mg", isPro: true)
+                            NutritionRow(title: "Omega-3", value: scaled.omega3, unit: "g", isPro: true)
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
@@ -92,18 +109,18 @@ struct FoodDetailNutritionView: View {
                         HapticManager.shared.impact(style: .heavy)
                         let addedFood = FoodItem(
                             name: food.name,
-                            weight: weight,
+                            weight: scaled.weight,
                             calories: currentCals,
                             protein: currentP,
                             fats: currentF,
                             carbs: currentC,
-                            omega3: food.omega3 * multiplier,
-                            calcium: food.calcium * multiplier,
-                            potassium: food.potassium * multiplier,
-                            magnesium: food.magnesium * multiplier,
-                            iron: food.iron * multiplier,
-                            vitaminC: food.vitaminC * multiplier,
-                            vitaminD: food.vitaminD * multiplier
+                            omega3: scaled.omega3,
+                            calcium: scaled.calcium,
+                            potassium: scaled.potassium,
+                            magnesium: scaled.magnesium,
+                            iron: scaled.iron,
+                            vitaminC: scaled.vitaminC,
+                            vitaminD: scaled.vitaminD
                         )
                         onAdd(addedFood)
                         dismiss()
@@ -312,7 +329,7 @@ private struct ServingSizeEditor: View {
                         .background(Color.themeBg.opacity(0.5))
                         .cornerRadius(10)
                         .onChange(of: textInput) { _, newValue in
-                            if let val = Double(newValue), val > 0 {
+                            if let val = NutritionMath.parsePositiveDecimal(newValue) {
                                 weight = val
                             }
                         }

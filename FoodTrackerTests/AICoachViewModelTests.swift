@@ -60,7 +60,7 @@ final class AICoachViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.verdictMood, "perfect")
     }
     
-    func testRunDailyAnalysisFallback() async throws {
+    func testRunDailyAnalysisErrorSurfacesMessageInsteadOfFakeSuccess() async throws {
         let user = User(name: "Test", weight: 70, height: 175, age: 25)
         user.dailyCaloriesGoal = 2000
         let summary = DailySummary(date: Date())
@@ -69,19 +69,18 @@ final class AICoachViewModelTests: XCTestCase {
             date: Date(),
             foodItems: [FoodItem(name: "Feast", weight: 500, calories: 2500, protein: 80, fats: 100, carbs: 300)]
         )
-        summary.meals = [meal] // Over goal (2500 > 2000)
-        
+        summary.meals = [meal]
+
         MockURLProtocol.requestHandler = { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!
             return (response, Data())
         }
-        
+
         viewModel.runDailyAnalysis(currentSummary: summary, currentUser: user)
         try await Task.sleep(nanoseconds: 200_000_000)
-        
-        // Should use fallback logic
-        XCTAssertTrue(viewModel.hasAnalyzedToday)
-        XCTAssertEqual(viewModel.verdictTitle, "Data Collected")
-        XCTAssertEqual(viewModel.verdictMood, "danger")
+
+        XCTAssertFalse(viewModel.isAnalyzing)
+        XCTAssertFalse(viewModel.hasAnalyzedToday)
+        XCTAssertNotNil(viewModel.errorMessage)
     }
 }

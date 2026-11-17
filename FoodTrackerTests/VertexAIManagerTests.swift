@@ -77,4 +77,58 @@ final class VertexAIManagerTests: XCTestCase {
         XCTAssertEqual(response.caution.estimatedCalories, 500)
         XCTAssertEqual(response.avoid.reasoning, "Too many calories.")
     }
+
+    func testCookingStepEvaluationDecoding() throws {
+        let jsonString = """
+        {
+            "isGood": true,
+            "feedback": "Great golden sear on both sides. Ready to rest."
+        }
+        """
+        let data = jsonString.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(VertexAIManager.CookingStepEvaluation.self, from: data)
+        XCTAssertTrue(decoded.isGood)
+        XCTAssertEqual(decoded.feedback, "Great golden sear on both sides. Ready to rest.")
+    }
+
+    func testTransformationAnalysisDecoding() throws {
+        let jsonString = """
+        {
+            "metrics": [
+                {"label": "Posture", "value": "Aligned", "detail": "Stronger shoulders", "isPositive": true},
+                {"label": "Midsection", "value": "Leaner", "detail": "Visible waist definition", "isPositive": true}
+            ],
+            "feedback": "Noticeable improvement in posture and core tone between photos."
+        }
+        """
+        let data = jsonString.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(VertexAIManager.TransformationAnalysisDTO.self, from: data)
+        XCTAssertEqual(decoded.metrics.count, 2)
+        XCTAssertEqual(decoded.metrics.first?.label, "Posture")
+        XCTAssertFalse(decoded.feedback.isEmpty)
+    }
+
+    func testMoodAdviceBaselineCoversAllSevenDailyNoteMoods() {
+        let dailyNoteEmojis = ["☀️", "🍩", "🍔", "🥲", "🏋️", "🧘‍♀️", "🤢"]
+        var titles = Set<String>()
+        for emoji in dailyNoteEmojis {
+            let baseline = MoodAdviceBaseline.advice(forEmoji: emoji, moodName: "Mood")
+            XCTAssertNotEqual(baseline.title, "AI Coach Insights", "Emoji \(emoji) should not fall through to generic default")
+            titles.insert(baseline.title)
+        }
+        XCTAssertEqual(titles.count, dailyNoteEmojis.count)
+    }
+
+    func testMoodAdviceDTODecoding() throws {
+        let jsonString = """
+        {
+            "title": "Refuel & Recover",
+            "message": "After training, aim for lean protein and water."
+        }
+        """
+        let data = jsonString.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(MoodAdviceDTO.self, from: data)
+        XCTAssertEqual(decoded.title, "Refuel & Recover")
+        XCTAssertFalse(decoded.message.isEmpty)
+    }
 }
