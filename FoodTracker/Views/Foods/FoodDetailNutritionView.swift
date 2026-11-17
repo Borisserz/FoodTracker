@@ -152,9 +152,28 @@ struct FoodDetailNutritionView: View {
 
 private struct FoodDetailHeader: View {
     @Environment(\.dismiss) var dismiss
-    @State private var isFavorite = false
+    @AppStorage("favoriteFoodNames_v1") private var favoriteFoodNamesRaw: String = ""
 
     let name: String
+
+    private var favoriteSet: Set<String> {
+        Set(favoriteFoodNamesRaw.split(separator: "\n").map(String.init))
+    }
+
+    private var isFavorite: Bool {
+        favoriteSet.contains(name.lowercased())
+    }
+
+    private func toggleFavorite() {
+        var updated = favoriteSet
+        let key = name.lowercased()
+        if updated.contains(key) {
+            updated.remove(key)
+        } else {
+            updated.insert(key)
+        }
+        favoriteFoodNamesRaw = updated.sorted().joined(separator: "\n")
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -171,7 +190,7 @@ private struct FoodDetailHeader: View {
                 Spacer()
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
-                    withAnimation(.spring()) { isFavorite.toggle() }
+                    withAnimation(.spring()) { toggleFavorite() }
                 }) {
                     Image(systemName: isFavorite ? "star.fill" : "star")
                         .font(.title3)
@@ -308,6 +327,7 @@ private struct MacroColumnInfo: View {
 private struct ServingSizeEditor: View {
     @Binding var weight: Double
     @State private var textInput: String = ""
+    @FocusState private var isWeightFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -323,6 +343,7 @@ private struct ServingSizeEditor: View {
                         .multilineTextAlignment(.trailing)
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(.themePink)
+                        .focused($isWeightFocused)
                         .frame(width: 80)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 10)
@@ -343,6 +364,7 @@ private struct ServingSizeEditor: View {
             Slider(value: $weight, in: 5...1000, step: 5)
                 .tint(.themePink)
                 .onChange(of: weight) { _, newValue in
+                    guard !isWeightFocused else { return }
                     let newText = String(format: "%.0f", newValue)
                     if textInput != newText {
                         textInput = newText

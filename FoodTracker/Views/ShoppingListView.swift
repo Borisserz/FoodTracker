@@ -8,6 +8,7 @@ struct ShoppingListView: View {
     @Query(sort: \ShoppingItem.dateAdded, order: .reverse) private var allItems: [ShoppingItem]
 
     @State private var newItemName: String = ""
+    @State private var newItemAmount: String = ""
 
     var activeItems: [ShoppingItem] { allItems.filter { !$0.isChecked } }
     var completedItems: [ShoppingItem] { allItems.filter { $0.isChecked } }
@@ -18,11 +19,16 @@ struct ShoppingListView: View {
 
             VStack(spacing: 0) {
 
-                HStack(spacing: 12) {
-                    HStack {
+                HStack(spacing: 10) {
+                    HStack(spacing: 8) {
                         Image(systemName: "plus.circle")
                             .foregroundColor(.gray)
                         TextField("Add an item (e.g. Milk)...", text: $newItemName)
+                            .onSubmit { addManualItem() }
+                        Divider().frame(height: 20)
+                        TextField("Qty", text: $newItemAmount)
+                            .frame(width: 68)
+                            .multilineTextAlignment(.trailing)
                             .onSubmit { addManualItem() }
                     }
                     .padding(14)
@@ -35,10 +41,11 @@ struct ShoppingListView: View {
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.white)
                             .frame(width: 46, height: 46)
-                            .background(newItemName.isEmpty ? Color.gray.opacity(0.3) : Color.themePink)
+                            .background(newItemName.trimmingCharacters(in: .whitespaces).isEmpty ? Color.gray.opacity(0.3) : Color.themePink)
                             .cornerRadius(14)
                     }
-                    .disabled(newItemName.isEmpty)
+                    .disabled(newItemName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .accessibilityLabel("Add Item")
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
@@ -65,8 +72,10 @@ struct ShoppingListView: View {
 
                                     VStack(spacing: 0) {
                                         ForEach(activeItems) { item in
-
                                             ShoppingRowView(item: item, onToggle: { toggleCheck(for: item) }, onDelete: { deleteItem(item) })
+                                            if item.id != activeItems.last?.id {
+                                                Divider().padding(.leading, 56)
+                                            }
                                         }
                                     }
                                     .background(Color.white)
@@ -91,8 +100,10 @@ struct ShoppingListView: View {
 
                                     VStack(spacing: 0) {
                                         ForEach(completedItems) { item in
-
                                             ShoppingRowView(item: item, onToggle: { toggleCheck(for: item) }, onDelete: { deleteItem(item) })
+                                            if item.id != completedItems.last?.id {
+                                                Divider().padding(.leading, 56)
+                                            }
                                         }
                                     }
                                     .background(Color.white)
@@ -119,13 +130,15 @@ struct ShoppingListView: View {
 
     private func addManualItem() {
         let text = newItemName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let amount = newItemAmount.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
 
         HapticManager.shared.impact(style: .light)
-        let item = ShoppingItem(name: text)
+        let item = ShoppingItem(name: text, amount: amount)
         context.insert(item)
         saveAndReloadWidgets()
         newItemName = ""
+        newItemAmount = ""
     }
 
     private func toggleCheck(for item: ShoppingItem) {
@@ -217,6 +230,7 @@ struct ShoppingRowView: View {
                         .foregroundColor(.red.opacity(0.8))
                         .padding(8)
                 }
+                .accessibilityLabel("Delete")
             }
         }
         .padding(.horizontal, 16)
@@ -231,7 +245,5 @@ struct ShoppingRowView: View {
                 }
             }
         }
-
-        Divider().padding(.leading, 56)
     }
 }

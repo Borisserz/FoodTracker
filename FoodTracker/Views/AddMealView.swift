@@ -13,6 +13,7 @@ struct AddMealView: View {
     @State private var existingMealHadItems: Bool = false
     @State private var showingAddFood = false
     @State private var expandedFoodId: UUID? = nil
+    @State private var hasModifiedDrafts = false
     
     let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"]
     let selectedDate: Date
@@ -208,6 +209,7 @@ struct AddMealView: View {
                                             onDelete: {
                                                 withAnimation(.spring()) {
                                                     selectedDrafts.removeAll { $0.id == draft.id }
+                                                    hasModifiedDrafts = true
                                                 }
                                             }
                                         )
@@ -302,6 +304,7 @@ struct AddMealView: View {
                 SmartAddFoodView(mealTitle: localizedMealType(selectedMealType)) { newItems in
                     let newDrafts = newItems.map { EditableFoodDraft(food: $0) }
                     self.selectedDrafts.append(contentsOf: newDrafts)
+                    self.hasModifiedDrafts = true
                 }
                 .presentationDetents([.fraction(0.85), .large])
                 .presentationCornerRadius(32)
@@ -311,6 +314,7 @@ struct AddMealView: View {
             loadExistingFoods()
         }
         .onChange(of: selectedMealType) { _, _ in
+            guard !hasModifiedDrafts else { return }
             loadExistingFoods()
         }
     }
@@ -324,12 +328,14 @@ struct AddMealView: View {
             selectedDrafts = []
             existingMealHadItems = false
         }
+        hasModifiedDrafts = false
     }
     
     // Non-destructive baseline scaling (prevents Int truncation loss & unsaved SwiftData mutations)
     private func updateDraftWeight(draftId: UUID, newWeight: Double) {
         guard newWeight > 0, let index = selectedDrafts.firstIndex(where: { $0.id == draftId }) else { return }
         selectedDrafts[index].weight = newWeight
+        hasModifiedDrafts = true
     }
     
     private func saveMealAndDismiss() {
@@ -511,6 +517,7 @@ private struct FoodItemRowCard: View {
     
     @State private var localWeight: Double = 100.0
     @State private var textInput: String = "100"
+    @FocusState private var isWeightFieldFocused: Bool
     
     private func emojiForFood(_ name: String) -> String {
         let nameLower = name.lowercased()
@@ -587,6 +594,7 @@ private struct FoodItemRowCard: View {
                                     .multilineTextAlignment(.trailing)
                                     .font(.system(size: 16, weight: .bold, design: .rounded))
                                     .foregroundColor(.themePink)
+                                    .focused($isWeightFieldFocused)
                                     .frame(width: 80)
                                     .padding(.vertical, 6)
                                     .padding(.horizontal, 10)
@@ -608,9 +616,11 @@ private struct FoodItemRowCard: View {
                         Slider(value: $localWeight, in: 5...1000, step: 5)
                             .tint(.themePink)
                             .onChange(of: localWeight) { _, newValue in
-                                let newText = String(format: "%.0f", newValue)
-                                if textInput != newText {
-                                    textInput = newText
+                                if !isWeightFieldFocused {
+                                    let newText = String(format: "%.0f", newValue)
+                                    if textInput != newText {
+                                        textInput = newText
+                                    }
                                 }
                                 onUpdateWeight(newValue)
                             }

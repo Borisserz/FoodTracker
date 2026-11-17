@@ -363,7 +363,7 @@ struct PremiumDietDetailView: View {
                     .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
             }
             .padding(.leading, 20)
-            .padding(.top, 50),
+            .padding(.top, 12),
             alignment: .topLeading
         )
     }

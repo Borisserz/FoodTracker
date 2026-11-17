@@ -1356,7 +1356,8 @@ struct FoodSearchResultRow: View {
                         .strikethrough(compatibility == .avoid, color: .red.opacity(0.5))
 
                     HStack(spacing: 6) {
-                        Text("\(food.calories) kcal • 100g")
+                        let weightLabel = food.weight > 0 ? "\(Int(food.weight))g" : String(localized: "1 serving")
+                        Text("\(food.calories) kcal • \(weightLabel)")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
 
@@ -1841,16 +1842,21 @@ struct SmartAddFoodView: View {
     let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
 
     var allAvailableFoods: [FoodItem] {
-        var uniqueItems: [String: FoodItem] = [:]
+        // Preserve chronological recency order from pastMeals before appending catalog foods.
+        var seenNames = Set<String>()
+        var results: [FoodItem] = []
         for meal in pastMeals {
             for item in meal.foodItems ?? [] {
-                if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
+                if seenNames.insert(item.name).inserted {
+                    results.append(item)
+                }
             }
         }
         for item in allDatabaseFoods {
-            if uniqueItems[item.name] == nil { uniqueItems[item.name] = item }
+            if seenNames.insert(item.name).inserted {
+                results.append(item)
+            }
         }
-        var results = Array(uniqueItems.values)
         if results.isEmpty {
             results = [
                 FoodItem(name: "Grilled Chicken Breast", weight: 150, calories: 240, protein: 31, fats: 3.6, carbs: 0),
@@ -1869,18 +1875,24 @@ struct SmartAddFoodView: View {
         }
 
         switch selectedCategory {
-        case "Recent": items = allAvailableFoods
-        case "Frequent": items = allAvailableFoods.sorted { (foodCounts[$0.name] ?? 0) > (foodCounts[$1.name] ?? 0) }
-        case "Favorites": items = allAvailableFoods.filter { (foodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
-        case "My Recipes": items = customRecipes.map { $0.toFoodItem() }
-        default: items = allAvailableFoods
+        case "Recent":
+            items = allAvailableFoods
+        case "Frequent":
+            items = allAvailableFoods.sorted {
+                let c0 = foodCounts[$0.name] ?? 0
+                let c1 = foodCounts[$1.name] ?? 0
+                return c0 != c1 ? c0 > c1 : $0.name < $1.name
+            }
+        case "Favorites":
+            items = allAvailableFoods.filter { (foodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
+        case "My Recipes":
+            items = customRecipes.map { $0.toFoodItem() }.sorted { $0.name < $1.name }
+        default:
+            items = allAvailableFoods
         }
 
         if !searchText.isEmpty {
             items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-        if selectedCategory == "Recent" || selectedCategory == "My Recipes" {
-            items.sort { $0.name < $1.name }
         }
         return items
     }

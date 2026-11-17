@@ -623,8 +623,12 @@ struct LearnDashboardView: View {
                 }
 
                 if dataLoader.categories.isEmpty {
-                    ProgressView("Loading academy...")
-                        .padding(.top, 50)
+                    EmptyStateView(
+                        imageName: "books.vertical",
+                        title: "No Articles Available",
+                        description: "Educational guides will appear here once loaded."
+                    )
+                    .padding(.top, 50)
                 } else {
 
                     ForEach(dataLoader.categories) { category in

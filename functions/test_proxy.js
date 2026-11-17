@@ -365,3 +365,27 @@ test("upstreamTimeoutForBody allocates extended budget for heavy weekly plan & v
   assert.ok(heavyMs > normalMs, "Heavy 7-day plan must receive higher timeout than short chat");
   assert.ok(visionMs >= heavyMs || visionMs >= 35000);
 });
+
+test("normalizeFatSecretFood converts oz metric_serving_unit to grams", () => {
+  const result = t.normalizeFatSecretFood({
+    food_name: "Cheddar Cheese",
+    brand_name: "Tillamook",
+    servings: {
+      serving: {
+        metric_serving_amount: "1.000",
+        metric_serving_unit: "oz",
+        calories: "110",
+        protein: "7",
+        fat: "9",
+        carbohydrate: "0",
+      },
+    },
+  });
+
+  assert.equal(result.name, "Cheddar Cheese (Tillamook)");
+  assert.equal(result.weight, 28.3);
+  assert.equal(result.calories, 110);
+  assert.equal(result.protein, 7);
+  assert.equal(result.fats, 9);
+  assert.equal(result.carbs, 0);
+});

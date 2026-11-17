@@ -256,7 +256,10 @@ struct AIWeeklyInsightCard: View {
             }
 
             let water = today?.totalHydrationLiters ?? 0.0
-            if water < 1.0 {
+            let calories = today?.totalCalories ?? 0
+            if water == 0 && calories == 0 {
+                return ("Start Tracking", "Log your meals and fluids to activate personal AI analytics and dynamic trend insights.", .gray)
+            } else if water < 1.0 {
                 return ("Hydration Alert", "You've logged \(String(format: "%.1f", water))L of water today. Drink a glass now to boost metabolism and energy!", .cyan)
             } else if let lowest = lowestMicro, lowestPct < 0.6 {
                 let hint = getHint(for: lowest)
@@ -572,6 +575,7 @@ struct MicronutrientCell: View {
 struct AIHydrationAnalyticsCard: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     let summary: DailySummary?
     var onUpdate: () -> Void = {}
     
@@ -645,11 +649,11 @@ struct AIHydrationAnalyticsCard: View {
                     // Main Readout on right
                     VStack(alignment: .trailing, spacing: 2) {
                         HStack(alignment: .firstTextBaseline, spacing: 3) {
-                            Text(String(format: "%.2f", liters))
+                            Text(useMetricSystem ? String(format: "%.2f", liters) : String(format: "%.0f", liters * 33.8140227))
                                 .font(.system(size: 32, weight: .heavy, design: .rounded))
                                 .foregroundStyle(Color.primary)
                                 .contentTransition(.numericText(value: liters))
-                            Text("L")
+                            Text(useMetricSystem ? "L" : "fl oz")
                                 .font(.system(size: 17, weight: .bold, design: .rounded))
                                 .foregroundStyle(Color.cyan)
                         }
@@ -697,7 +701,7 @@ struct AIHydrationAnalyticsCard: View {
                         Image(systemName: "drop.fill")
                             .font(.system(size: 15, weight: .bold))
                             .foregroundStyle(Color.cyan)
-                        Text("+250 ml")
+                        Text(useMetricSystem ? "+250 ml" : "+8 fl oz")
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.primary)
                     }
@@ -719,7 +723,7 @@ struct AIHydrationAnalyticsCard: View {
                         Image(systemName: "waterbottle.fill")
                             .font(.system(size: 15, weight: .bold))
                             .foregroundStyle(Color.blue)
-                        Text("+500 ml")
+                        Text(useMetricSystem ? "+500 ml" : "+17 fl oz")
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.primary)
                     }
@@ -793,7 +797,7 @@ struct AIHydrationAnalyticsCard: View {
         
         let targetDate = summary?.date ?? Calendar.current.startOfDay(for: Date())
         guard let targetSummary = DailySummary.fetchExisting(for: targetDate, in: context) else { return }
-        if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" }) {
+        if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" || $0.caloriesPerGlass == 0 }) {
             if let index = targetSummary.beverages?.firstIndex(of: lastWater) {
                 targetSummary.beverages?.remove(at: index)
             }
@@ -844,7 +848,7 @@ private struct AnalyticsFlaskGlassContainer: View {
     }
     
     var body: some View {
-        TimelineView(.animation) { timeline in
+        TimelineView(.animation(minimumInterval: 0.08, paused: false)) { timeline in
             let time = timeline.date.timeIntervalSinceReferenceDate
             
             GeometryReader { geo in

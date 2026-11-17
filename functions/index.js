@@ -698,10 +698,12 @@ function normalizeFatSecretFood(food) {
   const servingData = food?.servings?.serving;
   const serving = Array.isArray(servingData) ? servingData[0] : servingData;
   if (serving && typeof serving === "object") {
-    const weightRaw = parseNumericValue(serving.metric_serving_amount);
+    const rawAmount = parseNumericValue(serving.metric_serving_amount);
+    const unit = String(serving.metric_serving_unit || "").trim().toLowerCase();
+    const weightGrams = unit === "oz" ? rawAmount * 28.3495 : rawAmount;
     return {
       name,
-      weight: weightRaw > 0 ? weightRaw : 100,
+      weight: weightGrams > 0 ? Math.round(weightGrams * 10) / 10 : 100,
       calories: Math.round(parseNumericValue(serving.calories)),
       protein: parseNumericValue(serving.protein),
       fats: parseNumericValue(serving.fat),
@@ -836,6 +838,12 @@ exports.foodAiProxy = onRequest(
     const uid = await verifyFirebaseUser(req, res);
     if (!uid) return;
 
+    const body = req.body || {};
+    if (!Array.isArray(body.contents) || body.contents.length === 0) {
+      res.status(400).json({ error: "invalid_request", message: "Missing contents array" });
+      return;
+    }
+
     const settings = await loadAISettings();
     const deviceHash = hashDeviceInstallId(req.header("X-Device-Install-ID"));
 
@@ -878,9 +886,9 @@ exports.foodAiProxy = onRequest(
       return;
     }
 
-    const body = req.body || {};
     const streaming = req.query.stream === "true";
 
+    let yielded = false;
     try {
       if (!streaming) {
         const gemini = await callOpenRouterText({
@@ -894,10 +902,14 @@ exports.foodAiProxy = onRequest(
 
       const chain = modelChainForRequest(body, settings);
       const streamTimeoutMs = upstreamTimeoutForBody(body);
+      const streamDeadlineAt = Date.now() + TOTAL_CHAIN_BUDGET_MS;
       const keys = rotatedKeys(apiKeys);
       let upstream = null;
       let lastError = null;
       for (const model of chain) {
+        const remainingMs = streamDeadlineAt - Date.now();
+        if (remainingMs < 5000) break;
+        const perCallTimeout = Math.min(streamTimeoutMs, remainingMs);
         const attempt = geminiBodyToOpenAI(body, { streaming: true, model });
         for (const apiKey of keys) {
           try {
@@ -905,7 +917,7 @@ exports.foodAiProxy = onRequest(
               method: "POST",
               headers: openRouterHeaders(apiKey),
               body: JSON.stringify(attempt),
-              signal: AbortSignal.timeout(streamTimeoutMs),
+              signal: AbortSignal.timeout(perCallTimeout),
             });
             if (!resp.ok || !resp.body) {
               const errText = await resp.text();
@@ -935,7 +947,20 @@ exports.foodAiProxy = onRequest(
       const reader = upstream.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      let yielded = false;
+
+      const emitStreamLine = (rawLine) => {
+        const line = rawLine.trimEnd();
+        if (!line) return;
+        const converted = openAIStreamChunkToGemini(line);
+        if (converted === "[DONE]") {
+          res.write("data: [DONE]\n\n");
+          return;
+        }
+        if (converted) {
+          yielded = true;
+          res.write(`data: ${converted}\n\n`);
+        }
+      };
 
       for (;;) {
         const { done, value } = await reader.read();
@@ -944,25 +969,20 @@ exports.foodAiProxy = onRequest(
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
         for (const rawLine of lines) {
-          const line = rawLine.trimEnd();
-          if (!line) continue;
-          const converted = openAIStreamChunkToGemini(line);
-          if (converted === "[DONE]") {
-            res.write("data: [DONE]\n\n");
-            continue;
-          }
-          if (converted) {
-            yielded = true;
-            res.write(`data: ${converted}\n\n`);
-          }
+          emitStreamLine(rawLine);
         }
+      }
+      if (buffer.trim()) {
+        emitStreamLine(buffer);
       }
       if (!yielded) {
         await refundReservedSlots();
       }
       res.end();
     } catch (e) {
-      await refundReservedSlots();
+      if (!yielded) {
+        await refundReservedSlots();
+      }
       console.error("foodAiProxy OpenRouter error:", e);
       if (!res.headersSent) {
         res.status(502).json({
@@ -1140,7 +1160,10 @@ exports.foodDeleteAccount = onRequest(
     try {
       const db = getFirestore();
       // Delete only FoodTracker-scoped per-user server docs (never touch shared `users/{uid}`).
-      await db.collection("food_ai_usage").doc(uid).delete();
+      await Promise.all([
+        db.collection("food_ai_usage").doc(uid).delete(),
+        db.collection("food_search_usage").doc(uid).delete(),
+      ]);
       res.status(200).json({ ok: true });
     } catch (e) {
       console.error("foodDeleteAccount error:", e?.message || e);
