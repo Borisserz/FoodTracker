@@ -581,7 +581,7 @@ struct AIHydrationAnalyticsCard: View {
         let progress = min(max(liters / goal, 0.0), 1.0)
         let isGoalReached = liters >= goal
         
-        let advice = generateMockAdvice(liters: liters)
+        let advice = generateHydrationAdvice(liters: liters)
         
         VStack(alignment: .leading, spacing: 18) {
             // Header
@@ -804,13 +804,28 @@ struct AIHydrationAnalyticsCard: View {
         }
     }
     
-    private func generateMockAdvice(liters: Double) -> (title: String, message: String, color: Color, icon: String) {
+    private func generateHydrationAdvice(liters: Double) -> (title: String, message: String, color: Color, icon: String) {
         if liters < 1.0 {
-            return ("Dehydration Risk", "Drink water now to stabilize your blood pH and prevent sodium retention.", .themeOrange, "exclamationmark.triangle.fill")
+            return (
+                String(localized: "Dehydration Risk"),
+                String(localized: "Drink water now to stabilize your blood pH and prevent sodium retention."),
+                .themeOrange,
+                "exclamationmark.triangle.fill"
+            )
         } else if liters < 2.0 {
-            return ("Keep Hydrating", "You're on track. A bit more water will help flush excess salt.", .themeYellow, "drop.circle.fill")
+            return (
+                String(localized: "Keep Hydrating"),
+                String(localized: "You're on track. A bit more water will help flush excess salt."),
+                .themeYellow,
+                "drop.circle.fill"
+            )
         } else {
-            return ("Perfect Balance", "Your hydration is optimal! Your body's pH and sodium levels are perfectly balanced.", .green, "checkmark.seal.fill")
+            return (
+                String(localized: "Perfect Balance"),
+                String(localized: "Your hydration is optimal! Your body's pH and sodium levels are perfectly balanced."),
+                .green,
+                "checkmark.seal.fill"
+            )
         }
     }
 }

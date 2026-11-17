@@ -640,7 +640,7 @@ struct SetGoalSheet: View {
                                         VStack(spacing: 8) {
                                             Image(systemName: iconForGoalType(type))
                                                 .font(.system(size: 20, weight: .bold))
-                                            Text(type.capitalized)
+                                            Text(LocalizedStringKey(type.capitalized))
                                                 .font(.system(size: 13, weight: .bold, design: .rounded))
                                         }
                                         .frame(maxWidth: .infinity)

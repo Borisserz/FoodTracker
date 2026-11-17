@@ -43,6 +43,7 @@
 		BFD2BC57AFEEF0B63D402827 /* FoodTrackerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1717DB868603E5AC754381B0 /* FoodTrackerWidget.swift */; };
 		C64DA9CFA8D80562F914A838 /* WidgetTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E14A366AF7D10BEB62996BE /* WidgetTimelineProvider.swift */; };
 		D8C97A640158A90893E7316F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6A756F1A52BC138EA763B578 /* PrivacyInfo.xcprivacy */; };
+		E1A2B3C4D5E6F708192A3B4C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */; };
 		DC19BACC4B8A11186D17CCB9 /* WidgetIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5A3EF1AEDA75F9D3127E7E /* WidgetIntents.swift */; };
 		DFDB0F8AB3BBDFB25E8FDF00 /* FastingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE49F9484B31620583B3BDC /* FastingManagerTests.swift */; };
 		EC025169B1B3720B5CEEDD13 /* FastingActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDAC78C0A7D93A557E994339 /* FastingActivityWidget.swift */; };
@@ -477,6 +478,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1A2B3C4D5E6F708192A3B4C /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

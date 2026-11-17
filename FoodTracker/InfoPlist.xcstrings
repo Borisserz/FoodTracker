@@ -1,0 +1,66 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } }
+      }
+    },
+    "CFBundleName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker" } }
+      }
+    },
+    "NSCameraUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker needs access to your camera to scan food barcodes and analyze photos of your meals and restaurant menus using AI for accurate nutritional estimation." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker нужен доступ к камере для сканирования штрихкодов продуктов и анализа блюд и меню ресторанов с помощью ИИ." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker benötigt Kamerazugriff, um Barcodes zu scannen sowie Fotos von Mahlzeiten und Speisekarten per KI zu analysieren." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necesita acceso a la cámara para escanear códigos de barras y analizar fotos de tus comidas y menús con IA." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker a besoin d'accéder à la caméra pour scanner les codes-barres et analyser vos repas et menus avec l'IA." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necessita dell'accesso alla fotocamera per scansionare i codici a barre e analizzare pasti e menu con l'IA." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "O FoodTracker precisa de acesso à câmara para ler códigos de barras e analisar fotos de refeições e ementas com IA." } }
+      }
+    },
+    "NSHealthShareUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker needs access to your Health data to read active energy burned, steps, body mass, and workouts so we can accurately calculate your daily calorie goals." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker нужен доступ к данным Apple Health для чтения сожжённых калорий, шагов, веса и тренировок для точного расчёта дневной нормы калорий." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker benötigt Zugriff auf Ihre Gesundheitsdaten, um aktive Kalorien, Schritte, Gewicht und Trainings für Ihre täglichen Kalorienziele auszulesen." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necesita acceso a tus datos de Salud para leer calorías activas, pasos, peso y entrenamientos y calcular tus objetivos diarios." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker a besoin d'accéder à Santé pour lire vos calories actives, pas, poids et entraînements afin de calculer vos objectifs quotidiens." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necessita dell'accesso ai dati Salute per leggere calorie attive, passi, peso e allenamenti e calcolare i tuoi obiettivi giornalieri." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "O FoodTracker precisa de acesso aos dados de Saúde para ler calorias ativas, passos, peso e treinos para calcular os seus objetivos diários." } }
+      }
+    },
+    "NSHealthUpdateUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker нужен доступ к Apple Health для автоматической синхронизации выпитой воды и потреблённых калорий." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker benötigt Zugriff auf Ihre Gesundheitsdaten, um Wasserzufuhr und aufgenommene Kalorien automatisch zu synchronisieren." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necesita acceso a tus datos de Salud para sincronizar automáticamente el agua y las calorías registradas." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker a besoin d'accéder à Santé pour synchroniser automatiquement votre consommation d'eau et de calories." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necessita dell'accesso a Salute per sincronizzare automaticamente acqua assunta e calorie consumate." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "O FoodTracker precisa de acesso aos dados de Saúde para sincronizar automaticamente a água e as calorias registadas." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

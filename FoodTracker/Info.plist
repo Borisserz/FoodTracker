@@ -31,6 +31,8 @@
 	<string>FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories, keeping all your health data centralized</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

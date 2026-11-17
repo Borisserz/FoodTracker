@@ -16,7 +16,8 @@ struct SwissTapeRuler: View {
         VStack(spacing: 12) {
             // Header with Value Display
             HStack(alignment: .firstTextBaseline) {
-                Text(title.uppercased())
+                Text(LocalizedStringKey(title))
+                    .textCase(.uppercase)
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                     .foregroundStyle(.white.opacity(0.6))
                 
@@ -28,7 +29,7 @@ struct SwissTapeRuler: View {
                         .foregroundStyle(Color.swissChartreuse)
                         .contentTransition(.numericText())
                     
-                    Text(unit)
+                    Text(LocalizedStringKey(unit))
                         .font(.system(size: 14, weight: .bold, design: .monospaced))
                         .foregroundStyle(.white.opacity(0.5))
                 }

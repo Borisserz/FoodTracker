@@ -89,7 +89,7 @@ struct SwissTagBadge: View {
     var color: Color = .swissChartreuse
     
     var body: some View {
-        Text(text)
+        Text(LocalizedStringKey(text))
             .font(.system(size: 11, weight: .bold, design: .monospaced))
             .foregroundStyle(color)
             .padding(.horizontal, 8)

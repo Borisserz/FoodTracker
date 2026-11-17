@@ -209,7 +209,7 @@ struct HomeDashboardContentView: View {
                       VStack(spacing: 14) {
                           SpeedDialItem(
                               icon: "barcode.viewfinder",
-                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Сканировать" : "Scan Barcode",
+                              label: String(localized: "Scan Barcode"),
                               color: .blue
                           ) {
                               isMenuExpanded = false
@@ -218,7 +218,7 @@ struct HomeDashboardContentView: View {
                           
                           SpeedDialItem(
                               icon: "fork.knife",
-                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Записать еду" : "Log Meal",
+                              label: String(localized: "Log Meal"),
                               color: .themePink
                           ) {
                               isMenuExpanded = false
@@ -227,7 +227,7 @@ struct HomeDashboardContentView: View {
                           
                           SpeedDialItem(
                               icon: "bolt.fill",
-                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Быстрые калории" : "Quick Calories",
+                              label: String(localized: "Quick Calories"),
                               color: .themeOrange
                           ) {
                               isMenuExpanded = false
@@ -236,7 +236,7 @@ struct HomeDashboardContentView: View {
                           
                           SpeedDialItem(
                               icon: "figure.run",
-                              label: Locale.current.language.languageCode?.identifier == "ru" ? "Активность" : "Log Activity",
+                              label: String(localized: "Log Activity"),
                               color: .green
                           ) {
                               isMenuExpanded = false
@@ -504,42 +504,27 @@ struct HeaderView: View {
 
     private var greetingString: String {
         let hour = Calendar.current.component(.hour, from: Date())
-        let name = user?.name ?? "Friend"
-        let isRussian = Locale.current.language.languageCode?.identifier == "ru"
-        
-        if isRussian {
-            switch hour {
-            case 5..<12:
-                return "Доброе утро, \(name)! 🌅"
-            case 12..<18:
-                return "Добрый день, \(name)! 🥗"
-            case 18..<23:
-                return "Добрый вечер, \(name)! 🌙"
-            default:
-                return "Привет, \(name)! 🌌"
-            }
-        } else {
-            switch hour {
-            case 5..<12:
-                return "Good morning, \(name)! 🌅"
-            case 12..<18:
-                return "Good afternoon, \(name)! 🥗"
-            case 18..<23:
-                return "Good evening, \(name)! 🌙"
-            default:
-                return "Hello, \(name)! 🌌"
-            }
+        let name = user?.name ?? String(localized: "Friend")
+
+        switch hour {
+        case 5..<12:
+            return String(localized: "Good morning, \(name)! 🌅")
+        case 12..<18:
+            return String(localized: "Good afternoon, \(name)! 🥗")
+        case 18..<23:
+            return String(localized: "Good evening, \(name)! 🌙")
+        default:
+            return String(localized: "Hello, \(name)! 🌌")
         }
     }
 
     private var relativeDateString: String {
         let calendar = Calendar.current
-        let isRussian = Locale.current.language.languageCode?.identifier == "ru"
         let relativeDay: String
         if calendar.isDateInToday(selectedDate) {
-            relativeDay = isRussian ? "Сегодня" : "Today"
+            relativeDay = String(localized: "Today")
         } else if calendar.isDateInYesterday(selectedDate) {
-            relativeDay = isRussian ? "Вчера" : "Yesterday"
+            relativeDay = String(localized: "Yesterday")
         } else {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
@@ -614,15 +599,15 @@ struct InsightsWidget: View {
         let remaining = (baseGoal + summary.activeCaloriesBurned) - summary.totalCalories
 
         if summary.totalCalories == 0 {
-            return ("Good morning! Ready to crush your goals?", "sun.max.fill", .themeDarkYellow)
+            return (String(localized: "Good morning! Ready to crush your goals?"), "sun.max.fill", .themeDarkYellow)
         } else if remaining < 0 {
-            return ("Slightly over limit, but tomorrow is a new day!", "exclamationmark.circle.fill", .red)
+            return (String(localized: "Slightly over limit, but tomorrow is a new day!"), "exclamationmark.circle.fill", .red)
         } else if summary.totalProtein < (user?.targetProtein ?? 150) * 0.3 && summary.totalCalories > 600 {
-            return ("Great start! Try adding more protein to your next meal.", "bolt.fill", .themePeach)
+            return (String(localized: "Great start! Try adding more protein to your next meal."), "bolt.fill", .themePeach)
         } else if summary.totalHydrationLiters < 1.0 && summary.totalCalories > 1000 {
-            return ("Don't forget to drink water to stay hydrated!", "drop.fill", .drinkWater)
+            return (String(localized: "Don't forget to drink water to stay hydrated!"), "drop.fill", .drinkWater)
         } else {
-            return ("You're on track! Keep up the great work.", "star.fill", .themePink)
+            return (String(localized: "You're on track! Keep up the great work."), "star.fill", .themePink)
         }
     }
 
@@ -1717,7 +1702,7 @@ struct DailyLogDetailView: View {
                             VStack(alignment: .leading, spacing: 0) {
 
                                 HStack {
-                                    Text(meal.title)
+                                    Text(LocalizedStringKey(meal.title))
                                         .font(.title3.bold())
                                     Spacer()
                                     Text("\(meal.totalCalories) kcal")

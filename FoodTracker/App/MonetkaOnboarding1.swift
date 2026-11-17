@@ -351,8 +351,8 @@ struct WelcomeStepView: View {
 }
 
 struct SignInButton: View {
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
     let icon: String
     let accent: Color
     let textColor: Color
@@ -472,7 +472,7 @@ struct GuestWarningView: View {
         }
     }
     
-    private func bullet(_ text: String) -> some View {
+    private func bullet(_ text: LocalizedStringKey) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Circle()
                 .fill(Color.orange)

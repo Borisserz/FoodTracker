@@ -332,14 +332,14 @@ private struct Stage2GoalProtocolView: View {
                                 
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack {
-                                        Text(item.name)
+                                        Text(LocalizedStringKey(item.name))
                                             .font(.system(size: 16, weight: .bold))
                                             .foregroundStyle(isSelected ? .white : .white.opacity(0.9))
                                         Spacer()
                                         SwissTagBadge(text: item.tag, color: isSelected ? .swissChartreuse : .white.opacity(0.4))
                                     }
                                     
-                                    Text(item.desc)
+                                    Text(LocalizedStringKey(item.desc))
                                         .font(.system(size: 12))
                                         .foregroundStyle(.white.opacity(0.6))
                                         .lineLimit(2)
@@ -385,11 +385,11 @@ private struct Stage2GoalProtocolView: View {
                                 generator.impactOccurred()
                             }) {
                                 HStack {
-                                    Text(act.name)
+                                    Text(LocalizedStringKey(act.name))
                                         .font(.system(size: 14, weight: .bold, design: .monospaced))
                                         .foregroundStyle(isSelected ? Color.swissChartreuse : .white.opacity(0.8))
                                     Spacer()
-                                    Text(act.desc)
+                                    Text(LocalizedStringKey(act.desc))
                                         .font(.system(size: 11))
                                         .foregroundStyle(.white.opacity(0.5))
                                 }
@@ -512,7 +512,7 @@ private struct Stage4BlueprintRevealView: View {
                     .font(.system(size: 26, weight: .black, design: .default))
                     .foregroundStyle(.white)
                 
-                Text("Personalized for \(metrics.goal.lowercased()) with \(calories) kcal/day")
+                Text("Personalized for \(String(localized: String.LocalizationValue(metrics.goal)).lowercased()) with \(calories) kcal/day")
                     .font(.system(size: 14))
                     .foregroundStyle(.white.opacity(0.6))
                     .multilineTextAlignment(.center)
@@ -562,7 +562,7 @@ private struct MacroBadge: View {
     
     var body: some View {
         VStack(spacing: 2) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(size: 9, weight: .black, design: .monospaced))
                 .foregroundStyle(color)
             Text(amount)
@@ -584,13 +584,13 @@ private struct BlueprintPill: View {
     
     var body: some View {
         VStack(spacing: 4) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(size: 8, weight: .black, design: .monospaced))
                 .foregroundStyle(color)
             Text(val)
                 .font(.system(size: 18, weight: .black, design: .monospaced))
                 .foregroundStyle(.white)
-            Text(unit)
+            Text(LocalizedStringKey(unit))
                 .font(.system(size: 9, weight: .bold, design: .monospaced))
                 .foregroundStyle(.white.opacity(0.4))
         }
