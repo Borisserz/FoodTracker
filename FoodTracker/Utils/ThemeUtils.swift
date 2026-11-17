@@ -55,3 +55,27 @@ extension View {
         self.modifier(PremiumCardModifier())
     }
 }
+
+extension Binding where Value == Double {
+    /// Adapts a stored kilogram binding to the user's preferred metric (`kg`) or imperial (`lb`) display unit.
+    func weightDisplayBinding(useMetric: Bool, clampedKgRange: ClosedRange<Double> = 30.0...250.0) -> Binding<Double> {
+        Binding(
+            get: { (NutritionMath.displayWeight(self.wrappedValue, useMetric: useMetric) * 10).rounded() / 10 },
+            set: { newValue in
+                let kg = NutritionMath.kgFromDisplayWeight(newValue, useMetric: useMetric)
+                self.wrappedValue = Swift.min(Swift.max(kg, clampedKgRange.lowerBound), clampedKgRange.upperBound)
+            }
+        )
+    }
+
+    /// Adapts a stored centimeter binding to the user's preferred metric (`cm`) or imperial (`in`) display unit.
+    func heightDisplayBinding(useMetric: Bool, clampedCmRange: ClosedRange<Double> = 100.0...250.0) -> Binding<Double> {
+        Binding(
+            get: { Double(NutritionMath.displayHeight(self.wrappedValue, useMetric: useMetric)) },
+            set: { newValue in
+                let cm = NutritionMath.cmFromDisplayHeight(newValue, useMetric: useMetric)
+                self.wrappedValue = Swift.min(Swift.max(cm.rounded(), clampedCmRange.lowerBound), clampedCmRange.upperBound)
+            }
+        )
+    }
+}

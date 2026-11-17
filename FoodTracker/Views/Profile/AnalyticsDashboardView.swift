@@ -1028,6 +1028,22 @@ struct TrendsAnalyticsInsightView: View {
     }
 }
 
+private extension View {
+    func emptyChartOverlay(_ isEmpty: Bool) -> some View {
+        overlay {
+            if isEmpty {
+                Text("No logs for this period yet")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Capsule())
+            }
+        }
+    }
+}
+
 struct DivineCaloriesChart: View {
     let summaries: [DailySummary]; let user: User; let period: AnalyticsPeriod
 
@@ -1078,6 +1094,7 @@ struct DivineCaloriesChart: View {
                     .foregroundStyle(LinearGradient(colors: [Color.themePink.opacity(0.35), Color.clear], startPoint: .top, endPoint: .bottom))
                 }
             }
+            .emptyChartOverlay(chartData.allSatisfy { $0.eaten <= 0 })
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) {
@@ -1212,6 +1229,7 @@ struct TrendsMicroChart: View {
                 }
             }
             .chartYScale(domain: 0...maxVal)
+            .emptyChartOverlay(chartData.allSatisfy { $0.value <= 0 })
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) {
@@ -1236,20 +1254,28 @@ struct TrendsMicroChart: View {
 
 struct TrendsWaterChart: View {
     let summaries: [DailySummary]; let period: AnalyticsPeriod
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
-    private var chartData: [(date: Date, liters: Double)] {
+    private var chartData: [(date: Date, volume: Double)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
         return (0..<period.daysCount).map { i in
             let date = calendar.date(byAdding: .day, value: -i, to: today)!
             let summary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
-            return (date: date, liters: summary?.totalHydrationLiters ?? 0)
+            let liters = summary?.totalHydrationLiters ?? 0
+            return (date: date, volume: NutritionMath.displayFluid(liters, useMetric: useMetricSystem))
         }.reversed()
     }
 
-    private var maxLiters: Double {
-        let maxData = chartData.map { $0.liters }.max() ?? 0
-        return max(3.0, maxData + 0.5)
+    private var goalVolume: Double {
+        NutritionMath.displayFluid(2.5, useMetric: useMetricSystem)
+    }
+
+    private var maxVolume: Double {
+        let maxData = chartData.map { $0.volume }.max() ?? 0
+        let baseline = NutritionMath.displayFluid(3.0, useMetric: useMetricSystem)
+        let padding = NutritionMath.displayFluid(0.5, useMetric: useMetricSystem)
+        return max(baseline, maxData + padding)
     }
 
     var body: some View {
@@ -1261,19 +1287,23 @@ struct TrendsWaterChart: View {
             }
 
             Chart {
-                RuleMark(y: .value("Goal", 2.5))
+                RuleMark(y: .value("Goal", goalVolume))
                     .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
                     .foregroundStyle(Color.cyan.opacity(0.7))
                     .annotation(position: .top, alignment: .leading) {
-                        Text("GOAL (2.5L)")
-                            .font(.system(size: 9, weight: .black, design: .rounded))
-                            .foregroundColor(.cyan)
+                        Text(
+                            useMetricSystem
+                            ? "GOAL (2.5L)"
+                            : String(format: "GOAL (%.0f fl oz)", goalVolume)
+                        )
+                        .font(.system(size: 9, weight: .black, design: .rounded))
+                        .foregroundColor(.cyan)
                     }
 
                 ForEach(chartData, id: \.date) { point in
                     BarMark(
                         x: .value("Date", point.date, unit: .day),
-                        y: .value("Liters", point.liters),
+                        y: .value("Volume", point.volume),
                         width: .fixed(12)
                     )
                     .foregroundStyle(
@@ -1286,7 +1316,8 @@ struct TrendsWaterChart: View {
                     .cornerRadius(6)
                 }
             }
-            .chartYScale(domain: 0...maxLiters)
+            .chartYScale(domain: 0...maxVolume)
+            .emptyChartOverlay(chartData.allSatisfy { $0.volume <= 0 })
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) {
@@ -1306,7 +1337,11 @@ struct TrendsWaterChart: View {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.12))
                     if let val = value.as(Double.self), val >= 0 {
-                        AxisValueLabel(String(format: "%.1fL", val)).font(.caption2).foregroundStyle(Color.gray)
+                        AxisValueLabel(
+                            useMetricSystem
+                            ? String(format: "%.1fL", val)
+                            : String(format: "%.0f fl oz", val)
+                        ).font(.caption2).foregroundStyle(Color.gray)
                     }
                 }
             }

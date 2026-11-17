@@ -335,6 +335,40 @@ enum NutritionMath {
         WidgetReloader.reloadAll()
     }
 
+    /// Removes a weight log entry and rolls User.weight back to the newest remaining log when present.
+    @MainActor
+    static func deleteWeightLog(
+        _ log: WeightLog,
+        for user: User?,
+        in context: ModelContext
+    ) {
+        let logDate = log.date
+        let deletedWeight = log.weight
+        let deletedID = log.persistentModelID
+
+        let summaries = (try? context.fetch(FetchDescriptor<DailySummary>())) ?? []
+        let calendar = Calendar.current
+        if let summary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: logDate) }),
+           let summaryWeight = summary.weight,
+           abs(summaryWeight - deletedWeight) < 0.01 {
+            summary.weight = nil
+        }
+
+        context.delete(log)
+
+        let existingLogs = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)]))) ?? []
+        if let user,
+           let latestRemaining = existingLogs.first(where: { $0.persistentModelID != deletedID }) {
+            user.weight = latestRemaining.weight
+            let previousCalories = user.dailyCaloriesGoal
+            user.calculateGoals()
+            user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)
+        }
+
+        try? context.save()
+        WidgetReloader.reloadAll()
+    }
+
     /// Calculates the consecutive active logging streak ending today or yesterday.
     static func consecutiveStreak(
         from summaries: [DailySummary],
@@ -405,6 +439,10 @@ enum NutritionMath {
         useMetric ? kg : kg * 2.20462262
     }
 
+    static func kgFromDisplayWeight(_ value: Double, useMetric: Bool) -> Double {
+        useMetric ? value : value / 2.20462262
+    }
+
     static func weightUnit(useMetric: Bool) -> String {
         useMetric ? "kg" : "lb"
     }
@@ -417,16 +455,28 @@ enum NutritionMath {
         useMetric ? Int(cm.rounded()) : Int((cm / 2.54).rounded())
     }
 
+    static func cmFromDisplayHeight(_ value: Double, useMetric: Bool) -> Double {
+        useMetric ? value : value * 2.54
+    }
+
     static func heightUnit(useMetric: Bool) -> String {
         useMetric ? "cm" : "in"
     }
 
+    static func displayFluid(_ liters: Double, useMetric: Bool) -> Double {
+        useMetric ? liters : liters * 33.8140227
+    }
+
+    static func fluidShortUnit(useMetric: Bool) -> String {
+        useMetric ? "L" : "fl oz"
+    }
+
     static func formattedHydration(liters: Double, useMetric: Bool) -> String {
+        let converted = displayFluid(liters, useMetric: useMetric)
         if useMetric {
-            return String(format: "%.1f L", liters)
+            return String(format: "%.1f %@", converted, fluidShortUnit(useMetric: true))
         } else {
-            let oz = liters * 33.8140227
-            return String(format: "%.0f fl oz", oz)
+            return String(format: "%.0f %@", converted, fluidShortUnit(useMetric: false))
         }
     }
 }

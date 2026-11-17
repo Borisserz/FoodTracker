@@ -438,6 +438,32 @@ struct GoalsTabView: View {
                         .padding(.vertical, 6)
                         .background(themeManager.current.primaryAccent.opacity(0.06))
                         .cornerRadius(10)
+
+                    Button(action: {
+                        HapticManager.shared.impact(style: .light)
+                        withAnimation(.snappy) {
+                            NutritionMath.deleteWeightLog(log, for: user, in: context)
+                        }
+                    }) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.secondary.opacity(0.75))
+                            .padding(8)
+                            .background(Color.primary.opacity(0.04))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel(Text("Delete Entry"))
+                }
+                .contextMenu {
+                    Button(role: .destructive) {
+                        HapticManager.shared.impact(style: .light)
+                        withAnimation(.snappy) {
+                            NutritionMath.deleteWeightLog(log, for: user, in: context)
+                        }
+                    } label: {
+                        Label("Delete Entry", systemImage: "trash")
+                    }
                 }
                 .padding(16)
                 .background(
@@ -474,12 +500,25 @@ struct AddWeightLogSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     
     @State private var weight: Double
     @State private var date: Date = Date()
     
     init(currentWeight: Double) {
         _weight = State(initialValue: currentWeight > 0 ? currentWeight : 70.0)
+    }
+
+    private var weightDisplayBinding: Binding<Double> {
+        $weight.weightDisplayBinding(useMetric: useMetricSystem)
+    }
+
+    private var weightRange: ClosedRange<Double> {
+        useMetricSystem ? 30.0...200.0 : 66.0...440.0
+    }
+
+    private var weightStep: Double {
+        useMetricSystem ? 0.1 : 0.5
     }
     
     var body: some View {
@@ -508,13 +547,13 @@ struct AddWeightLogSheet: View {
                         Spacer()
                         
                         HStack(spacing: 4) {
-                            TextField("kg", value: $weight, format: .number)
+                            TextField(NutritionMath.weightUnit(useMetric: useMetricSystem), value: weightDisplayBinding, format: .number.precision(.fractionLength(0...1)))
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
                                 .frame(width: 70)
                                 .font(.system(.title3, design: .rounded, weight: .bold))
                                 .foregroundColor(themeManager.current.primaryAccent)
-                            Text("kg")
+                            Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
                                 .font(.system(.body, design: .rounded, weight: .bold))
                                 .foregroundColor(.secondary)
                         }
@@ -526,17 +565,17 @@ struct AddWeightLogSheet: View {
                     
                     // Slider for Weight selection
                     VStack(spacing: 6) {
-                        Slider(value: $weight, in: 30...200, step: 0.1)
+                        Slider(value: weightDisplayBinding, in: weightRange, step: weightStep)
                             .tint(themeManager.current.primaryAccent)
                         
                         HStack {
-                            Text("30 kg")
+                            Text(NutritionMath.formattedWeight(30.0, useMetric: useMetricSystem))
                             Spacer()
-                            Text(String(format: "%.1f kg", weight))
+                            Text(NutritionMath.formattedWeight(weight, useMetric: useMetricSystem))
                                 .font(.system(.subheadline, design: .rounded, weight: .bold))
                                 .foregroundColor(themeManager.current.primaryAccent)
                             Spacer()
-                            Text("200 kg")
+                            Text(NutritionMath.formattedWeight(200.0, useMetric: useMetricSystem))
                         }
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
@@ -597,6 +636,7 @@ struct SetGoalSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) var dismiss
     @Environment(ThemeManager.self) private var themeManager
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     
     let user: User
     
@@ -611,6 +651,26 @@ struct SetGoalSheet: View {
         _targetWeight = State(initialValue: user.targetWeight ?? user.weight)
         _goalType = State(initialValue: user.weightGoalType ?? "lose")
         _height = State(initialValue: user.height > 0 ? user.height : 170.0)
+    }
+
+    private var heightDisplayBinding: Binding<Double> {
+        $height.heightDisplayBinding(useMetric: useMetricSystem)
+    }
+
+    private var heightRange: ClosedRange<Double> {
+        useMetricSystem ? 100.0...250.0 : 39.0...98.0
+    }
+
+    private var weightDisplayBinding: Binding<Double> {
+        $targetWeight.weightDisplayBinding(useMetric: useMetricSystem)
+    }
+
+    private var weightRange: ClosedRange<Double> {
+        useMetricSystem ? 30.0...200.0 : 66.0...440.0
+    }
+
+    private var weightStep: Double {
+        useMetricSystem ? 0.1 : 0.5
     }
     
     var body: some View {
@@ -680,13 +740,13 @@ struct SetGoalSheet: View {
                                 Spacer()
                                 
                                 HStack(spacing: 4) {
-                                    TextField("cm", value: $height, format: .number)
+                                    TextField(NutritionMath.heightUnit(useMetric: useMetricSystem), value: heightDisplayBinding, format: .number)
                                         .keyboardType(.numberPad)
                                         .multilineTextAlignment(.trailing)
                                         .frame(width: 60)
                                         .font(.system(.title3, design: .rounded, weight: .bold))
                                         .foregroundColor(themeManager.current.primaryAccent)
-                                    Text("cm")
+                                    Text(NutritionMath.heightUnit(useMetric: useMetricSystem))
                                         .font(.system(.body, design: .rounded, weight: .bold))
                                         .foregroundColor(.secondary)
                                 }
@@ -698,17 +758,17 @@ struct SetGoalSheet: View {
                             
                             // Height slider
                             VStack(spacing: 6) {
-                                Slider(value: $height, in: 100...250, step: 1)
+                                Slider(value: heightDisplayBinding, in: heightRange, step: 1)
                                     .tint(themeManager.current.primaryAccent)
                                 
                                 HStack {
-                                    Text("100 cm")
+                                    Text("\(NutritionMath.displayHeight(100, useMetric: useMetricSystem)) \(NutritionMath.heightUnit(useMetric: useMetricSystem))")
                                     Spacer()
-                                    Text("\(Int(height)) cm")
+                                    Text("\(NutritionMath.displayHeight(height, useMetric: useMetricSystem)) \(NutritionMath.heightUnit(useMetric: useMetricSystem))")
                                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                                         .foregroundColor(themeManager.current.primaryAccent)
                                     Spacer()
-                                    Text("250 cm")
+                                    Text("\(NutritionMath.displayHeight(250, useMetric: useMetricSystem)) \(NutritionMath.heightUnit(useMetric: useMetricSystem))")
                                 }
                                 .font(.system(size: 11, weight: .medium, design: .rounded))
                                 .foregroundColor(.secondary)
@@ -733,13 +793,13 @@ struct SetGoalSheet: View {
                                     Spacer()
                                     
                                     HStack(spacing: 4) {
-                                        TextField("kg", value: $targetWeight, format: .number)
+                                        TextField(NutritionMath.weightUnit(useMetric: useMetricSystem), value: weightDisplayBinding, format: .number.precision(.fractionLength(0...1)))
                                             .keyboardType(.decimalPad)
                                             .multilineTextAlignment(.trailing)
                                             .frame(width: 70)
                                             .font(.system(.title3, design: .rounded, weight: .bold))
                                             .foregroundColor(themeManager.current.primaryAccent)
-                                        Text("kg")
+                                        Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
                                             .font(.system(.body, design: .rounded, weight: .bold))
                                             .foregroundColor(.secondary)
                                     }
@@ -751,17 +811,17 @@ struct SetGoalSheet: View {
                                 
                                 // Slider for Weight selection
                                 VStack(spacing: 6) {
-                                    Slider(value: $targetWeight, in: 30...200, step: 0.1)
+                                    Slider(value: weightDisplayBinding, in: weightRange, step: weightStep)
                                         .tint(themeManager.current.primaryAccent)
                                     
                                     HStack {
-                                        Text("30 kg")
+                                        Text(NutritionMath.formattedWeight(30.0, useMetric: useMetricSystem))
                                         Spacer()
-                                        Text(String(format: "%.1f kg", targetWeight))
+                                        Text(NutritionMath.formattedWeight(targetWeight, useMetric: useMetricSystem))
                                             .font(.system(.subheadline, design: .rounded, weight: .bold))
                                             .foregroundColor(themeManager.current.primaryAccent)
                                         Spacer()
-                                        Text("200 kg")
+                                        Text(NutritionMath.formattedWeight(200.0, useMetric: useMetricSystem))
                                     }
                                     .font(.system(size: 11, weight: .medium, design: .rounded))
                                     .foregroundColor(.secondary)
@@ -884,7 +944,7 @@ struct BMIMeterView: View {
         }
     }
     
-    private func bmiCategoryString(_ bmi: Double) -> String {
+    private func bmiCategoryString(_ bmi: Double) -> LocalizedStringKey {
         if bmi < 18.5 { return "Underweight" }
         else if bmi < 25 { return "Normal Weight" }
         else if bmi < 30 { return "Overweight" }

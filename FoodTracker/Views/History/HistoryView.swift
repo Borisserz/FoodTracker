@@ -647,6 +647,7 @@ struct LearnDashboardView: View {
 struct LearnCategorySection: View {
     let category: ArticleCategory
     @Binding var path: NavigationPath
+    @Environment(AcademyDataLoader.self) private var dataLoader
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -682,7 +683,10 @@ struct LearnCategorySection: View {
                             HapticManager.shared.impact(style: .light)
                             path.append(FoodsRoute.articleDetail(article))
                         }) {
-                            ArticleCardView(article: article)
+                            ArticleCardView(
+                                article: article,
+                                isCompleted: dataLoader.completedArticleIDs.contains(article.id)
+                            )
                         }
                         .buttonStyle(BounceButtonStyle())
                         .containerRelativeFrame(.horizontal, count: 2, span: 1, spacing: 16)
@@ -699,6 +703,7 @@ struct LearnCategorySection: View {
 
 struct ArticleCardView: View {
     let article: Article
+    var isCompleted: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -716,14 +721,28 @@ struct ArticleCardView: View {
                     .offset(x: 8, y: 12)
                     .accessibilityHidden(true)
 
-                HStack(spacing: 4) {
-                    Image(systemName: "clock.fill").font(.system(size: 9))
-                    Text("\(article.readTime) MIN").font(.system(size: 9, weight: .bold))
+                HStack {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock.fill").font(.system(size: 9))
+                        Text("\(article.readTime) MIN").font(.system(size: 9, weight: .bold))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
+                    .clipShape(Capsule())
+
+                    Spacer()
+
+                    if isCompleted {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(3)
+                            .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
+                            .clipShape(Circle())
+                    }
                 }
-                .foregroundStyle(.white)
-                .padding(.horizontal, 8).padding(.vertical, 5)
-                .background(.ultraThinMaterial).environment(\.colorScheme, .dark)
-                .clipShape(Capsule()).padding(12)
+                .padding(12)
             }
             .frame(height: 115).clipped()
 

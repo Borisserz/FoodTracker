@@ -533,7 +533,43 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(NutritionMath.weightUnit(useMetric: true), "kg")
         XCTAssertEqual(NutritionMath.weightUnit(useMetric: false), "lb")
         XCTAssertEqual(NutritionMath.displayWeight(100, useMetric: false), 220.46, accuracy: 0.1)
+        XCTAssertEqual(NutritionMath.kgFromDisplayWeight(220.46, useMetric: false), 100.0, accuracy: 0.1)
         XCTAssertEqual(NutritionMath.displayHeight(178, useMetric: false), 70)
+        XCTAssertEqual(NutritionMath.cmFromDisplayHeight(70, useMetric: false), 177.8, accuracy: 0.1)
+        XCTAssertEqual(NutritionMath.displayFluid(2.0, useMetric: false), 67.63, accuracy: 0.1)
+        XCTAssertEqual(NutritionMath.fluidShortUnit(useMetric: false), "fl oz")
         XCTAssertTrue(NutritionMath.formattedHydration(liters: 2.0, useMetric: false).contains("fl oz"))
+    }
+
+    @MainActor
+    func testDeleteWeightLogRollsBackUserWeightAndClearsSummary() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: User.self, WeightLog.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self,
+            configurations: config
+        )
+        let context = container.mainContext
+        let user = User(name: "Alex", weight: 80, height: 180, age: 30, gender: "Male")
+        context.insert(user)
+
+        let calendar = Calendar.current
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: Date())!
+        let today = Date()
+
+        NutritionMath.recordWeight(81.0, date: yesterday, for: user, in: context)
+        NutritionMath.recordWeight(78.5, date: today, for: user, in: context)
+        XCTAssertEqual(user.weight, 78.5, accuracy: 0.01)
+
+        let logs = try context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)]))
+        XCTAssertEqual(logs.count, 2)
+        NutritionMath.deleteWeightLog(logs[0], for: user, in: context)
+
+        let remaining = try context.fetch(FetchDescriptor<WeightLog>())
+        XCTAssertEqual(remaining.count, 1)
+        XCTAssertEqual(user.weight, 81.0, accuracy: 0.01)
+
+        let summaries = try context.fetch(FetchDescriptor<DailySummary>())
+        let todaySummary = summaries.first { calendar.isDateInToday($0.date) }
+        XCTAssertNil(todaySummary?.weight)
     }
 }

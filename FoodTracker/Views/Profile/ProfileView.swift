@@ -171,6 +171,7 @@ struct EditProfileSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Bindable var user: User
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     @State private var name: String
     @State private var weight: Double
@@ -215,8 +216,17 @@ struct EditProfileSheet: View {
                 }
 
                 Section {
-                    Stepper("Height: \(Int(height)) cm", value: $height, in: 100...250)
-                    Stepper("Weight: \(String(format: "%.1f", weight)) kg", value: $weight, in: 30...250, step: 0.1)
+                    Stepper(
+                        "Height: \(NutritionMath.displayHeight(height, useMetric: useMetricSystem)) \(NutritionMath.heightUnit(useMetric: useMetricSystem))",
+                        value: $height.heightDisplayBinding(useMetric: useMetricSystem),
+                        in: useMetricSystem ? 100...250 : 39...98
+                    )
+                    Stepper(
+                        "Weight: \(NutritionMath.formattedWeight(weight, useMetric: useMetricSystem))",
+                        value: $weight.weightDisplayBinding(useMetric: useMetricSystem),
+                        in: useMetricSystem ? 30...250 : 66...550,
+                        step: useMetricSystem ? 0.1 : 0.5
+                    )
                     Picker("Activity Level", selection: $activityMultiplier) {
                         ForEach(activityOptions, id: \.value) { option in
                             Text(String(localized: String.LocalizationValue(option.label))).tag(option.value)
