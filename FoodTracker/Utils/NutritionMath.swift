@@ -398,4 +398,35 @@ enum NutritionMath {
         if streak >= 7 { unlock("streak_7") }
         if hydrationByDay.values.contains(where: { $0 >= 2.5 }) { unlock("water_pro") }
     }
+
+    // MARK: - Unit Formatting (Metric vs Imperial)
+
+    static func displayWeight(_ kg: Double, useMetric: Bool) -> Double {
+        useMetric ? kg : kg * 2.20462262
+    }
+
+    static func weightUnit(useMetric: Bool) -> String {
+        useMetric ? "kg" : "lb"
+    }
+
+    static func formattedWeight(_ kg: Double, useMetric: Bool) -> String {
+        String(format: "%.1f %@", displayWeight(kg, useMetric: useMetric), weightUnit(useMetric: useMetric))
+    }
+
+    static func displayHeight(_ cm: Double, useMetric: Bool) -> Int {
+        useMetric ? Int(cm.rounded()) : Int((cm / 2.54).rounded())
+    }
+
+    static func heightUnit(useMetric: Bool) -> String {
+        useMetric ? "cm" : "in"
+    }
+
+    static func formattedHydration(liters: Double, useMetric: Bool) -> String {
+        if useMetric {
+            return String(format: "%.1f L", liters)
+        } else {
+            let oz = liters * 33.8140227
+            return String(format: "%.0f fl oz", oz)
+        }
+    }
 }

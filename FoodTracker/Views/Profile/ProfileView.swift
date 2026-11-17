@@ -29,6 +29,7 @@ struct ProfileView: View {
     @Bindable var user: User
 
     @State private var viewModel: ProfileViewModel?
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     @State private var showingEditProfile = false
     @State private var showingNutritionSettings = false
@@ -80,9 +81,17 @@ struct ProfileView: View {
                     .buttonStyle(BounceButtonStyle())
 
                     HStack(spacing: 0) {
-                        ProfileStatItem(value: "\(String(format: "%.1f", user.weight))", unit: "kg", title: "Weight")
+                        ProfileStatItem(
+                            value: String(format: "%.1f", NutritionMath.displayWeight(user.weight, useMetric: useMetricSystem)),
+                            unit: NutritionMath.weightUnit(useMetric: useMetricSystem),
+                            title: "Weight"
+                        )
                         Divider().frame(height: 40)
-                        ProfileStatItem(value: "\(Int(user.height))", unit: "cm", title: "Height")
+                        ProfileStatItem(
+                            value: "\(NutritionMath.displayHeight(user.height, useMetric: useMetricSystem))",
+                            unit: NutritionMath.heightUnit(useMetric: useMetricSystem),
+                            title: "Height"
+                        )
                         Divider().frame(height: 40)
                         ProfileStatItem(value: "\(user.age)", unit: "y.o", title: "Age")
                     }
@@ -278,7 +287,7 @@ struct NutritionSettingsEditor: View {
         _cPct = State(initialValue: 100 - p - f)
     }
 
-    private var isBalanced: Bool { Int(pPct + fPct + cPct) == 100 }
+    private var isBalanced: Bool { Int((pPct + fPct + cPct).rounded()) == 100 }
 
     var body: some View {
         NavigationStack {
@@ -344,7 +353,10 @@ struct NutritionSettingsEditor: View {
     private func saveSettings() {
         user.dailyCaloriesGoal = dailyCals
 
-        user.applyDietBreakdown(fatPercent: Int(fPct), proteinPercent: Int(pPct), carbsPercent: Int(cPct), dietKey: "custom")
+        let fInt = Int(fPct.rounded())
+        let pInt = Int(pPct.rounded())
+        let cInt = max(0, 100 - fInt - pInt)
+        user.applyDietBreakdown(fatPercent: fInt, proteinPercent: pInt, carbsPercent: cInt, dietKey: "custom")
         try? context.save()
         WidgetReloader.reloadAll()
         dismiss()
@@ -970,7 +982,12 @@ struct UnitsSettingsView: View {
 
             VStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Button(action: { withAnimation { useMetric = true }; HapticManager.shared.impact(style: .light) }) {
+                    Button(action: {
+                        withAnimation { useMetric = true }
+                        UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.set(true, forKey: "useMetricSystem")
+                        WidgetReloader.reloadAll()
+                        HapticManager.shared.impact(style: .light)
+                    }) {
                         HStack {
                             Text("Metric (kg, cm, ml)")
                                 .font(.system(size: 16, weight: .medium, design: .rounded))
@@ -984,7 +1001,12 @@ struct UnitsSettingsView: View {
 
                     Divider()
 
-                    Button(action: { withAnimation { useMetric = false }; HapticManager.shared.impact(style: .light) }) {
+                    Button(action: {
+                        withAnimation { useMetric = false }
+                        UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.set(false, forKey: "useMetricSystem")
+                        WidgetReloader.reloadAll()
+                        HapticManager.shared.impact(style: .light)
+                    }) {
                         HStack {
                             Text("Imperial (lb, ft, oz)")
                                 .font(.system(size: 16, weight: .medium, design: .rounded))

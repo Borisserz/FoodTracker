@@ -12,6 +12,7 @@ struct GoalsTabView: View {
     @State private var showAddWeightSheet = false
     @State private var showSetGoalSheet = false
     @State private var bgPhase = 0.0
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     
     var user: User? { users.first }
     
@@ -159,10 +160,10 @@ struct GoalsTabView: View {
                         .foregroundColor(.secondary)
                     
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(String(format: "%.1f", currentWeight))
+                        Text(String(format: "%.1f", NutritionMath.displayWeight(currentWeight, useMetric: useMetricSystem)))
                             .font(.system(size: 40, weight: .black, design: .rounded))
                             .foregroundColor(.primary)
-                        Text("kg")
+                        Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
                             .font(.system(.headline, design: .rounded, weight: .bold))
                             .foregroundColor(.secondary)
                     }
@@ -190,7 +191,7 @@ struct GoalsTabView: View {
                 HStack {
                     Image(systemName: iconForGoal(goalType))
                         .foregroundColor(themeManager.current.primaryAccent)
-                    Text("Target: \(String(format: "%.1f", target)) kg")
+                    Text("Target: \(NutritionMath.formattedWeight(target, useMetric: useMetricSystem))")
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundColor(themeManager.current.primaryAccent)
                 }
@@ -333,7 +334,7 @@ struct GoalsTabView: View {
                             .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4]))
                             .foregroundStyle(Color.green.opacity(0.7))
                             .annotation(position: .top, alignment: .leading) {
-                                Text("Target: \(String(format: "%.1f", target)) kg")
+                                Text("Target: \(NutritionMath.formattedWeight(target, useMetric: useMetricSystem))")
                                     .font(.system(size: 9, weight: .bold, design: .rounded))
                                     .foregroundColor(.green)
                                     .padding(.horizontal, 6)
@@ -430,7 +431,7 @@ struct GoalsTabView: View {
                     }
                     Spacer()
                     
-                    Text(String(format: "%.1f kg", log.weight))
+                    Text(NutritionMath.formattedWeight(log.weight, useMetric: useMetricSystem))
                         .font(.system(.headline, design: .rounded, weight: .bold))
                         .foregroundColor(themeManager.current.primaryAccent)
                         .padding(.horizontal, 10)

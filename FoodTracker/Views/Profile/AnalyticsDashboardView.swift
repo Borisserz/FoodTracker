@@ -1349,7 +1349,7 @@ struct ConsistencyHeatmapCard: View {
                 Text("Last 14 Days").font(.caption).foregroundColor(.gray)
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 ForEach(days, id: \.self) { date in
                     let level = completionLevel(for: date)
                     let color = colorForLevel(level)
@@ -1359,7 +1359,7 @@ struct ConsistencyHeatmapCard: View {
                         Text(Calendar.current.component(.day, from: date).description)
                             .font(.system(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(isToday ? .themePink : .gray.opacity(0.8))
-                        
+
                         Capsule()
                             .fill(
                                 LinearGradient(
@@ -1368,13 +1368,14 @@ struct ConsistencyHeatmapCard: View {
                                     endPoint: .bottom
                                 )
                             )
-                            .frame(width: 16, height: 42)
+                            .frame(minWidth: 10, maxWidth: 16, minHeight: 42, maxHeight: 42)
                             .overlay(
                                 Capsule()
                                     .stroke(isToday ? Color.themePink.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1.5)
                             )
                             .shadow(color: level > 0 ? color.opacity(0.35) : Color.clear, radius: 5, x: 0, y: 3)
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)

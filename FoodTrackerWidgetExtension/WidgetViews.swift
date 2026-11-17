@@ -15,9 +15,11 @@ extension Color {
 struct WidgetPremiumBackground: View {
     var body: some View {
         ZStack {
-            // Subtle mesh gradient simulation
             LinearGradient(
-                colors: [Color.white.opacity(0.8), Color.white.opacity(0.4)],
+                colors: [
+                    Color(uiColor: .systemBackground).opacity(0.92),
+                    Color(uiColor: .secondarySystemBackground).opacity(0.75)
+                ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -41,7 +43,23 @@ struct WidgetPremiumBackground: View {
 // MARK: - Hydration Interactive Widget
 struct HydrationWidgetView: View {
     var entry: FoodTrackerEntry
-    
+
+    private var useMetricSystem: Bool {
+        let defaults = UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)
+        if defaults?.object(forKey: "useMetricSystem") != nil {
+            return defaults?.bool(forKey: "useMetricSystem") ?? true
+        }
+        return true
+    }
+
+    private var hydrationText: String {
+        if useMetricSystem {
+            return String(format: "%.1f L", entry.hydrationLiters)
+        } else {
+            return String(format: "%.0f fl oz", entry.hydrationLiters * 33.8140227)
+        }
+    }
+
     var body: some View {
         let goal = max(0.1, entry.hydrationGoalLiters)
         let progress = min(entry.hydrationLiters / goal, 1.0)
@@ -52,7 +70,7 @@ struct HydrationWidgetView: View {
                     Text("Hydration")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.primary.opacity(0.7))
-                    Text(String(format: "%.1f L", entry.hydrationLiters))
+                    Text(hydrationText)
                         .font(.system(size: 22, weight: .heavy, design: .rounded))
                         .foregroundColor(.primary)
                 }
@@ -85,7 +103,7 @@ struct HydrationWidgetView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "plus")
                         .font(.system(size: 12, weight: .bold))
-                    Text("250 ml")
+                    Text(useMetricSystem ? "250 ml" : "8 fl oz")
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                 }
                 .foregroundColor(.white)

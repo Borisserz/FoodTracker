@@ -76,18 +76,24 @@ final class LocalFoodDatabaseService {
 
     // MARK: - Private helpers
 
+    private func normalizeForSearch(_ text: String) -> String {
+        text.trimmingCharacters(in: .whitespacesAndNewlines)
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+    }
+
     private func matchFoods(_ foods: [LocalFoodEntry], query: String) -> [LocalFoodEntry] {
+        let normalizedQuery = normalizeForSearch(query)
         let queryRoots = SmartSearch.getRoots(for: query)
         var scored: [(score: Int, entry: LocalFoodEntry)] = []
 
         for entry in foods {
-            let name = entry.name.lowercased()
+            let name = normalizeForSearch(entry.name)
             var score = 0
-            if name.hasPrefix(query) {
+            if name.hasPrefix(normalizedQuery) {
                 score = 100
-            } else if name.contains(" \(query)") || name.contains("(\(query)") {
+            } else if name.contains(" \(normalizedQuery)") || name.contains("(\(normalizedQuery)") {
                 score = 60
-            } else if name.contains(query) {
+            } else if name.contains(normalizedQuery) {
                 score = 30
             } else if !queryRoots.isEmpty && SmartSearch.matches(name: entry.name, queryRoots: queryRoots) {
                 score = 20
@@ -95,7 +101,7 @@ final class LocalFoodDatabaseService {
                 continue
             }
             // Bonus: exact word match
-            if name.components(separatedBy: " ").contains(query) {
+            if name.components(separatedBy: " ").contains(normalizedQuery) {
                 score += 20
             }
             scored.append((score, entry))

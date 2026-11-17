@@ -521,4 +521,19 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(weightLogs.count, 1)
         XCTAssertEqual(weightLogs.first?.weight ?? -1, 79.2, accuracy: 0.01)
     }
+
+    func testRemoteCatalogGuardAndUnitFormatting() {
+        XCTAssertTrue(AcademyDataLoader.shouldPreferRemoteCatalog(languageCode: "en"))
+        XCTAssertFalse(AcademyDataLoader.shouldPreferRemoteCatalog(languageCode: "ru"))
+        XCTAssertFalse(AcademyDataLoader.shouldPreferRemoteCatalog(languageCode: "de"))
+        XCTAssertTrue(RecipeDataLoader.shouldPreferRemoteCatalog(languageCode: "en"))
+        XCTAssertFalse(RecipeDataLoader.shouldPreferRemoteCatalog(languageCode: "fr"))
+        XCTAssertFalse(RecipeDataLoader.shouldPreferRemoteCatalog(languageCode: "pt"))
+
+        XCTAssertEqual(NutritionMath.weightUnit(useMetric: true), "kg")
+        XCTAssertEqual(NutritionMath.weightUnit(useMetric: false), "lb")
+        XCTAssertEqual(NutritionMath.displayWeight(100, useMetric: false), 220.46, accuracy: 0.1)
+        XCTAssertEqual(NutritionMath.displayHeight(178, useMetric: false), 70)
+        XCTAssertTrue(NutritionMath.formattedHydration(liters: 2.0, useMetric: false).contains("fl oz"))
+    }
 }

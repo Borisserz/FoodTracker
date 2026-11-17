@@ -14,14 +14,14 @@ struct BentoMealCardView: View {
     let onQuickAdd: () -> Void
     
     private var iconAndColor: (String, Color, Color) {
-        switch title {
-        case "Breakfast", "Завтрак":
+        switch DailySummary.canonicalMealSlot(title) {
+        case "Breakfast":
             return ("cup.and.saucer.fill", Color.themePeach, Color(red: 1.0, green: 0.58, blue: 0.0))
-        case "Lunch", "Обед":
+        case "Lunch":
             return ("sun.max.fill", Color.green, Color(red: 0.18, green: 0.82, blue: 0.35))
-        case "Dinner", "Ужин":
+        case "Dinner":
             return ("moon.stars.fill", Color.themePink, Color(red: 0.95, green: 0.25, blue: 0.55))
-        case "Snack", "Перекус":
+        case "Snack":
             return ("leaf.fill", Color.themeOrange, Color(red: 1.0, green: 0.45, blue: 0.15))
         default:
             return ("fork.knife", Color.blue, Color.cyan)
@@ -58,7 +58,7 @@ struct BentoMealCardView: View {
                 // Meal Title & Time Pill
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
-                        Text(title)
+                        Text(LocalizedStringKey(title))
                             .font(.system(size: 17, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.primary)
                         

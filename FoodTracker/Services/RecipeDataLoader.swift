@@ -92,7 +92,13 @@ class RecipeDataLoader {
         }
     }
 
+    static func shouldPreferRemoteCatalog(languageCode: String? = Locale.current.language.languageCode?.identifier) -> Bool {
+        (languageCode ?? "en").lowercased() == "en"
+    }
+
     func fetchRecipes() {
+        // Avoid overwriting localized bundled JSON recipes with single-language Firestore documents.
+        guard Self.shouldPreferRemoteCatalog() || recipes.isEmpty else { return }
         listener?.remove()
         listener = db.collection("premium_recipes").addSnapshotListener { [weak self] snapshot, error in
             guard let self = self else { return }

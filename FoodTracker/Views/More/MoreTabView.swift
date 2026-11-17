@@ -148,7 +148,7 @@ struct MoreTabView: View {
             Text("FoodTracker")
                 .font(.caption.bold())
                 .foregroundStyle(.secondary)
-            Text("Version 1.0.0")
+            Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))")
                 .font(.caption2)
                 .foregroundStyle(Color.secondary.opacity(0.6))
         }

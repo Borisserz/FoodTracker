@@ -103,22 +103,27 @@ class AcademyDataLoader {
         }
     }
 
+    static func shouldPreferRemoteCatalog(languageCode: String? = Locale.current.language.languageCode?.identifier) -> Bool {
+        (languageCode ?? "en").lowercased() == "en"
+    }
+
     func fetchCategoriesFromFirestore() {
+        guard Self.shouldPreferRemoteCatalog() || categories.isEmpty else { return }
         listener?.remove()
         listener = db.collection("academy_categories").addSnapshotListener { [weak self] snapshot, error in
             guard let self = self else { return }
-            
+
             if let error = error {
                 print("❌ Ошибка загрузки Академии (используем локальный фоллбек): \(error.localizedDescription)")
                 return
             }
-            
+
             guard let documents = snapshot?.documents, !documents.isEmpty else { return }
-            
+
             do {
                 let fetchedCategories = try documents.compactMap { try $0.data(as: ArticleCategory.self) }
                 guard !fetchedCategories.isEmpty else { return }
-                
+
                 DispatchQueue.main.async {
                     self.categories = fetchedCategories.sorted { $0.title < $1.title }
                     self.recalculateProgress()
@@ -129,118 +134,4 @@ class AcademyDataLoader {
             }
         }
     }
-}
-import FirebaseFirestore
-import Foundation
-
-class FirebaseUploader {
-    static let shared = FirebaseUploader()
-    private let db = Firestore.firestore()
-    
-    func seedDatabaseIfNeeded() {
-        db.collection("diets").limit(to: 1).getDocuments { [weak self] snapshot, _ in
-            if let snapshot = snapshot, snapshot.documents.isEmpty {
-                print("🌱 Seeding diets...")
-                self?.uploadDiets()
-            }
-        }
-        
-        db.collection("fasting_plans").limit(to: 1).getDocuments { [weak self] snapshot, _ in
-            if let snapshot = snapshot, snapshot.documents.isEmpty {
-                print("🌱 Seeding fasting plans...")
-                self?.uploadFastingPlans()
-            }
-        }
-        
-        db.collection("premium_recipes").limit(to: 1).getDocuments { [weak self] snapshot, _ in
-            if let snapshot = snapshot, snapshot.documents.isEmpty {
-                print("🌱 Seeding premium recipes...")
-                self?.uploadRecipesFromJSON()
-            }
-        }
-        
-        db.collection("academy_categories").limit(to: 1).getDocuments { [weak self] snapshot, _ in
-            if let snapshot = snapshot, snapshot.documents.isEmpty {
-                print("🌱 Seeding academy categories...")
-                self?.uploadAcademyFromJSON()
-            }
-        }
-    }
-    
-    // 1. Выгрузка рецептов
-    func uploadRecipesFromJSON() {
-        guard let url = Bundle.main.url(forResource: "recipes", withExtension: "json") else { return }
-        
-        do {
-            let data = try Data(contentsOf: url)
-            // Парсим твою старую модель (где ID был UUID)
-            let recipes = try JSONDecoder().decode([PremiumRecipe].self, from: data)
-            
-            for recipe in recipes {
-                do {
-                    // Создаем новый документ в коллекции
-                    let docRef = db.collection("premium_recipes").document()
-                    try docRef.setData(from: recipe)
-                    print("⬆️ Загружен рецепт: \(recipe.title)")
-                } catch {
-                    print("Ошибка при загрузке рецепта: \(error)")
-                }
-            }
-            print("✅ Все рецепты успешно загружены в Firestore!")
-        } catch {
-            print("Ошибка чтения recipes.json: \(error)")
-        }
-    }
-    // Выгрузка диет
-        func uploadDiets() {
-            for diet in DietPlan.defaultDiets { // defaultDiets - тот самый массив, который мы переименовали
-                do {
-                    try db.collection("diets").document(diet.key).setData(from: diet)
-                    print("⬆️ Загружена диета: \(diet.name)")
-                } catch {
-                    print("❌ Ошибка диеты: \(error)")
-                }
-            }
-        }
-        
-        // Выгрузка планов голодания
-        func uploadFastingPlans() {
-            for plan in FastingPlan.defaultPlans { // defaultPlans - массив планов
-                do {
-                    try db.collection("fasting_plans").document().setData(from: plan)
-                    print("⬆️ Загружен план: \(plan.title)")
-                } catch {
-                    print("❌ Ошибка плана: \(error)")
-                }
-            }
-        }
-    // 2. Выгрузка Академии
-    func uploadAcademyFromJSON() {
-           guard let url = Bundle.main.url(forResource: "academy", withExtension: "json") else { return }
-           
-           do {
-               let data = try Data(contentsOf: url)
-               
-               // Читаем как сырой массив словарей (чтобы обойти конфликт Codable и @DocumentID)
-               guard let categoriesArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-                   print("❌ Не удалось распарсить academy.json как массив словарей")
-                   return
-               }
-               
-               for categoryDict in categoriesArray {
-                   let docRef = db.collection("academy_categories").document()
-                   // Заливаем данные напрямую
-                   docRef.setData(categoryDict) { error in
-                       if let error = error {
-                           print("❌ Ошибка при загрузке категории: \(error)")
-                       } else {
-                           print("⬆️ Загружена категория из Академии")
-                       }
-                   }
-               }
-               print("✅ Скрипт загрузки Академии завершен!")
-           } catch {
-               print("❌ Ошибка чтения academy.json: \(error)")
-           }
-       }
 }

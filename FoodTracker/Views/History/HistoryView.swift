@@ -24,13 +24,14 @@ struct FoodsDashboardView: View {
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
 
     @State private var selectedFilter: String = "All"
+    @State private var pendingDeleteMeal: Meal? = nil
     let filterOptions = ["All", "Breakfast", "Lunch", "Snack", "Dinner"]
 
     var filteredMeals: [Meal] {
         if selectedFilter == "All" {
             return meals
         } else {
-            return meals.filter { $0.title == selectedFilter }
+            return meals.filter { DailySummary.canonicalMealSlot($0.title) == selectedFilter }
         }
     }
 
@@ -79,7 +80,7 @@ struct FoodsDashboardView: View {
                                     Button(action: {
                                         withAnimation(.spring()) { selectedFilter = option }
                                     }) {
-                                        Text(option)
+                                        Text(LocalizedStringKey(option))
                                             .font(.subheadline).bold()
                                             .padding(.horizontal, 16).padding(.vertical, 8)
                                             .background(selectedFilter == option ? Color.themePink : Color.white)
@@ -107,7 +108,7 @@ struct FoodsDashboardView: View {
                                         ingredients: (meal.foodItems ?? []).map { $0.name }.joined(separator: ", "),
                                         calories: "\(meal.totalCalories)",
                                         color: colorForMeal(meal.title),
-                                        onDelete: { deleteMeal(meal) }
+                                        onDelete: { pendingDeleteMeal = meal }
                                     )
                                     .contentShape(Rectangle())
                                     .onTapGesture {
@@ -160,17 +161,34 @@ struct FoodsDashboardView: View {
         }
         .environment(dataLoader)
         .environment(academyLoader)
+        .confirmationDialog(
+            "Delete this meal?",
+            isPresented: Binding(
+                get: { pendingDeleteMeal != nil },
+                set: { if !$0 { pendingDeleteMeal = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let meal = pendingDeleteMeal {
+                    deleteMeal(meal)
+                }
+                pendingDeleteMeal = nil
+            }
+            Button("Cancel", role: .cancel) { pendingDeleteMeal = nil }
+        }
     }
 
     private func deleteMeal(_ meal: Meal) {
         withAnimation {
             context.delete(meal)
             try? context.save()
+            WidgetReloader.reloadAll()
         }
     }
 
     private func colorForMeal(_ title: String) -> Color {
-        switch title {
+        switch DailySummary.canonicalMealSlot(title) {
         case "Breakfast": return .themeYellow
         case "Lunch": return .themePeach
         case "Snack": return .themeOrange
@@ -774,7 +792,7 @@ struct ArticleDetailView: View {
                             Image(systemName: article.iconName)
                                 .font(.system(size: 150))
                                 .foregroundStyle(.white.opacity(0.15))
-                                .offset(x: UIScreen.main.bounds.width * 0.4, y: 30)
+                                .offset(x: 130, y: 30)
                                 .accessibilityHidden(true)
 
                             VStack(alignment: .leading, spacing: 16) {

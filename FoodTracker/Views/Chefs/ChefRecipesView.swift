@@ -79,37 +79,6 @@ struct NutritionFact: Hashable {
     let isSubItem: Bool
 }
 
-var mockRecipesData: [PremiumRecipe] = [
-    PremiumRecipe(
-        title: "Baked Apples with Honey & Walnuts",
-        description: "Simple to make, comforting to enjoy, and perfect for cozy evenings. 🍂",
-        time: "20 min", caloriesPerServing: 249,
-        imageUrl: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
-        isFavorite: true, tags: ["Breakfast", "Snack", "Vegetarian"], baseServings: 4,
-        protein: 3.0, fat: 11.0, carbs: 40.5,
-        ingredients: [RecipeIngredient(name: "Walnuts", amount: "65 g", weightGrams: 65, calories: 425)],
-        directions: ["Core apples.", "Bake at 180°C."]
-    ),
-    PremiumRecipe(
-        title: "Creamy Pumpkin Risotto with Gorgonzola",
-        description: "A rich and creamy autumn classic.",
-        time: "40 min", caloriesPerServing: 441,
-        imageUrl: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?q=80&w=800&auto=format&fit=crop",
-        isFavorite: false, tags: ["Dinner", "Vegetarian"], baseServings: 2,
-        protein: 14.0, fat: 18.0, carbs: 55.0,
-        ingredients: [], directions: []
-    ),
-    PremiumRecipe(
-        title: "Chicken and Wild Rice Bowl",
-        description: "High protein, low calorie perfect lunch.",
-        time: "25 min", caloriesPerServing: 504,
-        imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
-        isFavorite: true, tags: ["Lunch", "High Protein"], baseServings: 2,
-        protein: 38.8, fat: 8.6, carbs: 66.5,
-        ingredients: [], directions: []
-    )
-]
-
 struct RecipesContainerView: View {
     @Binding var path: NavigationPath
     @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
@@ -643,7 +612,7 @@ struct CustomRecipePremiumCard: View {
                     Circle()
                         .stroke(Color.gray.opacity(0.1), lineWidth: 4)
                     Circle()
-                        .trim(from: 0, to: 0.8)
+                        .trim(from: 0, to: min(Double(recipe.totalCalories) / 2000.0, 1.0))
                         .stroke(Color.themePink, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                         .rotationEffect(.degrees(-90))
 
@@ -986,13 +955,13 @@ struct PremiumRecipeDetailView: View {
     @State private var showMealSheet = false
     @State private var showAICooking = false
     @Environment(RecipeDataLoader.self) private var dataLoader
-    init(recipe: PremiumRecipe) { self._recipe = State(initialValue: recipe); self._servings = State(initialValue: recipe.baseServings) }
+    init(recipe: PremiumRecipe) { self._recipe = State(initialValue: recipe); self._servings = State(initialValue: 1) }
 
     private var multiplier: Double { Double(servings) / Double(max(recipe.baseServings, 1)) }
-    private var dynamicCalories: Int { Int(Double(recipe.caloriesPerServing * recipe.baseServings) * multiplier) }
-    private var dynamicProtein: Int { Int(recipe.protein * Double(recipe.baseServings) * multiplier) }
-    private var dynamicFat: Int { Int(recipe.fat * Double(recipe.baseServings) * multiplier) }
-    private var dynamicCarbs: Int { Int(recipe.carbs * Double(recipe.baseServings) * multiplier) }
+    private var dynamicCalories: Int { recipe.caloriesPerServing * servings }
+    private var dynamicProtein: Int { Int((recipe.protein * Double(servings)).rounded()) }
+    private var dynamicFat: Int { Int((recipe.fat * Double(servings)).rounded()) }
+    private var dynamicCarbs: Int { Int((recipe.carbs * Double(servings)).rounded()) }
 
     private var shareRecipeText: String {
         let ingredientsList = recipe.ingredients.map { "• \($0.name) (\($0.amount))" }.joined(separator: "\n")
@@ -1054,8 +1023,9 @@ struct PremiumRecipeDetailView: View {
                                         Button(action: { servings += 1; HapticManager.shared.impact(style: .light) }) { Image(systemName: "plus").foregroundColor(.gray) }
                                     }.padding().frame(width: 120).background(Color.white).cornerRadius(16).overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.gray.opacity(0.2), lineWidth: 1))
                                     HStack {
-                                        Text("Serving (\(Int(160 * multiplier)) g)").font(.subheadline.bold()).foregroundColor(.gray)
-                                        Spacer(); Image(systemName: "chevron.down").foregroundColor(.gray.opacity(0.5))
+                                        Text("\(servings) / \(max(recipe.baseServings, 1))").font(.subheadline.bold()).foregroundColor(.gray)
+                                        Spacer()
+                                        Text("Servings").font(.caption).foregroundColor(.secondary)
                                     }.padding().frame(maxWidth: .infinity).background(Color.white).cornerRadius(16).overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.gray.opacity(0.2), lineWidth: 1))
                                 }
                             }
@@ -1297,8 +1267,6 @@ struct FilteredRecipesListView: View {
 struct ChooseMealSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
-    @Environment(DIContainer.self) private var di   // for repo access
-    @Query private var summaries: [DailySummary]
     let recipe: PremiumRecipe; let calories: Int; let p: Double; let f: Double; let c: Double
     @State private var selectedMeal = "Dinner"; let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
 
@@ -1308,10 +1276,6 @@ struct ChooseMealSheet: View {
         self.p = p
         self.f = f
         self.c = c
-        let today = Calendar.current.startOfDay(for: .now)
-        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
-        let predicate = #Predicate<DailySummary> { $0.date >= today && $0.date < tomorrow }
-        self._summaries = Query(filter: predicate)
     }
     var body: some View {
         VStack(spacing: 24) {
@@ -1348,6 +1312,10 @@ struct ChooseMealSheet: View {
         }
         try? context.save()
         WidgetReloader.reloadAll()
+        AppReviewManager.shared.userDidLogMeal()
+        if HealthKitManager.shared.isAuthorized && calories > 0 {
+            await HealthKitManager.shared.saveDietaryEnergy(calories: calories, date: .now)
+        }
     }
 }
 
@@ -1357,7 +1325,7 @@ struct RecipeTagLayout: Layout {
     var spacing: CGFloat = 8
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize { let rows = computeRows(proposal: proposal, subviews: subviews); let height = rows.reduce(0) { $0 + $1.maxHeight } + CGFloat(max(0, rows.count - 1)) * spacing; return CGSize(width: proposal.width ?? 0, height: height) }
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) { let rows = computeRows(proposal: proposal, subviews: subviews); var y = bounds.minY; for row in rows { var x = bounds.minX; for element in row.elements { let size = element.view.sizeThatFits(.unspecified); element.view.place(at: CGPoint(x: x, y: y), proposal: .unspecified); x += size.width + spacing }; y += row.maxHeight + spacing } }
-    private func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [Row] { var rows: [Row] = []; var currentRow = Row(); var currentX: CGFloat = 0; let maxWidth = proposal.width ?? UIScreen.main.bounds.width; for subview in subviews { let size = subview.sizeThatFits(.unspecified); if currentX + size.width > maxWidth && !currentRow.elements.isEmpty { rows.append(currentRow); currentRow = Row(); currentX = 0 }; currentRow.elements.append(Element(view: subview, size: size)); currentRow.maxHeight = max(currentRow.maxHeight, size.height); currentX += size.width + spacing }; if !currentRow.elements.isEmpty { rows.append(currentRow) }; return rows }
+    private func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [Row] { var rows: [Row] = []; var currentRow = Row(); var currentX: CGFloat = 0; let maxWidth = proposal.width ?? 320; for subview in subviews { let size = subview.sizeThatFits(.unspecified); if currentX + size.width > maxWidth && !currentRow.elements.isEmpty { rows.append(currentRow); currentRow = Row(); currentX = 0 }; currentRow.elements.append(Element(view: subview, size: size)); currentRow.maxHeight = max(currentRow.maxHeight, size.height); currentX += size.width + spacing }; if !currentRow.elements.isEmpty { rows.append(currentRow) }; return rows }
     private struct Row { var elements: [Element] = []; var maxHeight: CGFloat = 0 }
     private struct Element { let view: LayoutSubview; let size: CGSize }
 }
