@@ -806,6 +806,7 @@ struct SetGoalSheet: View {
     }
     
     private func saveGoal() {
+        let previousCalories = user.dailyCaloriesGoal
         user.weightGoalType = goalType
         if goalType == "maintain" {
             user.targetWeight = user.weight
@@ -814,7 +815,9 @@ struct SetGoalSheet: View {
         }
         user.height = height
         user.calculateGoals()
+        user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)
         try? context.save()
+        WidgetReloader.reloadAll()
         HapticManager.shared.notification(type: .success)
         dismiss()
     }

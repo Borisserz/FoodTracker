@@ -183,14 +183,7 @@ struct PremiumQuickAddSheet: View {
 
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
-
-        let summary: DailySummary
-        if let existing = summaries.first {
-            summary = existing
-        } else {
-            summary = DailySummary(date: startOfDay)
-            context.insert(summary)
-        }
+        let summary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
 
         let quickFood = FoodItem(name: "Quick Entry", weight: 0, calories: Int(quickCalories), protein: 0, fats: 0, carbs: 0)
         context.insert(quickFood)
@@ -204,6 +197,7 @@ struct PremiumQuickAddSheet: View {
         }
 
         try? context.save()
+        WidgetReloader.reloadAll()
         dismiss()
     }
 }

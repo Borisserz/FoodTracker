@@ -93,7 +93,9 @@ enum OnboardingPersistence {
         targetUser.targetCarbs = Double(blueprint.carbsGrams)
         targetUser.targetWeight = blueprint.targetWeightKg
         targetUser.weightGoalType = blueprint.weightGoalType
+        targetUser.activityMultiplier = MetabolicBlueprintCalculator.activityMultiplier(for: metrics.activityLevel)
 
         try? context.save()
+        WidgetReloader.reloadAll()
     }
 }

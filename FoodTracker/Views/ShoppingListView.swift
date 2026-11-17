@@ -112,6 +112,11 @@ struct ShoppingListView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    private func saveAndReloadWidgets() {
+        try? context.save()
+        WidgetReloader.reloadAll()
+    }
+
     private func addManualItem() {
         let text = newItemName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
@@ -119,7 +124,7 @@ struct ShoppingListView: View {
         HapticManager.shared.impact(style: .light)
         let item = ShoppingItem(name: text)
         context.insert(item)
-        try? context.save()
+        saveAndReloadWidgets()
         newItemName = ""
     }
 
@@ -128,13 +133,13 @@ struct ShoppingListView: View {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             item.isChecked.toggle()
         }
-        try? context.save()
+        saveAndReloadWidgets()
     }
 
     private func deleteItem(_ item: ShoppingItem) {
         withAnimation {
             context.delete(item)
-            try? context.save()
+            saveAndReloadWidgets()
         }
     }
 
@@ -144,7 +149,7 @@ struct ShoppingListView: View {
             for item in completedItems {
                 context.delete(item)
             }
-            try? context.save()
+            saveAndReloadWidgets()
         }
     }
 }

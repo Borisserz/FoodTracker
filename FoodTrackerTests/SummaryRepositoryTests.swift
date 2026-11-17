@@ -79,4 +79,30 @@ final class SummaryRepositoryTests: XCTestCase {
         streak = try await repo.calculateCurrentStreak()
         XCTAssertEqual(streak, 3)
     }
+
+    func testEnsureSummaryMergesCloudKitDuplicates() async throws {
+        let repo = SummaryRepository(modelContainer: container)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let s1 = DailySummary(
+            date: today,
+            meals: [Meal(title: "Lunch", date: today, foodItems: [FoodItem(name: "Salad", weight: 200, calories: 320, protein: 12, fats: 18, carbs: 25)])]
+        )
+        let s2 = DailySummary(
+            date: today,
+            beverages: [Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 500)]
+        )
+        try await repo.saveSummary(s1)
+        try await repo.saveSummary(s2)
+
+        let ensured = try await repo.ensureSummary(for: today)
+        let fetched = try await repo.fetchSummaries(
+            startDate: today,
+            endDate: calendar.date(byAdding: .day, value: 1, to: today)!
+        )
+
+        XCTAssertEqual(fetched.count, 1)
+        XCTAssertEqual(ensured.totalFoodCalories, 320)
+        XCTAssertEqual(ensured.totalHydrationLiters, 0.5, accuracy: 0.01)
+    }
 }

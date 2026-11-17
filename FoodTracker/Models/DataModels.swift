@@ -64,6 +64,7 @@ struct Achievement: Identifiable {
     // Goals
     var targetWeight: Double?
     var weightGoalType: String? // "lose", "gain", "maintain"
+    var activityMultiplier: Double = 1.3
 
     init(name: String, weight: Double, height: Double, age: Int, gender: String = "Male") {
         self.name = name
@@ -89,12 +90,48 @@ struct Achievement: Identifiable {
 
     func calculateGoals() {
         let bmr: Double
-        if gender == "Male" {
-            bmr = (10 * weight) + (6.25 * height) - (Double(age) * 5) + 5
-        } else {
+        if gender == "Female" {
             bmr = (10 * weight) + (6.25 * height) - (Double(age) * 5) - 161
+        } else {
+            bmr = (10 * weight) + (6.25 * height) - (Double(age) * 5) + 5
         }
-        self.dailyCaloriesGoal = Int(bmr * 1.3)
+        let multiplier = activityMultiplier > 0 ? activityMultiplier : 1.3
+        let tdee = bmr * multiplier
+
+        switch weightGoalType {
+        case "lose":
+            self.dailyCaloriesGoal = max(1200, Int(tdee - 450))
+        case "gain":
+            self.dailyCaloriesGoal = Int(tdee + 350)
+        default:
+            self.dailyCaloriesGoal = max(1200, Int(tdee))
+        }
+    }
+
+    /// Recomputes macro targets (g) for the current `dailyCaloriesGoal`, preserving existing macro ratios when valid.
+    func recalculateMacrosPreservingRatios(fromPreviousCalories previousCalories: Int? = nil) {
+        let targetCalories = Double(max(dailyCaloriesGoal, 0))
+        guard targetCalories > 0 else { return }
+
+        let currentMacroCalories = (targetProtein * 4.0) + (targetFats * 9.0) + (targetCarbs * 4.0)
+        let baseline = currentMacroCalories > 0 ? currentMacroCalories : Double(previousCalories ?? 0)
+
+        if baseline > 0, currentMacroCalories > 0 {
+            let pRatio = (targetProtein * 4.0) / currentMacroCalories
+            let fRatio = (targetFats * 9.0) / currentMacroCalories
+            let cRatio = max(0, 1.0 - pRatio - fRatio)
+
+            self.targetProtein = (targetCalories * pRatio) / 4.0
+            self.targetFats = (targetCalories * fRatio) / 9.0
+            self.targetCarbs = (targetCalories * cRatio) / 4.0
+        } else {
+            let protein = max(0, weight * 2.1)
+            let fats = (targetCalories * 0.25) / 9.0
+            let carbs = max(100.0, (targetCalories - (protein * 4.0) - (fats * 9.0)) / 4.0)
+            self.targetProtein = protein
+            self.targetFats = fats
+            self.targetCarbs = carbs
+        }
     }
 
     func applyDietBreakdown(fatPercent: Int, proteinPercent: Int, carbsPercent: Int, dietKey: String) {
@@ -292,6 +329,77 @@ struct Achievement: Identifiable {
     func addActivity(_ activity: ActivityLog) {
         if activities == nil { activities = [] }
         activities?.append(activity)
+    }
+
+    /// Fetches the canonical DailySummary for `date`'s calendar day, merging any CloudKit-synced duplicates safely.
+    static func fetchExisting(for date: Date, in context: ModelContext, didMerge: inout Bool) -> DailySummary? {
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        guard let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) else {
+            return nil
+        }
+
+        let predicate = #Predicate<DailySummary> { summary in
+            summary.date >= startOfDay && summary.date < endOfDay
+        }
+        var descriptor = FetchDescriptor<DailySummary>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.date, order: .forward)]
+
+        guard let matches = try? context.fetch(descriptor), !matches.isEmpty else {
+            return nil
+        }
+        if matches.count > 1 { didMerge = true }
+        return mergeDuplicates(matches, in: context)
+    }
+
+    static func fetchExisting(for date: Date, in context: ModelContext) -> DailySummary? {
+        var ignored = false
+        return fetchExisting(for: date, in: context, didMerge: &ignored)
+    }
+
+    /// Fetches or inserts the single canonical DailySummary for `date`'s calendar day.
+    static func fetchOrCreate(for date: Date, in context: ModelContext) -> DailySummary {
+        if let existing = fetchExisting(for: date, in: context) {
+            return existing
+        }
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let newSummary = DailySummary(date: startOfDay)
+        context.insert(newSummary)
+        return newSummary
+    }
+
+    private static func mergeDuplicates(_ matches: [DailySummary], in context: ModelContext) -> DailySummary? {
+        guard let primary = matches.first else { return nil }
+        guard matches.count > 1 else { return primary }
+
+        for duplicate in matches.dropFirst() {
+            let dupMeals = duplicate.meals ?? []
+            duplicate.meals = []
+            for meal in dupMeals {
+                primary.addMeal(meal)
+            }
+
+            let dupBeverages = duplicate.beverages ?? []
+            duplicate.beverages = []
+            for beverage in dupBeverages {
+                primary.addBeverage(beverage)
+            }
+
+            let dupActivities = duplicate.activities ?? []
+            duplicate.activities = []
+            for activity in dupActivities {
+                primary.addActivity(activity)
+            }
+
+            primary.stepsCount = max(primary.stepsCount, duplicate.stepsCount)
+            primary.activeCaloriesBurned = max(primary.activeCaloriesBurned, duplicate.activeCaloriesBurned)
+            primary.workoutCalories = max(primary.workoutCalories, duplicate.workoutCalories)
+            if primary.weight == nil, let w = duplicate.weight { primary.weight = w }
+            if primary.dayNote.isEmpty, !duplicate.dayNote.isEmpty { primary.dayNote = duplicate.dayNote }
+            if primary.dayMoodEmoji.isEmpty, !duplicate.dayMoodEmoji.isEmpty { primary.dayMoodEmoji = duplicate.dayMoodEmoji }
+
+            context.delete(duplicate)
+        }
+        return primary
     }
 }
 

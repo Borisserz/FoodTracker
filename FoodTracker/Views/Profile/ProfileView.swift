@@ -211,20 +211,16 @@ struct EditProfileSheet: View {
 
     private func saveChanges() {
         HapticManager.shared.impact(style: .medium)
+        let previousCalories = user.dailyCaloriesGoal
         user.name = name
         user.weight = weight
         user.height = height
         user.age = age
         user.calculateGoals()
-
-        let totalCals = Double(user.dailyCaloriesGoal)
-        let pRatio = (user.targetProtein * 4.0) / totalCals
-        let fRatio = (user.targetFats * 9.0) / totalCals
-        let cRatio = 1.0 - pRatio - fRatio
-
-        user.applyDietBreakdown(fatPercent: Int(fRatio * 100), proteinPercent: Int(pRatio * 100), carbsPercent: Int(cRatio * 100), dietKey: user.activeDietKey)
+        user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)
 
         try? context.save()
+        WidgetReloader.reloadAll()
     }
 }
 

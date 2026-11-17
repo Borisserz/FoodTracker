@@ -12,6 +12,16 @@
 				<string>com.googleusercontent.apps.667537183554-d61rbgt3boe1s91uh12hth1o53vgp901</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.borisdev.FoodTracker2026.deeplink</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>foodtracker</string>
+			</array>
+		</dict>
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>FoodTracker needs access to your camera to scan food barcodes, and analyze photos of your meals and restaurant menus using AI for accurate nutritional estimation.</string>
@@ -23,5 +33,9 @@
 	<string>This identifier will be used to collect anonymous crash reports and improve app analytics.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

@@ -768,30 +768,17 @@ struct AIHydrationAnalyticsCard: View {
         generator.impactOccurred()
         
         let today = Calendar.current.startOfDay(for: Date())
-        var targetSummary: DailySummary? = summary
-        if targetSummary == nil {
-            let descriptor = FetchDescriptor<DailySummary>(
-                predicate: #Predicate<DailySummary> { $0.date == today }
-            )
-            if let existing = try? context.fetch(descriptor).first {
-                targetSummary = existing
-            } else {
-                let newSummary = DailySummary(date: today)
-                context.insert(newSummary)
-                targetSummary = newSummary
-            }
-        }
-        if let targetSummary = targetSummary {
-            let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
-            context.insert(newBeverage)
-            targetSummary.addBeverage(newBeverage)
-            try? context.save()
-            onUpdate()
-            
-            if let user = users.first, user.isHealthKitEnabled {
-                Task {
-                    await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: Date())
-                }
+        let targetSummary = summary ?? DailySummary.fetchOrCreate(for: today, in: context)
+        let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
+        context.insert(newBeverage)
+        targetSummary.addBeverage(newBeverage)
+        try? context.save()
+        WidgetReloader.reloadAll()
+        onUpdate()
+        
+        if let user = users.first, user.isHealthKitEnabled {
+            Task {
+                await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: Date())
             }
         }
     }
@@ -802,24 +789,15 @@ struct AIHydrationAnalyticsCard: View {
         generator.impactOccurred()
         
         let today = Calendar.current.startOfDay(for: Date())
-        var targetSummary: DailySummary? = summary
-        if targetSummary == nil {
-            let descriptor = FetchDescriptor<DailySummary>(
-                predicate: #Predicate<DailySummary> { $0.date == today }
-            )
-            if let existing = try? context.fetch(descriptor).first {
-                targetSummary = existing
+        guard let targetSummary = summary ?? DailySummary.fetchExisting(for: today, in: context) else { return }
+        if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" }) {
+            if let index = targetSummary.beverages?.firstIndex(of: lastWater) {
+                targetSummary.beverages?.remove(at: index)
             }
-        }
-        if let targetSummary = targetSummary {
-            if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" }) {
-                if let index = targetSummary.beverages?.firstIndex(of: lastWater) {
-                    targetSummary.beverages?.remove(at: index)
-                }
-                context.delete(lastWater)
-                try? context.save()
-                onUpdate()
-            }
+            context.delete(lastWater)
+            try? context.save()
+            WidgetReloader.reloadAll()
+            onUpdate()
         }
     }
     

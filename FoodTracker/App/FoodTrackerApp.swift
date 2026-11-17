@@ -202,6 +202,17 @@ struct ContentView: View {
         .onPreferenceChange(SpotlightFramePreferenceKey.self) { frames in
             SpotlightTourManager.shared.targetFrames = frames
         }
+        .onOpenURL { url in
+            _ = appState.handleWidgetURL(url)
+        }
+        .sheet(isPresented: Binding(
+            get: { appState.requestedWidgetAction == "shopping" },
+            set: { if !$0 { appState.requestedWidgetAction = nil } }
+        )) {
+            NavigationStack {
+                ShoppingListView()
+            }
+        }
         .onAppear {
             initializeUserIfNeeded()
             SpotlightTourManager.shared.startTourIfNeeded()

@@ -1238,6 +1238,7 @@ struct ChooseMealSheet: View {
             summary.addMeal(newMeal)
         }
         try? context.save()
+        WidgetReloader.reloadAll()
     }
 }
 

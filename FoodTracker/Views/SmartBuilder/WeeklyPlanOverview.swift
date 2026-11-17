@@ -163,14 +163,7 @@ struct WeeklyPlanOverview: View {
         HapticManager.shared.impact(style: .medium)
         
         let startOfDay = Calendar.current.startOfDay(for: Date())
-        var currentSummary: DailySummary
-        
-        if let existing = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
-            currentSummary = existing
-        } else {
-            currentSummary = DailySummary(date: startOfDay)
-            context.insert(currentSummary)
-        }
+        let currentSummary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
         
         if let day = selectedDay {
             for planMeal in (day.meals ?? []) {
@@ -184,6 +177,7 @@ struct WeeklyPlanOverview: View {
         }
         
         try? context.save()
+        WidgetReloader.reloadAll()
         
         withAnimation {
             showSuccessToast = true
@@ -213,6 +207,7 @@ struct WeeklyPlanOverview: View {
         }
         
         try? context.save()
+        WidgetReloader.reloadAll()
         
         withAnimation {
             showGrocerySuccess = true

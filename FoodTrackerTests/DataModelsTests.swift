@@ -123,4 +123,60 @@ final class DataModelsTests: XCTestCase {
             }
         }
     }
+
+    func testUserCalculateGoalsRespectsActivityAndWeightGoalType() {
+        let user = User(name: "Alex", weight: 80, height: 180, age: 30, gender: "Male")
+        user.activityMultiplier = 1.55
+        user.weightGoalType = "lose"
+        user.calculateGoals()
+
+        // BMR = 1780; TDEE = 2759; lose = 2759 - 450 = 2309
+        XCTAssertEqual(user.dailyCaloriesGoal, 2309)
+
+        user.recalculateMacrosPreservingRatios(fromPreviousCalories: 2759)
+        XCTAssertGreaterThan(user.targetProtein, 0)
+        XCTAssertGreaterThan(user.targetFats, 0)
+        XCTAssertGreaterThan(user.targetCarbs, 0)
+        let macroCals = user.targetProtein * 4.0 + user.targetFats * 9.0 + user.targetCarbs * 4.0
+        XCTAssertEqual(macroCals, Double(user.dailyCaloriesGoal), accuracy: 30.0)
+
+        user.weightGoalType = "gain"
+        user.calculateGoals()
+        XCTAssertEqual(user.dailyCaloriesGoal, 3109) // 2759 + 350
+    }
+
+    func testDailySummaryFetchOrCreateMergesDuplicates() throws {
+        let day = Calendar.current.startOfDay(for: Date())
+        let first = DailySummary(
+            date: day,
+            meals: [Meal(title: "Breakfast", date: day, foodItems: [FoodItem(name: "Eggs", weight: 100, calories: 155, protein: 13, fats: 11, carbs: 1)])]
+        )
+        let second = DailySummary(
+            date: day,
+            beverages: [Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 300)],
+            activities: [ActivityLog(title: "Walk", icon: "figure.walk", durationMinutes: 20, calories: 90)]
+        )
+        second.stepsCount = 5400
+
+        context.insert(first)
+        context.insert(second)
+        try context.save()
+
+        let merged = DailySummary.fetchOrCreate(for: day, in: context)
+        try context.save()
+
+        let remaining = try context.fetch(FetchDescriptor<DailySummary>())
+        XCTAssertEqual(remaining.count, 1)
+        XCTAssertEqual(merged.totalFoodCalories, 155)
+        XCTAssertEqual(merged.totalHydrationLiters, 0.3, accuracy: 0.01)
+        XCTAssertEqual(merged.localActivityCalories, 90)
+        XCTAssertEqual(merged.stepsCount, 5400)
+    }
+
+    func testSharedModelContainerFallsBackWithoutCrashing() {
+        let schema = Schema([User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self])
+        let unreachableURL = URL(fileURLWithPath: "/System/Library/NonWritablePath/\(UUID().uuidString)/Food.sqlite")
+        let container = SharedModelContainer.makeContainer(schema: schema, url: unreachableURL, enableCloudKit: false)
+        XCTAssertNotNil(container)
+    }
 }

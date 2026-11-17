@@ -37,4 +37,21 @@ final class AppStateManagerTests: XCTestCase {
         let state = AppStateManager()
         XCTAssertTrue(state.hasCompletedOnboarding)
     }
+
+    func testHandleWidgetDeepLinks() {
+        let state = AppStateManager()
+
+        XCTAssertTrue(state.handleWidgetURL(URL(string: "foodtracker://metabolic")!))
+        XCTAssertEqual(state.selectedTab, 3)
+        XCTAssertEqual(state.requestedWidgetAction, "metabolic")
+
+        XCTAssertTrue(state.handleWidgetURL(URL(string: "foodtracker://hydration")!))
+        XCTAssertEqual(state.selectedTab, 0)
+        XCTAssertEqual(state.requestedWidgetAction, "hydration")
+
+        XCTAssertTrue(state.handleWidgetURL(URL(string: "foodtracker://shopping")!))
+        XCTAssertEqual(state.requestedWidgetAction, "shopping")
+
+        XCTAssertFalse(state.handleWidgetURL(URL(string: "https://example.com/other")!))
+    }
 }

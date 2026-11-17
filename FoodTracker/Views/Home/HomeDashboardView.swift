@@ -426,6 +426,7 @@ struct HomeDashboardContentView: View {
 
         // Ensured via repo task; save on main context for live @Query updates.
         try? context.save()
+        WidgetReloader.reloadAll()
         AppReviewManager.shared.userDidLogMeal()
         
         let addedCals = newFoodItems.reduce(0) { $0 + $1.calories }
@@ -902,16 +903,7 @@ struct MealDetailView: View {
     }
     private func addFoodsToMeal(items: [FoodItem]) {
         let startOfDay = Calendar.current.startOfDay(for: date)
-        let summary: DailySummary
-
-        if let existingSummary = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
-            summary = existingSummary
-        } else {
-            // Creation is now handled by the repo ensure (called from .task on date change).
-            // If still missing, the caller should have ensured; fall back to local create + main insert for this flow.
-            summary = DailySummary(date: startOfDay)
-            context.insert(summary)
-        }
+        let summary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
 
         var newFoodItems: [FoodItem] = []
         for item in items {
@@ -936,6 +928,7 @@ struct MealDetailView: View {
 
         // Ensured via repo task; save on main context for live @Query updates.
         try? context.save()
+        WidgetReloader.reloadAll()
     }
 }
 

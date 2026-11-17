@@ -147,6 +147,7 @@ struct WaterGridTrackerView: View {
                context.insert(newBeverage)
                summary.addBeverage(newBeverage)
                try? context.save()
+               WidgetReloader.reloadAll()
            }
 
            if let user = users.first, user.isHealthKitEnabled {
@@ -165,6 +166,7 @@ struct WaterGridTrackerView: View {
             }
             context.delete(lastWater)
             try? context.save()
+            WidgetReloader.reloadAll()
         }
     }
 }

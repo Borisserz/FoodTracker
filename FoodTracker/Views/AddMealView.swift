@@ -347,14 +347,7 @@ struct AddMealView: View {
     private func saveMealAndDismiss() {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
-        
-        let summaryToUse: DailySummary
-        if let existingSummary = summaries.first {
-            summaryToUse = existingSummary
-        } else {
-            summaryToUse = DailySummary(date: startOfDay)
-            modelContext.insert(summaryToUse)
-        }
+        let summaryToUse = DailySummary.fetchOrCreate(for: startOfDay, in: modelContext)
         
         if let existingMeal = (summaryToUse.meals ?? []).first(where: { $0.title == selectedMealType }) {
             // Delete removed items
@@ -372,6 +365,7 @@ struct AddMealView: View {
         
         do {
             try modelContext.save()
+            WidgetReloader.reloadAll()
             dismiss()
         } catch {
             print("Failed to save meal: \(error.localizedDescription)")

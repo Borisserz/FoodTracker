@@ -13,31 +13,14 @@ struct AddWaterIntent: AppIntent {
         await MainActor.run {
             let container = SharedModelContainer.shared.container
             let context = container.mainContext
-            
-            // Find today's DailySummary
-            let calendar = Calendar.current
-            let todayStart = calendar.startOfDay(for: Date())
-            let tomorrow = calendar.date(byAdding: .day, value: 1, to: todayStart)!
-            
-            let descriptor = FetchDescriptor<DailySummary>(
-                predicate: #Predicate<DailySummary> { $0.date >= todayStart && $0.date < tomorrow }
-            )
-            
+
             do {
-                if let todaySummary = try context.fetch(descriptor).first {
-                    // Add a beverage entry (250ml)
-                    let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250.0)
-                    todaySummary.beverages = (todaySummary.beverages ?? []) + [newBeverage]
-                    
-                    try context.save()
-                } else {
-                    // Create new summary if it doesn't exist
-                    let newSummary = DailySummary(date: Date())
-                    let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250.0)
-                    newSummary.beverages = (newSummary.beverages ?? []) + [newBeverage]
-                    context.insert(newSummary)
-                    try context.save()
-                }
+                let todaySummary = DailySummary.fetchOrCreate(for: Date(), in: context)
+                let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250.0)
+                context.insert(newBeverage)
+                todaySummary.addBeverage(newBeverage)
+                try context.save()
+                WidgetReloader.reloadAll()
             } catch {
                 print("Failed to add water from intent: \(error)")
             }
@@ -74,6 +57,7 @@ struct ToggleShoppingItemIntent: AppIntent {
             if let item = try? context.fetch(descriptor).first {
                 item.isChecked.toggle()
                 try? context.save()
+                WidgetReloader.reloadAll()
             }
         }
         return .result()

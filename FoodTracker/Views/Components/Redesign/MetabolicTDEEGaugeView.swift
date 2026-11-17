@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 import Charts
 
 // MARK: - Metabolic TDEE & Goal Archetype Card View
 struct MetabolicTDEEGaugeView: View {
+    @Environment(\.modelContext) private var context
     @Bindable var user: User
     let currentWeight: Double
     let targetWeight: Double?
@@ -18,9 +20,25 @@ struct MetabolicTDEEGaugeView: View {
         
         var localizedTitle: String {
             switch self {
-            case .cut: return "Сушка / Cut"
-            case .leanBulk: return "Набор / Bulk"
-            case .longevity: return "Баланс"
+            case .cut: return String(localized: "Cut / Fat Loss")
+            case .leanBulk: return String(localized: "Lean Bulk")
+            case .longevity: return String(localized: "Maintain")
+            }
+        }
+
+        var goalTypeKey: String {
+            switch self {
+            case .cut: return "lose"
+            case .leanBulk: return "gain"
+            case .longevity: return "maintain"
+            }
+        }
+
+        static func from(goalType: String?) -> GoalArchetype {
+            switch goalType {
+            case "lose": return .cut
+            case "gain": return .leanBulk
+            default: return .longevity
             }
         }
         
@@ -34,9 +52,9 @@ struct MetabolicTDEEGaugeView: View {
         
         var subtitle: String {
             switch self {
-            case .cut: return "Дефицит -300 ккал"
-            case .leanBulk: return "Профицит +250 ккал"
-            case .longevity: return "Поддержание"
+            case .cut: return String(localized: "-450 kcal deficit")
+            case .leanBulk: return String(localized: "+350 kcal surplus")
+            case .longevity: return String(localized: "Maintenance")
             }
         }
         
@@ -61,13 +79,14 @@ struct MetabolicTDEEGaugeView: View {
         } else {
             bmr = 10 * weight + 6.25 * height - 5 * age + 5
         }
-        return Int(bmr * 1.45) // moderate activity factor
+        let multiplier = user.activityMultiplier > 0 ? user.activityMultiplier : 1.3
+        return Int(bmr * multiplier)
     }
     
     private var targetCalorieRecommendation: Int {
         switch selectedArchetype {
-        case .cut: return max(1200, tdeeValue - 350)
-        case .leanBulk: return tdeeValue + 250
+        case .cut: return max(1200, tdeeValue - 450)
+        case .leanBulk: return tdeeValue + 350
         case .longevity: return tdeeValue
         }
     }
@@ -77,10 +96,10 @@ struct MetabolicTDEEGaugeView: View {
             // Section Header
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("МЕТАБОЛИЧЕСКИЙ ДВИЖОК")
+                    Text(String(localized: "METABOLIC ENGINE"))
                         .font(.system(size: 11, weight: .black, design: .monospaced))
                         .foregroundStyle(selectedArchetype.color)
-                    Text("Целевая стратегия")
+                    Text(String(localized: "Target Strategy"))
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.primary)
                 }
@@ -95,8 +114,13 @@ struct MetabolicTDEEGaugeView: View {
                         generator.prepare()
                         generator.impactOccurred()
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                            let previousCalories = user.dailyCaloriesGoal
                             selectedArchetype = archetype
-                            user.weightGoalType = archetype == .cut ? "lose" : (archetype == .leanBulk ? "gain" : "maintain")
+                            user.weightGoalType = archetype.goalTypeKey
+                            user.calculateGoals()
+                            user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)
+                            try? context.save()
+                            WidgetReloader.reloadAll()
                         }
                     }) {
                         VStack(alignment: .leading, spacing: 6) {
@@ -137,7 +161,7 @@ struct MetabolicTDEEGaugeView: View {
             VStack(spacing: 12) {
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Базовый расход (TDEE)")
+                        Text(String(localized: "Maintenance (TDEE)"))
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Color.secondary)
                         
@@ -145,7 +169,7 @@ struct MetabolicTDEEGaugeView: View {
                             Text("\(tdeeValue)")
                                 .font(.system(size: 28, weight: .heavy, design: .rounded))
                                 .foregroundStyle(Color.primary)
-                            Text("ккал/день")
+                            Text(String(localized: "kcal/day"))
                                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Color.secondary)
                         }
@@ -154,7 +178,7 @@ struct MetabolicTDEEGaugeView: View {
                     Spacer()
                     
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("Рекомендация")
+                        Text(String(localized: "Recommended"))
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(selectedArchetype.color)
                         
@@ -162,7 +186,7 @@ struct MetabolicTDEEGaugeView: View {
                             Text("\(targetCalorieRecommendation)")
                                 .font(.system(size: 28, weight: .heavy, design: .rounded))
                                 .foregroundStyle(selectedArchetype.color)
-                            Text("ккал")
+                            Text(String(localized: "kcal"))
                                 .font(.system(size: 13, weight: .bold, design: .rounded))
                                 .foregroundStyle(selectedArchetype.color)
                         }
@@ -208,5 +232,11 @@ struct MetabolicTDEEGaugeView: View {
                 .strokeBorder(selectedArchetype.color.opacity(0.25), lineWidth: 1.2)
         )
         .shadow(color: Color.black.opacity(0.04), radius: 15, y: 6)
+        .onAppear {
+            selectedArchetype = GoalArchetype.from(goalType: user.weightGoalType)
+        }
+        .onChange(of: user.weightGoalType) { _, newValue in
+            selectedArchetype = GoalArchetype.from(goalType: newValue)
+        }
     }
 }

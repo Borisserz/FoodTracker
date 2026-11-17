@@ -161,6 +161,7 @@ struct QuickActivityAddView: View {
         context.insert(log)
         summary.addActivity(log)
         try? context.save()
+        WidgetReloader.reloadAll()
         
         Task {
             await HealthKitManager.shared.saveWorkout(activityType: activity.hkType, calories: cals, durationMinutes: duration, date: Date())

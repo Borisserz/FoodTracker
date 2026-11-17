@@ -16,22 +16,18 @@ actor SummaryRepository: SummaryRepositoryProtocol {
     // We removed the custom init to avoid redeclaration with the synthesized one.
 
     func fetchSummary(for date: Date) async throws -> DailySummary? {
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
-
-        let predicate = #Predicate<DailySummary> { summary in
-            summary.date >= startOfDay && summary.date < endOfDay
+        var didMerge = false
+        let summary = DailySummary.fetchExisting(for: date, in: modelContext, didMerge: &didMerge)
+        if didMerge {
+            try modelContext.save()
         }
-
-        var fetchDescriptor = FetchDescriptor<DailySummary>(predicate: predicate)
-        fetchDescriptor.fetchLimit = 1
-
-        return try modelContext.fetch(fetchDescriptor).first
+        return summary
     }
 
     func saveSummary(_ summary: DailySummary) async throws {
         modelContext.insert(summary)
         try modelContext.save()
+        WidgetReloader.reloadAll()
     }
 
     func fetchAllTimeCalories() async throws -> Int {
