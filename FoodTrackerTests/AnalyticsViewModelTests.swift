@@ -50,4 +50,18 @@ final class AnalyticsViewModelTests: XCTestCase {
         // It fetches at least 14 days for heatmaps, so lastMonth shouldn't be included.
         XCTAssertEqual(viewModel.summaries.count, 2)
     }
+
+    func testLoadDataIncludesStartOfDayOnOldestDayInPeriod() async throws {
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        let fourteenDaysAgoStart = calendar.date(byAdding: .day, value: -14, to: todayStart)!
+
+        try await repository.saveSummary(DailySummary(date: fourteenDaysAgoStart))
+
+        viewModel.loadData(for: .week)
+        try await Task.sleep(nanoseconds: 150_000_000)
+
+        XCTAssertEqual(viewModel.summaries.count, 1)
+        XCTAssertTrue(calendar.isDate(try XCTUnwrap(viewModel.summaries.first?.date), inSameDayAs: fourteenDaysAgoStart))
+    }
 }

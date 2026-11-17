@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 struct ScaledNutritionValues: Equatable {
     let weight: Double
@@ -297,5 +298,108 @@ enum NutritionMath {
             fat: max(0, fatGoal - eatenFat),
             carbs: max(0, carbGoal - eatenCarbs)
         )
+    }
+
+    // MARK: - Weight & Achievement Synchronization
+
+    /// Persists a weight entry across WeightLog, DailySummary.weight, User.weight, and macro goals.
+    @MainActor
+    static func recordWeight(
+        _ newWeight: Double,
+        date: Date = Date(),
+        for user: User?,
+        in context: ModelContext,
+        recalculateUserGoals: Bool = true
+    ) {
+        guard newWeight > 0 else { return }
+
+        let log = WeightLog(date: date, weight: newWeight)
+        context.insert(log)
+
+        let summary = DailySummary.fetchOrCreate(for: date, in: context)
+        summary.weight = newWeight
+
+        if let user {
+            let calendar = Calendar.current
+            let existingLogs = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)]))) ?? []
+            let latestOtherDate = existingLogs.first(where: { $0.persistentModelID != log.persistentModelID })?.date
+
+            let isCurrentOrNewest = calendar.isDateInToday(date) || latestOtherDate.map { date >= $0 } ?? true
+            if isCurrentOrNewest {
+                user.weight = newWeight
+                if recalculateUserGoals {
+                    let previousCalories = user.dailyCaloriesGoal
+                    user.calculateGoals()
+                    user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)
+                }
+            }
+        }
+
+        try? context.save()
+        WidgetReloader.reloadAll()
+    }
+
+    /// Calculates the consecutive active logging streak ending today or yesterday.
+    static func consecutiveStreak(
+        from summaries: [DailySummary],
+        relativeTo referenceDate: Date = Date(),
+        calendar: Calendar = .current
+    ) -> Int {
+        var dayHasCalories: Set<Date> = []
+        for summary in summaries where summary.totalCalories > 0 {
+            dayHasCalories.insert(calendar.startOfDay(for: summary.date))
+        }
+
+        let sortedDays = dayHasCalories.sorted(by: >)
+        guard let firstDay = sortedDays.first else { return 0 }
+
+        let today = calendar.startOfDay(for: referenceDate)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        guard firstDay == today || firstDay == yesterday else { return 0 }
+
+        var streak = 1
+        var currentDay = firstDay
+        for day in sortedDays.dropFirst() {
+            if let expected = calendar.date(byAdding: .day, value: -1, to: currentDay), day == expected {
+                streak += 1
+                currentDay = day
+            } else {
+                break
+            }
+        }
+        return streak
+    }
+
+    /// Updates user.streakDays and unlocks earned achievements without duplicating entries.
+    @MainActor
+    static func syncStreakAndAchievements(
+        for user: User,
+        summaries: [DailySummary],
+        referenceDate: Date = Date(),
+        calendar: Calendar = .current
+    ) {
+        let streak = consecutiveStreak(from: summaries, relativeTo: referenceDate, calendar: calendar)
+        user.streakDays = streak
+
+        var hydrationByDay: [Date: Double] = [:]
+        var hasLoggedAnyCalories = false
+        for summary in summaries {
+            let day = calendar.startOfDay(for: summary.date)
+            if summary.totalCalories > 0 {
+                hasLoggedAnyCalories = true
+            }
+            hydrationByDay[day, default: 0] += summary.totalHydrationLiters
+        }
+
+        func unlock(_ id: String) {
+            if !user.unlockedAchievements.contains(id) {
+                user.unlockedAchievements.append(id)
+            }
+        }
+
+        if hasLoggedAnyCalories { unlock("first_log") }
+        if streak >= 3 { unlock("streak_3") }
+        if streak >= 7 { unlock("streak_7") }
+        if hydrationByDay.values.contains(where: { $0 >= 2.5 }) { unlock("water_pro") }
     }
 }

@@ -9,6 +9,7 @@ struct WeightTrackerCardView: View {
 
     @Query(sort: \DailySummary.date, order: .reverse)
     private var allSummaries: [DailySummary]
+    @Query private var users: [User]
 
     @State private var showingWeightInputSheet = false
 
@@ -137,11 +138,19 @@ struct WeightTrackerCardView: View {
                     WeightInputSheet(
                         currentWeight: $summary.weight,
                         onSave: {
-
-                            if summary.modelContext == nil {
-                                context.insert(summary)
+                            if let enteredWeight = summary.weight, enteredWeight > 0 {
+                                NutritionMath.recordWeight(
+                                    enteredWeight,
+                                    date: summary.date,
+                                    for: users.first,
+                                    in: context
+                                )
+                            } else {
+                                if summary.modelContext == nil {
+                                    context.insert(summary)
+                                }
+                                try? context.save()
                             }
-                            try? context.save()
                         }
                     )
                     .presentationDetents([.fraction(0.4), .medium])

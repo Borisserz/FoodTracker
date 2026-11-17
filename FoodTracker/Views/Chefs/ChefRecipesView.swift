@@ -162,10 +162,10 @@ struct RecipesContainerView: View {
 
             TabView(selection: $selectedTab) {
 
-                 DiscoverTabView(path: $path, allRecipes: dataLoader.recipes)
+                 DiscoverTabView(path: $path, allRecipes: dataLoader.recipes, searchText: searchText)
                      .tag(0)
 
-                 MyRecipesTabView(path: $path, customRecipes: customRecipes, allRecipes: dataLoader.recipes)
+                 MyRecipesTabView(path: $path, customRecipes: customRecipes, allRecipes: dataLoader.recipes, searchText: searchText)
                      .tag(1)
              }
              .tabViewStyle(.page(indexDisplayMode: .never))
@@ -224,6 +224,21 @@ struct TabButton: View {
 struct DiscoverTabView: View {
     @Binding var path: NavigationPath
     let allRecipes: [PremiumRecipe]
+    let searchText: String
+
+    private var trimmedQuery: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var searchedRecipes: [PremiumRecipe] {
+        guard !trimmedQuery.isEmpty else { return allRecipes }
+        return allRecipes.filter { recipe in
+            recipe.title.localizedCaseInsensitiveContains(trimmedQuery) ||
+            recipe.description.localizedCaseInsensitiveContains(trimmedQuery) ||
+            recipe.tags.contains(where: { $0.localizedCaseInsensitiveContains(trimmedQuery) }) ||
+            recipe.ingredients.contains(where: { $0.name.localizedCaseInsensitiveContains(trimmedQuery) })
+        }
+    }
 
     let calorieRanges = [
         ("Under 300", Color.green, 0, 300),
@@ -251,6 +266,32 @@ struct DiscoverTabView: View {
         let chefsSpecials = Array(pool.prefix(6))
 
         return ScrollView(showsIndicators: false) {
+            if !trimmedQuery.isEmpty {
+                if searchedRecipes.isEmpty {
+                    EmptyStateView(
+                        imageName: "magnifyingglass",
+                        title: "No Recipes Found",
+                        description: "Try a different ingredient or recipe keyword."
+                    )
+                    .padding(.top, 60)
+                    .padding(.bottom, 120)
+                } else {
+                    LazyVStack(spacing: 20) {
+                        ForEach(searchedRecipes) { recipe in
+                            Button(action: {
+                                HapticManager.shared.impact(style: .light)
+                                path.append(FoodsRoute.premiumRecipeDetail(recipe))
+                            }) {
+                                PremiumRecipeCard(recipe: recipe)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                    .padding(.top, 10)
+                    .padding(.bottom, 120)
+                }
+            } else {
             VStack(spacing: 32) {
 
                 VStack(alignment: .leading, spacing: 16) {
@@ -320,6 +361,7 @@ struct DiscoverTabView: View {
 
             }
             .padding(.bottom, 120)
+            }
         }
     }
 
@@ -432,9 +474,29 @@ struct MyRecipesTabView: View {
     @Binding var path: NavigationPath
     let customRecipes: [CustomRecipe]
     let allRecipes: [PremiumRecipe]
+    let searchText: String
     @Environment(\.modelContext) private var context
 
-    var favoriteRecipes: [PremiumRecipe] { allRecipes.filter { $0.isFavorite } }
+    private var trimmedQuery: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var filteredCustomRecipes: [CustomRecipe] {
+        guard !trimmedQuery.isEmpty else { return customRecipes }
+        return customRecipes.filter {
+            $0.name.localizedCaseInsensitiveContains(trimmedQuery) ||
+            $0.info.localizedCaseInsensitiveContains(trimmedQuery)
+        }
+    }
+
+    var favoriteRecipes: [PremiumRecipe] {
+        let favs = allRecipes.filter { $0.isFavorite }
+        guard !trimmedQuery.isEmpty else { return favs }
+        return favs.filter {
+            $0.title.localizedCaseInsensitiveContains(trimmedQuery) ||
+            $0.description.localizedCaseInsensitiveContains(trimmedQuery)
+        }
+    }
 
     private func deleteCustomRecipe(_ recipe: CustomRecipe) {
         HapticManager.shared.impact(style: .medium)
@@ -486,7 +548,7 @@ struct MyRecipesTabView: View {
                         .font(.title2).bold()
                         .padding(.horizontal, 20)
 
-                    if customRecipes.isEmpty {
+                    if filteredCustomRecipes.isEmpty {
                         EmptyStateView(
                             imageName: "frying.pan",
                             title: "No custom recipes yet",
@@ -495,7 +557,7 @@ struct MyRecipesTabView: View {
                         .frame(height: 150)
                     } else {
                         LazyVStack(spacing: 16) {
-                            ForEach(customRecipes) { recipe in
+                            ForEach(filteredCustomRecipes) { recipe in
                                 Button(action: {
                                     HapticManager.shared.impact(style: .light)
                                     path.append(FoodsRoute.recipeDetail(recipe))
@@ -932,6 +994,11 @@ struct PremiumRecipeDetailView: View {
     private var dynamicFat: Int { Int(recipe.fat * Double(recipe.baseServings) * multiplier) }
     private var dynamicCarbs: Int { Int(recipe.carbs * Double(recipe.baseServings) * multiplier) }
 
+    private var shareRecipeText: String {
+        let ingredientsList = recipe.ingredients.map { "• \($0.name) (\($0.amount))" }.joined(separator: "\n")
+        return "\(recipe.title)\n\(dynamicCalories) Cal • P \(dynamicProtein)g / F \(dynamicFat)g / C \(dynamicCarbs)g\n\n\(recipe.description)\n\n\(ingredientsList)"
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.themeBg.ignoresSafeArea()
@@ -1008,6 +1075,7 @@ struct PremiumRecipeDetailView: View {
                                                                     context.insert(item)
                                                                 }
                                                                 try? context.save()
+                                                                WidgetReloader.reloadAll()
 
                                                             }) {
                                                                 HStack(spacing: 4) {
@@ -1103,7 +1171,7 @@ struct PremiumRecipeDetailView: View {
                     Spacer(); Text("Recipe Info").font(.headline).foregroundColor(.white).shadow(radius: 2); Spacer()
                     HStack(spacing: 12) {
 
-                        Button(action: {  }) {
+                        ShareLink(item: shareRecipeText) {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.title3)
                                 .foregroundColor(.white)

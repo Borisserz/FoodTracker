@@ -458,6 +458,7 @@ struct AddWeightLogSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) var dismiss
     @Environment(ThemeManager.self) private var themeManager
+    @Query private var users: [User]
     
     @State private var weight: Double
     @State private var date: Date = Date()
@@ -571,9 +572,7 @@ struct AddWeightLogSheet: View {
     }
     
     private func saveLog() {
-        let log = WeightLog(date: date, weight: weight)
-        context.insert(log)
-        try? context.save()
+        NutritionMath.recordWeight(weight, date: date, for: users.first, in: context)
         HapticManager.shared.notification(type: .success)
         dismiss()
     }

@@ -25,8 +25,9 @@ public final class SharedModelContainer: @unchecked Sendable {
         
         let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.borisdev.WorkoutTracker") ?? FileManager.default.temporaryDirectory
         let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
+        let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
 
-        self.container = Self.makeContainer(schema: schema, url: dbURL, enableCloudKit: true)
+        self.container = Self.makeContainer(schema: schema, url: dbURL, enableCloudKit: !isExtension)
     }
 
     public static func makeContainer(schema: Schema, url: URL, enableCloudKit: Bool = true) -> ModelContainer {

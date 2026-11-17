@@ -41,4 +41,12 @@ final class DietModelTests: XCTestCase {
         let beef = FoodItem(name: "Beef Steak", weight: 100, calories: 250, protein: 26, fats: 15, carbs: 0)
         XCTAssertEqual(beef.compatibility(with: veganDiet), .avoid)
     }
+
+    func testDietAndFastingLoadersProvideOfflineDefaults() {
+        let diets = DietDataLoader.defaultOfflineDiets()
+        let plans = FastingDataLoader.defaultOfflinePlans()
+
+        XCTAssertEqual(diets.count, DietPlan.defaultDiets.count)
+        XCTAssertEqual(plans.count, FastingPlan.defaultPlans.count)
+    }
 }

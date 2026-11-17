@@ -204,6 +204,11 @@ struct ContentView: View {
         .onOpenURL { url in
             _ = appState.handleWidgetURL(url)
         }
+        .onChange(of: appState.requestedWidgetAction) { _, newAction in
+            if newAction == "metabolic" || newAction == "analytics" {
+                appState.requestedWidgetAction = nil
+            }
+        }
         .sheet(isPresented: Binding(
             get: { appState.requestedWidgetAction == "shopping" },
             set: { if !$0 { appState.requestedWidgetAction = nil } }

@@ -14,6 +14,7 @@ struct HomeDashboardView: View {
 struct HomeDashboardContentView: View {
     @Environment(\.modelContext) private var context
     @Environment(DIContainer.self) private var di
+    @Environment(AppStateManager.self) private var appState
     @Query private var users: [User]
     @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
     @Environment(\.scenePhase) private var scenePhase
@@ -103,6 +104,7 @@ struct HomeDashboardContentView: View {
                       await ensureCurrentSummary()
                   }
 
+                  ScrollViewReader { scrollProxy in
                   ScrollView(showsIndicators: false) {
                       VStack(spacing: 24) {
                           HeaderView(selectedDate: selectedDate, user: currentUser, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
@@ -110,6 +112,7 @@ struct HomeDashboardContentView: View {
                           InsightsWidget(summary: currentSummary, user: currentUser)
 
                           DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
+                              .id("macro_rings")
                               .spotlightTarget(step: .macroRings)
                               .padding(.bottom, 8)
 
@@ -152,6 +155,7 @@ struct HomeDashboardContentView: View {
                           .spotlightTarget(step: .aiChef)
 
                           HydrationFlaskCardView(summary: currentSummary)
+                              .id("hydration_card")
                               .spotlightTarget(step: .fastingWater)
                               .padding(.horizontal)
                           WeightTrackerCardView(summary: currentSummary).padding(.horizontal)
@@ -184,6 +188,13 @@ struct HomeDashboardContentView: View {
                   }
                   .blur(radius: isMenuExpanded ? 4 : 0)
                   .disabled(isMenuExpanded)
+                  .onAppear {
+                      handleWidgetScrollIfNeeded(with: scrollProxy)
+                  }
+                  .onChange(of: appState.requestedWidgetAction) { _, _ in
+                      handleWidgetScrollIfNeeded(with: scrollProxy)
+                  }
+                  } // ScrollViewReader
                   
                   if isMenuExpanded {
                       Color.black.opacity(0.25)
@@ -279,6 +290,13 @@ struct HomeDashboardContentView: View {
               .onAppear {
                   TrackingManager.shared.track(.appOpened(source: "home_dashboard"))
                   Task { allTimeCalories = (try? await di.summaryRepository.fetchAllTimeCalories()) ?? 0 }
+                  syncStreakAndAchievements()
+              }
+              .onChange(of: currentSummary.totalCalories) { _, _ in
+                  syncStreakAndAchievements()
+              }
+              .onChange(of: currentSummary.totalHydrationLiters) { _, _ in
+                  syncStreakAndAchievements()
               }
               .onChange(of: scenePhase) { _, newPhase in
                   if newPhase == .active {
@@ -436,6 +454,32 @@ struct HomeDashboardContentView: View {
         let card = MealShareCard(summary: currentSummary)
         ShareSheetManager.renderAndShare(view: card, title: "My Nutrition Day")
     }
+
+    private func syncStreakAndAchievements() {
+        guard let user = currentUser else { return }
+        NutritionMath.syncStreakAndAchievements(for: user, summaries: summaries)
+        if context.hasChanges {
+            try? context.save()
+        }
+    }
+
+    private func handleWidgetScrollIfNeeded(with proxy: ScrollViewProxy) {
+        guard let action = appState.requestedWidgetAction else { return }
+        switch action {
+        case "hydration":
+            appState.requestedWidgetAction = nil
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                proxy.scrollTo("hydration_card", anchor: .center)
+            }
+        case "macros":
+            appState.requestedWidgetAction = nil
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                proxy.scrollTo("macro_rings", anchor: .center)
+            }
+        default:
+            break
+        }
+    }
     
     private func finishDayAndCalculateXP() {
         HapticManager.shared.impact(style: .medium)
@@ -522,7 +566,7 @@ struct HeaderView: View {
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundColor(.textGray)
                     
-                    StreakFireBadgeView(streakDays: max(1, user?.streakDays ?? 1))
+                    StreakFireBadgeView(streakDays: user?.streakDays ?? 0)
                         .spotlightTarget(step: .streakFire)
                 }
             }
@@ -2009,25 +2053,39 @@ struct SmartAddFoodView: View {
 
     private func performSearch(query: String) {
         searchTask?.cancel()
-        guard query.count > 2 else {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
             apiSearchResults = []
             isSearchingAPI = false
             return
         }
-        isSearchingAPI = true
+
+        let localResults = LocalFoodDatabaseService.shared.search(query: trimmed, limit: 20)
+        apiSearchResults = localResults
+
+        guard trimmed.count > 2 else {
+            isSearchingAPI = false
+            return
+        }
+
+        // Only show loading spinner when there are no immediate offline hits
+        isSearchingAPI = localResults.isEmpty
         searchTask = Task {
             do {
-                try await Task.sleep(nanoseconds: 500_000_000)
+                try await Task.sleep(nanoseconds: 400_000_000)
                 guard !Task.isCancelled else { return }
-                let results = await NetworkManager.shared.searchFoodByText(query: query)
+                let remoteResults = await NetworkManager.shared.searchFoodByText(query: trimmed)
                 await MainActor.run {
-                    if !Task.isCancelled {
-                        self.apiSearchResults = results
-                        self.isSearchingAPI = false
-                    }
+                    guard !Task.isCancelled else { return }
+                    let existingNames = Set(localResults.map { $0.name.lowercased() })
+                    let uniqueRemote = remoteResults.filter { !existingNames.contains($0.name.lowercased()) }
+                    self.apiSearchResults = localResults + uniqueRemote
+                    self.isSearchingAPI = false
                 }
             } catch {
-                if !Task.isCancelled { await MainActor.run { self.isSearchingAPI = false } }
+                if !Task.isCancelled {
+                    await MainActor.run { self.isSearchingAPI = false }
+                }
             }
         }
     }

@@ -4,7 +4,7 @@ struct ShareSheetManager {
     
     @MainActor
     static func renderAndShare<V: View>(view: V, title: String) {
-        let renderer = ImageRenderer(content: view)
+        let renderer = ImageRenderer(content: view.environment(\.colorScheme, .dark))
         renderer.scale = UIScreen.main.scale
         
         guard let image = renderer.uiImage else { return }

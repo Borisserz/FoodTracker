@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import Charts
 import FirebaseAuth
+import UserNotifications
 
 struct ProfileWrapperView: View {
     @Query private var users: [User]
@@ -165,6 +166,15 @@ struct EditProfileSheet: View {
     @State private var weight: Double
     @State private var height: Double
     @State private var age: Int
+    @State private var gender: String
+    @State private var activityMultiplier: Double
+
+    private let activityOptions: [(label: String, value: Double)] = [
+        ("Sedentary", 1.2),
+        ("Light", 1.375),
+        ("Moderate", 1.55),
+        ("Active", 1.725)
+    ]
 
     init(user: User) {
         self._user = Bindable(user)
@@ -172,6 +182,10 @@ struct EditProfileSheet: View {
         _weight = State(initialValue: user.weight)
         _height = State(initialValue: user.height)
         _age = State(initialValue: user.age)
+        _gender = State(initialValue: user.gender == "Female" ? "Female" : "Male")
+        let validMultipliers = [1.2, 1.375, 1.55, 1.725]
+        let closest = validMultipliers.min(by: { abs($0 - user.activityMultiplier) < abs($1 - user.activityMultiplier) }) ?? 1.375
+        _activityMultiplier = State(initialValue: user.activityMultiplier > 0 ? closest : 1.375)
     }
 
     var body: some View {
@@ -183,12 +197,21 @@ struct EditProfileSheet: View {
                         Spacer()
                         TextField("Name", text: $name).multilineTextAlignment(.trailing).foregroundColor(.gray)
                     }
+                    Picker("Biological Sex", selection: $gender) {
+                        Text("Male").tag("Male")
+                        Text("Female").tag("Female")
+                    }
                     Stepper("Age: \(age) years", value: $age, in: 10...100)
                 }
 
                 Section {
                     Stepper("Height: \(Int(height)) cm", value: $height, in: 100...250)
                     Stepper("Weight: \(String(format: "%.1f", weight)) kg", value: $weight, in: 30...250, step: 0.1)
+                    Picker("Activity Level", selection: $activityMultiplier) {
+                        ForEach(activityOptions, id: \.value) { option in
+                            Text(String(localized: String.LocalizationValue(option.label))).tag(option.value)
+                        }
+                    }
                 } header: {
                     Text("Body Metrics")
                 } footer: {
@@ -212,15 +235,23 @@ struct EditProfileSheet: View {
     private func saveChanges() {
         HapticManager.shared.impact(style: .medium)
         let previousCalories = user.dailyCaloriesGoal
+        let weightChanged = abs(user.weight - weight) > 0.01
+
         user.name = name
         user.weight = weight
         user.height = height
         user.age = age
+        user.gender = gender
+        user.activityMultiplier = activityMultiplier
         user.calculateGoals()
         user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)
 
-        try? context.save()
-        WidgetReloader.reloadAll()
+        if weightChanged {
+            NutritionMath.recordWeight(weight, date: Date(), for: user, in: context, recalculateUserGoals: false)
+        } else {
+            try? context.save()
+            WidgetReloader.reloadAll()
+        }
     }
 }
 
@@ -314,6 +345,7 @@ struct NutritionSettingsEditor: View {
 
         user.applyDietBreakdown(fatPercent: Int(fPct), proteinPercent: Int(pPct), carbsPercent: Int(cPct), dietKey: "custom")
         try? context.save()
+        WidgetReloader.reloadAll()
         dismiss()
     }
 }
@@ -397,7 +429,7 @@ struct SettingsView: View {
                         .padding(.horizontal, 20)
 
                         VStack(spacing: 4) {
-                            Text("version 1.0.0 global")
+                            Text("version \(appVersionString)")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .textCase(.lowercase)
@@ -462,23 +494,20 @@ struct SettingsView: View {
         }
     }
 
+    private var appVersionString: String {
+        let short = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "\(short) (\(build))"
+    }
+
     private func contactSupport() {
         HapticManager.shared.impact(style: .medium)
-        let subject = "Help Needed - FoodTracker"
-        let body = "Please describe your issue here...\n\n\n--- App Info ---\nVersion: 1.0.0"
-        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-
-        if let url = URL(string: "mailto:support@foodtracker.app?subject=\(encodedSubject)&body=\(encodedBody)") {
-            UIApplication.shared.open(url)
-        }
+        UIApplication.shared.open(Constants.Legal.supportURL)
     }
 
     private func openTerms() {
         HapticManager.shared.impact(style: .light)
-        if let url = URL(string: "https://foodtracker.app/privacy") {
-            UIApplication.shared.open(url)
-        }
+        UIApplication.shared.open(Constants.Legal.privacyPolicyURL)
     }
 }
 
@@ -715,6 +744,91 @@ struct AccountInfoRow: View {
     }
 }
 
+enum ReminderNotificationScheduler {
+    static let mealIDs = ["ft_remind_meals_lunch", "ft_remind_meals_dinner"]
+    static let waterID = "ft_remind_water"
+    static let weightID = "ft_remind_weight"
+
+    static func sync(mealsEnabled: Bool, waterEnabled: Bool, weightEnabled: Bool) {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: mealIDs + [waterID, weightID])
+
+        guard mealsEnabled || waterEnabled || weightEnabled else { return }
+
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+            guard granted else { return }
+
+            if mealsEnabled {
+                schedule(
+                    center: center,
+                    id: mealIDs[0],
+                    title: String(localized: "Time for Lunch"),
+                    body: String(localized: "Log your midday meal to keep your macros balanced."),
+                    hour: 13,
+                    minute: 0
+                )
+                schedule(
+                    center: center,
+                    id: mealIDs[1],
+                    title: String(localized: "Dinner Check-In"),
+                    body: String(localized: "Log your dinner to complete today's nutrition diary."),
+                    hour: 19,
+                    minute: 0
+                )
+            }
+
+            if waterEnabled {
+                schedule(
+                    center: center,
+                    id: waterID,
+                    title: String(localized: "Hydration Reminder"),
+                    body: String(localized: "Drink a glass of water to stay on track with your daily goal."),
+                    hour: 15,
+                    minute: 0
+                )
+            }
+
+            if weightEnabled {
+                schedule(
+                    center: center,
+                    id: weightID,
+                    title: String(localized: "Weekly Weigh-In"),
+                    body: String(localized: "Step on the scale this morning and update your progress."),
+                    hour: 9,
+                    minute: 0,
+                    weekday: 1
+                )
+            }
+        }
+    }
+
+    private static func schedule(
+        center: UNUserNotificationCenter,
+        id: String,
+        title: String,
+        body: String,
+        hour: Int,
+        minute: Int,
+        weekday: Int? = nil
+    ) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+
+        var components = DateComponents()
+        components.hour = hour
+        components.minute = minute
+        if let weekday {
+            components.weekday = weekday
+        }
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        center.add(request)
+    }
+}
+
 struct RemindersSettingsView: View {
     @AppStorage("remindMeals") private var remindMeals = true
     @AppStorage("remindWater") private var remindWater = true
@@ -755,6 +869,26 @@ struct RemindersSettingsView: View {
         }
         .navigationTitle("Reminders")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            syncNotifications()
+        }
+        .onChange(of: remindMeals) { _, _ in
+            syncNotifications()
+        }
+        .onChange(of: remindWater) { _, _ in
+            syncNotifications()
+        }
+        .onChange(of: remindWeight) { _, _ in
+            syncNotifications()
+        }
+    }
+
+    private func syncNotifications() {
+        ReminderNotificationScheduler.sync(
+            mealsEnabled: remindMeals,
+            waterEnabled: remindWater,
+            weightEnabled: remindWeight
+        )
     }
 }
 

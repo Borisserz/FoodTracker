@@ -43,7 +43,7 @@ struct HydrationWidgetView: View {
     var entry: FoodTrackerEntry
     
     var body: some View {
-        let goal = 2.5
+        let goal = max(0.1, entry.hydrationGoalLiters)
         let progress = min(entry.hydrationLiters / goal, 1.0)
         
         VStack(spacing: 12) {
@@ -109,10 +109,10 @@ struct HydrationWidgetView: View {
 // MARK: - Macro Rings Widget
 struct MacroRingsWidgetView: View {
     var entry: FoodTrackerEntry
-    
-    let pGoal = 150.0
-    let fGoal = 60.0
-    let cGoal = 200.0
+
+    private var pGoal: Double { Double(max(1, entry.proteinGoal)) }
+    private var fGoal: Double { Double(max(1, entry.fatGoal)) }
+    private var cGoal: Double { Double(max(1, entry.carbGoal)) }
     
     var body: some View {
         HStack(spacing: 20) {

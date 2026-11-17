@@ -392,4 +392,98 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(remaining.fat, 50)
         XCTAssertEqual(remaining.carbs, 175)
     }
+
+    func testRecordWeightSynchronizesUserWeightLogSummaryAndGoals() throws {
+        let user = User(name: "Alex", weight: 80.0, height: 180.0, age: 30, gender: "Male")
+        user.weightGoalType = "lose"
+        user.activityMultiplier = 1.55
+        user.calculateGoals()
+        let initialGoal = user.dailyCaloriesGoal
+        context.insert(user)
+        try context.save()
+
+        NutritionMath.recordWeight(74.0, date: Date(), for: user, in: context)
+
+        let logs = try context.fetch(FetchDescriptor<WeightLog>())
+        let todaySummary = DailySummary.fetchExisting(for: Date(), in: context)
+        XCTAssertEqual(user.weight, 74.0, accuracy: 0.01)
+        XCTAssertEqual(logs.count, 1)
+        XCTAssertEqual(logs.first?.weight ?? -1, 74.0, accuracy: 0.01)
+        XCTAssertEqual(todaySummary?.weight ?? -1, 74.0, accuracy: 0.01)
+        XCTAssertLessThan(user.dailyCaloriesGoal, initialGoal)
+    }
+
+    func testConsecutiveStreakAndSyncAchievementsUnlockExpectedIDs() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let day1 = calendar.date(byAdding: .day, value: -1, to: today)!
+        let day2 = calendar.date(byAdding: .day, value: -2, to: today)!
+
+        let s0 = DailySummary(
+            date: today,
+            meals: [Meal(title: "Lunch", date: today, foodItems: [FoodItem(name: "Salad", weight: 200, calories: 350, protein: 15, fats: 10, carbs: 40)])],
+            beverages: [Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 2600)]
+        )
+        let s1 = DailySummary(
+            date: day1,
+            meals: [Meal(title: "Dinner", date: day1, foodItems: [FoodItem(name: "Fish", weight: 150, calories: 300, protein: 30, fats: 12, carbs: 0)])]
+        )
+        let s2 = DailySummary(
+            date: day2,
+            meals: [Meal(title: "Breakfast", date: day2, foodItems: [FoodItem(name: "Oats", weight: 60, calories: 210, protein: 7, fats: 4, carbs: 35)])]
+        )
+
+        let streak = NutritionMath.consecutiveStreak(from: [s0, s1, s2])
+        XCTAssertEqual(streak, 3)
+
+        let user = User(name: "Alex", weight: 75, height: 180, age: 28)
+        user.streakDays = 0
+        NutritionMath.syncStreakAndAchievements(for: user, summaries: [s0, s1, s2])
+
+        XCTAssertEqual(user.streakDays, 3)
+        XCTAssertTrue(user.unlockedAchievements.contains("first_log"))
+        XCTAssertTrue(user.unlockedAchievements.contains("streak_3"))
+        XCTAssertTrue(user.unlockedAchievements.contains("water_pro"))
+    }
+
+    func testAcademyDataLoaderLoadsBundledCategoriesOffline() {
+        let en = AcademyDataLoader.loadBundledCategories(languageCode: "en")
+        let ru = AcademyDataLoader.loadBundledCategories(languageCode: "ru")
+
+        XCTAssertFalse(en.isEmpty)
+        XCTAssertFalse(ru.isEmpty)
+        XCTAssertGreaterThan(en.first?.articles.count ?? 0, 0)
+    }
+
+    func testLocalFoodDatabaseSearchUsesSmartSearchSynonymsAndStemming() {
+        // Plural/stemmed English and Russian synonyms should match bundled database entries
+        let tomatoes = LocalFoodDatabaseService.shared.search(query: "tomatoes", limit: 10)
+        XCTAssertFalse(tomatoes.isEmpty)
+    }
+
+    func testDailyWidgetSnapshotZeroStateAndDynamicScore() {
+        let user = User(name: "Maya", weight: 62, height: 168, age: 27, gender: "Female")
+        user.dailyCaloriesGoal = 1850
+        user.targetProtein = 120
+        user.targetFats = 55
+        user.targetCarbs = 210
+
+        let zeroSnapshot = DailyWidgetSnapshot.compute(summary: nil, user: user)
+        XCTAssertEqual(zeroSnapshot.totalCalories, 0)
+        XCTAssertEqual(zeroSnapshot.hydrationLiters, 0, accuracy: 0.001)
+        XCTAssertEqual(zeroSnapshot.metabolicScore, 0)
+        XCTAssertEqual(zeroSnapshot.proteinGoal, 120)
+        XCTAssertEqual(zeroSnapshot.fatGoal, 55)
+        XCTAssertEqual(zeroSnapshot.carbGoal, 210)
+        XCTAssertEqual(zeroSnapshot.calorieGoal, 1850)
+
+        let summary = DailySummary(
+            date: Date(),
+            meals: [Meal(title: "Lunch", date: Date(), foodItems: [FoodItem(name: "Bowl", weight: 400, calories: 1850, protein: 120, fats: 55, carbs: 210)])],
+            beverages: [Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 2500)]
+        )
+        let fullSnapshot = DailyWidgetSnapshot.compute(summary: summary, user: user)
+        XCTAssertEqual(fullSnapshot.totalCalories, 1850)
+        XCTAssertGreaterThanOrEqual(fullSnapshot.metabolicScore, 95)
+    }
 }

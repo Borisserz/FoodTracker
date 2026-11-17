@@ -77,7 +77,7 @@ final class LocalFoodDatabaseService {
     // MARK: - Private helpers
 
     private func matchFoods(_ foods: [LocalFoodEntry], query: String) -> [LocalFoodEntry] {
-        // Score: starts-with name gets highest priority, then any word starts-with, then substring
+        let queryRoots = SmartSearch.getRoots(for: query)
         var scored: [(score: Int, entry: LocalFoodEntry)] = []
 
         for entry in foods {
@@ -89,6 +89,8 @@ final class LocalFoodDatabaseService {
                 score = 60
             } else if name.contains(query) {
                 score = 30
+            } else if !queryRoots.isEmpty && SmartSearch.matches(name: entry.name, queryRoots: queryRoots) {
+                score = 20
             } else {
                 continue
             }

@@ -216,6 +216,13 @@ private struct Stage1BiometricsView: View {
                 )
                 .padding(.horizontal, 20)
                 
+                // Biological Sex Selector
+                HStack(spacing: 10) {
+                    genderPill("Male")
+                    genderPill("Female")
+                }
+                .padding(.horizontal, 20)
+
                 // Rulers
                 VStack(spacing: 14) {
                     SwissTapeRuler(title: "Age", unit: "yo", range: 16...99, value: $metrics.age)
@@ -234,6 +241,28 @@ private struct Stage1BiometricsView: View {
                 .padding(.bottom, 32)
             }
         }
+    }
+
+    @ViewBuilder
+    private func genderPill(_ option: String) -> some View {
+        let isSelected = metrics.gender == option
+        Button(action: {
+            HapticManager.shared.impact(style: .light)
+            metrics.gender = option
+        }) {
+            Text(LocalizedStringKey(option))
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundStyle(isSelected ? Color.swissGraphite : .white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(isSelected ? Color.swissChartreuse : Color.swissCardSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(isSelected ? Color.swissChartreuse : Color.swissBorder, lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
     }
 }
 

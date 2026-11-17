@@ -59,7 +59,7 @@ struct Achievement: Identifiable {
     
     var totalXP: Int = 0
     var level: Int = 1
-    var streakDays: Int = 3
+    var streakDays: Int = 0
     
     // Goals
     var targetWeight: Double?
@@ -535,5 +535,75 @@ struct AIChatMessage: Identifiable, Codable, Equatable {
 
     static func == (lhs: AIChatMessage, rhs: AIChatMessage) -> Bool {
         lhs.id == rhs.id
+    }
+}
+
+/// Shared today widget snapshot shared between app tests and WidgetExtension without duplicating formulas.
+struct DailyWidgetSnapshot: Equatable {
+    let hydrationLiters: Double
+    let hydrationGoalLiters: Double
+    let protein: Int
+    let proteinGoal: Int
+    let fat: Int
+    let fatGoal: Int
+    let carbs: Int
+    let carbGoal: Int
+    let totalCalories: Int
+    let calorieGoal: Int
+    let metabolicScore: Int
+
+    static func compute(summary: DailySummary?, user: User?) -> DailyWidgetSnapshot {
+        let calGoal = max(1, user?.dailyCaloriesGoal ?? 2000)
+        let pGoal = max(1, Int((user?.targetProtein ?? 150).rounded()))
+        let fGoal = max(1, Int((user?.targetFats ?? 70).rounded()))
+        let cGoal = max(1, Int((user?.targetCarbs ?? 250).rounded()))
+        let hydGoal = 2.5
+
+        guard let summary else {
+            return DailyWidgetSnapshot(
+                hydrationLiters: 0,
+                hydrationGoalLiters: hydGoal,
+                protein: 0,
+                proteinGoal: pGoal,
+                fat: 0,
+                fatGoal: fGoal,
+                carbs: 0,
+                carbGoal: cGoal,
+                totalCalories: 0,
+                calorieGoal: calGoal,
+                metabolicScore: 0
+            )
+        }
+
+        let cals = summary.totalCalories
+        let hyd = summary.totalHydrationLiters
+        let prot = Int(summary.totalProtein.rounded())
+        let fat = Int(summary.totalFats.rounded())
+        let carbs = Int(summary.totalCarbs.rounded())
+
+        let calRatio = Double(cals) / Double(calGoal)
+        let calScore = calRatio <= 1.0 ? (calRatio * 50.0) : max(0.0, 50.0 - ((calRatio - 1.0) * 100.0))
+        let hydScore = min(hyd / hydGoal, 1.0) * 30.0
+        let avgMacroRatio = (
+            min(Double(prot) / Double(pGoal), 1.0) +
+            min(Double(fat) / Double(fGoal), 1.0) +
+            min(Double(carbs) / Double(cGoal), 1.0)
+        ) / 3.0
+        let macroScore = avgMacroRatio * 20.0
+        let finalScore = min(100, max(0, Int((calScore + hydScore + macroScore).rounded())))
+
+        return DailyWidgetSnapshot(
+            hydrationLiters: hyd,
+            hydrationGoalLiters: hydGoal,
+            protein: prot,
+            proteinGoal: pGoal,
+            fat: fat,
+            fatGoal: fGoal,
+            carbs: carbs,
+            carbGoal: cGoal,
+            totalCalories: cals,
+            calorieGoal: calGoal,
+            metabolicScore: finalScore
+        )
     }
 }

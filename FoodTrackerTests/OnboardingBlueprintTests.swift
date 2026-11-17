@@ -106,4 +106,48 @@ final class OnboardingBlueprintTests: XCTestCase {
         XCTAssertEqual(user.targetWeight ?? -1, 80.0, accuracy: 0.01)
         XCTAssertEqual(user.weightGoalType, "gain")
     }
+
+    func testMetabolicBlueprintRespectsFemaleBMRAndPersistenceCreatesWeightLog() throws {
+        let maleMetrics = OnboardingMetrics(
+            age: 28,
+            height: 170,
+            weight: 62,
+            targetWeight: 58,
+            goal: "Lose Weight",
+            activityLevel: .light,
+            gender: "Male"
+        )
+        let femaleMetrics = OnboardingMetrics(
+            age: 28,
+            height: 170,
+            weight: 62,
+            targetWeight: 58,
+            goal: "Lose Weight",
+            activityLevel: .light,
+            gender: "Female"
+        )
+
+        let maleBlueprint = MetabolicBlueprintCalculator.calculate(for: maleMetrics)
+        let femaleBlueprint = MetabolicBlueprintCalculator.calculate(for: femaleMetrics)
+
+        XCTAssertEqual(maleBlueprint.bmr - femaleBlueprint.bmr, 166)
+
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: User.self, WeightLog.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self,
+            configurations: config
+        )
+        let context = container.mainContext
+
+        OnboardingPersistence.save(metrics: femaleMetrics, existingUser: nil, in: context)
+
+        let users = try context.fetch(FetchDescriptor<User>())
+        let logs = try context.fetch(FetchDescriptor<WeightLog>())
+        let summaries = try context.fetch(FetchDescriptor<DailySummary>())
+
+        XCTAssertEqual(users.first?.gender, "Female")
+        XCTAssertEqual(logs.count, 1)
+        XCTAssertEqual(logs.first?.weight ?? -1, 62.0, accuracy: 0.01)
+        XCTAssertEqual(summaries.first?.weight ?? -1, 62.0, accuracy: 0.01)
+    }
 }

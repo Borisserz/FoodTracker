@@ -5,20 +5,60 @@ import SwiftData
 public struct FoodTrackerEntry: TimelineEntry {
     public let date: Date
     public let hydrationLiters: Double
+    public let hydrationGoalLiters: Double
     public let protein: Int
+    public let proteinGoal: Int
     public let fat: Int
+    public let fatGoal: Int
     public let carbs: Int
+    public let carbGoal: Int
     public let totalCalories: Int
+    public let calorieGoal: Int
     public let metabolicScore: Int
-    
-    public init(date: Date, hydrationLiters: Double, protein: Int, fat: Int, carbs: Int, totalCalories: Int, metabolicScore: Int) {
+
+    public init(
+        date: Date,
+        hydrationLiters: Double,
+        hydrationGoalLiters: Double = 2.5,
+        protein: Int,
+        proteinGoal: Int = 150,
+        fat: Int,
+        fatGoal: Int = 70,
+        carbs: Int,
+        carbGoal: Int = 250,
+        totalCalories: Int,
+        calorieGoal: Int = 2000,
+        metabolicScore: Int
+    ) {
         self.date = date
         self.hydrationLiters = hydrationLiters
+        self.hydrationGoalLiters = hydrationGoalLiters
         self.protein = protein
+        self.proteinGoal = proteinGoal
         self.fat = fat
+        self.fatGoal = fatGoal
         self.carbs = carbs
+        self.carbGoal = carbGoal
         self.totalCalories = totalCalories
+        self.calorieGoal = calorieGoal
         self.metabolicScore = metabolicScore
+    }
+
+    static func from(snapshot: DailyWidgetSnapshot, date: Date = Date()) -> FoodTrackerEntry {
+        FoodTrackerEntry(
+            date: date,
+            hydrationLiters: snapshot.hydrationLiters,
+            hydrationGoalLiters: snapshot.hydrationGoalLiters,
+            protein: snapshot.protein,
+            proteinGoal: snapshot.proteinGoal,
+            fat: snapshot.fat,
+            fatGoal: snapshot.fatGoal,
+            carbs: snapshot.carbs,
+            carbGoal: snapshot.carbGoal,
+            totalCalories: snapshot.totalCalories,
+            calorieGoal: snapshot.calorieGoal,
+            metabolicScore: snapshot.metabolicScore
+        )
     }
 }
 
@@ -51,38 +91,18 @@ struct WidgetTimelineProvider: TimelineProvider {
     private func fetchTodayDataSynchronously() -> FoodTrackerEntry? {
         let container = SharedModelContainer.shared.container
         let modelContext = ModelContext(container)
-        
-        let calendar = Calendar.current
-        let todayStart = calendar.startOfDay(for: Date())
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: todayStart)!
-        
-        let descriptor = FetchDescriptor<DailySummary>(
-            predicate: #Predicate<DailySummary> { $0.date >= todayStart && $0.date < tomorrow }
-        )
-        
-        do {
-            if let todaySummary = try modelContext.fetch(descriptor).first {
-                let calRatio = min(Double(todaySummary.totalFoodCalories) / 2000.0, 1.5)
-                let calScore = calRatio <= 1.0 ? (calRatio * 50) : max(0, 50 - ((calRatio - 1.0) * 100))
-                let hydRatio = min(todaySummary.totalHydrationLiters / 2.5, 1.0)
-                let hydScore = hydRatio * 30
-                let macroScore = 20.0
-                let finalScore = Int(calScore + hydScore + macroScore)
-                
-                return FoodTrackerEntry(
-                    date: Date(),
-                    hydrationLiters: todaySummary.totalHydrationLiters,
-                    protein: Int(todaySummary.totalProtein),
-                    fat: Int(todaySummary.totalFats),
-                    carbs: Int(todaySummary.totalCarbs),
-                    totalCalories: todaySummary.totalFoodCalories,
-                    metabolicScore: finalScore
-                )
-            }
-        } catch {
-            print("Failed to fetch widget data synchronously: \(error)")
+        return buildTodayEntry(in: modelContext)
+    }
+
+    private func buildTodayEntry(in modelContext: ModelContext) -> FoodTrackerEntry {
+        var didMerge = false
+        let todaySummary = DailySummary.fetchExisting(for: Date(), in: modelContext, didMerge: &didMerge)
+        if didMerge {
+            try? modelContext.save()
         }
-        return nil
+        let user = try? modelContext.fetch(FetchDescriptor<User>()).first
+        let snapshot = DailyWidgetSnapshot.compute(summary: todaySummary, user: user)
+        return FoodTrackerEntry.from(snapshot: snapshot)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (FoodTrackerEntry) -> ()) {
@@ -105,39 +125,7 @@ struct WidgetTimelineProvider: TimelineProvider {
     private func fetchTodayData(in context: Context) -> FoodTrackerEntry {
         let container = SharedModelContainer.shared.container
         let modelContext = container.mainContext
-        
-        let calendar = Calendar.current
-        let todayStart = calendar.startOfDay(for: Date())
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: todayStart)!
-        
-        let descriptor = FetchDescriptor<DailySummary>(
-            predicate: #Predicate<DailySummary> { $0.date >= todayStart && $0.date < tomorrow }
-        )
-        
-        do {
-            if let todaySummary = try modelContext.fetch(descriptor).first {
-                let calRatio = min(Double(todaySummary.totalFoodCalories) / 2000.0, 1.5)
-                let calScore = calRatio <= 1.0 ? (calRatio * 50) : max(0, 50 - ((calRatio - 1.0) * 100))
-                let hydRatio = min(todaySummary.totalHydrationLiters / 2.5, 1.0)
-                let hydScore = hydRatio * 30
-                let macroScore = 20.0
-                let finalScore = Int(calScore + hydScore + macroScore)
-                
-                return FoodTrackerEntry(
-                    date: Date(),
-                    hydrationLiters: todaySummary.totalHydrationLiters,
-                    protein: Int(todaySummary.totalProtein),
-                    fat: Int(todaySummary.totalFats),
-                    carbs: Int(todaySummary.totalCarbs),
-                    totalCalories: todaySummary.totalFoodCalories,
-                    metabolicScore: finalScore
-                )
-            }
-        } catch {
-            print("Failed to fetch widget data: \(error)")
-        }
-        
-        return placeholder(in: context)
+        return buildTodayEntry(in: modelContext)
     }
 }
 
@@ -214,7 +202,7 @@ struct ShoppingListTimelineProvider: TimelineProvider {
         } catch {
             print("Failed to fetch shopping items: \(error)")
         }
-        
-        return placeholder(in: context)
+
+        return ShoppingListEntry(date: Date(), items: [])
     }
 }

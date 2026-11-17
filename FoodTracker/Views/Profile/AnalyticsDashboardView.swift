@@ -228,10 +228,13 @@ struct AIWeeklyInsightCard: View {
     let period: AnalyticsPeriod
 
     private var insight: (title: String, text: String, color: Color) {
-        let activeSummaries = Array(summaries.suffix(period.daysCount))
-        let validSummaries = activeSummaries.filter { $0.totalFoodCalories > 0 }
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        let windowStart = calendar.date(byAdding: .day, value: -(period.daysCount - 1), to: todayStart) ?? todayStart
+        let activeSummaries = summaries.filter { $0.date >= windowStart }
+        let validSummaries = activeSummaries.filter { $0.totalCalories > 0 }
 
-        let avgCals = validSummaries.isEmpty ? 0 : validSummaries.reduce(0) { $0 + $1.totalFoodCalories } / validSummaries.count
+        let avgCals = validSummaries.isEmpty ? 0 : validSummaries.reduce(0) { $0 + $1.totalCalories } / validSummaries.count
         let avgWater = activeSummaries.isEmpty ? 0.0 : activeSummaries.reduce(0.0) { $0 + $1.totalHydrationLiters } / Double(activeSummaries.count)
 
         // Find the lowest micronutrient percentage today or weekly avg
@@ -258,7 +261,7 @@ struct AIWeeklyInsightCard: View {
             } else if let lowest = lowestMicro, lowestPct < 0.6 {
                 let hint = getHint(for: lowest)
                 return ("\(lowest.rawValue) Focus", "Your \(lowest.rawValue) is only at \(Int(lowestPct * 100))% of RDA. \(hint)", lowest.color)
-            } else if let eaten = today?.totalFoodCalories, eaten > user.dailyCaloriesGoal {
+            } else if let eaten = today?.totalCalories, eaten > user.dailyCaloriesGoal {
                 return ("Caloric Limit", "You've exceeded your daily calorie goal by \(eaten - user.dailyCaloriesGoal) kcal. Keep dinner light today.", .themeOrange)
             } else {
                 return ("Daily Focus", "All parameters are in range! Continue logging your meals to sustain this streak.", .green)
@@ -385,7 +388,7 @@ struct CompactDailySummaryCard: View {
     let user: User
 
     var body: some View {
-        let eaten = summary?.totalFoodCalories ?? 0
+        let eaten = summary?.totalCalories ?? 0
         let target = user.dailyCaloriesGoal
         let progress = min(Double(eaten) / Double(max(1, target)), 1.0)
 
@@ -767,8 +770,8 @@ struct AIHydrationAnalyticsCard: View {
         generator.prepare()
         generator.impactOccurred()
         
-        let today = Calendar.current.startOfDay(for: Date())
-        let targetSummary = summary ?? DailySummary.fetchOrCreate(for: today, in: context)
+        let targetDate = summary?.date ?? Calendar.current.startOfDay(for: Date())
+        let targetSummary = DailySummary.fetchOrCreate(for: targetDate, in: context)
         let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
         context.insert(newBeverage)
         targetSummary.addBeverage(newBeverage)
@@ -788,8 +791,8 @@ struct AIHydrationAnalyticsCard: View {
         generator.prepare()
         generator.impactOccurred()
         
-        let today = Calendar.current.startOfDay(for: Date())
-        guard let targetSummary = summary ?? DailySummary.fetchExisting(for: today, in: context) else { return }
+        let targetDate = summary?.date ?? Calendar.current.startOfDay(for: Date())
+        guard let targetSummary = DailySummary.fetchExisting(for: targetDate, in: context) else { return }
         if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" }) {
             if let index = targetSummary.beverages?.firstIndex(of: lastWater) {
                 targetSummary.beverages?.remove(at: index)
@@ -1015,7 +1018,7 @@ struct DivineCaloriesChart: View {
         return (0..<period.daysCount).map { i in
             let date = calendar.date(byAdding: .day, value: -i, to: today)!
             let summary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
-            return (date: date, eaten: Double(summary?.totalFoodCalories ?? 0))
+            return (date: date, eaten: Double(summary?.totalCalories ?? 0))
         }.reversed()
     }
 
@@ -1059,7 +1062,15 @@ struct DivineCaloriesChart: View {
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) {
-                        AxisValueLabel(format: .dateTime.weekday(.abbreviated)).font(.caption2.bold()).foregroundStyle(Color.gray)
+                        AxisValueLabel {
+                            Text(
+                                period == .week
+                                ? date.formatted(.dateTime.weekday(.abbreviated))
+                                : date.formatted(.dateTime.day().month(.abbreviated))
+                            )
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color.gray)
+                        }
                     }
                 }
             }
@@ -1259,14 +1270,24 @@ struct TrendsWaterChart: View {
             .chartYScale(domain: 0...maxLiters)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
-                    if let date = value.as(Date.self) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray) }
+                    if let date = value.as(Date.self) {
+                        AxisValueLabel {
+                            Text(
+                                period == .week
+                                ? date.formatted(.dateTime.weekday(.abbreviated))
+                                : date.formatted(.dateTime.day().month(.abbreviated))
+                            )
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color.gray)
+                        }
+                    }
                 }
             }
             .chartYAxis {
-                AxisMarks(position: .trailing, values: [0, 1, 2, 3]) { value in
+                AxisMarks(position: .trailing, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.12))
                     if let val = value.as(Double.self), val >= 0 {
-                        AxisValueLabel("\(Int(val))L").font(.caption2).foregroundStyle(Color.gray)
+                        AxisValueLabel(String(format: "%.1fL", val)).font(.caption2).foregroundStyle(Color.gray)
                     }
                 }
             }
@@ -1289,7 +1310,7 @@ struct ConsistencyHeatmapCard: View {
     private func completionLevel(for date: Date) -> Int {
         let cal = Calendar.current
         guard let summary = summaries.first(where: { cal.isDate($0.date, inSameDayAs: date) }) else { return 0 }
-        let target = user.dailyCaloriesGoal; let eaten = summary.totalFoodCalories
+        let target = user.dailyCaloriesGoal; let eaten = summary.totalCalories
         if eaten == 0 { return 0 }
         if eaten >= target - 200 && eaten <= target + 200 { return 3 }
         if eaten > target { return 2 }

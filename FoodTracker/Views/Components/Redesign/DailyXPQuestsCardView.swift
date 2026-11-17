@@ -1,24 +1,73 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - Daily Quests & Gold Master XP Progress Card
 struct DailyXPQuestsCardView: View {
+    @Environment(\.modelContext) private var context
     @Bindable var user: User
-    
-    @State private var quest1Done = true
-    @State private var quest2Done = false
-    @State private var quest3Done = false
-    
+
+    @AppStorage("dailyQuestStates_v1") private var questStatesRaw: String = ""
+
+    private var todayKey: String {
+        NutritionMath.dayKey(for: Date())
+    }
+
+    private var completedQuestIDs: Set<String> {
+        let prefix = "\(todayKey):"
+        guard questStatesRaw.hasPrefix(prefix) else { return [] }
+        let payload = String(questStatesRaw.dropFirst(prefix.count))
+        return Set(payload.split(separator: ",").map(String.init))
+    }
+
+    private func isQuestDone(_ id: String) -> Bool {
+        completedQuestIDs.contains(id)
+    }
+
+    private func binding(for questID: String) -> Binding<Bool> {
+        Binding(
+            get: { isQuestDone(questID) },
+            set: { newValue in
+                var current = completedQuestIDs
+                if newValue {
+                    current.insert(questID)
+                } else {
+                    current.remove(questID)
+                }
+                questStatesRaw = "\(todayKey):\(current.sorted().joined(separator: ","))"
+            }
+        )
+    }
+
+    @AppStorage("dailyQuestClaimed_v1") private var questClaimedRaw: String = ""
+
+    private var claimedQuestIDs: Set<String> {
+        let prefix = "\(todayKey):"
+        guard questClaimedRaw.hasPrefix(prefix) else { return [] }
+        return Set(questClaimedRaw.dropFirst(prefix.count).split(separator: ",").map(String.init))
+    }
+
+    private func claimQuestXP(_ amount: Int, id: String) {
+        var claimed = claimedQuestIDs
+        guard !claimed.contains(id) else { return }
+        claimed.insert(id)
+        questClaimedRaw = "\(todayKey):\(claimed.sorted().joined(separator: ","))"
+        addXP(amount)
+    }
+
+    private var progressManager: NutritionProgressManager {
+        NutritionProgressManager(user: user)
+    }
+
     var currentXP: Int {
         user.totalXP
     }
-    
+
     var nextLevelXP: Int {
-        user.level * 1000
+        progressManager.xpToNextLevel
     }
-    
+
     var xpProgressRatio: Double {
-        let currentInLevel = currentXP % 1000
-        return min(max(Double(currentInLevel) / 1000.0, 0.08), 1.0)
+        max(progressManager.progressPercentage, 0.08)
     }
     
     var body: some View {
@@ -97,27 +146,27 @@ struct DailyXPQuestsCardView: View {
                     icon: "figure.walk",
                     title: String(localized: "Walk 10,000 steps"),
                     xp: 150,
-                    isDone: $quest1Done
+                    isDone: binding(for: "steps")
                 ) {
-                    addXP(150)
+                    claimQuestXP(150, id: "steps")
                 }
                 
                 XPQuestRow(
                     icon: "fork.knife",
                     title: String(localized: "Log all meals"),
                     xp: 100,
-                    isDone: $quest2Done
+                    isDone: binding(for: "meals")
                 ) {
-                    addXP(100)
+                    claimQuestXP(100, id: "meals")
                 }
                 
                 XPQuestRow(
                     icon: "drop.fill",
                     title: String(localized: "Drink 2.5L of water"),
                     xp: 150,
-                    isDone: $quest3Done
+                    isDone: binding(for: "water")
                 ) {
-                    addXP(150)
+                    claimQuestXP(150, id: "water")
                 }
             }
         }
@@ -139,10 +188,14 @@ struct DailyXPQuestsCardView: View {
         generator.notificationOccurred(.success)
         
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
-            user.totalXP += amount
-            if user.totalXP >= nextLevelXP {
-                user.level += 1
-            }
+            let breakdown = NutritionXPBreakdown(
+                baseXP: amount,
+                proteinGoalXP: 0,
+                calorieGoalXP: 0
+            )
+            let manager = NutritionProgressManager(user: user)
+            manager.addXP(from: breakdown)
+            try? context.save()
         }
     }
 }

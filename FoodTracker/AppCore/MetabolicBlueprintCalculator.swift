@@ -31,7 +31,8 @@ enum MetabolicBlueprintCalculator {
     }
 
     static func calculate(for metrics: OnboardingMetrics) -> MetabolicBlueprint {
-        let rawBMR = Double(10 * metrics.weight) + (6.25 * Double(metrics.height)) - Double(5 * metrics.age) + 5.0
+        let genderConstant = metrics.gender == "Female" ? -161.0 : 5.0
+        let rawBMR = Double(10 * metrics.weight) + (6.25 * Double(metrics.height)) - Double(5 * metrics.age) + genderConstant
         let bmr = max(1200, Int(rawBMR))
         let tdee = Double(bmr) * activityMultiplier(for: metrics.activityLevel)
 
@@ -74,6 +75,7 @@ enum OnboardingPersistence {
             existingUser.age = metrics.age
             existingUser.height = Double(metrics.height)
             existingUser.weight = Double(metrics.weight)
+            existingUser.gender = metrics.gender
             targetUser = existingUser
         } else {
             let newUser = User(
@@ -81,11 +83,19 @@ enum OnboardingPersistence {
                 weight: Double(metrics.weight),
                 height: Double(metrics.height),
                 age: metrics.age,
-                gender: "Male"
+                gender: metrics.gender
             )
             context.insert(newUser)
             targetUser = newUser
         }
+
+        NutritionMath.recordWeight(
+            Double(metrics.weight),
+            date: Date(),
+            for: targetUser,
+            in: context,
+            recalculateUserGoals: false
+        )
 
         targetUser.dailyCaloriesGoal = blueprint.dailyCalories
         targetUser.targetProtein = Double(blueprint.proteinGrams)

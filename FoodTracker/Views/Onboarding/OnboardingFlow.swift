@@ -8,6 +8,7 @@ struct OnboardingMetrics {
     var targetWeight: Int = 70
     var goal: String = "Lose Weight"
     var activityLevel: ActivityType = .none
+    var gender: String = "Male"
 }
 
 struct RootOnboardingView: View {

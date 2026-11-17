@@ -42,42 +42,41 @@ actor SummaryRepository: SummaryRepositoryProtocol {
 
     func calculateCurrentStreak() async throws -> Int {
         // Fetch full objects so we can access the computed totalCalories.
-        var fetchDescriptor = FetchDescriptor<DailySummary>(
+        let fetchDescriptor = FetchDescriptor<DailySummary>(
             sortBy: [SortDescriptor(\DailySummary.date, order: .reverse)]
         )
         let summaries = try modelContext.fetch(fetchDescriptor)
-
-        let calendar = Calendar.current
-        let activeDates = summaries
-            .filter { $0.totalCalories > 0 }
-            .map { calendar.startOfDay(for: $0.date) }
-
-        guard let firstDate = activeDates.first else { return 0 }
-        let today = calendar.startOfDay(for: Date())
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
-
-        if firstDate != today && firstDate != yesterday {
-            return 0
-        }
-
-        var streak = 1
-        var currentDate = firstDate
-        for date in activeDates.dropFirst() {
-            if let expected = calendar.date(byAdding: .day, value: -1, to: currentDate), date == expected {
-                streak += 1
-                currentDate = date
-            } else if date == currentDate {
-                continue
-            } else {
-                break
-            }
-        }
-        return streak
+        return NutritionMath.consecutiveStreak(from: summaries)
     }
 
     func fetchSummaries(startDate: Date, endDate: Date) async throws -> [DailySummary] {
         let predicate = #Predicate<DailySummary> { $0.date >= startDate && $0.date <= endDate }
         let fetchDescriptor = FetchDescriptor<DailySummary>(predicate: predicate, sortBy: [SortDescriptor(\.date, order: .forward)])
+        let rawSummaries = try modelContext.fetch(fetchDescriptor)
+
+        let calendar = Calendar.current
+        var seenDays: [Date: Int] = [:]
+        var duplicateDays: Set<Date> = []
+        for summary in rawSummaries {
+            let day = calendar.startOfDay(for: summary.date)
+            seenDays[day, default: 0] += 1
+            if seenDays[day, default: 0] > 1 {
+                duplicateDays.insert(day)
+            }
+        }
+
+        guard !duplicateDays.isEmpty else {
+            return rawSummaries
+        }
+
+        var didMerge = false
+        for day in duplicateDays {
+            _ = DailySummary.fetchExisting(for: day, in: modelContext, didMerge: &didMerge)
+        }
+        if didMerge {
+            try modelContext.save()
+        }
+
         return try modelContext.fetch(fetchDescriptor)
     }
 
