@@ -35,13 +35,46 @@ final class VertexAIManager {
         let protein: Double?
         let fats: Double?
         let carbs: Double?
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            isFood = try container.decode(Bool.self, forKey: .isFood)
+            errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
+            name = try container.decodeIfPresent(String.self, forKey: .name)
+            weight = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .weight)
+            calories = VertexAIManager.decodeFlexibleIntIfPresent(from: container, forKey: .calories)
+            protein = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .protein)
+            fats = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .fats)
+            carbs = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .carbs)
+        }
     }
 
     struct MenuRecommendation: Codable {
         let dishName: String
         let estimatedCalories: Int
         let protein: Double
+        let fats: Double?
+        let carbs: Double?
         let reasoning: String
+
+        init(dishName: String, estimatedCalories: Int, protein: Double, fats: Double? = nil, carbs: Double? = nil, reasoning: String) {
+            self.dishName = dishName
+            self.estimatedCalories = estimatedCalories
+            self.protein = protein
+            self.fats = fats
+            self.carbs = carbs
+            self.reasoning = reasoning
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            dishName = try container.decode(String.self, forKey: .dishName)
+            estimatedCalories = VertexAIManager.decodeFlexibleIntIfPresent(from: container, forKey: .estimatedCalories) ?? 0
+            protein = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .protein) ?? 0
+            fats = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .fats)
+            carbs = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .carbs)
+            reasoning = try container.decode(String.self, forKey: .reasoning)
+        }
     }
 
     struct MenuAIResponse: Codable {
@@ -68,21 +101,62 @@ final class VertexAIManager {
         let feedback: String
     }
 
-    private func encodedJPEG(_ image: UIImage, maxDimension: CGFloat = 1024, quality: CGFloat = 0.45) -> String? {
+    private nonisolated static func decodeFlexibleDoubleIfPresent<K: CodingKey>(
+        from container: KeyedDecodingContainer<K>,
+        forKey key: K
+    ) -> Double? {
+        if let val = try? container.decodeIfPresent(Double.self, forKey: key), val.isFinite {
+            return val
+        }
+        if let intVal = try? container.decodeIfPresent(Int.self, forKey: key) {
+            return Double(intVal)
+        }
+        if let strVal = try? container.decodeIfPresent(String.self, forKey: key) {
+            let cleaned = strVal.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
+            if let parsed = Double(cleaned), parsed.isFinite {
+                return parsed
+            }
+        }
+        return nil
+    }
+
+    private nonisolated static func decodeFlexibleIntIfPresent<K: CodingKey>(
+        from container: KeyedDecodingContainer<K>,
+        forKey key: K
+    ) -> Int? {
+        decodeFlexibleDoubleIfPresent(from: container, forKey: key).map { Int($0.rounded()) }
+    }
+
+    /// Downscales and normalizes image orientation at explicit 1x pixel scale to avoid 3x screen-scale memory blowup.
+    nonisolated static func downsampledImage(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
         let size = image.size
         let longest = max(size.width, size.height)
-        let resized: UIImage
-        if longest > maxDimension, longest > 0 {
+        guard longest > 0 else { return image }
+
+        let needsResize = longest > maxDimension
+        let needsOrientationFix = image.imageOrientation != .up
+        guard needsResize || needsOrientationFix else { return image }
+
+        let targetSize: CGSize
+        if needsResize {
             let scale = maxDimension / longest
-            let newSize = CGSize(width: size.width * scale, height: size.height * scale)
-            let renderer = UIGraphicsImageRenderer(size: newSize)
-            resized = renderer.image { _ in
-                image.draw(in: CGRect(origin: .zero, size: newSize))
-            }
+            targetSize = CGSize(width: max(1, (size.width * scale).rounded()), height: max(1, (size.height * scale).rounded()))
         } else {
-            resized = image
+            targetSize = size
         }
-        return resized.jpegData(compressionQuality: quality)?.base64EncodedString()
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+    }
+
+    nonisolated static func encodedJPEG(_ image: UIImage, maxDimension: CGFloat = 1024, quality: CGFloat = 0.45) -> String? {
+        let normalized = downsampledImage(image, maxDimension: maxDimension)
+        return normalized.jpegData(compressionQuality: quality)?.base64EncodedString()
     }
 
     enum FoodImageAnalysisResult {
@@ -101,7 +175,9 @@ final class VertexAIManager {
     }
 
     func analyzeFoodImageDetailed(_ image: UIImage) async -> FoodImageAnalysisResult {
-        guard let base64Image = encodedJPEG(image, maxDimension: 1024, quality: 0.45) else {
+        guard let base64Image = await Task.detached(priority: .userInitiated, operation: {
+            Self.encodedJPEG(image, maxDimension: 1024, quality: 0.45)
+        }).value else {
             return .failed
         }
 
@@ -146,7 +222,9 @@ final class VertexAIManager {
     }
 
     func analyzeMenuImage(_ image: UIImage, remainingCalories: Int, targetProtein: Int) async -> MenuAIResponse? {
-        guard let base64Image = encodedJPEG(image, maxDimension: 1024, quality: 0.45) else { return nil }
+        guard let base64Image = await Task.detached(priority: .userInitiated, operation: {
+            Self.encodedJPEG(image, maxDimension: 1024, quality: 0.45)
+        }).value else { return nil }
 
         let prompt = """
         You are an elite AI nutritionist and menu analyst. Read the restaurant menu in the image.
@@ -160,7 +238,11 @@ final class VertexAIManager {
 
         \(languageInstruction)
         Respond ONLY with a raw, valid JSON object. No Markdown. Format exactly:
-        {"ideal": {"dishName": "Name", "estimatedCalories": 400, "protein": 30.0, "reasoning": "Why"}, "caution": {...}, "avoid": {...}}
+        {
+          "ideal": {"dishName": "Name", "estimatedCalories": 400, "protein": 30.0, "fats": 12.0, "carbs": 35.0, "reasoning": "Why"},
+          "caution": {"dishName": "Name", "estimatedCalories": 580, "protein": 24.0, "fats": 28.0, "carbs": 52.0, "reasoning": "Modification tip"},
+          "avoid": {"dishName": "Name", "estimatedCalories": 1150, "protein": 28.0, "fats": 62.0, "carbs": 95.0, "reasoning": "Why to skip"}
+        }
         """
 
         do {
@@ -176,7 +258,9 @@ final class VertexAIManager {
     }
 
     func evaluateCookingStep(image: UIImage, dishTitle: String, stepInstruction: String) async throws -> CookingStepEvaluation {
-        guard let base64Image = encodedJPEG(image, maxDimension: 1024, quality: 0.45) else {
+        guard let base64Image = await Task.detached(priority: .userInitiated, operation: {
+            Self.encodedJPEG(image, maxDimension: 1024, quality: 0.45)
+        }).value else {
             throw GeminiProxyError.invalidResponse
         }
 
@@ -202,8 +286,14 @@ final class VertexAIManager {
     }
 
     func analyzeBeforeAfterPhotos(before: UIImage, after: UIImage, goal: String? = nil) async throws -> TransformationAnalysisDTO {
-        guard let beforeB64 = encodedJPEG(before, maxDimension: 960, quality: 0.45),
-              let afterB64 = encodedJPEG(after, maxDimension: 960, quality: 0.45) else {
+        let encodedPair: (String, String)? = await Task.detached(priority: .userInitiated) {
+            guard let b = Self.encodedJPEG(before, maxDimension: 960, quality: 0.45),
+                  let a = Self.encodedJPEG(after, maxDimension: 960, quality: 0.45) else {
+                return nil
+            }
+            return (b, a)
+        }.value
+        guard let (beforeB64, afterB64) = encodedPair else {
             throw GeminiProxyError.invalidResponse
         }
 

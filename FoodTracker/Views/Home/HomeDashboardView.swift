@@ -2034,7 +2034,8 @@ struct SmartAddFoodView: View {
         }
         .fullScreenCover(isPresented: $showingScanner) {
             let todayStart = Calendar.current.startOfDay(for: Date())
-            let todaySummary = (try? context.fetch(FetchDescriptor<DailySummary>(predicate: #Predicate { $0.date >= todayStart })).first)
+            let tomorrowStart = Calendar.current.date(byAdding: .day, value: 1, to: todayStart) ?? todayStart
+            let todaySummary = (try? context.fetch(FetchDescriptor<DailySummary>(predicate: #Predicate { $0.date >= todayStart && $0.date < tomorrowStart })).first)
             let user = (try? context.fetch(FetchDescriptor<User>()).first)
             let remainingCals = max(0, (user?.dailyCaloriesGoal ?? 2000) - Int(todaySummary?.totalCalories ?? 0))
             let remainingProt = max(0, Int(user?.targetProtein ?? 130) - Int(todaySummary?.totalProtein ?? 0))

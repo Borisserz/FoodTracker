@@ -4,32 +4,38 @@ import Foundation
 nonisolated enum AIResponseParsing {
     /// Strips markdown code fences and extracts the first valid balanced JSON object or array.
     static func extractJSON(from raw: String) -> String {
-        var cleaned = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let prefixes = ["```json", "```JSON", "```"]
-        for prefix in prefixes where cleaned.hasPrefix(prefix) {
-            cleaned = String(cleaned.dropFirst(prefix.count))
-            if let newlineIdx = cleaned.firstIndex(of: "\n"), cleaned[..<newlineIdx].trimmingCharacters(in: .whitespaces).isEmpty {
-                cleaned = String(cleaned[cleaned.index(after: newlineIdx)...])
+        // Match fenced code blocks even if preceded/followed by prose (e.g., "Option [1]:\n```json ... ```")
+        if let fenced = extractFencedBlock(from: trimmed) {
+            if isValidJSON(fenced) {
+                return fenced
             }
-            break
+            if let balancedFenced = extractBalancedJSON(from: fenced) {
+                return balancedFenced
+            }
         }
 
-        if cleaned.hasSuffix("```") {
-            cleaned = String(cleaned.dropLast(3))
+        if isValidJSON(trimmed) {
+            return trimmed
         }
 
-        cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
-        if isValidJSON(cleaned) {
-            return cleaned
-        }
-
-        if let balanced = extractBalancedJSON(from: cleaned) {
+        if let balanced = extractBalancedJSON(from: trimmed) {
             return balanced
         }
 
-        return cleaned.trimmingCharacters(in: CharacterSet(charactersIn: "`"))
+        return trimmed.trimmingCharacters(in: CharacterSet(charactersIn: "`"))
             .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func extractFencedBlock(from text: String) -> String? {
+        let pattern = #"```(?:json|JSON)?[ \t]*\r?\n([\s\S]*?)```"#
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+              let range = Range(match.range(at: 1), in: text) else {
+            return nil
+        }
+        return String(text[range]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private static func isValidJSON(_ string: String) -> Bool {
@@ -56,6 +62,7 @@ nonisolated enum AIResponseParsing {
     }
 
     private static func extractBalancedJSON(from text: String) -> String? {
+        var fallbackArrayCandidate: String?
         var index = text.startIndex
         while index < text.endIndex {
             let opener = text[index]
@@ -86,7 +93,16 @@ nonisolated enum AIResponseParsing {
                             if depth == 0 {
                                 let candidate = String(text[index...cursor])
                                 if isValidJSON(candidate) {
-                                    return candidate
+                                    if opener == "{" {
+                                        return candidate
+                                    }
+                                    // Prefer arrays containing structured objects/strings over prose citation brackets like [1].
+                                    if candidate.contains("{") || candidate.contains("\"") {
+                                        return candidate
+                                    }
+                                    if fallbackArrayCandidate == nil {
+                                        fallbackArrayCandidate = candidate
+                                    }
                                 }
                                 break
                             }
@@ -97,6 +113,6 @@ nonisolated enum AIResponseParsing {
             }
             index = text.index(after: index)
         }
-        return nil
+        return fallbackArrayCandidate
     }
 }

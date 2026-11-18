@@ -1417,7 +1417,10 @@ struct AICameraScannerView: View {
         .onChange(of: selectedPhotoItem) { _, newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),
-                   let img = UIImage(data: data) {
+                   let rawImg = UIImage(data: data) {
+                    let img = await Task.detached(priority: .userInitiated) {
+                        VertexAIManager.downsampledImage(rawImg, maxDimension: 1280)
+                    }.value
                     await MainActor.run {
                         analyzeCapturedStepImage(img)
                     }

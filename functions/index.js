@@ -11,7 +11,8 @@ const DEFAULT_AI_WEEKLY_LIMIT = 200;
 const DEFAULT_SEARCH_WEEKLY_LIMIT = 1000;
 const UPSTREAM_TIMEOUT_MS = 22000;
 const HEAVY_UPSTREAM_TIMEOUT_MS = 45000;
-const TOTAL_CHAIN_BUDGET_MS = 105000;
+const TOTAL_CHAIN_BUDGET_MS = 85000;
+const FATSECRET_TOTAL_BUDGET_MS = 22000;
 
 initializeApp();
 
@@ -422,7 +423,7 @@ async function reserveRateLimitSlot(collectionName, docId, limit, windowMs = AI_
   const db = getFirestore();
   const ref = db.collection(collectionName).doc(docId);
 
-  await db.runTransaction(async (tx) => {
+  return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const now = Date.now();
     const transition = computeRateLimitTransition(snap.exists ? snap.data() : null, now, limit, windowMs);
@@ -440,10 +441,79 @@ async function reserveRateLimitSlot(collectionName, docId, limit, windowMs = AI_
       },
       { merge: true }
     );
+    return transition.nextWindowStart;
   });
 }
 
-async function refundRateLimitSlot(collectionName, docId) {
+async function reserveAiRateLimitSlots({
+  uid,
+  deviceHash,
+  userLimit,
+  deviceLimit,
+  windowMs = AI_WINDOW_MS,
+}) {
+  const db = getFirestore();
+  const userRef = db.collection("food_ai_usage").doc(uid);
+  const deviceRef = deviceHash ? db.collection("food_ai_device_usage").doc(deviceHash) : null;
+
+  return db.runTransaction(async (tx) => {
+    const now = Date.now();
+    const userSnap = await tx.get(userRef);
+    const deviceSnap = deviceRef ? await tx.get(deviceRef) : null;
+
+    const userTransition = computeRateLimitTransition(
+      userSnap.exists ? userSnap.data() : null,
+      now,
+      userLimit,
+      windowMs
+    );
+    if (!userTransition.allowed) {
+      throw new RateLimitError(userTransition.retryAfterSeconds, userLimit);
+    }
+
+    let deviceTransition = null;
+    if (deviceRef && deviceSnap) {
+      deviceTransition = computeRateLimitTransition(
+        deviceSnap.exists ? deviceSnap.data() : null,
+        now,
+        deviceLimit,
+        windowMs
+      );
+      if (!deviceTransition.allowed) {
+        throw new RateLimitError(deviceTransition.retryAfterSeconds, deviceLimit);
+      }
+    }
+
+    tx.set(
+      userRef,
+      {
+        windowStart: userTransition.nextWindowStart,
+        count: userTransition.nextCount,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    if (deviceRef && deviceTransition) {
+      tx.set(
+        deviceRef,
+        {
+          windowStart: deviceTransition.nextWindowStart,
+          count: deviceTransition.nextCount,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    }
+
+    return {
+      userWindowStart: userTransition.nextWindowStart,
+      deviceWindowStart: deviceTransition ? deviceTransition.nextWindowStart : null,
+    };
+  });
+}
+
+async function refundRateLimitSlot(collectionName, docId, expectedWindowStart = null) {
   try {
     const db = getFirestore();
     const ref = db.collection(collectionName).doc(docId);
@@ -451,6 +521,13 @@ async function refundRateLimitSlot(collectionName, docId) {
       const snap = await tx.get(ref);
       if (!snap.exists) return;
       const data = snap.data() || {};
+      if (
+        expectedWindowStart !== null &&
+        typeof data.windowStart === "number" &&
+        data.windowStart !== expectedWindowStart
+      ) {
+        return;
+      }
       const current = typeof data.count === "number" ? data.count : 0;
       if (current <= 0) return;
       tx.set(
@@ -518,12 +595,15 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
     });
 
     for (const apiKey of keys) {
+      const keyRemainingMs = deadlineAt - Date.now();
+      if (keyRemainingMs < 3000) break;
+      const callTimeout = Math.min(perCallTimeout, keyRemainingMs);
       try {
         const resp = await fetch(OPENROUTER_URL, {
           method: "POST",
           headers: openRouterHeaders(apiKey),
           body: JSON.stringify(attempt),
-          signal: AbortSignal.timeout(perCallTimeout),
+          signal: AbortSignal.timeout(callTimeout),
         });
         const text = await resp.text();
         if (!resp.ok) {
@@ -663,6 +743,50 @@ function buildOAuth1FatSecretURL({
   )}`;
 }
 
+function convertMetricWeightToGrams(amount, rawUnit) {
+  if (!Number.isFinite(amount) || amount <= 0) return 0;
+  const unit = String(rawUnit || "").trim().toLowerCase();
+  switch (unit) {
+    case "g":
+    case "gram":
+    case "grams":
+    case "ml":
+      return amount;
+    case "oz":
+    case "fl oz":
+      return amount * 28.3495;
+    case "lb":
+    case "lbs":
+      return amount * 453.59237;
+    case "kg":
+      return amount * 1000;
+    case "mg":
+      return amount / 1000;
+    default:
+      return amount;
+  }
+}
+
+function pickPreferredFatSecretServing(servingData) {
+  if (!Array.isArray(servingData)) return servingData;
+  const objects = servingData.filter((s) => s && typeof s === "object");
+  if (objects.length === 0) return null;
+
+  const is100g = (s) => {
+    const unit = String(s.metric_serving_unit || "").trim().toLowerCase();
+    const amt = parseNumericValue(s.metric_serving_amount);
+    return (unit === "g" || unit === "ml") && Math.abs(amt - 100) < 0.01;
+  };
+  if (objects.find(is100g)) return objects.find(is100g);
+
+  const hasValidMetric = (s) => {
+    const unit = String(s.metric_serving_unit || "").trim().toLowerCase();
+    const amt = parseNumericValue(s.metric_serving_amount);
+    return amt > 0 && ["g", "gram", "grams", "ml", "oz", "fl oz", "lb", "lbs", "kg"].includes(unit);
+  };
+  return objects.find(hasValidMetric) || objects[0];
+}
+
 function parseFatSecretDescription(description) {
   if (typeof description !== "string" || !description) return null;
   const calMatch = description.match(/Calories:\s*([0-9.,]+)\s*kcal/i);
@@ -671,11 +795,13 @@ function parseFatSecretDescription(description) {
   const protMatch = description.match(/Protein:\s*([0-9.,]+)\s*g/i);
   if (!calMatch && !fatMatch && !carbMatch && !protMatch) return null;
 
-  const weightMatch = description.match(/^Per\s+([0-9.,]+)\s*(g|ml)\b/i);
-  const parsedWeight = weightMatch ? parseNumericValue(weightMatch[1]) : 0;
+  const weightMatch = description.match(/^Per\s+([0-9.,]+)\s*(g|ml|oz|lb|lbs|kg)\b/i);
+  const parsedWeight = weightMatch
+    ? convertMetricWeightToGrams(parseNumericValue(weightMatch[1]), weightMatch[2])
+    : 0;
 
   return {
-    weight: parsedWeight > 0 ? parsedWeight : 100,
+    weight: parsedWeight > 0 ? Math.round(parsedWeight * 10) / 10 : 100,
     calories: Math.round(parseNumericValue(calMatch?.[1] || 0)),
     fats: parseNumericValue(fatMatch?.[1] || 0),
     carbs: parseNumericValue(carbMatch?.[1] || 0),
@@ -695,12 +821,10 @@ function normalizeFatSecretFood(food) {
       ? `${baseName} (${brand})`
       : baseName;
 
-  const servingData = food?.servings?.serving;
-  const serving = Array.isArray(servingData) ? servingData[0] : servingData;
+  const serving = pickPreferredFatSecretServing(food?.servings?.serving);
   if (serving && typeof serving === "object") {
     const rawAmount = parseNumericValue(serving.metric_serving_amount);
-    const unit = String(serving.metric_serving_unit || "").trim().toLowerCase();
-    const weightGrams = unit === "oz" ? rawAmount * 28.3495 : rawAmount;
+    const weightGrams = convertMetricWeightToGrams(rawAmount, serving.metric_serving_unit);
     return {
       name,
       weight: weightGrams > 0 ? Math.round(weightGrams * 10) / 10 : 100,
@@ -847,16 +971,14 @@ exports.foodAiProxy = onRequest(
     const settings = await loadAISettings();
     const deviceHash = hashDeviceInstallId(req.header("X-Device-Install-ID"));
 
+    let reservedWindows;
     try {
-      await reserveRateLimitSlot("food_ai_usage", uid, settings.weeklyLimit);
-      if (deviceHash) {
-        try {
-          await reserveRateLimitSlot("food_ai_device_usage", deviceHash, settings.weeklyLimit * 2);
-        } catch (deviceErr) {
-          await refundRateLimitSlot("food_ai_usage", uid);
-          throw deviceErr;
-        }
-      }
+      reservedWindows = await reserveAiRateLimitSlots({
+        uid,
+        deviceHash,
+        userLimit: settings.weeklyLimit,
+        deviceLimit: settings.weeklyLimit * 2,
+      });
     } catch (e) {
       if (e instanceof RateLimitError) {
         res.set("Retry-After", String(e.retryAfterSeconds));
@@ -873,9 +995,13 @@ exports.foodAiProxy = onRequest(
     }
 
     const refundReservedSlots = async () => {
-      await refundRateLimitSlot("food_ai_usage", uid);
+      await refundRateLimitSlot("food_ai_usage", uid, reservedWindows.userWindowStart);
       if (deviceHash) {
-        await refundRateLimitSlot("food_ai_device_usage", deviceHash);
+        await refundRateLimitSlot(
+          "food_ai_device_usage",
+          deviceHash,
+          reservedWindows.deviceWindowStart
+        );
       }
     };
 
@@ -904,20 +1030,44 @@ exports.foodAiProxy = onRequest(
       const streamTimeoutMs = upstreamTimeoutForBody(body);
       const streamDeadlineAt = Date.now() + TOTAL_CHAIN_BUDGET_MS;
       const keys = rotatedKeys(apiKeys);
-      let upstream = null;
       let lastError = null;
+      const decoder = new TextDecoder();
+
+      const emitStreamLine = (rawLine) => {
+        const line = rawLine.trimEnd();
+        if (!line) return false;
+        const converted = openAIStreamChunkToGemini(line);
+        if (converted === "[DONE]") {
+          if (yielded) res.write("data: [DONE]\n\n");
+          return true;
+        }
+        if (converted) {
+          if (!yielded) {
+            res.status(200).set("Content-Type", "text/event-stream");
+            yielded = true;
+          }
+          res.write(`data: ${converted}\n\n`);
+          return true;
+        }
+        return false;
+      };
+
       for (const model of chain) {
+        if (yielded) break;
         const remainingMs = streamDeadlineAt - Date.now();
         if (remainingMs < 5000) break;
         const perCallTimeout = Math.min(streamTimeoutMs, remainingMs);
         const attempt = geminiBodyToOpenAI(body, { streaming: true, model });
         for (const apiKey of keys) {
+          if (yielded) break;
+          const keyRemainingMs = streamDeadlineAt - Date.now();
+          if (keyRemainingMs < 3000) break;
           try {
             const resp = await fetch(OPENROUTER_URL, {
               method: "POST",
               headers: openRouterHeaders(apiKey),
               body: JSON.stringify(attempt),
-              signal: AbortSignal.timeout(perCallTimeout),
+              signal: AbortSignal.timeout(Math.min(perCallTimeout, keyRemainingMs)),
             });
             if (!resp.ok || !resp.body) {
               const errText = await resp.text();
@@ -928,55 +1078,39 @@ exports.foodAiProxy = onRequest(
               if (!shouldTryNextKeyForError(resp.status, errText)) break;
               continue;
             }
-            upstream = resp;
+
+            const reader = resp.body.getReader();
+            let buffer = "";
+            for (;;) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() || "";
+              for (const rawLine of lines) {
+                emitStreamLine(rawLine);
+              }
+            }
+            if (buffer.trim()) {
+              emitStreamLine(buffer);
+            }
+            if (!yielded) {
+              lastError = new Error(`Empty stream completion from ${model}`);
+              console.warn(lastError.message);
+              break;
+            }
             break;
           } catch (e) {
             lastError = e;
             console.warn(`Stream attempt failed on ${model}:`, e?.message || e);
+            if (yielded) throw e;
             break;
           }
         }
-        if (upstream) break;
       }
 
-      if (!upstream) {
-        throw lastError || new Error("All streaming models failed");
-      }
-
-      res.status(200).set("Content-Type", "text/event-stream");
-      const reader = upstream.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      const emitStreamLine = (rawLine) => {
-        const line = rawLine.trimEnd();
-        if (!line) return;
-        const converted = openAIStreamChunkToGemini(line);
-        if (converted === "[DONE]") {
-          res.write("data: [DONE]\n\n");
-          return;
-        }
-        if (converted) {
-          yielded = true;
-          res.write(`data: ${converted}\n\n`);
-        }
-      };
-
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-        for (const rawLine of lines) {
-          emitStreamLine(rawLine);
-        }
-      }
-      if (buffer.trim()) {
-        emitStreamLine(buffer);
-      }
       if (!yielded) {
-        await refundReservedSlots();
+        throw lastError || new Error("All streaming models failed");
       }
       res.end();
     } catch (e) {
@@ -996,7 +1130,13 @@ exports.foodAiProxy = onRequest(
   }
 );
 
-async function callFatSecretOAuth1({ consumerKey, consumerSecret, method, extraParams }) {
+async function callFatSecretOAuth1({
+  consumerKey,
+  consumerSecret,
+  method,
+  extraParams,
+  timeoutMs = FATSECRET_TIMEOUT_MS,
+}) {
   const url = buildOAuth1FatSecretURL({
     consumerKey,
     consumerSecret,
@@ -1004,13 +1144,42 @@ async function callFatSecretOAuth1({ consumerKey, consumerSecret, method, extraP
     extraParams,
   });
   const resp = await fetch(url, {
-    signal: AbortSignal.timeout(FATSECRET_TIMEOUT_MS),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   const text = await resp.text();
   if (!resp.ok) {
     throw new Error(`FatSecret OAuth1 ${resp.status}: ${text.slice(0, 200)}`);
   }
   return JSON.parse(text);
+}
+
+async function fetchFatSecretWithRetry({
+  url,
+  clientId,
+  clientSecret,
+  timeoutMs = FATSECRET_TIMEOUT_MS,
+}) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const token = await getFatSecretAccessToken({
+      clientId,
+      clientSecret,
+      forceRefresh: attempt > 0,
+    });
+    const resp = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (resp.status === 401 && attempt === 0) {
+      fatSecretTokenCache = null;
+      continue;
+    }
+    const text = await resp.text();
+    if (!resp.ok) {
+      throw new Error(`FatSecret API ${resp.status}: ${text.slice(0, 200)}`);
+    }
+    return JSON.parse(text);
+  }
+  throw new Error("FatSecret API unauthorized after refresh");
 }
 
 exports.foodSearchProxy = onRequest(
@@ -1038,8 +1207,13 @@ exports.foodSearchProxy = onRequest(
       return;
     }
 
+    let searchWindowStart;
     try {
-      await reserveRateLimitSlot("food_search_usage", uid, DEFAULT_SEARCH_WEEKLY_LIMIT);
+      searchWindowStart = await reserveRateLimitSlot(
+        "food_search_usage",
+        uid,
+        DEFAULT_SEARCH_WEEKLY_LIMIT
+      );
     } catch (e) {
       if (e instanceof RateLimitError) {
         res.set("Retry-After", String(e.retryAfterSeconds));
@@ -1058,10 +1232,14 @@ exports.foodSearchProxy = onRequest(
     const clientId = fatSecretClientId.value().trim();
     const clientSecret = fatSecretClientSecret.value().trim();
     if (!clientId || !clientSecret) {
-      await refundRateLimitSlot("food_search_usage", uid);
+      await refundRateLimitSlot("food_search_usage", uid, searchWindowStart);
       res.status(500).json({ error: "FatSecret credentials not configured" });
       return;
     }
+
+    const searchDeadlineAt = Date.now() + FATSECRET_TOTAL_BUDGET_MS;
+    const boundedFatSecretTimeout = () =>
+      Math.min(FATSECRET_TIMEOUT_MS, Math.max(2000, searchDeadlineAt - Date.now()));
 
     try {
       if (parsed.mode === "search") {
@@ -1074,6 +1252,7 @@ exports.foodSearchProxy = onRequest(
             search_expression: parsed.query,
             max_results: String(parsed.maxResults),
           },
+          timeoutMs: boundedFatSecretTimeout(),
         });
         if (!oauth1Data?.error) {
           res.status(200).json({ items: normalizeFatSecretSearch(oauth1Data) });
@@ -1088,7 +1267,12 @@ exports.foodSearchProxy = onRequest(
           `${FATSECRET_API_BASE}/foods/search/v1?search_expression=${encodeURIComponent(
             parsed.query
           )}&format=json&max_results=${parsed.maxResults}`;
-        const data = await fetchFatSecretWithRetry({ url, clientId, clientSecret });
+        const data = await fetchFatSecretWithRetry({
+          url,
+          clientId,
+          clientSecret,
+          timeoutMs: boundedFatSecretTimeout(),
+        });
         res.status(200).json({ items: normalizeFatSecretSearch(data) });
         return;
       }
@@ -1098,6 +1282,7 @@ exports.foodSearchProxy = onRequest(
         consumerSecret: clientSecret,
         method: "food.find_id_for_barcode",
         extraParams: { barcode: parsed.barcode },
+        timeoutMs: boundedFatSecretTimeout(),
       });
       if (!oauth1Barcode?.error) {
         const foodId = oauth1Barcode?.food_id?.value;
@@ -1110,6 +1295,7 @@ exports.foodSearchProxy = onRequest(
           consumerSecret: clientSecret,
           method: "food.get",
           extraParams: { food_id: String(foodId) },
+          timeoutMs: boundedFatSecretTimeout(),
         });
         res.status(200).json({ item: normalizeFatSecretBarcode(detail) });
         return;
@@ -1128,10 +1314,15 @@ exports.foodSearchProxy = onRequest(
         `${FATSECRET_API_BASE}/food/barcode/find-by-id/v2?barcode=${encodeURIComponent(
           parsed.barcode
         )}&format=json`;
-      const data = await fetchFatSecretWithRetry({ url, clientId, clientSecret });
+      const data = await fetchFatSecretWithRetry({
+        url,
+        clientId,
+        clientSecret,
+        timeoutMs: boundedFatSecretTimeout(),
+      });
       res.status(200).json({ item: normalizeFatSecretBarcode(data) });
     } catch (e) {
-      await refundRateLimitSlot("food_search_usage", uid);
+      await refundRateLimitSlot("food_search_usage", uid, searchWindowStart);
       console.error("foodSearchProxy error:", e?.message || e);
       res.status(502).json({
         error: "fatsecret_upstream_failed",
@@ -1140,6 +1331,21 @@ exports.foodSearchProxy = onRequest(
     }
   }
 );
+
+async function deleteFoodAccountData({ uid, firestore = getFirestore(), auth = getAuth() }) {
+  // Delete only FoodTracker-scoped per-user server docs (never touch shared `users/{uid}`).
+  await Promise.all([
+    firestore.collection("food_ai_usage").doc(uid).delete(),
+    firestore.collection("food_search_usage").doc(uid).delete(),
+  ]);
+  try {
+    await auth.deleteUser(uid);
+  } catch (err) {
+    if (err?.code !== "auth/user-not-found") {
+      throw err;
+    }
+  }
+}
 
 exports.foodDeleteAccount = onRequest(
   {
@@ -1158,12 +1364,7 @@ exports.foodDeleteAccount = onRequest(
     if (!uid) return;
 
     try {
-      const db = getFirestore();
-      // Delete only FoodTracker-scoped per-user server docs (never touch shared `users/{uid}`).
-      await Promise.all([
-        db.collection("food_ai_usage").doc(uid).delete(),
-        db.collection("food_search_usage").doc(uid).delete(),
-      ]);
+      await deleteFoodAccountData({ uid });
       res.status(200).json({ ok: true });
     } catch (e) {
       console.error("foodDeleteAccount error:", e?.message || e);
@@ -1189,6 +1390,8 @@ module.exports._test = {
   openAIStreamChunkToGemini,
   callOpenRouterText,
   parseNumericValue,
+  convertMetricWeightToGrams,
+  pickPreferredFatSecretServing,
   isTokenValid,
   buildOAuth1FatSecretURL,
   parseFatSecretDescription,
@@ -1196,4 +1399,5 @@ module.exports._test = {
   normalizeFatSecretSearch,
   normalizeFatSecretBarcode,
   parseSearchPayload,
+  deleteFoodAccountData,
 };

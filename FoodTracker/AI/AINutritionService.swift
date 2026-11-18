@@ -225,7 +225,7 @@ class AINutritionService {
         }
         """
         
-        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIFoodItemDTO.self) {
+        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIFoodItemDTO.self, suppressRateLimitAlert: true) {
             return FoodItem(
                 name: dto.name,
                 weight: 100.0,
@@ -455,9 +455,9 @@ class AINutritionService {
         }
     }
 
-    private func fetchFromGemini<T: Codable>(prompt: String, responseType: T.Type) async -> T? {
+    private func fetchFromGemini<T: Codable>(prompt: String, responseType: T.Type, suppressRateLimitAlert: Bool = false) async -> T? {
         do {
-            return try await client.fetchJSON(prompt: prompt, responseType: responseType)
+            return try await client.fetchJSON(prompt: prompt, responseType: responseType, suppressRateLimitAlert: suppressRateLimitAlert)
         } catch {
             // The client already logs detailed decode/raw info on failure.
             print("❌ AI Service Exception: \(error.localizedDescription)")

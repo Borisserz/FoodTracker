@@ -131,4 +131,44 @@ final class VertexAIManagerTests: XCTestCase {
         XCTAssertEqual(decoded.title, "Refuel & Recover")
         XCTAssertFalse(decoded.message.isEmpty)
     }
+
+    func testFlexibleNumericDecodingAnd1xDownsampling() throws {
+        let foodJSON = """
+        {
+            "isFood": true,
+            "name": "Grilled Salmon",
+            "weight": "180.5",
+            "calories": 340.6,
+            "protein": "32.0",
+            "fats": 18,
+            "carbs": "0"
+        }
+        """.data(using: .utf8)!
+        let food = try JSONDecoder().decode(VertexAIManager.AIFoodResponse.self, from: foodJSON)
+        XCTAssertEqual(food.calories, 341)
+        XCTAssertEqual(food.weight ?? 0, 180.5, accuracy: 0.01)
+        XCTAssertEqual(food.protein ?? 0, 32.0, accuracy: 0.01)
+
+        let menuJSON = """
+        {
+            "ideal": {"dishName": "Chicken", "estimatedCalories": "410.2", "protein": "38", "fats": 11.5, "carbs": 24, "reasoning": "Lean"},
+            "caution": {"dishName": "Pasta", "estimatedCalories": 650, "protein": 18, "reasoning": "Sauce"},
+            "avoid": {"dishName": "Fries", "estimatedCalories": 900, "protein": 8, "reasoning": "Fried"}
+        }
+        """.data(using: .utf8)!
+        let menu = try JSONDecoder().decode(VertexAIManager.MenuAIResponse.self, from: menuJSON)
+        XCTAssertEqual(menu.ideal.estimatedCalories, 410)
+        XCTAssertEqual(menu.ideal.fats ?? 0, 11.5, accuracy: 0.01)
+        XCTAssertEqual(menu.ideal.carbs ?? 0, 24.0, accuracy: 0.01)
+
+        // Ensure 1x scale rendering does not multiply dimensions by 3x display scale.
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2400, height: 1200))
+        let large = renderer.image { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 2400, height: 1200))
+        }
+        let downsampled = VertexAIManager.downsampledImage(large, maxDimension: 1024)
+        XCTAssertEqual(downsampled.scale, 1.0)
+        XCTAssertLessThanOrEqual(max(downsampled.size.width, downsampled.size.height), 1024.0)
+    }
 }

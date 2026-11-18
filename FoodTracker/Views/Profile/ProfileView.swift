@@ -718,13 +718,15 @@ struct AccountSettingsView: View {
                     ) {
                         Button("Delete Account", role: .destructive) {
                             Task {
+                                // Let the confirmation dialog finish dismissing before presenting Google/Apple auth.
+                                try? await Task.sleep(for: .milliseconds(250))
                                 isLoading = true
                                 defer { isLoading = false }
                                 do {
                                     try await SocialAuthService.shared.reauthenticateForDeletion()
                                     try await authManager.deleteCurrentUser()
+                                    _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                     LocalDataResetService.wipeAllData(in: context)
-                                    try await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                     dismiss()
                                 } catch {
                                     if !SocialAuthService.isCancellationError(error) {

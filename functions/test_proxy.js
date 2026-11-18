@@ -389,3 +389,70 @@ test("normalizeFatSecretFood converts oz metric_serving_unit to grams", () => {
   assert.equal(result.fats, 9);
   assert.equal(result.carbs, 0);
 });
+
+test("normalizeFatSecretFood prefers 100g serving and converts lb/kg/mg", () => {
+  const result = t.normalizeFatSecretFood({
+    food_name: "Rolled Oats",
+    servings: {
+      serving: [
+        { serving_description: "1 cup", calories: "300", protein: "10", fat: "5", carbohydrate: "54" },
+        {
+          metric_serving_amount: "100.000",
+          metric_serving_unit: "g",
+          calories: "389",
+          protein: "16.9",
+          fat: "6.9",
+          carbohydrate: "66.3",
+        },
+      ],
+    },
+  });
+  assert.equal(result.weight, 100);
+  assert.equal(result.calories, 389);
+  assert.equal(result.protein, 16.9);
+  assert.equal(Math.round(t.convertMetricWeightToGrams(1, "lb")), 454);
+  assert.equal(t.convertMetricWeightToGrams(0.5, "kg"), 500);
+  assert.equal(t.convertMetricWeightToGrams(500, "mg"), 0.5);
+});
+
+test("parseFatSecretDescription converts Per oz/kg weights cleanly", () => {
+  const ozDesc = t.parseFatSecretDescription(
+    "Per 4 oz - Calories: 90kcal | Fat: 1g | Carbs: 0g | Protein: 20g"
+  );
+  assert.equal(ozDesc.weight, 113.4);
+  assert.equal(ozDesc.calories, 90);
+});
+
+test("deleteFoodAccountData removes scoped quota docs and deletes Auth user idempotently", async () => {
+  const deletedDocs = [];
+  const deletedUsers = [];
+  const mockFirestore = {
+    collection(col) {
+      return {
+        doc(id) {
+          return {
+            async delete() {
+              deletedDocs.push(`${col}/${id}`);
+            },
+          };
+        },
+      };
+    },
+  };
+  const mockAuth = {
+    async deleteUser(uid) {
+      deletedUsers.push(uid);
+      if (uid === "uid-missing") {
+        const err = new Error("not found");
+        err.code = "auth/user-not-found";
+        throw err;
+      }
+    },
+  };
+
+  await t.deleteFoodAccountData({ uid: "uid-123", firestore: mockFirestore, auth: mockAuth });
+  assert.deepEqual(deletedDocs.sort(), ["food_ai_usage/uid-123", "food_search_usage/uid-123"]);
+  assert.deepEqual(deletedUsers, ["uid-123"]);
+
+  await t.deleteFoodAccountData({ uid: "uid-missing", firestore: mockFirestore, auth: mockAuth });
+});

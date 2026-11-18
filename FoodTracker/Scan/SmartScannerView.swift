@@ -1,10 +1,12 @@
 import SwiftUI
 import AVFoundation
 import VisionKit
+import PhotosUI
 import Combine
 
 struct SmartScannerView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
 
     var onProductFound: (FoodItem) -> Void
     var onManualEntryRequest: () -> Void
@@ -18,9 +20,10 @@ struct SmartScannerView: View {
     @State private var isPulseActive: Bool = false
 
     @State private var selectedMode: ScannerMode = .barcode
-    // @State for @Observable class (replaces @StateObject for the migrated LiveFoodCameraManager)
     @State private var cameraManager = LiveFoodCameraManager()
+    @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var isAnalyzingAI = false
+    @State private var isCapturingPhoto = false
     @State private var showShutterFlash = false
 
     @State private var menuResponse: VertexAIManager.MenuAIResponse? = nil
@@ -30,52 +33,59 @@ struct SmartScannerView: View {
     @State private var scanErrorMessage: String? = nil
     @State private var barcodeTask: Task<Void, Never>? = nil
     @State private var aiTask: Task<Void, Never>? = nil
+    @State private var startScanWorkItem: DispatchWorkItem? = nil
+    @State private var barcodePermissionStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
 
     enum ScannerMode { case barcode, mealAI, menuAI }
+
+    private var isBarcodePermissionDenied: Bool {
+        barcodePermissionStatus == .denied || barcodePermissionStatus == .restricted
+    }
+
+    private var canCapturePhoto: Bool {
+        (selectedMode == .mealAI || selectedMode == .menuAI)
+        && cameraManager.isConfigured
+        && !cameraManager.isPermissionDenied
+        && !cameraManager.isCameraUnavailable
+        && !isAnalyzingAI
+        && !isCapturingPhoto
+        && menuResponse == nil
+    }
 
     var body: some View {
         ZStack {
 
-            if selectedMode == .barcode && DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
-                DataScannerRepresentable(recognizedBarcode: $recognizedBarcode, isScanning: $isScanning)
-                    .ignoresSafeArea()
-            } else if selectedMode == .mealAI || selectedMode == .menuAI {
+            if selectedMode == .barcode {
+                if isBarcodePermissionDenied {
+                    cameraPermissionFallbackView
+                } else if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
+                    DataScannerRepresentable(recognizedBarcode: $recognizedBarcode, isScanning: $isScanning)
+                        .ignoresSafeArea()
+                } else {
+                    barcodeUnavailableFallbackView
+                }
+            } else {
                 LiveCameraPreviewView(session: cameraManager.session)
                     .ignoresSafeArea()
                     .overlay {
-                        if selectedMode == .mealAI {
+                        if selectedMode == .mealAI && !cameraManager.isPermissionDenied && !cameraManager.isCameraUnavailable {
                             ARFoodHUDOverlay()
                         }
                     }
                     .onAppear { cameraManager.checkPermissionAndStart() }
                     .onDisappear { cameraManager.stop() }
-            } else {
-                ZStack {
-                    Color.black.ignoresSafeArea()
-                    VStack(spacing: 16) {
-                        Image(systemName: "barcode.viewfinder")
-                            .font(.system(size: 48))
-                            .foregroundColor(.white.opacity(0.6))
-                        Text("Live barcode scanning is unavailable on this device.")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 32)
-                        Button("Use Meal AI Photo") {
-                            selectedMode = .mealAI
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.themePink)
-                    }
-                }
             }
 
-            if selectedMode == .barcode {
+            if selectedMode == .barcode && !isBarcodePermissionDenied && DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
                 Color.black.opacity(0.65)
                     .ignoresSafeArea()
                     .mask(
-                        Rectangle()
-                            .overlay(RoundedRectangle(cornerRadius: 24).frame(width: 250, height: 250))
+                        Color.white
+                            .overlay(
+                                Color.black
+                                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                                    .frame(width: 250, height: 250)
+                            )
                             .compositingGroup()
                             .luminanceToAlpha()
                     )
@@ -157,33 +167,35 @@ struct SmartScannerView: View {
                         }
                     }
                 } else {
-
-                    if selectedMode == .mealAI || selectedMode == .menuAI {
-                        if cameraManager.isPermissionDenied {
-                            VStack(spacing: 14) {
-                                Image(systemName: "camera.fill")
-                                    .font(.system(size: 36))
-                                    .foregroundColor(.themeOrange)
-                                Text("Camera access is needed to scan meals and menus.")
+                    if cameraManager.isPermissionDenied {
+                        cameraPermissionFallbackView
+                    } else if cameraManager.isCameraUnavailable {
+                        VStack(spacing: 14) {
+                            Image(systemName: "video.slash.fill")
+                                .font(.system(size: 36))
+                                .foregroundColor(.themeOrange)
+                            Text("Camera Unavailable")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Text("Choose a photo from your library to analyze with AI.")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                Label("Choose from Library", systemImage: "photo.on.rectangle")
                                     .font(.subheadline.bold())
-                                    .foregroundColor(.white)
-                                    .multilineTextAlignment(.center)
-                                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
-                                    Link("Open Settings", destination: settingsURL)
-                                        .font(.subheadline.bold())
-                                        .foregroundColor(.black)
-                                        .padding(.horizontal, 18)
-                                        .padding(.vertical, 8)
-                                        .background(Color.white)
-                                        .clipShape(Capsule())
-                                }
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 18)
+                                    .padding(.vertical, 10)
+                                    .background(Color.white)
+                                    .clipShape(Capsule())
                             }
-                            .padding(.horizontal, 32)
-                        } else if selectedMode == .mealAI {
-                            cameraHint(icon: "viewfinder", text: "Point at your meal\nand snap a photo")
-                        } else if selectedMode == .menuAI {
-                            cameraHint(icon: "text.book.closed.fill", text: "Scan a restaurant menu\nto get smart choices")
                         }
+                        .padding(.horizontal, 32)
+                    } else if selectedMode == .mealAI {
+                        cameraHint(icon: "viewfinder", text: "Point at your meal\nand snap a photo")
+                    } else if selectedMode == .menuAI {
+                        cameraHint(icon: "text.book.closed.fill", text: "Scan a restaurant menu\nto get smart choices")
                     }
                 }
 
@@ -213,8 +225,10 @@ struct SmartScannerView: View {
                                         .stroke(Color.white, lineWidth: 3)
                                         .frame(width: 66, height: 66)
                                 }
+                                .opacity(canCapturePhoto ? 1.0 : 0.45)
                                 .shadow(color: (selectedMode == .menuAI ? Color.blue : Color.themePink).opacity(0.4), radius: 10, y: 5)
                             }
+                            .disabled(!canCapturePhoto)
                             .offset(y: -20)
                             .transition(.scale.combined(with: .opacity))
                         } else {
@@ -223,8 +237,24 @@ struct SmartScannerView: View {
 
                         Spacer()
 
-                        FloatingActionButton(icon: isFlashlightOn ? "bolt.fill" : "bolt.slash.fill") {
-                            toggleFlashlight()
+                        if selectedMode == .mealAI || selectedMode == .menuAI {
+                            HStack(spacing: 12) {
+                                PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                    Image(systemName: "photo.on.rectangle")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .frame(width: 56, height: 56)
+                                        .background(Color.black.opacity(0.4))
+                                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                }
+                                .disabled(isAnalyzingAI || menuResponse != nil)
+
+                                FloatingActionButton(icon: isFlashlightOn ? "bolt.fill" : "bolt.slash.fill") {
+                                    toggleFlashlight()
+                                }
+                            }
+                        } else {
+                            Color.clear.frame(width: 56, height: 56)
                         }
                     }
                     .padding(.horizontal, 24)
@@ -250,6 +280,17 @@ struct SmartScannerView: View {
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .lineSpacing(6)
+
+                        Button(action: cancelCurrentAIAnalysis) {
+                            Text("Cancel")
+                                .font(.subheadline.bold())
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 10)
+                                .background(Color.white.opacity(0.18))
+                                .clipShape(Capsule())
+                        }
+                        .padding(.top, 8)
                     }
                 }
                 .zIndex(100)
@@ -259,17 +300,37 @@ struct SmartScannerView: View {
             if let menu = menuResponse {
                 ZStack {
                     Color.black.opacity(0.6).ignoresSafeArea().onTapGesture { menuResponse = nil }
-                    MenuHackerResultsView(response: menu) {
-                        menuResponse = nil
-                    }
+                    MenuHackerResultsView(
+                        response: menu,
+                        onLogDish: { dishItem in
+                            menuResponse = nil
+                            deliverFoundProduct(dishItem)
+                        },
+                        onClose: {
+                            menuResponse = nil
+                        }
+                    )
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(101)
                 }
             }
         }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if selectedMode == .barcode { isScanning = true }
+            barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
+            startScanWorkItem?.cancel()
+            let work = DispatchWorkItem { [self] in
+                if selectedMode == .barcode {
+                    isScanning = true
+                }
+            }
+            startScanWorkItem = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else { return }
+            barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
+            if selectedMode == .mealAI || selectedMode == .menuAI {
+                cameraManager.checkPermissionAndStart()
             }
         }
         .alert(
@@ -288,34 +349,54 @@ struct SmartScannerView: View {
             }
             Button("Try Again", role: .cancel) {
                 scanErrorMessage = nil
+                if selectedMode == .barcode {
+                    notFoundError = false
+                    recognizedBarcode = nil
+                    isScanning = true
+                }
             }
         } message: {
             Text(scanErrorMessage ?? "")
         }
         .onDisappear {
+            startScanWorkItem?.cancel()
+            startScanWorkItem = nil
             isScanning = false
             barcodeTask?.cancel()
             barcodeTask = nil
             aiTask?.cancel()
             aiTask = nil
+            isCapturingPhoto = false
 
-            if isFlashlightOn { toggleFlashlight() }
+            if isFlashlightOn {
+                cameraManager.setTorch(enabled: false)
+                isFlashlightOn = false
+            }
             cameraManager.stop()
         }
         .onChange(of: selectedMode) { _, newMode in
+            startScanWorkItem?.cancel()
+            startScanWorkItem = nil
             barcodeTask?.cancel()
             barcodeTask = nil
             aiTask?.cancel()
             aiTask = nil
             isLoading = false
             isAnalyzingAI = false
+            isCapturingPhoto = false
+            notFoundError = false
             recognizedBarcode = nil
+            cameraManager.capturedImage = nil
 
-            if isFlashlightOn { toggleFlashlight() }
+            if isFlashlightOn {
+                cameraManager.setTorch(enabled: false)
+                isFlashlightOn = false
+            }
 
             isScanning = (newMode == .barcode)
             if newMode == .barcode {
                 cameraManager.stop()
+                barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
             } else {
                 cameraManager.checkPermissionAndStart()
             }
@@ -326,6 +407,7 @@ struct SmartScannerView: View {
             }
         }
         .onChange(of: cameraManager.capturedImage) { _, newImage in
+            isCapturingPhoto = false
             if let image = newImage {
                 if selectedMode == .mealAI {
                     analyzeMealWithAI(image)
@@ -334,9 +416,99 @@ struct SmartScannerView: View {
                 }
             }
         }
+        .onChange(of: cameraManager.captureError) { _, err in
+            guard let err else { return }
+            isCapturingPhoto = false
+            cameraManager.captureError = nil
+            scanErrorMessage = err
+        }
+        .onChange(of: selectedPhotoItem) { _, newItem in
+            guard let newItem else { return }
+            selectedPhotoItem = nil
+            let currentMode = selectedMode
+            Task {
+                if let data = try? await newItem.loadTransferable(type: Data.self),
+                   let rawImage = UIImage(data: data) {
+                    let downsampled = await Task.detached(priority: .userInitiated) {
+                        VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
+                    }.value
+                    await MainActor.run {
+                        if currentMode == .menuAI {
+                            analyzeMenuWithAI(downsampled)
+                        } else {
+                            if selectedMode == .barcode {
+                                selectedMode = .mealAI
+                            }
+                            analyzeMealWithAI(downsampled)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var cameraPermissionFallbackView: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "camera.fill")
+                .font(.system(size: 36))
+                .foregroundColor(.themeOrange)
+            Text("Camera access is needed to scan meals and menus.")
+                .font(.subheadline.bold())
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                Link("Open Settings", destination: settingsURL)
+                    .font(.subheadline.bold())
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 8)
+                    .background(Color.white)
+                    .clipShape(Capsule())
+            }
+        }
+        .padding(.horizontal, 32)
+    }
+
+    private var barcodeUnavailableFallbackView: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VStack(spacing: 16) {
+                Image(systemName: "barcode.viewfinder")
+                    .font(.system(size: 48))
+                    .foregroundColor(.white.opacity(0.6))
+                Text("Live barcode scanning is unavailable on this device.")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+                Button("Use Meal AI Photo") {
+                    selectedMode = .mealAI
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.themePink)
+            }
+        }
+    }
+
+    private func deliverFoundProduct(_ item: FoodItem) {
+        cameraManager.capturedImage = nil
+        dismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            onProductFound(item)
+        }
+    }
+
+    private func cancelCurrentAIAnalysis() {
+        aiTask?.cancel()
+        aiTask = nil
+        isAnalyzingAI = false
+        isCapturingPhoto = false
+        cameraManager.capturedImage = nil
     }
 
     private func takePhoto() {
+        guard canCapturePhoto else { return }
+        isCapturingPhoto = true
         HapticManager.shared.impact(style: .heavy)
         withAnimation(.linear(duration: 0.1)) { showShutterFlash = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -374,8 +546,10 @@ struct SmartScannerView: View {
                 isLoading = false
                 if let foodItem {
                     HapticManager.shared.impact(style: .heavy)
-                    onProductFound(foodItem)
-                    dismiss()
+                    deliverFoundProduct(foodItem)
+                } else if let networkErr = NetworkManager.shared.lastBarcodeLookupError {
+                    HapticManager.shared.notification(type: .error)
+                    scanErrorMessage = networkErr
                 } else {
                     notFoundError = true
                     HapticManager.shared.impact(style: .rigid)
@@ -397,8 +571,7 @@ struct SmartScannerView: View {
                 switch result {
                 case .food(let foodItem):
                     HapticManager.shared.impact(style: .heavy)
-                    onProductFound(foodItem)
-                    dismiss()
+                    deliverFoundProduct(foodItem)
                 case .notFood(let message):
                     cameraManager.capturedImage = nil
                     HapticManager.shared.notification(type: .warning)
@@ -438,38 +611,28 @@ struct SmartScannerView: View {
     }
 
     private func toggleFlashlight() {
-        guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }
-
-        do {
-            try device.lockForConfiguration()
-
-            if isFlashlightOn {
-                device.torchMode = .off
-            } else {
-                try device.setTorchModeOn(level: 1.0)
-            }
-
-            device.unlockForConfiguration()
-            isFlashlightOn.toggle()
+        guard selectedMode == .mealAI || selectedMode == .menuAI else { return }
+        let targetState = !isFlashlightOn
+        cameraManager.setTorch(enabled: targetState) { actualState in
+            isFlashlightOn = actualState
             HapticManager.shared.impact(style: .light)
-        } catch {
-            print("❌ Ошибка при включении фонарика: \(error.localizedDescription)")
         }
     }
 }
 
 @Observable
 final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
-    // Migrated from ObservableObject/@Published to @Observable (plain vars now notify observers)
     var session = AVCaptureSession()
     var capturedImage: UIImage? = nil
+    var captureError: String? = nil
     var isPermissionDenied: Bool = false
     var isCameraUnavailable: Bool = false
+    var isConfigured = false
 
     private let photoOutput = AVCapturePhotoOutput()
     private let sessionQueue = DispatchQueue(label: "com.borisdev.FoodTracker.cameraSession")
-    private var isConfigured = false
     private var shouldBeRunning = false
+    private var activeDevice: AVCaptureDevice?
 
     func checkPermissionAndStart() {
         guard AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) != nil else {
@@ -483,11 +646,18 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
             isPermissionDenied = false
             setupAndStart()
         case .notDetermined:
+            sessionQueue.async { [weak self] in
+                self?.shouldBeRunning = true
+            }
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
                 DispatchQueue.main.async {
-                    self?.isPermissionDenied = !granted
+                    guard let self else { return }
+                    self.isPermissionDenied = !granted
                     if granted {
-                        self?.setupAndStart()
+                        self.sessionQueue.async { [weak self] in
+                            guard let self, self.shouldBeRunning else { return }
+                            self.configureAndStartOnQueue()
+                        }
                     }
                 }
             }
@@ -497,93 +667,142 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     }
 
     private func setupAndStart() {
-        shouldBeRunning = true
         sessionQueue.async { [weak self] in
-            guard let self, self.shouldBeRunning else { return }
+            guard let self else { return }
+            self.shouldBeRunning = true
+            self.configureAndStartOnQueue()
+        }
+    }
 
-            if self.isConfigured {
-                if !self.session.isRunning {
-                    self.session.startRunning()
-                }
-                return
+    private func configureAndStartOnQueue() {
+        guard shouldBeRunning else { return }
+
+        if isConfigured {
+            if !session.isRunning {
+                session.startRunning()
             }
+            return
+        }
 
-            self.session.beginConfiguration()
-            self.session.sessionPreset = .photo
+        session.beginConfiguration()
+        session.sessionPreset = .photo
 
-            guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-                  let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
-                  self.session.canAddInput(videoInput) else {
-                self.session.commitConfiguration()
-                DispatchQueue.main.async { self.isCameraUnavailable = true }
-                return
+        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+              let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
+              session.canAddInput(videoInput) else {
+            session.commitConfiguration()
+            DispatchQueue.main.async { [weak self] in self?.isCameraUnavailable = true }
+            return
+        }
+
+        do {
+            try videoDevice.lockForConfiguration()
+            if videoDevice.isFocusModeSupported(.continuousAutoFocus) {
+                videoDevice.focusMode = .continuousAutoFocus
             }
-
-            do {
-                try videoDevice.lockForConfiguration()
-                if videoDevice.isFocusModeSupported(.continuousAutoFocus) {
-                    videoDevice.focusMode = .continuousAutoFocus
-                }
-                if videoDevice.isExposureModeSupported(.continuousAutoExposure) {
-                    videoDevice.exposureMode = .continuousAutoExposure
-                }
-                if videoDevice.isLowLightBoostSupported {
-                    videoDevice.automaticallyEnablesLowLightBoostWhenAvailable = true
-                }
-                videoDevice.isSubjectAreaChangeMonitoringEnabled = true
-                videoDevice.unlockForConfiguration()
-            } catch {
-                print("❌ Failed to configure camera: \(error.localizedDescription)")
+            if videoDevice.isExposureModeSupported(.continuousAutoExposure) {
+                videoDevice.exposureMode = .continuousAutoExposure
             }
-
-            self.session.addInput(videoInput)
-
-            if self.session.canAddOutput(self.photoOutput) {
-                self.session.addOutput(self.photoOutput)
+            if videoDevice.isLowLightBoostSupported {
+                videoDevice.automaticallyEnablesLowLightBoostWhenAvailable = true
             }
+            videoDevice.unlockForConfiguration()
+        } catch {
+            print("❌ Failed to configure camera: \(error.localizedDescription)")
+        }
 
-            self.session.commitConfiguration()
-            self.isConfigured = true
+        session.addInput(videoInput)
+        activeDevice = videoDevice
 
-            if self.shouldBeRunning {
-                self.session.startRunning()
-            }
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
+        }
+
+        session.commitConfiguration()
+        DispatchQueue.main.async { [weak self] in
+            self?.isConfigured = true
+        }
+
+        if shouldBeRunning {
+            session.startRunning()
         }
     }
 
     func stop() {
-        shouldBeRunning = false
         sessionQueue.async { [weak self] in
             guard let self else { return }
+            self.shouldBeRunning = false
+            self.updateTorchOnQueue(enabled: false)
             if self.session.isRunning {
                 self.session.stopRunning()
             }
         }
     }
 
+    func setTorch(enabled: Bool, completion: ((Bool) -> Void)? = nil) {
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
+            let actual = self.updateTorchOnQueue(enabled: enabled)
+            if let completion {
+                DispatchQueue.main.async { completion(actual) }
+            }
+        }
+    }
+
+    @discardableResult
+    private func updateTorchOnQueue(enabled: Bool) -> Bool {
+        guard let device = activeDevice ?? AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+              device.hasTorch else {
+            return false
+        }
+        guard !enabled || (device.isTorchAvailable && device.isTorchModeSupported(.on)) else {
+            return false
+        }
+        do {
+            try device.lockForConfiguration()
+            defer { device.unlockForConfiguration() }
+            if enabled {
+                try device.setTorchModeOn(level: 1.0)
+                return true
+            } else {
+                device.torchMode = .off
+                return false
+            }
+        } catch {
+            return false
+        }
+    }
+
     func takePhoto() {
         sessionQueue.async { [weak self] in
-            guard let self, self.isConfigured, self.session.isRunning else { return }
+            guard let self, self.session.isRunning else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.captureError = String(localized: "Camera is not ready yet. Please try again.")
+                }
+                return
+            }
             let settings = AVCapturePhotoSettings()
             self.photoOutput.capturePhoto(with: settings, delegate: self)
         }
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else { return }
-
-        let fixedImage = fixOrientation(img: image)
-
-        DispatchQueue.main.async {
-            self.capturedImage = fixedImage
+        if let error {
+            DispatchQueue.main.async { [weak self] in
+                self?.captureError = error.localizedDescription
+            }
+            return
         }
-    }
+        guard let data = photo.fileDataRepresentation(), let rawImage = UIImage(data: data) else {
+            DispatchQueue.main.async { [weak self] in
+                self?.captureError = String(localized: "Could not read captured photo. Please try again.")
+            }
+            return
+        }
 
-    private func fixOrientation(img: UIImage) -> UIImage {
-        guard img.imageOrientation != .up else { return img }
-        let renderer = UIGraphicsImageRenderer(size: img.size)
-        return renderer.image { _ in
-            img.draw(in: CGRect(origin: .zero, size: img.size))
+        let downsampled = VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
+        DispatchQueue.main.async { [weak self] in
+            self?.capturedImage = downsampled
         }
     }
 }
@@ -662,6 +881,7 @@ struct FloatingActionButton: View {
 
 struct MenuHackerResultsView: View {
     let response: VertexAIManager.MenuAIResponse
+    var onLogDish: ((FoodItem) -> Void)? = nil
     let onClose: () -> Void
 
     var body: some View {
@@ -678,9 +898,9 @@ struct MenuHackerResultsView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-                    MenuRecCard(rec: response.ideal, type: "Ideal Match", icon: "checkmark.seal.fill", color: .green)
-                    MenuRecCard(rec: response.caution, type: "Caution", icon: "exclamationmark.triangle.fill", color: .orange)
-                    MenuRecCard(rec: response.avoid, type: "Avoid", icon: "xmark.octagon.fill", color: .red)
+                    MenuRecCard(rec: response.ideal, type: "Ideal Match", icon: "checkmark.seal.fill", color: .green, onLogDish: onLogDish)
+                    MenuRecCard(rec: response.caution, type: "Caution", icon: "exclamationmark.triangle.fill", color: .orange, onLogDish: onLogDish)
+                    MenuRecCard(rec: response.avoid, type: "Avoid", icon: "xmark.octagon.fill", color: .red, onLogDish: onLogDish)
                 }
             }
         }
@@ -696,12 +916,13 @@ struct MenuRecCard: View {
     let type: String
     let icon: String
     let color: Color
+    var onLogDish: ((FoodItem) -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon).foregroundColor(color)
-                Text(type).font(.caption.bold()).foregroundColor(color).textCase(.uppercase)
+                Text(LocalizedStringKey(type)).font(.caption.bold()).foregroundColor(color).textCase(.uppercase)
                 Spacer()
                 Text("~ \(rec.estimatedCalories) kcal")
                     .font(.headline)
@@ -719,6 +940,36 @@ struct MenuRecCard: View {
             HStack {
                 Text("Est. Protein:").font(.caption).foregroundColor(.gray)
                 Text("\(Int(rec.protein))g").font(.caption.bold()).foregroundColor(color)
+                if let fats = rec.fats, fats > 0 {
+                    Text("• F: \(Int(fats))g").font(.caption).foregroundColor(.gray)
+                }
+                if let carbs = rec.carbs, carbs > 0 {
+                    Text("• C: \(Int(carbs))g").font(.caption).foregroundColor(.gray)
+                }
+                Spacer()
+                if let onLogDish {
+                    Button(action: {
+                        HapticManager.shared.impact(style: .medium)
+                        let item = FoodItem(
+                            name: rec.dishName,
+                            weight: 250.0,
+                            calories: rec.estimatedCalories,
+                            protein: rec.protein,
+                            fats: rec.fats ?? 0,
+                            carbs: rec.carbs ?? 0
+                        )
+                        onLogDish(item)
+                    }) {
+                        Label("Log Dish", systemImage: "plus.circle.fill")
+                            .font(.caption.bold())
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(color)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
             }
             .padding(.top, 4)
         }

@@ -21,45 +21,88 @@ final class AuthManager {
     var isAuthenticated: Bool = false
     var currentUser: FirebaseAuth.User?
 
+    @ObservationIgnored private var authStateHandle: AuthStateDidChangeListenerHandle?
+    @ObservationIgnored private var idTokenHandle: IDTokenDidChangeListenerHandle?
+
     init() {
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            guard let self = self else { return }
-            self.currentUser = user
-            self.isAnonymous = user?.isAnonymous ?? true
-            self.isAuthenticated = user != nil && !(user?.isAnonymous ?? true)
+        applyUser(Auth.auth().currentUser)
+        authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            Task { @MainActor [weak self] in
+                self?.applyUser(user)
+            }
         }
+        idTokenHandle = Auth.auth().addIDTokenDidChangeListener { [weak self] _, user in
+            Task { @MainActor [weak self] in
+                self?.applyUser(user)
+            }
+        }
+    }
+
+    private func applyUser(_ user: FirebaseAuth.User?) {
+        self.currentUser = user
+        self.isAnonymous = user?.isAnonymous ?? true
+        self.isAuthenticated = user != nil && !(user?.isAnonymous ?? true)
     }
 
     var currentUserId: String {
-        currentUser?.uid ?? "Unknown"
+        currentUser?.uid ?? Auth.auth().currentUser?.uid ?? "Unknown"
     }
 
     var currentUserEmail: String? {
-        currentUser?.email
+        currentUser?.email ?? Auth.auth().currentUser?.email
     }
 
     func deleteCurrentUser() async throws {
-        guard let user = currentUser else { return }
+        guard let user = currentUser ?? Auth.auth().currentUser else { return }
 
-        // Delete FoodTracker server state first while the user's ID token is still valid.
-        let idToken = try await user.getIDToken()
-        let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: false).token
+        // Delete FoodTracker server state & Firebase Auth user while the ID token is still valid.
         let configured = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.deleteAccountRemoteConfigKey)
         let url = AIProxyEndpoint.resolve(configured: configured, fallback: AIProxyEndpoint.deleteAccountFallbackURL)
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.timeoutInterval = 20.0
-        request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
-        request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = Data("{}".utf8)
+        var lastStatusCode = 500
+        var serverSucceeded = false
+        for forceRefresh in [false, true] {
+            let idToken = try await user.getIDTokenResult(forcingRefresh: forceRefresh).token
+            let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: forceRefresh).token
 
-        let (_, response) = try await URLSession.shared.data(for: request)
-        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
-            throw AccountDeletionError.serverCleanupFailed(statusCode: http.statusCode)
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.timeoutInterval = 20.0
+            request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+            request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = Data("{}".utf8)
+
+            let (_, response) = try await URLSession.shared.data(for: request)
+            if let http = response as? HTTPURLResponse {
+                if (200...299).contains(http.statusCode) {
+                    serverSucceeded = true
+                    break
+                }
+                lastStatusCode = http.statusCode
+                if http.statusCode == 401 && !forceRefresh {
+                    continue
+                }
+            }
+            break
         }
 
-        try await user.delete()
+        guard serverSucceeded else {
+            throw AccountDeletionError.serverCleanupFailed(statusCode: lastStatusCode)
+        }
+
+        // Server deletes the Firebase Auth user atomically; still attempt client cleanup for older backends
+        // and tolerate userNotFound/token errors once the server confirmed deletion.
+        do {
+            try await user.delete()
+        } catch {
+            let nsError = error as NSError
+            let code = AuthErrorCode(rawValue: nsError.code)
+            if code != .userNotFound && code != .userTokenExpired && code != .invalidUserToken {
+                throw error
+            }
+        }
+        try? Auth.auth().signOut()
+        applyUser(nil)
     }
 }

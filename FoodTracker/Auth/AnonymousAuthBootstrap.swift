@@ -18,6 +18,11 @@ actor AnonymousAuthBootstrap {
         }
 
         let task = Task<FirebaseAuth.User, Error> {
+            // Yield once and re-check so concurrent Apple/Google sign-in isn't overwritten on startup.
+            await Task.yield()
+            if let existing = Auth.auth().currentUser {
+                return existing
+            }
             let result = try await Auth.auth().signInAnonymously()
             return result.user
         }

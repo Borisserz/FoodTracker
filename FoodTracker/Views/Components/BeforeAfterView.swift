@@ -14,7 +14,8 @@ enum BeforeAfterStorage {
         guard let dir = storageDirectory else { return }
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let url = dir.appendingPathComponent("\(slot).jpg")
-        if let data = image.jpegData(compressionQuality: 0.8) {
+        let normalized = VertexAIManager.downsampledImage(image, maxDimension: 1600)
+        if let data = normalized.jpegData(compressionQuality: 0.8) {
             try? data.write(to: url, options: .atomic)
         }
     }
@@ -217,12 +218,15 @@ struct BeforeAfterView: View {
         .onChange(of: item.wrappedValue) { _, newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),
-                   let loadedImage = UIImage(data: data) {
+                   let rawImage = UIImage(data: data) {
+                    let downsampled = await Task.detached(priority: .userInitiated) {
+                        VertexAIManager.downsampledImage(rawImage, maxDimension: 1600)
+                    }.value
                     await MainActor.run {
                         if title == "Before" {
-                            beforeImage = loadedImage
+                            beforeImage = downsampled
                         } else {
-                            afterImage = loadedImage
+                            afterImage = downsampled
                         }
                     }
                 }

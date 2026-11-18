@@ -122,7 +122,10 @@ final class SocialAuthService {
     private func linkOrSignIn(with credential: AuthCredential) async throws {
         if let user = Auth.auth().currentUser, user.isAnonymous {
             do {
-                _ = try await user.link(with: credential)
+                let result = try await user.link(with: credential)
+                try? await result.user.reload()
+                // Force an ID-token listener notification so UI reflects linked provider/email immediately.
+                _ = try? await result.user.getIDTokenResult(forcingRefresh: true)
             } catch {
                 let nsError = error as NSError
                 let code = AuthErrorCode(rawValue: nsError.code)

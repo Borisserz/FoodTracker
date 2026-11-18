@@ -42,6 +42,25 @@ final class GeminiProxyClientTests: XCTestCase {
         XCTAssertEqual(extracted, "[{\"a\":1},{\"b\":2}]")
     }
 
+    func testExtractJSONSkipsProseCitationBracketsAndExtractsFencedOrObjectPayload() {
+        let withCitationAndFenced = """
+        Option [1] summary:
+        ```json
+        {"calories": 420, "name": "Salmon Bowl"}
+        ```
+        """
+        XCTAssertEqual(
+            AIResponseParsing.extractJSON(from: withCitationAndFenced),
+            "{\"calories\": 420, \"name\": \"Salmon Bowl\"}"
+        )
+
+        let withCitationAndRawObject = "Reference [2] -> {\"title\":\"Ok\"}"
+        XCTAssertEqual(
+            AIResponseParsing.extractJSON(from: withCitationAndRawObject),
+            "{\"title\":\"Ok\"}"
+        )
+    }
+
     func testExtractRetryAfterPrefersHeaderOrBody() {
         let url = URL(string: "https://example.com")!
         let headerResp = HTTPURLResponse(

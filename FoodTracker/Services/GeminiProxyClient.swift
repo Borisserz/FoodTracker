@@ -7,12 +7,21 @@ import FirebaseAppCheck
 private enum DeviceInstallIdentifier {
     private static let service = "com.borisdev.FoodTracker2026.deviceInstall"
     private static let account = "deviceInstallId"
+    private static let lock = NSLock()
+    private static var cachedId: String?
 
     static var current: String {
+        lock.lock()
+        defer { lock.unlock() }
+        if let cachedId {
+            return cachedId
+        }
         if let existing = readFromKeychain() {
+            cachedId = existing
             return existing
         }
         let generated = UUID().uuidString
+        cachedId = generated
         saveToKeychain(generated)
         return generated
     }
@@ -70,24 +79,24 @@ final class GeminiProxyClient {
 
     private init() {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 90.0
-        config.timeoutIntervalForResource = 150.0
-        config.waitsForConnectivity = true
+        config.timeoutIntervalForRequest = 105.0
+        config.timeoutIntervalForResource = 120.0
+        config.waitsForConnectivity = false
         self.session = URLSession(configuration: config)
     }
 
     // MARK: - Public API (used by services)
 
     /// Sends a text-only prompt expecting a JSON response. Returns decoded type.
-    func fetchJSON<T: Decodable>(prompt: String, responseType: T.Type) async throws -> T {
-        let raw = try await performRequest(prompt: prompt, forceJSON: true)
+    func fetchJSON<T: Decodable>(prompt: String, responseType: T.Type, suppressRateLimitAlert: Bool = false) async throws -> T {
+        let raw = try await performRequest(prompt: prompt, forceJSON: true, suppressRateLimitAlert: suppressRateLimitAlert)
         let cleaned = cleanJSONResponse(raw)
         return try decode(cleaned, as: T.self, rawForLogging: cleaned)
     }
 
     /// Sends a text-only prompt expecting raw text (e.g. chat, title).
-    func fetchText(prompt: String) async throws -> String {
-        return try await performRequest(prompt: prompt, forceJSON: false)
+    func fetchText(prompt: String, suppressRateLimitAlert: Bool = false) async throws -> String {
+        return try await performRequest(prompt: prompt, forceJSON: false, suppressRateLimitAlert: suppressRateLimitAlert)
     }
 
     /// Sends a multimodal prompt (text + single image) expecting JSON.
@@ -117,7 +126,7 @@ final class GeminiProxyClient {
 
     // MARK: - Core Request
 
-    private func performRequest(prompt: String, images: [(base64: String, mime: String)] = [], forceJSON: Bool) async throws -> String {
+    private func performRequest(prompt: String, images: [(base64: String, mime: String)] = [], forceJSON: Bool, suppressRateLimitAlert: Bool = false) async throws -> String {
         let configuredURL = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.remoteConfigKey)
         let url = AIProxyEndpoint.resolve(configured: configuredURL)
 
@@ -159,9 +168,11 @@ final class GeminiProxyClient {
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             if httpResponse.statusCode == 429 {
                 let retryAfter = Self.extractRetryAfter(httpResponse: httpResponse, data: data)
-                let message = AIResponseParsing.rateLimitMessage(retryAfter: retryAfter)
-                await MainActor.run {
-                    self.rateLimitAlertMessage = message
+                if !suppressRateLimitAlert {
+                    let message = AIResponseParsing.rateLimitMessage(retryAfter: retryAfter)
+                    await MainActor.run {
+                        self.rateLimitAlertMessage = message
+                    }
                 }
                 throw GeminiProxyError.rateLimited(retryAfter: retryAfter)
             }

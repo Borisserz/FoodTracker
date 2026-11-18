@@ -21,6 +21,7 @@ final class NetworkManagerTests: XCTestCase {
         MockURLProtocol.requestHandler = nil
         networkManager.session = .shared
         networkManager.searchProxyURLProvider = nil
+        networkManager.refreshingProxyTokensProvider = nil
         super.tearDown()
     }
 
@@ -87,5 +88,66 @@ final class NetworkManagerTests: XCTestCase {
 
         let barcodeItem = await networkManager.fetchProduct(barcode: "123456")
         XCTAssertNil(barcodeItem)
+    }
+
+    func testBarcodeFallsThroughZeroOFFToFatSecretAndRetries401WithForcedRefresh() async {
+        var refreshFlags: [Bool] = []
+        networkManager.refreshingProxyTokensProvider = { forceRefresh in
+            refreshFlags.append(forceRefresh)
+            return (authToken: forceRefresh ? "fresh-auth" : "stale-auth", appCheckToken: "appcheck")
+        }
+
+        var proxyAttempts = 0
+        MockURLProtocol.requestHandler = { request in
+            if request.url?.host == "world.openfoodfacts.org" {
+                let emptyOFF = #"{"status":1,"product":{"product_name":"Zero OFF Product","nutriments":{}}}"#.data(using: .utf8)!
+                let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (resp, emptyOFF)
+            }
+            proxyAttempts += 1
+            if proxyAttempts == 1 {
+                XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer stale-auth")
+                let resp = HTTPURLResponse(url: request.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!
+                return (resp, Data())
+            }
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer fresh-auth")
+            let proxyHit = #"{"item":{"name":"FatSecret Granola Bar","weight":40,"calories":180,"protein":4,"fats":7,"carbs":26}}"#.data(using: .utf8)!
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, proxyHit)
+        }
+
+        let item = await networkManager.fetchProduct(barcode: "004900000044")
+        XCTAssertEqual(item?.name, "FatSecret Granola Bar")
+        XCTAssertEqual(item?.calories, 180)
+        XCTAssertEqual(refreshFlags, [false, true])
+        XCTAssertNil(networkManager.lastBarcodeLookupError)
+    }
+
+    func testBarcodeUsesServingNutrimentsWhen100gMissing() async {
+        MockURLProtocol.requestHandler = { request in
+            let servingOFF = #"""
+            {
+              "status": 1,
+              "product": {
+                "product_name": "US Protein Bar",
+                "serving_quantity": "60",
+                "nutriments": {
+                  "energy-kcal_serving": 210,
+                  "proteins_serving": 20,
+                  "fat_serving": 7,
+                  "carbohydrates_serving": 22
+                }
+              }
+            }
+            """#.data(using: .utf8)!
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, servingOFF)
+        }
+
+        let item = await networkManager.fetchProduct(barcode: "88888888")
+        XCTAssertEqual(item?.name, "US Protein Bar")
+        XCTAssertEqual(item?.weight ?? 0, 60.0, accuracy: 0.01)
+        XCTAssertEqual(item?.calories, 210)
+        XCTAssertEqual(item?.protein ?? 0, 20.0, accuracy: 0.01)
     }
 }
