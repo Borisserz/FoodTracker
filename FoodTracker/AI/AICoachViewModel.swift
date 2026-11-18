@@ -51,7 +51,9 @@ class AICoachViewModel {
             } else {
                 withAnimation(.spring()) {
                     self.isAnalyzing = false
-                    self.errorMessage = String(localized: "Couldn't analyze your day right now. Please check your connection and try again.")
+                    if GeminiProxyClient.shared.rateLimitAlertMessage == nil {
+                        self.errorMessage = String(localized: "Couldn't analyze your day right now. Please check your connection and try again.")
+                    }
                     HapticManager.shared.notification(type: .error)
                 }
             }
@@ -76,7 +78,9 @@ class AICoachViewModel {
                 }
             } else {
                 self.isGeneratingRecipe = false
-                self.errorMessage = String(localized: "Couldn't generate a recipe right now. Please try again.")
+                if GeminiProxyClient.shared.rateLimitAlertMessage == nil {
+                    self.errorMessage = String(localized: "Couldn't generate a recipe right now. Please try again.")
+                }
                 HapticManager.shared.notification(type: .error)
             }
         }
@@ -99,7 +103,9 @@ class AICoachViewModel {
                 HapticManager.shared.impact(style: .heavy)
             } else {
                 self.isFixingMacros = false
-                self.errorMessage = String(localized: "Couldn't fetch macro advice right now. Please try again.")
+                if GeminiProxyClient.shared.rateLimitAlertMessage == nil {
+                    self.errorMessage = String(localized: "Couldn't fetch macro advice right now. Please try again.")
+                }
                 HapticManager.shared.notification(type: .error)
             }
         }
@@ -118,7 +124,9 @@ class AICoachViewModel {
                 HapticManager.shared.impact(style: .heavy)
             } else {
                 self.isFixingHydration = false
-                self.errorMessage = String(localized: "Couldn't fetch hydration advice right now. Please try again.")
+                if GeminiProxyClient.shared.rateLimitAlertMessage == nil {
+                    self.errorMessage = String(localized: "Couldn't fetch hydration advice right now. Please try again.")
+                }
                 HapticManager.shared.notification(type: .error)
             }
         }

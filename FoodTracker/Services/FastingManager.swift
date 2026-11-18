@@ -87,21 +87,33 @@ final class FastingManager {
         return String(format: "%dh %02dm left", h, m)
     }
 
+    nonisolated static func shouldContinueTimerLoop(isFasting: Bool, targetHours: Int, progress: Double) -> Bool {
+        isFasting && targetHours > 0
+    }
+
     private func startUpdateTask() {
         stopUpdateTask()
         updateCalculations()
         guard isFasting, targetHours > 0, startTime != nil else { return }
 
-        updateTask = Task { [weak self] in
+        updateTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(1))
-                let shouldContinue = await MainActor.run { () -> Bool in
-                    guard let self, self.isFasting, self.targetHours > 0 else { return false }
-                    self.updateCalculations()
-                    return self.progress < 1.0
+                guard !Task.isCancelled else { break }
+                guard let self, Self.shouldContinueTimerLoop(isFasting: self.isFasting, targetHours: self.targetHours, progress: self.progress) else {
+                    break
                 }
-                if !shouldContinue { break }
+                self.updateCalculations()
             }
+        }
+    }
+
+    /// Refreshes elapsed fasting state when the app returns to foreground.
+    func refreshOnForeground() {
+        guard isFasting, targetHours > 0, startTime != nil else { return }
+        updateCalculations()
+        if updateTask == nil || updateTask?.isCancelled == true {
+            startUpdateTask()
         }
     }
 
@@ -228,6 +240,8 @@ final class FastingManager {
     }
 
     private func cancelFastingNotifications() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
+        center.removeDeliveredNotifications(withIdentifiers: Self.fastingNotificationIDs)
     }
 }

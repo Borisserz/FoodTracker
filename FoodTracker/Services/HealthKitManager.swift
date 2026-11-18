@@ -2,7 +2,9 @@ import Foundation
 import HealthKit
 import Observation
 
-@Observable final class HealthKitManager {
+@Observable
+@MainActor
+final class HealthKitManager {
     static let shared = HealthKitManager()
     private let healthStore = HKHealthStore()
     private let hasRequestedKey = "healthKitAuthRequested_v1"
@@ -11,10 +13,15 @@ import Observation
 
     private init() {
         if HKHealthStore.isHealthDataAvailable(),
-           let water = HKObjectType.quantityType(forIdentifier: .dietaryWater) {
-            let status = healthStore.authorizationStatus(for: water)
-            self.isAuthorized = (status == .sharingAuthorized) ||
-                (status != .sharingDenied && UserDefaults.standard.bool(forKey: hasRequestedKey))
+           let water = HKObjectType.quantityType(forIdentifier: .dietaryWater),
+           let dietaryEnergy = HKObjectType.quantityType(forIdentifier: .dietaryEnergyConsumed),
+           let activeEnergy = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned) {
+            let writeTypes: [HKSampleType] = [water, dietaryEnergy, activeEnergy, HKObjectType.workoutType()]
+            let statuses = writeTypes.map { healthStore.authorizationStatus(for: $0) }
+            let anyAuthorized = statuses.contains(.sharingAuthorized)
+            let anyAllowedAfterPrompt = UserDefaults.standard.bool(forKey: hasRequestedKey)
+                && statuses.contains(where: { $0 != .sharingDenied && $0 != .notDetermined })
+            self.isAuthorized = anyAuthorized || anyAllowedAfterPrompt
         }
     }
 
@@ -39,25 +46,25 @@ import Observation
         let typesToWrite: Set<HKSampleType> = [water, dietaryEnergy, activeEnergy, HKObjectType.workoutType()]
 
         let hasRequested = UserDefaults.standard.bool(forKey: hasRequestedKey)
-        // Only write types expose real authorizationStatus; read types (.stepCount) always report .notDetermined.
-        let waterWriteStatus = healthStore.authorizationStatus(for: water)
+        // Only write types expose real authorizationStatus; prompt if never requested or any write type is still undetermined.
+        let hasUndeterminedWriteType = typesToWrite.contains {
+            healthStore.authorizationStatus(for: $0) == .notDetermined
+        }
 
-        if !hasRequested || waterWriteStatus == .notDetermined {
+        if !hasRequested || hasUndeterminedWriteType {
             try await healthStore.requestAuthorization(toShare: typesToWrite, read: typesToRead)
             UserDefaults.standard.set(true, forKey: hasRequestedKey)
         }
 
-        let anyWriteAllowed = [water, dietaryEnergy, HKObjectType.workoutType()].contains {
+        let anyWriteAllowed = typesToWrite.contains {
             healthStore.authorizationStatus(for: $0) != .sharingDenied
         }
-        await MainActor.run {
-            self.isAuthorized = anyWriteAllowed && UserDefaults.standard.bool(forKey: hasRequestedKey)
-        }
+        self.isAuthorized = anyWriteAllowed && UserDefaults.standard.bool(forKey: hasRequestedKey)
     }
 
-    @MainActor
     func resetAuthorizationState() {
         isAuthorized = false
+        UserDefaults.standard.removeObject(forKey: hasRequestedKey)
     }
 
     // Modern async descriptor-based query (no legacy HKStatisticsQuery + continuation)
@@ -67,7 +74,7 @@ import Observation
 
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return 0 }
 
         let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
         let samplePredicate = HKSamplePredicate.quantitySample(type: stepsType, predicate: predicate)
@@ -186,7 +193,7 @@ import Observation
 
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return 0 }
 
         let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
         let samplePredicate = HKSamplePredicate.quantitySample(type: energyType, predicate: predicate)

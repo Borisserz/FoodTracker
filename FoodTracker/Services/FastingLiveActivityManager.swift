@@ -16,6 +16,8 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     @ObservationIgnored private var currentActivity: Activity<FastingAttributes>?
     @ObservationIgnored private var lastSentStage: String?
     @ObservationIgnored private var lastSentProgress: Double = -1.0
+    @ObservationIgnored private var requestGeneration: UInt64 = 0
+    @ObservationIgnored private var pendingStartTask: Task<Void, Never>?
     
     private init() {
         currentActivity = Activity<FastingAttributes>.activities.first
@@ -97,12 +99,16 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
         )
 
         // Ensure stale activities finish ending BEFORE requesting the new Live Activity so IDs don't race.
+        pendingStartTask?.cancel()
+        requestGeneration &+= 1
+        let capturedGeneration = requestGeneration
         let existingActivities = Activity<FastingAttributes>.activities
-        Task { @MainActor [weak self] in
+
+        pendingStartTask = Task { @MainActor [weak self] in
             for existing in existingActivities {
                 await existing.end(nil, dismissalPolicy: .immediate)
             }
-            guard let self else { return }
+            guard let self, !Task.isCancelled, self.requestGeneration == capturedGeneration else { return }
             do {
                 self.currentActivity = try Activity.request(
                     attributes: attributes,
@@ -111,8 +117,10 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
                 )
                 self.lastSentStage = initialStage
                 self.lastSentProgress = clampedProgress
+                self.pendingStartTask = nil
                 print("Live Activity started successfully: \(self.currentActivity?.id ?? "")")
             } catch {
+                self.pendingStartTask = nil
                 print("Failed to start Live Activity: \(error.localizedDescription)")
             }
         }
@@ -134,7 +142,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
         
         let updatedContent = ActivityContent(
             state: updatedState,
-            staleDate: nil,
+            staleDate: activity.attributes.targetEndDate,
             relevanceScore: 100
         )
         
@@ -144,6 +152,10 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     }
     
     func endActivity() {
+        requestGeneration &+= 1
+        pendingStartTask?.cancel()
+        pendingStartTask = nil
+
         let activitiesToEnd = Activity<FastingAttributes>.activities
         guard !activitiesToEnd.isEmpty || currentActivity != nil else { return }
         let fallbackCurrent = currentActivity

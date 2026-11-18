@@ -113,7 +113,10 @@ class RecipeDataLoader {
             do {
                 let remote = try documents.compactMap { try $0.data(as: PremiumRecipe.self) }
                 if !remote.isEmpty {
-                    self.recipes = Self.applyFavorites(to: remote)
+                    let applied = Self.applyFavorites(to: remote)
+                    DispatchQueue.main.async {
+                        self.recipes = applied
+                    }
                 }
             } catch {
                 print("❌ Error parsing recipes: \(error)")

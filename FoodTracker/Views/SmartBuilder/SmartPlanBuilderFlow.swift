@@ -31,7 +31,7 @@ struct SmartPlanBuilderFlow: View {
                     }
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 } else if isGenerating {
-                    AIGenerationLoadingView()
+                    AIGenerationLoadingView(targetCalories: Int(targetCalories))
                         .transition(.opacity)
                 } else {
                     VStack {
@@ -388,10 +388,18 @@ struct SmartPlanBuilderFlow: View {
 // MARK: - Loading View
 struct AIGenerationLoadingView: View {
     @Environment(ThemeManager.self) private var themeManager
+    let targetCalories: Int
     @State private var isPulsing = false
     @State private var statusText = "Analyzing macros..."
-    
-    let statuses = ["Analyzing macros...", "Browsing recipes...", "Optimizing for \(Int.random(in: 1500...2500)) kcal...", "Finalizing menu..."]
+
+    var statuses: [String] {
+        [
+            "Analyzing macros...",
+            "Browsing recipes...",
+            "Optimizing for \(targetCalories) kcal...",
+            "Finalizing menu..."
+        ]
+    }
     
     var body: some View {
         VStack(spacing: 40) {

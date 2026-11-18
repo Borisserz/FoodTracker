@@ -171,4 +171,61 @@ final class VertexAIManagerTests: XCTestCase {
         XCTAssertEqual(downsampled.scale, 1.0)
         XCTAssertLessThanOrEqual(max(downsampled.size.width, downsampled.size.height), 1024.0)
     }
+
+    func testAIRecipeAndFoodItemDTODecodeStringNumbersAndStableAdviceIDs() throws {
+        let recipeJSON = """
+        {
+            "name": "Protein Bowl",
+            "info": "Quick dinner",
+            "calories": "520",
+            "protein": "42.5",
+            "fats": "14,2",
+            "carbs": 55,
+            "cookingTime": "20"
+        }
+        """.data(using: .utf8)!
+        let recipe = try JSONDecoder().decode(AIRecipeDTO.self, from: recipeJSON)
+        XCTAssertEqual(recipe.calories, 520)
+        XCTAssertEqual(recipe.protein, 42.5, accuracy: 0.01)
+        XCTAssertEqual(recipe.fats, 14.2, accuracy: 0.01)
+        XCTAssertEqual(recipe.carbs, 55.0, accuracy: 0.01)
+
+        let foodJSON = """
+        {
+            "name": "Greek Yogurt",
+            "calories": 120,
+            "protein": "18.0",
+            "fats": "2.5",
+            "carbs": "7.0"
+        }
+        """.data(using: .utf8)!
+        let food = try JSONDecoder().decode(AIFoodItemDTO.self, from: foodJSON)
+        XCTAssertEqual(food.protein, 18.0, accuracy: 0.01)
+        XCTAssertEqual(food.fats, 2.5, accuracy: 0.01)
+        XCTAssertEqual(food.carbs, 7.0, accuracy: 0.01)
+
+        let macroJSON = """
+        {
+            "title": "Add Protein",
+            "explanation": "You are short on protein.",
+            "suggestedSnacks": [{"name": "Whey", "calories": 120, "protein": 24}]
+        }
+        """.data(using: .utf8)!
+        let macroAdvice = try JSONDecoder().decode(MacroFixAdviceDTO.self, from: macroJSON)
+        let firstMacroID = macroAdvice.id
+        let secondMacroID = macroAdvice.id
+        XCTAssertEqual(firstMacroID, secondMacroID)
+
+        let hydJSON = """
+        {
+            "title": "Drink Water",
+            "message": "Have a glass now.",
+            "nextGlassTimeMinutes": 30
+        }
+        """.data(using: .utf8)!
+        let hydAdvice = try JSONDecoder().decode(HydrationAdviceDTO.self, from: hydJSON)
+        let firstHydID = hydAdvice.id
+        let secondHydID = hydAdvice.id
+        XCTAssertEqual(firstHydID, secondHydID)
+    }
 }

@@ -4,6 +4,7 @@ import SwiftData
 struct WeeklyPlanOverview: View {
     @Environment(\.modelContext) private var context
     @Environment(ThemeManager.self) private var themeManager
+    @Query private var users: [User]
     
     let plan: WeeklyMealPlan
     let onDismiss: () -> Void
@@ -164,10 +165,13 @@ struct WeeklyPlanOverview: View {
         let startOfDay = Calendar.current.startOfDay(for: Date())
         let currentSummary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
         
+        var addedCalories = 0
         if let day = selectedDay {
             for planMeal in (day.meals ?? []) {
                 let canonicalType = NutritionMath.canonicalMealType(planMeal.type)
-                let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: Int(planMeal.calories), protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs))
+                let cals = Int(planMeal.calories)
+                addedCalories += max(0, cals)
+                let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: cals, protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs))
                 context.insert(foodItem)
 
                 if let existingMeal = (currentSummary.meals ?? []).first(where: { $0.title == canonicalType }) {
@@ -183,6 +187,12 @@ struct WeeklyPlanOverview: View {
         
         try? context.save()
         WidgetReloader.reloadAll()
+        AppReviewManager.shared.userDidLogMeal()
+        if users.first?.isHealthKitEnabled == true && addedCalories > 0 {
+            Task {
+                await HealthKitManager.shared.saveDietaryEnergy(calories: addedCalories, date: Date.now)
+            }
+        }
         
         withAnimation {
             showSuccessToast = true

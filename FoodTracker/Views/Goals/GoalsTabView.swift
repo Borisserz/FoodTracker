@@ -56,9 +56,8 @@ struct GoalsTabView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.themeBg.ignoresSafeArea()
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
                 
                 // Animated background glow blobs
                 ZStack {
@@ -137,7 +136,6 @@ struct GoalsTabView: View {
                         .presentationDragIndicator(.visible)
                 }
             }
-        }
     }
 
     private func ensureUserAndOpenGoalSheet() {

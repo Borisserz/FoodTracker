@@ -154,8 +154,9 @@ struct WaterGridTrackerView: View {
            }
 
            if let user = users.first, user.isHealthKitEnabled {
+               let logDate = Calendar.current.isDateInToday(summary.date) ? Date() : summary.date
                Task {
-                   await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: Date())
+                   await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: logDate)
                }
            }
        }

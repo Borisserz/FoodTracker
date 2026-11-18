@@ -24,6 +24,7 @@ struct FoodTrackerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     // Migrated from @StateObject/ObservableObject to @Observable per system-rules and swiftui-pro
+    @Environment(\.scenePhase) private var scenePhase
     @State private var versionManager = VersionManager.shared
     @State private var geminiClient = GeminiProxyClient.shared
 
@@ -78,6 +79,11 @@ struct FoodTrackerApp: App {
             }
             .onAppear {
                 TrackingManager.shared.track(.appOpened(source: "launch"))
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    FastingManager.shared.refreshOnForeground()
+                }
             }
         }
     }
@@ -165,6 +171,16 @@ struct ContentView: View {
             }
             .tint(themeManager.current.primaryAccent)
             
+            // Invisible anchor aligned over Tab 2 ("AI Chef") for SpotlightTour
+            VStack {
+                Spacer()
+                Color.clear
+                    .frame(width: 64, height: 48)
+                    .spotlightTarget(step: .aiChef)
+                    .allowsHitTesting(false)
+            }
+            .ignoresSafeArea(.keyboard)
+
             // In-App Interactive Spotlight Tutorial
             SpotlightOverlayView()
         }

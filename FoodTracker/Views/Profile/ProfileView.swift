@@ -377,6 +377,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(AppStateManager.self) private var appState
     @Bindable var user: User
 
     @AppStorage("useMetricSystem") private var useMetricSystem = true
@@ -416,7 +417,8 @@ struct SettingsView: View {
                             }
                             Divider().padding(.leading, 56)
 
-                            Button(action: { 
+                            Button(action: {
+                                appState.selectedTab = 0
                                 dismiss()
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     SpotlightTourManager.shared.resetTour()

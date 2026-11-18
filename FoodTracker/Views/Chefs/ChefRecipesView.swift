@@ -1062,7 +1062,7 @@ struct PremiumRecipeDetailView: View {
                                                         }
 
                                                         VStack(spacing: 16) {
-                                                            ForEach(recipe.ingredients, id: \.name) { ingredient in
+                                                            ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { _, ingredient in
                                                                 HStack(alignment: .top) {
                                                                     VStack(alignment: .leading, spacing: 4) {
                                                                         Text(ingredient.name).font(.headline)

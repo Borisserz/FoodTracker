@@ -20,6 +20,7 @@ final class SocialAuthService {
     private init() {}
 
     private var currentNonce: String?
+    private var isAppleAuthorizationInFlight = false
 
     // MARK: - Apple
 
@@ -68,9 +69,19 @@ final class SocialAuthService {
     }
 
     func signInWithApple() async throws {
+        guard !isAppleAuthorizationInFlight else {
+            throw AuthError.invalidAppleCredential
+        }
+        isAppleAuthorizationInFlight = true
+        await AnonymousAuthBootstrap.shared.beginInteractiveSignIn()
+        defer {
+            isAppleAuthorizationInFlight = false
+            currentNonce = nil
+            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn() }
+        }
+
         let nonce = Self.randomNonce()
         currentNonce = nonce
-        defer { currentNonce = nil }
 
         let credential = try await performAppleAuthorization(nonce: nonce)
         
@@ -92,6 +103,10 @@ final class SocialAuthService {
     func signInWithGoogle() async throws {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw AuthError.missingGoogleClientID
+        }
+        await AnonymousAuthBootstrap.shared.beginInteractiveSignIn()
+        defer {
+            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn() }
         }
  
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
@@ -203,9 +218,16 @@ final class SocialAuthService {
     }
 
     private func reauthenticateWithApple(user: FirebaseAuth.User) async throws -> String? {
+        guard !isAppleAuthorizationInFlight else {
+            throw AuthError.invalidAppleCredential
+        }
+        isAppleAuthorizationInFlight = true
         let nonce = Self.randomNonce()
         currentNonce = nonce
-        defer { currentNonce = nil }
+        defer {
+            isAppleAuthorizationInFlight = false
+            currentNonce = nil
+        }
 
         let appleIDCredential = try await performAppleAuthorization(nonce: nonce)
 

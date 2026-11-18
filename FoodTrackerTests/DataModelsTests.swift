@@ -618,8 +618,36 @@ final class DataModelsTests: XCTestCase {
         XCTAssertFalse(changedSecond)
 
         // Syncing higher local water updates shared key for WorkoutTracker.
-        WorkoutSyncManager.shared.syncWater(1.75, for: today, sharedDefaults: sharedDefaults, localDefaults: localDefaults)
+        let localDrink = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 500)
+        context.insert(localDrink)
+        summary.addBeverage(localDrink)
+        WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: today, sharedDefaults: sharedDefaults, localDefaults: localDefaults)
         XCTAssertEqual(WorkoutSyncManager.shared.fetchWaterLiters(for: today, sharedDefaults: sharedDefaults) ?? 0, 1.75, accuracy: 0.01)
+
+        // Simulate WorkoutTracker deleting 0.5L (shared drops from 1.75 -> 1.25 while local stays 1.75).
+        sharedDefaults.set(1.25, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+        let changedOnDelete = WorkoutSyncManager.shared.reconcileWater(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            localDefaults: localDefaults
+        )
+        XCTAssertTrue(changedOnDelete)
+        XCTAssertEqual(summary.totalHydrationLiters, 1.25, accuracy: 0.01)
+        XCTAssertEqual(WorkoutSyncManager.shared.fetchWaterLiters(for: today, sharedDefaults: sharedDefaults) ?? 0, 1.25, accuracy: 0.01)
+
+        // Simulate Widget AddWaterIntent adding 250 ml directly to SwiftData without touching lastSynced/App Group.
+        let widgetWater = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        context.insert(widgetWater)
+        summary.addBeverage(widgetWater)
+        let changedFromWidget = WorkoutSyncManager.shared.reconcileWater(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            localDefaults: localDefaults
+        )
+        XCTAssertFalse(changedFromWidget)
+        XCTAssertEqual(WorkoutSyncManager.shared.fetchWaterLiters(for: today, sharedDefaults: sharedDefaults) ?? 0, 1.50, accuracy: 0.01)
     }
 
     func testWorkoutSyncComputeDailyBurnReconciliation() {

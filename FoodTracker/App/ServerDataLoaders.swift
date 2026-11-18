@@ -37,8 +37,10 @@ class DietDataLoader {
             guard let documents = snapshot?.documents, !documents.isEmpty else { return }
             let fetched = documents.compactMap { try? $0.data(as: DietPlan.self) }
             guard !fetched.isEmpty else { return }
-            self?.diets = fetched
-            print("✅ Загружено диет: \(fetched.count)")
+            DispatchQueue.main.async {
+                self?.diets = fetched
+                print("✅ Загружено диет: \(fetched.count)")
+            }
         }
     }
 }
@@ -71,8 +73,10 @@ class FastingDataLoader {
             guard let documents = snapshot?.documents, !documents.isEmpty else { return }
             let fetched = documents.compactMap { try? $0.data(as: FastingPlan.self) }
             guard !fetched.isEmpty else { return }
-            self?.plans = fetched
-            print("✅ Загружено планов голодания: \(fetched.count)")
+            DispatchQueue.main.async {
+                self?.plans = fetched
+                print("✅ Загружено планов голодания: \(fetched.count)")
+            }
         }
     }
 }

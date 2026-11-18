@@ -195,17 +195,17 @@ struct NetCaloriesRing: View {
         .padding(.top, 10)
         .onAppear {
             withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
-                animProgress = abs(progress)
+                animProgress = max(0, progress)
             }
         }
         .onChange(of: net) { _, _ in
             withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
-                animProgress = abs(Double(net) / Double(max(target, 1)))
+                animProgress = max(0, Double(net) / Double(max(target, 1)))
             }
         }
         .onChange(of: target) { _, _ in
             withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
-                animProgress = abs(Double(net) / Double(max(target, 1)))
+                animProgress = max(0, Double(net) / Double(max(target, 1)))
             }
         }
     }

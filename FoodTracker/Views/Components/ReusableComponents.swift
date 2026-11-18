@@ -1010,7 +1010,8 @@ struct MealBreakdownCard: View {
                 }
             }
 
-            let currentMealData = (summary.meals ?? []).first(where: { $0.title == selectedMeal })
+            let canonicalSelected = DailySummary.canonicalMealSlot(selectedMeal)
+            let currentMealData = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalSelected })
 
             VStack(spacing: 16) {
                 MealMacroRow(title: "Calories", value: Double(currentMealData?.totalCalories ?? 0), unit: "kcal", color: .themePink)
@@ -1212,9 +1213,15 @@ struct WeeklyEnergyBankCard: View {
             HStack {
                 Image(systemName: bankBalance >= 0 ? "arrow.down.circle.fill" : "exclamationmark.circle.fill")
                     .foregroundColor(bankBalance >= 0 ? .green : .red)
-                Text(bankBalance >= 0
-                     ? "You've saved enough for a 0.5kg weight loss!"
-                     : "You've accumulated a surplus this week.")
+                Text(
+                    bankBalance >= 3850
+                        ? String(localized: "You've saved enough for a 0.5kg weight loss!")
+                        : (bankBalance > 0
+                           ? String(localized: "You're maintaining a healthy calorie deficit this week.")
+                           : (bankBalance == 0
+                              ? String(localized: "You're right on target with your calorie budget.")
+                              : String(localized: "You've accumulated a surplus this week.")))
+                )
                     .font(.subheadline).foregroundColor(.gray)
             }
 

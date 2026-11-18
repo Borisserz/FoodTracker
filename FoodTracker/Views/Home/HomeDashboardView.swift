@@ -156,7 +156,6 @@ struct HomeDashboardContentView: View {
                               }
                               .padding(.horizontal)
                           }
-                          .spotlightTarget(step: .aiChef)
 
                           HydrationFlaskCardView(summary: currentSummary)
                               .id("hydration_card")
@@ -717,6 +716,7 @@ struct MealDetailView: View {
                 meal.foodItems?.remove(at: index)
                 context.delete(food)
                 try? context.save()
+                WidgetReloader.reloadAll()
             }
         }
     }
@@ -932,7 +932,7 @@ struct MealDetailView: View {
                 .presentationCornerRadius(32)
         }
         .fullScreenCover(item: $selectedFoodForDetail) { food in
-            FoodDetailNutritionView(food: food, mealTitle: title) { updatedFood in
+            FoodDetailNutritionView(food: food, mealTitle: title, isEditing: true) { updatedFood in
                 let deltaCalories = updatedFood.calories - food.calories
                 food.name = updatedFood.name
                 food.weight = updatedFood.weight
@@ -1315,7 +1315,7 @@ struct InteractiveFoodRow: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(food.name).font(.system(size: 17, weight: .semibold, design: .rounded)).foregroundColor(.primary)
-                        let currentCals = Int((Double(food.calories) / food.weight) * weight)
+                        let currentCals = food.weight > 0 ? Int(((Double(food.calories) / food.weight) * weight).rounded()) : food.calories
                         Text("\(currentCals) kcal • \(Int(weight))g").font(.system(size: 14, weight: .medium, design: .rounded)).foregroundColor(isSelected ? .themePink : .gray)
                     }
                     Spacer()
@@ -1742,6 +1742,7 @@ struct DailyLogDetailView: View {
                 meal.foodItems?.remove(at: index)
                 context.delete(food)
                 try? context.save()
+                WidgetReloader.reloadAll()
             }
         }
     }

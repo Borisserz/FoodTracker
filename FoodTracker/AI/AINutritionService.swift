@@ -34,6 +34,38 @@ struct FlexibleInt: Codable, Hashable {
     }
 }
 
+@propertyWrapper
+struct FlexibleDouble: Codable, Hashable {
+    var wrappedValue: Double
+
+    init(wrappedValue: Double) {
+        self.wrappedValue = wrappedValue
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let doubleVal = try? container.decode(Double.self), doubleVal.isFinite {
+            self.wrappedValue = doubleVal
+        } else if let intVal = try? container.decode(Int.self) {
+            self.wrappedValue = Double(intVal)
+        } else if let strVal = try? container.decode(String.self) {
+            let cleaned = strVal.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
+            if let parsed = Double(cleaned), parsed.isFinite {
+                self.wrappedValue = parsed
+            } else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid double value: \(strVal)")
+            }
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Expected numeric value for FlexibleDouble")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(wrappedValue)
+    }
+}
+
 struct DailyVerdictDTO: Codable {
     let title: String
     let message: String
@@ -44,18 +76,18 @@ struct AIRecipeDTO: Codable {
     let name: String
     let info: String
     @FlexibleInt var calories: Int
-    let protein: Double
-    let fats: Double
-    let carbs: Double
+    @FlexibleDouble var protein: Double
+    @FlexibleDouble var fats: Double
+    @FlexibleDouble var carbs: Double
     @FlexibleInt var cookingTime: Int
 }
 
 struct AIFoodItemDTO: Codable {
     let name: String
     @FlexibleInt var calories: Int
-    let protein: Double
-    let fats: Double
-    let carbs: Double
+    @FlexibleDouble var protein: Double
+    @FlexibleDouble var fats: Double
+    @FlexibleDouble var carbs: Double
 }
 
 struct AIWeeklyPlanItemDTO: Codable {
@@ -118,10 +150,14 @@ struct RecipeStepDTO: Codable {
 }
 
 struct MacroFixAdviceDTO: Codable, Identifiable {
-    var id: UUID { UUID() }
+    let id = UUID()
     let title: String
     let explanation: String
     let suggestedSnacks: [SnackIdea]
+
+    private enum CodingKeys: String, CodingKey {
+        case title, explanation, suggestedSnacks
+    }
 
     struct SnackIdea: Codable, Hashable {
         let name: String
@@ -131,10 +167,14 @@ struct MacroFixAdviceDTO: Codable, Identifiable {
 }
 
 struct HydrationAdviceDTO: Codable, Identifiable {
-    var id: UUID { UUID() }
+    let id = UUID()
     let title: String
     let message: String
     @FlexibleInt var nextGlassTimeMinutes: Int
+
+    private enum CodingKeys: String, CodingKey {
+        case title, message, nextGlassTimeMinutes
+    }
 }
 
 struct MoodAdviceDTO: Codable {

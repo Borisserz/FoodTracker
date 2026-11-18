@@ -11,7 +11,7 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
             recognizedDataTypes: [.barcode()],
             qualityLevel: .balanced,
             recognizesMultipleItems: false,
-            isHighFrameRateTrackingEnabled: true,
+            isHighFrameRateTrackingEnabled: false,
             isPinchToZoomEnabled: true,
             isHighlightingEnabled: true
         )
@@ -34,7 +34,14 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
         context.coordinator.lastIsScanning = isScanning
         if isScanning {
             context.coordinator.hasEmittedScan = false
-            try? uiViewController.startScanning()
+            do {
+                try uiViewController.startScanning()
+            } catch {
+                print("⚠️ DataScanner startScanning failed: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.isScanning = false
+                }
+            }
         } else {
             uiViewController.stopScanning()
         }
@@ -60,6 +67,9 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
 
         func dataScanner(_ dataScanner: DataScannerViewController, becameUnavailableWithError error: DataScannerViewController.ScanningUnavailable) {
             dataScanner.stopScanning()
+            DispatchQueue.main.async {
+                self.parent.isScanning = false
+            }
         }
 
         func dataScanner(_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem], allItems: [RecognizedItem]) {

@@ -20,26 +20,22 @@ struct SpotlightOverlayView: View {
     @Bindable var manager: SpotlightTourManager = .shared
     @State private var laserAngle: Double = 0
     @State private var pulseGlow = false
-    
+
     var body: some View {
         if manager.isTourActive {
             GeometryReader { screenGeo in
-                if let targetRect = manager.targetFrames[manager.currentStep], targetRect.width > 0, targetRect.height > 0 {
+                if let targetRect = manager.targetFrames[manager.currentStep],
+                   targetRect.width > 0,
+                   targetRect.height > 0 {
                     let paddedRect = targetRect.insetBy(dx: -4, dy: -4)
                     let isTargetInBottomHalf = targetRect.midY > screenGeo.size.height * 0.5
                     let cornerRadius = min(22, min(paddedRect.width, paddedRect.height) / 2)
                     let activeColor = manager.currentStep.accentColor
-                    
+
                     ZStack(alignment: .topLeading) {
-                        // Transparent interactive backdrop (no dimming)
-                        Color.black.opacity(0.001)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .ignoresSafeArea()
-                            .onTapGesture {
-                                advanceWithHaptic()
-                            }
-                        
-                        // MARK: 🟢 Travelling Apple Intelligence Style Laser Beam
+                        interactiveBackdrop
+
+                        // MARK: Travelling Apple Intelligence Style Laser Beam
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .stroke(
                                 AngularGradient(
@@ -61,37 +57,33 @@ struct SpotlightOverlayView: View {
                             .onTapGesture {
                                 advanceWithHaptic()
                             }
-                        
-                        // MARK: 📋 Clean Floating Interactive Explanation Card
+
+                        // MARK: Clean Floating Interactive Explanation Card
                         VStack {
                             if isTargetInBottomHalf {
                                 Spacer()
                             }
-                            
-                            FloatingTourCard(
-                                step: manager.currentStep,
-                                onNext: { advanceWithHaptic() },
-                                onPrev: {
-                                    let generator = UIImpactFeedbackGenerator(style: .light)
-                                    generator.prepare()
-                                    generator.impactOccurred()
-                                    manager.previousStep()
-                                },
-                                onSkip: {
-                                    let generator = UIImpactFeedbackGenerator(style: .light)
-                                    generator.prepare()
-                                    generator.impactOccurred()
-                                    manager.finishTour()
-                                }
-                            )
-                            .padding(.horizontal, 20)
-                            .padding(isTargetInBottomHalf ? .bottom : .top, isTargetInBottomHalf ? (screenGeo.size.height - paddedRect.minY + 14) : (paddedRect.maxY + 14))
-                            
+
+                            tourCard
+                                .padding(.horizontal, 20)
+                                .padding(
+                                    isTargetInBottomHalf ? .bottom : .top,
+                                    isTargetInBottomHalf
+                                        ? max(20, screenGeo.size.height - paddedRect.minY + 14)
+                                        : max(20, paddedRect.maxY + 14)
+                                )
+
                             if !isTargetInBottomHalf {
                                 Spacer()
                             }
                         }
                         .frame(width: screenGeo.size.width, height: screenGeo.size.height)
+                    }
+                } else {
+                    ZStack {
+                        interactiveBackdrop
+                        tourCard
+                            .padding(.horizontal, 20)
                     }
                 }
             }
@@ -108,7 +100,35 @@ struct SpotlightOverlayView: View {
             }
         }
     }
-    
+
+    private var interactiveBackdrop: some View {
+        Color.black.opacity(0.001)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea()
+            .onTapGesture {
+                advanceWithHaptic()
+            }
+    }
+
+    private var tourCard: some View {
+        FloatingTourCard(
+            step: manager.currentStep,
+            onNext: { advanceWithHaptic() },
+            onPrev: {
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.prepare()
+                generator.impactOccurred()
+                manager.previousStep()
+            },
+            onSkip: {
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.prepare()
+                generator.impactOccurred()
+                manager.finishTour()
+            }
+        )
+    }
+
     private func advanceWithHaptic() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.prepare()
@@ -123,15 +143,15 @@ private struct FloatingTourCard: View {
     let onNext: () -> Void
     let onPrev: () -> Void
     let onSkip: () -> Void
-    
+
     var isLastStep: Bool {
         step == SpotlightStep.allCases.last
     }
-    
+
     var isFirstStep: Bool {
         step == SpotlightStep.allCases.first
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             // Segmented Progress Bar
@@ -143,14 +163,14 @@ private struct FloatingTourCard: View {
                         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: step)
                 }
             }
-            
+
             // Header Row: Category pill and Skip button
             HStack {
                 HStack(spacing: 6) {
                     Image(systemName: step.icon)
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(step.accentColor)
-                    
+
                     Text(step.category)
                         .font(.system(size: 10, weight: .black, design: .monospaced))
                         .foregroundStyle(step.accentColor)
@@ -159,13 +179,13 @@ private struct FloatingTourCard: View {
                 .padding(.vertical, 4)
                 .background(step.accentColor.opacity(0.15))
                 .clipShape(Capsule())
-                
+
                 Spacer()
-                
+
                 Text(step.tag)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundStyle(Color.secondary)
-                
+
                 Button(action: onSkip) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 16))
@@ -173,19 +193,19 @@ private struct FloatingTourCard: View {
                 }
                 .padding(.leading, 4)
             }
-            
+
             // Title
             Text(step.title)
                 .font(.system(size: 17, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.primary)
-            
+
             // Description
             Text(step.description)
                 .font(.system(size: 13, weight: .regular, design: .rounded))
                 .foregroundStyle(Color.secondary)
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
-            
+
             // Action buttons row (Back / Next)
             HStack(spacing: 10) {
                 if !isFirstStep {
@@ -198,7 +218,7 @@ private struct FloatingTourCard: View {
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                 }
-                
+
                 Button(action: onNext) {
                     HStack {
                         Spacer()

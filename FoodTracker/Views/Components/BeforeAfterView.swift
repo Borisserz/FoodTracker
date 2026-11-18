@@ -313,18 +313,19 @@ struct BeforeAfterView: View {
                         )
                 }
                 .position(x: dividerX, y: height / 2)
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            isDragging = true
-                            let newPos = value.location.x / width
-                            sliderPosition = min(max(newPos, 0), 1)
-                        }
-                        .onEnded { _ in
-                            isDragging = false
-                        }
-                )
             }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        isDragging = true
+                        let newPos = value.location.x / max(width, 1)
+                        sliderPosition = min(max(newPos, 0), 1)
+                    }
+                    .onEnded { _ in
+                        isDragging = false
+                    }
+            )
             .cornerRadius(16)
         }
         .frame(height: 350)

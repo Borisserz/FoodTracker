@@ -393,12 +393,15 @@ struct SmartScannerView: View {
                 isFlashlightOn = false
             }
 
-            isScanning = (newMode == .barcode)
             if newMode == .barcode {
-                cameraManager.stop()
+                isScanning = false
                 barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
+                cameraManager.stop {
+                    guard selectedMode == .barcode else { return }
+                    isScanning = true
+                }
             } else {
-                cameraManager.checkPermissionAndStart()
+                isScanning = false
             }
         }
         .onChange(of: recognizedBarcode) { _, newValue in
@@ -436,9 +439,7 @@ struct SmartScannerView: View {
                         if currentMode == .menuAI {
                             analyzeMenuWithAI(downsampled)
                         } else {
-                            if selectedMode == .barcode {
-                                selectedMode = .mealAI
-                            }
+                            selectedMode = (currentMode == .barcode) ? .mealAI : currentMode
                             analyzeMealWithAI(downsampled)
                         }
                     }
@@ -632,6 +633,7 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     private let photoOutput = AVCapturePhotoOutput()
     private let sessionQueue = DispatchQueue(label: "com.borisdev.FoodTracker.cameraSession")
     private var shouldBeRunning = false
+    private var queueConfigured = false
     private var activeDevice: AVCaptureDevice?
 
     func checkPermissionAndStart() {
@@ -677,7 +679,7 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     private func configureAndStartOnQueue() {
         guard shouldBeRunning else { return }
 
-        if isConfigured {
+        if queueConfigured {
             if !session.isRunning {
                 session.startRunning()
             }
@@ -719,6 +721,7 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
         }
 
         session.commitConfiguration()
+        queueConfigured = true
         DispatchQueue.main.async { [weak self] in
             self?.isConfigured = true
         }
@@ -728,13 +731,21 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
         }
     }
 
-    func stop() {
+    func stop(completion: (() -> Void)? = nil) {
         sessionQueue.async { [weak self] in
-            guard let self else { return }
+            guard let self else {
+                if let completion {
+                    DispatchQueue.main.async { completion() }
+                }
+                return
+            }
             self.shouldBeRunning = false
             self.updateTorchOnQueue(enabled: false)
             if self.session.isRunning {
                 self.session.stopRunning()
+            }
+            if let completion {
+                DispatchQueue.main.async { completion() }
             }
         }
     }

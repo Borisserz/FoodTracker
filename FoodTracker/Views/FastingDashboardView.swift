@@ -247,6 +247,7 @@ struct PremiumFastingDetailView: View {
     @Environment(\.dismiss) var dismiss
 
     @State private var animateRing = false
+    @State private var showReplaceFastAlert = false
 
     var dynamicTimeline: [(hour: String, title: String, desc: String, color: Color)] {
         var events: [(String, String, String, Color)] = []
@@ -450,10 +451,12 @@ struct PremiumFastingDetailView: View {
 
                     Button(action: {
                         HapticManager.shared.impact(style: .heavy)
-
-                        FastingManager.shared.startFast(plan: plan)
-
-                        dismiss()
+                        if FastingManager.shared.isFasting {
+                            showReplaceFastAlert = true
+                        } else {
+                            FastingManager.shared.startFast(plan: plan)
+                            dismiss()
+                        }
                     }) {
                         HStack {
                             Image(systemName: "timer")
@@ -473,6 +476,15 @@ struct PremiumFastingDetailView: View {
                 }
             }
             .ignoresSafeArea(edges: .bottom)
+            .alert("Replace Active Fast?", isPresented: $showReplaceFastAlert) {
+                Button("Start New Fast", role: .destructive) {
+                    FastingManager.shared.startFast(plan: plan)
+                    dismiss()
+                }
+                Button("Keep Current", role: .cancel) {}
+            } message: {
+                Text("You already have an active fasting session. Starting \(plan.title) will reset your current timer.")
+            }
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)

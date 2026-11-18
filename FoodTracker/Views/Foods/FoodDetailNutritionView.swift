@@ -5,13 +5,15 @@ struct FoodDetailNutritionView: View {
 
     let food: FoodItem
     let mealTitle: String
+    var isEditing: Bool = false
     var onAdd: (FoodItem) -> Void
 
     @State private var weight: Double
 
-    init(food: FoodItem, mealTitle: String, onAdd: @escaping (FoodItem) -> Void) {
+    init(food: FoodItem, mealTitle: String, isEditing: Bool = false, onAdd: @escaping (FoodItem) -> Void) {
         self.food = food
         self.mealTitle = mealTitle
+        self.isEditing = isEditing
         self.onAdd = onAdd
         self._weight = State(initialValue: food.weight > 0 ? food.weight : 100.0)
     }
@@ -126,7 +128,7 @@ struct FoodDetailNutritionView: View {
                         dismiss()
                     }) {
                         HStack {
-                            Text("Add to \(mealTitle)")
+                            Text(isEditing ? "Save Changes" : "Add to \(mealTitle)")
                                 .font(.headline)
                             Spacer()
                             Text("\(currentCals) kcal")
@@ -294,13 +296,6 @@ private struct MacroDonutChartCard: View {
                 withAnimation(.spring(response: 0.8, dampingFraction: 0.8)) {
                     showAnimation = true
                 }
-            }
-        }
-
-        .onChange(of: calories) { _, _ in
-            showAnimation = false
-            withAnimation(.spring(response: 0.8, dampingFraction: 0.8)) {
-                showAnimation = true
             }
         }
     }

@@ -140,11 +140,12 @@ struct AICoachChatView: View {
         .onAppear {
             TrackingManager.shared.track(.featureDiscovered(feature: "AI Coach Chat"))
             if let contextMsg = initialContext, chatHistory.isEmpty {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    if self.chatHistory.isEmpty {
-                        self.inputText = contextMsg
-                        self.sendMessage()
-                    }
+                activeTask?.cancel()
+                activeTask = Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard !Task.isCancelled, self.chatHistory.isEmpty else { return }
+                    self.inputText = contextMsg
+                    self.sendMessage()
                 }
             }
         }
@@ -176,7 +177,8 @@ struct AICoachChatView: View {
         targetSession.messages.append(userMsg)
         try? context.save()
 
-        let priorMessages = Array(chatHistory.dropLast().suffix(8))
+        // Use persisted session messages (excluding transient error bubbles and the just-sent prompt).
+        let priorMessages = Array(targetSession.messages.dropLast().suffix(8))
         activeTask = Task {
             if isFirstMessage {
                 let title = await AINutritionService.shared.generateChatTitle(for: text)

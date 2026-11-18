@@ -149,6 +149,13 @@ final class FastingManagerTests: XCTestCase {
         XCTAssertEqual(mockLiveActivity.reattachedCalls.first?.currentStage, "Digestion Mode")
         XCTAssertEqual(mockLiveActivity.reattachedCalls.first?.progressPct ?? 0, 6.0 / 16.0, accuracy: 0.02)
     }
+
+    func testFastingTimerLoopContinuesInOvertimeWhenStillFasting() {
+        XCTAssertTrue(FastingManager.shouldContinueTimerLoop(isFasting: true, targetHours: 16, progress: 0.5))
+        XCTAssertTrue(FastingManager.shouldContinueTimerLoop(isFasting: true, targetHours: 16, progress: 1.0))
+        XCTAssertFalse(FastingManager.shouldContinueTimerLoop(isFasting: false, targetHours: 16, progress: 0.5))
+        XCTAssertFalse(FastingManager.shouldContinueTimerLoop(isFasting: true, targetHours: 0, progress: 0.5))
+    }
 }
 
 @MainActor

@@ -10,6 +10,13 @@ final class WorkoutSyncManager {
     nonisolated static let suiteName = "group.com.borisdev.WorkoutTracker"
     nonisolated static let healthKitBrandName = "FoodTracker"
     private static let lastSyncedWaterPrefix = "wt_last_synced_water_"
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 
     private var defaultSharedDefaults: UserDefaults? {
         UserDefaults(suiteName: Self.suiteName)
@@ -18,11 +25,7 @@ final class WorkoutSyncManager {
     private init() {}
 
     nonisolated static func dateString(for date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+        dayFormatter.string(from: date)
     }
 
     nonisolated static func workoutCaloriesKey(for date: Date) -> String {
@@ -83,6 +86,10 @@ final class WorkoutSyncManager {
         if let sharedWater = fetchWaterLiters(for: summary.date, sharedDefaults: sharedDefaults) {
             let deltaLiters = sharedWater - localWater
             let isExternalIncrease = deltaLiters > 0.01 && (lastSynced == nil || abs(sharedWater - lastSynced!) > 0.005)
+            let isExternalDecrease = lastSynced != nil
+                && sharedWater < lastSynced! - 0.01
+                && abs(localWater - lastSynced!) <= 0.01
+
             if isExternalIncrease {
                 let deltaMl = (deltaLiters * 1000.0).rounded()
                 if deltaMl > 0 {
@@ -98,6 +105,12 @@ final class WorkoutSyncManager {
                     localDefaults.set(sharedWater, forKey: lastKey)
                     return true
                 }
+            } else if isExternalDecrease {
+                let excessMl = ((localWater - sharedWater) * 1000.0).rounded()
+                if excessMl > 0, trimWaterBeverages(excessMl: excessMl, from: summary, in: context) {
+                    localDefaults.set(sharedWater, forKey: lastKey)
+                    return true
+                }
             } else if localWater > sharedWater + 0.01 {
                 syncWater(localWater, for: summary.date, sharedDefaults: sharedDefaults, localDefaults: localDefaults)
             }
@@ -106,6 +119,26 @@ final class WorkoutSyncManager {
         }
 
         return false
+    }
+
+    private func trimWaterBeverages(excessMl: Double, from summary: DailySummary, in context: ModelContext) -> Bool {
+        var remainingToTrim = excessMl
+        var mutated = false
+        let waterEntries = (summary.beverages ?? []).filter { $0.name == "Water" }.reversed()
+
+        for beverage in waterEntries where remainingToTrim > 0.5 {
+            if beverage.volumeMl <= remainingToTrim + 0.5 {
+                remainingToTrim -= beverage.volumeMl
+                summary.beverages?.removeAll { $0.id == beverage.id }
+                context.delete(beverage)
+                mutated = true
+            } else {
+                beverage.volumeMl = max(0, beverage.volumeMl - remainingToTrim)
+                remainingToTrim = 0
+                mutated = true
+            }
+        }
+        return mutated
     }
 
     /// Reconciles local activities, WorkoutTracker App Group workouts, and HealthKit active energy

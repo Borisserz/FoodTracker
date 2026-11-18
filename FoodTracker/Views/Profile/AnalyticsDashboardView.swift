@@ -785,8 +785,9 @@ struct AIHydrationAnalyticsCard: View {
         onUpdate()
         
         if let user = users.first, user.isHealthKitEnabled {
+            let logDate = Calendar.current.isDateInToday(targetDate) ? Date() : targetDate
             Task {
-                await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: Date())
+                await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: logDate)
             }
         }
     }
@@ -798,7 +799,7 @@ struct AIHydrationAnalyticsCard: View {
         
         let targetDate = summary?.date ?? Calendar.current.startOfDay(for: Date())
         guard let targetSummary = DailySummary.fetchExisting(for: targetDate, in: context) else { return }
-        if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" || $0.caloriesPerGlass == 0 }) {
+        if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" }) {
             if let index = targetSummary.beverages?.firstIndex(of: lastWater) {
                 targetSummary.beverages?.remove(at: index)
             }
