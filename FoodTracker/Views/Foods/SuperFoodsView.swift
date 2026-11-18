@@ -410,6 +410,11 @@ struct MacroDonutStat: View {
         }
         .frame(maxWidth: .infinity)
         .onAppear { withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) { anim = Double(percent) / 100.0 } }
+        .onChange(of: percent) { _, newValue in
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.8)) {
+                anim = Double(newValue) / 100.0
+            }
+        }
     }
 }
 

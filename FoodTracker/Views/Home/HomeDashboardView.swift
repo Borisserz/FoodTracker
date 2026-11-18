@@ -31,6 +31,7 @@ struct HomeDashboardContentView: View {
     @State private var allTimeCalories: Int = 0
     @State private var showXPPopup = false
     @State private var xpBreakdown: NutritionXPBreakdown? = nil
+    @State private var finishDayAlertMessage: String? = nil
     
     @State private var showingScanner = false
     @State private var showingManualAdd = false
@@ -138,7 +139,8 @@ struct HomeDashboardContentView: View {
                               .padding(.horizontal, 20)
 
                               ForEach(["Breakfast", "Lunch", "Snack", "Dinner"], id: \.self) { mealType in
-                                  let meal = (currentSummary.meals ?? []).first(where: { $0.title == mealType })
+                                  let canonicalType = DailySummary.canonicalMealSlot(mealType)
+                                  let meal = (currentSummary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalType })
 
                                   BentoMealCardView(
                                       title: localizedMealType(mealType),
@@ -286,6 +288,17 @@ struct HomeDashboardContentView: View {
                   }
               }
               .navigationBarHidden(true)
+              .alert(
+                  "Daily Summary",
+                  isPresented: Binding(
+                      get: { finishDayAlertMessage != nil },
+                      set: { if !$0 { finishDayAlertMessage = nil } }
+                  )
+              ) {
+                  Button("OK", role: .cancel) { finishDayAlertMessage = nil }
+              } message: {
+                  Text(finishDayAlertMessage ?? "")
+              }
               .onAppear {
                   TrackingManager.shared.track(.appOpened(source: "home_dashboard"))
                   Task { allTimeCalories = (try? await di.summaryRepository.fetchAllTimeCalories()) ?? 0 }
@@ -504,17 +517,26 @@ struct HomeDashboardContentView: View {
     }
     
     private func finishDayAndCalculateXP() {
+        guard currentSummary.totalCalories > 0 else {
+            HapticManager.shared.notification(type: .warning)
+            finishDayAlertMessage = String(localized: "Log at least one meal before finishing the day.")
+            return
+        }
+        guard let user = currentUser else { return }
+        guard NutritionMath.claimFinishDayXP(for: selectedDate) else {
+            HapticManager.shared.impact(style: .light)
+            finishDayAlertMessage = String(localized: "Daily XP has already been claimed for this date.")
+            return
+        }
+
         HapticManager.shared.impact(style: .medium)
-        
-        let breakdown = NutritionMath.finishDayXP(for: currentSummary, user: currentUser)
+        let breakdown = NutritionMath.finishDayXP(for: currentSummary, user: user)
         xpBreakdown = breakdown
         showXPPopup = true
-        
-        if let user = currentUser, NutritionMath.claimFinishDayXP(for: selectedDate) {
-            var manager = NutritionProgressManager(user: user)
-            manager.addXP(from: breakdown)
-            try? context.save()
-        }
+
+        var manager = NutritionProgressManager(user: user)
+        manager.addXP(from: breakdown)
+        try? context.save()
     }
 }
 
@@ -683,7 +705,8 @@ struct MealDetailView: View {
     @Environment(DIContainer.self) private var di
 
     private var meal: Meal? {
-        return summaries.first?.meals?.first { $0.title == title }
+        let canonical = DailySummary.canonicalMealSlot(title)
+        return summaries.first?.meals?.first { DailySummary.canonicalMealSlot($0.title) == canonical }
     }
 
     private func deleteFoodItem(_ food: FoodItem) {
@@ -907,8 +930,29 @@ struct MealDetailView: View {
                 .presentationCornerRadius(32)
         }
         .fullScreenCover(item: $selectedFoodForDetail) { food in
-            FoodDetailNutritionView(food: food, mealTitle: title) { addedFood in
-                addFoodsToMeal(items: [addedFood])
+            FoodDetailNutritionView(food: food, mealTitle: title) { updatedFood in
+                let deltaCalories = updatedFood.calories - food.calories
+                food.name = updatedFood.name
+                food.weight = updatedFood.weight
+                food.calories = updatedFood.calories
+                food.protein = updatedFood.protein
+                food.fats = updatedFood.fats
+                food.carbs = updatedFood.carbs
+                food.omega3 = updatedFood.omega3
+                food.calcium = updatedFood.calcium
+                food.potassium = updatedFood.potassium
+                food.magnesium = updatedFood.magnesium
+                food.iron = updatedFood.iron
+                food.vitaminC = updatedFood.vitaminC
+                food.vitaminD = updatedFood.vitaminD
+                try? context.save()
+                WidgetReloader.reloadAll()
+                if users.first?.isHealthKitEnabled == true && deltaCalories > 0 {
+                    let logDate = meal?.date ?? date
+                    Task {
+                        await HealthKitManager.shared.saveDietaryEnergy(calories: deltaCalories, date: logDate)
+                    }
+                }
             }
         }
         .fullScreenCover(item: $generatedRecipe) { recipe in
@@ -1642,15 +1686,14 @@ struct DailyNoteSheet: View {
                 .presentationDetents([.medium, .large])
         }
         .fullScreenCover(isPresented: $showAIChat) {
-            if let user = try? context.fetch(FetchDescriptor<User>()).first {
-                NavigationStack {
-                    AICoachChatView(
-                        userGoal: user.dailyCaloriesGoal,
-                        consumed: summary.totalCalories,
-                        activeDiet: user.activeDietPlan?.name ?? "Balanced",
-                        initialContext: moodContextForChat
-                    )
-                }
+            let fetchedUser = try? context.fetch(FetchDescriptor<User>()).first
+            NavigationStack {
+                AICoachChatView(
+                    userGoal: fetchedUser?.dailyCaloriesGoal ?? 2000,
+                    consumed: summary.totalCalories,
+                    activeDiet: fetchedUser?.activeDietPlan?.name ?? "Balanced",
+                    initialContext: moodContextForChat
+                )
             }
         }
         .onChange(of: showAIChat) { _, isPresented in

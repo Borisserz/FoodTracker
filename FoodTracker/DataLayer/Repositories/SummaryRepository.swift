@@ -2,16 +2,23 @@ import Foundation
 import SwiftData
 
 protocol SummaryRepositoryProtocol: Sendable {
+    var mainModelContainer: ModelContainer? { get }
     func fetchSummary(for date: Date) async throws -> DailySummary?
     func saveSummary(_ summary: DailySummary) async throws
     func fetchAllTimeCalories() async throws -> Int
     func calculateCurrentStreak() async throws -> Int
     func fetchSummaries(startDate: Date, endDate: Date) async throws -> [DailySummary]
+    func fetchSummaryIDs(startDate: Date, endDate: Date) async throws -> [PersistentIdentifier]
     func ensureSummary(for date: Date) async throws -> DailySummary
+}
+
+extension SummaryRepositoryProtocol {
+    var mainModelContainer: ModelContainer? { nil }
 }
 
 @ModelActor
 actor SummaryRepository: SummaryRepositoryProtocol {
+    nonisolated var mainModelContainer: ModelContainer? { modelContainer }
     // modelContext and init(modelContainer:) are provided by the @ModelActor macro.
     // We removed the custom init to avoid redeclaration with the synthesized one.
 
@@ -78,6 +85,11 @@ actor SummaryRepository: SummaryRepositoryProtocol {
         }
 
         return try modelContext.fetch(fetchDescriptor)
+    }
+
+    func fetchSummaryIDs(startDate: Date, endDate: Date) async throws -> [PersistentIdentifier] {
+        let summaries = try await fetchSummaries(startDate: startDate, endDate: endDate)
+        return summaries.map(\.persistentModelID)
     }
 
     /// Ensures a DailySummary exists for the given date (creates + saves if missing).

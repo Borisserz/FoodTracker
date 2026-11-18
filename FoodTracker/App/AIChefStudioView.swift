@@ -88,15 +88,18 @@ struct RecipeImageView: View {
 
 // MARK: - 👨‍🍳 Главный Экран
 struct AIChefStudioView: View {
+    @Environment(\.modelContext) private var context
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
     @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
     @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
+    @Query(sort: \WeeklyMealPlan.createdDate, order: .reverse) private var savedPlans: [WeeklyMealPlan]
 
     @State private var recipeLoader = RecipeDataLoader.shared
     @State private var searchText = ""
     @State private var showAIAssistantFlow = false
     @State private var showSmartBuilder = false
+    @State private var selectedSavedPlan: WeeklyMealPlan? = nil
     @State private var isGeneratingAIRecipe = false
     @State private var generatedAIRecipe: AIChefRecipe? = nil
     @State private var generationError: String? = nil
@@ -240,7 +243,62 @@ struct AIChefStudioView: View {
                         }
                         .buttonStyle(BounceButtonStyle())
                         .padding(.horizontal)
-                        
+
+                        if !savedPlans.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Saved 7-Day Plans")
+                                    .font(.system(.title3, design: .rounded, weight: .bold))
+                                    .foregroundColor(.primary)
+                                    .padding(.horizontal)
+
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(savedPlans) { plan in
+                                            Button {
+                                                HapticManager.shared.impact(style: .light)
+                                                selectedSavedPlan = plan
+                                            } label: {
+                                                VStack(alignment: .leading, spacing: 6) {
+                                                    HStack(spacing: 6) {
+                                                        Image(systemName: "calendar")
+                                                            .foregroundColor(themeManager.current.primaryAccent)
+                                                        Text(plan.dietType)
+                                                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                                            .foregroundColor(.primary)
+                                                            .lineLimit(1)
+                                                    }
+                                                    Text("\(plan.targetCalories) kcal/day")
+                                                        .font(.caption.bold())
+                                                        .foregroundColor(themeManager.current.primaryAccent)
+                                                    Text(plan.createdDate, format: .dateTime.day().month(.abbreviated))
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                }
+                                                .padding(14)
+                                                .frame(width: 170, alignment: .leading)
+                                                .background(.ultraThinMaterial)
+                                                .cornerRadius(18)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 18)
+                                                        .stroke(themeManager.current.primaryAccent.opacity(0.2), lineWidth: 1)
+                                                )
+                                            }
+                                            .buttonStyle(BounceButtonStyle())
+                                            .contextMenu {
+                                                Button(role: .destructive) {
+                                                    context.delete(plan)
+                                                    try? context.save()
+                                                } label: {
+                                                    Label("Delete Plan", systemImage: "trash")
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
+                        }
+
                         // 2. ВИДЖЕТ МАКРОСОВ
                         DailyMacroWidget(
                             calories: remaining.calories,
@@ -380,11 +438,18 @@ struct AIChefStudioView: View {
                     isPresented: $showAIAssistantFlow,
                     recipes: allRecipes,
                     remainingCalories: remaining.calories,
-                    activeDiet: currentUser?.activeDietKey ?? "Balanced"
+                    activeDiet: currentUser?.activeDietPlan?.name ?? "Balanced"
                 )
             }
             .sheet(isPresented: $showSmartBuilder) {
                 SmartPlanBuilderFlow()
+            }
+            .sheet(item: $selectedSavedPlan) { plan in
+                NavigationStack {
+                    WeeklyPlanOverview(plan: plan) {
+                        selectedSavedPlan = nil
+                    }
+                }
             }
             .navigationDestination(item: $generatedAIRecipe) { recipe in
                 RecipeDetailAIView(recipe: recipe)
@@ -649,8 +714,10 @@ struct RecipeCardView: View {
 struct RecipeDetailAIView: View {
     let recipe: AIChefRecipe
     @Environment(\.modelContext) private var context
+    @Query private var users: [User]
     @State private var isCookingModeActive = false
     @State private var didLogToDiary = false
+    @State private var didSaveToMyRecipes = false
     @Environment(ThemeManager.self) private var themeManager
     
     var body: some View {
@@ -749,6 +816,21 @@ struct RecipeDetailAIView: View {
                         .cornerRadius(16)
                     }
                     .disabled(didLogToDiary)
+
+                    Button(action: saveToMyRecipes) {
+                        HStack(spacing: 8) {
+                            Image(systemName: didSaveToMyRecipes ? "bookmark.fill" : "bookmark")
+                                .font(.subheadline.bold())
+                            Text(didSaveToMyRecipes ? "Saved to My Recipes" : "Save to My Recipes")
+                                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        }
+                        .foregroundColor(didSaveToMyRecipes ? .green : .secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.primary.opacity(0.05))
+                        .cornerRadius(16)
+                    }
+                    .disabled(didSaveToMyRecipes)
                 }
                 .padding(.horizontal)
                 
@@ -879,6 +961,7 @@ struct RecipeDetailAIView: View {
         let summary = DailySummary.fetchOrCreate(for: Date(), in: context)
         let hour = Calendar.current.component(.hour, from: Date())
         let mealTitle = hour < 11 ? "Breakfast" : (hour < 16 ? "Lunch" : (hour < 21 ? "Dinner" : "Snack"))
+        let now = Date()
         let food = FoodItem(
             name: recipe.title,
             weight: 300,
@@ -888,18 +971,51 @@ struct RecipeDetailAIView: View {
             carbs: Double(recipe.carbs)
         )
         context.insert(food)
-        if let existing = (summary.meals ?? []).first(where: { $0.title == mealTitle }) {
+        if let existing = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == mealTitle }) {
             existing.addFoodItem(food)
-            existing.date = Date()
+            existing.date = now
         } else {
-            let meal = Meal(title: mealTitle, date: Date(), foodItems: [food])
+            let meal = Meal(title: mealTitle, date: now, foodItems: [food])
             context.insert(meal)
             summary.addMeal(meal)
         }
         try? context.save()
         WidgetReloader.reloadAll()
         AppReviewManager.shared.userDidLogMeal()
+        if users.first?.isHealthKitEnabled == true && recipe.calories > 0 {
+            let cals = recipe.calories
+            Task {
+                await HealthKitManager.shared.saveDietaryEnergy(calories: cals, date: now)
+            }
+        }
         withAnimation { didLogToDiary = true }
+    }
+
+    private func saveToMyRecipes() {
+        guard !didSaveToMyRecipes else { return }
+        HapticManager.shared.notification(type: .success)
+        let food = FoodItem(
+            name: recipe.title,
+            weight: 300,
+            calories: recipe.calories,
+            protein: Double(recipe.protein),
+            fats: Double(recipe.fat),
+            carbs: Double(recipe.carbs)
+        )
+        context.insert(food)
+        let difficultyText = recipe.difficulty <= 2 ? "Easy" : (recipe.difficulty == 3 ? "Medium" : "Hard")
+        let custom = CustomRecipe(
+            name: recipe.title,
+            info: recipe.history,
+            foodItems: [food],
+            cookingTime: recipe.cookTime,
+            difficulty: difficultyText,
+            servings: 1,
+            directions: recipe.steps.map(\.instruction)
+        )
+        context.insert(custom)
+        try? context.save()
+        withAnimation { didSaveToMyRecipes = true }
     }
 }
 

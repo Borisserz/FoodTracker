@@ -85,55 +85,29 @@ struct FoodTrackerApp: App {
     @MainActor
     private func setupDependencies() async {
         print("🚀 [setupDependencies] Starting initialization...")
+        let container = await Task.detached(priority: .userInitiated) {
+            SharedModelContainer.shared.container
+        }.value
+
+        let di = DIContainer(modelContainer: container)
+        self.diContainer = di
+        print("🚀 [setupDependencies] diContainer assigned to state using SharedModelContainer. Re-rendering UI...")
+
         do {
-            let schema = SharedModelContainer.sharedSchema
-
-            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedModelContainer.appGroupIdentifier) ?? FileManager.default.temporaryDirectory
-            let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
-            print("🚀 [setupDependencies] dbURL resolved: \(dbURL)")
-
-            let cloudConfig = ModelConfiguration(
-                schema: schema,
-                url: dbURL,
-                cloudKitDatabase: .private(SharedModelContainer.iCloudContainerIdentifier)
-            )
-
-            let container: ModelContainer
-            do {
-                print("🚀 [setupDependencies] Initializing ModelContainer with CloudKit...")
-                container = try ModelContainer(for: schema, configurations: [cloudConfig])
-                print("🚀 [setupDependencies] ModelContainer successfully initialized with CloudKit!")
-            } catch {
-                print("⚠️ CloudKit init failed, falling back to local: \(error)")
-                let localConfig = ModelConfiguration(schema: schema, url: dbURL, cloudKitDatabase: .none)
-                container = try ModelContainer(for: schema, configurations: [localConfig])
-                print("🚀 [setupDependencies] ModelContainer successfully initialized on Local Storage fallback!")
-            }
-
-            let di = DIContainer(modelContainer: container)
-            self.diContainer = di
-            print("🚀 [setupDependencies] diContainer assigned to state. Re-rendering UI...")
-            
-            do {
-                print("🚀 [setupDependencies] Attempting Anonymous Firebase sign-in...")
-                _ = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
-                print("🚀 [setupDependencies] Firebase Sign-in Complete!")
-            } catch {
-                print("⚠️ Anonymous auth failed: \(error)")
-            }
-
-            print("🚀 [setupDependencies] Fetching Remote Config values...")
-            await RemoteConfigManager.shared.fetchCloudValues()
-            print("🚀 [setupDependencies] Remote Config Fetch Complete!")
-            
-            print("🚀 [setupDependencies] Checking for updates...")
-            await VersionManager.shared.checkVersion()
-            print("🚀 [setupDependencies] Update checks complete!")
+            print("🚀 [setupDependencies] Attempting Anonymous Firebase sign-in...")
+            _ = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+            print("🚀 [setupDependencies] Firebase Sign-in Complete!")
         } catch {
-            self.databaseLoadError = error
-            TrackingManager.shared.recordError(error: error)
-            print("❌ SwiftData Init Failed: \(error)")
+            print("⚠️ Anonymous auth failed: \(error)")
         }
+
+        print("🚀 [setupDependencies] Fetching Remote Config values...")
+        await RemoteConfigManager.shared.fetchCloudValues()
+        print("🚀 [setupDependencies] Remote Config Fetch Complete!")
+
+        print("🚀 [setupDependencies] Checking for updates...")
+        await VersionManager.shared.checkVersion()
+        print("🚀 [setupDependencies] Update checks complete!")
     }
 }
 

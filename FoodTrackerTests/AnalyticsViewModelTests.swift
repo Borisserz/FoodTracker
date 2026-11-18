@@ -64,4 +64,15 @@ final class AnalyticsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.summaries.count, 1)
         XCTAssertTrue(calendar.isDate(try XCTUnwrap(viewModel.summaries.first?.date), inSameDayAs: fourteenDaysAgoStart))
     }
+
+    func testLoadedSummariesAreBoundToMainModelContext() async throws {
+        let today = Calendar.current.startOfDay(for: Date())
+        try await repository.saveSummary(DailySummary(date: today))
+
+        viewModel.loadData(for: .day)
+        try await Task.sleep(nanoseconds: 150_000_000)
+
+        let loaded = try XCTUnwrap(viewModel.summaries.first)
+        XCTAssertTrue(loaded.modelContext === container.mainContext)
+    }
 }

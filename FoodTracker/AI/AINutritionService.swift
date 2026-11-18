@@ -87,12 +87,29 @@ struct AIChefRecipeDTO: Codable {
     let title: String
     @FlexibleInt var calories: Int
     @FlexibleInt var protein: Int
+    @FlexibleInt var fat: Int
+    @FlexibleInt var carbs: Int
     @FlexibleInt var cookTime: Int
     @FlexibleInt var difficulty: Int
     let history: String
     let ingredients: [String]
     let steps: [RecipeStepDTO]
     let platingTip: String
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        title = try container.decode(String.self, forKey: .title)
+        _calories = try container.decode(FlexibleInt.self, forKey: .calories)
+        _protein = try container.decode(FlexibleInt.self, forKey: .protein)
+        _fat = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .fat)) ?? FlexibleInt(wrappedValue: 0)
+        _carbs = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .carbs)) ?? FlexibleInt(wrappedValue: 0)
+        _cookTime = try container.decode(FlexibleInt.self, forKey: .cookTime)
+        _difficulty = try container.decode(FlexibleInt.self, forKey: .difficulty)
+        history = try container.decode(String.self, forKey: .history)
+        ingredients = try container.decode([String].self, forKey: .ingredients)
+        steps = try container.decode([RecipeStepDTO].self, forKey: .steps)
+        platingTip = try container.decode(String.self, forKey: .platingTip)
+    }
 }
 
 struct RecipeStepDTO: Codable {
@@ -277,11 +294,13 @@ class AINutritionService {
         """
         
         if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self) {
+            guard !dto.days.isEmpty else { return nil }
             let plan = WeeklyMealPlan(targetCalories: targetCalories, dietType: diet)
-            
-            for dayDTO in dto.days {
+            let normalizedDays = Self.normalizedPlanDays(dto.days)
+
+            for (idx, dayDTO) in normalizedDays.enumerated() {
                 let day = MealPlanDay(
-                    dayIndex: dayDTO.dayIndex,
+                    dayIndex: idx,
                     totalCalories: dayDTO.totalCalories,
                     totalProtein: dayDTO.totalProtein,
                     totalCarbs: dayDTO.totalCarbs,
@@ -308,6 +327,11 @@ class AINutritionService {
             return plan
         }
         return nil
+    }
+
+    /// Normalizes LLM-emitted day indices (e.g. 1...7 or unsorted days) to sequential 0...6 order.
+    static func normalizedPlanDays(_ days: [AIWeeklyPlanDayDTO]) -> [AIWeeklyPlanDayDTO] {
+        days.sorted { $0.dayIndex < $1.dayIndex }
     }
 
     func sendChatMessage(prompt: String, userContext: String, activeDiet: String, history: [AIChatMessage] = []) async -> String? {
@@ -410,6 +434,8 @@ class AINutritionService {
           "title": "String",
           "calories": Int,
           "protein": Int,
+          "fat": Int,
+          "carbs": Int,
           "cookTime": Int,
           "difficulty": Int (1 to 5),
           "history": "String (1-2 intriguing culinary sentences)",
@@ -432,6 +458,8 @@ class AINutritionService {
             title: dto.title,
             calories: dto.calories,
             protein: dto.protein,
+            fat: dto.fat,
+            carbs: dto.carbs,
             heroImage: "fork.knife",
             cookTime: dto.cookTime,
             difficulty: dto.difficulty,

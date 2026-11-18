@@ -4,7 +4,6 @@ import SwiftData
 struct WeeklyPlanOverview: View {
     @Environment(\.modelContext) private var context
     @Environment(ThemeManager.self) private var themeManager
-    @Query private var summaries: [DailySummary]
     
     let plan: WeeklyMealPlan
     let onDismiss: () -> Void

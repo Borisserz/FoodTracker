@@ -794,6 +794,16 @@ struct IndividualMacroRing: View {
                 }
             }
         }
+        .onChange(of: current) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.75)) {
+                progress = current / max(target, 1.0)
+            }
+        }
+        .onChange(of: target) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.75)) {
+                progress = current / max(target, 1.0)
+            }
+        }
     }
 }
 struct MicronutrientsFocusCard: View {
@@ -900,6 +910,16 @@ struct CompactMicroCard: View {
                 }
             }
         }
+        .onChange(of: current) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.75)) {
+                progress = current / max(target, 1.0)
+            }
+        }
+        .onChange(of: target) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.75)) {
+                progress = current / max(target, 1.0)
+            }
+        }
     }
 }
 struct MicroProgressBar: View {
@@ -943,6 +963,16 @@ struct MicroProgressBar: View {
                 withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
                     progress = current / max(target, 1.0)
                 }
+            }
+        }
+        .onChange(of: current) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.75)) {
+                progress = current / max(target, 1.0)
+            }
+        }
+        .onChange(of: target) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.75)) {
+                progress = current / max(target, 1.0)
             }
         }
     }

@@ -14,6 +14,8 @@ struct AddMealView: View {
     @State private var showingAddFood = false
     @State private var expandedFoodId: UUID? = nil
     @State private var hasModifiedDrafts = false
+    @State private var draftsBySlot: [String: [EditableFoodDraft]] = [:]
+    @State private var dirtySlots: Set<String> = []
     
     let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"]
     let selectedDate: Date
@@ -313,14 +315,37 @@ struct AddMealView: View {
         .onAppear {
             loadExistingFoods()
         }
-        .onChange(of: selectedMealType) { _, _ in
-            guard !hasModifiedDrafts else { return }
-            loadExistingFoods()
+        .onChange(of: selectedMealType) { oldSlot, newSlot in
+            let canonicalOld = DailySummary.canonicalMealSlot(oldSlot)
+            let canonicalNew = DailySummary.canonicalMealSlot(newSlot)
+            guard canonicalOld != canonicalNew else { return }
+
+            if hasModifiedDrafts {
+                draftsBySlot[canonicalOld] = selectedDrafts
+                dirtySlots.insert(canonicalOld)
+            }
+
+            if let cachedDrafts = draftsBySlot[canonicalNew] {
+                selectedDrafts = cachedDrafts
+                existingMealHadItems = existingMealHasItems(for: canonicalNew)
+                hasModifiedDrafts = dirtySlots.contains(canonicalNew)
+            } else {
+                loadExistingFoods()
+            }
         }
+    }
+
+    private func existingMeal(for mealType: String, in summary: DailySummary? = nil) -> Meal? {
+        let canonicalTarget = DailySummary.canonicalMealSlot(mealType)
+        return (summary ?? summaries.first)?.meals?.first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalTarget })
+    }
+
+    private func existingMealHasItems(for mealType: String) -> Bool {
+        !(existingMeal(for: mealType)?.foodItems ?? []).isEmpty
     }
     
     private func loadExistingFoods() {
-        if let existingMeal = summaries.first?.meals?.first(where: { $0.title == selectedMealType }) {
+        if let existingMeal = existingMeal(for: selectedMealType) {
             let items = existingMeal.foodItems ?? []
             selectedDrafts = items.map { EditableFoodDraft(food: $0) }
             existingMealHadItems = !items.isEmpty
@@ -357,7 +382,8 @@ struct AddMealView: View {
         }
         
         var previousCalories = 0
-        if let existingMeal = (summaryToUse.meals ?? []).first(where: { $0.title == selectedMealType }) {
+        let canonicalSlot = DailySummary.canonicalMealSlot(selectedMealType)
+        if let existingMeal = existingMeal(for: canonicalSlot, in: summaryToUse) {
             previousCalories = existingMeal.totalCalories
             let keptIDs = Set(persistedItems.map { $0.id })
             let removedFoods = (existingMeal.foodItems ?? []).filter { !keptIDs.contains($0.id) }

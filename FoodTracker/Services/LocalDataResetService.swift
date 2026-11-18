@@ -26,6 +26,8 @@ enum LocalDataResetService {
         "dailyQuestStates_v1",
         "dailyQuestClaimed_v1",
         "favoriteRecipeIDs",
+        "favoriteRecipeTitles_v1",
+        "favoriteFoodNames_v1",
         "blockedCommunityFoods",
         "loggedMealsCount",
         "lastReviewPromptAppVersion",
@@ -68,6 +70,7 @@ enum LocalDataResetService {
         HealthKitManager.shared.resetAuthorizationState()
 
         if defaults === UserDefaults.standard {
+            UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.removeObject(forKey: "useMetricSystem")
             ThemeManager.shared.currentThemeIndex = 0
         }
 

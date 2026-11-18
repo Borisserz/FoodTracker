@@ -15,6 +15,7 @@ struct SmartPlanBuilderFlow: View {
     @State private var isGenerating = false
     @State private var generatedPlan: WeeklyMealPlan? = nil
     @State private var generationError: String? = nil
+    @State private var generationTask: Task<Void, Never>? = nil
     
     let dietTypes = ["Any", "Keto", "Vegan", "Paleo", "Mediterranean"]
     let complexities = ["Fast (15m)", "Medium (30m)", "Chef (60m)"]
@@ -90,6 +91,11 @@ struct SmartPlanBuilderFlow: View {
             }
             .navigationTitle(isGenerating ? "" : (generatedPlan != nil ? String(localized: "Weekly Menu") : String(localized: "Smart Builder")))
             .navigationBarTitleDisplayMode(.inline)
+            .interactiveDismissDisabled(isGenerating)
+            .onDisappear {
+                generationTask?.cancel()
+                generationTask = nil
+            }
             .toolbar {
                 if !isGenerating && generatedPlan == nil {
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -338,20 +344,24 @@ struct SmartPlanBuilderFlow: View {
     // MARK: - Generation
     
     private func startGeneration() {
+        guard !isGenerating else { return }
         withAnimation {
             isGenerating = true
         }
-        
-        Task {
-            if let newPlan = await AINutritionService.shared.generateWeeklyPlan(
+        generationTask?.cancel()
+
+        generationTask = Task {
+            let newPlan = await AINutritionService.shared.generateWeeklyPlan(
                 targetCalories: Int(targetCalories),
                 diet: selectedDiet,
                 complexity: complexity
-            ) {
+            )
+            guard !Task.isCancelled else { return }
+            if let newPlan {
                 await MainActor.run {
                     context.insert(newPlan)
                     try? context.save()
-                    
+
                     withAnimation(.spring()) {
                         self.generatedPlan = newPlan
                         self.isGenerating = false
