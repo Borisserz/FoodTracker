@@ -380,7 +380,6 @@ struct SettingsView: View {
     @Bindable var user: User
 
     @AppStorage("useMetricSystem") private var useMetricSystem = true
-    @Query private var summaries: [DailySummary]
     @State private var showLegalOptions = false
 
     var body: some View {
@@ -500,6 +499,9 @@ struct SettingsView: View {
     
     private func exportData() {
         do {
+            let summaries = try context.fetch(
+                FetchDescriptor<DailySummary>(sortBy: [SortDescriptor(\.date, order: .reverse)])
+            )
             let fileURL = try DataExportService.generateCSV(from: summaries)
             let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
             

@@ -162,11 +162,11 @@ struct MacroRingsWidgetView: View {
             
             Spacer()
             
-            // Premium Concentric Rings
+            // Premium Concentric Rings (radius * 2 + width <= 110 avoids stroke clipping)
             ZStack {
-                ConcentricRing(progress: Double(entry.protein) / pGoal, color: .widgetProtein, radius: 55, width: 12)
-                ConcentricRing(progress: Double(entry.fat) / fGoal, color: .widgetFat, radius: 41, width: 12)
-                ConcentricRing(progress: Double(entry.carbs) / cGoal, color: .widgetCarbs, radius: 27, width: 12)
+                ConcentricRing(progress: Double(entry.protein) / pGoal, color: .widgetProtein, radius: 49, width: 11)
+                ConcentricRing(progress: Double(entry.fat) / fGoal, color: .widgetFat, radius: 36, width: 11)
+                ConcentricRing(progress: Double(entry.carbs) / cGoal, color: .widgetCarbs, radius: 23, width: 11)
             }
             .frame(width: 110, height: 110)
         }
@@ -225,56 +225,109 @@ struct ConcentricRing: View {
 
 // MARK: - Metabolic Score Widget
 struct MetabolicScoreWidgetView: View {
+    @Environment(\.widgetFamily) private var family
     var entry: FoodTrackerEntry
     
     var body: some View {
-        VStack(spacing: 10) {
-            HStack {
-                Text("Metabolic")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary.opacity(0.8))
-                Spacer()
-                Image(systemName: "bolt.heart.fill")
-                    .foregroundColor(scoreColor)
-            }
-            
-            ZStack {
-                Circle()
-                    .stroke(scoreColor.opacity(0.15), lineWidth: 14)
-                
-                Circle()
-                    .trim(from: 0, to: CGFloat(Double(entry.metabolicScore) / 100.0))
-                    .stroke(
-                        AngularGradient(
-                            gradient: Gradient(colors: [scoreColor.opacity(0.5), scoreColor]),
-                            center: .center,
-                            startAngle: .degrees(-90),
-                            endAngle: .degrees(270)
-                        ),
-                        style: StrokeStyle(lineWidth: 14, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
-                    .shadow(color: scoreColor.opacity(0.4), radius: 8, x: 0, y: 2)
-                
-                VStack(spacing: -2) {
-                    Text("\(entry.metabolicScore)")
-                        .font(.system(size: 36, weight: .heavy, design: .rounded))
-                        .foregroundStyle(
-                            LinearGradient(colors: [.primary, .primary.opacity(0.8)], startPoint: .top, endPoint: .bottom)
-                        )
-                    Text("SCORE")
-                        .font(.system(size: 9, weight: .black, design: .rounded))
-                        .foregroundColor(.secondary)
-                        .tracking(1.5)
+        Group {
+            if family == .systemMedium {
+                HStack(spacing: 18) {
+                    scoreRing(lineWidth: 12)
+                        .frame(width: 108, height: 108)
+                        .padding(4)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "bolt.heart.fill")
+                                .foregroundColor(scoreColor)
+                            Text("Metabolic Synergy")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary.opacity(0.85))
+                                .lineLimit(1)
+                        }
+
+                        Text(scoreStatusLabel)
+                            .font(.system(size: 12, weight: .heavy, design: .rounded))
+                            .foregroundColor(scoreColor)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(scoreColor.opacity(0.14))
+                            .clipShape(Capsule())
+
+                        Spacer(minLength: 2)
+
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("\(entry.totalCalories) / \(entry.calorieGoal) kcal")
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .foregroundColor(.secondary)
+                            Text(String(format: String(localized: "%.2f / %.1f L hydration"), entry.hydrationLiters, entry.hydrationGoalLiters))
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    Spacer(minLength: 0)
+                }
+            } else {
+                VStack(spacing: 10) {
+                    HStack {
+                        Text("Metabolic")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary.opacity(0.8))
+                        Spacer()
+                        Image(systemName: "bolt.heart.fill")
+                            .foregroundColor(scoreColor)
+                    }
+                    
+                    scoreRing(lineWidth: 12)
+                        .padding(6)
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.bottom, 4)
         }
         .containerBackground(for: .widget) {
             WidgetPremiumBackground()
         }
         .widgetURL(URL(string: "foodtracker://metabolic"))
+    }
+
+    @ViewBuilder
+    private func scoreRing(lineWidth: CGFloat) -> some View {
+        ZStack {
+            Circle()
+                .stroke(scoreColor.opacity(0.15), lineWidth: lineWidth)
+            
+            Circle()
+                .trim(from: 0, to: CGFloat(min(max(Double(entry.metabolicScore) / 100.0, 0), 1)))
+                .stroke(
+                    AngularGradient(
+                        gradient: Gradient(colors: [scoreColor.opacity(0.5), scoreColor]),
+                        center: .center,
+                        startAngle: .degrees(-90),
+                        endAngle: .degrees(270)
+                    ),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .shadow(color: scoreColor.opacity(0.35), radius: 6, x: 0, y: 2)
+            
+            VStack(spacing: -2) {
+                Text("\(entry.metabolicScore)")
+                    .font(.system(size: 32, weight: .heavy, design: .rounded))
+                    .foregroundStyle(
+                        LinearGradient(colors: [.primary, .primary.opacity(0.8)], startPoint: .top, endPoint: .bottom)
+                    )
+                Text("SCORE")
+                    .font(.system(size: 9, weight: .black, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .tracking(1.5)
+            }
+        }
+        .padding(lineWidth / 2)
+    }
+
+    private var scoreStatusLabel: String {
+        if entry.metabolicScore >= 90 { return String(localized: "Peak Synergy") }
+        if entry.metabolicScore >= 70 { return String(localized: "Balanced") }
+        return String(localized: "In Progress")
     }
     
     var scoreColor: Color {
@@ -286,7 +339,12 @@ struct MetabolicScoreWidgetView: View {
 
 // MARK: - Shopping List (Sticky Note) Widget
 struct ShoppingListWidgetView: View {
+    @Environment(\.widgetFamily) private var family
     var entry: ShoppingListEntry
+
+    private var displayedItems: [(id: String, name: String, amount: String, isChecked: Bool)] {
+        Array(entry.items.prefix(family == .systemSmall ? 3 : 6))
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -316,7 +374,7 @@ struct ShoppingListWidgetView: View {
                 Spacer()
             } else {
                 VStack(alignment: .leading, spacing: 6) {
-                    ForEach(entry.items, id: \.id) { item in
+                    ForEach(displayedItems, id: \.id) { item in
                         HStack(spacing: 8) {
                             Button(intent: ToggleShoppingItemIntent(itemID: item.id)) {
                                 ZStack {

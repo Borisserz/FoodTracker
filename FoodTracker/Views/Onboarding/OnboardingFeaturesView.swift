@@ -181,12 +181,16 @@ struct CosmicStarfieldView: View {
             }
             .animation(.easeInOut(duration: 0.8), value: themeColor)
             .onAppear {
+                motion.start()
                 withAnimation(.linear(duration: 25).repeatForever(autoreverses: true)) {
                     nebulaOffset1 = CGSize(width: 50, height: -30)
                 }
                 withAnimation(.linear(duration: 30).repeatForever(autoreverses: true)) {
                     nebulaOffset2 = CGSize(width: -60, height: 45)
                 }
+            }
+            .onDisappear {
+                motion.stop()
             }
         }
         .ignoresSafeArea()

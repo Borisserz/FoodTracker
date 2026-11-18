@@ -90,14 +90,15 @@ final class FastingManager {
     private func startUpdateTask() {
         stopUpdateTask()
         updateCalculations()
+        guard isFasting, targetHours > 0, startTime != nil else { return }
 
         updateTask = Task { [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(1))
                 let shouldContinue = await MainActor.run { () -> Bool in
-                    guard let self, self.isFasting else { return false }
+                    guard let self, self.isFasting, self.targetHours > 0 else { return false }
                     self.updateCalculations()
-                    return self.targetHours <= 0 || self.progress < 1.0
+                    return self.progress < 1.0
                 }
                 if !shouldContinue { break }
             }
@@ -143,6 +144,11 @@ final class FastingManager {
         }
     }
 
+    /// Rehydrates active fasting state from UserDefaults (invoked at launch and unit tests).
+    func restorePersistedState() {
+        loadState()
+    }
+
     private func loadState() {
         isFasting = UserDefaults.standard.bool(forKey: "isFasting")
         if isFasting {
@@ -155,9 +161,17 @@ final class FastingManager {
                 saveState()
                 return
             }
-            startTime = Date(timeIntervalSince1970: savedTime)
-            liveActivityManager.startActivity(planName: planName, targetHours: targetHours, startTime: Date(timeIntervalSince1970: savedTime))
-            // Re-establish live updates (structured task) and ensure notifications are scheduled
+            let savedStartDate = Date(timeIntervalSince1970: savedTime)
+            startTime = savedStartDate
+            updateCalculations()
+            liveActivityManager.reattachActivity(
+                planName: planName,
+                targetHours: targetHours,
+                startTime: savedStartDate,
+                currentStage: currentPhase.name,
+                progressPct: progress
+            )
+            // Re-establish live updates (structured task)
             startUpdateTask()
         }
     }

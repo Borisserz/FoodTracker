@@ -1137,8 +1137,21 @@ struct PremiumRecipeDetailView: View {
 
             VStack {
                 HStack {
-                    Button(action: { dismiss() }) { Image(systemName: "chevron.left").font(.title3.bold()).foregroundColor(.primary).frame(width: 40, height: 40).background(.ultraThinMaterial).clipShape(Circle()) }
-                    Spacer(); Text("Recipe Info").font(.headline).foregroundColor(.white).shadow(radius: 2); Spacer()
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title3.bold())
+                            .foregroundColor(.primary)
+                            .frame(width: 40, height: 40)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                    }
+                    .frame(width: 70, alignment: .leading)
+                    Spacer()
+                    Text("Recipe Info")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .shadow(radius: 2)
+                    Spacer()
                     HStack(spacing: 12) {
 
                         ShareLink(item: shareRecipeText) {
@@ -1164,7 +1177,7 @@ struct PremiumRecipeDetailView: View {
                                 .shadow(radius: 2)
                         }
                     }.frame(width: 70, alignment: .trailing)
-                }.padding(.horizontal, 20).padding(.top, 50)
+                }.padding(.horizontal, 20).padding(.top, 10)
                 Spacer()
             }
 
@@ -1182,7 +1195,7 @@ struct PremiumRecipeDetailView: View {
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showMealSheet) {
             ChooseMealSheet(recipe: recipe, calories: dynamicCalories, p: Double(dynamicProtein), f: Double(dynamicFat), c: Double(dynamicCarbs))
-                .presentationDetents([.fraction(0.4)]).presentationCornerRadius(32).presentationDragIndicator(.visible)
+                .presentationDetents([.fraction(0.5), .large]).presentationCornerRadius(32).presentationDragIndicator(.visible)
         }
         .fullScreenCover(isPresented: $showAICooking) {
             NavigationStack {
@@ -1279,21 +1292,23 @@ struct ChooseMealSheet: View {
         self.c = c
     }
     var body: some View {
-        VStack(spacing: 24) {
-            Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
-            Picker("Meal", selection: $selectedMeal) { ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) } }.pickerStyle(.wheel).frame(height: 120)
-            Button(action: {
-                HapticManager.shared.impact(style: .heavy)
-                Task {
-                    await saveToDiary()
-                    await MainActor.run { dismiss() }
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
+                Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
+                Picker("Meal", selection: $selectedMeal) { ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) } }.pickerStyle(.wheel).frame(height: 120)
+                Button(action: {
+                    HapticManager.shared.impact(style: .heavy)
+                    Task {
+                        await saveToDiary()
+                        await MainActor.run { dismiss() }
+                    }
+                }) {
+                    Text("Select").font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 18).background(Color.themePink).cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
                 }
-            }) {
-                Text("Select").font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding(.vertical, 18).background(Color.themePink).cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                .buttonStyle(BounceButtonStyle())
+                .padding(.horizontal, 24)
+                .padding(.bottom, 20)
             }
-            .buttonStyle(BounceButtonStyle())
-            .padding(.horizontal, 24)
-            .padding(.bottom, 20)
         }
         .background(Color.themeBg.ignoresSafeArea())
     }

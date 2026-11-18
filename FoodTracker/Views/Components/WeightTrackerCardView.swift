@@ -7,9 +7,18 @@ struct WeightTrackerCardView: View {
 
     @Bindable var summary: DailySummary
 
-    @Query(sort: \DailySummary.date, order: .reverse)
-    private var allSummaries: [DailySummary]
+    @Query private var allSummaries: [DailySummary]
     @Query private var users: [User]
+
+    init(summary: DailySummary) {
+        self.summary = summary
+        var descriptor = FetchDescriptor<DailySummary>(
+            predicate: #Predicate<DailySummary> { ($0.weight ?? 0) > 0 },
+            sortBy: [SortDescriptor(\DailySummary.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = 10
+        self._allSummaries = Query(descriptor)
+    }
 
     @State private var showingWeightInputSheet = false
 

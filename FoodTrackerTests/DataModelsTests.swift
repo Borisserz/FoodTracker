@@ -455,8 +455,9 @@ final class DataModelsTests: XCTestCase {
         XCTAssertGreaterThan(en.first?.articles.count ?? 0, 0)
     }
 
-    func testLocalFoodDatabaseSearchUsesSmartSearchSynonymsAndStemming() {
+    func testLocalFoodDatabaseSearchUsesSmartSearchSynonymsAndStemming() async {
         // Plural/stemmed English and Russian synonyms should match bundled database entries
+        await LocalFoodDatabaseService.shared.waitUntilLoaded()
         let tomatoes = LocalFoodDatabaseService.shared.search(query: "tomatoes", limit: 10)
         XCTAssertFalse(tomatoes.isEmpty)
     }
@@ -647,5 +648,69 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(withoutHK.workoutCalories, 650)
         XCTAssertEqual(withoutHK.activeCaloriesBurned, 650)
         XCTAssertEqual(withoutHK.stepsCount, 0)
+    }
+
+    func testMotionManagerReferenceCountingStartAndStop() {
+        let motion = MotionManager.shared
+        motion.resetForTesting()
+        XCTAssertEqual(motion.activeConsumerCount, 0)
+
+        motion.start()
+        motion.start()
+        XCTAssertEqual(motion.activeConsumerCount, 2)
+
+        motion.stop()
+        XCTAssertEqual(motion.activeConsumerCount, 1)
+
+        motion.stop()
+        XCTAssertEqual(motion.activeConsumerCount, 0)
+
+        // Extra stop does not underflow consumer counter.
+        motion.stop()
+        XCTAssertEqual(motion.activeConsumerCount, 0)
+    }
+
+    func testDailyWidgetSnapshotMidnightRolloverSchedule() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let now = calendar.date(from: DateComponents(year: 2026, month: 5, day: 10, hour: 23, minute: 30))!
+        let startOfTomorrow = calendar.date(from: DateComponents(year: 2026, month: 5, day: 11, hour: 0, minute: 0))!
+
+        let snapshot = DailyWidgetSnapshot(
+            hydrationLiters: 1.8,
+            hydrationGoalLiters: 2.5,
+            protein: 110,
+            proteinGoal: 140,
+            fat: 55,
+            fatGoal: 65,
+            carbs: 180,
+            carbGoal: 220,
+            totalCalories: 1650,
+            calorieGoal: 2000,
+            metabolicScore: 84
+        )
+
+        let schedule = DailyWidgetSnapshot.timelineSchedule(for: snapshot, now: now, calendar: calendar)
+        XCTAssertEqual(schedule.entries.count, 2)
+        XCTAssertEqual(schedule.entries[0].date, now)
+        XCTAssertEqual(schedule.entries[0].snapshot, snapshot)
+
+        XCTAssertEqual(schedule.entries[1].date, startOfTomorrow)
+        XCTAssertEqual(schedule.entries[1].snapshot.totalCalories, 0)
+        XCTAssertEqual(schedule.entries[1].snapshot.protein, 0)
+        XCTAssertEqual(schedule.entries[1].snapshot.hydrationLiters, 0, accuracy: 0.001)
+        XCTAssertEqual(schedule.entries[1].snapshot.metabolicScore, 0)
+        // Goals are preserved across the midnight reset entry.
+        XCTAssertEqual(schedule.entries[1].snapshot.calorieGoal, 2000)
+        XCTAssertEqual(schedule.entries[1].snapshot.proteinGoal, 140)
+        // Reload should trigger right at midnight rather than 23:30 + 1h.
+        XCTAssertEqual(schedule.reloadAt, startOfTomorrow)
+    }
+
+    func testLocalFoodDatabaseAsyncSearchRanking() async {
+        let appleResults = await LocalFoodDatabaseService.shared.searchAsync(query: "apple", limit: 10)
+        XCTAssertTrue(LocalFoodDatabaseService.shared.isLoaded)
+        XCTAssertFalse(appleResults.isEmpty)
+        XCTAssertTrue(LocalFoodDatabaseService.shared.search(query: "   ", limit: 10).isEmpty)
     }
 }

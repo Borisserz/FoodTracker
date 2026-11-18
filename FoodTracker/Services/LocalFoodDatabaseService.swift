@@ -28,45 +28,84 @@ struct LocalFoodEntry: Codable, Identifiable {
 /// Provides instant, zero-network, zero-Firestore food search from bundled JSON files.
 /// Files: foods_ru.json, foods_en.json, foods_de.json, foods_es.json, foods_fr.json, foods_it.json
 ///
-/// Architecture: loaded once at startup, kept in memory, searched with simple substring matching.
-/// Typical load time: <5ms. Memory footprint: ~200KB for all languages combined.
+/// Architecture: JSON decoding and search-key normalization run off the main actor at startup,
+/// then indexed entries are stored in memory for O(N) substring/prefix scans without per-keystroke allocations.
 final class LocalFoodDatabaseService {
     static let shared = LocalFoodDatabaseService()
 
-    /// Foods for the current device language (loaded at init)
-    private(set) var foods: [LocalFoodEntry] = []
+    private struct IndexedFoodEntry {
+        let entry: LocalFoodEntry
+        let foldedName: String
+        let foldedWords: Set<String>
+    }
+
+    private let lock = NSLock()
+    private var indexedFoods: [IndexedFoodEntry] = []
+    private var indexedFallbackFoods: [IndexedFoodEntry] = []
+    private var _isLoaded = false
+    private var loadTask: Task<Void, Never>?
+
+    /// Foods for the current device language
+    var foods: [LocalFoodEntry] {
+        lock.withLock { indexedFoods.map(\.entry) }
+    }
 
     /// All English foods — used as fallback when locale-specific search returns nothing
-    private(set) var fallbackFoods: [LocalFoodEntry] = []
+    var fallbackFoods: [LocalFoodEntry] {
+        lock.withLock { indexedFallbackFoods.map(\.entry) }
+    }
+
+    /// Indicates whether background JSON decoding and indexing has finished.
+    var isLoaded: Bool {
+        lock.withLock { _isLoaded }
+    }
 
     private init() {
-        let lang = resolveLanguageCode()
-        foods = loadFoods(language: lang)
-        // Always load English as fallback (avoids showing nothing for unsupported locales)
-        if lang != "en" {
-            fallbackFoods = loadFoods(language: "en")
+        let lang = Self.resolveLanguageCode()
+        loadTask = Task.detached(priority: .userInitiated) { [weak self] in
+            let primary = Self.loadAndIndexFoods(language: lang)
+            let fallback = lang == "en" ? [] : Self.loadAndIndexFoods(language: "en")
+            guard let self else { return }
+            self.lock.withLock {
+                self.indexedFoods = primary
+                self.indexedFallbackFoods = fallback
+                self._isLoaded = true
+            }
+            print("📚 LocalFoodDB: loaded \(primary.count) '\(lang)' foods + \(fallback.count) EN fallback (async)")
         }
-        print("📚 LocalFoodDB: loaded \(foods.count) '\(lang)' foods + \(fallbackFoods.count) EN fallback")
+    }
+
+    /// Suspends until the initial off-main-thread database load completes.
+    func waitUntilLoaded() async {
+        await loadTask?.value
     }
 
     // MARK: - Search
 
-    /// Returns up to `limit` foods matching `query` using locale-aware substring matching.
+    /// Returns up to `limit` foods matching `query` using pre-normalized locale-aware substring matching.
     /// Falls back to English results if locale-specific database returns fewer than 3 hits.
     func search(query: String, limit: Int = 15) -> [FoodItem] {
-        guard !query.trimmingCharacters(in: .whitespaces).isEmpty else { return [] }
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, limit > 0 else { return [] }
 
-        let q = query.lowercased().trimmingCharacters(in: .whitespaces)
-        var results = matchFoods(foods, query: q)
+        let (primary, fallback) = lock.withLock { (indexedFoods, indexedFallbackFoods) }
+        var results = matchFoods(primary, query: trimmed)
 
         // Supplement with English fallback if not enough locale results
-        if results.count < 3 && !fallbackFoods.isEmpty {
-            let fallback = matchFoods(fallbackFoods, query: q)
-                .filter { fb in !results.contains(where: { $0.name.lowercased() == fb.name.lowercased() }) }
-            results += fallback
+        if results.count < 3 && !fallback.isEmpty {
+            let existingNames = Set(results.map { $0.name.lowercased() })
+            let fallbackMatches = matchFoods(fallback, query: trimmed)
+                .filter { !existingNames.contains($0.name.lowercased()) }
+            results += fallbackMatches
         }
 
         return Array(results.prefix(limit)).map { $0.toFoodItem() }
+    }
+
+    /// Async search that ensures background database loading has finished before querying.
+    func searchAsync(query: String, limit: Int = 15) async -> [FoodItem] {
+        await waitUntilLoaded()
+        return search(query: query, limit: limit)
     }
 
     /// Returns true if local database has at least one result for the query.
@@ -76,18 +115,18 @@ final class LocalFoodDatabaseService {
 
     // MARK: - Private helpers
 
-    private func normalizeForSearch(_ text: String) -> String {
+    private static func normalizeForSearch(_ text: String) -> String {
         text.trimmingCharacters(in: .whitespacesAndNewlines)
             .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
     }
 
-    private func matchFoods(_ foods: [LocalFoodEntry], query: String) -> [LocalFoodEntry] {
-        let normalizedQuery = normalizeForSearch(query)
+    private func matchFoods(_ entries: [IndexedFoodEntry], query: String) -> [LocalFoodEntry] {
+        let normalizedQuery = Self.normalizeForSearch(query)
         let queryRoots = SmartSearch.getRoots(for: query)
         var scored: [(score: Int, entry: LocalFoodEntry)] = []
 
-        for entry in foods {
-            let name = normalizeForSearch(entry.name)
+        for indexed in entries {
+            let name = indexed.foldedName
             var score = 0
             if name.hasPrefix(normalizedQuery) {
                 score = 100
@@ -95,35 +134,39 @@ final class LocalFoodDatabaseService {
                 score = 60
             } else if name.contains(normalizedQuery) {
                 score = 30
-            } else if !queryRoots.isEmpty && SmartSearch.matches(name: entry.name, queryRoots: queryRoots) {
+            } else if !queryRoots.isEmpty && SmartSearch.matches(name: indexed.entry.name, queryRoots: queryRoots) {
                 score = 20
             } else {
                 continue
             }
-            // Bonus: exact word match
-            if name.components(separatedBy: " ").contains(normalizedQuery) {
+            // Bonus: exact word match using pre-tokenized word set
+            if indexed.foldedWords.contains(normalizedQuery) {
                 score += 20
             }
-            scored.append((score, entry))
+            scored.append((score, indexed.entry))
         }
 
-        return scored.sorted { $0.score > $1.score }.map { $0.entry }
+        return scored.sorted { $0.score > $1.score }.map(\.entry)
     }
 
-    private func resolveLanguageCode() -> String {
+    private static func resolveLanguageCode() -> String {
         let code = Locale.current.language.languageCode?.identifier ?? "en"
         let supported = ["ru", "en", "de", "es", "fr", "it"]
         return supported.contains(code) ? code : "en"
     }
 
-    private func loadFoods(language: String) -> [LocalFoodEntry] {
+    private static func loadAndIndexFoods(language: String) -> [IndexedFoodEntry] {
         guard let url = Bundle.main.url(forResource: "foods_\(language)", withExtension: "json"),
               let data = try? Data(contentsOf: url),
               let entries = try? JSONDecoder().decode([LocalFoodEntry].self, from: data) else {
             print("⚠️ LocalFoodDB: could not load foods_\(language).json")
             return []
         }
-        return entries
+        return entries.map { entry in
+            let folded = normalizeForSearch(entry.name)
+            let words = Set(folded.split(separator: " ").map(String.init))
+            return IndexedFoodEntry(entry: entry, foldedName: folded, foldedWords: words)
+        }
     }
 }
 

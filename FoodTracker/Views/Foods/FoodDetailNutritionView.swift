@@ -175,6 +175,13 @@ private struct FoodDetailHeader: View {
         favoriteFoodNamesRaw = updated.sorted().joined(separator: "\n")
     }
 
+    private var topSafeInset: CGFloat {
+        let inset = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+            .windows.first(where: \.isKeyWindow)?
+            .safeAreaInsets.top ?? 44
+        return max(inset, 20) + 8
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
 
@@ -200,7 +207,7 @@ private struct FoodDetailHeader: View {
                         .clipShape(Circle())
                 }
             }
-            .padding(.top, 50)
+            .padding(.top, topSafeInset)
 
             Text(name)
                 .font(.system(size: 32, weight: .bold, design: .rounded))

@@ -4,6 +4,7 @@ import ActivityKit
 @MainActor
 protocol FastingLiveActivityManaging: AnyObject {
     func startActivity(planName: String, targetHours: Int, startTime: Date)
+    func reattachActivity(planName: String, targetHours: Int, startTime: Date, currentStage: String, progressPct: Double)
     func updateActivity(currentStage: String, progressPct: Double)
     func endActivity()
 }
@@ -31,6 +32,52 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     }
 
     func startActivity(planName: String, targetHours: Int, startTime: Date) {
+        requestNewActivity(
+            planName: planName,
+            targetHours: targetHours,
+            startTime: startTime,
+            initialStage: "Blood Sugar Normalizing",
+            initialProgress: 0.0
+        )
+    }
+
+    /// Reattaches to an already-running ActivityKit session across cold launches so progress/stage don't reset to zero.
+    func reattachActivity(
+        planName: String,
+        targetHours: Int,
+        startTime: Date,
+        currentStage: String,
+        progressPct: Double
+    ) {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled, targetHours > 0 else { return }
+        let targetEndDate = startTime.addingTimeInterval(TimeInterval(targetHours * 3600))
+
+        if let existing = activeActivity(),
+           existing.attributes.planName == planName,
+           abs(existing.attributes.targetEndDate.timeIntervalSince(targetEndDate)) < 60 {
+            currentActivity = existing
+            lastSentStage = nil
+            lastSentProgress = -1.0
+            updateActivity(currentStage: currentStage, progressPct: progressPct)
+            return
+        }
+
+        requestNewActivity(
+            planName: planName,
+            targetHours: targetHours,
+            startTime: startTime,
+            initialStage: currentStage,
+            initialProgress: progressPct
+        )
+    }
+
+    private func requestNewActivity(
+        planName: String,
+        targetHours: Int,
+        startTime: Date,
+        initialStage: String,
+        initialProgress: Double
+    ) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled, targetHours > 0 else { return }
 
         let targetEndDate = startTime.addingTimeInterval(TimeInterval(targetHours * 3600))
@@ -38,10 +85,10 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
             planName: planName,
             targetEndDate: targetEndDate
         )
-        let initialStage = "Blood Sugar Normalizing"
+        let clampedProgress = min(max(initialProgress, 0.0), 1.0)
         let initialContentState = FastingAttributes.ContentState(
             currentStage: initialStage,
-            progressPct: 0.0
+            progressPct: clampedProgress
         )
         let content = ActivityContent(
             state: initialContentState,
@@ -63,7 +110,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
                     pushType: nil
                 )
                 self.lastSentStage = initialStage
-                self.lastSentProgress = 0.0
+                self.lastSentProgress = clampedProgress
                 print("Live Activity started successfully: \(self.currentActivity?.id ?? "")")
             } catch {
                 print("Failed to start Live Activity: \(error.localizedDescription)")

@@ -841,6 +841,7 @@ struct ArticleDetailView: View {
                             .padding(.bottom, 60)
                             .offset(y: isScrollingDown ? -minY * 0.5 : 0)
                         }
+                        .clipped()
                     }
                     .frame(height: 380)
 
@@ -914,7 +915,7 @@ struct ArticleDetailView: View {
                 Spacer()
             }
             .padding(.horizontal, 20)
-            .padding(.top, 60)
+            .padding(.top, 12)
         }
         .navigationBarHidden(true)
     }

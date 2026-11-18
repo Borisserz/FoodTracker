@@ -350,8 +350,14 @@ struct Step2IngredientsView: View {
     }
 }
 
+private struct EditableDirectionStep: Identifiable, Equatable {
+    let id = UUID()
+    var text: String
+}
+
 struct Step3DirectionsView: View {
     @Binding var directions: [String]
+    @State private var steps: [EditableDirectionStep] = []
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -363,19 +369,25 @@ struct Step3DirectionsView: View {
                     .padding(.horizontal, 24)
 
                 VStack(spacing: 16) {
-                    ForEach(0..<directions.count, id: \.self) { index in
+                    ForEach(Array(steps.enumerated()), id: \.element.id) { index, step in
                         DirectionRowView(
                             index: index,
                             text: Binding(
-                                get: { index < directions.count ? directions[index] : "" },
-                                set: { if index < directions.count { directions[index] = $0 } }
+                                get: {
+                                    steps.first(where: { $0.id == step.id })?.text ?? ""
+                                },
+                                set: { newValue in
+                                    if let idx = steps.firstIndex(where: { $0.id == step.id }) {
+                                        steps[idx].text = newValue
+                                        directions = steps.map(\.text)
+                                    }
+                                }
                             ),
-                            canDelete: directions.count > 1,
+                            canDelete: steps.count > 1,
                             onDelete: {
                                 withAnimation {
-                                    if index < directions.count {
-                                        directions.remove(at: index)
-                                    }
+                                    steps.removeAll { $0.id == step.id }
+                                    directions = steps.map(\.text)
                                 }
                             }
                         )
@@ -384,7 +396,10 @@ struct Step3DirectionsView: View {
 
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
-                    withAnimation { directions.append("") }
+                    withAnimation {
+                        steps.append(EditableDirectionStep(text: ""))
+                        directions = steps.map(\.text)
+                    }
                 }) {
                     HStack {
                         Image(systemName: "plus")
@@ -400,6 +415,11 @@ struct Step3DirectionsView: View {
                 .padding(.horizontal, 20)
             }
             .padding(.top, 10)
+        }
+        .onAppear {
+            if steps.map(\.text) != directions {
+                steps = directions.map { EditableDirectionStep(text: $0) }
+            }
         }
     }
 }
@@ -893,7 +913,7 @@ struct RecipeDetailView: View {
                                       }
                                   }
                                   .padding(.horizontal)
-                                  .padding(.top, 50)
+                                  .padding(.top, 8)
 
                                   Spacer()
                               }
@@ -929,7 +949,7 @@ struct RecipeDetailView: View {
         .navigationBarHidden(true)
         .sheet(isPresented: $showMealSheet) {
             CustomChooseMealSheet(recipe: recipe)
-                .presentationDetents([.fraction(0.4)])
+                .presentationDetents([.fraction(0.65), .large])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
                 .toolbar(.hidden, for: .tabBar)
@@ -971,81 +991,83 @@ struct RecipeDetailView: View {
         }
 
         var body: some View {
-            VStack(spacing: 24) {
-                VStack(alignment: .center, spacing: 8) {
-                    Capsule()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 40, height: 5)
-                        .padding(.top, 10)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
+                    VStack(alignment: .center, spacing: 8) {
+                        Capsule()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 40, height: 5)
+                            .padding(.top, 10)
+                        
+                        Text("Add to Meal")
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .padding(.top, 10)
+                    }
                     
-                    Text("Add to Meal")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .padding(.top, 10)
-                }
-                
-                VStack(spacing: 12) {
-                    ForEach(meals, id: \.self) { meal in
-                        let isSelected = selectedMeal == meal
-                        Button(action: {
-                            HapticManager.shared.impact(style: .light)
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                selectedMeal = meal
-                            }
-                        }) {
-                            HStack(spacing: 16) {
-                                Text(mealIcon(for: meal))
-                                    .font(.system(size: 24))
-                                    .frame(width: 44, height: 44)
-                                    .background(isSelected ? Color.white.opacity(0.25) : Color.themeBg)
-                                    .clipShape(Circle())
-                                
-                                Text(LocalizedStringKey(meal))
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                
-                                Spacer()
-                                
-                                if isSelected {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.title3)
-                                        .foregroundColor(.white)
+                    VStack(spacing: 12) {
+                        ForEach(meals, id: \.self) { meal in
+                            let isSelected = selectedMeal == meal
+                            Button(action: {
+                                HapticManager.shared.impact(style: .light)
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedMeal = meal
                                 }
+                            }) {
+                                HStack(spacing: 16) {
+                                    Text(mealIcon(for: meal))
+                                        .font(.system(size: 24))
+                                        .frame(width: 44, height: 44)
+                                        .background(isSelected ? Color.white.opacity(0.25) : Color.themeBg)
+                                        .clipShape(Circle())
+                                    
+                                    Text(LocalizedStringKey(meal))
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    
+                                    Spacer()
+                                    
+                                    if isSelected {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.title3)
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                                .frame(maxWidth: .infinity)
+                                .background(isSelected ? ThemeManager.shared.current.primaryGradient : LinearGradient(colors: [Color.white], startPoint: .top, endPoint: .bottom))
+                                .foregroundColor(isSelected ? .white : .primary)
+                                .cornerRadius(18)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 18)
+                                        .stroke(isSelected ? Color.clear : Color.gray.opacity(0.12), lineWidth: 1)
+                                )
+                                .shadow(color: isSelected ? ThemeManager.shared.current.primaryAccent.opacity(0.2) : Color.black.opacity(0.015), radius: 5, y: 2)
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .frame(maxWidth: .infinity)
-                            .background(isSelected ? ThemeManager.shared.current.primaryGradient : LinearGradient(colors: [Color.white], startPoint: .top, endPoint: .bottom))
-                            .foregroundColor(isSelected ? .white : .primary)
-                            .cornerRadius(18)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 18)
-                                    .stroke(isSelected ? Color.clear : Color.gray.opacity(0.12), lineWidth: 1)
-                            )
-                            .shadow(color: isSelected ? ThemeManager.shared.current.primaryAccent.opacity(0.2) : Color.black.opacity(0.015), radius: 5, y: 2)
+                            .buttonStyle(BounceButtonStyle())
                         }
-                        .buttonStyle(BounceButtonStyle())
                     }
-                }
-                .padding(.horizontal, 24)
-                
-                Button(action: {
-                    HapticManager.shared.impact(style: .heavy)
-                    Task {
-                        await saveToDiary()
-                        await MainActor.run { dismiss() }
+                    .padding(.horizontal, 24)
+                    
+                    Button(action: {
+                        HapticManager.shared.impact(style: .heavy)
+                        Task {
+                            await saveToDiary()
+                            await MainActor.run { dismiss() }
+                        }
+                    }) {
+                        Text("Add to Diary")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(ThemeManager.shared.current.primaryGradient)
+                            .cornerRadius(20)
+                            .shadow(color: ThemeManager.shared.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
                     }
-                }) {
-                    Text("Add to Diary")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(ThemeManager.shared.current.primaryGradient)
-                        .cornerRadius(20)
-                        .shadow(color: ThemeManager.shared.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
+                    .buttonStyle(BounceButtonStyle())
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 30)
                 }
-                .buttonStyle(BounceButtonStyle())
-                .padding(.horizontal, 24)
-                .padding(.bottom, 30)
             }
             .background(Color.themeBg.ignoresSafeArea())
         }

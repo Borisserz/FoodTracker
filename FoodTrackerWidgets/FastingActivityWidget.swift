@@ -72,7 +72,6 @@ struct LockScreenFastingView: View {
                         .trim(from: 0, to: context.state.progressPct)
                         .stroke(Color.orange, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                         .rotationEffect(.degrees(-90))
-                        .animation(.linear, value: context.state.progressPct)
                     
                     Image(systemName: "timer")
                         .font(.title2)
@@ -103,7 +102,8 @@ struct LockScreenFastingView: View {
             }
         }
         .padding()
-        .background(Color.black.opacity(0.8))
+        .activityBackgroundTint(Color.black.opacity(0.85))
+        .activitySystemActionForegroundColor(.white)
     }
 }
 

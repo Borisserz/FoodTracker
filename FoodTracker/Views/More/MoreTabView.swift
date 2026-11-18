@@ -8,7 +8,7 @@ struct MoreTabView: View {
     @Query private var users: [User]
     @Query(sort: \WeightLog.date, order: .forward) private var weightLogs: [WeightLog]
 
-    @State private var appearedItems: [Int] = []
+    @State private var appearedItems: Set<Int> = []
 
     private var user: User? { users.first }
     private var currentWeight: Double { weightLogs.last?.weight ?? user?.weight ?? 0.0 }
@@ -68,11 +68,12 @@ struct MoreTabView: View {
             .navigationBarTitleDisplayMode(.large)
         }
         .onAppear {
+            guard appearedItems.isEmpty else { return }
             // Stagger card entrance animations
             for i in 0..<moreItems.count {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.08) {
                     withAnimation {
-                        appearedItems.append(i)
+                        _ = appearedItems.insert(i)
                     }
                 }
             }
@@ -253,9 +254,16 @@ private struct MoreItem: Identifiable {
 
 // MARK: - Navigation Card
 
+private struct MoreCardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
 private struct MoreNavCard: View {
     let item: MoreItem
-    @State private var isPressed = false
 
     var body: some View {
         NavigationLink(destination: item.destination) {
@@ -298,8 +306,6 @@ private struct MoreNavCard: View {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(item.gradient.first ?? .secondary)
-                    .offset(x: isPressed ? 4 : 0)
-                    .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
@@ -323,17 +329,7 @@ private struct MoreNavCard: View {
                 }
                 .shadow(color: .black.opacity(0.04), radius: 10, x: 0, y: 4)
             }
-            .scaleEffect(isPressed ? 0.96 : 1.0)
         }
-        .buttonStyle(.plain)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    withAnimation(.easeInOut(duration: 0.1)) { isPressed = true }
-                }
-                .onEnded { _ in
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { isPressed = false }
-                }
-        )
+        .buttonStyle(MoreCardButtonStyle())
     }
 }

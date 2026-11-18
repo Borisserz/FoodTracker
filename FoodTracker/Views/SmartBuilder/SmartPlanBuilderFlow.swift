@@ -132,170 +132,175 @@ struct SmartPlanBuilderFlow: View {
     // MARK: - Steps
     
     private var dietStepView: some View {
-        VStack(spacing: 24) {
-            Text("Which diet do you prefer?")
-                .font(.system(.title2, design: .rounded, weight: .bold))
-                .foregroundColor(.primary)
-                .padding(.top, 30)
-            
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                ForEach(dietTypes, id: \.self) { diet in
-                    Button(action: {
-                        HapticManager.shared.impact(style: .light)
-                        selectedDiet = diet
-                    }) {
-                        ZStack(alignment: .bottomLeading) {
-                            // Cover Image
-                            RecipeImageView(imageString: imageUrlForDiet(diet), fallbackSystemName: iconForDiet(diet))
-                                .frame(height: 110)
-                                .clipShape(RoundedRectangle(cornerRadius: 18))
-                                .overlay(
-                                    LinearGradient(
-                                        colors: [.clear, .black.opacity(0.7)],
-                                        startPoint: .top,
-                                        endPoint: .bottom
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
+                Text("Which diet do you prefer?")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .foregroundColor(.primary)
+                    .padding(.top, 24)
+                
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                    ForEach(dietTypes, id: \.self) { diet in
+                        Button(action: {
+                            HapticManager.shared.impact(style: .light)
+                            selectedDiet = diet
+                        }) {
+                            ZStack(alignment: .bottomLeading) {
+                                // Cover Image
+                                RecipeImageView(imageString: imageUrlForDiet(diet), fallbackSystemName: iconForDiet(diet))
+                                    .frame(height: 110)
+                                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                                    .overlay(
+                                        LinearGradient(
+                                            colors: [.clear, .black.opacity(0.7)],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                        .cornerRadius(18)
                                     )
-                                    .cornerRadius(18)
-                                )
-                            
-                            // Checkmark overlay
-                            if selectedDiet == diet {
-                                VStack {
-                                    HStack {
+                                
+                                // Checkmark overlay
+                                if selectedDiet == diet {
+                                    VStack {
+                                        HStack {
+                                            Spacer()
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 16, weight: .bold))
+                                                .foregroundColor(.white)
+                                                .padding(6)
+                                                .background(themeManager.current.primaryAccent)
+                                                .clipShape(Circle())
+                                                .shadow(color: Color.black.opacity(0.15), radius: 3)
+                                        }
                                         Spacer()
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .font(.system(size: 16, weight: .bold))
-                                            .foregroundColor(.white)
-                                            .padding(6)
-                                            .background(themeManager.current.primaryAccent)
-                                            .clipShape(Circle())
-                                            .shadow(color: Color.black.opacity(0.15), radius: 3)
                                     }
-                                    Spacer()
+                                    .padding(8)
                                 }
-                                .padding(8)
+                                
+                                // Diet label text
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(localizedNameForDiet(diet))
+                                        .font(.system(.subheadline, design: .rounded, weight: .black))
+                                        .foregroundColor(.white)
+                                        .lineLimit(1)
+                                }
+                                .padding(12)
                             }
-                            
-                            // Diet label text
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(localizedNameForDiet(diet))
-                                    .font(.system(.subheadline, design: .rounded, weight: .black))
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-                            }
-                            .padding(12)
+                            .frame(height: 110)
+                            .clipped()
+                            .cornerRadius(18)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18)
+                                    .stroke(selectedDiet == diet ? themeManager.current.primaryAccent : Color.clear, lineWidth: 2)
+                            )
+                            .shadow(color: selectedDiet == diet ? themeManager.current.primaryAccent.opacity(0.2) : .black.opacity(0.05), radius: 6, y: 3)
                         }
-                        .frame(height: 110)
-                        .cornerRadius(18)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18)
-                                .stroke(selectedDiet == diet ? themeManager.current.primaryAccent : Color.clear, lineWidth: 2)
-                        )
-                        .shadow(color: selectedDiet == diet ? themeManager.current.primaryAccent.opacity(0.2) : .black.opacity(0.05), radius: 6, y: 3)
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
-            .padding(.horizontal, 24)
-            Spacer()
         }
     }
     
     private var calorieStepView: some View {
-        VStack(spacing: 24) {
-            Text("Set your daily calorie goal")
-                .font(.system(.title2, design: .rounded, weight: .bold))
-                .foregroundColor(.primary)
-                .padding(.top, 30)
-            
-            Text("\(Int(targetCalories)) kcal")
-                .font(.system(size: 42, weight: .black, design: .rounded))
-                .foregroundColor(themeManager.current.primaryAccent)
-            
-            Slider(value: $targetCalories, in: 1200...4000, step: 50)
-                .accentColor(themeManager.current.primaryAccent)
-                .padding(.horizontal, 28)
-            
-            // Advice table block under the slider
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "lightbulb.fill")
-                        .foregroundColor(.themeYellow)
-                        .font(.system(size: 14))
-                    Text("CHEF TIP 👨‍🍳")
-                        .font(.system(size: 9, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Color.themeOrange)
-                        .cornerRadius(6)
-                }
-                .padding(.horizontal, 4)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
+                Text("Set your daily calorie goal")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .foregroundColor(.primary)
+                    .padding(.top, 24)
                 
-                VStack(spacing: 0) {
-                    TableCell(icon: "flame.fill", title: String(localized: "Energy Balance"), desc: String(localized: "Deficit drives fat loss, surplus supports muscle growth."), color: .themePink)
-                    Divider()
-                    TableCell(icon: "heart.text.square.fill", title: String(localized: "Metabolic Protection"), desc: String(localized: "Prevents extreme hunger and fatigue."), color: .mintGreen)
-                    Divider()
-                    TableCell(icon: "target", title: String(localized: "Plan Precision"), desc: String(localized: "Helps AI balance protein, fats, and carbs in your menu."), color: .cyberBlue)
+                Text("\(Int(targetCalories)) kcal")
+                    .font(.system(size: 42, weight: .black, design: .rounded))
+                    .foregroundColor(themeManager.current.primaryAccent)
+                
+                Slider(value: $targetCalories, in: 1200...4000, step: 50)
+                    .accentColor(themeManager.current.primaryAccent)
+                    .padding(.horizontal, 28)
+                
+                // Advice table block under the slider
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "lightbulb.fill")
+                            .foregroundColor(.themeYellow)
+                            .font(.system(size: 14))
+                        Text("CHEF TIP 👨‍🍳")
+                            .font(.system(size: 9, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(Color.themeOrange)
+                            .cornerRadius(6)
+                    }
+                    .padding(.horizontal, 4)
+                    
+                    VStack(spacing: 0) {
+                        TableCell(icon: "flame.fill", title: String(localized: "Energy Balance"), desc: String(localized: "Deficit drives fat loss, surplus supports muscle growth."), color: .themePink)
+                        Divider()
+                        TableCell(icon: "heart.text.square.fill", title: String(localized: "Metabolic Protection"), desc: String(localized: "Prevents extreme hunger and fatigue."), color: .mintGreen)
+                        Divider()
+                        TableCell(icon: "target", title: String(localized: "Plan Precision"), desc: String(localized: "Helps AI balance protein, fats, and carbs in your menu."), color: .cyberBlue)
+                    }
+                    .background(Color.primary.opacity(0.01))
+                    .cornerRadius(14)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+                    )
                 }
-                .background(Color.primary.opacity(0.01))
-                .cornerRadius(14)
+                .padding(14)
+                .background(.ultraThinMaterial)
+                .cornerRadius(20)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
                 )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
-            .padding(14)
-            .background(.ultraThinMaterial)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
-            )
-            .padding(.horizontal, 24)
-            
-            Spacer()
         }
     }
     
     private var complexityStepView: some View {
-        VStack(spacing: 24) {
-            Text("How much time for cooking?")
-                .font(.system(.title2, design: .rounded, weight: .bold))
-                .multilineTextAlignment(.center)
-                .padding(.top, 30)
-                .padding(.horizontal)
-            
-            VStack(spacing: 16) {
-                ForEach(complexities, id: \.self) { comp in
-                    Button(action: {
-                        HapticManager.shared.impact(style: .light)
-                        complexity = comp
-                    }) {
-                        HStack {
-                            Text(localizedNameForComplexity(comp))
-                                .font(.system(.headline, design: .rounded, weight: .bold))
-                                .foregroundColor(complexity == comp ? .white : .primary)
-                            Spacer()
-                            if complexity == comp {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.white)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
+                Text("How much time for cooking?")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 24)
+                    .padding(.horizontal)
+                
+                VStack(spacing: 16) {
+                    ForEach(complexities, id: \.self) { comp in
+                        Button(action: {
+                            HapticManager.shared.impact(style: .light)
+                            complexity = comp
+                        }) {
+                            HStack {
+                                Text(localizedNameForComplexity(comp))
+                                    .font(.system(.headline, design: .rounded, weight: .bold))
+                                    .foregroundColor(complexity == comp ? .white : .primary)
+                                Spacer()
+                                if complexity == comp {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.white)
+                                }
                             }
+                            .padding()
+                            .background(complexity == comp ? themeManager.current.primaryAccent : Color.white)
+                            .cornerRadius(16)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(complexity == comp ? Color.clear : Color.gray.opacity(0.2), lineWidth: 1)
+                            )
+                            .shadow(color: complexity == comp ? themeManager.current.primaryAccent.opacity(0.3) : .black.opacity(0.02), radius: 5, y: 2)
                         }
-                        .padding()
-                        .background(complexity == comp ? themeManager.current.primaryAccent : Color.white)
-                        .cornerRadius(16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(complexity == comp ? Color.clear : Color.gray.opacity(0.2), lineWidth: 1)
-                        )
-                        .shadow(color: complexity == comp ? themeManager.current.primaryAccent.opacity(0.3) : .black.opacity(0.02), radius: 5, y: 2)
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
-            .padding(.horizontal, 24)
-            
-            Spacer()
         }
     }
     

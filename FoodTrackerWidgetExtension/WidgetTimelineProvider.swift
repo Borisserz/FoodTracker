@@ -91,41 +91,44 @@ struct WidgetTimelineProvider: TimelineProvider {
     private func fetchTodayDataSynchronously() -> FoodTrackerEntry? {
         let container = SharedModelContainer.shared.container
         let modelContext = ModelContext(container)
-        return buildTodayEntry(in: modelContext)
+        return FoodTrackerEntry.from(snapshot: buildTodaySnapshot(in: modelContext))
     }
 
-    private func buildTodayEntry(in modelContext: ModelContext) -> FoodTrackerEntry {
+    private func buildTodaySnapshot(in modelContext: ModelContext) -> DailyWidgetSnapshot {
         var didMerge = false
         let todaySummary = DailySummary.fetchExisting(for: Date(), in: modelContext, didMerge: &didMerge)
         if didMerge {
             try? modelContext.save()
         }
         let user = try? modelContext.fetch(FetchDescriptor<User>()).first
-        let snapshot = DailyWidgetSnapshot.compute(summary: todaySummary, user: user)
-        return FoodTrackerEntry.from(snapshot: snapshot)
+        return DailyWidgetSnapshot.compute(summary: todaySummary, user: user)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (FoodTrackerEntry) -> ()) {
         Task {
-            let entry = await fetchTodayData(in: context)
-            completion(entry)
+            let snapshot = await fetchTodaySnapshot(in: context)
+            completion(FoodTrackerEntry.from(snapshot: snapshot))
         }
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<FoodTrackerEntry>) -> ()) {
         Task {
-            let entry = await fetchTodayData(in: context)
-            let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
-            let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+            let now = Date()
+            let snapshot = await fetchTodaySnapshot(in: context)
+            let schedule = DailyWidgetSnapshot.timelineSchedule(for: snapshot, now: now)
+            let entries = schedule.entries.map {
+                FoodTrackerEntry.from(snapshot: $0.snapshot, date: $0.date)
+            }
+            let timeline = Timeline(entries: entries, policy: .after(schedule.reloadAt))
             completion(timeline)
         }
     }
     
     @MainActor
-    private func fetchTodayData(in context: Context) -> FoodTrackerEntry {
+    private func fetchTodaySnapshot(in context: Context) -> DailyWidgetSnapshot {
         let container = SharedModelContainer.shared.container
         let modelContext = container.mainContext
-        return buildTodayEntry(in: modelContext)
+        return buildTodaySnapshot(in: modelContext)
     }
 }
 

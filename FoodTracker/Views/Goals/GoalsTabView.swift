@@ -125,7 +125,7 @@ struct GoalsTabView: View {
             }
             .sheet(isPresented: $showAddWeightSheet) {
                 AddWeightLogSheet(currentWeight: currentWeight)
-                    .presentationDetents([.medium])
+                    .presentationDetents([.fraction(0.68), .large])
                     .presentationCornerRadius(32)
                     .presentationDragIndicator(.visible)
             }
@@ -328,9 +328,16 @@ struct GoalsTabView: View {
                 .background(Color.gray.opacity(0.05))
                 .cornerRadius(16)
             } else {
+                let displayedWeights = weightLogs.map { NutritionMath.displayWeight($0.weight, useMetric: useMetricSystem) }
+                let minWeight = displayedWeights.min() ?? NutritionMath.displayWeight(50, useMetric: useMetricSystem)
+                let maxWeight = displayedWeights.max() ?? NutritionMath.displayWeight(100, useMetric: useMetricSystem)
+                let margin = useMetricSystem ? 2.0 : 5.0
+                let areaFloor = minWeight - (useMetricSystem ? 5.0 : 10.0)
+
                 Chart {
                     if let target = targetWeight {
-                        RuleMark(y: .value("Target", target))
+                        let displayedTarget = NutritionMath.displayWeight(target, useMetric: useMetricSystem)
+                        RuleMark(y: .value("Target", displayedTarget))
                             .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4]))
                             .foregroundStyle(Color.green.opacity(0.7))
                             .annotation(position: .top, alignment: .leading) {
@@ -345,10 +352,11 @@ struct GoalsTabView: View {
                     }
                     
                     ForEach(weightLogs) { log in
+                        let displayedValue = NutritionMath.displayWeight(log.weight, useMetric: useMetricSystem)
                         AreaMark(
                             x: .value("Date", log.date),
-                            yStart: .value("Min", (weightLogs.map { $0.weight }.min() ?? 50) - 5),
-                            yEnd: .value("Weight", log.weight)
+                            yStart: .value("Min", areaFloor),
+                            yEnd: .value("Weight", displayedValue)
                         )
                         .interpolationMethod(.monotone)
                         .foregroundStyle(
@@ -361,7 +369,7 @@ struct GoalsTabView: View {
                         
                         LineMark(
                             x: .value("Date", log.date),
-                            y: .value("Weight", log.weight)
+                            y: .value("Weight", displayedValue)
                         )
                         .interpolationMethod(.monotone)
                         .foregroundStyle(themeManager.current.primaryGradient)
@@ -369,13 +377,13 @@ struct GoalsTabView: View {
                         
                         PointMark(
                             x: .value("Date", log.date),
-                            y: .value("Weight", log.weight)
+                            y: .value("Weight", displayedValue)
                         )
                         .foregroundStyle(themeManager.current.primaryAccent)
                         .symbolSize(60)
                     }
                 }
-                .chartYScale(domain: [(weightLogs.map { $0.weight }.min() ?? 50) - 2, (weightLogs.map { $0.weight }.max() ?? 100) + 2])
+                .chartYScale(domain: [minWeight - margin, maxWeight + margin])
                 .frame(height: 200)
                 .padding(.vertical)
             }
@@ -531,96 +539,96 @@ struct AddWeightLogSheet: View {
                 .blur(radius: 50)
                 .offset(y: -120)
             
-            VStack(spacing: 24) {
-                Capsule()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 40, height: 5)
-                    .padding(.top, 10)
-                
-                Text("Log Weight")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                
-                VStack(spacing: 20) {
-                    HStack {
-                        Text("Weight")
-                            .font(.system(.headline, design: .rounded, weight: .bold))
-                        Spacer()
-                        
-                        HStack(spacing: 4) {
-                            TextField(NutritionMath.weightUnit(useMetric: useMetricSystem), value: weightDisplayBinding, format: .number.precision(.fractionLength(0...1)))
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
-                                .frame(width: 70)
-                                .font(.system(.title3, design: .rounded, weight: .bold))
-                                .foregroundColor(themeManager.current.primaryAccent)
-                            Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
-                                .font(.system(.body, design: .rounded, weight: .bold))
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.primary.opacity(0.04))
-                        .cornerRadius(10)
-                    }
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
+                    Capsule()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 10)
                     
-                    // Slider for Weight selection
-                    VStack(spacing: 6) {
-                        Slider(value: weightDisplayBinding, in: weightRange, step: weightStep)
-                            .tint(themeManager.current.primaryAccent)
-                        
+                    Text("Log Weight")
+                        .font(.system(.title2, design: .rounded, weight: .bold))
+                    
+                    VStack(spacing: 20) {
                         HStack {
-                            Text(NutritionMath.formattedWeight(30.0, useMetric: useMetricSystem))
+                            Text("Weight")
+                                .font(.system(.headline, design: .rounded, weight: .bold))
                             Spacer()
-                            Text(NutritionMath.formattedWeight(weight, useMetric: useMetricSystem))
-                                .font(.system(.subheadline, design: .rounded, weight: .bold))
-                                .foregroundColor(themeManager.current.primaryAccent)
-                            Spacer()
-                            Text(NutritionMath.formattedWeight(200.0, useMetric: useMetricSystem))
-                        }
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundColor(.secondary)
-                    }
-                    
-                    DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
-                        .font(.system(.body, design: .rounded, weight: .bold))
-                }
-                .padding(20)
-                .background(.ultraThinMaterial)
-                .cornerRadius(24)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                )
-                .padding(.horizontal, 24)
-                
-                Spacer()
-                
-                HStack(spacing: 16) {
-                    Button(action: { dismiss() }) {
-                        Text("Cancel")
-                            .font(.system(.headline, design: .rounded, weight: .bold))
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
+                            
+                            HStack(spacing: 4) {
+                                TextField(NutritionMath.weightUnit(useMetric: useMetricSystem), value: weightDisplayBinding, format: .number.precision(.fractionLength(0...1)))
+                                    .keyboardType(.decimalPad)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(width: 70)
+                                    .font(.system(.title3, design: .rounded, weight: .bold))
+                                    .foregroundColor(themeManager.current.primaryAccent)
+                                Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
+                                    .font(.system(.body, design: .rounded, weight: .bold))
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
                             .background(Color.primary.opacity(0.04))
-                            .cornerRadius(20)
+                            .cornerRadius(10)
+                        }
+                        
+                        // Slider for Weight selection
+                        VStack(spacing: 6) {
+                            Slider(value: weightDisplayBinding, in: weightRange, step: weightStep)
+                                .tint(themeManager.current.primaryAccent)
+                            
+                            HStack {
+                                Text(NutritionMath.formattedWeight(30.0, useMetric: useMetricSystem))
+                                Spacer()
+                                Text(NutritionMath.formattedWeight(weight, useMetric: useMetricSystem))
+                                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                    .foregroundColor(themeManager.current.primaryAccent)
+                                Spacer()
+                                Text(NutritionMath.formattedWeight(200.0, useMetric: useMetricSystem))
+                            }
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundColor(.secondary)
+                        }
+                        
+                        DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
+                            .font(.system(.body, design: .rounded, weight: .bold))
                     }
+                    .padding(20)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(24)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+                    .padding(.horizontal, 24)
                     
-                    Button(action: { saveLog() }) {
-                        Text("Save Entry")
-                            .font(.system(.headline, design: .rounded, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(themeManager.current.primaryGradient)
-                            .cornerRadius(20)
-                            .shimmer()
-                            .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
+                    HStack(spacing: 16) {
+                        Button(action: { dismiss() }) {
+                            Text("Cancel")
+                                .font(.system(.headline, design: .rounded, weight: .bold))
+                                .foregroundColor(.secondary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(Color.primary.opacity(0.04))
+                                .cornerRadius(20)
+                        }
+                        
+                        Button(action: { saveLog() }) {
+                            Text("Save Entry")
+                                .font(.system(.headline, design: .rounded, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(themeManager.current.primaryGradient)
+                                .cornerRadius(20)
+                                .shimmer()
+                                .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
+                        }
+                        .buttonStyle(BounceButtonStyle())
                     }
-                    .buttonStyle(BounceButtonStyle())
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 20)
             }
         }
     }

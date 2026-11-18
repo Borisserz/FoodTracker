@@ -849,8 +849,11 @@ private struct AnalyticsFlaskGlassContainer: View {
         )
     }
     
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.08, paused: false)) { timeline in
+        TimelineView(.animation(minimumInterval: 0.08, paused: scenePhase != .active || reduceMotion)) { timeline in
             let time = timeline.date.timeIntervalSinceReferenceDate
             
             GeometryReader { geo in

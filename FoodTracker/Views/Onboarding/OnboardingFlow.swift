@@ -651,7 +651,7 @@ struct OnboardingWarpScreen: View {
         ZStack {
             Color.black.ignoresSafeArea()
             
-            TimelineView(.animation) { timeline in
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: false)) { timeline in
                 Canvas { context, size in
                     engine.update(time: timeline.date.timeIntervalSinceReferenceDate)
                     engine.draw(context: &context, size: size)

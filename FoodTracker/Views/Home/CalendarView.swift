@@ -6,10 +6,21 @@ struct CalendarCarouselView: View {
     @State private var showingFullCalendar = false
     @Query private var summaries: [DailySummary]
 
+    init(selectedDate: Binding<Date>) {
+        self._selectedDate = selectedDate
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let startDate = calendar.date(byAdding: .day, value: -35, to: today) ?? today
+        let endDate = calendar.date(byAdding: .day, value: 1, to: today) ?? today
+        self._summaries = Query(
+            filter: #Predicate<DailySummary> { $0.date >= startDate && $0.date < endDate }
+        )
+    }
+
     private var days: [Date] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        return (-30...7).compactMap { calendar.date(byAdding: .day, value: $0, to: today) }
+        return (-30...0).compactMap { calendar.date(byAdding: .day, value: $0, to: today) }
     }
 
     enum DayStatus {
@@ -18,20 +29,30 @@ struct CalendarCarouselView: View {
         case completed
     }
 
-    private func dayStatus(for date: Date) -> DayStatus {
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        guard let summary = summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) else {
-            return .empty
+    private func buildStatusMap() -> [Date: DayStatus] {
+        let calendar = Calendar.current
+        var map: [Date: DayStatus] = [:]
+        map.reserveCapacity(summaries.count)
+        for summary in summaries {
+            let day = calendar.startOfDay(for: summary.date)
+            let status: DayStatus
+            if summary.totalCalories > 0 {
+                status = .completed
+            } else if !(summary.beverages ?? []).isEmpty || !(summary.activities ?? []).isEmpty || summary.weight != nil {
+                status = .logged
+            } else {
+                status = .empty
+            }
+            if status == .completed || map[day] == nil {
+                map[day] = status
+            }
         }
-        if summary.totalCalories > 0 {
-            return .completed
-        } else if !(summary.beverages ?? []).isEmpty || !(summary.activities ?? []).isEmpty || summary.weight != nil {
-            return .logged
-        }
-        return .empty
+        return map
     }
 
     var body: some View {
+        let statusMap = buildStatusMap()
+
         GeometryReader { scrollGeo in
             let centerPoint = scrollGeo.size.width / 2
 
@@ -42,62 +63,52 @@ struct CalendarCarouselView: View {
                         ForEach(days, id: \.self) { date in
                             let isSelected = Calendar.current.isDate(date, inSameDayAs: selectedDate)
                             let isToday = Calendar.current.isDateInToday(date)
+                            let status = statusMap[date] ?? .empty
 
-                            GeometryReader { itemGeo in
-
-                                let midX = itemGeo.frame(in: .global).midX - scrollGeo.frame(in: .global).minX
-                                let distance = abs(centerPoint - midX)
-
-                                let scale = isSelected ? 1.05 : max(0.85, 1.0 - (distance / scrollGeo.size.width) * 0.5)
-                                let opacity = isSelected ? 1.0 : max(0.5, 1.0 - (distance / scrollGeo.size.width) * 0.8)
-
-                                Button {
-                                    HapticManager.shared.impact(style: .light)
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                        selectedDate = date
-                                        proxy.scrollTo(date, anchor: .center)
-                                    }
-                                } label: {
-                                    VStack(spacing: 4) {
-                                        Text(dayOfWeekString(date))
-                                            .font(.caption2)
-                                            .fontWeight(isSelected ? .bold : .medium)
-                                            .foregroundColor(isSelected ? .white.opacity(0.9) : .gray)
-
-                                        Text("\(Calendar.current.component(.day, from: date))")
-                                            .font(.system(size: 18, weight: .bold, design: .rounded))
-
-                                        let status = dayStatus(for: date)
-                                        if status == .completed {
-                                            Circle()
-                                                .fill(isSelected ? Color.white : Color.green)
-                                                .frame(width: 5, height: 5)
-                                        } else if status == .logged {
-                                            Circle()
-                                                .fill(isSelected ? Color.white.opacity(0.6) : Color.orange.opacity(0.8))
-                                                .frame(width: 5, height: 5)
-                                        } else {
-                                            Circle()
-                                                .fill(Color.clear)
-                                                .frame(width: 5, height: 5)
-                                        }
-                                    }
-                                    .frame(width: 56, height: 72)
-                                    .background(isSelected ? Color.themePink : (isToday ? Color.themeYellow.opacity(0.2) : Color.white))
-                                    .foregroundColor(isSelected ? .white : .primary)
-                                    .cornerRadius(16)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .stroke(isSelected ? Color.clear : Color.gray.opacity(0.1), lineWidth: 1)
-                                    )
-                                    .shadow(color: isSelected ? .themePink.opacity(0.4) : .black.opacity(0.02), radius: 8, y: 4)
+                            Button {
+                                HapticManager.shared.impact(style: .light)
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    selectedDate = date
+                                    proxy.scrollTo(date, anchor: .center)
                                 }
-                                .buttonStyle(PlainButtonStyle())
-                                .scaleEffect(scale)
-                                .opacity(opacity)
-                                .id(date)
+                            } label: {
+                                VStack(spacing: 4) {
+                                    Text(dayOfWeekString(date))
+                                        .font(.caption2)
+                                        .fontWeight(isSelected ? .bold : .medium)
+                                        .foregroundColor(isSelected ? .white.opacity(0.9) : .gray)
+
+                                    Text("\(Calendar.current.component(.day, from: date))")
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+
+                                    if status == .completed {
+                                        Circle()
+                                            .fill(isSelected ? Color.white : Color.green)
+                                            .frame(width: 5, height: 5)
+                                    } else if status == .logged {
+                                        Circle()
+                                            .fill(isSelected ? Color.white.opacity(0.6) : Color.orange.opacity(0.8))
+                                            .frame(width: 5, height: 5)
+                                    } else {
+                                        Circle()
+                                            .fill(Color.clear)
+                                            .frame(width: 5, height: 5)
+                                    }
+                                }
+                                .frame(width: 56, height: 72)
+                                .background(isSelected ? Color.themePink : (isToday ? Color.themeYellow.opacity(0.2) : Color.white))
+                                .foregroundColor(isSelected ? .white : .primary)
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(isSelected ? Color.clear : Color.gray.opacity(0.1), lineWidth: 1)
+                                )
+                                .shadow(color: isSelected ? .themePink.opacity(0.4) : .black.opacity(0.02), radius: 8, y: 4)
                             }
-                            .frame(width: 56, height: 72)
+                            .buttonStyle(PlainButtonStyle())
+                            .scaleEffect(isSelected ? 1.05 : 0.95)
+                            .opacity(isSelected ? 1.0 : 0.85)
+                            .id(date)
                         }
 
                         Button(action: {

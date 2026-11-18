@@ -241,6 +241,7 @@ struct PremiumDietDetailView: View {
                             .padding(.bottom, 40)
                             .offset(y: isScrollingDown ? -minY * 0.5 : 0)
                         }
+                        .clipped()
                     }
                     .frame(height: 350)
 

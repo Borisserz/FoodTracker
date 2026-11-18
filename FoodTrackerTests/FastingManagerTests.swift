@@ -129,6 +129,26 @@ final class FastingManagerTests: XCTestCase {
         XCTAssertFalse(manager.progress.isNaN)
         XCTAssertEqual(manager.progress, 0)
     }
+
+    func testColdStartRestoreReattachesLiveActivityWithCurrentStageAndProgress() {
+        let mockLiveActivity = MockFastingLiveActivityManager()
+        manager.liveActivityManager = mockLiveActivity
+        defer { manager.liveActivityManager = FastingLiveActivityManager.shared }
+
+        let sixHoursAgo = Date().addingTimeInterval(-6 * 3600)
+        UserDefaults.standard.set(true, forKey: "isFasting")
+        UserDefaults.standard.set("16:8", forKey: "fastingPlanName")
+        UserDefaults.standard.set(16, forKey: "fastingTargetHours")
+        UserDefaults.standard.set(sixHoursAgo.timeIntervalSince1970, forKey: "fastingStartTime")
+
+        manager.restorePersistedState()
+
+        XCTAssertTrue(manager.isFasting)
+        XCTAssertEqual(mockLiveActivity.startedCalls.count, 0)
+        XCTAssertEqual(mockLiveActivity.reattachedCalls.count, 1)
+        XCTAssertEqual(mockLiveActivity.reattachedCalls.first?.currentStage, "Digestion Mode")
+        XCTAssertEqual(mockLiveActivity.reattachedCalls.first?.progressPct ?? 0, 6.0 / 16.0, accuracy: 0.02)
+    }
 }
 
 @MainActor
@@ -138,17 +158,43 @@ private final class MockFastingLiveActivityManager: FastingLiveActivityManaging 
         let targetHours: Int
         let startTime: Date
     }
+    struct ReattachCall {
+        let planName: String
+        let targetHours: Int
+        let startTime: Date
+        let currentStage: String
+        let progressPct: Double
+    }
     struct UpdateCall {
         let currentStage: String
         let progressPct: Double
     }
 
     var startedCalls: [StartCall] = []
+    var reattachedCalls: [ReattachCall] = []
     var updatedCalls: [UpdateCall] = []
     var endCallCount: Int = 0
 
     func startActivity(planName: String, targetHours: Int, startTime: Date) {
         startedCalls.append(StartCall(planName: planName, targetHours: targetHours, startTime: startTime))
+    }
+
+    func reattachActivity(
+        planName: String,
+        targetHours: Int,
+        startTime: Date,
+        currentStage: String,
+        progressPct: Double
+    ) {
+        reattachedCalls.append(
+            ReattachCall(
+                planName: planName,
+                targetHours: targetHours,
+                startTime: startTime,
+                currentStage: currentStage,
+                progressPct: progressPct
+            )
+        )
     }
 
     func updateActivity(currentStage: String, progressPct: Double) {

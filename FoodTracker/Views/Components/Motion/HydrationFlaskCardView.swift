@@ -235,8 +235,11 @@ private struct FlaskGlassContainer: View {
         )
     }
     
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
-        TimelineView(.animation) { timeline in
+        TimelineView(.animation(minimumInterval: 1.0 / 24.0, paused: scenePhase != .active || reduceMotion)) { timeline in
             let time = timeline.date.timeIntervalSinceReferenceDate
             
             GeometryReader { geo in

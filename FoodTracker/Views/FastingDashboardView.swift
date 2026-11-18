@@ -308,6 +308,7 @@ struct PremiumFastingDetailView: View {
                             .padding(.bottom, 60)
                             .offset(y: isScrollingDown ? -minY * 0.5 : 0)
                         }
+                        .clipped()
                     }
                     .frame(height: 380)
 
@@ -486,7 +487,7 @@ struct PremiumFastingDetailView: View {
                     .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
             }
             .padding(.leading, 20)
-            .padding(.top, 50),
+            .padding(.top, 10),
             alignment: .topLeading
         )
         .onAppear {

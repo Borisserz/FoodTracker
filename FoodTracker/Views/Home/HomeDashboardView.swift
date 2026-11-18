@@ -333,7 +333,7 @@ struct HomeDashboardContentView: View {
               }
               .sheet(isPresented: $showNoteSheet) {
                   DailyNoteSheet(summary: currentSummary)
-                      .presentationDetents([.height(450)])
+                      .presentationDetents([.fraction(0.65), .large])
                       .presentationCornerRadius(32)
                       .presentationDragIndicator(.visible)
               }
@@ -349,7 +349,7 @@ struct HomeDashboardContentView: View {
                   }, onSelectActivity: {
                       self.showingQuickActivitySheet = true
                   })
-                  .presentationDetents([.height(650)])
+                  .presentationDetents([.fraction(0.82), .large])
                   .presentationCornerRadius(32)
                   .presentationDragIndicator(.visible)
               }
@@ -590,6 +590,8 @@ struct HeaderView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(greetingString)
                     .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                 HStack(spacing: 8) {
                     Text(relativeDateString)
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -1381,13 +1383,11 @@ struct MacroDot: View {
 
 struct FoodSearchResultRow: View {
     let food: FoodItem
+    var activeDietPlan: DietPlan? = nil
     let action: () -> Void
 
-    @Query private var users: [User]
-
     var body: some View {
-        let user = users.first
-        let compatibility = food.compatibility(with: user?.activeDietPlan)
+        let compatibility = food.compatibility(with: activeDietPlan)
 
         Button(action: action) {
             HStack(spacing: 16) {
@@ -1577,102 +1577,103 @@ struct DailyNoteSheet: View {
     @State private var moodContextForChat: String? = nil
     
     var body: some View {
-        VStack(spacing: 24) {
-            Capsule()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 40, height: 5)
-                .padding(.top, 10)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
+                Capsule()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 40, height: 5)
+                    .padding(.top, 10)
 
-            HStack {
-                Text("Your Day")
-                    .font(.title2.bold())
-                Spacer()
-                Button("Save") {
-                    HapticManager.shared.impact(style: .heavy)
-                    if summary.modelContext == nil {
-                        let persisted = DailySummary.fetchOrCreate(for: summary.date, in: context)
-                        persisted.dayNote = summary.dayNote
-                        persisted.dayMoodEmoji = summary.dayMoodEmoji
+                HStack {
+                    Text("Your Day")
+                        .font(.title2.bold())
+                    Spacer()
+                    Button("Save") {
+                        HapticManager.shared.impact(style: .heavy)
+                        if summary.modelContext == nil {
+                            let persisted = DailySummary.fetchOrCreate(for: summary.date, in: context)
+                            persisted.dayNote = summary.dayNote
+                            persisted.dayMoodEmoji = summary.dayMoodEmoji
+                        }
+                        try? context.save()
+                        clearAIMoodStates()
+                        dismiss()
                     }
-                    try? context.save()
-                    clearAIMoodStates()
-                    dismiss()
-                }
-                .font(.headline)
-                .foregroundColor(.themePink)
-            }
-            .padding(.horizontal, 24)
-
-            TextField("Write about your meals, feelings, or workouts...", text: $summary.dayNote, axis: .vertical)
-                .lineLimit(4...8)
-                .padding(16)
-                .background(Color.gray.opacity(0.05))
-                .cornerRadius(20)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
-                .padding(.horizontal, 24)
-                .accessibilityLabel("Daily note")
-
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Tags & Mood")
                     .font(.headline)
-                    .padding(.horizontal, 24)
+                    .foregroundColor(.themePink)
+                }
+                .padding(.horizontal, 24)
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(moods, id: \.1) { mood in
-                            Button(action: {
-                                HapticManager.shared.impact(style: .light)
-                                withAnimation {
-                                    if summary.dayMoodEmoji == mood.0 {
-                                        summary.dayMoodEmoji = ""
-                                        clearAIMoodStates()
-                                    } else {
-                                        summary.dayMoodEmoji = mood.0
-                                        clearAIMoodStates() // prevent stale chat state from previous mood
-                                        
-                                        // Trigger AI Advice popup with a small delay for nice animation feel
-                                        let tappedMood = mood.0
-                                        Task {
-                                            try? await Task.sleep(for: .milliseconds(250))
-                                            await MainActor.run {
-                                                if summary.dayMoodEmoji == tappedMood {
-                                                    selectedMoodForAI = tappedMood
+                TextField("Write about your meals, feelings, or workouts...", text: $summary.dayNote, axis: .vertical)
+                    .lineLimit(4...8)
+                    .padding(16)
+                    .background(Color.gray.opacity(0.05))
+                    .cornerRadius(20)
+                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+                    .padding(.horizontal, 24)
+                    .accessibilityLabel("Daily note")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Tags & Mood")
+                        .font(.headline)
+                        .padding(.horizontal, 24)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(moods, id: \.1) { mood in
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .light)
+                                    withAnimation {
+                                        if summary.dayMoodEmoji == mood.0 {
+                                            summary.dayMoodEmoji = ""
+                                            clearAIMoodStates()
+                                        } else {
+                                            summary.dayMoodEmoji = mood.0
+                                            clearAIMoodStates() // prevent stale chat state from previous mood
+                                            
+                                            // Trigger AI Advice popup with a small delay for nice animation feel
+                                            let tappedMood = mood.0
+                                            Task {
+                                                try? await Task.sleep(for: .milliseconds(250))
+                                                await MainActor.run {
+                                                    if summary.dayMoodEmoji == tappedMood {
+                                                        selectedMoodForAI = tappedMood
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            }) {
-                                VStack(spacing: 8) {
-                                    Text(mood.0)
-                                        .font(.system(size: 30))
-                                        .frame(minWidth: 52, minHeight: 52)
-                                        .background(summary.dayMoodEmoji == mood.0 ? Color.themePink.opacity(0.2) : Color.white)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(summary.dayMoodEmoji == mood.0 ? Color.themePink : Color.gray.opacity(0.2), lineWidth: 2)
-                                        )
-                                        .cornerRadius(20)
+                                }) {
+                                    VStack(spacing: 8) {
+                                        Text(mood.0)
+                                            .font(.system(size: 30))
+                                            .frame(minWidth: 52, minHeight: 52)
+                                            .background(summary.dayMoodEmoji == mood.0 ? Color.themePink.opacity(0.2) : Color.white)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .stroke(summary.dayMoodEmoji == mood.0 ? Color.themePink : Color.gray.opacity(0.2), lineWidth: 2)
+                                            )
+                                            .cornerRadius(20)
 
-                                    Text(mood.1)
-                                        .font(.caption)
-                                        .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
-                                        .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
+                                        Text(mood.1)
+                                            .font(.caption)
+                                            .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
+                                            .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
+                                    }
+                                    .frame(minWidth: 64, minHeight: 80) // Ensure good tap target per HIG (44pt minimum)
                                 }
-                                .frame(minWidth: 64, minHeight: 80) // Ensure good tap target per HIG (44pt minimum)
+                                .buttonStyle(PlainButtonStyle())
+                                .accessibilityLabel("\(mood.1) mood")
+                                .accessibilityValue(summary.dayMoodEmoji == mood.0 ? "Selected" : "Not selected")
+                                .accessibilityAddTraits(.isButton)
                             }
-                            .buttonStyle(PlainButtonStyle())
-                            .accessibilityLabel("\(mood.1) mood")
-                            .accessibilityValue(summary.dayMoodEmoji == mood.0 ? "Selected" : "Not selected")
-                            .accessibilityAddTraits(.isButton)
                         }
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 10)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 10)
                 }
             }
-
-            Spacer()
+            .padding(.bottom, 24)
         }
         .background(Color.themeBg.ignoresSafeArea())
         .onDisappear {
@@ -1882,6 +1883,7 @@ struct ActivitySourceRow: View {
 struct SmartAddFoodView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
+    @Query private var users: [User]
     @Query private var allDatabaseFoods: [FoodItem]
     @Query private var customRecipes: [CustomRecipe]
     @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
@@ -1899,15 +1901,49 @@ struct SmartAddFoodView: View {
     @State private var apiSearchResults: [FoodItem] = []
     @State private var isSearchingAPI = false
     @State private var searchTask: Task<Void, Never>? = nil
+    @State private var cachedAvailableFoods: [FoodItem] = []
+    @State private var cachedFoodCounts: [String: Int] = [:]
 
     let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
 
-    var allAvailableFoods: [FoodItem] {
-        // Preserve chronological recency order from pastMeals before appending catalog foods.
+    private var activeDietPlan: DietPlan? {
+        users.first?.activeDietPlan
+    }
+
+    var filteredLocalFoods: [FoodItem] {
+        var items: [FoodItem]
+
+        switch selectedCategory {
+        case "Recent":
+            items = cachedAvailableFoods
+        case "Frequent":
+            items = cachedAvailableFoods.sorted {
+                let c0 = cachedFoodCounts[$0.name] ?? 0
+                let c1 = cachedFoodCounts[$1.name] ?? 0
+                return c0 != c1 ? c0 > c1 : $0.name < $1.name
+            }
+        case "Favorites":
+            items = cachedAvailableFoods.filter { (cachedFoodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
+        case "My Recipes":
+            items = customRecipes.map { $0.toFoodItem() }.sorted { $0.name < $1.name }
+        default:
+            items = cachedAvailableFoods
+        }
+
+        if !searchText.isEmpty {
+            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+        return items
+    }
+
+    private func rebuildFoodCaches() {
         var seenNames = Set<String>()
         var results: [FoodItem] = []
+        var counts: [String: Int] = [:]
+
         for meal in pastMeals {
             for item in meal.foodItems ?? [] {
+                counts[item.name, default: 0] += 1
                 if seenNames.insert(item.name).inserted {
                     results.append(item)
                 }
@@ -1924,38 +1960,8 @@ struct SmartAddFoodView: View {
                 FoodItem(name: "Avocado Toast", weight: 120, calories: 220, protein: 5, fats: 12, carbs: 20)
             ]
         }
-        return results
-    }
-
-    var filteredLocalFoods: [FoodItem] {
-        var items: [FoodItem] = []
-        var foodCounts: [String: Int] = [:]
-
-        for meal in pastMeals {
-            for food in meal.foodItems ?? [] { foodCounts[food.name, default: 0] += 1 }
-        }
-
-        switch selectedCategory {
-        case "Recent":
-            items = allAvailableFoods
-        case "Frequent":
-            items = allAvailableFoods.sorted {
-                let c0 = foodCounts[$0.name] ?? 0
-                let c1 = foodCounts[$1.name] ?? 0
-                return c0 != c1 ? c0 > c1 : $0.name < $1.name
-            }
-        case "Favorites":
-            items = allAvailableFoods.filter { (foodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
-        case "My Recipes":
-            items = customRecipes.map { $0.toFoodItem() }.sorted { $0.name < $1.name }
-        default:
-            items = allAvailableFoods
-        }
-
-        if !searchText.isEmpty {
-            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-        return items
+        cachedAvailableFoods = results
+        cachedFoodCounts = counts
     }
 
     var cartCalories: Int { selectedFoods.reduce(0) { $0 + $1.calories } }
@@ -2026,15 +2032,15 @@ struct SmartAddFoodView: View {
                             } else {
                                 if !filteredLocalFoods.isEmpty {
                                     Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
-                                    ForEach(filteredLocalFoods, id: \.self) { food in
-                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                    ForEach(filteredLocalFoods, id: \.id) { food in
+                                        FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
                                     }
                                 }
 
                                 if !apiSearchResults.isEmpty {
                                     Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
-                                    ForEach(apiSearchResults, id: \.self) { food in
-                                        FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                    ForEach(apiSearchResults, id: \.id) { food in
+                                        FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
                                     }
                                 } else if filteredLocalFoods.isEmpty {
 
@@ -2066,8 +2072,8 @@ struct SmartAddFoodView: View {
                                 EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
                                     .padding(.top, 60)
                             } else {
-                                ForEach(filteredLocalFoods, id: \.self) { food in
-                                    FoodSearchResultRow(food: food) { selectedFoodForDetail = food }
+                                ForEach(filteredLocalFoods, id: \.id) { food in
+                                    FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
                                 }
                             }
                         }
@@ -2085,9 +2091,19 @@ struct SmartAddFoodView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(3)
             }
         }
+        .onAppear {
+            rebuildFoodCaches()
+        }
+        .task {
+            await LocalFoodDatabaseService.shared.waitUntilLoaded()
+            if !searchText.isEmpty {
+                performSearch(query: searchText)
+            }
+        }
+        .onChange(of: pastMeals.count) { _, _ in rebuildFoodCaches() }
+        .onChange(of: allDatabaseFoods.count) { _, _ in rebuildFoodCaches() }
         .onChange(of: searchText) { _, newValue in performSearch(query: newValue) }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: searchText)
         .fullScreenCover(item: $selectedFoodForDetail) { food in
             FoodDetailNutritionView(food: food, mealTitle: mealTitle) { addedFood in
                 withAnimation(.spring()) { selectedFoods.append(addedFood) }

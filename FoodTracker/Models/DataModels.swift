@@ -633,4 +633,37 @@ struct DailyWidgetSnapshot: Equatable {
             metabolicScore: finalScore
         )
     }
+
+    /// Returns a midnight-reset snapshot retaining user goals with all daily intake counters zeroed.
+    func zeroedForNewDay() -> DailyWidgetSnapshot {
+        DailyWidgetSnapshot(
+            hydrationLiters: 0,
+            hydrationGoalLiters: hydrationGoalLiters,
+            protein: 0,
+            proteinGoal: proteinGoal,
+            fat: 0,
+            fatGoal: fatGoal,
+            carbs: 0,
+            carbGoal: carbGoal,
+            totalCalories: 0,
+            calorieGoal: calorieGoal,
+            metabolicScore: 0
+        )
+    }
+
+    /// Builds a WidgetKit timeline containing the current entry and a midnight rollover entry so widgets reset at 00:00.
+    static func timelineSchedule(
+        for snapshot: DailyWidgetSnapshot,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> (entries: [(date: Date, snapshot: DailyWidgetSnapshot)], reloadAt: Date) {
+        let startOfToday = calendar.startOfDay(for: now)
+        let startOfTomorrow = calendar.date(byAdding: .day, value: 1, to: startOfToday) ?? now.addingTimeInterval(86400)
+        let nextHour = calendar.date(byAdding: .hour, value: 1, to: now) ?? now.addingTimeInterval(3600)
+        let entries: [(date: Date, snapshot: DailyWidgetSnapshot)] = [
+            (now, snapshot),
+            (startOfTomorrow, snapshot.zeroedForNewDay())
+        ]
+        return (entries: entries, reloadAt: min(nextHour, startOfTomorrow))
+    }
 }
