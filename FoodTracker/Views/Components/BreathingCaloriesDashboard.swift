@@ -76,12 +76,19 @@ struct EatenCaloriesRing: View {
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring(response: 0.9, dampingFraction: 0.85)) {
-                    animC = cEnd
-                    animF = fEnd
-                    animP = pEnd
-                }
+                animateRings()
             }
+        }
+        .onChange(of: cEnd) { _, _ in animateRings() }
+        .onChange(of: fEnd) { _, _ in animateRings() }
+        .onChange(of: pEnd) { _, _ in animateRings() }
+    }
+
+    private func animateRings() {
+        withAnimation(.spring(response: 0.9, dampingFraction: 0.85)) {
+            animC = cEnd
+            animF = fEnd
+            animP = pEnd
         }
     }
 }
@@ -127,6 +134,16 @@ struct BurnedCaloriesRing: View {
         .onAppear {
             withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
                 animProgress = progress
+            }
+        }
+        .onChange(of: burned) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                animProgress = Double(burned) / Double(max(targetBurn, 1))
+            }
+        }
+        .onChange(of: targetBurn) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                animProgress = Double(burned) / Double(max(targetBurn, 1))
             }
         }
     }
@@ -179,6 +196,16 @@ struct NetCaloriesRing: View {
         .onAppear {
             withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
                 animProgress = abs(progress)
+            }
+        }
+        .onChange(of: net) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                animProgress = abs(Double(net) / Double(max(target, 1)))
+            }
+        }
+        .onChange(of: target) { _, _ in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                animProgress = abs(Double(net) / Double(max(target, 1)))
             }
         }
     }

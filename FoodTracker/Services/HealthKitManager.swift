@@ -36,7 +36,7 @@ import Observation
         else { return }
 
         let typesToRead: Set<HKObjectType> = [bodyMass, steps, activeEnergy, HKObjectType.workoutType()]
-        let typesToWrite: Set<HKSampleType> = [water, dietaryEnergy, HKObjectType.workoutType()]
+        let typesToWrite: Set<HKSampleType> = [water, dietaryEnergy, activeEnergy, HKObjectType.workoutType()]
 
         let hasRequested = UserDefaults.standard.bool(forKey: hasRequestedKey)
         // Only write types expose real authorizationStatus; read types (.stepCount) always report .notDetermined.
@@ -53,6 +53,11 @@ import Observation
         await MainActor.run {
             self.isAuthorized = anyWriteAllowed && UserDefaults.standard.bool(forKey: hasRequestedKey)
         }
+    }
+
+    @MainActor
+    func resetAuthorizationState() {
+        isAuthorized = false
     }
 
     // Modern async descriptor-based query (no legacy HKStatisticsQuery + continuation)
@@ -113,26 +118,65 @@ import Observation
         guard calories > 0, durationMinutes > 0,
               canWrite(HKObjectType.workoutType()) else { return }
         let duration = TimeInterval(durationMinutes * 60)
+        let startDate = date.addingTimeInterval(-duration)
         let energyBurned = HKQuantity(unit: .kilocalorie(), doubleValue: Double(calories))
 
-        // Ensure HealthKit handles standard workouts without issue.
         let workout = HKWorkout(
             activityType: activityType,
-            start: date.addingTimeInterval(-duration),
+            start: startDate,
             end: date,
             duration: duration,
             totalEnergyBurned: energyBurned,
             totalDistance: nil,
             device: nil,
-            metadata: nil
+            metadata: [HKMetadataKeyWorkoutBrandName: WorkoutSyncManager.healthKitBrandName]
         )
 
         do {
             try await healthStore.save(workout)
+            if let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned),
+               canWrite(energyType) {
+                let sample = HKQuantitySample(type: energyType, quantity: energyBurned, start: startDate, end: date)
+                try await healthStore.save(sample)
+            }
             print("Successfully saved workout to HealthKit: \(calories) kcal for \(durationMinutes) min.")
         } catch {
             print("Error saving workout to HealthKit: \(error.localizedDescription)")
         }
+    }
+
+    /// Sums active calories from external HKWorkouts (Apple Watch, WorkoutTracker, etc.),
+    /// excluding workouts saved by FoodTracker itself to prevent double-counting.
+    func fetchExternalWorkoutCalories(for date: Date) async throws -> Int {
+        guard HKHealthStore.isHealthDataAvailable() else { return 0 }
+
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return 0 }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
+        let descriptor = HKSampleQueryDescriptor<HKWorkout>(
+            predicates: [.workout(predicate)],
+            sortDescriptors: []
+        )
+
+        let workouts = try await descriptor.result(for: healthStore)
+        let ownBundleId = Bundle.main.bundleIdentifier
+        let total = workouts.reduce(0.0) { sum, workout in
+            let isOwnBundle = ownBundleId != nil && workout.sourceRevision.source.bundleIdentifier == ownBundleId
+            let isOwnBrand = (workout.metadata?[HKMetadataKeyWorkoutBrandName] as? String) == WorkoutSyncManager.healthKitBrandName
+            guard !isOwnBundle && !isOwnBrand else { return sum }
+            let kcal: Double
+            if #available(iOS 18.0, *), let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
+                kcal = workout.statistics(for: energyType)?.sumQuantity()?.doubleValue(for: .kilocalorie())
+                    ?? workout.totalEnergyBurned?.doubleValue(for: .kilocalorie())
+                    ?? 0.0
+            } else {
+                kcal = workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0.0
+            }
+            return sum + kcal
+        }
+        return Int(total.rounded())
     }
 
     // Modern descriptor version

@@ -1267,6 +1267,7 @@ struct FilteredRecipesListView: View {
 struct ChooseMealSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
+    @Query private var users: [User]
     let recipe: PremiumRecipe; let calories: Int; let p: Double; let f: Double; let c: Double
     @State private var selectedMeal = "Dinner"; let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
 
@@ -1313,7 +1314,7 @@ struct ChooseMealSheet: View {
         try? context.save()
         WidgetReloader.reloadAll()
         AppReviewManager.shared.userDidLogMeal()
-        if HealthKitManager.shared.isAuthorized && calories > 0 {
+        if users.first?.isHealthKitEnabled == true && HealthKitManager.shared.isAuthorized && calories > 0 {
             await HealthKitManager.shared.saveDietaryEnergy(calories: calories, date: .now)
         }
     }

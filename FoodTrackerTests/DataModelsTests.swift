@@ -572,4 +572,80 @@ final class DataModelsTests: XCTestCase {
         let todaySummary = summaries.first { calendar.isDateInToday($0.date) }
         XCTAssertNil(todaySummary?.weight)
     }
+
+    @MainActor
+    func testWorkoutSyncManagerReadsWorkoutCaloriesAndReconcilesWater() throws {
+        let suiteName = "test.workout.sync.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: suiteName)!
+        let localDefaults = UserDefaults(suiteName: "test.local.sync.\(UUID().uuidString)")!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: suiteName)
+        }
+
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: User.self, WeightLog.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self,
+            configurations: config
+        )
+        let context = container.mainContext
+        let today = Calendar.current.startOfDay(for: Date())
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+
+        // Simulate WorkoutTracker writing burned calories and water liters into shared App Group.
+        sharedDefaults.set(420, forKey: WorkoutSyncManager.workoutCaloriesKey(for: today))
+        sharedDefaults.set(1.25, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        let wtCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: today, sharedDefaults: sharedDefaults)
+        XCTAssertEqual(wtCals, 420)
+
+        let changedFirst = WorkoutSyncManager.shared.reconcileWater(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            localDefaults: localDefaults
+        )
+        XCTAssertTrue(changedFirst)
+        XCTAssertEqual(summary.totalHydrationLiters, 1.25, accuracy: 0.01)
+
+        // Second pass with identical shared state must be idempotent.
+        let changedSecond = WorkoutSyncManager.shared.reconcileWater(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            localDefaults: localDefaults
+        )
+        XCTAssertFalse(changedSecond)
+
+        // Syncing higher local water updates shared key for WorkoutTracker.
+        WorkoutSyncManager.shared.syncWater(1.75, for: today, sharedDefaults: sharedDefaults, localDefaults: localDefaults)
+        XCTAssertEqual(WorkoutSyncManager.shared.fetchWaterLiters(for: today, sharedDefaults: sharedDefaults) ?? 0, 1.75, accuracy: 0.01)
+    }
+
+    func testWorkoutSyncComputeDailyBurnReconciliation() {
+        // HealthKit enabled: avoid double counting WorkoutTracker (App Group + HKWorkout), add local activity.
+        let withHK = WorkoutSyncManager.computeDailyBurn(
+            localActivityCalories: 150,
+            workoutTrackerCalories: 400,
+            healthKitWorkoutCalories: 400,
+            healthKitTotalActiveCalories: 700,
+            stepsCount: 6500,
+            isHealthKitEnabled: true
+        )
+        XCTAssertEqual(withHK.workoutCalories, 550)
+        XCTAssertEqual(withHK.activeCaloriesBurned, 700)
+        XCTAssertEqual(withHK.stepsCount, 6500)
+
+        // HealthKit disabled: clears stale steps and keeps combined workout burn accurately.
+        let withoutHK = WorkoutSyncManager.computeDailyBurn(
+            localActivityCalories: 150,
+            workoutTrackerCalories: 400,
+            healthKitWorkoutCalories: 500,
+            healthKitTotalActiveCalories: 900,
+            stepsCount: 6500,
+            isHealthKitEnabled: false
+        )
+        XCTAssertEqual(withoutHK.workoutCalories, 650)
+        XCTAssertEqual(withoutHK.activeCaloriesBurned, 650)
+        XCTAssertEqual(withoutHK.stepsCount, 0)
+    }
 }

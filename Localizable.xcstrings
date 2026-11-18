@@ -44700,6 +44700,236 @@
           }
         }
       }
+    },
+    "Workout Tracker & Custom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker & Custom"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker и свои"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker & Eigene"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker y propias"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker et perso"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker e locali"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker e locais"
+          }
+        }
+      }
+    },
+    "Connect Activity Sync": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect Activity Sync"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключите синхронизацию"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktivitätssync verbinden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conecta tu actividad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter le suivi d’activité"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collega sincronizzazione"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligar sincronização"
+          }
+        }
+      }
+    },
+    "All your steps, Workout Tracker sessions, and Apple Health workouts are synced here.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All your steps, Workout Tracker sessions, and Apple Health workouts are synced here."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все ваши шаги, тренировки из Workout Tracker и Apple Health синхронизируются здесь."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Schritte, Workout-Tracker-Einheiten und Apple-Health-Workouts werden hier synchronisiert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus pasos, sesiones de Workout Tracker y entrenamientos de Apple Salud se sincronizan aquí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos pas, séances Workout Tracker et entraînements Apple Santé sont synchronisés ici."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutti i passi, le sessioni di Workout Tracker e gli allenamenti Apple Salute sono sincronizzati qui."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os teus passos, treinos do Workout Tracker e do Apple Saúde são sincronizados aqui."
+          }
+        }
+      }
+    },
+    "Workout Tracker sessions synced. Enable Apple Health in Profile for steps & watch data.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker sessions synced. Enable Apple Health in Profile for steps & watch data."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тренировки Workout Tracker синхронизированы. Включите Apple Health в Профиле для шагов и часов."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout-Tracker-Einheiten synchronisiert. Aktiviere Apple Health im Profil für Schritte & Watch."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sesiones de Workout Tracker sincronizadas. Activa Apple Salud en Perfil para pasos y Watch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séances Workout Tracker synchronisées. Activez Apple Santé dans le Profil pour les pas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sessioni di Workout Tracker sincronizzate. Attiva Apple Salute nel Profilo per passi e Watch."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treinos do Workout Tracker sincronizados. Ativa o Apple Saúde no Perfil para passos."
+          }
+        }
+      }
+    },
+    "Enable Apple Health in Profile or track workouts in Workout Tracker to sync daily burn.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Apple Health in Profile or track workouts in Workout Tracker to sync daily burn."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включите Apple Health в Профиле или ведите тренировки в Workout Tracker для учёта расхода."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere Apple Health im Profil oder nutze Workout Tracker für verbrannte Kalorien."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa Apple Salud en tu Perfil o registra entrenamientos en Workout Tracker."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez Apple Santé dans le Profil ou enregistrez vos séances dans Workout Tracker."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva Apple Salute nel Profilo o registra allenamenti su Workout Tracker."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativa o Apple Saúde no Perfil ou regista treinos no Workout Tracker."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

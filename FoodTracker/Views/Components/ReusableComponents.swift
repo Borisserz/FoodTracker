@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import UIKit
 import Charts
 
@@ -241,19 +242,58 @@ struct CustomPaginator: View {
 }
 
 struct BurnedDetailsCard: View {
+    @Query private var users: [User]
     let summary: DailySummary
+
+    private var isHealthKitEnabled: Bool {
+        users.first?.isHealthKitEnabled == true
+    }
+
+    private var workoutTrackerAppGroupCalories: Int {
+        WorkoutSyncManager.shared.fetchWorkoutCalories(for: summary.date)
+    }
 
     var appWorkoutCalories: Int {
         summary.workoutCalories
     }
 
     var stepCalories: Int {
-        Int(Double(summary.stepsCount) * 0.04)
+        isHealthKitEnabled ? Int(Double(summary.stepsCount) * 0.04) : 0
     }
 
     var appleFitnessCalories: Int {
+        guard isHealthKitEnabled else { return 0 }
         let remainder = summary.activeCaloriesBurned - appWorkoutCalories - stepCalories
         return max(0, remainder)
+    }
+
+    private var workoutSourceSubtitle: String {
+        let hasWT = workoutTrackerAppGroupCalories > 0
+        let hasCustom = summary.localActivityCalories > 0
+        if hasWT && hasCustom {
+            return String(localized: "Workout Tracker & Custom")
+        } else if hasWT {
+            return String(localized: "Workout Tracker")
+        } else if hasCustom {
+            return String(localized: "Custom Workouts")
+        }
+        return String(localized: "Workout Tracker")
+    }
+
+    private var syncStatusTitle: LocalizedStringKey {
+        if isHealthKitEnabled || workoutTrackerAppGroupCalories > 0 {
+            return "Every Movement Counts!"
+        }
+        return "Connect Activity Sync"
+    }
+
+    private var syncStatusMessage: LocalizedStringKey {
+        if isHealthKitEnabled {
+            return "All your steps, Workout Tracker sessions, and Apple Health workouts are synced here."
+        } else if workoutTrackerAppGroupCalories > 0 {
+            return "Workout Tracker sessions synced. Enable Apple Health in Profile for steps & watch data."
+        }
+        return "Enable Apple Health in Profile or track workouts in Workout Tracker to sync daily burn."
     }
 
     var body: some View {
@@ -273,7 +313,7 @@ struct BurnedDetailsCard: View {
                     icon: "dumbbell.fill",
                     iconColor: .themeOrange,
                     title: "Workouts",
-                    subtitle: "Workout Tracker",
+                    subtitle: workoutSourceSubtitle,
                     calories: appWorkoutCalories
                 )
 
@@ -310,10 +350,10 @@ struct BurnedDetailsCard: View {
                     Image(systemName: "flame.fill").foregroundColor(.white)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Every Movement Counts!")
+                    Text(syncStatusTitle)
                         .font(.subheadline.bold())
                         .foregroundColor(.white)
-                    Text("All your steps, gym sessions, and Apple Watch workouts are synced here perfectly.")
+                    Text(syncStatusMessage)
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.9))
                         .lineLimit(2)

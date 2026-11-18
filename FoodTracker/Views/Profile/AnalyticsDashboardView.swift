@@ -780,6 +780,7 @@ struct AIHydrationAnalyticsCard: View {
         context.insert(newBeverage)
         targetSummary.addBeverage(newBeverage)
         try? context.save()
+        WorkoutSyncManager.shared.syncWater(targetSummary.totalHydrationLiters, for: targetSummary.date)
         WidgetReloader.reloadAll()
         onUpdate()
         
@@ -803,6 +804,7 @@ struct AIHydrationAnalyticsCard: View {
             }
             context.delete(lastWater)
             try? context.save()
+            WorkoutSyncManager.shared.syncWater(targetSummary.totalHydrationLiters, for: targetSummary.date)
             WidgetReloader.reloadAll()
             onUpdate()
         }

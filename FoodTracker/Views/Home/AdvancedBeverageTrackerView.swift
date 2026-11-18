@@ -147,6 +147,7 @@ struct WaterGridTrackerView: View {
                context.insert(newBeverage)
                summary.addBeverage(newBeverage)
                try? context.save()
+               WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: summary.date)
                WidgetReloader.reloadAll()
            }
 
@@ -166,6 +167,7 @@ struct WaterGridTrackerView: View {
             }
             context.delete(lastWater)
             try? context.save()
+            WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: summary.date)
             WidgetReloader.reloadAll()
         }
     }

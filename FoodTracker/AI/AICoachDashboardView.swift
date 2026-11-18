@@ -203,6 +203,7 @@ struct AICoachDashboardView: View {
         context.insert(water)
         summary.addBeverage(water)
         try? context.save()
+        WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: summary.date)
         WidgetReloader.reloadAll()
         HapticManager.shared.notification(type: .success)
 

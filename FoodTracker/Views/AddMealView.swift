@@ -356,7 +356,9 @@ struct AddMealView: View {
             }
         }
         
+        var previousCalories = 0
         if let existingMeal = (summaryToUse.meals ?? []).first(where: { $0.title == selectedMealType }) {
+            previousCalories = existingMeal.totalCalories
             let keptIDs = Set(persistedItems.map { $0.id })
             let removedFoods = (existingMeal.foodItems ?? []).filter { !keptIDs.contains($0.id) }
             for food in removedFoods {
@@ -374,11 +376,20 @@ struct AddMealView: View {
             modelContext.insert(newMeal)
             summaryToUse.addMeal(newMeal)
         }
-        
+
+        let newCalories = persistedItems.reduce(0) { $0 + $1.calories }
+        let addedCaloriesDelta = newCalories - previousCalories
+        let shouldSyncHealthKit = users.first?.isHealthKitEnabled == true
+
         do {
             try modelContext.save()
             WidgetReloader.reloadAll()
             AppReviewManager.shared.userDidLogMeal()
+            if shouldSyncHealthKit && addedCaloriesDelta > 0 {
+                Task {
+                    await HealthKitManager.shared.saveDietaryEnergy(calories: addedCaloriesDelta, date: mealTimestamp)
+                }
+            }
             dismiss()
         } catch {
             print("Failed to save meal: \(error.localizedDescription)")

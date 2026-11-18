@@ -192,6 +192,7 @@ struct HydrationFlaskCardView: View {
             context.insert(newBeverage)
             summary.addBeverage(newBeverage)
             try? context.save()
+            WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: summary.date)
             WidgetReloader.reloadAll()
         }
         
@@ -215,6 +216,7 @@ struct HydrationFlaskCardView: View {
             }
             context.delete(lastWater)
             try? context.save()
+            WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: summary.date)
             WidgetReloader.reloadAll()
         }
     }

@@ -64,6 +64,8 @@ enum LocalDataResetService {
         for key in onboardingAndFeatureDefaultsKeys {
             defaults.removeObject(forKey: key)
         }
+        WorkoutSyncManager.clearLocalSyncMetadata(defaults: defaults)
+        HealthKitManager.shared.resetAuthorizationState()
 
         if defaults === UserDefaults.standard {
             ThemeManager.shared.currentThemeIndex = 0

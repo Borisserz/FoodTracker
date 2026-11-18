@@ -300,11 +300,15 @@ struct HomeDashboardContentView: View {
               }
               .onChange(of: scenePhase) { _, newPhase in
                   if newPhase == .active {
-                      Task { await fetchHealthData(for: currentSummary) }
+                      let persisted = DailySummary.fetchOrCreate(for: selectedDate, in: context)
+                      Task { await fetchHealthData(for: persisted) }
                   }
               }
               .onChange(of: HealthKitManager.shared.isAuthorized) { _, isAuth in
-                  if isAuth { Task { await fetchHealthData(for: currentSummary) } }
+                  if isAuth {
+                      let persisted = DailySummary.fetchOrCreate(for: selectedDate, in: context)
+                      Task { await fetchHealthData(for: persisted) }
+                  }
               }
               .navigationDestination(isPresented: $navigateToProfile) { ProfileWrapperView() }
               .navigationDestination(isPresented: $showDailyLog) { DailyLogDetailView(summary: currentSummary) }
@@ -371,47 +375,61 @@ struct HomeDashboardContentView: View {
       }
 
     private func fetchHealthData(for summary: DailySummary) async {
-            let localCals = summary.localActivityCalories
+            let persistedSummary = DailySummary.fetchOrCreate(for: summary.date, in: context)
+            let targetDate = persistedSummary.date
+            let isHKEnabled = currentUser?.isHealthKitEnabled == true
 
-            var fetchedSteps = summary.stepsCount
-            var fetchedActiveCals = summary.activeCaloriesBurned
+            let wtAppGroupCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: targetDate)
+            let localCals = persistedSummary.localActivityCalories
 
-            if currentUser?.isHealthKitEnabled == true {
+            var fetchedSteps = persistedSummary.stepsCount
+            var hkTotalActiveCals = persistedSummary.activeCaloriesBurned
+            var hkWorkoutCals = 0
+
+            if isHKEnabled {
                 do {
-                    fetchedSteps = try await HealthKitManager.shared.fetchSteps(for: summary.date)
+                    fetchedSteps = try await HealthKitManager.shared.fetchSteps(for: targetDate)
                 } catch { print("Steps error: \(error)") }
 
                 do {
-                    let totalHealthCals = try await HealthKitManager.shared.fetchTotalActiveCalories(for: summary.date)
-                    fetchedActiveCals = max(totalHealthCals, localCals)
+                    hkTotalActiveCals = try await HealthKitManager.shared.fetchTotalActiveCalories(for: targetDate)
                 } catch { print("Health cals error: \(error)") }
-            } else {
-                fetchedActiveCals = max(summary.workoutCalories, localCals)
+
+                do {
+                    hkWorkoutCals = try await HealthKitManager.shared.fetchExternalWorkoutCalories(for: targetDate)
+                } catch { print("HK workout cals error: \(error)") }
             }
 
+            let reconciled = WorkoutSyncManager.computeDailyBurn(
+                localActivityCalories: localCals,
+                workoutTrackerCalories: wtAppGroupCals,
+                healthKitWorkoutCalories: hkWorkoutCals,
+                healthKitTotalActiveCalories: hkTotalActiveCals,
+                stepsCount: fetchedSteps,
+                isHealthKitEnabled: isHKEnabled
+            )
+
             await MainActor.run {
-                var needsSave = false
+                var needsSave = WorkoutSyncManager.shared.reconcileWater(for: persistedSummary, in: context)
 
-                if summary.workoutCalories != localCals {
-                    summary.workoutCalories = localCals
+                if persistedSummary.workoutCalories != reconciled.workoutCalories {
+                    persistedSummary.workoutCalories = reconciled.workoutCalories
                     needsSave = true
                 }
 
-                if summary.stepsCount != fetchedSteps {
-                    summary.stepsCount = fetchedSteps
+                if persistedSummary.stepsCount != reconciled.stepsCount {
+                    persistedSummary.stepsCount = reconciled.stepsCount
                     needsSave = true
                 }
 
-                if summary.activeCaloriesBurned != fetchedActiveCals {
-                    summary.activeCaloriesBurned = fetchedActiveCals
+                if persistedSummary.activeCaloriesBurned != reconciled.activeCaloriesBurned {
+                    persistedSummary.activeCaloriesBurned = reconciled.activeCaloriesBurned
                     needsSave = true
                 }
 
                 if needsSave {
-                    // Summary should have been ensured via the @ModelActor repo (see .task ensureCurrentSummary).
-                    // We still save on the view's main context for @Query reactivity; the actor path owns creation.
                     try? context.save()
-                    // Future improvement: await di.summaryRepository.saveSummary(summary) after mapping if needed.
+                    WidgetReloader.reloadAll()
                 }
             }
         }

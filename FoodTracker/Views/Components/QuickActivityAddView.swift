@@ -164,11 +164,32 @@ struct QuickActivityAddView: View {
         let log = ActivityLog(title: activity.name, icon: activity.icon, durationMinutes: duration, calories: cals)
         context.insert(log)
         targetSummary.addActivity(log)
+
+        let shouldSyncHealthKit = users.first?.isHealthKitEnabled == true
+        let wtCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: targetSummary.date)
+        let reconciled = WorkoutSyncManager.computeDailyBurn(
+            localActivityCalories: targetSummary.localActivityCalories,
+            workoutTrackerCalories: wtCals,
+            healthKitWorkoutCalories: 0,
+            healthKitTotalActiveCalories: max(targetSummary.activeCaloriesBurned, targetSummary.activeCaloriesBurned + cals),
+            stepsCount: targetSummary.stepsCount,
+            isHealthKitEnabled: shouldSyncHealthKit
+        )
+        targetSummary.workoutCalories = reconciled.workoutCalories
+        targetSummary.activeCaloriesBurned = reconciled.activeCaloriesBurned
+        targetSummary.stepsCount = reconciled.stepsCount
+
         try? context.save()
         WidgetReloader.reloadAll()
 
-        let shouldSyncHealthKit = users.first?.isHealthKitEnabled == true
-        let workoutDate = Calendar.current.isDateInToday(summary.date) ? Date() : summary.date
+        let calendar = Calendar.current
+        let workoutDate: Date
+        if calendar.isDateInToday(summary.date) {
+            workoutDate = Date()
+        } else {
+            // Anchor past-date workouts to noon so subtracting duration never crosses midnight into the previous day.
+            workoutDate = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: summary.date) ?? summary.date
+        }
 
         Task {
             if shouldSyncHealthKit {
