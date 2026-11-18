@@ -713,4 +713,25 @@ final class DataModelsTests: XCTestCase {
         XCTAssertFalse(appleResults.isEmpty)
         XCTAssertTrue(LocalFoodDatabaseService.shared.search(query: "   ", limit: 10).isEmpty)
     }
+
+    func testWave4PortugueseFoodCatalogAndRecipeParityAndUnits() {
+        XCTAssertEqual(LocalFoodDatabaseService.resolveLanguageCode(for: "pt"), "pt-PT")
+        let ptFoods = LocalFoodDatabaseService.loadBundledFoods(languageCode: "pt")
+        XCTAssertGreaterThanOrEqual(ptFoods.count, 900)
+        XCTAssertTrue(ptFoods.contains(where: { $0.name == "Bacalhau à Brás" }))
+
+        for code in ["en", "de", "es", "fr", "it", "pt", "ru"] {
+            let recipes = RecipeDataLoader.loadBundledRecipes(languageCode: code)
+            XCTAssertEqual(recipes.count, 61, "Expected 61 recipes for locale \(code)")
+            XCTAssertFalse(recipes.contains(where: { $0.imageUrl.contains("pollinations.ai") }))
+        }
+
+        let firstAcademy = AcademyDataLoader.loadBundledCategories(languageCode: "pt")
+        let secondAcademy = AcademyDataLoader.loadBundledCategories(languageCode: "pt")
+        XCTAssertFalse(firstAcademy.isEmpty)
+        XCTAssertEqual(firstAcademy.count, secondAcademy.count)
+
+        XCTAssertEqual(NutritionMath.formattedHydration(liters: 2.5, useMetric: true), "2.5 L")
+        XCTAssertEqual(NutritionMath.formattedHydration(liters: 2.5, useMetric: false), "85 fl oz")
+    }
 }

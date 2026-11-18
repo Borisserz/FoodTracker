@@ -47,7 +47,7 @@
     "description": "Um clássico alimento matinal carregado com gorduras saudáveis ​​e proteínas magras para mantê-lo energizado. 🥑",
     "time": "10 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20scrambled%20eggs%20with%20avocado?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Café da manhã",
@@ -92,7 +92,7 @@
     "description": "Rico, cremoso e repleto de proteínas vegetais. Tem gosto de sobremesa! 🍫",
     "time": "5 min",
     "caloriesPerServing": 414,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20peanut%20butter%20smoothie?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -142,7 +142,7 @@
     "description": "Salmão amanteigado e escamoso combinado com aspargos torrados crocantes. Perfeito para um jantar cetônico. 🐟",
     "time": "25 min",
     "caloriesPerServing": 409,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20salmon%20asparagus?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -193,7 +193,7 @@
     "description": "Uma lancheira perfeitamente equilibrada com frango magro, carboidratos complexos e tomates frescos. 🥗",
     "time": "20 min",
     "caloriesPerServing": 419,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chicken%20quinoa%20bowl?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -242,7 +242,7 @@
     "description": "Um jantar leve de inspiração italiana que economiza carboidratos sem sacrificar o sabor. 🍝",
     "time": "30 min",
     "caloriesPerServing": 232,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20turkey%20meatballs%20zucchini%20noodles?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -291,7 +291,7 @@
     "description": "Um lanche rápido, doce e cheio de proteínas para conter seus desejos do meio-dia. 🍓",
     "time": "5 min",
     "caloriesPerServing": 292,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20greek%20yogurt%20berry%20parfait?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -341,7 +341,7 @@
     "description": "Uma saborosa alternativa vegetal ao ovo com espinafre e açafrão antiinflamatório. 🌱",
     "time": "10 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20tofu%20scramble?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Café da manhã",
@@ -391,7 +391,7 @@
     "description": "Um jantar pesado para recuperação muscular. Bife macio e brócolis com manteiga de alho. 🥩",
     "time": "20 min",
     "caloriesPerServing": 508,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20keto%20steak%20and%20broccoli?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -441,7 +441,7 @@
     "description": "Quente, reconfortante e com gosto de torta de maçã no café da manhã. Rico em fibras! 🍎",
     "time": "30 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20baked%20oats%20apple%20cinnamon?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Café da manhã",
@@ -491,7 +491,7 @@
     "description": "Um lanche refrescante, doce e rico em proteínas, perfeito para a recuperação pós-treino. 🍍",
     "time": "2 min",
     "caloriesPerServing": 261,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pineapple%20bowl?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -534,7 +534,7 @@
     "description": "Frango suculento recheado com saboroso queijo feta e espinafre. Parece gourmet, mas incrivelmente fácil de fazer! 🌿",
     "time": "35 min",
     "caloriesPerServing": 465,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spinach%20feta%20stuffed%20chicken?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -584,7 +584,7 @@
     "description": "Um guisado à base de plantas farto, quente e rico em fibras, perfeito para preparar refeições. 🍲",
     "time": "45 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20lentil%20vegetable%20stew?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -646,7 +646,7 @@
     "description": "Biscoitos em borracha e sem farinha, perfeitos para aumentar a energia antes do treino ou para um lanche doce. 🍪",
     "time": "15 min",
     "caloriesPerServing": 139,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20peanut%20butter%20banana%20oatmeal%20cookies?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -690,7 +690,7 @@
     "description": "Uma refrescante mistura de verduras e frutos silvestres que esconde completamente o sabor do espinafre! 🫐",
     "time": "5 min",
     "caloriesPerServing": 247,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20green%20smoothie?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -745,7 +745,7 @@
     "description": "Copos de alface crocantes e frescos, recheados com camarão picante e rico em proteínas e abacate cremoso. 🍤",
     "time": "15 min",
     "caloriesPerServing": 269,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spicy%20shrimp%20lettuce%20wraps?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -795,7 +795,7 @@
     "description": "Pimentões crocantes atuam como o recipiente perfeito com baixo teor de carboidratos para uma salada de ovo cremosa e rica. 🫑",
     "time": "15 min",
     "caloriesPerServing": 274,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20egg%20salad%20stuffed%20peppers?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -845,7 +845,7 @@
     "description": "Uma salada vibrante e picante à base de plantas que fica perfeitamente guardada na geladeira por dias. 🌽",
     "time": "10 min",
     "caloriesPerServing": 220,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20black%20bean%20corn%20salad?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -901,7 +901,7 @@
     "description": "Tiras de bife tenras e escaldantes com cebola caramelizada e pimentão. Só falta a tortilha! 🥩",
     "time": "20 min",
     "caloriesPerServing": 358,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20steak%20fajita%20skillet?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -951,7 +951,7 @@
     "description": "Panquecas fofas e douradas com um ingrediente secreto que aumenta a proteína sem esforço. 🥞",
     "time": "15 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pancakes?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Café da manhã",
@@ -995,7 +995,7 @@
     "description": "Um lanche saboroso, salgado e satisfatório à base de plantas, carregado com minerais. 🥢",
     "time": "5 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20seaweed%20bowl?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -1039,7 +1039,7 @@
     "description": "Um toque cremoso e com baixo teor de carboidratos na tradicional salada de ovo usando abacate rico em nutrientes em vez de excesso de maionese. 🥑",
     "time": "10 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20avocado%20egg%20salad?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -1083,7 +1083,7 @@
     "description": "Um curry perfumado e quente à base de plantas que se prepara rapidamente para uma refeição aconchegante durante a semana. 🥥",
     "time": "25 min",
     "caloriesPerServing": 210,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chickpea%20coconut%20curry?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1133,7 +1133,7 @@
     "description": "Um almoço rico em proteínas e rico em nutrientes, carregado com carboidratos complexos para abastecer o seu dia. 🍠",
     "time": "45 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20stuffed%20sweet%20potato%20ground%20turkey?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -1176,7 +1176,7 @@
     "description": "Um café da manhã para viagem repleto de fibras e ômega-3 que se prepara durante a noite. 🍓",
     "time": "5 min",
     "caloriesPerServing": 180,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20chia%20seed%20pudding?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Café da manhã",
@@ -1226,7 +1226,7 @@
     "description": "Um prato de frutos do mar leve, com alho e amanteigado que mantém baixo teor de carboidratos e alto teor de proteína. 🦐",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20shrimp%20zucchini%20noodles?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1263,6 +1263,1811 @@
       "Adicione o camarão à frigideira e cozinhe por 2-3 minutos de cada lado até ficar rosado e opaco.",
       "Retire o camarão e reserve. Na mesma frigideira, misture o macarrão de abobrinha por 1-2 minutos até aquecer.",
       "Retorne o camarão à frigideira, misture com o macarrão e sirva imediatamente."
+    ]
+  },
+  {
+    "title": "Batido Proteico de Chá Verde Matcha",
+    "description": "Um batido rico em antioxidantes e cafeína leve, ideal para começar a manhã ou antes do treino. 🍵",
+    "time": "5 min",
+    "caloriesPerServing": 205,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Batido",
+      "Vegetariano",
+      "Preparado rapidamente",
+      "Alta proteína"
+    ],
+    "baseServings": 1,
+    "protein": 26.0,
+    "fat": 3.0,
+    "carbs": 18.0,
+    "ingredients": [
+      {
+        "name": "Proteína Whey de Baunilha",
+        "amount": "1 dose",
+        "weightGrams": 30,
+        "calories": 120
+      },
+      {
+        "name": "Leite de Amêndoa sem Açúcar",
+        "amount": "1 chávena",
+        "weightGrams": 240,
+        "calories": 40
+      },
+      {
+        "name": "Banana",
+        "amount": "1/2 média",
+        "weightGrams": 50,
+        "calories": 45
+      },
+      {
+        "name": "Matcha em Pó",
+        "amount": "1 colher de chá",
+        "weightGrams": 2,
+        "calories": 5
+      }
+    ],
+    "directions": [
+      "Coloque primeiro o leite de amêndoa no liquidificador para evitar que o pó cole no fundo.",
+      "Adicione a proteína whey, o matcha em pó e metade da banana.",
+      "Junte alguns cubos de gelo.",
+      "Bata na velocidade máxima até ficar cremoso e espumoso."
+    ]
+  },
+  {
+    "title": "Frango Caprese na Frigideira",
+    "description": "Mozzarella derretida, redução balsâmica e tomate suculento sobre peito de frango magro. 🍅",
+    "time": "20 min",
+    "caloriesPerServing": 375,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Baixo teor de carboidratos",
+      "Alta proteína",
+      "Fácil"
+    ],
+    "baseServings": 2,
+    "protein": 44.0,
+    "fat": 18.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Peito de Frango",
+        "amount": "340g",
+        "weightGrams": 340,
+        "calories": 560
+      },
+      {
+        "name": "Mozzarella Fresca",
+        "amount": "60g",
+        "weightGrams": 56,
+        "calories": 140
+      },
+      {
+        "name": "Tomate Cherry",
+        "amount": "1/2 chávena",
+        "weightGrams": 75,
+        "calories": 15
+      },
+      {
+        "name": "Redução Balsâmica",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 35
+      }
+    ],
+    "directions": [
+      "Tempere o peito de frango com sal, pimenta e ervas italianas.",
+      "Cozinhe numa frigideira em lume médio por 6-7 minutos de cada lado até ficar bem passado.",
+      "Cubra cada peito com fatias de mozzarella e tomate cherry ao meio. Tape por 2 minutos para derreter o queijo.",
+      "Regue com redução balsâmica e finalize com manjericão fresco."
+    ]
+  },
+  {
+    "title": "Grão-de-Bico Crocante Assado",
+    "description": "Um snack estaladiço e salgado que substitui batatas fritas com boa dose de proteína vegetal. 🌶️",
+    "time": "35 min",
+    "caloriesPerServing": 183,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Vegano",
+      "Poucos ingredientes",
+      "Cozimento"
+    ],
+    "baseServings": 3,
+    "protein": 7.0,
+    "fat": 7.5,
+    "carbs": 22.0,
+    "ingredients": [
+      {
+        "name": "Grão-de-Bico Cozido (em conserva)",
+        "amount": "1 lata (425g)",
+        "weightGrams": 400,
+        "calories": 420
+      },
+      {
+        "name": "Azeite Virgem Extra",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 120
+      },
+      {
+        "name": "Pimentão Fumado",
+        "amount": "1 colher de chá",
+        "weightGrams": 2,
+        "calories": 5
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 200°C. Escorra, passe por água e seque muito bem o grão com papel de cozinha.",
+      "Envolva o grão seco numa taça com azeite, pimentão fumado, sal e pimenta.",
+      "Espalhe numa única camada num tabuleiro forrado com papel vegetal.",
+      "Asse por 25-30 minutos, agitando a meio, até ficar bem crocante."
+    ]
+  },
+  {
+    "title": "Abacate Recheado com Salada de Atum",
+    "description": "Um almoço rápido sem cozinhar, rico em gorduras saudáveis e proteína, sem pão. 🥑",
+    "time": "10 min",
+    "caloriesPerServing": 235,
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Baixo teor de carboidratos",
+      "Cetogênico",
+      "Preparado rapidamente"
+    ],
+    "baseServings": 2,
+    "protein": 16.0,
+    "fat": 16.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Atum ao Natural",
+        "amount": "1 lata (140g)",
+        "weightGrams": 140,
+        "calories": 130
+      },
+      {
+        "name": "Abacate",
+        "amount": "1 médio",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Maionese",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 100
+      }
+    ],
+    "directions": [
+      "Escorra completamente o atum e coloque-o numa taça pequena.",
+      "Misture o atum com a maionese, sal, pimenta e algumas gotas de sumo de limão.",
+      "Corte o abacate ao meio e retire o caroço, alargando ligeiramente a cavidade se necessário.",
+      "Recheie as metades de abacate com a salada de atum e sirva."
+    ]
+  },
+  {
+    "title": "Anéis de Maçã com Manteiga de Amêndoa",
+    "description": "Um lanche doce, estaladiço e divertido que se prepara em dois minutos. 🍏",
+    "time": "5 min",
+    "caloriesPerServing": 296,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Vegano",
+      "Poucos ingredientes",
+      "Preparado rapidamente"
+    ],
+    "baseServings": 1,
+    "protein": 8.0,
+    "fat": 16.0,
+    "carbs": 30.0,
+    "ingredients": [
+      {
+        "name": "Maçã",
+        "amount": "1 média",
+        "weightGrams": 180,
+        "calories": 95
+      },
+      {
+        "name": "Manteiga de Amêndoa",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 32,
+        "calories": 190
+      },
+      {
+        "name": "Sementes de Cânhamo",
+        "amount": "1 colher de chá",
+        "weightGrams": 3,
+        "calories": 15
+      }
+    ],
+    "directions": [
+      "Retire o caroço da maçã e corte-a na horizontal em rodelas redondas.",
+      "Barre uniformemente a manteiga de amêndoa sobre cada rodela.",
+      "Polvilhe com sementes de cânhamo para dar textura.",
+      "Sirva de imediato para evitar que a maçã escureça."
+    ]
+  },
+  {
+    "title": "Mac & Cheese Cetogénico de Couve-Flor",
+    "description": "Um clássico reconfortante rico em queijo, reinventado sem hidratos de carbono. 🧀",
+    "time": "25 min",
+    "caloriesPerServing": 266,
+    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Cetogênico",
+      "Vegetariano"
+    ],
+    "baseServings": 4,
+    "protein": 12.0,
+    "fat": 22.0,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Floretes de Couve-Flor",
+        "amount": "4 chávenas",
+        "weightGrams": 400,
+        "calories": 100
+      },
+      {
+        "name": "Queijo Cheddar Ralado",
+        "amount": "1.5 chávenas",
+        "weightGrams": 150,
+        "calories": 600
+      },
+      {
+        "name": "Natas Frescas",
+        "amount": "1/2 chávena",
+        "weightGrams": 100,
+        "calories": 340
+      }
+    ],
+    "directions": [
+      "Coza a couve-flor a vapor ou em água a ferver até ficar tenra e escorra bem.",
+      "Aqueça suavemente as natas num tacho em lume médio.",
+      "Junte o queijo cheddar aos poucos, mexendo até derreter num molho cremoso.",
+      "Envolva a couve-flor cozida no molho de queijo e sirva bem quente."
+    ]
+  },
+  {
+    "title": "Chili de Peru Rico em Proteína",
+    "description": "Um chili encorpado e reconfortante com elevada carga proteica para recuperação muscular. 🌶️",
+    "time": "40 min",
+    "caloriesPerServing": 305,
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Alta proteína",
+      "Fácil"
+    ],
+    "baseServings": 4,
+    "protein": 32.0,
+    "fat": 4.0,
+    "carbs": 35.0,
+    "ingredients": [
+      {
+        "name": "Peru Picado Magro",
+        "amount": "450g",
+        "weightGrams": 450,
+        "calories": 680
+      },
+      {
+        "name": "Feijão Encarnado Cozido",
+        "amount": "1 lata (425g)",
+        "weightGrams": 400,
+        "calories": 400
+      },
+      {
+        "name": "Tomate Triturado",
+        "amount": "1 lata (425g)",
+        "weightGrams": 400,
+        "calories": 120
+      },
+      {
+        "name": "Cebola Picada",
+        "amount": "1/2 chávena",
+        "weightGrams": 50,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "Num tacho grande, aloure o peru picado com a cebola em lume médio-alto até cozinhar.",
+      "Lave e escorra o feijão encarnado.",
+      "Junte o feijão e o tomate triturado ao tacho, temperando com chili, cominhos e sal.",
+      "Deixe levantar fervura, reduza o lume e cozinhe por 20-30 minutos para apurar."
+    ]
+  },
+  {
+    "title": "Salteado Vegano de Tempeh Teriyaki",
+    "description": "Um salteado rápido de inspiração asiática com proteína fermentada e brócolos estaladiços. 🥢",
+    "time": "15 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Vegano",
+      "Alta proteína",
+      "Preparado rapidamente"
+    ],
+    "baseServings": 2,
+    "protein": 20.0,
+    "fat": 14.0,
+    "carbs": 18.0,
+    "ingredients": [
+      {
+        "name": "Tempeh",
+        "amount": "1 embalagem",
+        "weightGrams": 200,
+        "calories": 380
+      },
+      {
+        "name": "Floretes de Brócolos",
+        "amount": "1.5 chávenas",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Molho Teriyaki",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 40
+      },
+      {
+        "name": "Óleo de Sésamo",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 90
+      }
+    ],
+    "directions": [
+      "Corte o tempeh em cubos pequenos ou tiras finas.",
+      "Aqueça o óleo de sésamo numa wok ou frigideira larga e doure o tempeh por 5 minutos.",
+      "Adicione os brócolos e salteie por mais 3-4 minutos até ficarem tenros e crocantes.",
+      "Regue com molho teriyaki, envolva tudo bem e sirva quente."
+    ]
+  },
+  {
+    "title": "Pudim Proteico de Chocolate e Abacate",
+    "description": "Uma sobremesa aveludada que esconde gorduras boas e uma dose sólida de proteína. 🍫",
+    "time": "5 min",
+    "caloriesPerServing": 237,
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Lanche",
+      "Vegano",
+      "Poucos ingredientes",
+      "Fácil"
+    ],
+    "baseServings": 2,
+    "protein": 13.0,
+    "fat": 12.0,
+    "carbs": 19.0,
+    "ingredients": [
+      {
+        "name": "Abacate",
+        "amount": "1 médio",
+        "weightGrams": 150,
+        "calories": 240
+      },
+      {
+        "name": "Cacau em Pó",
+        "amount": "3 colheres de sopa",
+        "weightGrams": 20,
+        "calories": 45
+      },
+      {
+        "name": "Xarope de Ácer",
+        "amount": "1.5 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 80
+      },
+      {
+        "name": "Proteína Vegetal de Chocolate",
+        "amount": "1 dose",
+        "weightGrams": 30,
+        "calories": 110
+      }
+    ],
+    "directions": [
+      "Abra o abacate ao meio, retire o caroço e coloque a polpa num processador.",
+      "Adicione o cacau em pó, o xarope de ácer e a proteína.",
+      "Triture até ficar completamente liso e cremoso, juntando um pouco de bebida de amêndoa se precisar.",
+      "Leve ao frigorífico por 30 minutos antes de servir."
+    ]
+  },
+  {
+    "title": "Papas de Aveia Adormecidas Proteicas",
+    "description": "Prepare na véspera para um pequeno-almoço prático e rico em proteína pela manhã. 🥣",
+    "time": "5 min",
+    "caloriesPerServing": 330,
+    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Alta proteína",
+      "Em movimento",
+      "Vegetariano"
+    ],
+    "baseServings": 1,
+    "protein": 28.0,
+    "fat": 4.0,
+    "carbs": 45.0,
+    "ingredients": [
+      {
+        "name": "Flocos de Aveia",
+        "amount": "1/2 chávena",
+        "weightGrams": 50,
+        "calories": 190
+      },
+      {
+        "name": "Iogurte Grego 0%",
+        "amount": "1/2 chávena",
+        "weightGrams": 100,
+        "calories": 60
+      },
+      {
+        "name": "Bebida de Amêndoa sem Açúcar",
+        "amount": "1/2 chávena",
+        "weightGrams": 120,
+        "calories": 20
+      },
+      {
+        "name": "Proteína Whey de Baunilha",
+        "amount": "1/2 dose",
+        "weightGrams": 15,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Num frasco com tampa, misture os flocos de aveia com a proteína de baunilha.",
+      "Adicione o iogurte grego e a bebida de amêndoa e mexa bem até ficar homogéneo.",
+      "Tape e guarde no frigorífico durante a noite.",
+      "De manhã, mexa rapidamente e desfrute fresco."
+    ]
+  },
+  {
+    "title": "Lombo de Bacalhau Assado com Limão e Ervas",
+    "description": "Um peixe branco magro e suculento, leve mas muito saciante. 🍋",
+    "time": "20 min",
+    "caloriesPerServing": 193,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Baixo teor de carboidratos",
+      "Alta proteína",
+      "Cozimento"
+    ],
+    "baseServings": 2,
+    "protein": 27.0,
+    "fat": 8.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Lombos de Bacalhau",
+        "amount": "2 lombos",
+        "weightGrams": 300,
+        "calories": 246
+      },
+      {
+        "name": "Azeite Virgem Extra",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 135
+      },
+      {
+        "name": "Sumo de Limão",
+        "amount": "1 colher de sopa",
+        "weightGrams": 10,
+        "calories": 5
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 200°C e forre um tabuleiro com papel vegetal.",
+      "Disponha os lombos de bacalhau e regue com azeite e sumo de limão fresco.",
+      "Tempere com sal (se necessário), pimenta e endro ou salsa seca.",
+      "Asse por 12-15 minutos até lascar facilmente com um garfo."
+    ]
+  },
+  {
+    "title": "Salada Vegana de Edamame e Quinoa",
+    "description": "Um almoço vegano estaladiço e proteico com molho cremoso de amendoim. 🥗",
+    "time": "15 min",
+    "caloriesPerServing": 300,
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Vegano",
+      "Em movimento",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 15.0,
+    "fat": 10.0,
+    "carbs": 37.0,
+    "ingredients": [
+      {
+        "name": "Edamame Descascado",
+        "amount": "1 chávena",
+        "weightGrams": 150,
+        "calories": 180
+      },
+      {
+        "name": "Quinoa Cozida",
+        "amount": "1 chávena",
+        "weightGrams": 200,
+        "calories": 240
+      },
+      {
+        "name": "Couve Roxa Ripada",
+        "amount": "1 chávena",
+        "weightGrams": 100,
+        "calories": 30
+      },
+      {
+        "name": "Molho de Amendoim",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 150
+      }
+    ],
+    "directions": [
+      "Descongele o edamame se estiver congelado.",
+      "Numa taça grande, misture a quinoa cozida, o edamame e a couve roxa.",
+      "Regue com o molho de amendoim e envolva muito bem.",
+      "Sirva de imediato ou divida em marmitas frescas."
+    ]
+  },
+  {
+    "title": "Frango Cetogénico em Crosta de Parmesão",
+    "description": "Peitos de frango dourados e crocantes no forno, sem pão ralado. 🍗",
+    "time": "30 min",
+    "caloriesPerServing": 405,
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Cetogênico",
+      "Alta proteína",
+      "Cozimento"
+    ],
+    "baseServings": 2,
+    "protein": 42.0,
+    "fat": 25.0,
+    "carbs": 2.0,
+    "ingredients": [
+      {
+        "name": "Peito de Frango",
+        "amount": "2 médios",
+        "weightGrams": 300,
+        "calories": 495
+      },
+      {
+        "name": "Parmesão Ralado",
+        "amount": "1/3 chávena",
+        "weightGrams": 35,
+        "calories": 140
+      },
+      {
+        "name": "Maionese",
+        "amount": "1.5 colheres de sopa",
+        "weightGrams": 25,
+        "calories": 175
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 200°C.",
+      "Espalhe uma camada fina de maionese sobre cada peito de frango.",
+      "Pressione o queijo parmesão ralado sobre a maionese para aderir bem.",
+      "Leve ao forno por 25 minutos até o frango ficar cozinhado e o queijo dourado."
+    ]
+  },
+  {
+    "title": "Batido Tropical de Manga e Espinafres",
+    "description": "Um batido verde hidratante e vibrante com sabor tropical. 🥭",
+    "time": "5 min",
+    "caloriesPerServing": 197,
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Batido",
+      "Vegano",
+      "Em movimento",
+      "Poucos ingredientes"
+    ],
+    "baseServings": 1,
+    "protein": 6.0,
+    "fat": 7.0,
+    "carbs": 26.0,
+    "ingredients": [
+      {
+        "name": "Manga Congelada em Cubos",
+        "amount": "3/4 chávena",
+        "weightGrams": 100,
+        "calories": 60
+      },
+      {
+        "name": "Espinafres Frescos",
+        "amount": "1 mão cheia",
+        "weightGrams": 50,
+        "calories": 12
+      },
+      {
+        "name": "Água de Coco",
+        "amount": "1 chávena",
+        "weightGrams": 200,
+        "calories": 40
+      },
+      {
+        "name": "Sementes de Cânhamo",
+        "amount": "1.5 colheres de sopa",
+        "weightGrams": 15,
+        "calories": 85
+      }
+    ],
+    "directions": [
+      "Coloque os espinafres e a água de coco no liquidificador.",
+      "Triture bem até não restarem pedaços verdes visíveis.",
+      "Adicione a manga congelada e as sementes de cânhamo.",
+      "Bata na potência máxima até obter uma textura cremosa."
+    ]
+  },
+  {
+    "title": "Pimentos Recheados com Carne Picada",
+    "description": "Um jantar clássico baixo em hidratos assado até os pimentos ficarem macios e doces. 🫑",
+    "time": "45 min",
+    "caloriesPerServing": 260,
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Baixo teor de carboidratos",
+      "Cozimento"
+    ],
+    "baseServings": 4,
+    "protein": 22.0,
+    "fat": 12.0,
+    "carbs": 16.0,
+    "ingredients": [
+      {
+        "name": "Carne de Vacas Picada Magra",
+        "amount": "400g",
+        "weightGrams": 400,
+        "calories": 850
+      },
+      {
+        "name": "Pimentos",
+        "amount": "4 médios",
+        "weightGrams": 400,
+        "calories": 80
+      },
+      {
+        "name": "Arroz de Couve-Flor",
+        "amount": "1.5 chávenas",
+        "weightGrams": 200,
+        "calories": 50
+      },
+      {
+        "name": "Molho de Tomate",
+        "amount": "1/2 chávena",
+        "weightGrams": 150,
+        "calories": 60
+      }
+    ],
+    "directions": [
+      "Pré-aqueça o forno a 190°C. Corte a tampa aos pimentos e retire as sementes.",
+      "Aloure a carne numa frigideira, junte o arroz de couve-flor e o molho de tomate e cozinhe 3 minutos.",
+      "Recheie os pimentos com a mistura e disponha-os num tabuleiro fundo.",
+      "Tape com folha de alumínio e asse 30 minutos; destape e asse mais 5 minutos."
+    ]
+  },
+  {
+    "title": "Vieiras Salteadas com Puré de Couve-Flor e Trufa",
+    "description": "Vieiras coradas até formarem crosta dourada sobre puré aveludado de açafrão e aroma de trufa negra. ✨",
+    "time": "30 min",
+    "caloriesPerServing": 403,
+    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 34.0,
+    "fat": 23.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Vieiras Grandes",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 333
+      },
+      {
+        "name": "Couve-Flor",
+        "amount": "400g",
+        "weightGrams": 400,
+        "calories": 100
+      },
+      {
+        "name": "Natas Frescas",
+        "amount": "3 colheres de sopa",
+        "weightGrams": 50,
+        "calories": 170
+      },
+      {
+        "name": "Manteiga",
+        "amount": "1.5 colheres de sopa",
+        "weightGrams": 20,
+        "calories": 143
+      },
+      {
+        "name": "Azeite de Trufa Negra",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 80
+      }
+    ],
+    "directions": [
+      "Coza a couve-flor a vapor até ficar bem tenra e triture com açafrão em infusão, natas e metade da manteiga até obter um puré sedoso.",
+      "Golpeie ligeiramente as vieiras e sele em frigideira bem quente por 90 segundos sem mexer até dourarem.",
+      "Vire, baixe o lume e regue com a restante manteiga e tomilho por 30 segundos.",
+      "Sirva o puré quente no centro do prato, disponha as vieiras e finalize com gotas de azeite trufado."
+    ]
+  },
+  {
+    "title": "Magret de Pato Sous-Vide com Redução de Cereja",
+    "description": "Peito de pato cozinhado com precisão, pele estaladiça e molho agridoce de cereja e vinagre balsâmico. 🦆",
+    "time": "90 min",
+    "caloriesPerServing": 520,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 35.5,
+    "fat": 32.0,
+    "carbs": 22.5,
+    "ingredients": [
+      {
+        "name": "Magret de Pato com Pele",
+        "amount": "2 peitos",
+        "weightGrams": 350,
+        "calories": 700
+      },
+      {
+        "name": "Aipo-Rábano",
+        "amount": "1 médio",
+        "weightGrams": 300,
+        "calories": 126
+      },
+      {
+        "name": "Cerejas sem Caroço",
+        "amount": "1/2 chávena",
+        "weightGrams": 100,
+        "calories": 50
+      },
+      {
+        "name": "Vinagre Balsâmico Envelhecido",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 26
+      },
+      {
+        "name": "Gordura de Pato",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 135
+      }
+    ],
+    "directions": [
+      "Faça cortes em xadrez na pele sem atingir a carne. Cozinhe a baixa temperatura a 54°C por 1,5 horas.",
+      "Corte cilindros de aipo-rábano, doure na gordura de pato e estufe suavemente em caldo até ficarem tenros.",
+      "Reduza as cerejas e o vinagre balsâmico até espessar e finalize com uma noz de manteiga fria.",
+      "Seque o pato e aloure com a pele virada para baixo em lume médio até ficar bem crocante; fatie e sirva."
+    ]
+  },
+  {
+    "title": "Carré de Borrego com Crosta de Ervas e Puré de Ervilha",
+    "description": "Carré de borrego envolvido em pistácio e ervas aromáticas sobre puré verde de ervilha e hortelã. 🥩",
+    "time": "45 min",
+    "caloriesPerServing": 687,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 49.5,
+    "fat": 45.0,
+    "carbs": 21.0,
+    "ingredients": [
+      {
+        "name": "Carré de Borrego",
+        "amount": "1 peça",
+        "weightGrams": 400,
+        "calories": 850
+      },
+      {
+        "name": "Ervilhas",
+        "amount": "1.5 chávenas",
+        "weightGrams": 200,
+        "calories": 160
+      },
+      {
+        "name": "Miolo de Pistácio e Ervas",
+        "amount": "3 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 170
+      },
+      {
+        "name": "Pontas de Espargos",
+        "amount": "1 chávena",
+        "weightGrams": 150,
+        "calories": 30
+      },
+      {
+        "name": "Azeite Virgem Extra",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 135
+      }
+    ],
+    "directions": [
+      "Branqueie as ervilhas em água a ferver e passe para água com gelo. Triture com hortelã fresca até ficar liso.",
+      "Sele o carré em frigideira bem quente, pincele com mostarda Dijon e passe pela mistura de pistácio e ervas.",
+      "Asse a 200°C por 12-14 minutos para ficar malpassado a médio e deixe repousar 10 minutos.",
+      "Salteie os espargos, espalhe o puré de ervilha no prato e sirva as costeletas fatiadas."
+    ]
+  },
+  {
+    "title": "Robalo Glaceado em Miso com Consommé de Shiitake",
+    "description": "Lombos de peixe branco marinados em miso doce, assados até caramelizar sobre caldo límpido de cogumelos. 🐟",
+    "time": "40 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 35.5,
+    "fat": 9.5,
+    "carbs": 13.0,
+    "ingredients": [
+      {
+        "name": "Lombos de Robalo Chileno",
+        "amount": "2 lombos",
+        "weightGrams": 350,
+        "calories": 340
+      },
+      {
+        "name": "Cogumelos Shiitake",
+        "amount": "2 chávenas",
+        "weightGrams": 150,
+        "calories": 50
+      },
+      {
+        "name": "Pasta de Miso Branco",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 60
+      },
+      {
+        "name": "Nabo Daikon",
+        "amount": "1 médio",
+        "weightGrams": 200,
+        "calories": 36
+      },
+      {
+        "name": "Óleo de Sésamo Tostado",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 90
+      }
+    ],
+    "directions": [
+      "Marine o peixe com miso branco, mirin e saquê por 24 horas e retire o excesso antes de cozinhar.",
+      "Ferva lentamente shiitake, alga kombu e aromáticos para um caldo límpido e saboroso, depois coe.",
+      "Corte o nabo daikon em tiras finas e escalde rapidamente no caldo quente.",
+      "Leve o peixe ao grelhador superior do forno até dourar e sirva com o consommé bem quente."
+    ]
+  },
+  {
+    "title": "Tártaro de Wagyu com Ovo de Codorniz e Alcaparras",
+    "description": "Lombo picado à faca envolvido em emulsão de mostarda e alcaparras, com gema de codorniz e crocante de linhaça. 🥩",
+    "time": "20 min",
+    "caloriesPerServing": 488,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Alta proteína",
+      "Cetogênico",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 29.5,
+    "fat": 38.0,
+    "carbs": 7.0,
+    "ingredients": [
+      {
+        "name": "Lombo Wagyu Magro",
+        "amount": "250g",
+        "weightGrams": 250,
+        "calories": 600
+      },
+      {
+        "name": "Ovos de Codorniz",
+        "amount": "2 gemas",
+        "weightGrams": 18,
+        "calories": 28
+      },
+      {
+        "name": "Alcaparras em Salmoura",
+        "amount": "1.5 colheres de sopa",
+        "weightGrams": 20,
+        "calories": 5
+      },
+      {
+        "name": "Linhaça Moída",
+        "amount": "1/4 chávena",
+        "weightGrams": 40,
+        "calories": 210
+      },
+      {
+        "name": "Emulsão de Dijon e Azeite",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 120
+      }
+    ],
+    "directions": [
+      "Misture linhaça moída com água, espalhe finamente e desidrate no forno até formar uma telha crocante.",
+      "Pique a carne à faca em cubinhos finos de 3 mm mantendo tudo bem refrigerado.",
+      "Envolva suavemente sobre banho de gelo com chalota, cebolinho, alcaparras e emulsão de mostarda.",
+      "Molde em aro, coloque a gema de codorniz no centro e sirva com a telha de linhaça."
+    ]
+  },
+  {
+    "title": "Cauda de Lavagante na Manteiga com Risoto de Açafrão",
+    "description": "Lavagante cozinhado suavemente em manteiga emulsionada sobre risoto al dente de açafrão. 🦞",
+    "time": "45 min",
+    "caloriesPerServing": 525,
+    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína"
+    ],
+    "baseServings": 2,
+    "protein": 36.5,
+    "fat": 20.5,
+    "carbs": 48.5,
+    "ingredients": [
+      {
+        "name": "Caudas de Lavagante",
+        "amount": "2 médias",
+        "weightGrams": 300,
+        "calories": 270
+      },
+      {
+        "name": "Arroz Arbório",
+        "amount": "3/4 chávena",
+        "weightGrams": 120,
+        "calories": 420
+      },
+      {
+        "name": "Manteiga",
+        "amount": "3 colheres de sopa",
+        "weightGrams": 40,
+        "calories": 285
+      },
+      {
+        "name": "Parmesão Ralado",
+        "amount": "1/4 chávena",
+        "weightGrams": 20,
+        "calories": 80
+      },
+      {
+        "name": "Açafrão e Vinho Branco",
+        "amount": "1/4 chávena",
+        "weightGrams": 50,
+        "calories": 40
+      }
+    ],
+    "directions": [
+      "Emulsione manteiga fria em uma colher de água a ferver mantendo a temperatura suave perto dos 65°C.",
+      "Retire a carne das cascas e cozinhe na manteiga por 6-8 minutos até ficar tenra.",
+      "Refogue ligeiramente o arroz, refresque com vinho branco e açafrão e junte caldo quente aos poucos.",
+      "Finalize o risoto fora do lume com parmesão e manteiga fria e sirva com o lavagante fatiado."
+    ]
+  },
+  {
+    "title": "Lombo de Veado com Molho de Amoras e Zimbro",
+    "description": "Carne de caça magra selada ao ponto malpassado com redução brilhante de amoras silvestres e zimbro. 🌲",
+    "time": "45 min",
+    "caloriesPerServing": 407,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 60.5,
+    "fat": 13.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Lombo de Veado",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 530
+      },
+      {
+        "name": "Bimi (Brócolos Tenros)",
+        "amount": "1 molho",
+        "weightGrams": 200,
+        "calories": 70
+      },
+      {
+        "name": "Amoras Frescas",
+        "amount": "3/4 chávena",
+        "weightGrams": 100,
+        "calories": 43
+      },
+      {
+        "name": "Caldo Demi-Glace de Vitela",
+        "amount": "1/3 chávena",
+        "weightGrams": 100,
+        "calories": 40
+      },
+      {
+        "name": "Azeite",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 135
+      }
+    ],
+    "directions": [
+      "Esfregue bagas de zimbro esmagadas no lombo e sele em frigideira bem quente até ficar malpassado; deixe repousar.",
+      "Na mesma frigideira, refresque com um pouco de vinho tinto, junte as amoras e o caldo até reduzir em molho brilhante.",
+      "Escalde os brócolos e toste rapidamente numa grelha quente.",
+      "Corte o veado em medalhões e sirva sobre o molho de amoras com os brócolos grelhados."
+    ]
+  },
+  {
+    "title": "Alabote em Crosta de Macadâmia com Molho de Erva-Príncipe",
+    "description": "Peixe branco com crosta dourada de noz de macadâmia sobre molho aveludado de coco e erva-príncipe. 🥥",
+    "time": "35 min",
+    "caloriesPerServing": 455,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 42.5,
+    "fat": 29.5,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Lombos de Alabote",
+        "amount": "2 lombos grossos",
+        "weightGrams": 350,
+        "calories": 385
+      },
+      {
+        "name": "Nozes de Macadâmia Picadas",
+        "amount": "1/4 chávena",
+        "weightGrams": 40,
+        "calories": 285
+      },
+      {
+        "name": "Leite de Coco",
+        "amount": "1/3 chávena",
+        "weightGrams": 100,
+        "calories": 230
+      },
+      {
+        "name": "Erva-Príncipe e Gengibre",
+        "amount": "2 colheres de sopa picados",
+        "weightGrams": 30,
+        "calories": 10
+      }
+    ],
+    "directions": [
+      "Pique as macadâmias em migalha grossa e pressione sobre o topo dos lombos ligeiramente pincelados.",
+      "Doure o lado da crosta numa frigideira antiaderente e termine no forno a 180°C.",
+      "Infusione erva-príncipe e gengibre no leite de coco com caldo de peixe, coe e crie espuma com varinha mágica.",
+      "Coloque o molho num prato fundo e disponha o alabote crocante ao centro."
+    ]
+  },
+  {
+    "title": "Cogumelos Silvestres Confit e Alho Negro em Pão Cetogénico",
+    "description": "Cogumelos cozinhados lentamente em azeite aromático com pasta de alho negro e ovo a baixa temperatura. 🍳",
+    "time": "40 min",
+    "caloriesPerServing": 426,
+    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Café da manhã",
+      "Vegetariano",
+      "Baixo teor de carboidratos",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 15.5,
+    "fat": 35.5,
+    "carbs": 11.0,
+    "ingredients": [
+      {
+        "name": "Cogumelos Silvestres",
+        "amount": "2.5 chávenas",
+        "weightGrams": 250,
+        "calories": 55
+      },
+      {
+        "name": "Azeite Virgem Extra",
+        "amount": "3 colheres de sopa",
+        "weightGrams": 40,
+        "calories": 350
+      },
+      {
+        "name": "Pão Keto de Amêndoa",
+        "amount": "2 fatias grossas",
+        "weightGrams": 100,
+        "calories": 260
+      },
+      {
+        "name": "Pasta de Alho Negro",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 25
+      },
+      {
+        "name": "Ovos Frescos",
+        "amount": "2 grandes",
+        "weightGrams": 100,
+        "calories": 140
+      }
+    ],
+    "directions": [
+      "Limpe os cogumelos com pincel e cozinhe suavemente submersos em azeite com alecrim e alho a 85°C por 45 minutos.",
+      "Cozinhe os ovos a 63°C durante 45 minutos (ou escalfados) para obter gema cremosa.",
+      "Toste o pão numa frigideira seca e barre generosamente com pasta de alho negro.",
+      "Disponha os cogumelos escorridos sobre a tosta, coloque o ovo por cima e tempere com flor de sal."
+    ]
+  },
+  {
+    "title": "Atum Braseado com Pérolas de Yuzu e Puré de Edamame",
+    "description": "Atum fresco apenas selado por fora, servido com puré verde de edamame e notas cítricas de yuzu-ponzu. 🍣",
+    "time": "25 min",
+    "caloriesPerServing": 317,
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 45.5,
+    "fat": 10.5,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Atum Fresco para Sashimi",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 325
+      },
+      {
+        "name": "Edamame Descascado",
+        "amount": "1 chávena",
+        "weightGrams": 150,
+        "calories": 180
+      },
+      {
+        "name": "Molho Yuzu-Ponzu",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 25
+      },
+      {
+        "name": "Óleo de Abacate",
+        "amount": "2 colheres de chá",
+        "weightGrams": 10,
+        "calories": 90
+      },
+      {
+        "name": "Coentros e Rabanete",
+        "amount": "1 mão cheia",
+        "weightGrams": 20,
+        "calories": 5
+      }
+    ],
+    "directions": [
+      "Coza o edamame em água salgada e triture com um pouco de caldo dashi até ficar bem liso; passe por coador fino.",
+      "Reserve o molho yuzu-ponzu bem fresco para finalizar.",
+      "Passe o lombo de atum por sésamo preto e sele 10 segundos de cada lado em frigideira fumegante.",
+      "Corte em fatias grossas, disponha sobre o puré de edamame e finalize com yuzu-ponzu e rabanete."
+    ]
+  },
+  {
+    "title": "Salmão Dourado na Manteiga com Velouté de Tupinambo e Caviar",
+    "description": "Salmão suculento regado em manteiga sobre creme sedoso de tupinambo com caviar negro. 🐟",
+    "time": "40 min",
+    "caloriesPerServing": 430,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 32.0,
+    "fat": 30.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Lombo de Salmão",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 600
+      },
+      {
+        "name": "Tupinambos",
+        "amount": "150g",
+        "weightGrams": 150,
+        "calories": 110
+      },
+      {
+        "name": "Manteiga",
+        "amount": "1.5 colheres de sopa",
+        "weightGrams": 15,
+        "calories": 100
+      },
+      {
+        "name": "Caviar Ossetra",
+        "amount": "10g",
+        "weightGrams": 10,
+        "calories": 30
+      },
+      {
+        "name": "Natas Frescas",
+        "amount": "1 colher de sopa",
+        "weightGrams": 10,
+        "calories": 35
+      }
+    ],
+    "directions": [
+      "Salteie os tupinambos em cubos sem ganhar cor, coza em caldo e triture com natas até ficar aveludado.",
+      "Golpeie a pele do salmão e cozinhe em lume médio-baixo do lado da pele por 8-10 minutos até estalar.",
+      "Vire rapidamente, apague o lume e regue com manteiga espumante e tomilho.",
+      "Sirva o creme no prato fundo, coloque o salmão com a pele para cima e decore com caviar e endro."
+    ]
+  },
+  {
+    "title": "Lombo de Vitela Sous-Vide com Jus de Alho Negro",
+    "description": "Lombo de vitela extremamente tenro cozinhado a baixa temperatura com redução de alho negro e espargos. 🥩",
+    "time": "90 min",
+    "caloriesPerServing": 328,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 12.0,
+    "carbs": 10.0,
+    "ingredients": [
+      {
+        "name": "Lombo de Vitela",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 385
+      },
+      {
+        "name": "Espargos Verdes",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 40
+      },
+      {
+        "name": "Caldo Demi-Glace de Vitela",
+        "amount": "1/4 chávena",
+        "weightGrams": 50,
+        "calories": 45
+      },
+      {
+        "name": "Alho Negro Fermentado",
+        "amount": "3 dentes",
+        "weightGrams": 15,
+        "calories": 40
+      },
+      {
+        "name": "Óleo de Grainha de Uva",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 135
+      }
+    ],
+    "directions": [
+      "Limpe o lombo, sele a vácuo com ervas e cozinhe a 56°C por 1 hora.",
+      "Triture o alho negro no caldo demi-glace e reduza até ficar brilhante.",
+      "Seque a carne e sele 30 segundos de cada lado em frigideira muito quente, depois deixe repousar.",
+      "Grelhe os espargos, fatie a vitela em medalhões e regue com o molho de alho negro."
+    ]
+  },
+  {
+    "title": "Lagostim Escalfado em Emulsão de Erva-Príncipe e Daikon",
+    "description": "Caudas de lagostim cozinhadas em manteiga clarificada sobre nabo daikon estufado e espuma de coco. 🦐",
+    "time": "45 min",
+    "caloriesPerServing": 280,
+    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 28.0,
+    "fat": 16.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Caudas de Lagostim Cruas",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 260
+      },
+      {
+        "name": "Leite de Coco Gordo",
+        "amount": "3 colheres de sopa",
+        "weightGrams": 50,
+        "calories": 115
+      },
+      {
+        "name": "Nabo Daikon",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 36
+      },
+      {
+        "name": "Manteiga Clarificada (Ghee)",
+        "amount": "1 colher de sopa",
+        "weightGrams": 15,
+        "calories": 135
+      },
+      {
+        "name": "Erva-Príncipe e Gengibre",
+        "amount": "2 colheres de sopa picados",
+        "weightGrams": 20,
+        "calories": 10
+      }
+    ],
+    "directions": [
+      "Corte o nabo daikon em cilindros uniformes e estufe lentamente em caldo até ficar tenro mas firme.",
+      "Infusione erva-príncipe e gengibre no leite de coco, coe e emulsione em espuma leve.",
+      "Aqueça a manteiga clarificada a 60°C e escalfe os lagostins por 3-4 minutos sem passar do ponto.",
+      "Disponha os cilindros de daikon, o lagostim por cima e cubra à volta com a emulsão aromática."
+    ]
+  },
+  {
+    "title": "Pregado Assado com Espargos Brancos e Molho de Champanhe",
+    "description": "Pregado corado em frigideira acompanhado de espargos brancos e molho clássico de manteiga e champanhe. 🥂",
+    "time": "40 min",
+    "caloriesPerServing": 355,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 35.0,
+    "fat": 22.0,
+    "carbs": 4.0,
+    "ingredients": [
+      {
+        "name": "Lombo de Pregado",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 330
+      },
+      {
+        "name": "Espargos Brancos",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 40
+      },
+      {
+        "name": "Champanhe Brut",
+        "amount": "1/4 chávena",
+        "weightGrams": 50,
+        "calories": 40
+      },
+      {
+        "name": "Manteiga sem Sal Fria",
+        "amount": "40g",
+        "weightGrams": 40,
+        "calories": 285
+      },
+      {
+        "name": "Chalota Picada",
+        "amount": "1 colher de sopa",
+        "weightGrams": 20,
+        "calories": 15
+      }
+    ],
+    "directions": [
+      "Descasque cuidadosamente os espargos brancos da ponta até à base e coza em água com sal e gotas de limão.",
+      "Reduza champanhe, vinagre e chalota quase até secar; fora do lume, monte aos cubos com manteiga bem fria.",
+      "Sele o pregado numa frigideira com fio de óleo até formar crosta dourada e termine regando com os sucos.",
+      "Disponha os espargos brancos, coloque o peixe ao lado e sirva com o molho beurre blanc."
+    ]
+  },
+  {
+    "title": "Peixe-Carvão Curado em Miso com Caldo Dashi e Cogumelos",
+    "description": "Peixe untuoso marinado em miso branco doce, caramelizado no forno e servido em caldo dashi quente. 🍄",
+    "time": "30 min",
+    "caloriesPerServing": 377,
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 25.0,
+    "carbs": 8.0,
+    "ingredients": [
+      {
+        "name": "Lombo de Peixe-Carvão (Black Cod)",
+        "amount": "300g",
+        "weightGrams": 300,
+        "calories": 580
+      },
+      {
+        "name": "Miso Branco Doce",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 60
+      },
+      {
+        "name": "Caldo Dashi Kombu",
+        "amount": "1 chávena",
+        "weightGrams": 200,
+        "calories": 10
+      },
+      {
+        "name": "Cogumelos Shimeji",
+        "amount": "100g",
+        "weightGrams": 100,
+        "calories": 15
+      },
+      {
+        "name": "Mirin e Saquê",
+        "amount": "1.5 colheres de sopa",
+        "weightGrams": 20,
+        "calories": 80
+      }
+    ],
+    "directions": [
+      "Misture miso branco, mirin e saquê, envolva os lombos e deixe curar no frio por 24-48 horas.",
+      "Limpe o excesso de marinada e leve ao grelhador superior até caramelizar a superfície.",
+      "Aqueça o caldo dashi com os cogumelos shimeji até amolecerem sem ferver.",
+      "Coloque o peixe numa tigela funda e verta o caldo dashi fumegante à mesa."
+    ]
+  },
+  {
+    "title": "Secretos de Porco Ibérico com Molho Romesco e Alho-Francês",
+    "description": "Corte marmoreado de porco preto ibérico combinado com molho Romesco fumado de amêndoa e alho-francês assado. 🥩",
+    "time": "35 min",
+    "caloriesPerServing": 518,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 38.0,
+    "fat": 38.0,
+    "carbs": 6.0,
+    "ingredients": [
+      {
+        "name": "Secretos de Porco Ibérico",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 750
+      },
+      {
+        "name": "Pimento Vermelho Assado",
+        "amount": "100g",
+        "weightGrams": 100,
+        "calories": 30
+      },
+      {
+        "name": "Amêndoas Torradas",
+        "amount": "20g",
+        "weightGrams": 20,
+        "calories": 140
+      },
+      {
+        "name": "Azeite Virgem Extra",
+        "amount": "1 colher de sopa",
+        "weightGrams": 10,
+        "calories": 90
+      },
+      {
+        "name": "Alho-Francês Jovem",
+        "amount": "100g",
+        "weightGrams": 100,
+        "calories": 30
+      }
+    ],
+    "directions": [
+      "Triture o pimento assado com amêndoas, vinagre de xerez, pimentão fumado e azeite para preparar o Romesco.",
+      "Grelhe o alho-francês inteiro em chapa seca bem quente até chamuscar por fora e retire a camada exterior.",
+      "Tempere os secretos com flor de sal e grelhe em frigideira seca aproveitando a gordura natural até dourar bem.",
+      "Espalhe o molho Romesco no prato, fatie a carne contra a fibra e sirva sobre o alho-francês."
+    ]
+  },
+  {
+    "title": "Lombo de Avestruz com Redução de Amora e Puré de Pastinaga",
+    "description": "Carne vermelha ultra-magra selada rapidamente, servida com redução agridoce de amoras e puré sedoso. 🍖",
+    "time": "45 min",
+    "caloriesPerServing": 312,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 45.0,
+    "fat": 8.0,
+    "carbs": 15.0,
+    "ingredients": [
+      {
+        "name": "Lombo de Avestruz",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 385
+      },
+      {
+        "name": "Pastinagas",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 150
+      },
+      {
+        "name": "Amoras Frescas",
+        "amount": "1/2 chávena",
+        "weightGrams": 50,
+        "calories": 22
+      },
+      {
+        "name": "Caldo Demi-Glace",
+        "amount": "1/4 chávena",
+        "weightGrams": 50,
+        "calories": 20
+      },
+      {
+        "name": "Azeite",
+        "amount": "1 colher de chá",
+        "weightGrams": 5,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Coza as pastinagas descascadas até ficarem tenras e triture em puré bem liso com um pouco de líquido da cozedura.",
+      "Deixe reduzir vinagre de vinho tinto com amoras esmagadas e demi-glace até ganhar ponto de xarope.",
+      "Sele o lombo de avestruz em lume muito forte rapidamente para servir malpassado; deixe repousar 10 minutos.",
+      "Disponha o puré no prato, fatie o lombo em medalhões e regue com a redução de amora."
+    ]
+  },
+  {
+    "title": "Codornizes Confitadas com Sementes de Mostarda e Endívia",
+    "description": "Codornizes cozinhadas lentamente na própria gordura para máxima maciez, contrastadas por endívia caramelizada. 🪶",
+    "time": "120 min",
+    "caloriesPerServing": 370,
+    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "isFavorite": false,
+    "tags": [
+      "Almoço",
+      "Alta proteína",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 30.0,
+    "fat": 26.0,
+    "carbs": 4.0,
+    "ingredients": [
+      {
+        "name": "Codornizes",
+        "amount": "2 unidades",
+        "weightGrams": 300,
+        "calories": 400
+      },
+      {
+        "name": "Gordura de Pato (residual)",
+        "amount": "2 colheres de sopa",
+        "weightGrams": 30,
+        "calories": 270
+      },
+      {
+        "name": "Endívia Belga",
+        "amount": "2 cabeças",
+        "weightGrams": 150,
+        "calories": 25
+      },
+      {
+        "name": "Sementes de Mostarda Amarela",
+        "amount": "1 colher de sopa",
+        "weightGrams": 10,
+        "calories": 45
+      }
+    ],
+    "directions": [
+      "Branqueie as sementes de mostarda três vezes para retirar o amargor e cozinhe em salmoura suave de vinagre.",
+      "Tempere as codornizes com sal e tomilho, cubra em gordura derretida e cozinhe lentamente a 90°C por 2 horas.",
+      "Corte as endívias ao meio e caramelize o lado do corte numa frigideira seca.",
+      "Doure rapidamente a pele das codornizes para estalar e sirva com a endívia e as sementes de mostarda."
+    ]
+  },
+  {
+    "title": "Alabote Escalfado em Azeite com Caldo de Funcho e Açafrão",
+    "description": "Lombo branco cozinhado suavemente em azeite virgem extra e servido num caldo perfumado com açafrão e salicórnia. 🐟",
+    "time": "45 min",
+    "caloriesPerServing": 334,
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos",
+      "Cetogênico"
+    ],
+    "baseServings": 2,
+    "protein": 38.0,
+    "fat": 18.0,
+    "carbs": 5.0,
+    "ingredients": [
+      {
+        "name": "Lombo de Alabote",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 385
+      },
+      {
+        "name": "Bolbo de Funcho",
+        "amount": "1/2 médio",
+        "weightGrams": 150,
+        "calories": 47
+      },
+      {
+        "name": "Azeite Virgem Extra",
+        "amount": "Volume absorvido",
+        "weightGrams": 20,
+        "calories": 180
+      },
+      {
+        "name": "Caldo de Peixe com Açafrão",
+        "amount": "1/2 chávena",
+        "weightGrams": 100,
+        "calories": 10
+      },
+      {
+        "name": "Salicórnia",
+        "amount": "1 mão cheia",
+        "weightGrams": 50,
+        "calories": 20
+      }
+    ],
+    "directions": [
+      "Lamine o funcho finamente e coza as aparas com caldo de peixe e açafrão; coe para um caldo dourado.",
+      "Aqueça azeite virgem extra a exatos 55°C, submerja o peixe temperado e cozinhe 15-20 minutos até lascar.",
+      "Escalde a salicórnia por 30 segundos em água sem sal e arrefeça em água com gelo.",
+      "Retire o peixe com cuidado, escorra e sirva com o funcho laminado, a salicórnia e o caldo quente."
+    ]
+  },
+  {
+    "title": "Medalhões de Alce com Redução de Vinho do Porto e Aipo-Rábano",
+    "description": "Lombo selvagem selado rapidamente com redução brilhante de Porto Ruby e zimbro sobre aipo-rábano fundente. 🦌",
+    "time": "50 min",
+    "caloriesPerServing": 321,
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "isFavorite": false,
+    "tags": [
+      "Jantar",
+      "Alta proteína",
+      "Baixo teor de carboidratos"
+    ],
+    "baseServings": 2,
+    "protein": 48.0,
+    "fat": 9.0,
+    "carbs": 12.0,
+    "ingredients": [
+      {
+        "name": "Lombo de Alce (ou Veado)",
+        "amount": "350g",
+        "weightGrams": 350,
+        "calories": 390
+      },
+      {
+        "name": "Aipo-Rábano",
+        "amount": "200g",
+        "weightGrams": 200,
+        "calories": 84
+      },
+      {
+        "name": "Vinho do Porto Ruby",
+        "amount": "1/4 chávena",
+        "weightGrams": 50,
+        "calories": 70
+      },
+      {
+        "name": "Manteiga Fria sem Sal",
+        "amount": "1 colher de sopa",
+        "weightGrams": 10,
+        "calories": 70
+      },
+      {
+        "name": "Bagas de Zimbro Esmagadas",
+        "amount": "1 colher de chá",
+        "weightGrams": 5,
+        "calories": 15
+      }
+    ],
+    "directions": [
+      "Corte o aipo-rábano em discos altos, doure bem um lado e estufe com caldo tapado até ficar muito tenro.",
+      "Toste o zimbro, refresque com Vinho do Porto, reduza a um terço e ligue fora do lume com manteiga fria.",
+      "Sele os medalhões em ferro fundido bem quente por apenas 2 minutos de cada lado para servir malpassado; deixe repousar.",
+      "Fatie contra a fibra, disponha sobre os discos de aipo-rábano e regue com a redução do Porto."
     ]
   }
 ]

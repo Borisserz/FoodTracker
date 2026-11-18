@@ -34,7 +34,6 @@
 		AC5031B92FD8191600C2DD0A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B82FD8191600C2DD0A /* FirebaseAppCheck */; };
 		AC5031BC2FD81A1800C2DD0A /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031BB2FD81A1800C2DD0A /* GoogleSignIn */; };
 		AC5031BE2FD81A1800C2DD0A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031BD2FD81A1800C2DD0A /* GoogleSignInSwift */; };
-		AC6A96632F8FF42600905EA9 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = AC6A96622F8FF42600905EA9 /* SwiftJWT */; };
 		AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */; };
 		AC91A0022FD9000100C2DD0A /* OnboardingKit in Frameworks */ = {isa = PBXBuildFile; productRef = AC91A0012FD9000100C2DD0A /* OnboardingKit */; };
 		ACF45AA92F9E4A4C00206681 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AA82F9E4A4C00206681 /* FirebaseAnalytics */; };
@@ -182,7 +181,6 @@
 				ACF45AA92F9E4A4C00206681 /* FirebaseAnalytics in Frameworks */,
 				AC5031BC2FD81A1800C2DD0A /* GoogleSignIn in Frameworks */,
 				AC5031B52FD818F600C2DD0A /* FirebaseAuth in Frameworks */,
-				AC6A96632F8FF42600905EA9 /* SwiftJWT in Frameworks */,
 				AC5031B72FD818FC00C2DD0A /* FirebaseCrashlytics in Frameworks */,
 				AC5031B92FD8191600C2DD0A /* FirebaseAppCheck in Frameworks */,
 				ACF45AAB2F9E4A4C00206681 /* FirebaseFirestore in Frameworks */,
@@ -385,7 +383,6 @@
 			);
 			name = FoodTracker;
 			packageProductDependencies = (
-				AC6A96622F8FF42600905EA9 /* SwiftJWT */,
 				ACF45AA82F9E4A4C00206681 /* FirebaseAnalytics */,
 				ACF45AAA2F9E4A4C00206681 /* FirebaseFirestore */,
 				ACF45AAC2F9E4A4C00206681 /* FirebaseRemoteConfig */,
@@ -449,7 +446,6 @@
 			mainGroup = ACD93EF62F8AC7E200868265;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AC6A96612F8FF42600905EA9 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 				ACF45AA72F9E4A4B00206681 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				AC5031BA2FD81A1800C2DD0A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				AC91A0002FD9000100C2DD0A /* XCRemoteSwiftPackageReference "OnboardingKit" */,
@@ -1022,14 +1018,6 @@
 				minimumVersion = 9.1.0;
 			};
 		};
-		AC6A96612F8FF42600905EA9 /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Kitura/Swift-JWT.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.2;
-			};
-		};
 		AC91A0002FD9000100C2DD0A /* XCRemoteSwiftPackageReference "OnboardingKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/danielsaidi/OnboardingKit.git";
@@ -1073,11 +1061,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AC5031BA2FD81A1800C2DD0A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
-		};
-		AC6A96622F8FF42600905EA9 /* SwiftJWT */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AC6A96612F8FF42600905EA9 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
-			productName = SwiftJWT;
 		};
 		AC91A0012FD9000100C2DD0A /* OnboardingKit */ = {
 			isa = XCSwiftPackageProductDependency;

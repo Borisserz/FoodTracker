@@ -40,11 +40,10 @@ struct WidgetPremiumBackground: View {
     }
 }
 
-// MARK: - Hydration Interactive Widget
-struct HydrationWidgetView: View {
-    var entry: FoodTrackerEntry
+private enum WidgetUnitPreferences {
+    static let fluidOuncesPerLiter = 33.8140227
 
-    private var useMetricSystem: Bool {
+    static var useMetricSystem: Bool {
         let defaults = UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)
         if defaults?.object(forKey: "useMetricSystem") != nil {
             return defaults?.bool(forKey: "useMetricSystem") ?? true
@@ -52,11 +51,22 @@ struct HydrationWidgetView: View {
         return true
     }
 
+    static func displayFluid(_ liters: Double, useMetric: Bool) -> Double {
+        useMetric ? liters : liters * fluidOuncesPerLiter
+    }
+}
+
+// MARK: - Hydration Interactive Widget
+struct HydrationWidgetView: View {
+    var entry: FoodTrackerEntry
+
+    private var useMetricSystem: Bool { WidgetUnitPreferences.useMetricSystem }
+
     private var hydrationText: String {
         if useMetricSystem {
             return String(format: "%.1f L", entry.hydrationLiters)
         } else {
-            return String(format: "%.0f fl oz", entry.hydrationLiters * 33.8140227)
+            return String(format: "%.0f fl oz", WidgetUnitPreferences.displayFluid(entry.hydrationLiters, useMetric: false))
         }
     }
 
@@ -260,9 +270,19 @@ struct MetabolicScoreWidgetView: View {
                             Text("\(entry.totalCalories) / \(entry.calorieGoal) kcal")
                                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                                 .foregroundColor(.secondary)
-                            Text(String(format: String(localized: "%.2f / %.1f L hydration"), entry.hydrationLiters, entry.hydrationGoalLiters))
+                            if WidgetUnitPreferences.useMetricSystem {
+                                Text(String(format: String(localized: "%.2f / %.1f L hydration"), entry.hydrationLiters, entry.hydrationGoalLiters))
+                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text(String(
+                                    format: String(localized: "%.0f / %.0f fl oz hydration"),
+                                    WidgetUnitPreferences.displayFluid(entry.hydrationLiters, useMetric: false),
+                                    WidgetUnitPreferences.displayFluid(entry.hydrationGoalLiters, useMetric: false)
+                                ))
                                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                                 .foregroundColor(.secondary)
+                            }
                         }
                     }
                     Spacer(minLength: 0)

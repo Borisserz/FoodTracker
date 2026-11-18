@@ -28,6 +28,10 @@ struct Article: Identifiable, Codable, Hashable {
 
 @Observable
 class AcademyDataLoader {
+    static let shared = AcademyDataLoader()
+    private static let cacheLock = NSLock()
+    private static var bundledCache: [String: [ArticleCategory]] = [:]
+
     var categories: [ArticleCategory] = []
     var completedArticleIDs: Set<String> = []
     
@@ -57,12 +61,18 @@ class AcademyDataLoader {
             resourceName = "academy"
         }
 
+        if let cached = cacheLock.withLock({ bundledCache[resourceName] }) {
+            return cached
+        }
+
         for candidate in [resourceName, "academy"] {
             if let url = Bundle.main.url(forResource: candidate, withExtension: "json"),
                let data = try? Data(contentsOf: url),
                let decoded = try? JSONDecoder().decode([BundledArticleCategory].self, from: data),
                !decoded.isEmpty {
-                return decoded.map { $0.toArticleCategory() }
+                let mapped = decoded.map { $0.toArticleCategory() }
+                cacheLock.withLock { bundledCache[resourceName] = mapped }
+                return mapped
             }
         }
         return []

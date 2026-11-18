@@ -4,6 +4,7 @@ import SwiftData
 struct WaterGridTrackerView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     @Bindable var summary: DailySummary
 
@@ -47,16 +48,17 @@ struct WaterGridTrackerView: View {
                         .foregroundColor(.primary)
 
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("\(waterLiters, specifier: "%.2f")")
+                        let displayedWater = NutritionMath.displayFluid(waterLiters, useMetric: useMetricSystem)
+                        Text(useMetricSystem ? String(format: "%.2f", displayedWater) : String(format: "%.0f", displayedWater))
                             .font(.system(size: 38, weight: .heavy, design: .rounded))
                             .foregroundColor(isGoalReached ? .blue : .cyan)
                             .contentTransition(.numericText(value: waterLiters))
 
-                        Text("L")
+                        Text(NutritionMath.fluidShortUnit(useMetric: useMetricSystem))
                             .font(.title2.bold())
                             .foregroundColor(isGoalReached ? .blue : .cyan)
 
-                        Text("/ \(dailyGoalLiters, specifier: "%.2f") L")
+                        Text("/ \(NutritionMath.formattedHydration(liters: dailyGoalLiters, useMetric: useMetricSystem))")
                             .font(.subheadline)
                             .foregroundColor(.gray.opacity(0.8))
                             .fontWeight(.medium)
@@ -92,10 +94,10 @@ struct WaterGridTrackerView: View {
             }
 
             HStack(spacing: 12) {
-                WaterPresetButton(icon: "drop.fill", title: "Glass", volume: "+250 ml") {
+                WaterPresetButton(icon: "drop.fill", title: "Glass", volume: useMetricSystem ? "+250 ml" : "+8 fl oz") {
                     addWater(ml: 250)
                 }
-                WaterPresetButton(icon: "waterbottle.fill", title: "Bottle", volume: "+500 ml") {
+                WaterPresetButton(icon: "waterbottle.fill", title: "Bottle", volume: useMetricSystem ? "+500 ml" : "+17 fl oz") {
                     addWater(ml: 500)
                 }
             }

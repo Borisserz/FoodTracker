@@ -7,6 +7,7 @@ struct MoreTabView: View {
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
     @Query(sort: \WeightLog.date, order: .forward) private var weightLogs: [WeightLog]
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     @State private var appearedItems: Set<Int> = []
 
@@ -89,7 +90,7 @@ struct MoreTabView: View {
                 title: "Goals & Progress",
                 subtitle: weightLogs.isEmpty
                     ? "Set your weight goal"
-                    : String(format: "Current: %.1f kg", currentWeight),
+                    : String(localized: "Current: \(NutritionMath.formattedWeight(currentWeight, useMetric: useMetricSystem))"),
                 icon: "target",
                 gradient: [.themePink, .themeOrange],
                 badge: nil,

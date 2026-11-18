@@ -20,7 +20,7 @@ struct FoodsDashboardView: View {
     @Environment(\.modelContext) private var context
     @State private var path = NavigationPath()
     @State private var dataLoader = RecipeDataLoader.shared
-    @State private var academyLoader = AcademyDataLoader()
+    @State private var academyLoader = AcademyDataLoader.shared
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
 
     @State private var selectedFilter: String = "All"

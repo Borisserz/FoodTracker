@@ -55,6 +55,13 @@ public struct SmartSearch {
         "it": [
             "patata": ["patatine"],
             "pollo": ["uccello"]
+        ],
+        "pt": [
+            "batata": ["batatas"],
+            "frango": ["ave", "galinha"],
+            "tomate": ["tomates"],
+            "feijao": ["feijoes"],
+            "carne": ["bife", "vaca", "novilho"]
         ]
     ]
     
@@ -129,8 +136,8 @@ public struct SmartSearch {
             }
             return word
             
-        case "fr", "es":
-            // French/Spanish: Plurals often end in 's', 'es', or 'x'
+        case "fr", "es", "pt":
+            // French/Spanish/Portuguese: Plurals often end in 's', 'es', or 'x'
             if word.hasSuffix("es") {
                 return String(word.dropLast(2))
             } else if word.hasSuffix("s") || word.hasSuffix("x") {

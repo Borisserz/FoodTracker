@@ -47,7 +47,7 @@
     "description": "Ein klassisches Grundnahrungsmittel für den Morgen, vollgestopft mit gesunden Fetten und magerem Protein, um Sie mit Energie zu versorgen. 🥑",
     "time": "10 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20scrambled%20eggs%20with%20avocado?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Frühstück",
@@ -92,7 +92,7 @@
     "description": "Reichhaltig, cremig und voller pflanzlicher Proteine. Schmeckt wie ein Dessert! 🍫",
     "time": "5 min",
     "caloriesPerServing": 414,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20peanut%20butter%20smoothie?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Smoothie",
@@ -142,7 +142,7 @@
     "description": "Flockiger, butterartiger Lachs gepaart mit knusprig geröstetem Spargel. Perfekt für ein Keto-Abendessen. 🐟",
     "time": "25 min",
     "caloriesPerServing": 409,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20salmon%20asparagus?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -193,7 +193,7 @@
     "description": "Eine perfekt ausgewogene Mittagsschüssel mit magerem Hühnchen, komplexen Kohlenhydraten und frischen Tomaten. 🥗",
     "time": "20 min",
     "caloriesPerServing": 419,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chicken%20quinoa%20bowl?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -242,7 +242,7 @@
     "description": "Ein leichtes, italienisch inspiriertes Abendessen, das Kohlenhydrate spart, ohne auf Geschmack zu verzichten. 🍝",
     "time": "30 min",
     "caloriesPerServing": 232,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20turkey%20meatballs%20zucchini%20noodles?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -291,7 +291,7 @@
     "description": "Ein schneller, süßer und proteinreicher Snack, der Ihren Heißhunger am Mittag zügelt. 🍓",
     "time": "5 min",
     "caloriesPerServing": 292,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20greek%20yogurt%20berry%20parfait?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -341,7 +341,7 @@
     "description": "Eine herzhafte, pflanzliche Ei-Alternative mit Spinat und entzündungshemmendem Kurkuma. 🌱",
     "time": "10 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20tofu%20scramble?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Frühstück",
@@ -391,7 +391,7 @@
     "description": "Ein kräftiges Abendessen zur Muskelregeneration. Zartes Steak und Knoblauchbutter-Brokkoli. 🥩",
     "time": "20 min",
     "caloriesPerServing": 508,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20keto%20steak%20and%20broccoli?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -441,7 +441,7 @@
     "description": "Warm, wohlig und schmeckt wie Apfelkuchen zum Frühstück. Reich an Ballaststoffen! 🍎",
     "time": "30 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20baked%20oats%20apple%20cinnamon?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Frühstück",
@@ -491,7 +491,7 @@
     "description": "Ein erfrischender, süßer und proteinreicher Snack, perfekt für die Erholung nach dem Training. 🍍",
     "time": "2 min",
     "caloriesPerServing": 261,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pineapple%20bowl?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -534,7 +534,7 @@
     "description": "Saftiges Hähnchen gefüllt mit herzhaftem Feta und Spinat. Sieht lecker aus, ist aber unglaublich einfach zuzubereiten! 🌿",
     "time": "35 min",
     "caloriesPerServing": 465,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spinach%20feta%20stuffed%20chicken?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -584,7 +584,7 @@
     "description": "Ein herzhafter, wärmender und ballaststoffreicher Eintopf auf pflanzlicher Basis, der sich perfekt für die Zubereitung von Mahlzeiten eignet. 🍲",
     "time": "45 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20vegan%20lentil%20vegetable%20stew?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -646,7 +646,7 @@
     "description": "Zähe, mehlfreie Kekse, perfekt für einen Energieschub vor dem Training oder einen süßen Snack. 🍪",
     "time": "15 min",
     "caloriesPerServing": 139,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20peanut%20butter%20banana%20oatmeal%20cookies?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -690,7 +690,7 @@
     "description": "Eine erfrischende Mischung aus Gemüse und Beeren, die den Spinatgeschmack vollständig überdeckt! 🫐",
     "time": "5 min",
     "caloriesPerServing": 247,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20green%20smoothie?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Smoothie",
@@ -745,7 +745,7 @@
     "description": "Knusprige, kühle Salatbecher, gefüllt mit pikanten, proteinreichen Garnelen und cremiger Avocado. 🍤",
     "time": "15 min",
     "caloriesPerServing": 269,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20spicy%20shrimp%20lettuce%20wraps?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -795,7 +795,7 @@
     "description": "Knusprige Paprika sind das perfekte kohlenhydratarme Gefäß für cremigen, reichhaltigen Eiersalat. 🫑",
     "time": "15 min",
     "caloriesPerServing": 274,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20egg%20salad%20stuffed%20peppers?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -845,7 +845,7 @@
     "description": "Ein lebendiger, würziger Salat auf Pflanzenbasis, der sich tagelang perfekt im Kühlschrank hält. 🌽",
     "time": "10 min",
     "caloriesPerServing": 220,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20black%20bean%20corn%20salad?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -901,7 +901,7 @@
     "description": "Brutzelnde, zarte Steakstreifen mit karamellisierten Zwiebeln und Paprika. Mir fehlt nur noch die Tortilla! 🥩",
     "time": "20 min",
     "caloriesPerServing": 358,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20steak%20fajita%20skillet?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -951,7 +951,7 @@
     "description": "Flauschige, goldene Pfannkuchen mit einer geheimen Zutat, die den Proteingehalt mühelos erhöht. 🥞",
     "time": "15 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20cottage%20cheese%20pancakes?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Frühstück",
@@ -995,7 +995,7 @@
     "description": "Ein herzhafter, salziger und sättigender pflanzlicher Snack voller Spurenelemente. 🥢",
     "time": "5 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20seaweed%20bowl?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -1039,7 +1039,7 @@
     "description": "Eine cremige, kohlenhydratarme Variante eines traditionellen Eiersalats mit nährstoffreicher Avocado anstelle von überschüssiger Mayonnaise. 🥑",
     "time": "10 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20avocado%20egg%20salad?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -1083,7 +1083,7 @@
     "description": "Ein duftendes, wärmendes Curry auf pflanzlicher Basis, das schnell zu einem gemütlichen Abendessen unter der Woche passt. 🥥",
     "time": "25 min",
     "caloriesPerServing": 210,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chickpea%20coconut%20curry?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -1133,7 +1133,7 @@
     "description": "Ein proteinreiches, nährstoffreiches Mittagessen voller komplexer Kohlenhydrate, das Ihnen Energie für den Tag gibt. 🍠",
     "time": "45 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20stuffed%20sweet%20potato%20ground%20turkey?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -1176,7 +1176,7 @@
     "description": "Ein Frühstück zum Mitnehmen voller Ballaststoffe und Omega-3-Fettsäuren, das sich über Nacht selbst zubereitet. 🍓",
     "time": "5 min",
     "caloriesPerServing": 180,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20berry%20chia%20seed%20pudding?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Frühstück",
@@ -1226,7 +1226,7 @@
     "description": "Ein leichtes, Knoblauch- und Buttergericht mit Meeresfrüchten, das die Kohlenhydrate niedrig und den Proteingehalt hoch hält. 🦐",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20garlic%20butter%20shrimp%20zucchini%20noodles?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -1270,7 +1270,7 @@
     "description": "Ein antioxidantienreicher, koffeinhaltiger Shake, perfekt für den schnellen Start am Morgen oder als Energiequelle vor dem Training. 🍵",
     "time": "5 min",
     "caloriesPerServing": 205,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20matcha%20green%20tea%20smoothie?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Smoothie",
@@ -1320,7 +1320,7 @@
     "description": "Geschmolzener Mozzarella, süße Balsamico-Glasur und saftige Tomaten auf mageren Hähnchenbruststücken. 🍅",
     "time": "20 min",
     "caloriesPerServing": 375,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20caprese%20chicken%20skillet?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -1370,7 +1370,7 @@
     "description": "Ein knuspriger, herzhafter Snack, der Kartoffelchips ersetzt und eine ordentliche Portion pflanzliches Protein enthält. 🌶️",
     "time": "35 min",
     "caloriesPerServing": 183,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20roasted%20chickpeas?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -1414,7 +1414,7 @@
     "description": "Ein schnelles Mittagessen ohne Kochen, das unglaublich gesunde Fette und Proteine ​​ohne Brot liefert. 🥑",
     "time": "10 min",
     "caloriesPerServing": 235,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20tuna%20salad%20stuffed%20avocado?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -1458,7 +1458,7 @@
     "description": "Ein lustiger, knuspriger und süßer Snack, dessen Zubereitung zwei Minuten dauert. Perfekt für Kinder und Erwachsene! 🍏",
     "time": "5 min",
     "caloriesPerServing": 296,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20apple%20slices%20almond%20butter?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -1502,7 +1502,7 @@
     "description": "Ein reichhaltiger, käsiger Klassiker der Hausmannskost, komplett neu interpretiert und ohne Kohlenhydrate. 🧀",
     "time": "25 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20keto%20cauliflower%20mac%20and%20cheese?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -1545,7 +1545,7 @@
     "description": "Ein kräftiges, wärmendes Chili, das einen ordentlichen Proteinschub für die Muskelregeneration liefert. 🌶️",
     "time": "40 min",
     "caloriesPerServing": 305,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20turkey%20chili?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -1594,7 +1594,7 @@
     "description": "Eine schnelle, herzhafte Pfanne auf pflanzlicher Basis, beladen mit fermentiertem Sojaprotein und knackigem Brokkoli. 🥢",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20tempeh%20teriyaki%20stir%20fry?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -1644,7 +1644,7 @@
     "description": "Ein dekadentes, samtiges Dessert, das heimlich gesunde Fette und eine ordentliche Portion Protein liefert. 🍫",
     "time": "5 min",
     "caloriesPerServing": 237,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20chocolate%20avocado%20pudding?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -1694,7 +1694,7 @@
     "description": "Bereiten Sie es am Vorabend für ein stressfreies, muskelaufbauendes Frühstück beim Laufen zu. 🥣",
     "time": "5 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20high%20protein%20overnight%20oats?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Frühstück",
@@ -1744,7 +1744,7 @@
     "description": "Ein unglaublich mageres und flockiges Weißfischrezept, das sich leicht, aber sättigend anfühlt. 🍋",
     "time": "20 min",
     "caloriesPerServing": 193,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20baked%20lemon%20cod?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -1788,7 +1788,7 @@
     "description": "Ein knuspriges, proteinreiches veganes Mittagessen mit einem herzhaften Erdnussdressing. 🥗",
     "time": "15 min",
     "caloriesPerServing": 300,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20edamame%20quinoa%20salad?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -1838,7 +1838,7 @@
     "description": "Eine knusprige, goldene, im Ofen gebackene Hähnchenbrust ohne Semmelbrösel. 🍗",
     "time": "30 min",
     "caloriesPerServing": 405,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20parmesan%20crusted%20chicken?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -1882,7 +1882,7 @@
     "description": "Ein feuchtigkeitsspendender, leuchtend grüner Smoothie, der wie ein tropischer Inselurlaub schmeckt. 🥭",
     "time": "5 min",
     "caloriesPerServing": 197,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20mango%20spinach%20smoothie?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Smoothie",
@@ -1932,7 +1932,7 @@
     "description": "Ein herzhafter, kohlenhydratarmer Abendessen-Klassiker, der gebacken wird, bis die Paprika süß und zart sind. 🫑",
     "time": "45 min",
     "caloriesPerServing": 260,
-    "imageUrl": "https://image.pollinations.ai/prompt/delicious%20high%20quality%20food%20ground%20beef%20stuffed%20peppers?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -1981,7 +1981,7 @@
     "description": "Trocken gereifte Jakobsmuscheln, in der Pfanne zu einer goldenen Kruste geröstet, ruhen auf einer samtigen, mit Safran angereicherten Emulsion mit gehobeltem schwarzen Trüffel. ✨",
     "time": "30 min",
     "caloriesPerServing": 403,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20pan%20seared%20scallops%20cauliflower%20puree%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2037,7 +2037,7 @@
     "description": "Präzise gegarte Entenbrust mit geschredderter, knuspriger Haut, gepaart mit einer säuerlichen, glänzenden Kirsch-Demi-Glace. 🦆",
     "time": "90 min",
     "caloriesPerServing": 520,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20sous%20vide%20duck%20breast%20cherry%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2092,7 +2092,7 @@
     "description": "Französisches Lammkarree umhüllt von einer kräftigen Pistazien-Kräuter-Kruste, serviert auf einem intensiv süßen und hellen Erbsenpüree. 🥩",
     "time": "45 min",
     "caloriesPerServing": 687,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20herb%20crusted%20lamb%20rack%20mint%20puree%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2148,7 +2148,7 @@
     "description": "Butteriger Wolfsbarsch, mariniert in Saikyo Miso, langsam geröstet und über einer kristallklaren, umamireichen Pilzbrühe serviert. 🐟",
     "time": "40 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20miso%20glazed%20seabass%20consomme%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2203,7 +2203,7 @@
     "description": "Von Hand geschnittenes A5-Wagyu-Filet, gebunden mit einer kohlensäurehaltigen Senf-Kapern-Emulsion, serviert mit rohem Wachteleigelb und Leinsamen-Tuile. 🥩",
     "time": "20 min",
     "caloriesPerServing": 488,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20wagyu%20beef%20tartare%20quail%20egg%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -2259,7 +2259,7 @@
     "description": "Zarter Hummerschwanz, langsam pochiert in Beurre Monté, serviert auf einem al dente-Risotto mit leuchtend gelbem Safran. 🦞",
     "time": "45 min",
     "caloriesPerServing": 525,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20butter%20poached%20lobster%20saffron%20risotto%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2313,7 +2313,7 @@
     "description": "Wildes, unglaublich mageres Wildbret, perfekt gebraten, ausgewogen mit einem intensiv reduzierten Jus aus dunklen Beeren und Wacholder. 🌲",
     "time": "45 min",
     "caloriesPerServing": 407,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20venison%20loin%20blackberry%20jus%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2368,7 +2368,7 @@
     "description": "Unberührter weißer Heilbutt mit goldener Macadamiakruste, schwimmend in einer aromatischen, samtigen Kokos-Zitronengras-Sauce. 🥥",
     "time": "35 min",
     "caloriesPerServing": 455,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20macadamia%20crusted%20halibut%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2417,7 +2417,7 @@
     "description": "Langsam pochierte exotische Pilze, in Olivenöl gebadet, tiefes Umami-Püree aus schwarzem Knoblauch und ein perfekt flüssiges Sous-Vide-Ei. 🍳",
     "time": "40 min",
     "caloriesPerServing": 426,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20wild%20mushroom%20confit%20poached%20egg%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Frühstück",
@@ -2473,7 +2473,7 @@
     "description": "Ahi in Sushi-Qualität, nur Sekunden lang angebraten, begleitet von lebendiger Edamame-Seide und molekularem Yuzu-Ponzu-Kaviar. 🍣",
     "time": "25 min",
     "caloriesPerServing": 317,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20seared%20ahi%20tuna%20yuzu%20edamame%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -2528,7 +2528,7 @@
     "description": "Ultra-Premium-Ora-King-Lachs, langsam in kultivierter Butter bestrichen, auf einem seidigen Topinambur-Velouté, gekrönt von einer Quenelle aus schwarzem Kaviar. 🐟",
     "time": "40 min",
     "caloriesPerServing": 430,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20ora%20king%20salmon%20sunchoke%20veloute%20caviar%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2584,7 +2584,7 @@
     "description": "Unglaublich zartes, mit Milch gefüttertes Kalbfleisch, präzise Sous-Vide gegart, glasiert mit einer tief fermentierten Umami-Bomben-Reduktion aus schwarzem Knoblauch. 🥩",
     "time": "90 min",
     "caloriesPerServing": 328,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20sous%20vide%20veal%20tenderloin%20black%20garlic%20jus%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2639,7 +2639,7 @@
     "description": "Süße, zarte Langustinen, sanft pochiert in aromatischer Butter, verfeinert durch eine ätherische, schaumige Kokosnuss- und Zitronengrasbrühe. 🦐",
     "time": "45 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20poached%20langoustine%20lemongrass%20emulsion%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2694,7 +2694,7 @@
     "description": "Der König der Fische, Steinbutt, am Knochen gebraten für maximalen Geschmack, umhüllt von einer luxuriösen, säuerlichen Champagner-Buttersauce. 🥂",
     "time": "40 min",
     "caloriesPerServing": 355,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20pan%20roasted%20turbot%20white%20asparagus%20beurre%20blanc%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2749,7 +2749,7 @@
     "description": "In süßem, weißem Miso marinierter Zobelfisch mit einer karamellisierten Außenseite, die in einem Umami-Dashi in butterartige, auf der Zunge zergehende Flocken übergeht. 🍄",
     "time": "30 min",
     "caloriesPerServing": 377,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20miso%20cured%20black%20cod%20dashi%20shimeji%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -2804,7 +2804,7 @@
     "description": "Das hochgeschätzte, stark marmorierte „geheime“ Stück vom iberischen Schwein aus Eichelmast, gepaart mit einem rauchigen spanischen Mandel-Pfeffer-Püree. 🥩",
     "time": "35 min",
     "caloriesPerServing": 518,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20iberico%20pork%20secreto%20romesco%20charred%20leeks%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2860,7 +2860,7 @@
     "description": "Ultramageres rotes Fleisch aus erstklassigem Straußenfilet, ergänzt durch eine süß-saure Beerenreduktion und erdige, holzgeräucherte Pastinaken. 🍖",
     "time": "45 min",
     "caloriesPerServing": 312,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20seared%20ostrich%20blackberry%20gastrique%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -2915,7 +2915,7 @@
     "description": "Kleine Wildgeflügel werden langsam in ihrem eigenen Fett gegart, um höchste Zartheit zu erzielen, abgerundet durch die Säure von „Senfkaviar“ und bitterem Endiviengeschmack. 🪶",
     "time": "120 min",
     "caloriesPerServing": 370,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20confit%20quail%20pickled%20mustard%20seeds%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
       "Mittagessen",
@@ -2964,7 +2964,7 @@
     "description": "Perlweißer Heilbutt, sanft gegart, eingetaucht in erstklassiges Olivenöl, ruht in einer duftenden goldenen Brühe mit knusprigen, salzigen Meeresbohnen. 🐟",
     "time": "45 min",
     "caloriesPerServing": 334,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20olive%20oil%20poached%20halibut%20saffron%20fennel%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",
@@ -3020,7 +3020,7 @@
     "description": "Wilde, kräftige Elchlende, verfeinert durch eine klebrige Reduktion aus rubinrotem Portwein und Kiefernwacholder, geerdet mit erdiger Selleriewurzel. 🦌",
     "time": "50 min",
     "caloriesPerServing": 321,
-    "imageUrl": "https://image.pollinations.ai/prompt/michelin%20star%20plating%20gourmet%20elk%20medallions%20juniper%20port%20reduction%20dark%20moody%20food%20photography?width=800&height=800&nologo=true",
+    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
       "Abendessen",

@@ -6,6 +6,7 @@ import UIKit
 struct HydrationFlaskCardView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     
     @Bindable var summary: DailySummary
     
@@ -84,36 +85,37 @@ struct HydrationFlaskCardView: View {
                 HStack(alignment: .bottom) {
                     // Metric Markings on the left of flask
                     VStack(alignment: .leading, spacing: 0) {
-                        FlaskTickMark(label: "2.5L", isFilled: progress >= 1.0)
+                        FlaskTickMark(label: useMetricSystem ? "2.5L" : "85 oz", isFilled: progress >= 1.0)
                         Spacer()
-                        FlaskTickMark(label: "2.0L", isFilled: progress >= 0.8)
+                        FlaskTickMark(label: useMetricSystem ? "2.0L" : "68 oz", isFilled: progress >= 0.8)
                         Spacer()
-                        FlaskTickMark(label: "1.5L", isFilled: progress >= 0.6)
+                        FlaskTickMark(label: useMetricSystem ? "1.5L" : "51 oz", isFilled: progress >= 0.6)
                         Spacer()
-                        FlaskTickMark(label: "1.0L", isFilled: progress >= 0.4)
+                        FlaskTickMark(label: useMetricSystem ? "1.0L" : "34 oz", isFilled: progress >= 0.4)
                         Spacer()
-                        FlaskTickMark(label: "0.5L", isFilled: progress >= 0.2)
+                        FlaskTickMark(label: useMetricSystem ? "0.5L" : "17 oz", isFilled: progress >= 0.2)
                     }
-                    .frame(width: 50, height: 160)
+                    .frame(width: 56, height: 160)
                     .padding(.leading, 24)
                     .padding(.bottom, 20)
                     
                     Spacer()
                     
-                    // Main Liter Readout in Center-Right
+                    // Main Fluid Readout in Center-Right
                     VStack(alignment: .trailing, spacing: 2) {
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text(String(format: "%.2f", waterLiters))
+                            let displayedFluid = NutritionMath.displayFluid(waterLiters, useMetric: useMetricSystem)
+                            Text(useMetricSystem ? String(format: "%.2f", displayedFluid) : String(format: "%.0f", displayedFluid))
                                 .font(.system(size: 34, weight: .heavy, design: .rounded))
                                 .foregroundStyle(Color.primary)
                                 .contentTransition(.numericText(value: waterLiters))
                             
-                            Text("L")
+                            Text(NutritionMath.fluidShortUnit(useMetric: useMetricSystem))
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
                                 .foregroundStyle(Color.cyan)
                         }
                         
-                        Text("of \(dailyGoalLiters, specifier: "%.1f") L goal")
+                        Text("of \(NutritionMath.formattedHydration(liters: dailyGoalLiters, useMetric: useMetricSystem)) goal")
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundStyle(Color.secondary)
                     }
@@ -128,7 +130,7 @@ struct HydrationFlaskCardView: View {
                 // Glass +250ml Button
                 FlaskActionButton(
                     icon: "drop.fill",
-                    title: "+250 ml",
+                    title: useMetricSystem ? "+250 ml" : "+8 fl oz",
                     color: Color.cyan
                 ) {
                     addWater(ml: 250)
@@ -137,7 +139,7 @@ struct HydrationFlaskCardView: View {
                 // Bottle +500ml Button
                 FlaskActionButton(
                     icon: "waterbottle.fill",
-                    title: "+500 ml",
+                    title: useMetricSystem ? "+500 ml" : "+17 fl oz",
                     color: Color.blue
                 ) {
                     addWater(ml: 500)

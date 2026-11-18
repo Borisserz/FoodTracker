@@ -113,6 +113,12 @@ final class LocalFoodDatabaseService {
         !search(query: query, limit: 1).isEmpty
     }
 
+    /// Synchronously decodes the bundled food database for an explicit language code (used in diagnostics/tests).
+    static func loadBundledFoods(languageCode: String? = Locale.current.language.languageCode?.identifier) -> [LocalFoodEntry] {
+        let suffix = resolveLanguageCode(for: languageCode)
+        return loadAndIndexFoods(language: suffix).map(\.entry)
+    }
+
     // MARK: - Private helpers
 
     private static func normalizeForSearch(_ text: String) -> String {
@@ -149,10 +155,17 @@ final class LocalFoodDatabaseService {
         return scored.sorted { $0.score > $1.score }.map(\.entry)
     }
 
-    private static func resolveLanguageCode() -> String {
-        let code = Locale.current.language.languageCode?.identifier ?? "en"
-        let supported = ["ru", "en", "de", "es", "fr", "it"]
-        return supported.contains(code) ? code : "en"
+    /// Maps device language codes to bundled JSON resource suffixes (including European Portuguese `pt-PT`).
+    static func resolveLanguageCode(for languageCode: String? = Locale.current.language.languageCode?.identifier) -> String {
+        let code = (languageCode ?? "en").lowercased()
+        switch code {
+        case "ru", "en", "de", "es", "fr", "it":
+            return code
+        case "pt":
+            return "pt-PT"
+        default:
+            return "en"
+        }
     }
 
     private static func loadAndIndexFoods(language: String) -> [IndexedFoodEntry] {
