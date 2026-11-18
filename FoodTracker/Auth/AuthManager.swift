@@ -5,11 +5,14 @@ import Observation
 
 enum AccountDeletionError: LocalizedError {
     case serverCleanupFailed(statusCode: Int)
+    case notSignedIn
 
     var errorDescription: String? {
         switch self {
         case .serverCleanupFailed(let statusCode):
             return "Failed to remove server account data (HTTP \(statusCode)). Please try again."
+        case .notSignedIn:
+            return "No active user session found to delete."
         }
     }
 }
@@ -21,8 +24,8 @@ final class AuthManager {
     var isAuthenticated: Bool = false
     var currentUser: FirebaseAuth.User?
 
-    @ObservationIgnored private var authStateHandle: AuthStateDidChangeListenerHandle?
-    @ObservationIgnored private var idTokenHandle: IDTokenDidChangeListenerHandle?
+    @ObservationIgnored nonisolated(unsafe) private var authStateHandle: AuthStateDidChangeListenerHandle?
+    @ObservationIgnored nonisolated(unsafe) private var idTokenHandle: IDTokenDidChangeListenerHandle?
 
     init() {
         applyUser(Auth.auth().currentUser)
@@ -35,6 +38,15 @@ final class AuthManager {
             Task { @MainActor [weak self] in
                 self?.applyUser(user)
             }
+        }
+    }
+
+    deinit {
+        if let authStateHandle {
+            Auth.auth().removeStateDidChangeListener(authStateHandle)
+        }
+        if let idTokenHandle {
+            Auth.auth().removeIDTokenDidChangeListener(idTokenHandle)
         }
     }
 
@@ -52,8 +64,11 @@ final class AuthManager {
         currentUser?.email ?? Auth.auth().currentUser?.email
     }
 
-    func deleteCurrentUser() async throws {
-        guard let user = currentUser ?? Auth.auth().currentUser else { return }
+    func deleteCurrentUser(userProvider: (() -> FirebaseAuth.User?)? = nil) async throws {
+        let resolvedUser = userProvider != nil ? userProvider?() : (currentUser ?? Auth.auth().currentUser)
+        guard let user = resolvedUser else {
+            throw AccountDeletionError.notSignedIn
+        }
 
         // Delete FoodTracker server state & Firebase Auth user while the ID token is still valid.
         let configured = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.deleteAccountRemoteConfigKey)
@@ -104,5 +119,22 @@ final class AuthManager {
         }
         try? Auth.auth().signOut()
         applyUser(nil)
+    }
+
+    static func runDeletionSequence(
+        reauthenticate: () async throws -> String?,
+        deleteAccount: () async throws -> Void,
+        revokeAppleToken: (String) async throws -> Void
+    ) async throws {
+        let appleAuthorizationCode = try await reauthenticate()
+        try await deleteAccount()
+        if let appleAuthorizationCode, !appleAuthorizationCode.isEmpty {
+            do {
+                try await revokeAppleToken(appleAuthorizationCode)
+            } catch {
+                // Server and Firebase Auth account deletion already succeeded; log and continue so local wipe completes.
+                print("⚠️ Apple token revocation warning after account deletion: \(error.localizedDescription)")
+            }
+        }
     }
 }

@@ -2,6 +2,35 @@ import SwiftUI
 import UIKit
 import OnboardingKit
 
+enum OnboardingStageGuard {
+    static func canAdvance(from stage: Int, metrics: OnboardingMetrics) -> Bool {
+        switch stage {
+        case 2:
+            return metrics.activityLevel != .none
+        case 0, 1, 3:
+            return true
+        default:
+            return false
+        }
+    }
+
+    static func clampedStage(_ requested: Int, current: Int, metrics: OnboardingMetrics) -> Int {
+        let bounded = min(max(requested, 0), 4)
+        if bounded <= current {
+            return bounded
+        }
+        var allowed = current
+        while allowed < bounded && canAdvance(from: allowed, metrics: metrics) {
+            allowed += 1
+        }
+        return allowed
+    }
+
+    static func canFinish(metrics: OnboardingMetrics) -> Bool {
+        metrics.activityLevel != .none
+    }
+}
+
 struct SwissBentoOnboardingFlow: View {
     let onFinish: (OnboardingMetrics) -> Void
     
@@ -33,50 +62,52 @@ struct SwissBentoOnboardingFlow: View {
                     stageNames: stageNames,
                     onBack: { previousStage() },
                     onSelectStage: { selected in
+                        let target = OnboardingStageGuard.clampedStage(selected, current: stage, metrics: metrics)
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                            stage = selected
+                            stage = target
                         }
                     }
                 )
                 
-                // Stage Views
-                TabView(selection: $stage) {
-                    Stage0WelcomeView(onNext: { nextStage() })
-                        .tag(0)
-                    
-                    Stage1BiometricsView(
-                        metrics: $metrics,
-                        bmr: calculatedBMR,
-                        targetCalories: dailyTargetCalories,
-                        protein: targetProtein,
-                        carbs: targetCarbs,
-                        fats: targetFats,
-                        onNext: { nextStage() }
-                    )
-                    .tag(1)
-                    
-                    Stage2GoalProtocolView(
-                        metrics: $metrics,
-                        onNext: { nextStage() }
-                    )
-                    .tag(2)
-                    
-                    Stage3FeatureLabView(
-                        onNext: { nextStage() }
-                    )
-                    .tag(3)
-                    
-                    Stage4BlueprintRevealView(
-                        metrics: metrics,
-                        calories: dailyTargetCalories,
-                        protein: targetProtein,
-                        carbs: targetCarbs,
-                        fats: targetFats,
-                        onFinish: { onFinish(metrics) }
-                    )
-                    .tag(4)
+                // Stage Views (explicitly gated so users cannot swipe past required Stage 2 protocol)
+                Group {
+                    switch stage {
+                    case 0:
+                        Stage0WelcomeView(onNext: { nextStage() })
+                    case 1:
+                        Stage1BiometricsView(
+                            metrics: $metrics,
+                            bmr: calculatedBMR,
+                            targetCalories: dailyTargetCalories,
+                            protein: targetProtein,
+                            carbs: targetCarbs,
+                            fats: targetFats,
+                            onNext: { nextStage() }
+                        )
+                    case 2:
+                        Stage2GoalProtocolView(
+                            metrics: $metrics,
+                            onNext: { nextStage() }
+                        )
+                    case 3:
+                        Stage3FeatureLabView(
+                            onNext: { nextStage() }
+                        )
+                    default:
+                        Stage4BlueprintRevealView(
+                            metrics: metrics,
+                            calories: dailyTargetCalories,
+                            protein: targetProtein,
+                            carbs: targetCarbs,
+                            fats: targetFats,
+                            onFinish: {
+                                guard OnboardingStageGuard.canFinish(metrics: metrics) else { return }
+                                onFinish(metrics)
+                            }
+                        )
+                    }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .animation(.spring(response: 0.4, dampingFraction: 0.8), value: stage)
             }
         }
@@ -85,10 +116,11 @@ struct SwissBentoOnboardingFlow: View {
     
     private func nextStage() {
         if stage < 4 {
+            guard OnboardingStageGuard.canAdvance(from: stage, metrics: metrics) else { return }
             withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                 stage += 1
             }
-        } else {
+        } else if OnboardingStageGuard.canFinish(metrics: metrics) {
             onFinish(metrics)
         }
     }

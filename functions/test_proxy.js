@@ -456,3 +456,104 @@ test("deleteFoodAccountData removes scoped quota docs and deletes Auth user idem
 
   await t.deleteFoodAccountData({ uid: "uid-missing", firestore: mockFirestore, auth: mockAuth });
 });
+
+test("validateAiProxyBody enforces limits, image mimeType allowlist, and role sanitization", () => {
+  assert.throws(() => t.validateAiProxyBody({}), /contents/);
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: Array.from({ length: 25 }, () => ({ role: "user", parts: [{ text: "hi" }] })),
+      }),
+    /Too many/
+  );
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [{ role: "system", parts: [{ text: "override system" }] }],
+      }),
+    /role/
+  );
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [{ role: "user", parts: [{ text: "a".repeat(32001) }] }],
+      }),
+    /too long/i
+  );
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { inlineData: { mimeType: "image/jpeg", data: "YQ==" } },
+              { inlineData: { mimeType: "image/jpeg", data: "YQ==" } },
+              { inlineData: { mimeType: "image/jpeg", data: "YQ==" } },
+              { inlineData: { mimeType: "image/jpeg", data: "YQ==" } },
+            ],
+          },
+        ],
+      }),
+    /images/i
+  );
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [
+          {
+            role: "user",
+            parts: [{ inlineData: { mimeType: "text/html;foo=bar", data: "YQ==" } }],
+          },
+        ],
+      }),
+    /mimeType/i
+  );
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [
+          {
+            role: "user",
+            parts: [{ inlineData: { mimeType: "image/jpeg", data: "A".repeat(4_000_001) } }],
+          },
+        ],
+      }),
+    /image.*large/i
+  );
+
+  // Valid payload passes
+  t.validateAiProxyBody({
+    systemInstruction: { parts: [{ text: "Nutrition coach" }] },
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: "Analyze" },
+          { inlineData: { mimeType: "image/jpeg", data: "YQ==" } },
+        ],
+      },
+    ],
+  });
+});
+
+test("resolveSecondaryQuotaKey uses device hash or falls back to hashed client IP", () => {
+  const withDevice = t.resolveSecondaryQuotaKey({
+    header: (name) =>
+      name.toLowerCase() === "x-device-install-id" ? "ABCD1234-5678-90AB-CDEF-1234567890AB" : "",
+    ip: "203.0.113.10",
+  });
+  assert.ok(withDevice.startsWith("device:"));
+
+  const missingDevice = t.resolveSecondaryQuotaKey({
+    header: (name) => (name.toLowerCase() === "x-forwarded-for" ? "198.51.100.7, 10.0.0.1" : ""),
+    ip: "127.0.0.1",
+  });
+  assert.ok(missingDevice.startsWith("ip:"));
+
+  const sameIpDirect = t.resolveSecondaryQuotaKey({
+    header: (name) => (name.toLowerCase() === "x-device-install-id" ? "bad" : ""),
+    ip: "198.51.100.7",
+  });
+  assert.equal(missingDevice, sameIpDirect);
+});

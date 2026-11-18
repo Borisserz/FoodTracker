@@ -164,4 +164,30 @@ final class OnboardingBlueprintTests: XCTestCase {
         let blueprint = MetabolicBlueprintCalculator.calculate(for: smallUser)
         XCTAssertGreaterThanOrEqual(blueprint.dailyCalories, 1200)
     }
+
+    func testOnboardingStageGuardBlocksSkippingStage2WithoutActivityLevel() {
+        var metrics = OnboardingMetrics(
+            age: 28,
+            height: 175,
+            weight: 70,
+            targetWeight: 65,
+            goal: "Lose Weight",
+            activityLevel: .none,
+            gender: "Male"
+        )
+
+        XCTAssertTrue(OnboardingStageGuard.canAdvance(from: 0, metrics: metrics))
+        XCTAssertTrue(OnboardingStageGuard.canAdvance(from: 1, metrics: metrics))
+        XCTAssertFalse(OnboardingStageGuard.canAdvance(from: 2, metrics: metrics))
+        XCTAssertFalse(OnboardingStageGuard.canFinish(metrics: metrics))
+        XCTAssertEqual(OnboardingStageGuard.clampedStage(3, current: 2, metrics: metrics), 2)
+        XCTAssertEqual(OnboardingStageGuard.clampedStage(4, current: 1, metrics: metrics), 2)
+        XCTAssertEqual(OnboardingStageGuard.clampedStage(1, current: 2, metrics: metrics), 1)
+
+        metrics.activityLevel = .active
+        XCTAssertTrue(OnboardingStageGuard.canAdvance(from: 2, metrics: metrics))
+        XCTAssertTrue(OnboardingStageGuard.canFinish(metrics: metrics))
+        XCTAssertEqual(OnboardingStageGuard.clampedStage(3, current: 2, metrics: metrics), 3)
+        XCTAssertEqual(OnboardingStageGuard.clampedStage(4, current: 3, metrics: metrics), 4)
+    }
 }

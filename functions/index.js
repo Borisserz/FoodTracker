@@ -9,6 +9,19 @@ const { defineSecret } = require("firebase-functions/params");
 const AI_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const DEFAULT_AI_WEEKLY_LIMIT = 200;
 const DEFAULT_SEARCH_WEEKLY_LIMIT = 1000;
+const MAX_AI_CONTENTS = 24;
+const MAX_AI_PARTS_PER_MESSAGE = 8;
+const MAX_AI_SYSTEM_CHARS = 8000;
+const MAX_AI_TOTAL_TEXT_CHARS = 32000;
+const MAX_AI_IMAGES = 3;
+const MAX_AI_IMAGE_BASE64_CHARS = 4_000_000;
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
 const UPSTREAM_TIMEOUT_MS = 22000;
 const HEAVY_UPSTREAM_TIMEOUT_MS = 45000;
 const TOTAL_CHAIN_BUDGET_MS = 85000;
@@ -182,6 +195,87 @@ function convertGeminiSchema(schema) {
   return out;
 }
 
+function validateAiProxyBody(body) {
+  if (!body || typeof body !== "object" || !Array.isArray(body.contents) || body.contents.length === 0) {
+    throw new Error("Missing contents array");
+  }
+  if (body.contents.length > MAX_AI_CONTENTS) {
+    throw new Error(`Too many content messages (max ${MAX_AI_CONTENTS})`);
+  }
+
+  let totalTextChars = 0;
+  let totalImages = 0;
+
+  if (body.systemInstruction !== undefined) {
+    const sysParts = body.systemInstruction?.parts;
+    if (!Array.isArray(sysParts) || sysParts.length > MAX_AI_PARTS_PER_MESSAGE) {
+      throw new Error("Invalid systemInstruction parts");
+    }
+    let sysChars = 0;
+    for (const part of sysParts) {
+      if (part?.text !== undefined) {
+        if (typeof part.text !== "string") {
+          throw new Error("Invalid systemInstruction text");
+        }
+        sysChars += part.text.length;
+      }
+    }
+    if (sysChars > MAX_AI_SYSTEM_CHARS) {
+      throw new Error(`System instruction too long (max ${MAX_AI_SYSTEM_CHARS} chars)`);
+    }
+    totalTextChars += sysChars;
+  }
+
+  for (const content of body.contents) {
+    if (!content || typeof content !== "object") {
+      throw new Error("Invalid content entry");
+    }
+    if (content.role !== undefined) {
+      if (content.role !== "user" && content.role !== "model" && content.role !== "assistant") {
+        throw new Error(`Unsupported message role: ${String(content.role)}`);
+      }
+    }
+    const parts = content.parts;
+    if (!Array.isArray(parts) || parts.length === 0 || parts.length > MAX_AI_PARTS_PER_MESSAGE) {
+      throw new Error("Invalid content parts array");
+    }
+    for (const part of parts) {
+      if (!part || typeof part !== "object") {
+        throw new Error("Invalid part entry");
+      }
+      if (part.text !== undefined) {
+        if (typeof part.text !== "string") {
+          throw new Error("Invalid text part");
+        }
+        totalTextChars += part.text.length;
+        if (totalTextChars > MAX_AI_TOTAL_TEXT_CHARS) {
+          throw new Error(`Prompt text too long (max ${MAX_AI_TOTAL_TEXT_CHARS} chars)`);
+        }
+      }
+      if (part.inlineData !== undefined) {
+        totalImages += 1;
+        if (totalImages > MAX_AI_IMAGES) {
+          throw new Error(`Too many images (max ${MAX_AI_IMAGES})`);
+        }
+        const mimeType = String(part.inlineData?.mimeType || "").trim().toLowerCase();
+        if (!ALLOWED_IMAGE_MIME_TYPES.has(mimeType)) {
+          throw new Error(`Unsupported image mimeType: ${mimeType || "empty"}`);
+        }
+        const data = part.inlineData?.data;
+        if (typeof data !== "string" || data.length === 0) {
+          throw new Error("Empty image payload");
+        }
+        if (data.length > MAX_AI_IMAGE_BASE64_CHARS) {
+          throw new Error(`Image payload too large (max ${MAX_AI_IMAGE_BASE64_CHARS} base64 chars)`);
+        }
+        if (!/^[A-Za-z0-9+/=\s]+$/.test(data)) {
+          throw new Error("Invalid base64 image payload");
+        }
+      }
+    }
+  }
+}
+
 function geminiBodyToOpenAI(body, { streaming, model }) {
   const messages = [];
   const systemParts = body?.systemInstruction?.parts;
@@ -196,7 +290,7 @@ function geminiBodyToOpenAI(body, { streaming, model }) {
   if (Array.isArray(body?.contents)) {
     for (const content of body.contents) {
       const role =
-        content.role === "model" ? "assistant" : content.role || "user";
+        content.role === "model" || content.role === "assistant" ? "assistant" : "user";
       const parts = Array.isArray(content.parts) ? content.parts : [];
       const hasInline = parts.some((p) => p?.inlineData && p.inlineData.data);
 
@@ -419,33 +513,9 @@ function computeRateLimitTransition(existingData, nowMs, limit, windowMs = AI_WI
   return { allowed: true, nextWindowStart: windowStart, nextCount: count + 1, retryAfterSeconds: 0 };
 }
 
-async function reserveRateLimitSlot(collectionName, docId, limit, windowMs = AI_WINDOW_MS) {
-  const db = getFirestore();
-  const ref = db.collection(collectionName).doc(docId);
-
-  return db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
-    const now = Date.now();
-    const transition = computeRateLimitTransition(snap.exists ? snap.data() : null, now, limit, windowMs);
-
-    if (!transition.allowed) {
-      throw new RateLimitError(transition.retryAfterSeconds, limit);
-    }
-
-    tx.set(
-      ref,
-      {
-        windowStart: transition.nextWindowStart,
-        count: transition.nextCount,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
-    return transition.nextWindowStart;
-  });
-}
-
-async function reserveAiRateLimitSlots({
+async function reserveDualRateLimitSlots({
+  userCollection,
+  deviceCollection,
   uid,
   deviceHash,
   userLimit,
@@ -453,8 +523,8 @@ async function reserveAiRateLimitSlots({
   windowMs = AI_WINDOW_MS,
 }) {
   const db = getFirestore();
-  const userRef = db.collection("food_ai_usage").doc(uid);
-  const deviceRef = deviceHash ? db.collection("food_ai_device_usage").doc(deviceHash) : null;
+  const userRef = db.collection(userCollection).doc(uid);
+  const deviceRef = deviceHash ? db.collection(deviceCollection).doc(deviceHash) : null;
 
   return db.runTransaction(async (tx) => {
     const now = Date.now();
@@ -548,6 +618,18 @@ function hashDeviceInstallId(raw) {
   const cleaned = String(raw || "").trim();
   if (!/^[A-Za-z0-9-]{16,128}$/.test(cleaned)) return null;
   return crypto.createHash("sha256").update(cleaned).digest("hex");
+}
+
+function resolveSecondaryQuotaKey(req) {
+  const deviceHash = hashDeviceInstallId(req?.header?.("X-Device-Install-ID"));
+  if (deviceHash) {
+    return `device:${deviceHash}`;
+  }
+  const forwardedFor = String(req?.header?.("x-forwarded-for") || "").split(",")[0].trim();
+  const clientIp = forwardedFor || String(req?.ip || "").trim();
+  if (!clientIp) return null;
+  const ipHash = crypto.createHash("sha256").update(clientIp).digest("hex");
+  return `ip:${ipHash}`;
 }
 
 function openRouterHeaders(apiKey) {
@@ -921,30 +1003,6 @@ async function getFatSecretAccessToken({
   return fatSecretTokenCache.token;
 }
 
-async function fetchFatSecretWithRetry({ url, clientId, clientSecret }) {
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const token = await getFatSecretAccessToken({
-      clientId,
-      clientSecret,
-      forceRefresh: attempt > 0,
-    });
-    const resp = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(FATSECRET_TIMEOUT_MS),
-    });
-    if (resp.status === 401 && attempt === 0) {
-      fatSecretTokenCache = null;
-      continue;
-    }
-    const text = await resp.text();
-    if (!resp.ok) {
-      throw new Error(`FatSecret API ${resp.status}: ${text.slice(0, 200)}`);
-    }
-    return JSON.parse(text);
-  }
-  throw new Error("FatSecret API unauthorized after refresh");
-}
-
 exports.foodAiProxy = onRequest(
   {
     region: "us-central1",
@@ -963,17 +1021,21 @@ exports.foodAiProxy = onRequest(
     if (!uid) return;
 
     const body = req.body || {};
-    if (!Array.isArray(body.contents) || body.contents.length === 0) {
-      res.status(400).json({ error: "invalid_request", message: "Missing contents array" });
+    try {
+      validateAiProxyBody(body);
+    } catch (e) {
+      res.status(400).json({ error: "invalid_request", message: e.message });
       return;
     }
 
     const settings = await loadAISettings();
-    const deviceHash = hashDeviceInstallId(req.header("X-Device-Install-ID"));
+    const deviceHash = resolveSecondaryQuotaKey(req);
 
     let reservedWindows;
     try {
-      reservedWindows = await reserveAiRateLimitSlots({
+      reservedWindows = await reserveDualRateLimitSlots({
+        userCollection: "food_ai_usage",
+        deviceCollection: "food_ai_device_usage",
         uid,
         deviceHash,
         userLimit: settings.weeklyLimit,
@@ -1207,13 +1269,17 @@ exports.foodSearchProxy = onRequest(
       return;
     }
 
-    let searchWindowStart;
+    const searchDeviceHash = resolveSecondaryQuotaKey(req);
+    let searchReservedWindows;
     try {
-      searchWindowStart = await reserveRateLimitSlot(
-        "food_search_usage",
+      searchReservedWindows = await reserveDualRateLimitSlots({
+        userCollection: "food_search_usage",
+        deviceCollection: "food_search_device_usage",
         uid,
-        DEFAULT_SEARCH_WEEKLY_LIMIT
-      );
+        deviceHash: searchDeviceHash,
+        userLimit: DEFAULT_SEARCH_WEEKLY_LIMIT,
+        deviceLimit: DEFAULT_SEARCH_WEEKLY_LIMIT * 2,
+      });
     } catch (e) {
       if (e instanceof RateLimitError) {
         res.set("Retry-After", String(e.retryAfterSeconds));
@@ -1229,10 +1295,21 @@ exports.foodSearchProxy = onRequest(
       return;
     }
 
+    const refundSearchSlots = async () => {
+      await refundRateLimitSlot("food_search_usage", uid, searchReservedWindows.userWindowStart);
+      if (searchDeviceHash) {
+        await refundRateLimitSlot(
+          "food_search_device_usage",
+          searchDeviceHash,
+          searchReservedWindows.deviceWindowStart
+        );
+      }
+    };
+
     const clientId = fatSecretClientId.value().trim();
     const clientSecret = fatSecretClientSecret.value().trim();
     if (!clientId || !clientSecret) {
-      await refundRateLimitSlot("food_search_usage", uid, searchWindowStart);
+      await refundSearchSlots();
       res.status(500).json({ error: "FatSecret credentials not configured" });
       return;
     }
@@ -1322,7 +1399,7 @@ exports.foodSearchProxy = onRequest(
       });
       res.status(200).json({ item: normalizeFatSecretBarcode(data) });
     } catch (e) {
-      await refundRateLimitSlot("food_search_usage", uid, searchWindowStart);
+      await refundSearchSlots();
       console.error("foodSearchProxy error:", e?.message || e);
       res.status(502).json({
         error: "fatsecret_upstream_failed",
@@ -1383,6 +1460,8 @@ module.exports._test = {
   hasImageContent,
   upstreamTimeoutForBody,
   computeRateLimitTransition,
+  validateAiProxyBody,
+  resolveSecondaryQuotaKey,
   modelChainForRequest,
   geminiBodyToOpenAI,
   stripModelJSON,

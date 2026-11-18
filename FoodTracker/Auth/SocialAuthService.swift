@@ -176,29 +176,33 @@ final class SocialAuthService {
     }
     // MARK: - Account deletion support (Guideline 5.1.1(v))
 
-    /// Re-authenticates the current user immediately before deletion and,
-    /// for Sign in with Apple, revokes the Apple refresh token.
-    /// MUST be called BEFORE any destructive server-side deletion.
-    func reauthenticateForDeletion() async throws {
+    /// Re-authenticates the current user immediately before deletion and returns
+    /// any Apple authorization code so token revocation happens only after server deletion succeeds.
+    func reauthenticateForDeletion() async throws -> String? {
         guard let user = Auth.auth().currentUser else {
             throw AuthError.notSignedIn
         }
 
         // Anonymous users never linked a provider: no recent-login requirement,
         // and nothing to revoke.
-        if user.isAnonymous { return }
+        if user.isAnonymous { return nil }
 
         let providerIDs = user.providerData.map { $0.providerID }
 
         if providerIDs.contains("apple.com") {
-            try await reauthenticateWithApple(user: user)
+            return try await reauthenticateWithApple(user: user)
         } else if providerIDs.contains("google.com") {
             try await reauthenticateWithGoogle(user: user)
         }
+        return nil
         // If you add email/password later, handle it here.
     }
 
-    private func reauthenticateWithApple(user: FirebaseAuth.User) async throws {
+    func revokeAppleAuthorizationCode(_ authCode: String) async throws {
+        try await Auth.auth().revokeToken(withAuthorizationCode: authCode)
+    }
+
+    private func reauthenticateWithApple(user: FirebaseAuth.User) async throws -> String? {
         let nonce = Self.randomNonce()
         currentNonce = nonce
         defer { currentNonce = nil }
@@ -218,14 +222,15 @@ final class SocialAuthService {
             fullName: appleIDCredential.fullName
         )
 
-        // 1) Satisfy requiresRecentLogin.
+        // Satisfy requiresRecentLogin; caller revokes the Apple token after server deletion succeeds.
         try await user.reauthenticate(with: firebaseCredential)
 
-        // 2) Revoke the Apple refresh token — this is the part Apple requires.
         if let codeData = appleIDCredential.authorizationCode,
-           let authCode = String(data: codeData, encoding: .utf8) {
-            try await Auth.auth().revokeToken(withAuthorizationCode: authCode)
+           let authCode = String(data: codeData, encoding: .utf8),
+           !authCode.isEmpty {
+            return authCode
         }
+        return nil
     }
 
     private func reauthenticateWithGoogle(user: FirebaseAuth.User) async throws {

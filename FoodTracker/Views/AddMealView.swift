@@ -1,6 +1,72 @@
 import SwiftUI
 import SwiftData
 
+enum MealSlotPersistence {
+    @MainActor
+    static func persist(
+        activeSlot: String,
+        activeDrafts: [EditableFoodDraft],
+        hasModifiedActiveSlot: Bool,
+        draftsBySlot: [String: [EditableFoodDraft]],
+        dirtySlots: Set<String>,
+        summary: DailySummary,
+        timestamp: Date,
+        in context: ModelContext
+    ) -> Int {
+        let canonicalActive = DailySummary.canonicalMealSlot(activeSlot)
+        var slotsToCommit: [String: [EditableFoodDraft]] = [:]
+
+        for slot in dirtySlots {
+            let canonical = DailySummary.canonicalMealSlot(slot)
+            slotsToCommit[canonical] = draftsBySlot[canonical] ?? draftsBySlot[slot] ?? []
+        }
+
+        if hasModifiedActiveSlot || dirtySlots.contains(canonicalActive) || (slotsToCommit.isEmpty && !activeDrafts.isEmpty) {
+            slotsToCommit[canonicalActive] = activeDrafts
+        }
+
+        var netCaloriesDelta = 0
+        for canonicalSlot in slotsToCommit.keys.sorted() {
+            let drafts = slotsToCommit[canonicalSlot] ?? []
+            var persistedItems: [FoodItem] = []
+            for draft in drafts {
+                if let existingItem = draft.existingItem {
+                    draft.apply(to: existingItem)
+                    persistedItems.append(existingItem)
+                } else {
+                    let newItem = draft.makeFoodItem()
+                    context.insert(newItem)
+                    persistedItems.append(newItem)
+                }
+            }
+
+            var previousCalories = 0
+            if let existingMeal = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalSlot }) {
+                previousCalories = existingMeal.totalCalories
+                let keptIDs = Set(persistedItems.map { $0.id })
+                for food in (existingMeal.foodItems ?? []).filter({ !keptIDs.contains($0.id) }) {
+                    context.delete(food)
+                }
+                if persistedItems.isEmpty {
+                    summary.meals?.removeAll { $0.id == existingMeal.id }
+                    context.delete(existingMeal)
+                } else {
+                    existingMeal.foodItems = persistedItems
+                    existingMeal.date = timestamp
+                }
+            } else if !persistedItems.isEmpty {
+                let newMeal = Meal(title: canonicalSlot, date: timestamp, foodItems: persistedItems)
+                context.insert(newMeal)
+                summary.addMeal(newMeal)
+            }
+
+            let newCalories = persistedItems.reduce(0) { $0 + $1.calories }
+            netCaloriesDelta += (newCalories - previousCalories)
+        }
+        return netCaloriesDelta
+    }
+}
+
 struct AddMealView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) var dismiss
@@ -64,7 +130,7 @@ struct AddMealView: View {
     }
 
     private var canSaveMeal: Bool {
-        !selectedDrafts.isEmpty || existingMealHadItems
+        !selectedDrafts.isEmpty || existingMealHadItems || !dirtySlots.isEmpty
     }
     
     func localizedMealType(_ type: String) -> String {
@@ -369,42 +435,16 @@ struct AddMealView: View {
         let summaryToUse = DailySummary.fetchOrCreate(for: startOfDay, in: modelContext)
         let mealTimestamp = calendar.isDateInToday(selectedDate) ? Date.now : startOfDay
 
-        var persistedItems: [FoodItem] = []
-        for draft in selectedDrafts {
-            if let existingItem = draft.existingItem {
-                draft.apply(to: existingItem)
-                persistedItems.append(existingItem)
-            } else {
-                let newItem = draft.makeFoodItem()
-                modelContext.insert(newItem)
-                persistedItems.append(newItem)
-            }
-        }
-        
-        var previousCalories = 0
-        let canonicalSlot = DailySummary.canonicalMealSlot(selectedMealType)
-        if let existingMeal = existingMeal(for: canonicalSlot, in: summaryToUse) {
-            previousCalories = existingMeal.totalCalories
-            let keptIDs = Set(persistedItems.map { $0.id })
-            let removedFoods = (existingMeal.foodItems ?? []).filter { !keptIDs.contains($0.id) }
-            for food in removedFoods {
-                modelContext.delete(food)
-            }
-            if persistedItems.isEmpty {
-                summaryToUse.meals?.removeAll { $0.id == existingMeal.id }
-                modelContext.delete(existingMeal)
-            } else {
-                existingMeal.foodItems = persistedItems
-                existingMeal.date = mealTimestamp
-            }
-        } else if !persistedItems.isEmpty {
-            let newMeal = Meal(title: selectedMealType, date: mealTimestamp, foodItems: persistedItems)
-            modelContext.insert(newMeal)
-            summaryToUse.addMeal(newMeal)
-        }
-
-        let newCalories = persistedItems.reduce(0) { $0 + $1.calories }
-        let addedCaloriesDelta = newCalories - previousCalories
+        let addedCaloriesDelta = MealSlotPersistence.persist(
+            activeSlot: selectedMealType,
+            activeDrafts: selectedDrafts,
+            hasModifiedActiveSlot: hasModifiedDrafts,
+            draftsBySlot: draftsBySlot,
+            dirtySlots: dirtySlots,
+            summary: summaryToUse,
+            timestamp: mealTimestamp,
+            in: modelContext
+        )
         let shouldSyncHealthKit = users.first?.isHealthKitEnabled == true
 
         do {

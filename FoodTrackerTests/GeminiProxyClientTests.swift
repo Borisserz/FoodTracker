@@ -3,10 +3,24 @@ import XCTest
 
 final class GeminiProxyClientTests: XCTestCase {
 
-    func testEndpointResolveAcceptsHTTPSOverride() {
-        let overrideURL = "https://custom-proxy.example.com/foodAiProxy"
-        let resolved = AIProxyEndpoint.resolve(configured: "  \(overrideURL)  ")
-        XCTAssertEqual(resolved.absoluteString, overrideURL)
+    func testEndpointResolveAcceptsTrustedHostAndRejectsUntrustedHTTPSOverride() {
+        let trustedOverride = "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/foodAiProxyStaging"
+        XCTAssertEqual(
+            AIProxyEndpoint.resolve(configured: "  \(trustedOverride)  ").absoluteString,
+            trustedOverride
+        )
+
+        let untrustedOverride = "https://custom-proxy.example.com/foodAiProxy"
+        XCTAssertEqual(
+            AIProxyEndpoint.resolve(configured: untrustedOverride),
+            AIProxyEndpoint.fallbackURL
+        )
+
+        let userinfoAttack = "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net@evil.example.com/foodAiProxy"
+        XCTAssertEqual(
+            AIProxyEndpoint.resolve(configured: userinfoAttack),
+            AIProxyEndpoint.fallbackURL
+        )
     }
 
     func testEndpointResolveRejectsHTTPAndEmptyStrings() {

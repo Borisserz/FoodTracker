@@ -36,4 +36,58 @@ final class SocialAuthServiceTests: XCTestCase {
         XCTAssertFalse(SocialAuthService.isCancellationError(networkFailure))
         XCTAssertFalse(SocialAuthService.isCancellationError(AuthError.invalidAppleCredential))
     }
+
+    func testDeleteCurrentUserThrowsWhenNoUserSignedIn() async {
+        let authManager = AuthManager()
+        do {
+            try await authManager.deleteCurrentUser(userProvider: { nil })
+            XCTFail("Expected AccountDeletionError.notSignedIn when user is nil")
+        } catch let error as AccountDeletionError {
+            guard case .notSignedIn = error else {
+                XCTFail("Expected .notSignedIn, got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Expected AccountDeletionError.notSignedIn, got \(error)")
+        }
+    }
+
+    func testDeletionSequenceDoesNotRevokeAppleTokenWhenDeletionFails() async {
+        var events: [String] = []
+        do {
+            try await AuthManager.runDeletionSequence(
+                reauthenticate: {
+                    events.append("reauth")
+                    return "apple-auth-code"
+                },
+                deleteAccount: {
+                    events.append("delete-fail")
+                    throw AccountDeletionError.serverCleanupFailed(statusCode: 500)
+                },
+                revokeAppleToken: { _ in
+                    events.append("revoke")
+                }
+            )
+            XCTFail("Expected serverCleanupFailed to propagate")
+        } catch {
+            XCTAssertEqual(events, ["reauth", "delete-fail"])
+        }
+    }
+
+    func testDeletionSequenceRevokesAppleTokenAfterSuccessfulDeletion() async throws {
+        var events: [String] = []
+        try await AuthManager.runDeletionSequence(
+            reauthenticate: {
+                events.append("reauth")
+                return "apple-auth-code"
+            },
+            deleteAccount: {
+                events.append("delete")
+            },
+            revokeAppleToken: { code in
+                events.append("revoke:\(code)")
+            }
+        )
+        XCTAssertEqual(events, ["reauth", "delete", "revoke:apple-auth-code"])
+    }
 }

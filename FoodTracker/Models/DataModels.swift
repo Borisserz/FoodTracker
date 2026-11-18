@@ -431,6 +431,24 @@ struct Achievement: Identifiable {
 }
 
 extension CustomRecipe {
+    struct NutritionTotals: Equatable {
+        let calories: Int
+        let protein: Double
+        let fats: Double
+        let carbs: Double
+    }
+
+    var perServingNutrition: NutritionTotals {
+        let items = foodItems ?? []
+        let divisor = max(Double(self.servings), 1.0)
+        return NutritionTotals(
+            calories: max(0, Int((Double(totalCalories) / divisor).rounded())),
+            protein: items.reduce(0) { $0 + $1.protein } / divisor,
+            fats: items.reduce(0) { $0 + $1.fats } / divisor,
+            carbs: items.reduce(0) { $0 + $1.carbs } / divisor
+        )
+    }
+
     func toFoodItem(servingsCount: Int = 1) -> FoodItem {
         let items = foodItems ?? []
         let totalWeight = items.reduce(0) { $0 + $1.weight }

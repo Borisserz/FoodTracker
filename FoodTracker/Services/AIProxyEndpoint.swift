@@ -12,6 +12,10 @@ nonisolated enum AIProxyEndpoint {
     static let deleteAccountFallbackURLString = "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/foodDeleteAccount"
     static let deleteAccountRemoteConfigKey = "food_delete_account_url"
 
+    static let defaultAllowedHosts: Set<String> = [
+        "us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net"
+    ]
+
     static var fallbackURL: URL {
         URL(string: fallbackURLString)!
     }
@@ -24,12 +28,23 @@ nonisolated enum AIProxyEndpoint {
         URL(string: deleteAccountFallbackURLString)!
     }
 
-    static func resolve(configured: String?, fallback: URL = fallbackURL) -> URL {
+    static func resolve(
+        configured: String?,
+        fallback: URL = fallbackURL,
+        allowedHosts: Set<String>? = nil
+    ) -> URL {
         let trimmed = configured?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        var permittedHosts = allowedHosts ?? defaultAllowedHosts
+        if allowedHosts == nil, let fallbackHost = fallback.host?.lowercased(), !fallbackHost.isEmpty {
+            permittedHosts.insert(fallbackHost)
+        }
         guard let url = URL(string: trimmed),
               url.scheme?.lowercased() == "https",
-              let host = url.host,
-              !host.isEmpty else {
+              url.user == nil,
+              url.password == nil,
+              let host = url.host?.lowercased(),
+              !host.isEmpty,
+              permittedHosts.contains(host) else {
             return fallback
         }
         return url

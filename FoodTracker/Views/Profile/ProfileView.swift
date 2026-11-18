@@ -725,8 +725,13 @@ struct AccountSettingsView: View {
                                 isLoading = true
                                 defer { isLoading = false }
                                 do {
-                                    try await SocialAuthService.shared.reauthenticateForDeletion()
-                                    try await authManager.deleteCurrentUser()
+                                    try await AuthManager.runDeletionSequence(
+                                        reauthenticate: { try await SocialAuthService.shared.reauthenticateForDeletion() },
+                                        deleteAccount: { try await authManager.deleteCurrentUser() },
+                                        revokeAppleToken: { code in
+                                            try await SocialAuthService.shared.revokeAppleAuthorizationCode(code)
+                                        }
+                                    )
                                     _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                     LocalDataResetService.wipeAllData(in: context)
                                     dismiss()

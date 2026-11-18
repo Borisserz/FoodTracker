@@ -1,6 +1,48 @@
 import SwiftUI
 import SwiftData
 
+enum RecipeWizardValidator {
+    static func isStepValid(
+        _ step: Int,
+        name: String,
+        ingredientsCount: Int,
+        directions: [String]
+    ) -> Bool {
+        switch step {
+        case 0:
+            return name.trimmingCharacters(in: .whitespacesAndNewlines).count >= 3
+        case 1:
+            return ingredientsCount >= 1
+        case 2:
+            return directions.contains { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        case 3:
+            return isStepValid(0, name: name, ingredientsCount: ingredientsCount, directions: directions)
+                && isStepValid(1, name: name, ingredientsCount: ingredientsCount, directions: directions)
+                && isStepValid(2, name: name, ingredientsCount: ingredientsCount, directions: directions)
+        default:
+            return false
+        }
+    }
+
+    static func clampedStep(
+        _ requested: Int,
+        current: Int,
+        name: String,
+        ingredientsCount: Int,
+        directions: [String]
+    ) -> Int {
+        let bounded = min(max(requested, 0), 3)
+        if bounded <= current {
+            return bounded
+        }
+        var allowed = current
+        while allowed < bounded && isStepValid(allowed, name: name, ingredientsCount: ingredientsCount, directions: directions) {
+            allowed += 1
+        }
+        return allowed
+    }
+}
+
 struct CreateRecipeView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var path: NavigationPath
@@ -21,12 +63,12 @@ struct CreateRecipeView: View {
     @State private var directions: [String] = [""]
 
     var isCurrentStepValid: Bool {
-        switch currentStep {
-        case 0: return recipeName.trimmingCharacters(in: .whitespaces).count >= 3
-        case 1: return ingredients.count >= 1
-        case 2: return !directions.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.isEmpty
-        default: return true
-        }
+        RecipeWizardValidator.isStepValid(
+            currentStep,
+            name: recipeName,
+            ingredientsCount: ingredients.count,
+            directions: directions
+        )
     }
 
     var body: some View {
@@ -37,29 +79,38 @@ struct CreateRecipeView: View {
 
                 HStack(spacing: 8) {
                     ForEach(0..<totalSteps, id: \.self) { index in
-                        Capsule()
-                            .fill(index <= currentStep ? Color.themePink : Color.gray.opacity(0.2))
-                            .frame(height: 4)
-                            .animation(.spring(), value: currentStep)
+                        Button {
+                            if index < currentStep {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    currentStep = index
+                                }
+                            }
+                        } label: {
+                            Capsule()
+                                .fill(index <= currentStep ? Color.themePink : Color.gray.opacity(0.2))
+                                .frame(height: 4)
+                                .animation(.spring(), value: currentStep)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(index > currentStep)
                     }
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
 
-                TabView(selection: $currentStep) {
-                    Step1BasicsView(name: $recipeName, category: $category, servings: $servings, time: $cookingTime, categories: categories)
-                        .tag(0)
-
-                    Step2IngredientsView(ingredients: $ingredients, showingAdd: $showingSmartAdd, showingManualAdd: $showingManualAdd)
-                        .tag(1)
-
-                    Step3DirectionsView(directions: $directions)
-                        .tag(2)
-
-                    Step4VerificationView(name: recipeName, servings: servings, time: cookingTime, ingredients: ingredients, directions: directions)
-                        .tag(3)
+                Group {
+                    switch currentStep {
+                    case 0:
+                        Step1BasicsView(name: $recipeName, category: $category, servings: $servings, time: $cookingTime, categories: categories)
+                    case 1:
+                        Step2IngredientsView(ingredients: $ingredients, showingAdd: $showingSmartAdd, showingManualAdd: $showingManualAdd)
+                    case 2:
+                        Step3DirectionsView(directions: $directions)
+                    default:
+                        Step4VerificationView(name: recipeName, servings: servings, time: cookingTime, ingredients: ingredients, directions: directions)
+                    }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .animation(.easeInOut, value: currentStep)
 
                 Spacer(minLength: 100)
@@ -130,6 +181,7 @@ struct CreateRecipeView: View {
 
     private func handleNextOrSave() {
         HapticManager.shared.impact(style: .medium)
+        guard isCurrentStepValid else { return }
 
         if currentStep < 3 {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
@@ -141,6 +193,12 @@ struct CreateRecipeView: View {
     }
 
     private func saveAndNavigate() {
+        guard RecipeWizardValidator.isStepValid(
+            3,
+            name: recipeName,
+            ingredientsCount: ingredients.count,
+            directions: directions
+        ) else { return }
         TrackingManager.shared.track(.customRecipeCreated(ingredientsCount: ingredients.count))
 
         let cleanDirections = directions.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -560,8 +618,12 @@ struct AddIngredientModalView: View {
     @State private var fats: String = ""
     @State private var carbs: String = ""
 
+    static func isFormValid(name: String, weight: String) -> Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && NutritionMath.parsePositiveDecimal(weight) != nil
+    }
+
     var isFormValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && (Double(weight) ?? 0) > 0
+        Self.isFormValid(name: name, weight: weight)
     }
 
     var body: some View {
@@ -798,11 +860,12 @@ struct RecipeDetailView: View {
                     }
                     .padding(.horizontal, 20)
 
+                    let perServing = recipe.perServingNutrition
                     RecipeMacroDonutView(
-                        calories: recipe.totalCalories,
-                        protein: totalProtein,
-                        fat: totalFat,
-                        carbs: totalCarbs
+                        calories: perServing.calories,
+                        protein: perServing.protein,
+                        fat: perServing.fats,
+                        carbs: perServing.carbs
                     )
                     .padding(.horizontal, 20)
 

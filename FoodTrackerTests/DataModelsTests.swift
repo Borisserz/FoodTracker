@@ -734,4 +734,81 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(NutritionMath.formattedHydration(liters: 2.5, useMetric: true), "2.5 L")
         XCTAssertEqual(NutritionMath.formattedHydration(liters: 2.5, useMetric: false), "85 fl oz")
     }
+
+    @MainActor
+    func testMealSlotPersistenceSavesMultiSlotEditsAndDeletesClearedSlot() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+        let today = Calendar.current.startOfDay(for: .now)
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+
+        // Pre-existing Dinner (500 kcal) that user clears out before switching back to Lunch
+        let steak = FoodItem(name: "Steak", weight: 200, calories: 500, protein: 45, fats: 32, carbs: 0)
+        let dinnerMeal = Meal(title: "Dinner", date: today, foodItems: [steak])
+        context.insert(steak)
+        context.insert(dinnerMeal)
+        summary.addMeal(dinnerMeal)
+        try context.save()
+
+        let oatsDraft = EditableFoodDraft(name: "Oats", baseWeight: 100, baseCalories: 350, baseProtein: 12, baseFats: 6, baseCarbs: 60)
+        let saladDraft = EditableFoodDraft(name: "Salad", baseWeight: 200, baseCalories: 240, baseProtein: 10, baseFats: 14, baseCarbs: 18)
+
+        let delta = MealSlotPersistence.persist(
+            activeSlot: "Lunch",
+            activeDrafts: [saladDraft],
+            hasModifiedActiveSlot: true,
+            draftsBySlot: [
+                "Breakfast": [oatsDraft],
+                "Dinner": []
+            ],
+            dirtySlots: ["Breakfast", "Dinner"],
+            summary: summary,
+            timestamp: today,
+            in: context
+        )
+        try context.save()
+
+        // +350 (Breakfast) +240 (Lunch) -500 (Dinner cleared) = +90 kcal net delta
+        XCTAssertEqual(delta, 90)
+        XCTAssertEqual(summary.totalCalories, 590)
+        let mealTitles = Set((summary.meals ?? []).map { DailySummary.canonicalMealSlot($0.title) })
+        XCTAssertEqual(mealTitles, ["Breakfast", "Lunch"])
+    }
+
+    func testCustomRecipePerServingNutritionDividesByServings() {
+        let pasta = FoodItem(name: "Pasta", weight: 400, calories: 800, protein: 28, fats: 8, carbs: 152)
+        let recipe = CustomRecipe(
+            name: "Pasta Bake",
+            info: "Dinner",
+            foodItems: [pasta],
+            cookingTime: 25,
+            difficulty: "Easy",
+            servings: 4,
+            directions: ["Boil"]
+        )
+
+        let perServing = recipe.perServingNutrition
+        XCTAssertEqual(perServing.calories, 200)
+        XCTAssertEqual(perServing.protein, 7.0, accuracy: 0.01)
+        XCTAssertEqual(perServing.fats, 2.0, accuracy: 0.01)
+        XCTAssertEqual(perServing.carbs, 38.0, accuracy: 0.01)
+    }
+
+    func testRecipeWizardValidatorBlocksStep3WhenPreviousStepsInvalidAndAcceptsCommaDecimalWeight() {
+        XCTAssertFalse(RecipeWizardValidator.isStepValid(3, name: "", ingredientsCount: 0, directions: [""]))
+        XCTAssertFalse(RecipeWizardValidator.isStepValid(3, name: "Pie", ingredientsCount: 1, directions: ["  "]))
+        XCTAssertTrue(RecipeWizardValidator.isStepValid(3, name: "Pie", ingredientsCount: 1, directions: ["Bake"]))
+
+        XCTAssertEqual(
+            RecipeWizardValidator.clampedStep(3, current: 0, name: "", ingredientsCount: 0, directions: [""]),
+            0
+        )
+        XCTAssertEqual(
+            RecipeWizardValidator.clampedStep(3, current: 1, name: "Omelette", ingredientsCount: 0, directions: ["Cook"]),
+            1
+        )
+        XCTAssertTrue(AddIngredientModalView.isFormValid(name: "Olive Oil", weight: "12,5"))
+        XCTAssertFalse(AddIngredientModalView.isFormValid(name: "Olive Oil", weight: "0"))
+    }
 }
