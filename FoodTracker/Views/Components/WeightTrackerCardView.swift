@@ -2,6 +2,20 @@ import SwiftUI
 import SwiftData
 import Charts
 
+enum WeightTrendFormatter {
+    static func trendColor(diff: Double, goalType: String) -> Color {
+        if abs(diff) < 0.1 { return .gray }
+        switch goalType.lowercased() {
+        case "gain":
+            return diff > 0 ? .green : .red
+        case "maintain":
+            return abs(diff) <= 0.5 ? .green : .orange
+        default: // "lose"
+            return diff > 0 ? .red : .green
+        }
+    }
+}
+
 struct WeightTrackerCardView: View {
     @Environment(\.modelContext) private var context
 
@@ -46,13 +60,15 @@ struct WeightTrackerCardView: View {
         }
 
         let diff = currentWeight - previousWeight
+        let goalType = users.first?.weightGoalType ?? "lose"
+        let color = WeightTrendFormatter.trendColor(diff: diff, goalType: goalType)
 
         if abs(diff) < 0.1 {
-            return (diff, "minus", .gray)
+            return (diff, "minus", color)
         } else if diff > 0 {
-            return (diff, "arrow.up.right", .red)
+            return (diff, "arrow.up.right", color)
         } else {
-            return (diff, "arrow.down.right", .green)
+            return (diff, "arrow.down.right", color)
         }
     }
 

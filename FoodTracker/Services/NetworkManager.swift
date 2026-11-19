@@ -96,17 +96,17 @@ class NetworkManager {
         return Locale.current.language.languageCode?.identifier ?? "en"
     }
 
-    private func parseDouble(_ value: Any?) -> Double {
-        guard let value = value else { return 0.0 }
+    private func parseOptionalDouble(_ value: Any?) -> Double? {
+        guard let value = value else { return nil }
         if let d = value as? Double {
-            return (d.isFinite && d >= 0) ? d : 0.0
+            return (d.isFinite && d >= 0) ? d : nil
         }
         if let i = value as? Int {
-            return i >= 0 ? Double(i) : 0.0
+            return i >= 0 ? Double(i) : nil
         }
         if let s = value as? String {
             let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else { return 0.0 }
+            guard !trimmed.isEmpty else { return nil }
             let cleanString: String
             if trimmed.range(of: #"^\d{1,3}(,\d{3})+(\.\d+)?$"#, options: .regularExpression) != nil {
                 cleanString = trimmed.replacingOccurrences(of: ",", with: "")
@@ -117,7 +117,11 @@ class NetworkManager {
                 return parsed
             }
         }
-        return 0.0
+        return nil
+    }
+
+    private func parseDouble(_ value: Any?) -> Double {
+        parseOptionalDouble(value) ?? 0.0
     }
 
     private func parseServingWeight(_ value: Any?) -> Double {
@@ -126,12 +130,12 @@ class NetworkManager {
         guard let str = value as? String else { return 0.0 }
         let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Prefer explicit parenthetical metric/oz weight like "1 oz (28 g)" or "2 tbsp (30g)" first.
-        if let grams = Self.extractWeight(from: trimmed, pattern: #"\(\s*([0-9]+(?:[.,][0-9]+)?)\s*(fl\s+oz|oz|g|gram|grams|gr|ml|г|мл)\b"#) {
+        // Prefer explicit parenthetical metric/oz weight like "1 oz (28 g)" or "1 bottle (1 L)" first.
+        if let grams = Self.extractWeight(from: trimmed, pattern: #"\(\s*([0-9]+(?:[.,][0-9]+)?)\s*(fl\s+oz|oz|kg|кг|g|gram|grams|gr|ml|liters|liter|l|г|мл|л)\b"#) {
             return grams
         }
         // Otherwise require an explicit weight/volume unit so leading serving counts ("1 bar") don't parse as 1g.
-        return Self.extractWeight(from: trimmed, pattern: #"^([0-9]+(?:[.,][0-9]+)?)\s*(fl\s+oz|oz|g|gram|grams|gr|ml|г|мл)\b"#) ?? 0.0
+        return Self.extractWeight(from: trimmed, pattern: #"^([0-9]+(?:[.,][0-9]+)?)\s*(fl\s+oz|oz|kg|кг|g|gram|grams|gr|ml|liters|liter|l|г|мл|л)\b"#) ?? 0.0
     }
 
     private static func extractWeight(from text: String, pattern: String) -> Double? {
@@ -149,6 +153,9 @@ class NetworkManager {
         }
         if unit == "oz" {
             return (raw * 28.3495 * 10.0).rounded() / 10.0
+        }
+        if unit == "kg" || unit == "кг" || unit == "l" || unit == "liter" || unit == "liters" || unit == "л" {
+            return (raw * 1000.0 * 10.0).rounded() / 10.0
         }
         return raw
     }
@@ -319,48 +326,150 @@ class NetworkManager {
         return nil
     }
 
+    private func extractOFFMicronutrientMg(
+        from nuts: [String: Any],
+        baseKey: String,
+        suffix: String
+    ) -> Double {
+        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]) else { return 0 }
+        let unit = (nuts["\(baseKey)_unit"] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() ?? "mg"
+        switch unit {
+        case "g":
+            return raw * 1000.0
+        case "µg", "ug", "mcg":
+            return raw / 1000.0
+        default:
+            return raw
+        }
+    }
+
+    private func extractOFFMicronutrientMcg(
+        from nuts: [String: Any],
+        baseKey: String,
+        suffix: String
+    ) -> Double {
+        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]) else { return 0 }
+        let unit = (nuts["\(baseKey)_unit"] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() ?? "µg"
+        switch unit {
+        case "g":
+            return raw * 1_000_000.0
+        case "mg":
+            return raw * 1000.0
+        default:
+            return raw
+        }
+    }
+
+    private func resolvedServingWeight(from product: [String: Any]) -> Double? {
+        let qty = parseServingWeight(product["serving_quantity"])
+        if qty > 0 { return qty }
+        let sizeQty = parseServingWeight(product["serving_size"])
+        return sizeQty > 0 ? sizeQty : nil
+    }
+
     private func extractOpenFoodFactsItem(from product: [String: Any]) -> FoodItem? {
         guard let name = extractOpenFoodFactsProductName(from: product) else { return nil }
         let nuts = product["nutriments"] as? [String: Any] ?? [:]
+        let energyUnit = (nuts["energy_unit"] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() ?? ""
+        let energyIsKcal = energyUnit == "kcal"
 
-        var cals = parseDouble(nuts["energy-kcal_100g"])
-        if cals == 0 { cals = parseDouble(nuts["energy_100g"]) / 4.184 }
-        var protein = parseDouble(nuts["proteins_100g"])
-        var fat = parseDouble(nuts["fat_100g"])
-        var carbs = parseDouble(nuts["carbohydrates_100g"])
-        var weight = 100.0
+        let kcal100 = parseOptionalDouble(nuts["energy-kcal_100g"])
+        let rawEnergy100 = parseOptionalDouble(nuts["energy_100g"])
+        let cals100 = kcal100 ?? rawEnergy100.map { energyIsKcal ? $0 : ($0 / 4.184) }
+        let protein100 = parseOptionalDouble(nuts["proteins_100g"])
+        let fat100 = parseOptionalDouble(nuts["fat_100g"])
+        let carbs100 = parseOptionalDouble(nuts["carbohydrates_100g"])
 
-        // US UPC & catalog entries on Open Food Facts often populate *_serving without *_100g.
-        if cals <= 0 && protein <= 0 && fat <= 0 && carbs <= 0 {
-            var servingCals = parseDouble(nuts["energy-kcal_serving"])
-            if servingCals == 0 { servingCals = parseDouble(nuts["energy_serving"]) / 4.184 }
-            let servingProtein = parseDouble(nuts["proteins_serving"])
-            let servingFat = parseDouble(nuts["fat_serving"])
-            let servingCarbs = parseDouble(nuts["carbohydrates_serving"])
-            guard servingCals > 0 || servingProtein > 0 || servingFat > 0 || servingCarbs > 0 else {
-                return nil
-            }
-            cals = servingCals
-            protein = servingProtein
-            fat = servingFat
-            carbs = servingCarbs
+        let kcalServing = parseOptionalDouble(nuts["energy-kcal_serving"])
+        let rawEnergyServing = parseOptionalDouble(nuts["energy_serving"])
+        let calsServing = kcalServing ?? rawEnergyServing.map { energyIsKcal ? $0 : ($0 / 4.184) }
+        let proteinServing = parseOptionalDouble(nuts["proteins_serving"])
+        let fatServing = parseOptionalDouble(nuts["fat_serving"])
+        let carbsServing = parseOptionalDouble(nuts["carbohydrates_serving"])
 
-            let qty = parseServingWeight(product["serving_quantity"])
-            if qty > 0 {
-                weight = qty
-            } else {
-                let sizeQty = parseServingWeight(product["serving_size"])
-                if sizeQty > 0 { weight = sizeQty }
-            }
+        let hasAny100gField = cals100 != nil || protein100 != nil || fat100 != nil || carbs100 != nil
+        let hasAnyServingField = calsServing != nil || proteinServing != nil || fatServing != nil || carbsServing != nil
+        guard hasAny100gField || hasAnyServingField else {
+            return nil
         }
+
+        let hasPositive100g = (cals100 ?? 0) > 0 || (protein100 ?? 0) > 0 || (fat100 ?? 0) > 0 || (carbs100 ?? 0) > 0
+        let missing100gCalories = (cals100 ?? 0) <= 0
+        let hasPositiveServingCalories = (calsServing ?? 0) > 0
+        let hasPositiveServing = hasPositiveServingCalories || (proteinServing ?? 0) > 0 || (fatServing ?? 0) > 0 || (carbsServing ?? 0) > 0
+
+        let useServing = (!hasPositive100g && hasPositiveServing)
+            || (missing100gCalories && hasPositiveServingCalories)
+            || (!hasAny100gField && hasAnyServingField)
+
+        let cals: Double
+        let protein: Double
+        let fat: Double
+        let carbs: Double
+        let weight: Double
+        let microSuffix: String
+
+        if useServing {
+            cals = calsServing ?? 0
+            protein = proteinServing ?? 0
+            fat = fatServing ?? 0
+            carbs = carbsServing ?? 0
+            weight = resolvedServingWeight(from: product) ?? 100.0
+            microSuffix = "serving"
+        } else {
+            cals = cals100 ?? 0
+            protein = protein100 ?? 0
+            fat = fat100 ?? 0
+            carbs = carbs100 ?? 0
+            weight = 100.0
+            microSuffix = "100g"
+        }
+
+        let omega3 = parseOptionalDouble(nuts["omega-3-fat_\(microSuffix)"]) ?? 0
+        let calcium = extractOFFMicronutrientMg(from: nuts, baseKey: "calcium", suffix: microSuffix)
+        let potassium = extractOFFMicronutrientMg(from: nuts, baseKey: "potassium", suffix: microSuffix)
+        let magnesium = extractOFFMicronutrientMg(from: nuts, baseKey: "magnesium", suffix: microSuffix)
+        let iron = extractOFFMicronutrientMg(from: nuts, baseKey: "iron", suffix: microSuffix)
+        let vitaminC = extractOFFMicronutrientMg(from: nuts, baseKey: "vitamin-c", suffix: microSuffix)
+        let vitaminD = extractOFFMicronutrientMcg(from: nuts, baseKey: "vitamin-d", suffix: microSuffix)
+
+        let hasExplicitMicros = omega3 > 0 || calcium > 0 || potassium > 0 || magnesium > 0 || iron > 0 || vitaminC > 0 || vitaminD > 0
+        let roundedCals = max(0, Int(cals.rounded()))
+        let safeProtein = max(0, protein)
+        let safeFat = max(0, fat)
+        let safeCarbs = max(0, carbs)
+
+        let fallbackMicros = hasExplicitMicros
+            ? MicronutrientProfile.zero
+            : MicronutrientEstimator.estimate(
+                name: name,
+                calories: roundedCals,
+                protein: safeProtein,
+                fat: safeFat,
+                carbs: safeCarbs,
+                weight: weight
+            )
 
         return FoodItem(
             name: name,
             weight: weight,
-            calories: Int(cals.rounded()),
-            protein: protein,
-            fats: fat,
-            carbs: carbs
+            calories: roundedCals,
+            protein: safeProtein,
+            fats: safeFat,
+            carbs: safeCarbs,
+            omega3: hasExplicitMicros ? omega3 : fallbackMicros.omega3,
+            calcium: hasExplicitMicros ? calcium : fallbackMicros.calcium,
+            potassium: hasExplicitMicros ? potassium : fallbackMicros.potassium,
+            magnesium: hasExplicitMicros ? magnesium : fallbackMicros.magnesium,
+            iron: hasExplicitMicros ? iron : fallbackMicros.iron,
+            vitaminC: hasExplicitMicros ? vitaminC : fallbackMicros.vitaminC,
+            vitaminD: hasExplicitMicros ? vitaminD : fallbackMicros.vitaminD
         )
     }
 
@@ -438,9 +547,52 @@ class NetworkManager {
         let protein: Double
         let fats: Double
         let carbs: Double
+        let omega3: Double?
+        let calcium: Double?
+        let potassium: Double?
+        let magnesium: Double?
+        let iron: Double?
+        let vitaminC: Double?
+        let vitaminD: Double?
 
         func toFoodItem() -> FoodItem {
-            FoodItem(name: name, weight: weight, calories: calories, protein: protein, fats: fats, carbs: carbs)
+            let safeCalories = max(0, calories)
+            let safeProtein = max(0, protein)
+            let safeFats = max(0, fats)
+            let safeCarbs = max(0, carbs)
+            let o3 = max(0, omega3 ?? 0)
+            let ca = max(0, calcium ?? 0)
+            let k = max(0, potassium ?? 0)
+            let mg = max(0, magnesium ?? 0)
+            let fe = max(0, iron ?? 0)
+            let vitC = max(0, vitaminC ?? 0)
+            let vitD = max(0, vitaminD ?? 0)
+
+            let hasMicros = o3 > 0 || ca > 0 || k > 0 || mg > 0 || fe > 0 || vitC > 0 || vitD > 0
+            let fallback = hasMicros ? MicronutrientProfile.zero : MicronutrientEstimator.estimate(
+                name: name,
+                calories: safeCalories,
+                protein: safeProtein,
+                fat: safeFats,
+                carbs: safeCarbs,
+                weight: weight
+            )
+
+            return FoodItem(
+                name: name,
+                weight: weight,
+                calories: safeCalories,
+                protein: safeProtein,
+                fats: safeFats,
+                carbs: safeCarbs,
+                omega3: hasMicros ? o3 : fallback.omega3,
+                calcium: hasMicros ? ca : fallback.calcium,
+                potassium: hasMicros ? k : fallback.potassium,
+                magnesium: hasMicros ? mg : fallback.magnesium,
+                iron: hasMicros ? fe : fallback.iron,
+                vitaminC: hasMicros ? vitC : fallback.vitaminC,
+                vitaminD: hasMicros ? vitD : fallback.vitaminD
+            )
         }
     }
 
@@ -476,7 +628,20 @@ class NetworkManager {
         } else {
             currentUser = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
         }
-        let freshAuth = try? await currentUser?.getIDTokenResult(forcingRefresh: true).token
+        var freshAuth: String?
+        if let currentUser {
+            do {
+                freshAuth = try await currentUser.getIDTokenResult(forcingRefresh: true).token
+            } catch {
+                if AuthManager.isPermanentTokenInvalidationError(error) {
+                    let wasAnonymous = currentUser.isAnonymous
+                    try? Auth.auth().signOut()
+                    if wasAnonymous, let newAnon = try? await AnonymousAuthBootstrap.shared.ensureSignedIn() {
+                        freshAuth = try? await newAnon.getIDTokenResult(forcingRefresh: false).token
+                    }
+                }
+            }
+        }
         return (freshAuth, freshAppCheck)
     }
 

@@ -11,7 +11,7 @@ struct AddWaterIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         await MainActor.run {
-            let context = SharedModelContainer.shared.container.mainContext
+            let context = ModelContext(SharedModelContainer.shared.container)
             do {
                 let now = Date()
                 let groupDefaults = UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)
@@ -20,7 +20,7 @@ struct AddWaterIntent: AppIntent {
                 try WidgetStorageActions.addWaterGlass(volumeMl: volumeMl, in: context, for: now)
                 let summary = DailySummary.fetchOrCreate(for: now, in: context)
                 WorkoutSyncManager.shared.syncWaterFromWidget(
-                    totalLiters: summary.totalHydrationLiters,
+                    totalLiters: summary.totalPureWaterLiters,
                     addedMl: volumeMl,
                     for: now
                 )
@@ -50,7 +50,7 @@ struct ToggleShoppingItemIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         await MainActor.run {
-            let context = SharedModelContainer.shared.container.mainContext
+            let context = ModelContext(SharedModelContainer.shared.container)
             do {
                 try WidgetStorageActions.toggleShoppingItem(idString: itemID, in: context)
                 WidgetReloader.reloadAll()

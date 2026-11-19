@@ -3,12 +3,27 @@ import SwiftData
 import FirebaseCore
 import FirebaseAppCheck
 import GoogleSignIn
+import UserNotifications
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    @MainActor static weak var activeAppState: AppStateManager?
+    @MainActor static var pendingNotificationRoute: String?
+
+    nonisolated static func notificationDeepLinkRoute(
+        identifier: String,
+        categoryIdentifier: String
+    ) -> String? {
+        if identifier.hasPrefix("FASTING_") || categoryIdentifier.hasPrefix("FASTING_") {
+            return "fasting"
+        }
+        return nil
+    }
+
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         AppCheck.setAppCheckProviderFactory(AppCheckFactory())
         FirebaseApp.configure()
+        UNUserNotificationCenter.current().delegate = self
         #if DEBUG
         let args = ProcessInfo.processInfo.arguments
         if args.contains("-uiTestingResetOnboarding") {
@@ -30,6 +45,35 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                      open url: URL,
                      options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         return GIDSignIn.sharedInstance.handle(url)
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let request = response.notification.request
+        if let route = Self.notificationDeepLinkRoute(
+            identifier: request.identifier,
+            categoryIdentifier: request.content.categoryIdentifier
+        ) {
+            Task { @MainActor in
+                if let appState = Self.activeAppState {
+                    appState.requestedWidgetAction = route
+                } else {
+                    Self.pendingNotificationRoute = route
+                }
+            }
+        }
+        completionHandler()
     }
 }
 
@@ -126,6 +170,11 @@ struct FoodTrackerApp: App {
         }.value
 
         let di = DIContainer(modelContainer: container)
+        AppDelegate.activeAppState = di.appState
+        if let pendingRoute = AppDelegate.pendingNotificationRoute {
+            di.appState.requestedWidgetAction = pendingRoute
+            AppDelegate.pendingNotificationRoute = nil
+        }
         self.diContainer = di
         if inMemoryFallback {
             self.showInMemoryStorageWarning = true

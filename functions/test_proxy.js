@@ -804,3 +804,110 @@ test("verifyFirebaseUser enforces checkRevoked=true and returns 401 on revoked t
   assert.equal(revokedRes.statusCode, 401);
   assert.match(revokedRes.body?.error || "", /revoked/i);
 });
+
+test("verifyAppCheck pins decoded.appId to FoodTracker appId allowlist", async () => {
+  const mkReq = (tok) => ({ header: (n) => (n.toLowerCase() === "x-firebase-appcheck" ? tok : "") });
+  const mkRes = () => ({
+    statusCode: null,
+    body: null,
+    status(c) { this.statusCode = c; return this; },
+    json(p) { this.body = p; return this; },
+  });
+
+  const okRes = mkRes();
+  const ok = await t.verifyAppCheck(mkReq("tok-ft"), okRes, async () => ({
+    appId: "1:667537183554:ios:00b48bad38f5be0d786edb",
+  }));
+  assert.equal(ok, true);
+
+  const wrongRes = mkRes();
+  const wrong = await t.verifyAppCheck(mkReq("tok-wt"), wrongRes, async () => ({
+    appId: "1:667537183554:ios:9999999999999999999999",
+  }));
+  assert.equal(wrong, false);
+  assert.equal(wrongRes.statusCode, 401);
+});
+
+test("validateAiProxyBody rejects oversized responseSchema", () => {
+  const props = {};
+  for (let i = 0; i < 400; i++) {
+    props[`field_${i}`] = { type: "STRING", description: "Long description padding ".repeat(3) };
+  }
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [{ role: "user", parts: [{ text: "Hi" }] }],
+        generationConfig: {
+          responseSchema: { type: "OBJECT", properties: props },
+        },
+      }),
+    /responseSchema/i
+  );
+});
+
+test("sanitizeModelOverrides filters out non-free models", () => {
+  const cleaned = t.sanitizeModelOverrides([
+    "nvidia/nemotron-3.5-super-vl:free",
+    "openai/gpt-4o",
+    "anthropic/claude-3.5-sonnet",
+    "google/gemma-4-31b-it:free",
+  ]);
+  assert.deepEqual(cleaned, [
+    "nvidia/nemotron-3.5-super-vl:free",
+    "google/gemma-4-31b-it:free",
+  ]);
+});
+
+test("resolveIpQuotaKey normalizes IPv4-mapped IPv6 and ignores CGNAT/link-local/ULA", () => {
+  const v4 = t.resolveIpQuotaKey({ ip: "203.0.113.55", header: () => "" });
+  const v6Mapped = t.resolveIpQuotaKey({ ip: "::ffff:203.0.113.55", header: () => "" });
+  assert.equal(v4, v6Mapped);
+
+  const xffReq = {
+    ip: "::ffff:10.0.0.5",
+    header: (n) => (n.toLowerCase() === "x-forwarded-for" ? "198.51.100.2, 100.64.0.1, fe80::1" : ""),
+  };
+  const publicReq = { ip: "198.51.100.2", header: () => "" };
+  assert.equal(t.resolveIpQuotaKey(xffReq), t.resolveIpQuotaKey(publicReq));
+});
+
+test("resolveUserQuotaLimit enforces stricter cap for anonymous provider", () => {
+  const anonLimit = t.resolveUserQuotaLimit(200, "anonymous", "ai");
+  const appleLimit = t.resolveUserQuotaLimit(200, "apple.com", "ai");
+  assert.ok(anonLimit < appleLimit);
+  assert.equal(appleLimit, 200);
+});
+
+test("assertFatSecretResponseSuccess throws on OAuth2 error envelopes", () => {
+  assert.doesNotThrow(() => t.assertFatSecretResponseSuccess({ foods: { food: [] } }));
+  assert.throws(
+    () => t.assertFatSecretResponseSuccess({ error: { code: 5, message: "Invalid signature" } }),
+    /FatSecret error 5/
+  );
+});
+
+test("normalizeFatSecretFood forwards optional micronutrients when present", () => {
+  const hit = t.normalizeFatSecretFood({
+    food_name: "Atlantic Salmon",
+    servings: {
+      serving: {
+        metric_serving_amount: "100",
+        metric_serving_unit: "g",
+        calories: "208",
+        protein: "20",
+        fat: "13",
+        carbohydrate: "0",
+        potassium: "363",
+        calcium: "9",
+        iron: "0.34",
+        vitamin_c: "3.9",
+        vitamin_d: "11.0",
+      },
+    },
+  });
+  assert.equal(hit.potassium, 363);
+  assert.equal(hit.calcium, 9);
+  assert.equal(hit.iron, 0.34);
+  assert.equal(hit.vitaminC, 3.9);
+  assert.equal(hit.vitaminD, 11.0);
+});

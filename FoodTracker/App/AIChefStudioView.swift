@@ -1395,6 +1395,7 @@ struct AICameraScannerView: View {
     @State private var pendingConsentImage: UIImage? = nil
     @State private var showPhotoConsentSheet = false
     @State private var evaluationTask: Task<Void, Never>? = nil
+    @State private var photoLoadTask: Task<Void, Never>? = nil
 
     var body: some View {
         ZStack {
@@ -1551,6 +1552,8 @@ struct AICameraScannerView: View {
         .onDisappear {
             evaluationTask?.cancel()
             evaluationTask = nil
+            photoLoadTask?.cancel()
+            photoLoadTask = nil
             cameraManager.stop()
         }
         .onChange(of: cameraManager.capturedImage) { _, newImage in
@@ -1567,17 +1570,22 @@ struct AICameraScannerView: View {
         .onChange(of: selectedPhotoItem) { _, newItem in
             guard let newItem else { return }
             selectedPhotoItem = nil
-            Task {
+            photoLoadTask?.cancel()
+            photoLoadTask = Task {
                 guard let data = try? await newItem.loadTransferable(type: Data.self),
+                      !Task.isCancelled,
                       let rawImg = UIImage(data: data) else {
-                    await MainActor.run {
-                        evaluationError = String(localized: "Could not load the selected photo. Please try another image.")
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            evaluationError = String(localized: "Could not load the selected photo. Please try another image.")
+                        }
                     }
                     return
                 }
                 let img = await Task.detached(priority: .userInitiated) {
                     VertexAIManager.downsampledImage(rawImg, maxDimension: 1280)
                 }.value
+                guard !Task.isCancelled else { return }
                 await MainActor.run {
                     showResult = false
                     evaluationError = nil

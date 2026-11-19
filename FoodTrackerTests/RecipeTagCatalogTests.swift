@@ -31,4 +31,27 @@ final class RecipeTagCatalogTests: XCTestCase {
             XCTAssertFalse(breakfast.isEmpty, "Breakfast filter empty for \(code)")
         }
     }
+
+    func testSpanishAndPortugueseRecipesFixMistranslatedTagsAndLocalizedTimes() {
+        let esRecipes = RecipeDataLoader.loadBundledRecipes(languageCode: "es")
+        let esTags = Set(esRecipes.flatMap(\.tags))
+        XCTAssertFalse(esTags.contains("Zalamero"))
+        XCTAssertFalse(esTags.contains("Muy activo"))
+        XCTAssertFalse(esTags.contains("Hornada"))
+        XCTAssertTrue(esTags.contains("Batido"))
+        XCTAssertTrue(esTags.contains("Para llevar"))
+        XCTAssertTrue(esTags.contains("Horneado"))
+
+        let ptRecipes = RecipeDataLoader.loadBundledRecipes(languageCode: "pt")
+        let ptTags = Set(ptRecipes.flatMap(\.tags))
+        XCTAssertFalse(ptTags.contains("Café da manhã"))
+        XCTAssertFalse(ptTags.contains("Cozimento"))
+        XCTAssertTrue(ptTags.contains("Pequeno-almoço"))
+
+        let ruRecipes = RecipeDataLoader.loadBundledRecipes(languageCode: "ru")
+        XCTAssertTrue(ruRecipes.allSatisfy { $0.time.contains("мин") })
+
+        let deRecipes = RecipeDataLoader.loadBundledRecipes(languageCode: "de")
+        XCTAssertTrue(deRecipes.allSatisfy { $0.time.contains("Min.") })
+    }
 }

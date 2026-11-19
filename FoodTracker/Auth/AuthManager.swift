@@ -30,7 +30,7 @@ enum AccountDeletionError: LocalizedError {
 @Observable
 @MainActor
 final class AuthManager {
-    static let accountDeletionTimeoutInterval: TimeInterval = 90.0
+    static let accountDeletionTimeoutInterval: TimeInterval = 130.0
     var isAnonymous: Bool = true
     var isAuthenticated: Bool = false
     var currentUser: FirebaseAuth.User?
@@ -77,7 +77,10 @@ final class AuthManager {
 
     func deleteCurrentUser(
         userProvider: (() -> FirebaseAuth.User?)? = nil,
-        googleSignOut: () -> Void = { GIDSignIn.sharedInstance.signOut() }
+        googleSignOut: () -> Void = { GIDSignIn.sharedInstance.signOut() },
+        urlSession: URLSession = .shared,
+        deleteURL: URL? = nil,
+        tokenPairProvider: ((_ user: FirebaseAuth.User, _ forceRefresh: Bool) async throws -> (idToken: String, appCheckToken: String))? = nil
     ) async throws {
         let resolvedUser = userProvider != nil ? userProvider?() : (currentUser ?? Auth.auth().currentUser)
         guard let user = resolvedUser else {
@@ -85,28 +88,56 @@ final class AuthManager {
         }
 
         // Delete FoodTracker server state & Firebase Auth user while the ID token is still valid.
-        let configured = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.deleteAccountRemoteConfigKey)
-        let url = AIProxyEndpoint.resolve(configured: configured, fallback: AIProxyEndpoint.deleteAccountFallbackURL)
+        let url: URL
+        if let deleteURL {
+            url = deleteURL
+        } else {
+            let configured = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.deleteAccountRemoteConfigKey)
+            url = AIProxyEndpoint.resolve(configured: configured, fallback: AIProxyEndpoint.deleteAccountFallbackURL)
+        }
 
+        try await Self.performServerAccountDeletion(
+            url: url,
+            urlSession: urlSession,
+            fetchTokens: { forceRefresh in
+                if let tokenPairProvider {
+                    return try await tokenPairProvider(user, forceRefresh)
+                }
+                let idToken = try await user.getIDTokenResult(forcingRefresh: forceRefresh).token
+                let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: forceRefresh).token
+                return (idToken, appCheckToken)
+            }
+        )
+
+        // Server already deleted the Firebase Auth user atomically; never throw after HTTP 2xx
+        // so local sign-out and SwiftData wipe always complete cleanly.
+        try? await user.delete()
+        try? Auth.auth().signOut()
+        googleSignOut()
+        applyUser(nil)
+    }
+
+    nonisolated static func performServerAccountDeletion(
+        url: URL,
+        urlSession: URLSession = .shared,
+        fetchTokens: (_ forceRefresh: Bool) async throws -> (idToken: String, appCheckToken: String)
+    ) async throws {
         var lastStatusCode = 500
-        var serverSucceeded = false
         for forceRefresh in [false, true] {
-            let idToken = try await user.getIDTokenResult(forcingRefresh: forceRefresh).token
-            let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: forceRefresh).token
+            let tokens = try await fetchTokens(forceRefresh)
 
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.timeoutInterval = Self.accountDeletionTimeoutInterval
-            request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
-            request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+            request.timeoutInterval = accountDeletionTimeoutInterval
+            request.setValue("Bearer \(tokens.idToken)", forHTTPHeaderField: "Authorization")
+            request.setValue(tokens.appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = Data("{}".utf8)
 
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await urlSession.data(for: request)
             if let http = response as? HTTPURLResponse {
                 if (200...299).contains(http.statusCode) {
-                    serverSucceeded = true
-                    break
+                    return
                 }
                 lastStatusCode = http.statusCode
                 if http.statusCode == 401 && !forceRefresh {
@@ -116,24 +147,16 @@ final class AuthManager {
             break
         }
 
-        guard serverSucceeded else {
-            throw AccountDeletionError.serverCleanupFailed(statusCode: lastStatusCode)
-        }
+        throw AccountDeletionError.serverCleanupFailed(statusCode: lastStatusCode)
+    }
 
-        // Server deletes the Firebase Auth user atomically; still attempt client cleanup for older backends
-        // and tolerate userNotFound/token errors once the server confirmed deletion.
-        do {
-            try await user.delete()
-        } catch {
-            let nsError = error as NSError
-            let code = AuthErrorCode(rawValue: nsError.code)
-            if code != .userNotFound && code != .userTokenExpired && code != .invalidUserToken && code != .requiresRecentLogin {
-                throw error
-            }
+    nonisolated static func isPermanentTokenInvalidationError(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        guard nsError.domain == AuthErrorDomain,
+              let code = AuthErrorCode(rawValue: nsError.code) else {
+            return false
         }
-        try? Auth.auth().signOut()
-        googleSignOut()
-        applyUser(nil)
+        return code == .userTokenExpired || code == .userNotFound || code == .userDisabled
     }
 
     static func runDeletionSequence(

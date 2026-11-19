@@ -34,8 +34,10 @@ struct SmartScannerView: View {
     @State private var scanErrorMessage: String? = nil
     @State private var barcodeTask: Task<Void, Never>? = nil
     @State private var aiTask: Task<Void, Never>? = nil
+    @State private var photoLoadTask: Task<Void, Never>? = nil
     @State private var startScanWorkItem: DispatchWorkItem? = nil
     @State private var barcodePermissionStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    @State private var isBarcodeHardwareUnavailable = false
     @State private var pendingPhotoConsentRequest: PendingPhotoConsentRequest? = nil
 
     enum ScannerMode { case barcode, mealAI, menuAI }
@@ -48,6 +50,14 @@ struct SmartScannerView: View {
 
     private var isBarcodePermissionDenied: Bool {
         barcodePermissionStatus == .denied || barcodePermissionStatus == .restricted
+    }
+
+    private var canUseDataScanner: Bool {
+        DataScannerViewController.isSupported && DataScannerViewController.isAvailable
+    }
+
+    private var canUseAVBarcodeFallback: Bool {
+        !isBarcodeHardwareUnavailable && AVCaptureDevice.default(for: .video) != nil
     }
 
     private var canCapturePhoto: Bool {
@@ -66,9 +76,27 @@ struct SmartScannerView: View {
             if selectedMode == .barcode {
                 if isBarcodePermissionDenied {
                     cameraPermissionFallbackView
-                } else if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
-                    DataScannerRepresentable(recognizedBarcode: $recognizedBarcode, isScanning: $isScanning)
-                        .ignoresSafeArea()
+                } else if canUseDataScanner {
+                    DataScannerRepresentable(
+                        recognizedBarcode: $recognizedBarcode,
+                        isScanning: $isScanning,
+                        onBecameUnavailable: {
+                            barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
+                        }
+                    )
+                    .ignoresSafeArea()
+                } else if canUseAVBarcodeFallback {
+                    AVBarcodeScannerRepresentable(
+                        recognizedBarcode: $recognizedBarcode,
+                        isScanning: $isScanning,
+                        onPermissionDenied: {
+                            barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
+                        },
+                        onUnavailable: {
+                            isBarcodeHardwareUnavailable = true
+                        }
+                    )
+                    .ignoresSafeArea()
                 } else {
                     barcodeUnavailableFallbackView
                 }
@@ -84,7 +112,7 @@ struct SmartScannerView: View {
                     .onDisappear { cameraManager.stop() }
             }
 
-            if selectedMode == .barcode && !isBarcodePermissionDenied && DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
+            if selectedMode == .barcode && !isBarcodePermissionDenied && (canUseDataScanner || canUseAVBarcodeFallback) {
                 Color.black.opacity(0.65)
                     .ignoresSafeArea()
                     .mask(
@@ -111,6 +139,7 @@ struct SmartScannerView: View {
                             .background(Color.black.opacity(0.4))
                             .clipShape(Circle())
                     }
+                    .accessibilityIdentifier("scanner_close_button")
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 50)
@@ -370,6 +399,8 @@ struct SmartScannerView: View {
             barcodeTask = nil
             aiTask?.cancel()
             aiTask = nil
+            photoLoadTask?.cancel()
+            photoLoadTask = nil
             isCapturingPhoto = false
             pendingPhotoConsentRequest = nil
 
@@ -386,6 +417,8 @@ struct SmartScannerView: View {
             barcodeTask = nil
             aiTask?.cancel()
             aiTask = nil
+            photoLoadTask?.cancel()
+            photoLoadTask = nil
             isLoading = false
             isAnalyzingAI = false
             isCapturingPhoto = false
@@ -433,17 +466,22 @@ struct SmartScannerView: View {
             guard let newItem else { return }
             selectedPhotoItem = nil
             let currentMode = selectedMode
-            Task {
+            photoLoadTask?.cancel()
+            photoLoadTask = Task {
                 guard let data = try? await newItem.loadTransferable(type: Data.self),
+                      !Task.isCancelled,
                       let rawImage = UIImage(data: data) else {
-                    await MainActor.run {
-                        scanErrorMessage = String(localized: "Could not load the selected photo. Please try another image.")
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            scanErrorMessage = String(localized: "Could not load the selected photo. Please try another image.")
+                        }
                     }
                     return
                 }
                 let downsampled = await Task.detached(priority: .userInitiated) {
                     VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
                 }.value
+                guard !Task.isCancelled else { return }
                 await MainActor.run {
                     guard selectedMode == currentMode, currentMode != .barcode else { return }
                     routeScannedPhoto(downsampled, mode: currentMode)
@@ -571,17 +609,18 @@ struct SmartScannerView: View {
         barcodeTask?.cancel()
 
         barcodeTask = Task {
-            let foodItem = await NetworkManager.shared.fetchProduct(barcode: barcode)
+            let outcome = await NetworkManager.shared.fetchProductOutcome(barcode: barcode)
             guard !Task.isCancelled else { return }
             await MainActor.run {
                 isLoading = false
-                if let foodItem {
+                switch outcome {
+                case .found(let foodItem):
                     HapticManager.shared.impact(style: .heavy)
                     deliverFoundProduct(foodItem)
-                } else if let networkErr = NetworkManager.shared.lastBarcodeLookupError {
+                case .failed(let networkErr):
                     HapticManager.shared.notification(type: .error)
                     scanErrorMessage = networkErr
-                } else {
+                case .notFound:
                     notFoundError = true
                     HapticManager.shared.impact(style: .rigid)
                 }
@@ -985,9 +1024,15 @@ struct MenuHackerResultsView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-                    MenuRecCard(rec: response.ideal, type: "Ideal Match", icon: "checkmark.seal.fill", color: .green, onLogDish: onLogDish)
-                    MenuRecCard(rec: response.caution, type: "Caution", icon: "exclamationmark.triangle.fill", color: .orange, onLogDish: onLogDish)
-                    MenuRecCard(rec: response.avoid, type: "Avoid", icon: "xmark.octagon.fill", color: .red, onLogDish: onLogDish)
+                    if let ideal = response.ideal {
+                        MenuRecCard(rec: ideal, type: "Ideal Match", icon: "checkmark.seal.fill", color: .green, onLogDish: onLogDish)
+                    }
+                    if let caution = response.caution {
+                        MenuRecCard(rec: caution, type: "Caution", icon: "exclamationmark.triangle.fill", color: .orange, onLogDish: onLogDish)
+                    }
+                    if let avoid = response.avoid {
+                        MenuRecCard(rec: avoid, type: "Avoid", icon: "xmark.octagon.fill", color: .red, onLogDish: onLogDish)
+                    }
                 }
             }
         }

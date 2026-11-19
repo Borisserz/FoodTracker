@@ -95,11 +95,11 @@
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Zalamero",
-      "vegano",
+      "Batido",
+      "Vegano",
       "Preparado rápidamente",
       "Alta proteína",
-      "Muy activo"
+      "Para llevar"
     ],
     "baseServings": 1,
     "protein": 28.0,
@@ -146,10 +146,10 @@
     "isFavorite": false,
     "tags": [
       "Cena",
-      "cetogénico",
+      "Cetogénico",
       "Alta proteína",
       "Bajo en carbohidratos",
-      "Hornada"
+      "Horneado"
     ],
     "baseServings": 2,
     "protein": 33.0,
@@ -345,7 +345,7 @@
     "isFavorite": false,
     "tags": [
       "Desayuno",
-      "vegano",
+      "Vegano",
       "Alta proteína",
       "Preparado rápidamente"
     ],
@@ -395,7 +395,7 @@
     "isFavorite": false,
     "tags": [
       "Cena",
-      "cetogénico",
+      "Cetogénico",
       "Alta proteína",
       "Bajo en carbohidratos"
     ],
@@ -446,7 +446,7 @@
     "tags": [
       "Desayuno",
       "Vegetariano",
-      "Hornada",
+      "Horneado",
       "Fácil"
     ],
     "baseServings": 2,
@@ -540,7 +540,7 @@
       "Cena",
       "Alta proteína",
       "Bajo en carbohidratos",
-      "Hornada"
+      "Horneado"
     ],
     "baseServings": 2,
     "protein": 65.0,
@@ -588,7 +588,7 @@
     "isFavorite": false,
     "tags": [
       "Almuerzo",
-      "vegano",
+      "Vegano",
       "Vegetariano",
       "Fácil"
     ],
@@ -650,9 +650,9 @@
     "isFavorite": false,
     "tags": [
       "Bocadillo",
-      "Hornada",
+      "Horneado",
       "Vegetariano",
-      "Muy activo"
+      "Para llevar"
     ],
     "baseServings": 8,
     "protein": 4.5,
@@ -693,10 +693,10 @@
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Zalamero",
-      "vegano",
+      "Batido",
+      "Vegano",
       "Preparado rápidamente",
-      "Muy activo"
+      "Para llevar"
     ],
     "baseServings": 1,
     "protein": 20.0,
@@ -799,7 +799,7 @@
     "isFavorite": false,
     "tags": [
       "Almuerzo",
-      "cetogénico",
+      "Cetogénico",
       "Alta proteína",
       "Vegetariano"
     ],
@@ -849,9 +849,9 @@
     "isFavorite": false,
     "tags": [
       "Almuerzo",
-      "vegano",
+      "Vegano",
       "Preparado rápidamente",
-      "Muy activo"
+      "Para llevar"
     ],
     "baseServings": 3,
     "protein": 10.0,
@@ -957,7 +957,7 @@
       "Desayuno",
       "Alta proteína",
       "Vegetariano",
-      "Hornada"
+      "Horneado"
     ],
     "baseServings": 2,
     "protein": 22.0,
@@ -999,7 +999,7 @@
     "isFavorite": false,
     "tags": [
       "Bocadillo",
-      "vegano",
+      "Vegano",
       "Pocos ingredientes",
       "Preparado rápidamente"
     ],
@@ -1043,7 +1043,7 @@
     "isFavorite": false,
     "tags": [
       "Almuerzo",
-      "cetogénico",
+      "Cetogénico",
       "Bajo en carbohidratos",
       "Fácil"
     ],
@@ -1087,7 +1087,7 @@
     "isFavorite": false,
     "tags": [
       "Cena",
-      "vegano",
+      "Vegano",
       "Vegetariano",
       "Fácil"
     ],
@@ -1138,7 +1138,7 @@
     "tags": [
       "Almuerzo",
       "Alta proteína",
-      "Hornada"
+      "Horneado"
     ],
     "baseServings": 2,
     "protein": 24.0,
@@ -1180,8 +1180,8 @@
     "isFavorite": false,
     "tags": [
       "Desayuno",
-      "vegano",
-      "Muy activo",
+      "Vegano",
+      "Para llevar",
       "Pocos ingredientes"
     ],
     "baseServings": 2,
@@ -1230,7 +1230,7 @@
     "isFavorite": false,
     "tags": [
       "Cena",
-      "cetogénico",
+      "Cetogénico",
       "Bajo en carbohidratos",
       "Preparado rápidamente"
     ],
@@ -1273,7 +1273,7 @@
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Zalamero",
+      "Batido",
       "Vegetariano",
       "Preparado rápidamente",
       "Alta proteína"
@@ -1374,9 +1374,9 @@
     "isFavorite": false,
     "tags": [
       "Bocadillo",
-      "vegano",
+      "Vegano",
       "Pocos ingredientes",
-      "Hornada"
+      "Horneado"
     ],
     "baseServings": 3,
     "protein": 7.0,
@@ -1419,7 +1419,7 @@
     "tags": [
       "Almuerzo",
       "Bajo en carbohidratos",
-      "cetogénico",
+      "Cetogénico",
       "Preparado rápidamente"
     ],
     "baseServings": 2,
@@ -1462,7 +1462,7 @@
     "isFavorite": false,
     "tags": [
       "Bocadillo",
-      "vegano",
+      "Vegano",
       "Pocos ingredientes",
       "Preparado rápidamente"
     ],
@@ -1506,7 +1506,7 @@
     "isFavorite": false,
     "tags": [
       "Cena",
-      "cetogénico",
+      "Cetogénico",
       "Vegetariano"
     ],
     "baseServings": 4,
@@ -1598,7 +1598,7 @@
     "isFavorite": false,
     "tags": [
       "Cena",
-      "vegano",
+      "Vegano",
       "Alta proteína",
       "Preparado rápidamente"
     ],
@@ -1648,7 +1648,7 @@
     "isFavorite": false,
     "tags": [
       "Bocadillo",
-      "vegano",
+      "Vegano",
       "Pocos ingredientes",
       "Fácil"
     ],
@@ -1699,7 +1699,7 @@
     "tags": [
       "Desayuno",
       "Alta proteína",
-      "Muy activo",
+      "Para llevar",
       "Vegetariano"
     ],
     "baseServings": 1,
@@ -1750,7 +1750,7 @@
       "Cena",
       "Bajo en carbohidratos",
       "Alta proteína",
-      "Hornada"
+      "Horneado"
     ],
     "baseServings": 2,
     "protein": 27.0,
@@ -1792,8 +1792,8 @@
     "isFavorite": false,
     "tags": [
       "Almuerzo",
-      "vegano",
-      "Muy activo",
+      "Vegano",
+      "Para llevar",
       "Alta proteína"
     ],
     "baseServings": 2,
@@ -1842,9 +1842,9 @@
     "isFavorite": false,
     "tags": [
       "Cena",
-      "cetogénico",
+      "Cetogénico",
       "Alta proteína",
-      "Hornada"
+      "Horneado"
     ],
     "baseServings": 2,
     "protein": 42.0,
@@ -1885,9 +1885,9 @@
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Zalamero",
-      "vegano",
-      "Muy activo",
+      "Batido",
+      "Vegano",
+      "Para llevar",
       "Pocos ingredientes"
     ],
     "baseServings": 1,
@@ -1937,7 +1937,7 @@
     "tags": [
       "Cena",
       "Bajo en carbohidratos",
-      "Hornada"
+      "Horneado"
     ],
     "baseServings": 4,
     "protein": 22.0,
@@ -1987,7 +1987,7 @@
       "Cena",
       "Alta proteína",
       "Bajo en carbohidratos",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 34.0,
@@ -2098,7 +2098,7 @@
       "Cena",
       "Alta proteína",
       "Bajo en carbohidratos",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 49.5,
@@ -2208,7 +2208,7 @@
     "tags": [
       "Almuerzo",
       "Alta proteína",
-      "cetogénico",
+      "Cetogénico",
       "Bajo en carbohidratos"
     ],
     "baseServings": 2,
@@ -2373,7 +2373,7 @@
     "tags": [
       "Cena",
       "Alta proteína",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 42.5,
@@ -2423,7 +2423,7 @@
       "Desayuno",
       "Vegetariano",
       "Bajo en carbohidratos",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 15.5,
@@ -2534,7 +2534,7 @@
       "Cena",
       "Alta proteína",
       "Bajo en carbohidratos",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 32.0,
@@ -2699,7 +2699,7 @@
     "tags": [
       "Cena",
       "Alta proteína",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 35.0,
@@ -2810,7 +2810,7 @@
       "Cena",
       "Alta proteína",
       "Bajo en carbohidratos",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 38.0,
@@ -2920,7 +2920,7 @@
     "tags": [
       "Almuerzo",
       "Alta proteína",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 30.0,
@@ -2970,7 +2970,7 @@
       "Cena",
       "Alta proteína",
       "Bajo en carbohidratos",
-      "cetogénico"
+      "Cetogénico"
     ],
     "baseServings": 2,
     "protein": 38.0,

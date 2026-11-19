@@ -179,6 +179,45 @@ final class SocialAuthServiceTests: XCTestCase {
     }
 
     func testAuthManagerAccountDeletionTimeoutExceedsServerWindow() {
-        XCTAssertGreaterThanOrEqual(AuthManager.accountDeletionTimeoutInterval, 60.0)
+        XCTAssertGreaterThanOrEqual(AuthManager.accountDeletionTimeoutInterval, 120.0)
+    }
+
+    func testSocialAuthServiceDoubleTapGuardPreservesRecentNonce() {
+        XCTAssertTrue(SocialAuthService.shouldReuseRecentNonce(existingNonce: "abc", elapsed: 0.3))
+        XCTAssertFalse(SocialAuthService.shouldReuseRecentNonce(existingNonce: "abc", elapsed: 3.0))
+        XCTAssertFalse(SocialAuthService.shouldReuseRecentNonce(existingNonce: nil as String?, elapsed: 0.1))
+    }
+
+    func testPerformServerAccountDeletionRetries401AndSucceedsOn200() async throws {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let session = URLSession(configuration: config)
+        defer { MockURLProtocol.requestHandler = nil }
+
+        var attempts = 0
+        var refreshFlags: [Bool] = []
+        MockURLProtocol.requestHandler = { request in
+            attempts += 1
+            if attempts == 1 {
+                XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer stale")
+                let resp = HTTPURLResponse(url: request.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!
+                return (resp, Data())
+            }
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer fresh")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), "appcheck-fresh")
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, Data("{\"ok\":true}".utf8))
+        }
+
+        try await AuthManager.performServerAccountDeletion(
+            url: URL(string: "https://mock.local/foodDeleteAccount")!,
+            urlSession: session,
+            fetchTokens: { forceRefresh in
+                refreshFlags.append(forceRefresh)
+                return forceRefresh ? ("fresh", "appcheck-fresh") : ("stale", "appcheck-stale")
+            }
+        )
+        XCTAssertEqual(attempts, 2)
+        XCTAssertEqual(refreshFlags, [false, true])
     }
 }

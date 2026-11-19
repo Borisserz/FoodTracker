@@ -144,6 +144,7 @@ struct FoodDetailNutritionView: View {
                         .padding(.bottom, 30)
                     }
                     .buttonStyle(BounceButtonStyle())
+                    .accessibilityIdentifier("food_detail_confirm_button")
                 }
             }
             .ignoresSafeArea(edges: .bottom)

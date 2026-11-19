@@ -52,13 +52,13 @@
     "NSHealthUpdateUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker needs access to your Health data to automatically sync your logged water intake and consumed calories." } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker нужен доступ к Apple Health для автоматической синхронизации выпитой воды и потреблённых калорий." } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker benötigt Zugriff auf Ihre Gesundheitsdaten, um Wasserzufuhr und aufgenommene Kalorien automatisch zu synchronisieren." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necesita acceso a tus datos de Salud para sincronizar automáticamente el agua y las calorías registradas." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker a besoin d'accéder à Santé pour synchroniser automatiquement votre consommation d'eau et de calories." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necessita dell'accesso a Salute per sincronizzare automaticamente acqua assunta e calorie consumate." } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "O FoodTracker precisa de acesso aos dados de Saúde para sincronizar automaticamente a água e as calorias registadas." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker needs access to your Health data to automatically sync your logged water intake, consumed calories, workouts, and body weight, keeping all your health data centralized." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker нужен доступ к Apple Health для автоматической синхронизации выпитой воды, потреблённых калорий, тренировок и веса тела." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker benötigt Zugriff auf Ihre Gesundheitsdaten, um Wasserzufuhr, aufgenommene Kalorien, Trainings und Körpergewicht automatisch zu synchronisieren." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necesita acceso a tus datos de Salud para sincronizar automáticamente la ingesta de agua, las calorías consumidas, los entrenamientos y el peso corporal." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker a besoin d'accéder à Santé pour synchroniser automatiquement votre consommation d'eau, vos calories consommées, vos entraînements et votre poids." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker necessita dell'accesso a Salute per sincronizzare automaticamente acqua assunta, calorie consumate, allenamenti e peso corporeo." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "O FoodTracker precisa de acesso aos dados de Saúde para sincronizar automaticamente a água ingerida, as calorias consumidas, os treinos e o peso corporal." } }
       }
     }
   },

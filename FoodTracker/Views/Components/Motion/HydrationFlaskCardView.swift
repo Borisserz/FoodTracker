@@ -109,6 +109,7 @@ struct HydrationFlaskCardView: View {
                                 .font(.system(size: 34, weight: .heavy, design: .rounded))
                                 .foregroundStyle(Color.primary)
                                 .contentTransition(.numericText(value: waterLiters))
+                                .accessibilityIdentifier("hydration_current_volume_label")
                             
                             Text(NutritionMath.fluidShortUnit(useMetric: useMetricSystem))
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -135,6 +136,7 @@ struct HydrationFlaskCardView: View {
                 ) {
                     addWater(ml: 250)
                 }
+                .accessibilityIdentifier("hydration_add_250ml_button")
                 
                 // Bottle +500ml Button
                 FlaskActionButton(
@@ -194,7 +196,7 @@ struct HydrationFlaskCardView: View {
             context.insert(newBeverage)
             summary.addBeverage(newBeverage)
             try? context.save()
-            WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: summary.date)
+            WorkoutSyncManager.shared.syncWater(summary.totalPureWaterLiters, for: summary.date)
             WidgetReloader.reloadAll()
         }
         
@@ -227,7 +229,7 @@ struct HydrationFlaskCardView: View {
             }
             context.delete(lastWater)
             try? context.save()
-            WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: summary.date)
+            WorkoutSyncManager.shared.syncWater(summary.totalPureWaterLiters, for: summary.date)
             WidgetReloader.reloadAll()
         }
         

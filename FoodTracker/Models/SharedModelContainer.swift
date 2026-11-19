@@ -26,17 +26,39 @@ public final class SharedModelContainer: @unchecked Sendable {
     }
 
     public let container: ModelContainer
-    public private(set) var didFallBackToInMemory: Bool = false
+    /// True if persistent SQLite store failed and fell back to in-memory storage.
+    public let didFallBackToInMemory: Bool
+    /// True if App Group container was unavailable and store was placed in Application Support fallback.
+    public let didUseFallbackDirectory: Bool
+
+    public static func resolvedStoreDirectoryURL(
+        appGroupContainerURL: URL?,
+        fileManager: FileManager = .default
+    ) -> (url: URL, didUseFallbackDirectory: Bool) {
+        if let appGroupContainerURL {
+            return (appGroupContainerURL, false)
+        }
+        let appSupportBase = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? fileManager.temporaryDirectory
+        let fallbackDir = appSupportBase.appendingPathComponent("FoodTrackerStore", isDirectory: true)
+        try? fileManager.createDirectory(at: fallbackDir, withIntermediateDirectories: true)
+        return (fallbackDir, true)
+    }
 
     private init() {
         let schema = Self.sharedSchema
-        let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.appGroupIdentifier) ?? FileManager.default.temporaryDirectory
-        let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
+        let resolved = Self.resolvedStoreDirectoryURL(
+            appGroupContainerURL: FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: Self.appGroupIdentifier
+            )
+        )
+        let dbURL = resolved.url.appendingPathComponent("FoodDatabase.sqlite")
         let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
 
         var fellBack = false
         self.container = Self.makeContainer(schema: schema, url: dbURL, enableCloudKit: !isExtension, didFallBackToInMemory: &fellBack)
         self.didFallBackToInMemory = fellBack
+        self.didUseFallbackDirectory = resolved.didUseFallbackDirectory
     }
 
     public static func makeContainer(schema: Schema, url: URL, enableCloudKit: Bool = true) -> ModelContainer {

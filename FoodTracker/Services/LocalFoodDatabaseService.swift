@@ -10,16 +10,41 @@ struct LocalFoodEntry: Codable, Identifiable {
     let fat: Double
     let carbs: Double
     let category: String
+    var omega3: Double? = nil
+    var calcium: Double? = nil
+    var potassium: Double? = nil
+    var magnesium: Double? = nil
+    var iron: Double? = nil
+    var vitaminC: Double? = nil
+    var vitaminD: Double? = nil
 
     // Convert to FoodItem (SwiftData model) for use in the app
     func toFoodItem(weight: Double = 100) -> FoodItem {
-        FoodItem(
+        let factor = weight > 0 ? (weight / 100.0) : 1.0
+        let estimated = MicronutrientEstimator.estimate(
+            id: id,
+            name: name,
+            category: category,
+            calories: calories,
+            protein: protein,
+            fat: fat,
+            carbs: carbs,
+            weight: weight
+        )
+        return FoodItem(
             name: name,
             weight: weight,
-            calories: max(0, Int((Double(calories) * weight / 100).rounded())),
-            protein: protein * weight / 100,
-            fats: fat * weight / 100,
-            carbs: carbs * weight / 100
+            calories: max(0, Int((Double(calories) * factor).rounded())),
+            protein: max(0, protein * factor),
+            fats: max(0, fat * factor),
+            carbs: max(0, carbs * factor),
+            omega3: omega3.map { max(0, $0 * factor) } ?? estimated.omega3,
+            calcium: calcium.map { max(0, $0 * factor) } ?? estimated.calcium,
+            potassium: potassium.map { max(0, $0 * factor) } ?? estimated.potassium,
+            magnesium: magnesium.map { max(0, $0 * factor) } ?? estimated.magnesium,
+            iron: iron.map { max(0, $0 * factor) } ?? estimated.iron,
+            vitaminC: vitaminC.map { max(0, $0 * factor) } ?? estimated.vitaminC,
+            vitaminD: vitaminD.map { max(0, $0 * factor) } ?? estimated.vitaminD
         )
     }
 }

@@ -1275,7 +1275,30 @@ struct ChooseMealSheet: View {
         let startOfDay = Calendar.current.startOfDay(for: Date.now)
         let summary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
 
-        let newFood = FoodItem(name: recipe.title, weight: 100, calories: calories, protein: p, fats: f, carbs: c)
+        let micros = MicronutrientEstimator.estimate(
+            id: recipe.id ?? "",
+            name: recipe.title,
+            calories: calories,
+            protein: p,
+            fat: f,
+            carbs: c,
+            weight: 100
+        )
+        let newFood = FoodItem(
+            name: recipe.title,
+            weight: 100,
+            calories: calories,
+            protein: p,
+            fats: f,
+            carbs: c,
+            omega3: micros.omega3,
+            calcium: micros.calcium,
+            potassium: micros.potassium,
+            magnesium: micros.magnesium,
+            iron: micros.iron,
+            vitaminC: micros.vitaminC,
+            vitaminD: micros.vitaminD
+        )
         context.insert(newFood)
         let canonicalSlot = DailySummary.canonicalMealSlot(selectedMeal)
         if let meal = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalSlot }) {
@@ -1289,7 +1312,7 @@ struct ChooseMealSheet: View {
         try? context.save()
         WidgetReloader.reloadAll()
         AppReviewManager.shared.userDidLogMeal()
-        if users.first?.isHealthKitEnabled == true && HealthKitManager.shared.isAuthorized && calories > 0 {
+        if users.first?.isHealthKitEnabled == true && calories > 0 {
             if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: calories, date: .now) {
                 newFood.healthKitSampleID = uuid.uuidString
                 try? context.save()

@@ -147,6 +147,7 @@ struct ProfileView: View {
                     Image(systemName: "gearshape.fill")
                         .foregroundColor(.gray)
                 }
+                .accessibilityIdentifier("profile_settings_button")
             }
         }
         .sheet(isPresented: $showingEditProfile) {
@@ -290,12 +291,38 @@ struct NutritionSettingsEditor: View {
         self._user = Bindable(user)
         let cals = user.dailyCaloriesGoal
         _dailyCals = State(initialValue: cals)
-        let totalCals = Double(cals > 0 ? cals : 1)
-        let p = (user.targetProtein * 4 / totalCals) * 100
-        let f = (user.targetFats * 9 / totalCals) * 100
-        _pPct = State(initialValue: p)
-        _fPct = State(initialValue: f)
-        _cPct = State(initialValue: 100 - p - f)
+        let normalized = Self.normalizedInitialPercentages(
+            dailyCalories: cals,
+            proteinGrams: user.targetProtein,
+            fatGrams: user.targetFats,
+            carbsGrams: user.targetCarbs
+        )
+        _pPct = State(initialValue: normalized.protein)
+        _fPct = State(initialValue: normalized.fat)
+        _cPct = State(initialValue: normalized.carbs)
+    }
+
+    static func normalizedInitialPercentages(
+        dailyCalories: Int,
+        proteinGrams: Double,
+        fatGrams: Double,
+        carbsGrams: Double
+    ) -> (protein: Double, fat: Double, carbs: Double) {
+        let totalCals = Double(dailyCalories > 0 ? dailyCalories : 1)
+        let rawP = max(0, (proteinGrams * 4.0 / totalCals) * 100.0)
+        let rawF = max(0, (fatGrams * 9.0 / totalCals) * 100.0)
+        let rawC = max(0, (carbsGrams * 4.0 / totalCals) * 100.0)
+
+        if rawP + rawF <= 100.0 {
+            return (rawP, rawF, max(0, 100.0 - rawP - rawF))
+        }
+
+        let sum = rawP + rawF + rawC
+        guard sum > 0 else { return (30, 30, 40) }
+        let p = (rawP / sum) * 100.0
+        let f = (rawF / sum) * 100.0
+        let c = max(0, 100.0 - p - f)
+        return (p, f, c)
     }
 
     private var isBalanced: Bool { Int((pPct + fPct + cPct).rounded()) == 100 }
@@ -351,14 +378,51 @@ struct NutritionSettingsEditor: View {
     private func calculateGrams(pct: Double, multiplier: Double) -> Int { Int((Double(dailyCals) * (pct / 100)) / multiplier) }
 
     enum MacroType { case protein, fat, carbs }
-    private func adjustMacros(changed: MacroType) {
-        let diff = (pPct + fPct + cPct) - 100; guard diff != 0 else { return }
-        switch changed {
-        case .protein: if cPct - diff >= 0 { cPct -= diff } else { fPct -= diff }
-        case .fat: if cPct - diff >= 0 { cPct -= diff } else { pPct -= diff }
-        case .carbs: if pPct - diff >= 0 { pPct -= diff } else { fPct -= diff }
+
+    static func rebalanceMacroPercentages(
+        protein: Double,
+        fat: Double,
+        carbs: Double,
+        changed: MacroType
+    ) -> (protein: Double, fat: Double, carbs: Double) {
+        var p = min(100, max(0, protein))
+        var f = min(100, max(0, fat))
+        var c = min(100, max(0, carbs))
+        var diff = (p + f + c) - 100.0
+        guard abs(diff) > 1e-6 else { return (p, f, c) }
+
+        func apply(_ delta: inout Double, to value: inout Double) {
+            if delta > 0 {
+                let take = min(value, delta)
+                value -= take
+                delta -= take
+            } else if delta < 0 {
+                let room = 100.0 - value
+                let add = min(room, -delta)
+                value += add
+                delta += add
+            }
         }
-        pPct = max(0, pPct); fPct = max(0, fPct); cPct = max(0, cPct)
+
+        switch changed {
+        case .protein:
+            apply(&diff, to: &c)
+            apply(&diff, to: &f)
+        case .fat:
+            apply(&diff, to: &c)
+            apply(&diff, to: &p)
+        case .carbs:
+            apply(&diff, to: &p)
+            apply(&diff, to: &f)
+        }
+        return (min(100, max(0, p)), min(100, max(0, f)), min(100, max(0, c)))
+    }
+
+    private func adjustMacros(changed: MacroType) {
+        let balanced = Self.rebalanceMacroPercentages(protein: pPct, fat: fPct, carbs: cPct, changed: changed)
+        pPct = balanced.protein
+        fPct = balanced.fat
+        cPct = balanced.carbs
     }
 
     private func saveSettings() {
@@ -397,6 +461,7 @@ struct SettingsView: View {
                             NavigationLink(destination: AccountSettingsView(user: user)) {
                                 SettingsRowView(icon: "person.fill", iconColor: themeManager.current.primaryAccent, title: "Account")
                             }
+                            .accessibilityIdentifier("settings_account_row")
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: RemindersSettingsView()) {
@@ -440,11 +505,9 @@ struct SettingsView: View {
                             Divider().padding(.leading, 56)
 
                             Button(action: {
-                                appState.selectedTab = 0
                                 dismiss()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    SpotlightTourManager.shared.resetTour()
-                                }
+                                appState.selectedTab = 0
+                                appState.requestSpotlightTourRestart()
                             }) {
                                 SettingsRowView(icon: "sparkles", iconColor: .cyan, title: "Interactive Feature Tour")
                             }
@@ -740,6 +803,7 @@ struct AccountSettingsView: View {
                         .cornerRadius(20)
                     }
                     .buttonStyle(BounceButtonStyle())
+                    .accessibilityIdentifier("profile_delete_account_button")
                     .confirmationDialog(
                         "Delete account and all local data?",
                         isPresented: $showDeleteConfirmation,
@@ -759,8 +823,8 @@ struct AccountSettingsView: View {
                                             try await SocialAuthService.shared.revokeAppleAuthorizationCode(code)
                                         }
                                     )
-                                    _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                     LocalDataResetService.wipeAllData(in: context)
+                                    _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                     dismiss()
                                 } catch {
                                     if !SocialAuthService.isCancellationError(error) {
@@ -1251,11 +1315,11 @@ struct ProfileStatItem: View {
 }
 
 struct MacroDotLabel: View {
-    let color: Color; let title: String
+    let color: Color; let title: LocalizedStringKey
     var body: some View {
         HStack(spacing: 4) {
             Circle().fill(color).frame(width: 8, height: 8)
-            Text(LocalizedStringKey(title)).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundColor(.gray)
+            Text(title).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundColor(.gray)
         }
     }
 }

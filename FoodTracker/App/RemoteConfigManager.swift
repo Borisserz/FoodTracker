@@ -8,7 +8,11 @@
 import Foundation
 import FirebaseRemoteConfig
 
-actor RemoteConfigManager: Sendable {
+actor RemoteConfigManager: Sendable, VersionConfigProviding {
+    func stringValue(forKey key: String) async -> String {
+        getString(forKey: key)
+    }
+
     static let shared = RemoteConfigManager()
     private let remoteConfig = RemoteConfig.remoteConfig()
 

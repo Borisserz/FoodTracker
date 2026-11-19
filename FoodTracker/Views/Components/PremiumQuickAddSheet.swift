@@ -120,10 +120,8 @@ struct PremiumQuickAddSheet: View {
                             ForEach(mealOptions, id: \.0) { meal in
                                 Button(action: {
                                     HapticManager.shared.impact(style: .medium)
+                                    onSelectDetailedMeal(meal.0)
                                     dismiss()
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                                        onSelectDetailedMeal(meal.0)
-                                    }
                                 }) {
                                     HStack {
                                         Image(systemName: meal.1)
@@ -146,10 +144,8 @@ struct PremiumQuickAddSheet: View {
                     
                     Button(action: {
                         HapticManager.shared.impact(style: .medium)
+                        onSelectActivity()
                         dismiss()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                            onSelectActivity()
-                        }
                     }) {
                         HStack {
                             Image(systemName: "figure.run")

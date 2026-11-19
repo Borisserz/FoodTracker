@@ -87,14 +87,7 @@ final class FastingManager {
     }
 
     var remainingTimeString: String {
-        let totalTargetSeconds = Double(targetHours * 3600)
-        let remaining = max(totalTargetSeconds - elapsedTime, 0)
-
-        if remaining == 0 { return "Goal Reached! 🎉" }
-
-        let h = Int(remaining) / 3600
-        let m = (Int(remaining) % 3600) / 60
-        return String(format: "%dh %02dm left", h, m)
+        localizedRemainingTimeString
     }
 
     var localizedRemainingTimeString: String {

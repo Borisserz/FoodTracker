@@ -1,6 +1,10 @@
 import Foundation
 import SwiftUI
 
+protocol VersionConfigProviding: Sendable {
+    func stringValue(forKey key: String) async -> String
+}
+
 @MainActor
 @Observable
 final class VersionManager {
@@ -17,23 +21,26 @@ final class VersionManager {
     
     private init() {}
     
-    func checkVersion() async {
+    func checkVersion(
+        configProvider: any VersionConfigProviding = RemoteConfigManager.shared,
+        currentVersion: String? = nil
+    ) async {
         // Fetch values from Remote Config
-        let minVersion = await RemoteConfigManager.shared.getString(forKey: "food_minimum_ios_version")
-        let recVersion = await RemoteConfigManager.shared.getString(forKey: "food_recommended_ios_version")
+        let minVersion = await configProvider.stringValue(forKey: "food_minimum_ios_version")
+        let recVersion = await configProvider.stringValue(forKey: "food_recommended_ios_version")
         
         // Debug prints
-        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
-        print("📱 App Version: \(currentVersion)")
+        let resolvedVersion = currentVersion ?? (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0")
+        print("📱 App Version: \(resolvedVersion)")
         
-        let newRequirement = evaluateRequirement(current: currentVersion, minimum: minVersion, recommended: recVersion)
+        let newRequirement = Self.evaluateRequirement(current: resolvedVersion, minimum: minVersion, recommended: recVersion)
         
         if newRequirement != self.updateRequirement {
             self.updateRequirement = newRequirement
         }
     }
     
-    private func evaluateRequirement(current: String, minimum: String, recommended: String) -> UpdateRequirement {
+    nonisolated static func evaluateRequirement(current: String, minimum: String, recommended: String) -> UpdateRequirement {
         if !minimum.isEmpty && isVersion(current, lessThan: minimum) {
             return .hardUpdate
         }
@@ -43,7 +50,7 @@ final class VersionManager {
         return .noUpdate
     }
     
-    private func isVersion(_ v1: String, lessThan v2: String) -> Bool {
+    nonisolated static func isVersion(_ v1: String, lessThan v2: String) -> Bool {
         let v1Components = v1.split(separator: ".").compactMap { Int($0) }
         let v2Components = v2.split(separator: ".").compactMap { Int($0) }
         let maxCount = max(v1Components.count, v2Components.count)

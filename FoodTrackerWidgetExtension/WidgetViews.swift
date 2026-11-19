@@ -64,9 +64,9 @@ struct HydrationWidgetView: View {
 
     private var hydrationText: String {
         if useMetricSystem {
-            return String(format: "%.1f L", entry.hydrationLiters)
+            return String(format: String(localized: "%.1f L"), entry.hydrationLiters)
         } else {
-            return String(format: "%.0f fl oz", WidgetUnitPreferences.displayFluid(entry.hydrationLiters, useMetric: false))
+            return String(format: String(localized: "%.0f fl oz"), WidgetUnitPreferences.displayFluid(entry.hydrationLiters, useMetric: false))
         }
     }
 

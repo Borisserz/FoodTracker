@@ -309,6 +309,8 @@ struct AddMealView: View {
                                         .shadow(color: ThemeManager.shared.current.primaryAccent.opacity(0.3), radius: 8, y: 4)
                                     }
                                     .buttonStyle(BounceButtonStyle())
+                                    .accessibilityIdentifier("add_meal_add_food_button")
+                                    .padding(.top, 4)
                                     .padding(.bottom, 20)
                                 }
                                 .frame(maxWidth: .infinity)
@@ -365,6 +367,7 @@ struct AddMealView: View {
                                         .shadow(color: Color.black.opacity(0.01), radius: 5, y: 2)
                                     }
                                     .buttonStyle(BounceButtonStyle())
+                                    .accessibilityIdentifier("add_meal_add_another_button")
                                     .padding(.top, 4)
                                 }
                                 .padding(.horizontal)
@@ -418,6 +421,7 @@ struct AddMealView: View {
                             }
                             .disabled(!canSaveMeal)
                             .buttonStyle(BounceButtonStyle())
+                            .accessibilityIdentifier("add_meal_save_button")
                         }
                         .padding(.horizontal, 24)
                         .padding(.bottom, 30)

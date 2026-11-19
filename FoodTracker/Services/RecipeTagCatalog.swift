@@ -28,6 +28,7 @@ enum RecipeTagCatalog {
         "desayuno": "Breakfast",
         "petit-déjeuner": "Breakfast",
         "colazione": "Breakfast",
+        "pequeno-almoço": "Breakfast",
         "café da manhã": "Breakfast",
 
         // Lunch
@@ -76,6 +77,7 @@ enum RecipeTagCatalog {
         "on the go": "On the Go",
         "в пути": "On the Go",
         "unterwegs": "On the Go",
+        "para llevar": "On the Go",
         "muy activo": "On the Go",
         "en déplacement": "On the Go",
         "in movimento": "On the Go",
@@ -94,9 +96,11 @@ enum RecipeTagCatalog {
         "baking": "Baking",
         "выпечка": "Baking",
         "backen": "Baking",
+        "horneado": "Baking",
         "hornada": "Baking",
         "pâtisserie": "Baking",
         "cottura al forno": "Baking",
+        "forno": "Baking",
         "cozimento": "Baking",
 
         // Easy

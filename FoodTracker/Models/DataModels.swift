@@ -315,6 +315,7 @@ struct Achievement: Identifiable {
     var totalCalories: Int { totalFoodCalories + totalDrinkCalories }
 
     var totalHydrationLiters: Double { (beverages ?? []).reduce(0) { $0 + $1.volumeMl } / 1000.0 }
+    var totalPureWaterLiters: Double { (beverages ?? []).filter { $0.name == "Water" }.reduce(0) { $0 + $1.volumeMl } / 1000.0 }
     var totalProtein: Double { (meals ?? []).reduce(0) { $0 + $1.totalProtein } }
     var totalFats: Double { (meals ?? []).reduce(0) { $0 + $1.totalFats } }
     var totalCarbs: Double { (meals ?? []).reduce(0) { $0 + $1.totalCarbs } }
@@ -773,6 +774,28 @@ enum WidgetStorageActions {
         context.insert(newBeverage)
         summary.addBeverage(newBeverage)
         try context.save()
+    }
+
+    @MainActor
+    static func addWaterGlassAndRecordPendingDelta(
+        volumeMl: Double = 250.0,
+        in context: ModelContext,
+        for date: Date = Date(),
+        sharedDefaults: UserDefaults? = nil,
+        appGroupDefaults: UserDefaults? = nil
+    ) throws {
+        try addWaterGlass(volumeMl: volumeMl, in: context, for: date)
+        if volumeMl > 0 {
+            let summary = DailySummary.fetchOrCreate(for: date, in: context)
+            WorkoutSyncManager.shared.syncWaterFromWidget(
+                totalLiters: summary.totalPureWaterLiters,
+                addedMl: volumeMl,
+                for: date,
+                sharedDefaults: sharedDefaults,
+                appGroupDefaults: appGroupDefaults,
+                localDefaults: appGroupDefaults
+            )
+        }
     }
 
     @MainActor

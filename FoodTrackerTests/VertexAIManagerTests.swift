@@ -73,9 +73,9 @@ final class VertexAIManagerTests: XCTestCase {
         let data = jsonString.data(using: .utf8)!
         let response = try JSONDecoder().decode(VertexAIManager.MenuAIResponse.self, from: data)
         
-        XCTAssertEqual(response.ideal.dishName, "Grilled Chicken Salad")
-        XCTAssertEqual(response.caution.estimatedCalories, 500)
-        XCTAssertEqual(response.avoid.reasoning, "Too many calories.")
+        XCTAssertEqual(response.ideal?.dishName, "Grilled Chicken Salad")
+        XCTAssertEqual(response.caution?.estimatedCalories, 500)
+        XCTAssertEqual(response.avoid?.reasoning, "Too many calories.")
     }
 
     func testCookingStepEvaluationDecoding() throws {
@@ -157,9 +157,9 @@ final class VertexAIManagerTests: XCTestCase {
         }
         """.data(using: .utf8)!
         let menu = try JSONDecoder().decode(VertexAIManager.MenuAIResponse.self, from: menuJSON)
-        XCTAssertEqual(menu.ideal.estimatedCalories, 410)
-        XCTAssertEqual(menu.ideal.fats ?? 0, 11.5, accuracy: 0.01)
-        XCTAssertEqual(menu.ideal.carbs ?? 0, 24.0, accuracy: 0.01)
+        XCTAssertEqual(menu.ideal?.estimatedCalories, 410)
+        XCTAssertEqual(menu.ideal?.fats ?? 0, 11.5, accuracy: 0.01)
+        XCTAssertEqual(menu.ideal?.carbs ?? 0, 24.0, accuracy: 0.01)
 
         // Ensure 1x scale rendering does not multiply dimensions by 3x display scale.
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2400, height: 1200))
@@ -283,5 +283,222 @@ final class VertexAIManagerTests: XCTestCase {
         XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .landscapeLeft), 0)
         XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .landscapeRight), 180)
         XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .portraitUpsideDown), 270)
+    }
+
+    func testFlexibleIntAndAIFoodResponseDoNotCrashOnExtremeOverflow() throws {
+        let hugeFoodJSON = #"""
+        {
+            "isFood": true,
+            "name": "Galaxy Burger",
+            "weight": 1e25,
+            "calories": 1e20,
+            "protein": 1e25,
+            "fats": -50,
+            "carbs": "99999999999999999999"
+        }
+        """#.data(using: .utf8)!
+
+        let decodedFood = try JSONDecoder().decode(VertexAIManager.AIFoodResponse.self, from: hugeFoodJSON)
+        XCTAssertLessThanOrEqual(decodedFood.calories ?? 0, 50_000)
+        XCTAssertGreaterThanOrEqual(decodedFood.fats ?? -1, 0)
+
+        let hugeRecipeJSON = #"""
+        {
+            "name": "Giant Soup",
+            "info": "Big",
+            "calories": "99999999999999999999",
+            "protein": -10,
+            "fats": -5,
+            "carbs": 1e20,
+            "cookingTime": -15
+        }
+        """#.data(using: .utf8)!
+        let decodedRecipe = try JSONDecoder().decode(AIRecipeDTO.self, from: hugeRecipeJSON)
+        XCTAssertGreaterThanOrEqual(decodedRecipe.calories, 0)
+        XCTAssertLessThanOrEqual(decodedRecipe.calories, 50_000)
+        XCTAssertEqual(decodedRecipe.protein, 0)
+        XCTAssertEqual(decodedRecipe.fats, 0)
+        XCTAssertLessThanOrEqual(decodedRecipe.carbs, 10_000)
+        XCTAssertEqual(decodedRecipe.cookingTime, 0)
+    }
+
+    func testAIDTOsClampNegativeValuesToZero() throws {
+        let menuRecJSON = #"""
+        {
+            "dishName": "Mystery Salad",
+            "estimatedCalories": -250,
+            "protein": -12.5,
+            "fats": -4.0,
+            "carbs": -18.0,
+            "reasoning": "Light"
+        }
+        """#.data(using: .utf8)!
+        let rec = try JSONDecoder().decode(VertexAIManager.MenuRecommendation.self, from: menuRecJSON)
+        XCTAssertEqual(rec.estimatedCalories, 0)
+        XCTAssertEqual(rec.protein, 0)
+        XCTAssertEqual(rec.fats ?? -1, 0)
+        XCTAssertEqual(rec.carbs ?? -1, 0)
+
+        let snackJSON = #"""
+        {
+            "title": "Fix",
+            "explanation": "Eat protein",
+            "suggestedSnacks": [
+                {"name": "Shake", "calories": -100, "protein": -20, "fats": -3, "carbs": -5, "weight": -10}
+            ]
+        }
+        """#.data(using: .utf8)!
+        let advice = try JSONDecoder().decode(MacroFixAdviceDTO.self, from: snackJSON)
+        XCTAssertEqual(advice.suggestedSnacks.first?.calories, 0)
+        XCTAssertEqual(advice.suggestedSnacks.first?.protein, 0)
+        XCTAssertEqual(advice.suggestedSnacks.first?.fats, 0)
+        XCTAssertEqual(advice.suggestedSnacks.first?.carbs, 0)
+        XCTAssertEqual(advice.suggestedSnacks.first?.weight, 100.0)
+    }
+
+    func testMenuAIResponseAllowsPartialTiersAndRejectsEmpty() throws {
+        let partialJSON = #"""
+        {
+            "ideal": {
+                "dishName": "Grilled Chicken",
+                "estimatedCalories": 320,
+                "protein": 42,
+                "reasoning": "High protein"
+            }
+        }
+        """#.data(using: .utf8)!
+        let partial = try JSONDecoder().decode(VertexAIManager.MenuAIResponse.self, from: partialJSON)
+        XCTAssertEqual(partial.ideal?.dishName, "Grilled Chicken")
+        XCTAssertNil(partial.caution)
+        XCTAssertNil(partial.avoid)
+
+        let emptyJSON = #"{}"#.data(using: .utf8)!
+        XCTAssertThrowsError(try JSONDecoder().decode(VertexAIManager.MenuAIResponse.self, from: emptyJSON))
+    }
+
+    func testVertexAIManagerVisionMethodsBlockNetworkWhenPhotoConsentNotGranted() async {
+        let mockProxy = MockGeminiProxyClient()
+        let manager = VertexAIManager(proxy: mockProxy, photoConsentProvider: { false })
+        let image = Self.makeSolidTestImage()
+
+        let result = await manager.analyzeFoodImageDetailed(image)
+        if case .failed = result {
+            // expected
+        } else {
+            XCTFail("Expected .failed when photo consent is denied")
+        }
+        let menu = await manager.analyzeMenuImage(image, remainingCalories: 500, targetProtein: 40)
+        XCTAssertNil(menu)
+        XCTAssertEqual(mockProxy.imageCallCount, 0)
+    }
+
+    func testVertexAIManagerAnalyzeFoodImageDetailedClampsAndBackfillsMicronutrients() async {
+        let mockProxy = MockGeminiProxyClient()
+        mockProxy.nextJSONString = #"""
+        {
+            "isFood": true,
+            "name": "Grilled Salmon Fillet",
+            "weight": 200,
+            "calories": 999999,
+            "protein": -15,
+            "fats": 22,
+            "carbs": 0
+        }
+        """#
+        let manager = VertexAIManager(proxy: mockProxy, photoConsentProvider: { true })
+        let image = Self.makeSolidTestImage()
+
+        let result = await manager.analyzeFoodImageDetailed(image)
+        guard case .food(let item) = result else {
+            XCTFail("Expected .food result")
+            return
+        }
+        XCTAssertEqual(mockProxy.imageCallCount, 1)
+        XCTAssertEqual(item.name, "Grilled Salmon Fillet")
+        XCTAssertLessThanOrEqual(item.calories, 50_000)
+        XCTAssertEqual(item.protein, 0.0, accuracy: 0.01)
+        XCTAssertGreaterThan(item.omega3, 1.0)
+        XCTAssertGreaterThan(item.vitaminD, 5.0)
+    }
+
+    func testAINutritionServiceNetworkPipelineDecodesAndHandlesErrors() async {
+        let mockProxy = MockGeminiProxyClient()
+        mockProxy.nextJSONString = #"""
+        {
+            "name": "Salmon Bowl",
+            "calories": "450",
+            "protein": "34.5",
+            "fats": 18,
+            "carbs": 35
+        }
+        """#
+        let service = AINutritionService(proxy: mockProxy)
+
+        let item = await service.generateFoodItem(for: "salmon bowl")
+        XCTAssertNotNil(item)
+        XCTAssertEqual(item?.name, "Salmon Bowl")
+        XCTAssertEqual(item?.calories, 450)
+        XCTAssertGreaterThan(item?.omega3 ?? 0, 0.5)
+
+        mockProxy.nextError = GeminiProxyError.invalidResponse
+        let failedVerdict = await service.generateDailyVerdict(consumed: 1500, goal: 2000, protein: 90, targetProtein: 130)
+        XCTAssertNil(failedVerdict)
+    }
+
+    private static func makeSolidTestImage() -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 24, height: 24))
+        return renderer.image { ctx in
+            UIColor.orange.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 24, height: 24))
+        }
+    }
+}
+
+private final class MockGeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
+    var nextJSONString: String = "{}"
+    var nextTextString: String = "ok"
+    var nextError: Error?
+    private(set) var textCallCount = 0
+    private(set) var imageCallCount = 0
+
+    func fetchJSON<T: Decodable>(
+        prompt: String,
+        responseType: T.Type,
+        maxOutputTokens: Int?,
+        suppressRateLimitAlert: Bool
+    ) async throws -> T {
+        textCallCount += 1
+        if let nextError { throw nextError }
+        let data = Data(nextJSONString.utf8)
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+
+    func fetchText(prompt: String, suppressRateLimitAlert: Bool) async throws -> String {
+        textCallCount += 1
+        if let nextError { throw nextError }
+        return nextTextString
+    }
+
+    func fetchJSONWithImage<T: Decodable>(
+        prompt: String,
+        base64Image: String,
+        mimeType: String,
+        responseType: T.Type
+    ) async throws -> T {
+        imageCallCount += 1
+        if let nextError { throw nextError }
+        let data = Data(nextJSONString.utf8)
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+
+    func fetchJSONWithImages<T: Decodable>(
+        prompt: String,
+        images: [(base64: String, mime: String)],
+        responseType: T.Type
+    ) async throws -> T {
+        imageCallCount += 1
+        if let nextError { throw nextError }
+        let data = Data(nextJSONString.utf8)
+        return try JSONDecoder().decode(T.self, from: data)
     }
 }

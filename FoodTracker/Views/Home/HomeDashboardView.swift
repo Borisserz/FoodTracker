@@ -76,7 +76,13 @@ struct HomeDashboardContentView: View {
     @State private var showingQuickActivitySheet = false
     @State private var selectedMealForDetail: String? = nil
     @State private var showPremiumQuickAdd = false
+    @State private var pendingQuickAddAction: PendingQuickAddAction? = nil
     @State private var mealToOpenInSmartAdd: IdentifiableString? = nil
+
+    private enum PendingQuickAddAction {
+        case meal(String)
+        case activity
+    }
     @State private var allTimeCalories: Int = 0
     @State private var showXPPopup = false
     @State private var xpBreakdown: NutritionXPBreakdown? = nil
@@ -255,7 +261,8 @@ struct HomeDashboardContentView: View {
                           SpeedDialItem(
                               icon: "barcode.viewfinder",
                               label: String(localized: "Scan Barcode"),
-                              color: .blue
+                              color: .blue,
+                              accessibilityId: "speed_dial_scan_barcode"
                           ) {
                               isMenuExpanded = false
                               showingScanner = true
@@ -264,7 +271,8 @@ struct HomeDashboardContentView: View {
                           SpeedDialItem(
                               icon: "fork.knife",
                               label: String(localized: "Log Meal"),
-                              color: .themePink
+                              color: .themePink,
+                              accessibilityId: "speed_dial_log_meal"
                           ) {
                               isMenuExpanded = false
                               self.mealToOpenInSmartAdd = IdentifiableString(value: "Breakfast")
@@ -314,6 +322,7 @@ struct HomeDashboardContentView: View {
                           .shadow(color: .themePink.opacity(0.4), radius: 10, y: 5)
                   }
                   .spotlightTarget(step: .addMeal)
+                  .accessibilityIdentifier("home_quick_add_fab")
                   .padding(.trailing, 24)
                   .padding(.bottom, 24)
                   .zIndex(100)
@@ -406,15 +415,34 @@ struct HomeDashboardContentView: View {
                       .presentationCornerRadius(32)
                       .presentationDragIndicator(.hidden)
               }
-              .sheet(isPresented: $showPremiumQuickAdd) {
-                  PremiumQuickAddSheet(selectedDate: selectedDate, onSelectDetailedMeal: { selectedMeal in
+              .sheet(isPresented: $showPremiumQuickAdd, onDismiss: {
+                  guard let action = pendingQuickAddAction else { return }
+                  pendingQuickAddAction = nil
+                  switch action {
+                  case .meal(let selectedMeal):
                       self.mealToOpenInSmartAdd = IdentifiableString(value: selectedMeal)
-                  }, onSelectActivity: {
+                  case .activity:
                       self.showingQuickActivitySheet = true
+                  }
+              }) {
+                  PremiumQuickAddSheet(selectedDate: selectedDate, onSelectDetailedMeal: { selectedMeal in
+                      self.pendingQuickAddAction = .meal(selectedMeal)
+                  }, onSelectActivity: {
+                      self.pendingQuickAddAction = .activity
                   })
                   .presentationDetents([.fraction(0.82), .large])
                   .presentationCornerRadius(32)
                   .presentationDragIndicator(.visible)
+              }
+              .onChange(of: appState.spotlightTourRestartToken) { _, newToken in
+                  guard newToken > 0 else { return }
+                  navigateToProfile = false
+                  showDailyLog = false
+                  showPremiumQuickAdd = false
+                  Task { @MainActor in
+                      await Task.yield()
+                      SpotlightTourManager.shared.resetTour()
+                  }
               }
               .sheet(isPresented: $showingQuickActivitySheet) {
                   QuickActivityAddView(summary: currentSummary)
@@ -1206,6 +1234,24 @@ struct MealDetailView: View {
 
         try? context.save()
         WidgetReloader.reloadAll()
+
+        let shouldSyncHK = (try? context.fetch(FetchDescriptor<User>()).first?.isHealthKitEnabled) == true
+        let itemsToSync = newFoodItems.filter { $0.calories > 0 }
+        if shouldSyncHK && !itemsToSync.isEmpty {
+            let syncDate = mealTimestamp
+            Task { @MainActor in
+                var didAttach = false
+                for item in itemsToSync {
+                    if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: item.calories, date: syncDate) {
+                        item.healthKitSampleID = uuid.uuidString
+                        didAttach = true
+                    }
+                }
+                if didAttach {
+                    try? context.save()
+                }
+            }
+        }
     }
 }
 
@@ -1405,7 +1451,9 @@ struct FloatingCartButton: View {
                     Spacer()
                     Image(systemName: "checkmark.circle.fill").font(.title).foregroundColor(.white)
                 }.padding(.horizontal, 24).padding(.vertical, 16).background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing)).cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 15, y: 8)
-            }.padding(.horizontal, 20).padding(.bottom, 30)
+            }
+            .accessibilityIdentifier("smart_add_confirm_cart_button")
+            .padding(.horizontal, 20).padding(.bottom, 30)
         }
     }
 }
@@ -2137,8 +2185,9 @@ struct SmartAddFoodView: View {
                                 EmptyStateView(imageName: "tray", title: "No history", description: "Your recent meals will appear here.")
                                     .padding(.top, 60)
                             } else {
-                                ForEach(filteredLocalFoods, id: \.id) { food in
+                                ForEach(Array(filteredLocalFoods.enumerated()), id: \.element.id) { index, food in
                                     FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
+                                        .accessibilityIdentifier("smart_add_food_row_\(index)")
                                 }
                             }
                         }
@@ -2255,6 +2304,7 @@ struct SpeedDialItem: View {
     let icon: String
     let label: String
     let color: Color
+    var accessibilityId: String? = nil
     let action: () -> Void
 
     var body: some View {
@@ -2285,5 +2335,6 @@ struct SpeedDialItem: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityIdentifier(accessibilityId ?? "")
     }
 }

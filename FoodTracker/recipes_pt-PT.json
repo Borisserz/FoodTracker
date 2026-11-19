@@ -7,7 +7,7 @@
     "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Café da manhã",
+      "Pequeno-almoço",
       "Lanche",
       "Vegetariano"
     ],
@@ -50,7 +50,7 @@
     "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
     "tags": [
-      "Café da manhã",
+      "Pequeno-almoço",
       "Alta proteína",
       "Baixo teor de carboidratos",
       "Preparado rapidamente",
@@ -108,7 +108,7 @@
     "ingredients": [
       {
         "name": "Leite de amêndoa sem açúcar",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 250,
         "calories": 38
       },
@@ -149,7 +149,7 @@
       "Cetogênico",
       "Alta proteína",
       "Baixo teor de carboidratos",
-      "Cozimento"
+      "Forno"
     ],
     "baseServings": 2,
     "protein": 33.0,
@@ -213,13 +213,13 @@
       },
       {
         "name": "Quinua Cozida",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 200,
         "calories": 240
       },
       {
         "name": "Tomate Cereja",
-        "amount": "1/2 xícara",
+        "amount": "1/2 chávena",
         "weightGrams": 100,
         "calories": 15
       },
@@ -268,7 +268,7 @@
       },
       {
         "name": "Molho Marinara Sem Açúcar",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 200,
         "calories": 100
       },
@@ -296,7 +296,7 @@
     "tags": [
       "Lanche",
       "Vegetariano",
-      "Poucos Ingredientes",
+      "Poucos ingredientes",
       "Fácil"
     ],
     "baseServings": 1,
@@ -306,13 +306,13 @@
     "ingredients": [
       {
         "name": "Iogurte grego sem gordura",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 200,
         "calories": 118
       },
       {
         "name": "Bagas Mistas",
-        "amount": "1/2 xícara",
+        "amount": "1/2 chávena",
         "weightGrams": 100,
         "calories": 58
       },
@@ -344,7 +344,7 @@
     "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Café da manhã",
+      "Pequeno-almoço",
       "Vegano",
       "Alta proteína",
       "Preparado rapidamente"
@@ -362,7 +362,7 @@
       },
       {
         "name": "Espinafre Fresco",
-        "amount": "2 xícaras",
+        "amount": "2 chávenas",
         "weightGrams": 100,
         "calories": 23
       },
@@ -412,7 +412,7 @@
       },
       {
         "name": "Florzinhas de brócolis",
-        "amount": "3 xícaras",
+        "amount": "3 chávenas",
         "weightGrams": 300,
         "calories": 102
       },
@@ -438,15 +438,15 @@
   },
   {
     "title": "Aveia Assada com Maçã e Canela",
-    "description": "Quente, reconfortante e com gosto de torta de maçã no café da manhã. Rico em fibras! 🍎",
+    "description": "Quente, reconfortante e com gosto de torta de maçã no pequeno-almoço. Rico em fibras! 🍎",
     "time": "30 min",
     "caloriesPerServing": 256,
     "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Café da manhã",
+      "Pequeno-almoço",
       "Vegetariano",
-      "Cozimento",
+      "Forno",
       "Fácil"
     ],
     "baseServings": 2,
@@ -456,13 +456,13 @@
     "ingredients": [
       {
         "name": "Aveia em flocos",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 100,
         "calories": 379
       },
       {
         "name": "Leite de Amêndoa",
-        "amount": "2/3 xícara",
+        "amount": "2/3 chávena",
         "weightGrams": 150,
         "calories": 22
       },
@@ -487,7 +487,7 @@
     ]
   },
   {
-    "title": "Tigela de queijo cottage e abacaxi",
+    "title": "Tigela de queijo cottage e ananás",
     "description": "Um lanche refrescante, doce e rico em proteínas, perfeito para a recuperação pós-treino. 🍍",
     "time": "2 min",
     "caloriesPerServing": 261,
@@ -496,7 +496,7 @@
     "tags": [
       "Lanche",
       "Alta proteína",
-      "Poucos Ingredientes",
+      "Poucos ingredientes",
       "Preparado rapidamente"
     ],
     "baseServings": 1,
@@ -506,13 +506,13 @@
     "ingredients": [
       {
         "name": "Queijo cottage com baixo teor de gordura",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 225,
         "calories": 162
       },
       {
-        "name": "Pedaços de abacaxi",
-        "amount": "1/2 xícara",
+        "name": "Pedaços de ananás",
+        "amount": "1/2 chávena",
         "weightGrams": 100,
         "calories": 50
       },
@@ -525,7 +525,7 @@
     ],
     "directions": [
       "Coloque o queijo cottage em uma tigela.",
-      "Cubra com pedaços de abacaxi fresco ou enlatado.",
+      "Cubra com pedaços de ananás fresco ou enlatado.",
       "Polvilhe sementes de chia por cima para obter mais fibra e crocância. Mexa antes de comer."
     ]
   },
@@ -540,7 +540,7 @@
       "Jantar",
       "Alta proteína",
       "Baixo teor de carboidratos",
-      "Cozimento"
+      "Forno"
     ],
     "baseServings": 2,
     "protein": 65.0,
@@ -555,13 +555,13 @@
       },
       {
         "name": "Queijo Feta",
-        "amount": "1/2 xícara esfarelada",
+        "amount": "1/2 chávena esfarelada",
         "weightGrams": 60,
         "calories": 160
       },
       {
         "name": "Espinafre Fresco",
-        "amount": "2 xícaras",
+        "amount": "2 chávenas",
         "weightGrams": 100,
         "calories": 23
       },
@@ -599,7 +599,7 @@
     "ingredients": [
       {
         "name": "Lentilhas Verdes Secas",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 200,
         "calories": 700
       },
@@ -636,7 +636,7 @@
     ],
     "directions": [
       "Corte a cebola, a cenoura e o aipo em cubos. Refogue-os em uma panela grande com azeite até ficarem macios.",
-      "Lave as lentilhas e coloque-as na panela junto com os tomates esmagados e 3 xícaras de água ou caldo de legumes.",
+      "Lave as lentilhas e coloque-as na panela junto com os tomates esmagados e 3 chávenas de água ou caldo de legumes.",
       "Deixe ferver, reduza o fogo, tampe e cozinhe por 30-35 minutos até que as lentilhas estejam macias.",
       "Tempere com sal, pimenta e uma pitada de cominho antes de servir."
     ]
@@ -650,7 +650,7 @@
     "isFavorite": false,
     "tags": [
       "Lanche",
-      "Cozimento",
+      "Forno",
       "Vegetariano",
       "Em movimento"
     ],
@@ -661,7 +661,7 @@
     "ingredients": [
       {
         "name": "Aveia em flocos",
-        "amount": "1,5 xícaras",
+        "amount": "1,5 chávenas",
         "weightGrams": 150,
         "calories": 580
       },
@@ -673,7 +673,7 @@
       },
       {
         "name": "Manteiga de amendoim natural",
-        "amount": "1/4 xícara",
+        "amount": "1/4 chávena",
         "weightGrams": 60,
         "calories": 350
       }
@@ -711,7 +711,7 @@
       },
       {
         "name": "Bagas Mistas Congeladas",
-        "amount": "3/4 xícara",
+        "amount": "3/4 chávena",
         "weightGrams": 100,
         "calories": 50
       },
@@ -723,7 +723,7 @@
       },
       {
         "name": "Leite de amêndoa sem açúcar",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 250,
         "calories": 38
       },
@@ -751,7 +751,7 @@
       "Almoço",
       "Baixo teor de carboidratos",
       "Preparado rapidamente",
-      "Poucos Ingredientes"
+      "Poucos ingredientes"
     ],
     "baseServings": 2,
     "protein": 32.0,
@@ -842,7 +842,7 @@
   },
   {
     "title": "Salada Fiesta de Feijão Preto e Milho",
-    "description": "Uma salada vibrante e picante à base de plantas que fica perfeitamente guardada na geladeira por dias. 🌽",
+    "description": "Uma salada vibrante e picante à base de plantas que fica perfeitamente guardada na frigorífico por dias. 🌽",
     "time": "10 min",
     "caloriesPerServing": 220,
     "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
@@ -866,7 +866,7 @@
       },
       {
         "name": "Grãos de Milho Doce",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 150,
         "calories": 130
       },
@@ -883,7 +883,7 @@
         "calories": 132
       },
       {
-        "name": "Suco de limão",
+        "name": "Sumo de limão",
         "amount": "2 colheres de sopa",
         "weightGrams": 30,
         "calories": 8
@@ -893,7 +893,7 @@
       "Enxágue e escorra bem o feijão preto e o milho.",
       "Corte o pimentão vermelho em pedaços pequenos.",
       "Em uma tigela grande, misture o feijão, o milho e o pimentão.",
-      "Misture o azeite e o suco de limão, regue com a salada, misture bem e leve à geladeira antes de servir."
+      "Misture o azeite e o sumo de limão, regue com a salada, misture bem e leve à frigorífico antes de servir."
     ]
   },
   {
@@ -954,10 +954,10 @@
     "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Café da manhã",
+      "Pequeno-almoço",
       "Alta proteína",
       "Vegetariano",
-      "Cozimento"
+      "Forno"
     ],
     "baseServings": 2,
     "protein": 22.0,
@@ -966,7 +966,7 @@
     "ingredients": [
       {
         "name": "Queijo cottage com baixo teor de gordura",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 200,
         "calories": 160
       },
@@ -978,7 +978,7 @@
       },
       {
         "name": "Aveia em flocos",
-        "amount": "1/2 xícara",
+        "amount": "1/2 chávena",
         "weightGrams": 50,
         "calories": 190
       }
@@ -1010,7 +1010,7 @@
     "ingredients": [
       {
         "name": "Edamame sem casca (descongelado)",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 150,
         "calories": 180
       },
@@ -1075,7 +1075,7 @@
       "Descasque e pique os ovos cozidos em pedaços pequenos.",
       "Corte o abacate ao meio, retire o caroço e coloque a polpa em uma tigela.",
       "Amasse o abacate e a maionese até ficar cremoso e, em seguida, envolva delicadamente os ovos picados.",
-      "Tempere com sal, pimenta e uma pitada de colorau. Sirva em xícaras de alface ou coma como está."
+      "Tempere com sal, pimenta e uma pitada de colorau. Sirva em chávenas de alface ou coma como está."
     ]
   },
   {
@@ -1110,7 +1110,7 @@
       },
       {
         "name": "Espinafre Fresco",
-        "amount": "2 xícaras",
+        "amount": "2 chávenas",
         "weightGrams": 60,
         "calories": 14
       },
@@ -1138,7 +1138,7 @@
     "tags": [
       "Almoço",
       "Alta proteína",
-      "Cozimento"
+      "Forno"
     ],
     "baseServings": 2,
     "protein": 24.0,
@@ -1173,13 +1173,13 @@
   },
   {
     "title": "Pudim de Sementes de Berry Chia",
-    "description": "Um café da manhã para viagem repleto de fibras e ômega-3 que se prepara durante a noite. 🍓",
+    "description": "Um pequeno-almoço para viagem repleto de fibras e ômega-3 que se prepara durante a noite. 🍓",
     "time": "5 min",
     "caloriesPerServing": 180,
     "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Café da manhã",
+      "Pequeno-almoço",
       "Vegano",
       "Em movimento",
       "Poucos ingredientes"
@@ -1191,19 +1191,19 @@
     "ingredients": [
       {
         "name": "Sementes de Chia",
-        "amount": "1/4 xícara",
+        "amount": "1/4 chávena",
         "weightGrams": 40,
         "calories": 240
       },
       {
         "name": "Leite de amêndoa sem açúcar",
-        "amount": "1 xícara",
+        "amount": "1 chávena",
         "weightGrams": 240,
         "calories": 40
       },
       {
         "name": "Framboesas",
-        "amount": "1/2 xícara",
+        "amount": "1/2 chávena",
         "weightGrams": 60,
         "calories": 30
       },
@@ -1217,7 +1217,7 @@
     "directions": [
       "Em uma jarra ou recipiente, misture vigorosamente as sementes de chia, o leite de amêndoa e o xarope de bordo.",
       "Deixe descansar por 5 minutos e bata novamente para evitar grumos.",
-      "Cubra e leve à geladeira por pelo menos 2 horas ou durante a noite.",
+      "Cubra e leve à frigorífico por pelo menos 2 horas ou durante a noite.",
       "Cubra com framboesas frescas antes de servir."
     ]
   },
@@ -1376,7 +1376,7 @@
       "Lanche",
       "Vegano",
       "Poucos ingredientes",
-      "Cozimento"
+      "Forno"
     ],
     "baseServings": 3,
     "protein": 7.0,
@@ -1697,7 +1697,7 @@
     "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Café da manhã",
+      "Pequeno-almoço",
       "Alta proteína",
       "Em movimento",
       "Vegetariano"
@@ -1750,7 +1750,7 @@
       "Jantar",
       "Baixo teor de carboidratos",
       "Alta proteína",
-      "Cozimento"
+      "Forno"
     ],
     "baseServings": 2,
     "protein": 27.0,
@@ -1844,7 +1844,7 @@
       "Jantar",
       "Cetogênico",
       "Alta proteína",
-      "Cozimento"
+      "Forno"
     ],
     "baseServings": 2,
     "protein": 42.0,
@@ -1937,7 +1937,7 @@
     "tags": [
       "Jantar",
       "Baixo teor de carboidratos",
-      "Cozimento"
+      "Forno"
     ],
     "baseServings": 4,
     "protein": 22.0,
@@ -2420,7 +2420,7 @@
     "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
     "tags": [
-      "Café da manhã",
+      "Pequeno-almoço",
       "Vegetariano",
       "Baixo teor de carboidratos",
       "Cetogênico"
@@ -2740,7 +2740,7 @@
     "directions": [
       "Descasque cuidadosamente os espargos brancos da ponta até à base e coza em água com sal e gotas de limão.",
       "Reduza champanhe, vinagre e chalota quase até secar; fora do lume, monte aos cubos com manteiga bem fria.",
-      "Sele o pregado numa frigideira com fio de óleo até formar crosta dourada e termine regando com os sucos.",
+      "Sele o pregado numa frigideira com fio de óleo até formar crosta dourada e termine regando com os sumos.",
       "Disponha os espargos brancos, coloque o peixe ao lado e sirva com o molho beurre blanc."
     ]
   },

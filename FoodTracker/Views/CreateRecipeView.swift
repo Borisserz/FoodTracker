@@ -1154,7 +1154,7 @@ struct RecipeDetailView: View {
             WidgetReloader.reloadAll()
             AppReviewManager.shared.userDidLogMeal()
             let shouldSyncHK = (try? context.fetch(FetchDescriptor<User>()).first?.isHealthKitEnabled) == true
-            if shouldSyncHK && HealthKitManager.shared.isAuthorized && newFood.calories > 0 {
+            if shouldSyncHK && newFood.calories > 0 {
                 if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: newFood.calories, date: .now) {
                     newFood.healthKitSampleID = uuid.uuidString
                     try? context.save()

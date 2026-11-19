@@ -2,7 +2,7 @@
   {
     "title": "Bratäpfel mit Honig und Walnüssen",
     "description": "Einfach zuzubereiten, angenehm zu genießen und perfekt für gemütliche Abende. 🍂",
-    "time": "20 min",
+    "time": "20 Min.",
     "caloriesPerServing": 249,
     "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -45,7 +45,7 @@
   {
     "title": "Proteinreiches Rührei mit Avocado",
     "description": "Ein klassisches Grundnahrungsmittel für den Morgen, vollgestopft mit gesunden Fetten und magerem Protein, um Sie mit Energie zu versorgen. 🥑",
-    "time": "10 min",
+    "time": "10 Min.",
     "caloriesPerServing": 330,
     "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -90,7 +90,7 @@
   {
     "title": "Veganer Schokoladen-Erdnussbutter-Smoothie",
     "description": "Reichhaltig, cremig und voller pflanzlicher Proteine. Schmeckt wie ein Dessert! 🍫",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 414,
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -140,7 +140,7 @@
   {
     "title": "Keto-Knoblauchbutter-Lachs mit Spargel",
     "description": "Flockiger, butterartiger Lachs gepaart mit knusprig geröstetem Spargel. Perfekt für ein Keto-Abendessen. 🐟",
-    "time": "25 min",
+    "time": "25 Min.",
     "caloriesPerServing": 409,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -191,7 +191,7 @@
   {
     "title": "Hühnchen-Quinoa-Bowl",
     "description": "Eine perfekt ausgewogene Mittagsschüssel mit magerem Hühnchen, komplexen Kohlenhydraten und frischen Tomaten. 🥗",
-    "time": "20 min",
+    "time": "20 Min.",
     "caloriesPerServing": 419,
     "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -240,7 +240,7 @@
   {
     "title": "Low Carb Putenfleischbällchen mit Zucchininudeln",
     "description": "Ein leichtes, italienisch inspiriertes Abendessen, das Kohlenhydrate spart, ohne auf Geschmack zu verzichten. 🍝",
-    "time": "30 min",
+    "time": "30 Min.",
     "caloriesPerServing": 232,
     "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -289,7 +289,7 @@
   {
     "title": "Perfekter griechischer Joghurt mit Beeren",
     "description": "Ein schneller, süßer und proteinreicher Snack, der Ihren Heißhunger am Mittag zügelt. 🍓",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 292,
     "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -339,7 +339,7 @@
   {
     "title": "Veganes Tofu-Rührei",
     "description": "Eine herzhafte, pflanzliche Ei-Alternative mit Spinat und entzündungshemmendem Kurkuma. 🌱",
-    "time": "10 min",
+    "time": "10 Min.",
     "caloriesPerServing": 256,
     "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -389,7 +389,7 @@
   {
     "title": "Keto-Steak und Brokkoli",
     "description": "Ein kräftiges Abendessen zur Muskelregeneration. Zartes Steak und Knoblauchbutter-Brokkoli. 🥩",
-    "time": "20 min",
+    "time": "20 Min.",
     "caloriesPerServing": 508,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -439,7 +439,7 @@
   {
     "title": "Gebackene Haferflocken mit Apfel und Zimt",
     "description": "Warm, wohlig und schmeckt wie Apfelkuchen zum Frühstück. Reich an Ballaststoffen! 🍎",
-    "time": "30 min",
+    "time": "30 Min.",
     "caloriesPerServing": 256,
     "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -489,7 +489,7 @@
   {
     "title": "Schüssel mit Hüttenkäse und Ananas",
     "description": "Ein erfrischender, süßer und proteinreicher Snack, perfekt für die Erholung nach dem Training. 🍍",
-    "time": "2 min",
+    "time": "2 Min.",
     "caloriesPerServing": 261,
     "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -532,7 +532,7 @@
   {
     "title": "Mit Spinat und Feta gefüllte Hähnchenbrust",
     "description": "Saftiges Hähnchen gefüllt mit herzhaftem Feta und Spinat. Sieht lecker aus, ist aber unglaublich einfach zuzubereiten! 🌿",
-    "time": "35 min",
+    "time": "35 Min.",
     "caloriesPerServing": 465,
     "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -582,7 +582,7 @@
   {
     "title": "Veganer Linsen-Gemüse-Eintopf",
     "description": "Ein herzhafter, wärmender und ballaststoffreicher Eintopf auf pflanzlicher Basis, der sich perfekt für die Zubereitung von Mahlzeiten eignet. 🍲",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 266,
     "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -644,7 +644,7 @@
   {
     "title": "Erdnussbutter-Bananen-Haferkekse",
     "description": "Zähe, mehlfreie Kekse, perfekt für einen Energieschub vor dem Training oder einen süßen Snack. 🍪",
-    "time": "15 min",
+    "time": "15 Min.",
     "caloriesPerServing": 139,
     "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -688,7 +688,7 @@
   {
     "title": "Beerengrüner antioxidativer Smoothie",
     "description": "Eine erfrischende Mischung aus Gemüse und Beeren, die den Spinatgeschmack vollständig überdeckt! 🫐",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 247,
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -743,7 +743,7 @@
   {
     "title": "Würzige Garnelen-Salat-Wraps",
     "description": "Knusprige, kühle Salatbecher, gefüllt mit pikanten, proteinreichen Garnelen und cremiger Avocado. 🍤",
-    "time": "15 min",
+    "time": "15 Min.",
     "caloriesPerServing": 269,
     "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -793,7 +793,7 @@
   {
     "title": "Keto-Eiersalat mit gefüllten Paprikaschoten",
     "description": "Knusprige Paprika sind das perfekte kohlenhydratarme Gefäß für cremigen, reichhaltigen Eiersalat. 🫑",
-    "time": "15 min",
+    "time": "15 Min.",
     "caloriesPerServing": 274,
     "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -843,7 +843,7 @@
   {
     "title": "Fiesta-Salat mit schwarzen Bohnen und Mais",
     "description": "Ein lebendiger, würziger Salat auf Pflanzenbasis, der sich tagelang perfekt im Kühlschrank hält. 🌽",
-    "time": "10 min",
+    "time": "10 Min.",
     "caloriesPerServing": 220,
     "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -899,7 +899,7 @@
   {
     "title": "Flank Steak Fajita-Pfanne",
     "description": "Brutzelnde, zarte Steakstreifen mit karamellisierten Zwiebeln und Paprika. Mir fehlt nur noch die Tortilla! 🥩",
-    "time": "20 min",
+    "time": "20 Min.",
     "caloriesPerServing": 358,
     "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -949,7 +949,7 @@
   {
     "title": "Hüttenkäse-Protein-Pfannkuchen",
     "description": "Flauschige, goldene Pfannkuchen mit einer geheimen Zutat, die den Proteingehalt mühelos erhöht. 🥞",
-    "time": "15 min",
+    "time": "15 Min.",
     "caloriesPerServing": 245,
     "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -993,7 +993,7 @@
   {
     "title": "Snackschale aus Edamame und Algen",
     "description": "Ein herzhafter, salziger und sättigender pflanzlicher Snack voller Spurenelemente. 🥢",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 245,
     "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -1037,7 +1037,7 @@
   {
     "title": "Keto-Avocado-Eiersalat",
     "description": "Eine cremige, kohlenhydratarme Variante eines traditionellen Eiersalats mit nährstoffreicher Avocado anstelle von überschüssiger Mayonnaise. 🥑",
-    "time": "10 min",
+    "time": "10 Min.",
     "caloriesPerServing": 310,
     "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -1081,7 +1081,7 @@
   {
     "title": "Veganes Kichererbsen-Kokos-Curry",
     "description": "Ein duftendes, wärmendes Curry auf pflanzlicher Basis, das schnell zu einem gemütlichen Abendessen unter der Woche passt. 🥥",
-    "time": "25 min",
+    "time": "25 Min.",
     "caloriesPerServing": 210,
     "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1131,7 +1131,7 @@
   {
     "title": "Gebackene Süßkartoffel mit Putenhackfleisch",
     "description": "Ein proteinreiches, nährstoffreiches Mittagessen voller komplexer Kohlenhydrate, das Ihnen Energie für den Tag gibt. 🍠",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 310,
     "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1174,7 +1174,7 @@
   {
     "title": "Beeren-Chia-Samen-Pudding",
     "description": "Ein Frühstück zum Mitnehmen voller Ballaststoffe und Omega-3-Fettsäuren, das sich über Nacht selbst zubereitet. 🍓",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 180,
     "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1224,7 +1224,7 @@
   {
     "title": "Garnelen-Zoodles mit Knoblauchbutter",
     "description": "Ein leichtes, Knoblauch- und Buttergericht mit Meeresfrüchten, das die Kohlenhydrate niedrig und den Proteingehalt hoch hält. 🦐",
-    "time": "15 min",
+    "time": "15 Min.",
     "caloriesPerServing": 280,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1268,7 +1268,7 @@
   {
     "title": "Matcha-Grüntee-Protein-Smoothie",
     "description": "Ein antioxidantienreicher, koffeinhaltiger Shake, perfekt für den schnellen Start am Morgen oder als Energiequelle vor dem Training. 🍵",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 205,
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1318,7 +1318,7 @@
   {
     "title": "Caprese-Hühnerpfanne",
     "description": "Geschmolzener Mozzarella, süße Balsamico-Glasur und saftige Tomaten auf mageren Hähnchenbruststücken. 🍅",
-    "time": "20 min",
+    "time": "20 Min.",
     "caloriesPerServing": 375,
     "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1368,7 +1368,7 @@
   {
     "title": "Knusprig geröstete Kichererbsen",
     "description": "Ein knuspriger, herzhafter Snack, der Kartoffelchips ersetzt und eine ordentliche Portion pflanzliches Protein enthält. 🌶️",
-    "time": "35 min",
+    "time": "35 Min.",
     "caloriesPerServing": 183,
     "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1412,7 +1412,7 @@
   {
     "title": "Mit Thunfischsalat gefüllte Avocados",
     "description": "Ein schnelles Mittagessen ohne Kochen, das unglaublich gesunde Fette und Proteine ​​ohne Brot liefert. 🥑",
-    "time": "10 min",
+    "time": "10 Min.",
     "caloriesPerServing": 235,
     "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -1456,7 +1456,7 @@
   {
     "title": "Apfelringe mit Mandelbutter",
     "description": "Ein lustiger, knuspriger und süßer Snack, dessen Zubereitung zwei Minuten dauert. Perfekt für Kinder und Erwachsene! 🍏",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 296,
     "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1500,7 +1500,7 @@
   {
     "title": "Keto-Blumenkohl-Makkaroni und Käse",
     "description": "Ein reichhaltiger, käsiger Klassiker der Hausmannskost, komplett neu interpretiert und ohne Kohlenhydrate. 🧀",
-    "time": "25 min",
+    "time": "25 Min.",
     "caloriesPerServing": 266,
     "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -1543,7 +1543,7 @@
   {
     "title": "Proteinreiches Puten-Chili",
     "description": "Ein kräftiges, wärmendes Chili, das einen ordentlichen Proteinschub für die Muskelregeneration liefert. 🌶️",
-    "time": "40 min",
+    "time": "40 Min.",
     "caloriesPerServing": 305,
     "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1592,7 +1592,7 @@
   {
     "title": "Vegane Tempeh-Teriyaki-Pfanne",
     "description": "Eine schnelle, herzhafte Pfanne auf pflanzlicher Basis, beladen mit fermentiertem Sojaprotein und knackigem Brokkoli. 🥢",
-    "time": "15 min",
+    "time": "15 Min.",
     "caloriesPerServing": 280,
     "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1642,7 +1642,7 @@
   {
     "title": "Schokoladen-Avocado-Proteinpudding",
     "description": "Ein dekadentes, samtiges Dessert, das heimlich gesunde Fette und eine ordentliche Portion Protein liefert. 🍫",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 237,
     "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1692,7 +1692,7 @@
   {
     "title": "Proteinreiche Overnight-Oats",
     "description": "Bereiten Sie es am Vorabend für ein stressfreies, muskelaufbauendes Frühstück beim Laufen zu. 🥣",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 330,
     "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1742,7 +1742,7 @@
   {
     "title": "Gebackener Zitronen-Kräuter-Kabeljau",
     "description": "Ein unglaublich mageres und flockiges Weißfischrezept, das sich leicht, aber sättigend anfühlt. 🍋",
-    "time": "20 min",
+    "time": "20 Min.",
     "caloriesPerServing": 193,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1786,7 +1786,7 @@
   {
     "title": "Veganer Edamame-Quinoa-Salat",
     "description": "Ein knuspriges, proteinreiches veganes Mittagessen mit einem herzhaften Erdnussdressing. 🥗",
-    "time": "15 min",
+    "time": "15 Min.",
     "caloriesPerServing": 300,
     "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1836,7 +1836,7 @@
   {
     "title": "Hähnchen mit Keto-Parmesankruste",
     "description": "Eine knusprige, goldene, im Ofen gebackene Hähnchenbrust ohne Semmelbrösel. 🍗",
-    "time": "30 min",
+    "time": "30 Min.",
     "caloriesPerServing": 405,
     "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1880,7 +1880,7 @@
   {
     "title": "Tropischer Mango-Spinat-Smoothie",
     "description": "Ein feuchtigkeitsspendender, leuchtend grüner Smoothie, der wie ein tropischer Inselurlaub schmeckt. 🥭",
-    "time": "5 min",
+    "time": "5 Min.",
     "caloriesPerServing": 197,
     "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1930,7 +1930,7 @@
   {
     "title": "Mit Hackfleisch gefüllte Paprika",
     "description": "Ein herzhafter, kohlenhydratarmer Abendessen-Klassiker, der gebacken wird, bis die Paprika süß und zart sind. 🫑",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 260,
     "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -1979,7 +1979,7 @@
   {
     "title": "In der Pfanne gebratene Jakobsmuscheln mit Safran-Blumenkohlpüree und schwarzem Trüffel",
     "description": "Trocken gereifte Jakobsmuscheln, in der Pfanne zu einer goldenen Kruste geröstet, ruhen auf einer samtigen, mit Safran angereicherten Emulsion mit gehobeltem schwarzen Trüffel. ✨",
-    "time": "30 min",
+    "time": "30 Min.",
     "caloriesPerServing": 403,
     "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -2035,7 +2035,7 @@
   {
     "title": "Sous-Vide-Entenbrust mit Kirsch-Balsamico-Reduktion",
     "description": "Präzise gegarte Entenbrust mit geschredderter, knuspriger Haut, gepaart mit einer säuerlichen, glänzenden Kirsch-Demi-Glace. 🦆",
-    "time": "90 min",
+    "time": "90 Min.",
     "caloriesPerServing": 520,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2090,7 +2090,7 @@
   {
     "title": "Lammkarree mit Kräuterkruste und Minz-Erbsenpüree",
     "description": "Französisches Lammkarree umhüllt von einer kräftigen Pistazien-Kräuter-Kruste, serviert auf einem intensiv süßen und hellen Erbsenpüree. 🥩",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 687,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2146,7 +2146,7 @@
   {
     "title": "Mit Miso glasierter chilenischer Wolfsbarsch mit Shiitake-Consommé",
     "description": "Butteriger Wolfsbarsch, mariniert in Saikyo Miso, langsam geröstet und über einer kristallklaren, umamireichen Pilzbrühe serviert. 🐟",
-    "time": "40 min",
+    "time": "40 Min.",
     "caloriesPerServing": 280,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2201,7 +2201,7 @@
   {
     "title": "Wagyu-Rindertatar mit Wachtelei und Kapernemulsion",
     "description": "Von Hand geschnittenes A5-Wagyu-Filet, gebunden mit einer kohlensäurehaltigen Senf-Kapern-Emulsion, serviert mit rohem Wachteleigelb und Leinsamen-Tuile. 🥩",
-    "time": "20 min",
+    "time": "20 Min.",
     "caloriesPerServing": 488,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2257,7 +2257,7 @@
   {
     "title": "In Butter pochierter Hummerschwanz mit Safranrisotto",
     "description": "Zarter Hummerschwanz, langsam pochiert in Beurre Monté, serviert auf einem al dente-Risotto mit leuchtend gelbem Safran. 🦞",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 525,
     "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -2311,7 +2311,7 @@
   {
     "title": "Hirschlende mit Brombeer-Wacholder-Jus",
     "description": "Wildes, unglaublich mageres Wildbret, perfekt gebraten, ausgewogen mit einem intensiv reduzierten Jus aus dunklen Beeren und Wacholder. 🌲",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 407,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2366,7 +2366,7 @@
   {
     "title": "Heilbutt in Macadamiakruste mit Zitronengras-Velouté",
     "description": "Unberührter weißer Heilbutt mit goldener Macadamiakruste, schwimmend in einer aromatischen, samtigen Kokos-Zitronengras-Sauce. 🥥",
-    "time": "35 min",
+    "time": "35 Min.",
     "caloriesPerServing": 455,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2415,7 +2415,7 @@
   {
     "title": "Wildpilz-Confit und schwarzer Knoblauch auf handwerklich hergestelltem Keto-Toast",
     "description": "Langsam pochierte exotische Pilze, in Olivenöl gebadet, tiefes Umami-Püree aus schwarzem Knoblauch und ein perfekt flüssiges Sous-Vide-Ei. 🍳",
-    "time": "40 min",
+    "time": "40 Min.",
     "caloriesPerServing": 426,
     "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2471,7 +2471,7 @@
   {
     "title": "Gebratener Ahi-Thunfisch mit Yuzu-Ponzu-Kugel und Edamame-Püree",
     "description": "Ahi in Sushi-Qualität, nur Sekunden lang angebraten, begleitet von lebendiger Edamame-Seide und molekularem Yuzu-Ponzu-Kaviar. 🍣",
-    "time": "25 min",
+    "time": "25 Min.",
     "caloriesPerServing": 317,
     "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2526,7 +2526,7 @@
   {
     "title": "Mit Butter bestrichener Ora-Königslachs mit Sunchoke-Velouté und Ossetra-Kaviar",
     "description": "Ultra-Premium-Ora-King-Lachs, langsam in kultivierter Butter bestrichen, auf einem seidigen Topinambur-Velouté, gekrönt von einer Quenelle aus schwarzem Kaviar. 🐟",
-    "time": "40 min",
+    "time": "40 Min.",
     "caloriesPerServing": 430,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2582,7 +2582,7 @@
   {
     "title": "Sous-Vide-Kalbsfilet mit schwarzem Knoblauchjus und verkohltem Spargel",
     "description": "Unglaublich zartes, mit Milch gefüttertes Kalbfleisch, präzise Sous-Vide gegart, glasiert mit einer tief fermentierten Umami-Bomben-Reduktion aus schwarzem Knoblauch. 🥩",
-    "time": "90 min",
+    "time": "90 Min.",
     "caloriesPerServing": 328,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2637,7 +2637,7 @@
   {
     "title": "Pochierter Langustinenschwanz mit Zitronengrasemulsion und Daikon-Fondant",
     "description": "Süße, zarte Langustinen, sanft pochiert in aromatischer Butter, verfeinert durch eine ätherische, schaumige Kokosnuss- und Zitronengrasbrühe. 🦐",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 280,
     "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -2692,7 +2692,7 @@
   {
     "title": "Gebratener Steinbutt mit weißem Spargel und Champagner-Beurre-Blanc",
     "description": "Der König der Fische, Steinbutt, am Knochen gebraten für maximalen Geschmack, umhüllt von einer luxuriösen, säuerlichen Champagner-Buttersauce. 🥂",
-    "time": "40 min",
+    "time": "40 Min.",
     "caloriesPerServing": 355,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2747,7 +2747,7 @@
   {
     "title": "In Miso gepökelter schwarzer Kabeljau mit Dashi-Brühe und Shimeji-Pilzen",
     "description": "In süßem, weißem Miso marinierter Zobelfisch mit einer karamellisierten Außenseite, die in einem Umami-Dashi in butterartige, auf der Zunge zergehende Flocken übergeht. 🍄",
-    "time": "30 min",
+    "time": "30 Min.",
     "caloriesPerServing": 377,
     "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2802,7 +2802,7 @@
   {
     "title": "Secreto vom iberischen Schwein mit Romesco-Sauce und geröstetem Baby-Lauch",
     "description": "Das hochgeschätzte, stark marmorierte „geheime“ Stück vom iberischen Schwein aus Eichelmast, gepaart mit einem rauchigen spanischen Mandel-Pfeffer-Püree. 🥩",
-    "time": "35 min",
+    "time": "35 Min.",
     "caloriesPerServing": 518,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2858,7 +2858,7 @@
   {
     "title": "Gebratenes Straußenfilet mit Brombeergastrique und geräuchertem Pastinakenpüree",
     "description": "Ultramageres rotes Fleisch aus erstklassigem Straußenfilet, ergänzt durch eine süß-saure Beerenreduktion und erdige, holzgeräucherte Pastinaken. 🍖",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 312,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -2913,7 +2913,7 @@
   {
     "title": "Konfierte Wachteln mit eingelegten Senfkörnern und karamellisiertem Endiviensalat",
     "description": "Kleine Wildgeflügel werden langsam in ihrem eigenen Fett gegart, um höchste Zartheit zu erzielen, abgerundet durch die Säure von „Senfkaviar“ und bitterem Endiviengeschmack. 🪶",
-    "time": "120 min",
+    "time": "120 Min.",
     "caloriesPerServing": 370,
     "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
     "isFavorite": false,
@@ -2962,7 +2962,7 @@
   {
     "title": "In Olivenöl pochierter Heilbutt mit Safran-Fenchel-Brühe und Meeresbohnen",
     "description": "Perlweißer Heilbutt, sanft gegart, eingetaucht in erstklassiges Olivenöl, ruht in einer duftenden goldenen Brühe mit knusprigen, salzigen Meeresbohnen. 🐟",
-    "time": "45 min",
+    "time": "45 Min.",
     "caloriesPerServing": 334,
     "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,
@@ -3018,7 +3018,7 @@
   {
     "title": "Elchmedaillons mit Wacholder-Port-Reduktion und Selleriewurzelfondant",
     "description": "Wilde, kräftige Elchlende, verfeinert durch eine klebrige Reduktion aus rubinrotem Portwein und Kiefernwacholder, geerdet mit erdiger Selleriewurzel. 🦌",
-    "time": "50 min",
+    "time": "50 Min.",
     "caloriesPerServing": 321,
     "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
     "isFavorite": false,

@@ -20,8 +20,13 @@ final class SocialAuthService {
     private init() {}
 
     private var currentNonce: String?
+    private var lastApplePrepareDate: Date?
     private var appleRequestLeaseID: UUID?
     private var isAppleAuthorizationInFlight = false
+
+    nonisolated static func shouldReuseRecentNonce(existingNonce: String?, elapsed: TimeInterval) -> Bool {
+        existingNonce != nil && elapsed >= 0 && elapsed < 2.0
+    }
 
     // MARK: - Apple
 
@@ -32,8 +37,15 @@ final class SocialAuthService {
             appleRequestLeaseID = leaseID
             Task { await AnonymousAuthBootstrap.shared.beginInteractiveSignIn(id: leaseID) }
         }
-        let nonce = Self.randomNonce()
-        currentNonce = nonce
+        let elapsed = lastApplePrepareDate.map { Date().timeIntervalSince($0) } ?? .infinity
+        let nonce: String
+        if Self.shouldReuseRecentNonce(existingNonce: currentNonce, elapsed: elapsed), let existing = currentNonce {
+            nonce = existing
+        } else {
+            nonce = Self.randomNonce()
+            currentNonce = nonce
+            lastApplePrepareDate = Date()
+        }
         request.requestedScopes = [.fullName, .email]
         request.nonce = Self.sha256(nonce)
     }
@@ -44,6 +56,7 @@ final class SocialAuthService {
         defer {
             isAppleAuthorizationInFlight = false
             currentNonce = nil
+            lastApplePrepareDate = nil
             appleRequestLeaseID = nil
             if let leaseID {
                 Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn(leaseID) }

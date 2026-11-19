@@ -1,4 +1,5 @@
 import os
+import re
 import xml.etree.ElementTree as ET
 import time
 from deep_translator import GoogleTranslator
@@ -9,16 +10,32 @@ TARGET_LANGS = {
     "fr": "fr",
     "de": "de",
     "it": "it",
-    "pt-PT": "pt"
+    "pt-PT": "pt-PT"
 }
+
+_FORMAT_SPECIFIER_RE = re.compile(r'%(?:\d+\$)?[-+# 0]*(?:\d+|\*)?(?:\.(?:\d+|\*))?(?:hh|h|ll|l|q|L|z|t|j)?[@diouxXfFeEgGaAcspn%]')
+
+def _protect_placeholders(text):
+    placeholders = []
+    def _replace(match):
+        token = f"__FMT_{len(placeholders)}__"
+        placeholders.append(match.group(0))
+        return token
+    return _FORMAT_SPECIFIER_RE.sub(_replace, text), placeholders
+
+def _restore_placeholders(text, placeholders):
+    for idx, original in enumerate(placeholders):
+        text = text.replace(f"__FMT_{idx}__", original)
+    return text
 
 def translate_text(text, target_lang_code):
     if not text or not text.strip():
         return text
+    protected, placeholders = _protect_placeholders(text)
     try:
         translator = GoogleTranslator(source='auto', target=target_lang_code)
-        translated = translator.translate(text)
-        return translated
+        translated = translator.translate(protected)
+        return _restore_placeholders(translated, placeholders)
     except Exception as e:
         print(f"❌ Translation error: {e}")
         time.sleep(2)

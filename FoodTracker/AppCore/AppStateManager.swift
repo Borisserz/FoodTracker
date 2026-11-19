@@ -21,6 +21,11 @@ final class AppStateManager {
     var hasCompletedOnboarding: Bool = false
     var isPremiumActivated: Bool = true
     var requestedWidgetAction: String? = nil
+    var spotlightTourRestartToken: Int = 0
+
+    func requestSpotlightTourRestart() {
+        spotlightTourRestartToken += 1
+    }
     
     init() {
         self.isPremiumActivated = true // All features free

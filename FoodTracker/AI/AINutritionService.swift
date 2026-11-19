@@ -15,6 +15,29 @@ private func parseFlexibleDecimalString(_ raw: String) -> Double? {
     return parsed
 }
 
+private func safeClampedInt(from doubleVal: Double) -> Int {
+    guard doubleVal.isFinite else { return 0 }
+    let rounded = doubleVal.rounded()
+    let maxBound = Double(Int.max / 2)
+    let minBound = Double(Int.min / 2)
+    if rounded >= maxBound { return Int.max / 2 }
+    if rounded <= minBound { return Int.min / 2 }
+    return Int(rounded)
+}
+
+private func clampCalories(_ value: Int) -> Int {
+    min(max(0, value), 50_000)
+}
+
+private func clampMacro(_ value: Double) -> Double {
+    guard value.isFinite else { return 0 }
+    return min(max(0.0, value), 10_000.0)
+}
+
+private func clampMacroInt(_ value: Int) -> Int {
+    min(max(0, value), 10_000)
+}
+
 @propertyWrapper
 struct FlexibleInt: Codable, Hashable {
     var wrappedValue: Int
@@ -28,10 +51,10 @@ struct FlexibleInt: Codable, Hashable {
         if let intVal = try? container.decode(Int.self) {
             self.wrappedValue = intVal
         } else if let doubleVal = try? container.decode(Double.self), doubleVal.isFinite {
-            self.wrappedValue = Int(doubleVal.rounded())
+            self.wrappedValue = safeClampedInt(from: doubleVal)
         } else if let strVal = try? container.decode(String.self),
                   let doubleVal = parseFlexibleDecimalString(strVal) {
-            self.wrappedValue = Int(doubleVal.rounded())
+            self.wrappedValue = safeClampedInt(from: doubleVal)
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Expected numeric value for FlexibleInt")
         }
@@ -85,6 +108,26 @@ struct AIRecipeDTO: Codable {
     @FlexibleDouble var fats: Double
     @FlexibleDouble var carbs: Double
     @FlexibleInt var cookingTime: Int
+
+    private enum CodingKeys: String, CodingKey {
+        case name, info, calories, protein, fats, carbs, cookingTime
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        name = try container.decode(String.self, forKey: .name)
+        info = try container.decode(String.self, forKey: .info)
+        let rawCals = try container.decode(FlexibleInt.self, forKey: .calories).wrappedValue
+        let rawProt = try container.decode(FlexibleDouble.self, forKey: .protein).wrappedValue
+        let rawFats = try container.decode(FlexibleDouble.self, forKey: .fats).wrappedValue
+        let rawCarbs = try container.decode(FlexibleDouble.self, forKey: .carbs).wrappedValue
+        let rawTime = try container.decode(FlexibleInt.self, forKey: .cookingTime).wrappedValue
+        _calories = FlexibleInt(wrappedValue: clampCalories(rawCals))
+        _protein = FlexibleDouble(wrappedValue: clampMacro(rawProt))
+        _fats = FlexibleDouble(wrappedValue: clampMacro(rawFats))
+        _carbs = FlexibleDouble(wrappedValue: clampMacro(rawCarbs))
+        _cookingTime = FlexibleInt(wrappedValue: min(max(0, rawTime), 1440))
+    }
 }
 
 struct AIFoodItemDTO: Codable {
@@ -93,6 +136,41 @@ struct AIFoodItemDTO: Codable {
     @FlexibleDouble var protein: Double
     @FlexibleDouble var fats: Double
     @FlexibleDouble var carbs: Double
+    let omega3: Double?
+    let calcium: Double?
+    let potassium: Double?
+    let magnesium: Double?
+    let iron: Double?
+    let vitaminC: Double?
+    let vitaminD: Double?
+
+    private enum CodingKeys: String, CodingKey {
+        case name, calories, protein, fats, carbs
+        case omega3, calcium, potassium, magnesium, iron, vitaminC, vitaminD
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        name = try container.decode(String.self, forKey: .name)
+        _calories = FlexibleInt(wrappedValue: clampCalories(try container.decode(FlexibleInt.self, forKey: .calories).wrappedValue))
+        _protein = FlexibleDouble(wrappedValue: clampMacro(try container.decode(FlexibleDouble.self, forKey: .protein).wrappedValue))
+        _fats = FlexibleDouble(wrappedValue: clampMacro(try container.decode(FlexibleDouble.self, forKey: .fats).wrappedValue))
+        _carbs = FlexibleDouble(wrappedValue: clampMacro(try container.decode(FlexibleDouble.self, forKey: .carbs).wrappedValue))
+        omega3 = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .omega3))?.wrappedValue.mapNonNegative(max: 1_000.0)
+        calcium = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .calcium))?.wrappedValue.mapNonNegative(max: 10_000.0)
+        potassium = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .potassium))?.wrappedValue.mapNonNegative(max: 20_000.0)
+        magnesium = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .magnesium))?.wrappedValue.mapNonNegative(max: 10_000.0)
+        iron = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .iron))?.wrappedValue.mapNonNegative(max: 1_000.0)
+        vitaminC = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .vitaminC))?.wrappedValue.mapNonNegative(max: 10_000.0)
+        vitaminD = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .vitaminD))?.wrappedValue.mapNonNegative(max: 1_000.0)
+    }
+}
+
+private extension Double {
+    func mapNonNegative(max upper: Double) -> Double {
+        guard isFinite else { return 0 }
+        return Swift.min(Swift.max(0.0, self), upper)
+    }
 }
 
 struct AIWeeklyPlanItemDTO: Codable {
@@ -105,6 +183,45 @@ struct AIWeeklyPlanItemDTO: Codable {
     let ingredients: String
     let instructions: String
     @FlexibleInt var prepTimeMinutes: Int
+
+    private enum CodingKeys: String, CodingKey {
+        case title, type, calories, protein, carbs, fat, ingredients, instructions, prepTimeMinutes
+    }
+
+    init(
+        title: String,
+        type: String,
+        calories: Int,
+        protein: Int,
+        carbs: Int,
+        fat: Int,
+        ingredients: String,
+        instructions: String,
+        prepTimeMinutes: Int
+    ) {
+        self.title = title
+        self.type = type
+        self._calories = FlexibleInt(wrappedValue: clampCalories(calories))
+        self._protein = FlexibleInt(wrappedValue: clampMacroInt(protein))
+        self._carbs = FlexibleInt(wrappedValue: clampMacroInt(carbs))
+        self._fat = FlexibleInt(wrappedValue: clampMacroInt(fat))
+        self.ingredients = ingredients
+        self.instructions = instructions
+        self._prepTimeMinutes = FlexibleInt(wrappedValue: min(max(0, prepTimeMinutes), 1440))
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        title = try container.decode(String.self, forKey: .title)
+        type = try container.decode(String.self, forKey: .type)
+        _calories = FlexibleInt(wrappedValue: clampCalories(try container.decode(FlexibleInt.self, forKey: .calories).wrappedValue))
+        _protein = FlexibleInt(wrappedValue: clampMacroInt(try container.decode(FlexibleInt.self, forKey: .protein).wrappedValue))
+        _carbs = FlexibleInt(wrappedValue: clampMacroInt(try container.decode(FlexibleInt.self, forKey: .carbs).wrappedValue))
+        _fat = FlexibleInt(wrappedValue: clampMacroInt(try container.decode(FlexibleInt.self, forKey: .fat).wrappedValue))
+        ingredients = try container.decode(String.self, forKey: .ingredients)
+        instructions = try container.decode(String.self, forKey: .instructions)
+        _prepTimeMinutes = FlexibleInt(wrappedValue: min(max(0, try container.decode(FlexibleInt.self, forKey: .prepTimeMinutes).wrappedValue), 1440))
+    }
 }
 
 struct AIWeeklyPlanDayDTO: Codable {
@@ -114,6 +231,36 @@ struct AIWeeklyPlanDayDTO: Codable {
     @FlexibleInt var totalCarbs: Int
     @FlexibleInt var totalFat: Int
     let meals: [AIWeeklyPlanItemDTO]
+
+    private enum CodingKeys: String, CodingKey {
+        case dayIndex, totalCalories, totalProtein, totalCarbs, totalFat, meals
+    }
+
+    init(
+        dayIndex: Int,
+        totalCalories: Int,
+        totalProtein: Int,
+        totalCarbs: Int,
+        totalFat: Int,
+        meals: [AIWeeklyPlanItemDTO]
+    ) {
+        self._dayIndex = FlexibleInt(wrappedValue: dayIndex)
+        self._totalCalories = FlexibleInt(wrappedValue: clampCalories(totalCalories))
+        self._totalProtein = FlexibleInt(wrappedValue: clampMacroInt(totalProtein))
+        self._totalCarbs = FlexibleInt(wrappedValue: clampMacroInt(totalCarbs))
+        self._totalFat = FlexibleInt(wrappedValue: clampMacroInt(totalFat))
+        self.meals = meals
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        _dayIndex = try container.decode(FlexibleInt.self, forKey: .dayIndex)
+        _totalCalories = FlexibleInt(wrappedValue: clampCalories(try container.decode(FlexibleInt.self, forKey: .totalCalories).wrappedValue))
+        _totalProtein = FlexibleInt(wrappedValue: clampMacroInt(try container.decode(FlexibleInt.self, forKey: .totalProtein).wrappedValue))
+        _totalCarbs = FlexibleInt(wrappedValue: clampMacroInt(try container.decode(FlexibleInt.self, forKey: .totalCarbs).wrappedValue))
+        _totalFat = FlexibleInt(wrappedValue: clampMacroInt(try container.decode(FlexibleInt.self, forKey: .totalFat).wrappedValue))
+        meals = try container.decode([AIWeeklyPlanItemDTO].self, forKey: .meals)
+    }
 }
 
 struct AIWeeklyPlanDTO: Codable {
@@ -136,12 +283,12 @@ struct AIChefRecipeDTO: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         title = try container.decode(String.self, forKey: .title)
-        _calories = try container.decode(FlexibleInt.self, forKey: .calories)
-        _protein = try container.decode(FlexibleInt.self, forKey: .protein)
-        _fat = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .fat)) ?? FlexibleInt(wrappedValue: 0)
-        _carbs = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .carbs)) ?? FlexibleInt(wrappedValue: 0)
-        _cookTime = try container.decode(FlexibleInt.self, forKey: .cookTime)
-        _difficulty = try container.decode(FlexibleInt.self, forKey: .difficulty)
+        _calories = FlexibleInt(wrappedValue: clampCalories(try container.decode(FlexibleInt.self, forKey: .calories).wrappedValue))
+        _protein = FlexibleInt(wrappedValue: clampMacroInt(try container.decode(FlexibleInt.self, forKey: .protein).wrappedValue))
+        _fat = FlexibleInt(wrappedValue: clampMacroInt((try? container.decodeIfPresent(FlexibleInt.self, forKey: .fat))?.wrappedValue ?? 0))
+        _carbs = FlexibleInt(wrappedValue: clampMacroInt((try? container.decodeIfPresent(FlexibleInt.self, forKey: .carbs))?.wrappedValue ?? 0))
+        _cookTime = FlexibleInt(wrappedValue: min(max(0, try container.decode(FlexibleInt.self, forKey: .cookTime).wrappedValue), 1440))
+        _difficulty = FlexibleInt(wrappedValue: min(max(1, try container.decode(FlexibleInt.self, forKey: .difficulty).wrappedValue), 5))
         history = try container.decode(String.self, forKey: .history)
         ingredients = try container.decode([String].self, forKey: .ingredients)
         steps = try container.decode([RecipeStepDTO].self, forKey: .steps)
@@ -195,15 +342,15 @@ struct MacroFixAdviceDTO: Codable, Identifiable {
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             name = try container.decode(String.self, forKey: .name)
-            calories = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .calories))?.wrappedValue ?? 0
-            protein = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .protein))?.wrappedValue ?? 0
+            calories = clampCalories((try? container.decodeIfPresent(FlexibleInt.self, forKey: .calories))?.wrappedValue ?? 0)
+            protein = clampMacroInt((try? container.decodeIfPresent(FlexibleInt.self, forKey: .protein))?.wrappedValue ?? 0)
             let parsedFats = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .fats))?.wrappedValue
                 ?? (try? container.decodeIfPresent(FlexibleInt.self, forKey: .fat))?.wrappedValue
                 ?? 0
-            fats = parsedFats
-            carbs = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .carbs))?.wrappedValue ?? 0
+            fats = clampMacroInt(parsedFats)
+            carbs = clampMacroInt((try? container.decodeIfPresent(FlexibleInt.self, forKey: .carbs))?.wrappedValue ?? 0)
             let parsedWeight = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .weight))?.wrappedValue ?? 100.0
-            weight = parsedWeight > 0 ? parsedWeight : 100.0
+            weight = parsedWeight > 0 ? min(parsedWeight, 50_000.0) : 100.0
         }
 
         func encode(to encoder: Encoder) throws {
@@ -244,7 +391,10 @@ struct MoodAdviceDTO: Codable {
 
 class AINutritionService {
     static let shared = AINutritionService()
-    private init() {}
+
+    init(proxy: any GeminiProxyExecuting = GeminiProxyClient.shared) {
+        self.client = proxy
+    }
 
     private var currentLanguage: String {
         let code = Locale.current.language.languageCode?.identifier ?? "en"
@@ -340,18 +490,45 @@ class AINutritionService {
           "calories": Int,
           "protein": Double,
           "fats": Double,
-          "carbs": Double
+          "carbs": Double,
+          "omega3": Double,
+          "calcium": Double,
+          "potassium": Double,
+          "magnesium": Double,
+          "iron": Double,
+          "vitaminC": Double,
+          "vitaminD": Double
         }
         """
         
         if let dto = await fetchFromGemini(prompt: prompt, responseType: AIFoodItemDTO.self, suppressRateLimitAlert: true) {
+            let safeCalories = max(0, dto.calories)
+            let safeProtein = max(0, dto.protein)
+            let safeFats = max(0, dto.fats)
+            let safeCarbs = max(0, dto.carbs)
+            let hasMicros = (dto.omega3 ?? 0) > 0 || (dto.calcium ?? 0) > 0 || (dto.potassium ?? 0) > 0 || (dto.magnesium ?? 0) > 0 || (dto.iron ?? 0) > 0 || (dto.vitaminC ?? 0) > 0 || (dto.vitaminD ?? 0) > 0
+            let fallback = hasMicros ? MicronutrientProfile.zero : MicronutrientEstimator.estimate(
+                name: dto.name,
+                calories: safeCalories,
+                protein: safeProtein,
+                fat: safeFats,
+                carbs: safeCarbs,
+                weight: 100.0
+            )
             return FoodItem(
                 name: dto.name,
                 weight: 100.0,
-                calories: max(0, dto.calories),
-                protein: max(0, dto.protein),
-                fats: max(0, dto.fats),
-                carbs: max(0, dto.carbs)
+                calories: safeCalories,
+                protein: safeProtein,
+                fats: safeFats,
+                carbs: safeCarbs,
+                omega3: hasMicros ? (dto.omega3 ?? 0) : fallback.omega3,
+                calcium: hasMicros ? (dto.calcium ?? 0) : fallback.calcium,
+                potassium: hasMicros ? (dto.potassium ?? 0) : fallback.potassium,
+                magnesium: hasMicros ? (dto.magnesium ?? 0) : fallback.magnesium,
+                iron: hasMicros ? (dto.iron ?? 0) : fallback.iron,
+                vitaminC: hasMicros ? (dto.vitaminC ?? 0) : fallback.vitaminC,
+                vitaminD: hasMicros ? (dto.vitaminD ?? 0) : fallback.vitaminD
             )
         }
         return nil
@@ -609,7 +786,7 @@ class AINutritionService {
 
     // All transport, auth, and parsing now lives in the shared client.
     // This removes massive duplication with VertexAIManager.
-    private let client = GeminiProxyClient.shared
+    private let client: any GeminiProxyExecuting
 
     private func fetchRawTextFromGemini(prompt: String, suppressRateLimitAlert: Bool = false) async -> String? {
         do {

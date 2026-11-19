@@ -4,10 +4,27 @@ import UIKit
 /// Vision-focused facade. All transport, auth, and low-level Gemini logic is now in GeminiProxyClient.
 final class VertexAIManager {
     static let shared = VertexAIManager()
-    private init() {}
 
     // Delegate to the shared client (deduplication complete for this file).
-    private let client = GeminiProxyClient.shared
+    private let client: any GeminiProxyExecuting
+    private let photoConsentProvider: (@MainActor () -> Bool)?
+
+    init(
+        proxy: any GeminiProxyExecuting = GeminiProxyClient.shared,
+        photoConsentProvider: (@MainActor () -> Bool)? = nil
+    ) {
+        self.client = proxy
+        self.photoConsentProvider = photoConsentProvider
+    }
+
+    private func hasPhotoConsent() async -> Bool {
+        await MainActor.run {
+            if let photoConsentProvider {
+                return photoConsentProvider()
+            }
+            return AIPhotoConsentManager.shared.hasConsented
+        }
+    }
 
     private var currentLanguage: String {
         let code = Locale.current.language.languageCode?.identifier ?? "en"
@@ -35,17 +52,31 @@ final class VertexAIManager {
         let protein: Double?
         let fats: Double?
         let carbs: Double?
+        let omega3: Double?
+        let calcium: Double?
+        let potassium: Double?
+        let magnesium: Double?
+        let iron: Double?
+        let vitaminC: Double?
+        let vitaminD: Double?
 
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             isFood = VertexAIManager.decodeFlexibleBoolIfPresent(from: container, forKey: .isFood) ?? false
             errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
             name = try container.decodeIfPresent(String.self, forKey: .name)
-            weight = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .weight)
-            calories = VertexAIManager.decodeFlexibleIntIfPresent(from: container, forKey: .calories)
-            protein = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .protein)
-            fats = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .fats)
-            carbs = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .carbs)
+            weight = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .weight).map { min(max(0.0, $0), 50_000.0) }
+            calories = VertexAIManager.decodeFlexibleIntIfPresent(from: container, forKey: .calories).map { min(max(0, $0), 50_000) }
+            protein = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .protein).map { min(max(0.0, $0), 10_000.0) }
+            fats = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .fats).map { min(max(0.0, $0), 10_000.0) }
+            carbs = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .carbs).map { min(max(0.0, $0), 10_000.0) }
+            omega3 = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .omega3).map { min(max(0.0, $0), 1_000.0) }
+            calcium = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .calcium).map { min(max(0.0, $0), 10_000.0) }
+            potassium = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .potassium).map { min(max(0.0, $0), 20_000.0) }
+            magnesium = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .magnesium).map { min(max(0.0, $0), 10_000.0) }
+            iron = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .iron).map { min(max(0.0, $0), 1_000.0) }
+            vitaminC = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .vitaminC).map { min(max(0.0, $0), 10_000.0) }
+            vitaminD = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .vitaminD).map { min(max(0.0, $0), 1_000.0) }
         }
     }
 
@@ -59,28 +90,48 @@ final class VertexAIManager {
 
         init(dishName: String, estimatedCalories: Int, protein: Double, fats: Double? = nil, carbs: Double? = nil, reasoning: String) {
             self.dishName = dishName
-            self.estimatedCalories = estimatedCalories
-            self.protein = protein
-            self.fats = fats
-            self.carbs = carbs
+            self.estimatedCalories = min(max(0, estimatedCalories), 50_000)
+            self.protein = protein.isFinite ? min(max(0.0, protein), 10_000.0) : 0.0
+            self.fats = fats.flatMap { $0.isFinite ? min(max(0.0, $0), 10_000.0) : nil }
+            self.carbs = carbs.flatMap { $0.isFinite ? min(max(0.0, $0), 10_000.0) : nil }
             self.reasoning = reasoning
         }
 
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             dishName = try container.decode(String.self, forKey: .dishName)
-            estimatedCalories = VertexAIManager.decodeFlexibleIntIfPresent(from: container, forKey: .estimatedCalories) ?? 0
-            protein = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .protein) ?? 0
-            fats = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .fats)
-            carbs = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .carbs)
+            let rawCalories = VertexAIManager.decodeFlexibleIntIfPresent(from: container, forKey: .estimatedCalories) ?? 0
+            estimatedCalories = min(max(0, rawCalories), 50_000)
+            let rawProtein = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .protein) ?? 0
+            protein = min(max(0.0, rawProtein), 10_000.0)
+            fats = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .fats).map { min(max(0.0, $0), 10_000.0) }
+            carbs = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .carbs).map { min(max(0.0, $0), 10_000.0) }
             reasoning = try container.decode(String.self, forKey: .reasoning)
         }
     }
 
     struct MenuAIResponse: Codable {
-        let ideal: MenuRecommendation
-        let caution: MenuRecommendation
-        let avoid: MenuRecommendation
+        let ideal: MenuRecommendation?
+        let caution: MenuRecommendation?
+        let avoid: MenuRecommendation?
+
+        init(ideal: MenuRecommendation?, caution: MenuRecommendation?, avoid: MenuRecommendation?) {
+            self.ideal = ideal
+            self.caution = caution
+            self.avoid = avoid
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            ideal = try container.decodeIfPresent(MenuRecommendation.self, forKey: .ideal)
+            caution = try container.decodeIfPresent(MenuRecommendation.self, forKey: .caution)
+            avoid = try container.decodeIfPresent(MenuRecommendation.self, forKey: .avoid)
+            guard ideal != nil || caution != nil || avoid != nil else {
+                throw DecodingError.dataCorrupted(
+                    DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "MenuAIResponse requires at least one recommendation")
+                )
+            }
+        }
     }
 
     struct CookingStepEvaluation: Codable {
@@ -163,7 +214,14 @@ final class VertexAIManager {
         from container: KeyedDecodingContainer<K>,
         forKey key: K
     ) -> Int? {
-        decodeFlexibleDoubleIfPresent(from: container, forKey: key).map { Int($0.rounded()) }
+        decodeFlexibleDoubleIfPresent(from: container, forKey: key).map { doubleVal in
+            let rounded = doubleVal.rounded()
+            let maxBound = Double(Int.max / 2)
+            let minBound = Double(Int.min / 2)
+            if rounded >= maxBound { return Int.max / 2 }
+            if rounded <= minBound { return Int.min / 2 }
+            return Int(rounded)
+        }
     }
 
     /// Downscales and normalizes image orientation at explicit 1x pixel scale to avoid 3x screen-scale memory blowup.
@@ -214,6 +272,7 @@ final class VertexAIManager {
     }
 
     func analyzeFoodImageDetailed(_ image: UIImage) async -> FoodImageAnalysisResult {
+        guard await hasPhotoConsent() else { return .failed }
         guard let base64Image = await Task.detached(priority: .userInitiated, operation: {
             Self.encodedJPEG(image, maxDimension: 1024, quality: 0.45)
         }).value else {
@@ -225,11 +284,11 @@ final class VertexAIManager {
         1. Check if the image contains food or a drink. If it DOES NOT, set "isFood" to false and write a funny "errorMessage" (e.g., "That's a keyboard, not a sandwich!").
         2. If it IS food, set "isFood" to true.
         3. Identify all visible ingredients. Estimate the physical portion size (in grams) by comparing it to typical plates or hands in the frame.
-        4. Calculate total calories and macros (protein, fats, carbs in grams). Be conservative and realistic. Account for hidden oils, butter, and dressings often used in cooking.
+        4. Calculate total calories, macros (protein, fats, carbs in grams), and key micronutrients (omega3 in g, calcium/potassium/magnesium/iron/vitaminC in mg, vitaminD in mcg). Be conservative and realistic. Account for hidden oils, butter, and dressings often used in cooking.
         5. Respond ONLY with a raw, valid JSON object. NO Markdown, NO ```json formatting, NO extra text.
         \(languageInstruction)
         Format exactly like this:
-        {"isFood": true, "errorMessage": null, "name": "Avocado Toast", "weight": 150.0, "calories": 220, "protein": 5.0, "fats": 12.0, "carbs": 20.0}
+        {"isFood": true, "errorMessage": null, "name": "Avocado Toast", "weight": 150.0, "calories": 220, "protein": 5.0, "fats": 12.0, "carbs": 20.0, "omega3": 0.15, "calcium": 45.0, "potassium": 420.0, "magnesium": 32.0, "iron": 1.6, "vitaminC": 8.0, "vitaminD": 0.0}
         """
 
         do {
@@ -246,13 +305,39 @@ final class VertexAIManager {
             }
 
             let safeWeight = (aiResponse.weight ?? 0) > 0 ? aiResponse.weight! : 100.0
+            let trimmedName = aiResponse.name?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let resolvedName = trimmedName?.isEmpty == false ? trimmedName! : String(localized: "Unknown Meal")
+            let safeCalories = max(0, aiResponse.calories ?? 0)
+            let safeProtein = max(0, aiResponse.protein ?? 0)
+            let safeFats = max(0, aiResponse.fats ?? 0)
+            let safeCarbs = max(0, aiResponse.carbs ?? 0)
+
+            let hasMicros = (aiResponse.omega3 ?? 0) > 0 || (aiResponse.calcium ?? 0) > 0 || (aiResponse.potassium ?? 0) > 0 || (aiResponse.magnesium ?? 0) > 0 || (aiResponse.iron ?? 0) > 0 || (aiResponse.vitaminC ?? 0) > 0 || (aiResponse.vitaminD ?? 0) > 0
+            let fallbackMicros = hasMicros
+                ? MicronutrientProfile.zero
+                : MicronutrientEstimator.estimate(
+                    name: resolvedName,
+                    calories: safeCalories,
+                    protein: safeProtein,
+                    fat: safeFats,
+                    carbs: safeCarbs,
+                    weight: safeWeight
+                )
+
             let item = FoodItem(
-                name: aiResponse.name ?? String(localized: "Unknown Meal"),
+                name: resolvedName,
                 weight: safeWeight,
-                calories: max(0, aiResponse.calories ?? 0),
-                protein: max(0, aiResponse.protein ?? 0),
-                fats: max(0, aiResponse.fats ?? 0),
-                carbs: max(0, aiResponse.carbs ?? 0)
+                calories: safeCalories,
+                protein: safeProtein,
+                fats: safeFats,
+                carbs: safeCarbs,
+                omega3: hasMicros ? (aiResponse.omega3 ?? 0) : fallbackMicros.omega3,
+                calcium: hasMicros ? (aiResponse.calcium ?? 0) : fallbackMicros.calcium,
+                potassium: hasMicros ? (aiResponse.potassium ?? 0) : fallbackMicros.potassium,
+                magnesium: hasMicros ? (aiResponse.magnesium ?? 0) : fallbackMicros.magnesium,
+                iron: hasMicros ? (aiResponse.iron ?? 0) : fallbackMicros.iron,
+                vitaminC: hasMicros ? (aiResponse.vitaminC ?? 0) : fallbackMicros.vitaminC,
+                vitaminD: hasMicros ? (aiResponse.vitaminD ?? 0) : fallbackMicros.vitaminD
             )
             return .food(item)
         } catch {
@@ -262,6 +347,7 @@ final class VertexAIManager {
     }
 
     func analyzeMenuImage(_ image: UIImage, remainingCalories: Int, targetProtein: Int) async -> MenuAIResponse? {
+        guard await hasPhotoConsent() else { return nil }
         guard let base64Image = await Task.detached(priority: .userInitiated, operation: {
             Self.encodedJPEG(image, maxDimension: 1024, quality: 0.45)
         }).value else { return nil }
@@ -298,6 +384,9 @@ final class VertexAIManager {
     }
 
     func evaluateCookingStep(image: UIImage, dishTitle: String, stepInstruction: String) async throws -> CookingStepEvaluation {
+        guard await hasPhotoConsent() else {
+            throw GeminiProxyError.invalidResponse
+        }
         guard let base64Image = await Task.detached(priority: .userInitiated, operation: {
             Self.encodedJPEG(image, maxDimension: 1024, quality: 0.45)
         }).value else {
@@ -326,6 +415,9 @@ final class VertexAIManager {
     }
 
     func analyzeBeforeAfterPhotos(before: UIImage, after: UIImage, goal: String? = nil) async throws -> TransformationAnalysisDTO {
+        guard await hasPhotoConsent() else {
+            throw GeminiProxyError.invalidResponse
+        }
         let encodedPair: (String, String)? = await Task.detached(priority: .userInitiated) {
             guard let b = Self.encodedJPEG(before, maxDimension: 960, quality: 0.45),
                   let a = Self.encodedJPEG(after, maxDimension: 960, quality: 0.45) else {

@@ -199,6 +199,17 @@ final class FastingManagerTests: XCTestCase {
         XCTAssertFalse(FastingManager.shouldApplyScheduledNotifications(capturedGeneration: 2, currentGeneration: 3, isFasting: true))
         XCTAssertFalse(FastingManager.shouldApplyScheduledNotifications(capturedGeneration: 3, currentGeneration: 3, isFasting: false))
     }
+
+    func testFastingActivityTimingOvertimeIntervalAfterTargetEndDate() {
+        let targetEnd = Date(timeIntervalSince1970: 1_700_000_000)
+        let before = targetEnd.addingTimeInterval(-300)
+        let atEnd = targetEnd
+        let after = targetEnd.addingTimeInterval(600)
+
+        XCTAssertNil(FastingActivityTiming.overtimeInterval(now: before, targetEndDate: targetEnd))
+        XCTAssertEqual(FastingActivityTiming.overtimeInterval(now: atEnd, targetEndDate: targetEnd), targetEnd...atEnd)
+        XCTAssertEqual(FastingActivityTiming.overtimeInterval(now: after, targetEndDate: targetEnd), targetEnd...after)
+    }
 }
 
 @MainActor

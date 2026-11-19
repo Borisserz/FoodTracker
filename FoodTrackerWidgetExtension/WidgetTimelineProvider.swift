@@ -123,7 +123,7 @@ struct WidgetTimelineProvider: TimelineProvider {
     @MainActor
     private func fetchTodaySnapshot(in context: Context) -> DailyWidgetSnapshot {
         let container = SharedModelContainer.shared.container
-        let modelContext = container.mainContext
+        let modelContext = ModelContext(container)
         return buildTodaySnapshot(in: modelContext)
     }
 }
@@ -183,7 +183,7 @@ struct ShoppingListTimelineProvider: TimelineProvider {
     @MainActor
     private func fetchItems(in context: Context) -> ShoppingListEntry {
         let container = SharedModelContainer.shared.container
-        let modelContext = container.mainContext
+        let modelContext = ModelContext(container)
         
         var fetchDescriptor = FetchDescriptor<ShoppingItem>()
         fetchDescriptor.sortBy = [SortDescriptor(\.dateAdded, order: .reverse)]

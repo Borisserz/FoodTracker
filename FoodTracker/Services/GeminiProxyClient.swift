@@ -65,10 +65,68 @@ enum DeviceInstallIdentifier {
     }
 }
 
+protocol GeminiProxyExecuting: Sendable {
+    func fetchJSON<T: Decodable>(
+        prompt: String,
+        responseType: T.Type,
+        maxOutputTokens: Int?,
+        suppressRateLimitAlert: Bool
+    ) async throws -> T
+
+    func fetchText(prompt: String, suppressRateLimitAlert: Bool) async throws -> String
+
+    func fetchJSONWithImage<T: Decodable>(
+        prompt: String,
+        base64Image: String,
+        mimeType: String,
+        responseType: T.Type
+    ) async throws -> T
+
+    func fetchJSONWithImages<T: Decodable>(
+        prompt: String,
+        images: [(base64: String, mime: String)],
+        responseType: T.Type
+    ) async throws -> T
+}
+
+extension GeminiProxyExecuting {
+    func fetchJSON<T: Decodable>(
+        prompt: String,
+        responseType: T.Type,
+        maxOutputTokens: Int? = nil,
+        suppressRateLimitAlert: Bool = false
+    ) async throws -> T {
+        try await fetchJSON(
+            prompt: prompt,
+            responseType: responseType,
+            maxOutputTokens: maxOutputTokens,
+            suppressRateLimitAlert: suppressRateLimitAlert
+        )
+    }
+
+    func fetchText(prompt: String, suppressRateLimitAlert: Bool = false) async throws -> String {
+        try await fetchText(prompt: prompt, suppressRateLimitAlert: suppressRateLimitAlert)
+    }
+
+    func fetchJSONWithImage<T: Decodable>(
+        prompt: String,
+        base64Image: String,
+        mimeType: String = "image/jpeg",
+        responseType: T.Type
+    ) async throws -> T {
+        try await fetchJSONWithImage(
+            prompt: prompt,
+            base64Image: base64Image,
+            mimeType: mimeType,
+            responseType: responseType
+        )
+    }
+}
+
 /// Centralized client for the FoodTracker OpenRouter AI proxy (`foodAiProxy`).
 /// Handles auth (Firebase ID + AppCheck), Remote Config URL resolution, timeouts, and JSON extraction.
 @Observable
-final class GeminiProxyClient {
+final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
     static let shared = GeminiProxyClient()
 
     static var shouldSuppressSecondaryErrorAlert: Bool {
@@ -275,7 +333,23 @@ final class GeminiProxyClient {
         } else {
             user = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
         }
-        let authToken = try await user.getIDToken(forcingRefresh: forceRefresh)
+        let authToken: String
+        do {
+            authToken = try await user.getIDToken(forcingRefresh: forceRefresh)
+        } catch {
+            if forceRefresh && AuthManager.isPermanentTokenInvalidationError(error) {
+                let wasAnonymous = user.isAnonymous
+                try? Auth.auth().signOut()
+                if wasAnonymous {
+                    let freshUser = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+                    authToken = try await freshUser.getIDToken(forcingRefresh: false)
+                } else {
+                    throw error
+                }
+            } else {
+                throw error
+            }
+        }
         let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: forceRefresh).token
         return (authToken, appCheckToken)
     }

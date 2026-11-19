@@ -53,6 +53,133 @@ final class HealthKitManagerTests: XCTestCase {
 
         XCTAssertFalse(manager.isAuthorized)
     }
+
+    func testClampedWorkoutIntervalClampsToStartOfDayNearMidnight() {
+        var components = DateComponents()
+        components.year = 2026
+        components.month = 11
+        components.day = 19
+        components.hour = 0
+        components.minute = 20
+        components.second = 0
+        let calendar = Calendar.current
+        let afterMidnight = calendar.date(from: components)!
+        let expectedStartOfDay = calendar.startOfDay(for: afterMidnight)
+
+        let clamped = HealthKitManager.clampedWorkoutInterval(date: afterMidnight, durationMinutes: 60, calendar: calendar)
+        XCTAssertEqual(clamped.start, expectedStartOfDay)
+        XCTAssertEqual(clamped.end, afterMidnight)
+
+        let midday = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: afterMidnight)!
+        let normal = HealthKitManager.clampedWorkoutInterval(date: midday, durationMinutes: 45, calendar: calendar)
+        XCTAssertEqual(normal.end, midday)
+        XCTAssertEqual(normal.start, midday.addingTimeInterval(-45 * 60))
+    }
+
+    func testBodyMassLookbackStartDateIsNinetyDaysPrior() {
+        let now = Date(timeIntervalSince1970: 1_795_000_000)
+        let lookback = HealthKitManager.bodyMassLookbackStartDate(from: now)
+        let diffDays = Calendar.current.dateComponents([.day], from: lookback, to: now).day
+        XCTAssertEqual(diffDays, 90)
+    }
+
+    func testNotificationActionRouterMapsFastingNotificationsToFastingRoute() {
+        XCTAssertEqual(
+            AppDelegate.notificationDeepLinkRoute(identifier: "FASTING_GOAL_16", categoryIdentifier: "FASTING_MILESTONE"),
+            "fasting"
+        )
+        XCTAssertEqual(
+            AppDelegate.notificationDeepLinkRoute(identifier: "FASTING_STAGE_ketosis", categoryIdentifier: ""),
+            "fasting"
+        )
+        XCTAssertNil(
+            AppDelegate.notificationDeepLinkRoute(identifier: "WATER_REMINDER", categoryIdentifier: "HYDRATION")
+        )
+    }
+
+    func testHealthKitManagerSaveWaterEnergyAndWorkoutThroughStoreProtocol() async throws {
+        let mockStore = MockHealthKitStore()
+        mockStore.authorizedTypes = Set([
+            HKQuantityType.quantityType(forIdentifier: .dietaryWater)!,
+            HKQuantityType.quantityType(forIdentifier: .dietaryEnergyConsumed)!,
+            HKObjectType.workoutType(),
+            HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
+        ])
+        let manager = HealthKitManager(store: mockStore, isAvailable: { true })
+
+        let waterID = await manager.saveWater(liters: 0.3, date: .now)
+        let energyID = await manager.saveDietaryEnergy(calories: 420, date: .now)
+        XCTAssertNotNil(waterID)
+        XCTAssertNotNil(energyID)
+        XCTAssertEqual(mockStore.savedObjects.count, 2)
+
+        // Workout 20 minutes after midnight requesting 60 min must save clamped 20-min interval.
+        var comps = DateComponents(year: 2026, month: 11, day: 19, hour: 0, minute: 20)
+        let afterMidnight = Calendar.current.date(from: comps)!
+        await manager.saveWorkout(activityType: .running, calories: 250, durationMinutes: 60, date: afterMidnight)
+
+        let savedWorkout = mockStore.savedObjects.compactMap { $0 as? HKWorkout }.first
+        XCTAssertNotNil(savedWorkout)
+        XCTAssertEqual(savedWorkout?.startDate, Calendar.current.startOfDay(for: afterMidnight))
+        XCTAssertEqual(savedWorkout?.duration ?? 0, 20 * 60, accuracy: 0.1)
+
+        // When denied, saveWater exits without calling store.save.
+        mockStore.authorizedTypes = []
+        let deniedID = await manager.saveWater(liters: 0.25, date: .now)
+        XCTAssertNil(deniedID)
+    }
+
+    func testHealthKitManagerFetchLatestBodyMassKgReturnsSampleAndEnforces90DayWindow() async throws {
+        let mockStore = MockHealthKitStore()
+        let bodyMassType = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
+        let recentSample = HKQuantitySample(
+            type: bodyMassType,
+            quantity: HKQuantity(unit: .gramUnit(with: .kilo), doubleValue: 74.6),
+            start: Date().addingTimeInterval(-3600),
+            end: Date().addingTimeInterval(-3600)
+        )
+        mockStore.quantitySamples = [recentSample]
+        let manager = HealthKitManager(store: mockStore, isAvailable: { true })
+
+        let kg = try await manager.fetchLatestBodyMassKg()
+        XCTAssertEqual(kg ?? 0, 74.6, accuracy: 0.01)
+    }
+}
+
+private final class MockHealthKitStore: HealthKitStoreExecuting, @unchecked Sendable {
+    var authorizedTypes: Set<HKObjectType> = []
+    var savedObjects: [HKObject] = []
+    var quantitySamples: [HKQuantitySample] = []
+
+    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus {
+        authorizedTypes.contains(type) ? .sharingAuthorized : .sharingDenied
+    }
+
+    func requestAuthorization(toShare typesToShare: Set<HKSampleType>, read typesToRead: Set<HKObjectType>) async throws {}
+
+    func save(_ object: HKObject) async throws {
+        savedObjects.append(object)
+    }
+
+    func delete(_ object: HKObject) async throws {
+        savedObjects.removeAll { $0.uuid == object.uuid }
+    }
+
+    func sumQuantity(for identifier: HKQuantityTypeIdentifier, start: Date, end: Date) async throws -> Double {
+        0
+    }
+
+    func fetchWorkouts(start: Date, end: Date) async throws -> [HKWorkout] {
+        []
+    }
+
+    func fetchLatestQuantitySample(for identifier: HKQuantityTypeIdentifier, since start: Date) async throws -> HKQuantitySample? {
+        quantitySamples.filter { $0.endDate >= start }.max(by: { $0.endDate < $1.endDate })
+    }
+
+    func fetchSourceQuantitySamples(for identifier: HKQuantityTypeIdentifier, start: Date, end: Date) async throws -> [HKQuantitySample] {
+        quantitySamples
+    }
 }
 
 @MainActor
@@ -86,6 +213,25 @@ final class WidgetIntentStorageTests: XCTestCase {
 
         try WidgetStorageActions.toggleShoppingItem(idString: "not-a-valid-uuid", in: context)
         XCTAssertTrue(item.isChecked)
+    }
+
+    func testPerformAddWaterRecordsPendingWorkoutDeltaAlongsideSwiftDataSave() throws {
+        let context = try makeInMemoryContext()
+        let fixedDate = Date()
+        let suite = "test.widget.intent.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        try WidgetStorageActions.addWaterGlassAndRecordPendingDelta(
+            volumeMl: 250.0,
+            in: context,
+            for: fixedDate,
+            sharedDefaults: defaults,
+            appGroupDefaults: defaults
+        )
+
+        let pending = WorkoutSyncManager.shared.consumePendingWidgetWaterEntriesLiters(for: fixedDate, appGroupDefaults: defaults)
+        XCTAssertEqual(pending.reduce(0, +), 0.25, accuracy: 0.001)
     }
 }
 
@@ -197,7 +343,16 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
             "High Fat", "Low Energy?", "Apple Fitness", "Daily Walking",
             "Good morning,", "Good afternoon,", "Good evening,", "Good night,",
             "Metric", "Imperial", "Berry Pink", "Mint Fresh", "Cyber Blue",
-            "Height", "Age", "Local database"
+            "Height", "Age", "Local database",
+            "Hydration Tracker", "Track and quickly add water to your daily goal.",
+            "Daily Macros", "See your protein, fat, and carbs at a glance.",
+            "Keep track of your overall metabolic health score.",
+            "Sticky Note", "Your shopping list right on the fridge.",
+            "Fasting Tracker", "Current Stage", "Ends in:", "Done",
+            "Add 250ml Water", "Quickly add a glass of water to your daily hydration.",
+            "Toggle Shopping Item", "Item ID",
+            "GOAL (%.0f fl oz)", "%.0f fl oz", "%.1f L", "%.1fL", "Hello, %@!",
+            "P: %lldg", "F: %lldg", "C: %lldg"
         ]
         let requiredLocales = ["de", "es", "fr", "it", "pt-PT", "ru"]
 
@@ -209,6 +364,36 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
                 let stringUnit = try XCTUnwrap(locDict["stringUnit"] as? [String: Any], "Missing stringUnit in \(locale) for: \(key)")
                 let value = stringUnit["value"] as? String ?? ""
                 XCTAssertFalse(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Empty \(locale) translation for: \(key)")
+            }
+        }
+    }
+
+    func testInfoPlistHealthUpdateDescriptionMentionsWorkoutsAndWeightAcrossLocales() throws {
+        let projectRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let plistCatalogURL = projectRoot.appendingPathComponent("FoodTracker/InfoPlist.xcstrings")
+        let data = try Data(contentsOf: plistCatalogURL)
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let strings = try XCTUnwrap(json["strings"] as? [String: Any])
+        let entry = try XCTUnwrap(strings["NSHealthUpdateUsageDescription"] as? [String: Any])
+        let locs = try XCTUnwrap(entry["localizations"] as? [String: Any])
+
+        let expectedTerms: [String: [String]] = [
+            "en": ["workout", "weight"],
+            "ru": ["трениров", "вес"],
+            "de": ["training", "gewicht"],
+            "es": ["entrenamiento", "peso"],
+            "fr": ["entraînement", "poids"],
+            "it": ["allenament", "peso"],
+            "pt-PT": ["treino", "peso"]
+        ]
+        for (locale, terms) in expectedTerms {
+            let locDict = try XCTUnwrap(locs[locale] as? [String: Any], "Missing \(locale)")
+            let unit = try XCTUnwrap(locDict["stringUnit"] as? [String: Any])
+            let value = (unit["value"] as? String ?? "").lowercased()
+            for term in terms {
+                XCTAssertTrue(value.contains(term), "InfoPlist \(locale) missing '\(term)' in: \(value)")
             }
         }
     }

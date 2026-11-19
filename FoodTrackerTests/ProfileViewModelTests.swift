@@ -51,4 +51,37 @@ final class ProfileViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.currentStreak, 2)
     }
+
+    func testMacroPercentagesRebalanceClampedZeroToHundredWithoutNegativeRemainder() {
+        let initial = NutritionSettingsEditor.normalizedInitialPercentages(
+            dailyCalories: 1500,
+            proteinGrams: 300,
+            fatGrams: 100,
+            carbsGrams: 100
+        )
+        XCTAssertGreaterThanOrEqual(initial.protein, 0)
+        XCTAssertGreaterThanOrEqual(initial.fat, 0)
+        XCTAssertGreaterThanOrEqual(initial.carbs, 0)
+        XCTAssertEqual(initial.protein + initial.fat + initial.carbs, 100.0, accuracy: 0.01)
+
+        // Increase protein to 85% while fat=25% and carbs=35%: drains carbs (35->0) then spills 10 into fat (25->15).
+        let rebalanced = NutritionSettingsEditor.rebalanceMacroPercentages(
+            protein: 85,
+            fat: 25,
+            carbs: 35,
+            changed: .protein
+        )
+        XCTAssertEqual(rebalanced.protein, 85, accuracy: 0.01)
+        XCTAssertEqual(rebalanced.carbs, 0, accuracy: 0.01)
+        XCTAssertEqual(rebalanced.fat, 15, accuracy: 0.01)
+        XCTAssertEqual(rebalanced.protein + rebalanced.fat + rebalanced.carbs, 100.0, accuracy: 0.01)
+    }
+
+    func testWeightTrendColorRespectsGoalType() {
+        XCTAssertEqual(WeightTrendFormatter.trendColor(diff: 0.8, goalType: "gain"), .green)
+        XCTAssertEqual(WeightTrendFormatter.trendColor(diff: -0.8, goalType: "gain"), .red)
+        XCTAssertEqual(WeightTrendFormatter.trendColor(diff: -0.8, goalType: "lose"), .green)
+        XCTAssertEqual(WeightTrendFormatter.trendColor(diff: 0.8, goalType: "lose"), .red)
+        XCTAssertEqual(WeightTrendFormatter.trendColor(diff: 0.2, goalType: "maintain"), .green)
+    }
 }

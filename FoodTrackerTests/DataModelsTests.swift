@@ -744,8 +744,15 @@ final class DataModelsTests: XCTestCase {
 
     func testWave4PortugueseFoodCatalogAndRecipeParityAndUnits() {
         XCTAssertEqual(LocalFoodDatabaseService.resolveLanguageCode(for: "pt"), "pt-PT")
+        let enFoods = LocalFoodDatabaseService.loadBundledFoods(languageCode: "en")
         let ptFoods = LocalFoodDatabaseService.loadBundledFoods(languageCode: "pt")
-        XCTAssertGreaterThanOrEqual(ptFoods.count, 900)
+        XCTAssertGreaterThanOrEqual(ptFoods.count, enFoods.count)
+        let ptIds = Set(ptFoods.map(\.id))
+        let missingIds = enFoods.filter { !ptIds.contains($0.id) }
+        XCTAssertTrue(missingIds.isEmpty, "Expected 0 missing foods_en IDs in foods_pt-PT.json, got \(missingIds.count)")
+        let enCategories = Set(enFoods.map(\.category))
+        let ptCategories = Set(ptFoods.map(\.category))
+        XCTAssertEqual(ptCategories.intersection(enCategories), enCategories)
         XCTAssertTrue(ptFoods.contains(where: { $0.name == "Bacalhau à Brás" }))
 
         for code in ["en", "de", "es", "fr", "it", "pt", "ru"] {
@@ -1544,5 +1551,108 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(outcome.deletedHealthKitSamples.count, 1)
         XCTAssertEqual(outcome.deletedHealthKitSamples.first?.sampleID, sampleUUID)
         XCTAssertEqual(outcome.deletedHealthKitSamples.first?.volumeMl ?? 0, 500.0, accuracy: 0.01)
+    }
+
+    func testReconcileWaterIgnoresCoffeeAndMergesConcurrentAdditions() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let suiteName = "test.water.concurrent.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: suiteName)!
+        let syncSuite = "test.water.concurrent.sync.\(UUID().uuidString)"
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: suiteName)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        // Baseline: 1.0 L of Water synced; user also drank 250 ml Coffee locally (not pure water).
+        let summary = DailySummary(date: today)
+        context.insert(summary)
+        let baselineWater = Beverage(date: today, name: "Water", icon: "drop.fill", colorHex: "#007AFF", caloriesPerGlass: 0, volumeMl: 1000)
+        let coffee = Beverage(date: today, name: "Coffee", icon: "cup.and.saucer.fill", colorHex: "#6F4E37", caloriesPerGlass: 5, volumeMl: 250)
+        context.insert(baselineWater)
+        context.insert(coffee)
+        summary.addBeverage(baselineWater)
+        summary.addBeverage(coffee)
+
+        XCTAssertEqual(summary.totalHydrationLiters, 1.25, accuracy: 0.001)
+        XCTAssertEqual(summary.totalPureWaterLiters, 1.0, accuracy: 0.001)
+
+        // Last synced water was 1.0 L; concurrently WorkoutTracker added +0.5 L (shared = 1.5 L)
+        // AND FoodTracker added +0.25 L Water (local pure water = 1.25 L).
+        let localWaterAdd = Beverage(date: today, name: "Water", icon: "drop.fill", colorHex: "#007AFF", caloriesPerGlass: 0, volumeMl: 250)
+        context.insert(localWaterAdd)
+        summary.addBeverage(localWaterAdd)
+
+        sharedDefaults.set(1.5, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+        syncDefaults.set(1.0, forKey: WorkoutSyncManager.lastSyncedWaterKey(for: today))
+
+        let outcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        // Merged pure water must preserve BOTH additions: 1.0 + 0.25 (local) + 0.5 (shared) = 1.75 L.
+        XCTAssertTrue(outcome.mutated)
+        XCTAssertEqual(summary.totalPureWaterLiters, 1.75, accuracy: 0.01)
+        XCTAssertEqual(summary.totalHydrationLiters, 2.0, accuracy: 0.01)
+    }
+
+    func testReconcileWaterExternalDecreaseNotBlockedByNonWaterBeverage() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let suiteName = "test.water.decrease.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: suiteName)!
+        let syncSuite = "test.water.decrease.sync.\(UUID().uuidString)"
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: suiteName)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        let summary = DailySummary(date: today)
+        context.insert(summary)
+        let w1 = Beverage(date: today, name: "Water", icon: "drop.fill", colorHex: "#007AFF", caloriesPerGlass: 0, volumeMl: 500)
+        let w2 = Beverage(date: today, name: "Water", icon: "drop.fill", colorHex: "#007AFF", caloriesPerGlass: 0, volumeMl: 500)
+        let coffee = Beverage(date: today, name: "Coffee", icon: "cup.and.saucer.fill", colorHex: "#6F4E37", caloriesPerGlass: 5, volumeMl: 250)
+        context.insert(w1); context.insert(w2); context.insert(coffee)
+        summary.addBeverage(w1); summary.addBeverage(w2); summary.addBeverage(coffee)
+
+        // Previously synced 1.0 L pure water; external WorkoutTracker removed 500 ml -> now 0.5 L.
+        sharedDefaults.set(0.5, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+        syncDefaults.set(1.0, forKey: WorkoutSyncManager.lastSyncedWaterKey(for: today))
+
+        let outcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertEqual(outcome.mutated, true)
+        XCTAssertEqual(summary.totalPureWaterLiters, 0.5, accuracy: 0.01)
+        XCTAssertEqual((summary.beverages ?? []).filter { $0.name == "Coffee" }.count, 1)
+    }
+
+    func testSharedModelContainerFallbackDirectoryUsesApplicationSupportNotTemporary() throws {
+        let resolvedNil = SharedModelContainer.resolvedStoreDirectoryURL(appGroupContainerURL: nil)
+        XCTAssertTrue(resolvedNil.didUseFallbackDirectory)
+        XCTAssertFalse(resolvedNil.url.path.hasPrefix(FileManager.default.temporaryDirectory.path))
+        XCTAssertTrue(resolvedNil.url.path.contains("Application Support"))
+
+        let customGroup = FileManager.default.temporaryDirectory.appendingPathComponent("TestGroupContainer", isDirectory: true)
+        let resolvedValid = SharedModelContainer.resolvedStoreDirectoryURL(appGroupContainerURL: customGroup)
+        XCTAssertFalse(resolvedValid.didUseFallbackDirectory)
+        XCTAssertEqual(resolvedValid.url, customGroup)
     }
 }

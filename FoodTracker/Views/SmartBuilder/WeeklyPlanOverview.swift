@@ -189,7 +189,29 @@ struct WeeklyPlanOverview: View {
         for planMeal in dayMeals {
             let canonicalType = NutritionMath.canonicalMealType(planMeal.type)
             let cals = Int(planMeal.calories)
-            let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: cals, protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs))
+            let micros = MicronutrientEstimator.estimate(
+                name: planMeal.title,
+                calories: cals,
+                protein: Double(planMeal.protein),
+                fat: Double(planMeal.fat),
+                carbs: Double(planMeal.carbs),
+                weight: 100.0
+            )
+            let foodItem = FoodItem(
+                name: planMeal.title,
+                weight: 100.0,
+                calories: cals,
+                protein: Double(planMeal.protein),
+                fats: Double(planMeal.fat),
+                carbs: Double(planMeal.carbs),
+                omega3: micros.omega3,
+                calcium: micros.calcium,
+                potassium: micros.potassium,
+                magnesium: micros.magnesium,
+                iron: micros.iron,
+                vitaminC: micros.vitaminC,
+                vitaminD: micros.vitaminD
+            )
             context.insert(foodItem)
             if cals > 0 {
                 addedItems.append(foodItem)

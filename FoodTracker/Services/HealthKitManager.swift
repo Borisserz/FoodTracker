@@ -16,6 +16,79 @@ enum HealthKitWeightSyncHelper {
     }
 }
 
+protocol HealthKitStoreExecuting: Sendable {
+    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus
+    func requestAuthorization(toShare typesToShare: Set<HKSampleType>, read typesToRead: Set<HKObjectType>) async throws
+    func save(_ object: HKObject) async throws
+    func delete(_ object: HKObject) async throws
+    func sumQuantity(for identifier: HKQuantityTypeIdentifier, start: Date, end: Date) async throws -> Double
+    func fetchWorkouts(start: Date, end: Date) async throws -> [HKWorkout]
+    func fetchLatestQuantitySample(for identifier: HKQuantityTypeIdentifier, since start: Date) async throws -> HKQuantitySample?
+    func fetchSourceQuantitySamples(for identifier: HKQuantityTypeIdentifier, start: Date, end: Date) async throws -> [HKQuantitySample]
+}
+
+final class LiveHealthKitStore: HealthKitStoreExecuting, @unchecked Sendable {
+    private let healthStore = HKHealthStore()
+
+    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus {
+        healthStore.authorizationStatus(for: type)
+    }
+
+    func requestAuthorization(toShare typesToShare: Set<HKSampleType>, read typesToRead: Set<HKObjectType>) async throws {
+        try await healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead)
+    }
+
+    func save(_ object: HKObject) async throws {
+        try await healthStore.save(object)
+    }
+
+    func delete(_ object: HKObject) async throws {
+        try await healthStore.delete(object)
+    }
+
+    func sumQuantity(for identifier: HKQuantityTypeIdentifier, start: Date, end: Date) async throws -> Double {
+        guard let quantityType = HKQuantityType.quantityType(forIdentifier: identifier) else { return 0 }
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        let samplePredicate = HKSamplePredicate.quantitySample(type: quantityType, predicate: predicate)
+        let query = HKStatisticsQueryDescriptor(predicate: samplePredicate, options: .cumulativeSum)
+        let result = try await query.result(for: healthStore)
+        let unit: HKUnit = identifier == .stepCount ? .count() : .kilocalorie()
+        return result?.sumQuantity()?.doubleValue(for: unit) ?? 0
+    }
+
+    func fetchWorkouts(start: Date, end: Date) async throws -> [HKWorkout] {
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        let descriptor = HKSampleQueryDescriptor<HKWorkout>(
+            predicates: [.workout(predicate)],
+            sortDescriptors: []
+        )
+        return try await descriptor.result(for: healthStore)
+    }
+
+    func fetchLatestQuantitySample(for identifier: HKQuantityTypeIdentifier, since start: Date) async throws -> HKQuantitySample? {
+        guard let quantityType = HKQuantityType.quantityType(forIdentifier: identifier) else { return nil }
+        let datePredicate = HKQuery.predicateForSamples(withStart: start, end: nil, options: .strictStartDate)
+        let descriptor = HKSampleQueryDescriptor<HKQuantitySample>(
+            predicates: [.quantitySample(type: quantityType, predicate: datePredicate)],
+            sortDescriptors: [SortDescriptor(\.endDate, order: .reverse)],
+            limit: 1
+        )
+        return try await descriptor.result(for: healthStore).first
+    }
+
+    func fetchSourceQuantitySamples(for identifier: HKQuantityTypeIdentifier, start: Date, end: Date) async throws -> [HKQuantitySample] {
+        guard let quantityType = HKQuantityType.quantityType(forIdentifier: identifier) else { return [] }
+        let ownSourcePredicate = HKQuery.predicateForObjects(from: HKSource.default())
+        let datePredicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        let compound = NSCompoundPredicate(andPredicateWithSubpredicates: [ownSourcePredicate, datePredicate])
+        let descriptor = HKSampleQueryDescriptor<HKQuantitySample>(
+            predicates: [.quantitySample(type: quantityType, predicate: compound)],
+            sortDescriptors: [SortDescriptor(\.startDate, order: .reverse)]
+        )
+        return try await descriptor.result(for: healthStore)
+    }
+}
+
 @Observable
 @MainActor
 final class HealthKitManager {
@@ -31,18 +104,28 @@ final class HealthKitManager {
         .activeEnergyBurned,
         .bodyMass
     ]
-    private let healthStore = HKHealthStore()
+    private let store: any HealthKitStoreExecuting
+    private let isHealthDataAvailableProvider: @Sendable () -> Bool
     private let hasRequestedKey = "healthKitAuthRequested_v1"
 
     var isAuthorized: Bool = false
 
-    private init() {
-        if HKHealthStore.isHealthDataAvailable() {
+    private convenience init() {
+        self.init(store: LiveHealthKitStore(), isAvailable: { HKHealthStore.isHealthDataAvailable() })
+    }
+
+    init(
+        store: any HealthKitStoreExecuting,
+        isAvailable: @escaping @Sendable () -> Bool = { HKHealthStore.isHealthDataAvailable() }
+    ) {
+        self.store = store
+        self.isHealthDataAvailableProvider = isAvailable
+        if isAvailable() {
             var writeTypes: [HKSampleType] = Self.writeTypeIdentifiers.compactMap {
                 HKObjectType.quantityType(forIdentifier: $0)
             }
             writeTypes.append(HKObjectType.workoutType())
-            let statuses = writeTypes.map { healthStore.authorizationStatus(for: $0) }
+            let statuses = writeTypes.map { store.authorizationStatus(for: $0) }
             let anyAuthorized = statuses.contains(.sharingAuthorized)
             let anyAllowedAfterPrompt = UserDefaults.standard.bool(forKey: hasRequestedKey)
                 && statuses.contains(where: { $0 != .sharingDenied && $0 != .notDetermined })
@@ -51,12 +134,12 @@ final class HealthKitManager {
     }
 
     private func canWrite(_ sampleType: HKObjectType) -> Bool {
-        guard HKHealthStore.isHealthDataAvailable() else { return false }
-        return healthStore.authorizationStatus(for: sampleType) == .sharingAuthorized
+        guard isHealthDataAvailableProvider() else { return false }
+        return store.authorizationStatus(for: sampleType) == .sharingAuthorized
     }
 
     func requestAuthorization() async throws {
-        guard HKHealthStore.isHealthDataAvailable() else { return }
+        guard isHealthDataAvailableProvider() else { return }
 
         var typesToRead: Set<HKObjectType> = Set(Self.readTypeIdentifiers.compactMap {
             HKObjectType.quantityType(forIdentifier: $0)
@@ -73,16 +156,16 @@ final class HealthKitManager {
         let hasRequested = UserDefaults.standard.bool(forKey: hasRequestedKey)
         // Only write types expose real authorizationStatus; prompt if never requested or any write type is still undetermined.
         let hasUndeterminedWriteType = typesToWrite.contains {
-            healthStore.authorizationStatus(for: $0) == .notDetermined
+            store.authorizationStatus(for: $0) == .notDetermined
         }
 
         if !hasRequested || hasUndeterminedWriteType {
-            try await healthStore.requestAuthorization(toShare: typesToWrite, read: typesToRead)
+            try await store.requestAuthorization(toShare: typesToWrite, read: typesToRead)
             UserDefaults.standard.set(true, forKey: hasRequestedKey)
         }
 
         let anyWriteAllowed = typesToWrite.contains {
-            healthStore.authorizationStatus(for: $0) != .sharingDenied
+            store.authorizationStatus(for: $0) != .sharingDenied
         }
         self.isAuthorized = anyWriteAllowed && UserDefaults.standard.bool(forKey: hasRequestedKey)
     }
@@ -94,23 +177,14 @@ final class HealthKitManager {
 
     // Modern async descriptor-based query (no legacy HKStatisticsQuery + continuation)
     func fetchSteps(for date: Date) async throws -> Int {
-        guard HKHealthStore.isHealthDataAvailable() else { return 0 }
-        guard let stepsType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return 0 }
+        guard isHealthDataAvailableProvider() else { return 0 }
 
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return 0 }
 
-        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
-        let samplePredicate = HKSamplePredicate.quantitySample(type: stepsType, predicate: predicate)
-
-        let query = HKStatisticsQueryDescriptor(
-            predicate: samplePredicate,
-            options: .cumulativeSum
-        )
-
-        let result = try await query.result(for: healthStore)
-        return Int(result?.sumQuantity()?.doubleValue(for: .count()) ?? 0)
+        let steps = try await store.sumQuantity(for: .stepCount, start: startOfDay, end: endOfDay)
+        return Int(steps)
     }
 
     @discardableResult
@@ -123,7 +197,7 @@ final class HealthKitManager {
         let sample = HKQuantitySample(type: waterType, quantity: quantity, start: date, end: date)
 
         do {
-            try await healthStore.save(sample)
+            try await store.save(sample)
             print("Successfully saved \(liters)L of water to HealthKit")
             return sample.uuid
         } catch {
@@ -143,7 +217,7 @@ final class HealthKitManager {
         let sample = HKQuantitySample(type: energyType, quantity: quantity, start: date, end: date)
 
         do {
-            try await healthStore.save(sample)
+            try await store.save(sample)
             print("Saved \(calories) kcal dietary energy to HealthKit")
             return sample.uuid
         } catch {
@@ -191,55 +265,56 @@ final class HealthKitManager {
         tolerance: Double,
         date: Date
     ) async {
-        guard HKHealthStore.isHealthDataAvailable(),
+        guard isHealthDataAvailableProvider(),
               let quantityType = HKQuantityType.quantityType(forIdentifier: identifier),
               canWrite(quantityType) else { return }
 
-        let ownSourcePredicate = HKQuery.predicateForObjects(from: HKSource.default())
-
-        if let idString, let uuid = UUID(uuidString: idString) {
-            let uuidPredicate = HKQuery.predicateForObject(with: uuid)
-            let compound = NSCompoundPredicate(andPredicateWithSubpredicates: [ownSourcePredicate, uuidPredicate])
-            let descriptor = HKSampleQueryDescriptor<HKQuantitySample>(
-                predicates: [.quantitySample(type: quantityType, predicate: compound)],
-                sortDescriptors: []
-            )
-            if let matches = try? await descriptor.result(for: healthStore), !matches.isEmpty {
-                do {
-                    try await healthStore.delete(matches)
-                    return
-                } catch {
-                    print("Error deleting HealthKit sample by UUID: \(error.localizedDescription)")
-                }
-            }
-        }
-
-        guard fallbackValue > 0 else { return }
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return }
-        let datePredicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
-        let compound = NSCompoundPredicate(andPredicateWithSubpredicates: [ownSourcePredicate, datePredicate])
-        let descriptor = HKSampleQueryDescriptor<HKQuantitySample>(
-            predicates: [.quantitySample(type: quantityType, predicate: compound)],
-            sortDescriptors: [SortDescriptor(\.startDate, order: .reverse)]
-        )
-        guard let samples = try? await descriptor.result(for: healthStore),
+
+        let samples = (try? await store.fetchSourceQuantitySamples(for: identifier, start: startOfDay, end: endOfDay)) ?? []
+
+        if let idString, let uuid = UUID(uuidString: idString),
+           let uuidMatch = samples.first(where: { $0.uuid == uuid }) {
+            do {
+                try await store.delete(uuidMatch)
+                return
+            } catch {
+                print("Error deleting HealthKit sample by UUID: \(error.localizedDescription)")
+            }
+        }
+
+        guard fallbackValue > 0,
               let match = samples.first(where: { abs($0.quantity.doubleValue(for: unit) - fallbackValue) <= tolerance }) else {
             return
         }
         do {
-            try await healthStore.delete(match)
+            try await store.delete(match)
         } catch {
             print("Error deleting fallback HealthKit sample: \(error.localizedDescription)")
         }
     }
 
+    nonisolated static func clampedWorkoutInterval(
+        date: Date,
+        durationMinutes: Int,
+        calendar: Calendar = .current
+    ) -> (start: Date, end: Date) {
+        let clampedMinutes = max(0, durationMinutes)
+        let duration = TimeInterval(clampedMinutes * 60)
+        let rawStart = date.addingTimeInterval(-duration)
+        let startOfDay = calendar.startOfDay(for: date)
+        let clampedStart = max(startOfDay, min(rawStart, date))
+        return (clampedStart, date)
+    }
+
     func saveWorkout(activityType: HKWorkoutActivityType, calories: Int, durationMinutes: Int, date: Date) async {
         guard calories > 0, durationMinutes > 0,
               canWrite(HKObjectType.workoutType()) else { return }
-        let duration = TimeInterval(durationMinutes * 60)
-        let startDate = date.addingTimeInterval(-duration)
+        let interval = Self.clampedWorkoutInterval(date: date, durationMinutes: durationMinutes)
+        let startDate = interval.start
+        let duration = interval.end.timeIntervalSince(startDate)
         let energyBurned = HKQuantity(unit: .kilocalorie(), doubleValue: Double(calories))
 
         let workout = HKWorkout(
@@ -254,11 +329,11 @@ final class HealthKitManager {
         )
 
         do {
-            try await healthStore.save(workout)
+            try await store.save(workout)
             if let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned),
                canWrite(energyType) {
                 let sample = HKQuantitySample(type: energyType, quantity: energyBurned, start: startDate, end: date)
-                try await healthStore.save(sample)
+                try await store.save(sample)
             }
             print("Successfully saved workout to HealthKit: \(calories) kcal for \(durationMinutes) min.")
         } catch {
@@ -274,7 +349,7 @@ final class HealthKitManager {
     /// Sums active calories from external HKWorkouts, separating WorkoutTracker entries
     /// from other external sources (e.g., Apple Watch) so neither is dropped nor double-counted.
     func fetchExternalWorkoutBreakdown(for date: Date) async throws -> ExternalWorkoutCaloriesBreakdown {
-        guard HKHealthStore.isHealthDataAvailable() else {
+        guard isHealthDataAvailableProvider() else {
             return ExternalWorkoutCaloriesBreakdown(workoutTrackerCalories: 0, otherExternalCalories: 0)
         }
 
@@ -284,13 +359,7 @@ final class HealthKitManager {
             return ExternalWorkoutCaloriesBreakdown(workoutTrackerCalories: 0, otherExternalCalories: 0)
         }
 
-        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
-        let descriptor = HKSampleQueryDescriptor<HKWorkout>(
-            predicates: [.workout(predicate)],
-            sortDescriptors: []
-        )
-
-        let workouts = try await descriptor.result(for: healthStore)
+        let workouts = try await store.fetchWorkouts(start: startOfDay, end: endOfDay)
         let ownBundleId = Bundle.main.bundleIdentifier
         var wtTotal = 0.0
         var otherTotal = 0.0
@@ -332,36 +401,30 @@ final class HealthKitManager {
 
     // Modern descriptor version
     func fetchTotalActiveCalories(for date: Date) async throws -> Int {
-        guard HKHealthStore.isHealthDataAvailable() else { return 0 }
-        guard let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) else { return 0 }
+        guard isHealthDataAvailableProvider() else { return 0 }
 
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return 0 }
 
-        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
-        let samplePredicate = HKSamplePredicate.quantitySample(type: energyType, predicate: predicate)
+        let kcal = try await store.sumQuantity(for: .activeEnergyBurned, start: startOfDay, end: endOfDay)
+        return Int(kcal)
+    }
 
-        let query = HKStatisticsQueryDescriptor(
-            predicate: samplePredicate,
-            options: .cumulativeSum
-        )
-
-        let result = try await query.result(for: healthStore)
-        return Int(result?.sumQuantity()?.doubleValue(for: .kilocalorie()) ?? 0)
+    nonisolated static func bodyMassLookbackStartDate(
+        from referenceDate: Date = Date(),
+        calendar: Calendar = .current
+    ) -> Date {
+        calendar.date(byAdding: .day, value: -90, to: referenceDate)
+            ?? referenceDate.addingTimeInterval(-90 * 86_400)
     }
 
     func fetchLatestBodyMassKg() async throws -> Double? {
-        guard HKHealthStore.isHealthDataAvailable(),
-              let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass) else { return nil }
-
-        let descriptor = HKSampleQueryDescriptor<HKQuantitySample>(
-            predicates: [.quantitySample(type: bodyMassType)],
-            sortDescriptors: [SortDescriptor(\.endDate, order: .reverse)],
-            limit: 1
-        )
-        let samples = try await descriptor.result(for: healthStore)
-        guard let latest = samples.first else { return nil }
+        guard isHealthDataAvailableProvider() else { return nil }
+        guard let latest = try await store.fetchLatestQuantitySample(
+            for: .bodyMass,
+            since: Self.bodyMassLookbackStartDate()
+        ) else { return nil }
         let kg = latest.quantity.doubleValue(for: .gramUnit(with: .kilo))
         return kg > 0 ? kg : nil
     }
@@ -369,13 +432,13 @@ final class HealthKitManager {
     @discardableResult
     func saveBodyMass(kg: Double, date: Date) async -> UUID? {
         guard kg > 0,
-              let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass),
+              let bodyMassType = HKQuantityType.quantityType(forIdentifier: .bodyMass),
               canWrite(bodyMassType) else { return nil }
 
         let quantity = HKQuantity(unit: .gramUnit(with: .kilo), doubleValue: kg)
         let sample = HKQuantitySample(type: bodyMassType, quantity: quantity, start: date, end: date)
         do {
-            try await healthStore.save(sample)
+            try await store.save(sample)
             return sample.uuid
         } catch {
             print("Error saving body mass to HealthKit: \(error.localizedDescription)")

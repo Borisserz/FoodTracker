@@ -597,7 +597,7 @@ struct AddWeightLogSheet: View {
                             .foregroundColor(.secondary)
                         }
                         
-                        DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
+                        DatePicker("Date", selection: $date, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
                             .font(.system(.body, design: .rounded, weight: .bold))
                     }
                     .padding(20)

@@ -33,6 +33,8 @@
 		B1A000020000000000000002 /* PrivacyManifestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000020000000000000001 /* PrivacyManifestTests.swift */; };
 		B1A000030000000000000002 /* WorkoutSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000030000000000000001 /* WorkoutSyncManager.swift */; };
 		B1A000040000000000000002 /* RecipeTagCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000040000000000000001 /* RecipeTagCatalogTests.swift */; };
+		B1A000050000000000000002 /* MicronutrientPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000050000000000000001 /* MicronutrientPipelineTests.swift */; };
+		B1A000060000000000000002 /* VersionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000060000000000000001 /* VersionManagerTests.swift */; };
 		AC5031B52FD818F600C2DD0A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B42FD818F600C2DD0A /* FirebaseAuth */; };
 		AC5031B72FD818FC00C2DD0A /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B62FD818FC00C2DD0A /* FirebaseCrashlytics */; };
 		AC5031B92FD8191600C2DD0A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B82FD8191600C2DD0A /* FirebaseAppCheck */; };
@@ -40,7 +42,7 @@
 		AC5031BE2FD81A1800C2DD0A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031BD2FD81A1800C2DD0A /* GoogleSignInSwift */; };
 		AC8DD7AA2F97D8FA00DFE2F9 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */; };
 		AC91A0022FD9000100C2DD0A /* OnboardingKit in Frameworks */ = {isa = PBXBuildFile; productRef = AC91A0012FD9000100C2DD0A /* OnboardingKit */; };
-		ACF45AA92F9E4A4C00206681 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AA82F9E4A4C00206681 /* FirebaseAnalytics */; };
+		ACF45AA92F9E4A4C00206681 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AA82F9E4A4C00206681 /* FirebaseAnalyticsCore */; };
 		ACF45AAB2F9E4A4C00206681 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAA2F9E4A4C00206681 /* FirebaseFirestore */; };
 		ACF45AAD2F9E4A4C00206681 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = ACF45AAC2F9E4A4C00206681 /* FirebaseRemoteConfig */; };
 		BFD2BC57AFEEF0B63D402827 /* FoodTrackerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1717DB868603E5AC754381B0 /* FoodTrackerWidget.swift */; };
@@ -121,6 +123,8 @@
 		B1A000020000000000000001 /* PrivacyManifestTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PrivacyManifestTests.swift; sourceTree = "<group>"; };
 		B1A000030000000000000001 /* WorkoutSyncManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WorkoutSyncManager.swift; path = Services/WorkoutSyncManager.swift; sourceTree = "<group>"; };
 		B1A000040000000000000001 /* RecipeTagCatalogTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecipeTagCatalogTests.swift; sourceTree = "<group>"; };
+		B1A000050000000000000001 /* MicronutrientPipelineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MicronutrientPipelineTests.swift; sourceTree = "<group>"; };
+		B1A000060000000000000001 /* VersionManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VersionManagerTests.swift; sourceTree = "<group>"; };
 		AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		ACD93EFF2F8AC7E200868265 /* FoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B698F0C0F0C1BF19AA836CC1 /* SharedModelContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedModelContainer.swift; sourceTree = "<group>"; };
@@ -186,7 +190,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AC5031BE2FD81A1800C2DD0A /* GoogleSignInSwift in Frameworks */,
-				ACF45AA92F9E4A4C00206681 /* FirebaseAnalytics in Frameworks */,
+				ACF45AA92F9E4A4C00206681 /* FirebaseAnalyticsCore in Frameworks */,
 				AC5031BC2FD81A1800C2DD0A /* GoogleSignIn in Frameworks */,
 				AC5031B52FD818F600C2DD0A /* FirebaseAuth in Frameworks */,
 				AC5031B72FD818FC00C2DD0A /* FirebaseCrashlytics in Frameworks */,
@@ -332,6 +336,8 @@
 				B1A000010000000000000001 /* AIPhotoConsentTests.swift */,
 				B1A000020000000000000001 /* PrivacyManifestTests.swift */,
 				B1A000040000000000000001 /* RecipeTagCatalogTests.swift */,
+				B1A000050000000000000001 /* MicronutrientPipelineTests.swift */,
+				B1A000060000000000000001 /* VersionManagerTests.swift */,
 			);
 			name = FoodTrackerTests;
 			path = FoodTrackerTests;
@@ -395,7 +401,7 @@
 			);
 			name = FoodTracker;
 			packageProductDependencies = (
-				ACF45AA82F9E4A4C00206681 /* FirebaseAnalytics */,
+				ACF45AA82F9E4A4C00206681 /* FirebaseAnalyticsCore */,
 				ACF45AAA2F9E4A4C00206681 /* FirebaseFirestore */,
 				ACF45AAC2F9E4A4C00206681 /* FirebaseRemoteConfig */,
 				AC5031B42FD818F600C2DD0A /* FirebaseAuth */,
@@ -570,6 +576,8 @@
 				B1A000010000000000000002 /* AIPhotoConsentTests.swift in Sources */,
 				B1A000020000000000000002 /* PrivacyManifestTests.swift in Sources */,
 				B1A000040000000000000002 /* RecipeTagCatalogTests.swift in Sources */,
+				B1A000050000000000000002 /* MicronutrientPipelineTests.swift in Sources */,
+				B1A000060000000000000002 /* VersionManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1083,10 +1091,10 @@
 			package = AC91A0002FD9000100C2DD0A /* XCRemoteSwiftPackageReference "OnboardingKit" */;
 			productName = OnboardingKit;
 		};
-		ACF45AA82F9E4A4C00206681 /* FirebaseAnalytics */ = {
+		ACF45AA82F9E4A4C00206681 /* FirebaseAnalyticsCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = ACF45AA72F9E4A4B00206681 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
+			productName = FirebaseAnalyticsCore;
 		};
 		ACF45AAA2F9E4A4C00206681 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;

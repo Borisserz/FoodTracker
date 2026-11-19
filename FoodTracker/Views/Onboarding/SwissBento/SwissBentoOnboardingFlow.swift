@@ -107,6 +107,20 @@ struct SwissBentoOnboardingFlow: View {
                         )
                     }
                 }
+                .onChange(of: metrics.weight) { _, newWeight in
+                    metrics.targetWeight = MetabolicBlueprintCalculator.sanitizedTargetWeight(
+                        for: metrics.goal,
+                        weight: newWeight,
+                        targetWeight: metrics.targetWeight
+                    )
+                }
+                .onChange(of: metrics.goal) { _, newGoal in
+                    metrics.targetWeight = MetabolicBlueprintCalculator.sanitizedTargetWeight(
+                        for: newGoal,
+                        weight: metrics.weight,
+                        targetWeight: metrics.targetWeight
+                    )
+                }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .animation(.spring(response: 0.4, dampingFraction: 0.8), value: stage)
             }

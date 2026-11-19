@@ -328,4 +328,115 @@ final class NetworkManagerTests: XCTestCase {
             XCTFail("Expected .failed outcome on HTTP 503")
         }
     }
+
+    func testOpenFoodFactsHandlesPartial100gEnergyUnitKcalAndLiterKgServings() async {
+        MockURLProtocol.requestHandler = { request in
+            let urlStr = request.url?.absoluteString ?? ""
+            if urlStr.contains("11110001") {
+                let json = #"""
+                {
+                  "status": 1,
+                  "product": {
+                    "product_name": "Oat Milk Bottle",
+                    "serving_size": "1 bottle (1 L)",
+                    "nutriments": {
+                      "proteins_100g": 1.0,
+                      "energy-kcal_serving": 450,
+                      "proteins_serving": 10,
+                      "fat_serving": 15,
+                      "carbohydrates_serving": 65
+                    }
+                  }
+                }
+                """#.data(using: .utf8)!
+                return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+            } else if urlStr.contains("11110002") {
+                let json = #"""
+                {
+                  "status": 1,
+                  "product": {
+                    "product_name": "Kcal Unit Yogurt",
+                    "nutriments": {
+                      "energy_100g": 250,
+                      "energy_unit": "kcal",
+                      "proteins_100g": 12
+                    }
+                  }
+                }
+                """#.data(using: .utf8)!
+                return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+            } else {
+                let json = #"""
+                {
+                  "status": 1,
+                  "product": {
+                    "product_name": "Rice Bag",
+                    "serving_size": "1 kg",
+                    "nutriments": {
+                      "energy-kcal_serving": 3500,
+                      "carbohydrates_serving": 780
+                    }
+                  }
+                }
+                """#.data(using: .utf8)!
+                return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+            }
+        }
+
+        let oatMilk = await networkManager.fetchProduct(barcode: "11110001")
+        XCTAssertEqual(oatMilk?.calories, 450)
+        XCTAssertEqual(oatMilk?.weight ?? 0, 1000.0, accuracy: 0.01)
+
+        let yogurt = await networkManager.fetchProduct(barcode: "11110002")
+        XCTAssertEqual(yogurt?.calories, 250)
+
+        let rice = await networkManager.fetchProduct(barcode: "11110003")
+        XCTAssertEqual(rice?.weight ?? 0, 1000.0, accuracy: 0.01)
+        XCTAssertEqual(rice?.calories, 3500)
+    }
+
+    func testOpenFoodFactsAllowsExplicitZeroCalorieBeverageWhileEmptyNutrimentsFallThrough() async {
+        MockURLProtocol.requestHandler = { request in
+            let urlStr = request.url?.absoluteString ?? ""
+            if urlStr.contains("22220001") {
+                let json = #"""
+                {
+                  "status": 1,
+                  "product": {
+                    "product_name": "Sparkling Water",
+                    "serving_size": "500 ml",
+                    "nutriments": {
+                      "energy-kcal_100g": 0,
+                      "proteins_100g": 0,
+                      "fat_100g": 0,
+                      "carbohydrates_100g": 0
+                    }
+                  }
+                }
+                """#.data(using: .utf8)!
+                return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+            }
+            if request.url?.host == "world.openfoodfacts.org" {
+                let json = #"{"status":1,"product":{"product_name":"Unknown Empty","nutriments":{}}}"#.data(using: .utf8)!
+                return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+            }
+            let proxyNotFound = #"{"item":null}"#.data(using: .utf8)!
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, proxyNotFound)
+        }
+
+        let waterOutcome = await networkManager.fetchProductOutcome(barcode: "22220001")
+        if case .found(let water) = waterOutcome {
+            XCTAssertEqual(water.name, "Sparkling Water")
+            XCTAssertEqual(water.calories, 0)
+        } else {
+            XCTFail("Expected .found for explicit 0-kcal Sparkling Water")
+        }
+
+        let emptyOutcome = await networkManager.fetchProductOutcome(barcode: "22220002")
+        if case .notFound = emptyOutcome {
+            // Expected
+        } else {
+            XCTFail("Expected .notFound when nutriments dict has no nutrition keys")
+        }
+    }
 }

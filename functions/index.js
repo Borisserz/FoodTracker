@@ -22,6 +22,13 @@ const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/heic",
   "image/heif",
 ]);
+const ALLOWED_APP_CHECK_APP_IDS = new Set(
+  String(process.env.FOODTRACKER_APP_CHECK_APP_IDS || "1:667537183554:ios:00b48bad38f5be0d786edb")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+);
+const MAX_SCHEMA_BYTES = 16_384;
 const UPSTREAM_TIMEOUT_MS = 22000;
 const HEAVY_UPSTREAM_TIMEOUT_MS = 45000;
 const TOTAL_CHAIN_BUDGET_MS = 85000;
@@ -228,6 +235,10 @@ function validateAiProxyBody(body) {
 
   if (body.generationConfig?.responseSchema !== undefined) {
     validateSchemaDepth(body.generationConfig.responseSchema, 0);
+    const serializedSchema = JSON.stringify(body.generationConfig.responseSchema);
+    if (!serializedSchema || serializedSchema.length > MAX_SCHEMA_BYTES) {
+      throw new Error(`responseSchema exceeds max size (${MAX_SCHEMA_BYTES} bytes)`);
+    }
   }
 
   let totalTextChars = 0;
@@ -520,6 +531,28 @@ function openAIStreamChunkToGemini(line) {
   }
 }
 
+function sanitizeModelOverrides(models) {
+  if (!Array.isArray(models)) return null;
+  const cleaned = models
+    .map((m) => (typeof m === "string" ? m.trim() : ""))
+    .filter((m) => m.length > 0 && m.endsWith(":free"));
+  return cleaned.length > 0 ? cleaned : null;
+}
+
+function resolveUserQuotaLimit(baseLimit, signInProvider, kind = "ai") {
+  const safeBase =
+    typeof baseLimit === "number" && Number.isFinite(baseLimit) && baseLimit > 0
+      ? baseLimit
+      : kind === "search"
+        ? DEFAULT_SEARCH_WEEKLY_LIMIT
+        : DEFAULT_AI_WEEKLY_LIMIT;
+  if (signInProvider === "anonymous") {
+    const anonCap = kind === "search" ? 250 : 60;
+    return Math.min(safeBase, anonCap);
+  }
+  return safeBase;
+}
+
 async function loadAISettings() {
   const now = Date.now();
   if (aiSettingsCache && now - aiSettingsCache.loadedAtMs < AI_SETTINGS_CACHE_TTL_MS) {
@@ -536,8 +569,8 @@ async function loadAISettings() {
         data.weeklyLimit > 0
           ? data.weeklyLimit
           : DEFAULT_AI_WEEKLY_LIMIT,
-      textModels: Array.isArray(data.textModels) ? data.textModels : null,
-      visionModels: Array.isArray(data.visionModels) ? data.visionModels : null,
+      textModels: sanitizeModelOverrides(data.textModels),
+      visionModels: sanitizeModelOverrides(data.visionModels),
     };
     aiSettingsCache = { value, loadedAtMs: now };
     return value;
@@ -711,18 +744,29 @@ function hashDeviceInstallId(raw) {
   return crypto.createHash("sha256").update(cleaned).digest("hex");
 }
 
+function normalizeIpAddress(raw) {
+  return String(raw || "").trim().replace(/^::ffff:/i, "");
+}
+
+function isInternalOrReservedIp(ip) {
+  const norm = normalizeIpAddress(ip);
+  if (!norm) return true;
+  return /^(10\.|127\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|::1$|fc[0-9a-f]{2}:|fd[0-9a-f]{2}:|fe[89ab][0-9a-f]:)/i.test(
+    norm
+  );
+}
+
 function resolveIpQuotaKey(req) {
-  const reqIp = String(req?.ip || "").trim();
-  const isLoopback = /^(127\.0\.0\.1|::1|::ffff:127\.0\.0\.1)$/i.test(reqIp);
-  let clientIp = reqIp && !isLoopback ? reqIp : "";
+  const reqIp = normalizeIpAddress(req?.ip);
+  let clientIp = reqIp && !isInternalOrReservedIp(reqIp) ? reqIp : "";
   if (!clientIp) {
     const xffParts = String(req?.header?.("x-forwarded-for") || "")
       .split(",")
-      .map((s) => s.trim())
+      .map((s) => normalizeIpAddress(s))
       .filter(Boolean);
     const nonInternal = [...xffParts]
       .reverse()
-      .find((ip) => !/^(10\.|127\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1)/i.test(ip));
+      .find((ip) => !isInternalOrReservedIp(ip));
     clientIp = nonInternal || xffParts[0] || reqIp;
   }
   if (!clientIp) return null;
@@ -839,14 +883,23 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
   throw lastError || new Error("All OpenRouter models/keys failed");
 }
 
-async function verifyAppCheck(req, res) {
+async function verifyAppCheck(
+  req,
+  res,
+  verifyTokenFn = (token) => getAppCheck().verifyToken(token)
+) {
   const appCheckToken = req.header("X-Firebase-AppCheck");
   if (!appCheckToken) {
     res.status(401).json({ error: "Missing App Check token" });
     return false;
   }
   try {
-    await getAppCheck().verifyToken(appCheckToken);
+    const decoded = await verifyTokenFn(appCheckToken);
+    const appId = String(decoded?.appId || decoded?.app_id || "").trim();
+    if (!appId || !ALLOWED_APP_CHECK_APP_IDS.has(appId)) {
+      res.status(401).json({ error: "Invalid App Check app" });
+      return false;
+    }
     return true;
   } catch (e) {
     res.status(401).json({ error: "Invalid App Check token" });
@@ -867,6 +920,9 @@ async function verifyFirebaseUser(
   }
   try {
     const decoded = await verifyIdTokenFn(m[1], true);
+    if (req && typeof req === "object") {
+      req._authSignInProvider = decoded?.firebase?.sign_in_provider || "";
+    }
     return decoded.uid;
   } catch (e) {
     const message =
@@ -1033,7 +1089,7 @@ function normalizeFatSecretFood(food) {
   if (serving && typeof serving === "object") {
     const rawAmount = parseNumericValue(serving.metric_serving_amount);
     const weightGrams = convertMetricWeightToGrams(rawAmount, serving.metric_serving_unit);
-    return {
+    const result = {
       name,
       weight: roundServingWeightGrams(weightGrams),
       calories: Math.round(parseNumericValue(serving.calories)),
@@ -1041,6 +1097,19 @@ function normalizeFatSecretFood(food) {
       fats: parseNumericValue(serving.fat),
       carbs: parseNumericValue(serving.carbohydrate),
     };
+    const microMap = {
+      omega3: parseNumericValue(serving.omega_3 ?? serving.omega3),
+      calcium: parseNumericValue(serving.calcium),
+      potassium: parseNumericValue(serving.potassium),
+      magnesium: parseNumericValue(serving.magnesium),
+      iron: parseNumericValue(serving.iron),
+      vitaminC: parseNumericValue(serving.vitamin_c),
+      vitaminD: parseNumericValue(serving.vitamin_d),
+    };
+    for (const [k, v] of Object.entries(microMap)) {
+      if (v > 0) result[k] = v;
+    }
+    return result;
   }
 
   const fromDesc = parseFatSecretDescription(food?.food_description);
@@ -1068,6 +1137,13 @@ function assertFatSecretDetailSuccess(detail) {
   if (detail?.error) {
     const code = Number(detail.error?.code);
     throw new Error(`FatSecret detail error ${Number.isFinite(code) ? code : "unknown"}: ${detail.error?.message || "unknown"}`);
+  }
+}
+
+function assertFatSecretResponseSuccess(data) {
+  if (data?.error) {
+    const code = Number(data.error?.code || 0);
+    throw new Error(`FatSecret error ${code}: ${data.error?.message || "Unknown error"}`);
   }
 }
 
@@ -1148,6 +1224,7 @@ exports.foodAiProxy = onRequest(
     region: "us-central1",
     serviceAccount: SERVICE_ACCOUNT,
     memory: "512MiB",
+    concurrency: 20,
     timeoutSeconds: 300,
     secrets: [openRouterApiKey],
   },
@@ -1175,6 +1252,7 @@ exports.foodAiProxy = onRequest(
     }
 
     const settings = await loadAISettings();
+    const userAiLimit = resolveUserQuotaLimit(settings.weeklyLimit, req._authSignInProvider, "ai");
     const deviceHash = resolveSecondaryQuotaKey(req);
     const ipHash = resolveIpQuotaKey(req);
 
@@ -1186,7 +1264,7 @@ exports.foodAiProxy = onRequest(
         uid,
         deviceHash,
         ipHash,
-        userLimit: settings.weeklyLimit,
+        userLimit: userAiLimit,
         deviceLimit: settings.weeklyLimit * 2,
         ipLimit: settings.weeklyLimit * 8,
       });
@@ -1422,6 +1500,11 @@ exports.foodSearchProxy = onRequest(
 
     const searchDeviceHash = resolveSecondaryQuotaKey(req);
     const searchIpHash = resolveIpQuotaKey(req);
+    const userSearchLimit = resolveUserQuotaLimit(
+      DEFAULT_SEARCH_WEEKLY_LIMIT,
+      req._authSignInProvider,
+      "search"
+    );
     let searchReservedWindows;
     try {
       searchReservedWindows = await reserveDualRateLimitSlots({
@@ -1430,7 +1513,7 @@ exports.foodSearchProxy = onRequest(
         uid,
         deviceHash: searchDeviceHash,
         ipHash: searchIpHash,
-        userLimit: DEFAULT_SEARCH_WEEKLY_LIMIT,
+        userLimit: userSearchLimit,
         deviceLimit: DEFAULT_SEARCH_WEEKLY_LIMIT * 2,
         ipLimit: DEFAULT_SEARCH_WEEKLY_LIMIT * 8,
       });
@@ -1511,6 +1594,7 @@ exports.foodSearchProxy = onRequest(
           clientSecret,
           timeoutMs: boundedFatSecretTimeout(),
         });
+        assertFatSecretResponseSuccess(data);
         res.status(200).json({ items: normalizeFatSecretSearch(data) });
         return;
       }
@@ -1559,6 +1643,7 @@ exports.foodSearchProxy = onRequest(
         clientSecret,
         timeoutMs: boundedFatSecretTimeout(),
       });
+      assertFatSecretResponseSuccess(data);
       res.status(200).json({ item: normalizeFatSecretBarcode(data) });
     } catch (e) {
       await refundSearchSlots();
@@ -1673,7 +1758,11 @@ module.exports._test = {
   normalizeFatSecretSearch,
   normalizeFatSecretBarcode,
   assertFatSecretDetailSuccess,
+  assertFatSecretResponseSuccess,
   parseSearchPayload,
   deleteFoodAccountData,
+  verifyAppCheck,
   verifyFirebaseUser,
+  sanitizeModelOverrides,
+  resolveUserQuotaLimit,
 };

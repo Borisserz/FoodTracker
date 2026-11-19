@@ -98,7 +98,7 @@ struct LockScreenFastingView: View {
                         .foregroundColor(.white)
                     
                     HStack {
-                        Text("Ends in:")
+                        Text(FastingActivityTiming.overtimeInterval(targetEndDate: context.attributes.targetEndDate) != nil ? "Overtime:" : "Ends in:")
                             .font(.caption)
                             .foregroundColor(.gray)
                         FastingCountdownText(
@@ -108,7 +108,7 @@ struct LockScreenFastingView: View {
                         )
                             .font(.caption.bold())
                             .monospacedDigit()
-                            .foregroundColor(.orange)
+                            .foregroundColor(FastingActivityTiming.overtimeInterval(targetEndDate: context.attributes.targetEndDate) != nil ? .green : .orange)
                     }
                     .padding(.top, 2)
                 }
@@ -130,6 +130,12 @@ private struct FastingCountdownText: View {
         if !isCompleted && !isStale,
            let interval = FastingActivityTiming.remainingInterval(targetEndDate: targetEndDate) {
             Text(timerInterval: interval, countsDown: true)
+        } else if FastingActivityTiming.overtimeInterval(targetEndDate: targetEndDate) != nil {
+            HStack(spacing: 0) {
+                Text(verbatim: "+")
+                Text(targetEndDate, style: .timer)
+            }
+            .minimumScaleFactor(0.75)
         } else {
             Text("Done")
         }

@@ -190,7 +190,7 @@ final class WorkoutSyncManager {
         appGroupDefaults: UserDefaults? = nil,
         localDefaults: UserDefaults? = nil
     ) -> WaterReconcileOutcome {
-        let localWater = summary.totalHydrationLiters
+        let localWater = summary.totalPureWaterLiters
         let lastKey = Self.lastSyncedWaterKey(for: summary.date)
         let syncDefaults = resolveSyncStateDefaults(appGroupDefaults: appGroupDefaults, localDefaults: localDefaults)
         var lastSynced = syncDefaults.object(forKey: lastKey) as? Double
@@ -201,6 +201,32 @@ final class WorkoutSyncManager {
         }
 
         if let sharedWater = fetchWaterLiters(for: summary.date, sharedDefaults: sharedDefaults) {
+            if let prevSynced = lastSynced,
+               sharedWater > prevSynced + 0.01,
+               localWater > prevSynced + 0.01 {
+                let externalDeltaMl = ((sharedWater - prevSynced) * 1000.0).rounded()
+                if externalDeltaMl > 0 {
+                    let syncedDrink = Beverage(
+                        name: "Water",
+                        icon: "drop.fill",
+                        colorHex: "4CA3E6",
+                        caloriesPerGlass: 0,
+                        volumeMl: externalDeltaMl
+                    )
+                    context.insert(syncedDrink)
+                    summary.addBeverage(syncedDrink)
+                    let mergedTotal = summary.totalPureWaterLiters
+                    syncWater(
+                        mergedTotal,
+                        for: summary.date,
+                        sharedDefaults: sharedDefaults,
+                        appGroupDefaults: appGroupDefaults,
+                        localDefaults: localDefaults
+                    )
+                    return WaterReconcileOutcome(mutated: true, deletedHealthKitSamples: [])
+                }
+            }
+
             let deltaLiters = sharedWater - localWater
             let isExternalIncrease = deltaLiters > 0.01 && (lastSynced == nil || abs(sharedWater - lastSynced!) > 0.005)
             let isExternalDecrease = lastSynced != nil

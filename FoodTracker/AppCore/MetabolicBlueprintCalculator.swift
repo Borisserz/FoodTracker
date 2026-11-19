@@ -42,6 +42,26 @@ struct MetabolicBlueprint: Equatable {
 }
 
 enum MetabolicBlueprintCalculator {
+    static func sanitizedTargetWeight(for goal: String, weight: Double, targetWeight: Double) -> Double {
+        let goalType = weightGoalType(for: goal)
+        switch goalType {
+        case "maintain":
+            return weight
+        case "lose":
+            if targetWeight > 0 && targetWeight < weight {
+                return targetWeight
+            }
+            return max(35.0, (weight - 4.0).rounded())
+        case "gain":
+            if targetWeight > weight {
+                return targetWeight
+            }
+            return (weight + 4.0).rounded()
+        default:
+            return targetWeight > 0 ? targetWeight : weight
+        }
+    }
+
     static func activityMultiplier(for activityLevel: ActivityType) -> Double {
         switch activityLevel {
         case .none, .office: return 1.2
@@ -85,7 +105,11 @@ enum MetabolicBlueprintCalculator {
         let carbsGrams = max(minCarbGrams, (dailyCalories - (proteinGrams * 4) - fatCalories) / 4)
 
         let goalType = weightGoalType(for: metrics.goal)
-        let targetWeightKg = goalType == "maintain" ? metrics.weight : metrics.targetWeight
+        let targetWeightKg = sanitizedTargetWeight(
+            for: metrics.goal,
+            weight: metrics.weight,
+            targetWeight: metrics.targetWeight
+        )
 
         return MetabolicBlueprint(
             bmr: bmr,

@@ -43,6 +43,12 @@ public enum FastingActivityTiming {
         return now...targetEndDate
     }
 
+    /// Returns an ascending range starting at `targetEndDate` once the fasting goal enters overtime.
+    public static func overtimeInterval(now: Date = Date(), targetEndDate: Date) -> ClosedRange<Date>? {
+        guard now >= targetEndDate else { return nil }
+        return targetEndDate...now
+    }
+
     public static func isCompleted(now: Date = Date(), targetEndDate: Date, progressPct: Double) -> Bool {
         now >= targetEndDate || progressPct >= 1.0
     }

@@ -9,8 +9,21 @@ TARGET_LANGS = {
     "fr": "fr",
     "de": "de",
     "it": "it",
-    "pt-PT": "pt"
+    "pt-PT": "pt-PT"
 }
+
+TIME_UNIT_MAP = {
+    "ru": "мин",
+    "de": "Min.",
+    "es": "min",
+    "fr": "min",
+    "it": "min",
+    "pt-PT": "min",
+}
+
+def translate_time(time_str, lang_code):
+    unit = TIME_UNIT_MAP.get(lang_code, "min")
+    return time_str.replace("min", unit) if time_str else time_str
 
 def translate_text(text, target_lang_code):
     if not text or not text.strip():
@@ -54,6 +67,8 @@ def translate_recipes(lang_code, lang_target):
         
         item['title'] = translate_text(item['title'], lang_target)
         item['description'] = translate_text(item['description'], lang_target)
+        if 'time' in item:
+            item['time'] = translate_time(item['time'], lang_code)
         
         if 'tags' in item:
             item['tags'] = [translate_text(t, lang_target) for t in item['tags']]

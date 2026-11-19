@@ -94,6 +94,7 @@ struct MoreTabView: View {
                 icon: "target",
                 gradient: [.themePink, .themeOrange],
                 badge: nil,
+                accessibilityId: "more_goals_card",
                 destination: AnyView(GoalsTabView())
             ),
             MoreItem(
@@ -103,15 +104,17 @@ struct MoreTabView: View {
                 icon: "sparkles",
                 gradient: [Color(hex: 0x9B59B6), Color(hex: 0xF25C78)],
                 badge: nil,
+                accessibilityId: "more_coach_card",
                 destination: AnyView(AICoachDashboardView(selectedDate: Date()))
             ),
             MoreItem(
                 id: 2,
                 title: "Profile & Settings",
-                subtitle: user.map { "Hello, \($0.name)!" } ?? "Edit your profile",
+                subtitle: user.map { String(localized: "Hello, \($0.name)!") } ?? "Edit your profile",
                 icon: "person.crop.circle.fill",
                 gradient: [Color(hex: 0x3498DB), Color(hex: 0x6BB8F2)],
                 badge: nil,
+                accessibilityId: "more_profile_card",
                 destination: AnyView(ProfileWrapperView())
             )
         ]
@@ -248,6 +251,7 @@ private struct MoreItem: Identifiable {
     let icon: String
     let gradient: [Color]
     let badge: String?
+    let accessibilityId: String
     let destination: AnyView
 }
 
@@ -330,5 +334,6 @@ private struct MoreNavCard: View {
             }
         }
         .buttonStyle(MoreCardButtonStyle())
+        .accessibilityIdentifier(item.accessibilityId)
     }
 }

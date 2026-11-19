@@ -189,4 +189,34 @@ final class OnboardingBlueprintTests: XCTestCase {
         XCTAssertEqual(OnboardingStageGuard.clampedStage(3, current: 2, metrics: metrics), 3)
         XCTAssertEqual(OnboardingStageGuard.clampedStage(4, current: 3, metrics: metrics), 4)
     }
+
+    func testSanitizedTargetWeightEnforcesDirectionalGoalConstraint() {
+        let loseMetrics = OnboardingMetrics(
+            age: 30,
+            height: 175,
+            weight: 60,
+            targetWeight: 65, // e.g., user lowered Stage 1 weight below previous target
+            goal: "Lose Weight",
+            activityLevel: .active
+        )
+        let loseBlueprint = MetabolicBlueprintCalculator.calculate(for: loseMetrics)
+        XCTAssertLessThan(loseBlueprint.targetWeightKg, loseMetrics.weight)
+
+        let gainMetrics = OnboardingMetrics(
+            age: 30,
+            height: 175,
+            weight: 82,
+            targetWeight: 75,
+            goal: "Build Muscle",
+            activityLevel: .active
+        )
+        let gainBlueprint = MetabolicBlueprintCalculator.calculate(for: gainMetrics)
+        XCTAssertGreaterThan(gainBlueprint.targetWeightKg, gainMetrics.weight)
+
+        XCTAssertEqual(
+            MetabolicBlueprintCalculator.sanitizedTargetWeight(for: "Maintain Weight", weight: 70, targetWeight: 64),
+            70.0,
+            accuracy: 0.01
+        )
+    }
 }

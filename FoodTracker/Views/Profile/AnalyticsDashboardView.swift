@@ -1391,7 +1391,7 @@ struct TrendsWaterChart: View {
                         Text(
                             useMetricSystem
                             ? "GOAL (2.5L)"
-                            : String(format: "GOAL (%.0f fl oz)", goalVolume)
+                            : String(format: String(localized: "GOAL (%.0f fl oz)"), goalVolume)
                         )
                         .font(.system(size: 9, weight: .black, design: .rounded))
                         .foregroundColor(.cyan)
@@ -1436,8 +1436,8 @@ struct TrendsWaterChart: View {
                     if let val = value.as(Double.self), val >= 0 {
                         AxisValueLabel(
                             useMetricSystem
-                            ? String(format: "%.1fL", val)
-                            : String(format: "%.0f fl oz", val)
+                            ? String(format: String(localized: "%.1fL"), val)
+                            : String(format: String(localized: "%.0f fl oz"), val)
                         ).font(.caption2).foregroundStyle(Color.gray)
                     }
                 }
