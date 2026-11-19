@@ -23,12 +23,28 @@ class AICoachViewModel {
     var generatedRecipe: AIRecipeDTO? = nil
     var errorMessage: String? = nil
 
+    private var dailyAnalysisTask: Task<Void, Never>?
+    private var recipeGenerationTask: Task<Void, Never>?
+    private var macroAnalysisTask: Task<Void, Never>?
+    private var hydrationAnalysisTask: Task<Void, Never>?
+
     init(summaryRepository: SummaryRepositoryProtocol, userRepository: UserRepositoryProtocol) {
         self.summaryRepository = summaryRepository
         self.userRepository = userRepository
     }
 
+    func resetDailyAnalysis() {
+        dailyAnalysisTask?.cancel()
+        dailyAnalysisTask = nil
+        isAnalyzing = false
+        hasAnalyzedToday = false
+        verdictTitle = String(localized: "AI Daily Review")
+        verdictMessage = String(localized: "Tap the button below to analyze your calories, macros, and get a personalized summary for today.")
+        verdictMood = "neutral"
+    }
+
     func runDailyAnalysis(currentSummary: DailySummary, currentUser: User) {
+        guard !isAnalyzing else { return }
         let cals = currentSummary.totalCalories
         let goal = currentUser.dailyCaloriesGoal
         let protein = currentSummary.totalProtein
@@ -38,8 +54,14 @@ class AICoachViewModel {
         errorMessage = nil
         isAnalyzing = true
 
-        Task {
-            if let verdict = await AINutritionService.shared.generateDailyVerdict(consumed: cals, goal: goal, protein: protein, targetProtein: targetP) {
+        dailyAnalysisTask?.cancel()
+        dailyAnalysisTask = Task {
+            let verdict = await AINutritionService.shared.generateDailyVerdict(consumed: cals, goal: goal, protein: protein, targetProtein: targetP)
+            guard !Task.isCancelled else {
+                self.isAnalyzing = false
+                return
+            }
+            if let verdict {
                 withAnimation(.spring()) {
                     self.verdictTitle = verdict.title
                     self.verdictMessage = verdict.message
@@ -61,6 +83,9 @@ class AICoachViewModel {
     }
 
     func generateSmartRecipe(currentSummary: DailySummary, currentUser: User) {
+        let trimmedIngredients = fridgeInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !isGeneratingRecipe, !trimmedIngredients.isEmpty else { return }
+
         let missingCals = max(0, currentUser.dailyCaloriesGoal - currentSummary.totalCalories)
         let missingProtein = max(0, Int(currentUser.targetProtein - currentSummary.totalProtein))
 
@@ -68,8 +93,14 @@ class AICoachViewModel {
         errorMessage = nil
         withAnimation { isGeneratingRecipe = true }
 
-        Task {
-            if let recipe = await AINutritionService.shared.generateFridgeRecipe(ingredients: fridgeInput, missingCalories: missingCals, missingProtein: missingProtein) {
+        recipeGenerationTask?.cancel()
+        recipeGenerationTask = Task {
+            let recipe = await AINutritionService.shared.generateFridgeRecipe(ingredients: trimmedIngredients, missingCalories: missingCals, missingProtein: missingProtein)
+            guard !Task.isCancelled else {
+                self.isGeneratingRecipe = false
+                return
+            }
+            if let recipe {
                 withAnimation(.spring()) {
                     self.generatedRecipe = recipe
                     self.fridgeInput = ""
@@ -87,6 +118,7 @@ class AICoachViewModel {
     }
 
     func analyzeMacros(currentSummary: DailySummary, currentUser: User) {
+        guard !isFixingMacros else { return }
         HapticManager.shared.impact(style: .medium)
         errorMessage = nil
         isFixingMacros = true
@@ -95,9 +127,22 @@ class AICoachViewModel {
         let missingP = Int(currentUser.targetProtein - currentSummary.totalProtein)
         let missingF = Int(currentUser.targetFats - currentSummary.totalFats)
         let missingC = Int(currentUser.targetCarbs - currentSummary.totalCarbs)
+        let activeDiet = currentUser.activeDietPlan?.name ?? currentUser.activeDietKey
 
-        Task {
-            if let advice = await AINutritionService.shared.getMacroFixAdvice(missingCals: missingCals, missingProtein: missingP, missingFats: missingF, missingCarbs: missingC) {
+        macroAnalysisTask?.cancel()
+        macroAnalysisTask = Task {
+            let advice = await AINutritionService.shared.getMacroFixAdvice(
+                missingCals: missingCals,
+                missingProtein: missingP,
+                missingFats: missingF,
+                missingCarbs: missingC,
+                activeDiet: activeDiet
+            )
+            guard !Task.isCancelled else {
+                self.isFixingMacros = false
+                return
+            }
+            if let advice {
                 self.macroAdvice = advice
                 self.isFixingMacros = false
                 HapticManager.shared.impact(style: .heavy)
@@ -112,13 +157,20 @@ class AICoachViewModel {
     }
 
     func analyzeHydration(currentSummary: DailySummary) {
+        guard !isFixingHydration else { return }
         HapticManager.shared.impact(style: .medium)
         errorMessage = nil
         isFixingHydration = true
         let drank = currentSummary.totalHydrationLiters
 
-        Task {
-            if let advice = await AINutritionService.shared.getHydrationAdvice(drankLiters: drank, goalLiters: 2.5) {
+        hydrationAnalysisTask?.cancel()
+        hydrationAnalysisTask = Task {
+            let advice = await AINutritionService.shared.getHydrationAdvice(drankLiters: drank, goalLiters: 2.5)
+            guard !Task.isCancelled else {
+                self.isFixingHydration = false
+                return
+            }
+            if let advice {
                 self.isFixingHydration = false
                 self.hydrationAdvice = advice
                 HapticManager.shared.impact(style: .heavy)

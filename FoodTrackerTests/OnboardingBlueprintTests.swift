@@ -38,10 +38,9 @@ final class OnboardingBlueprintTests: XCTestCase {
             activityLevel: .beast
         )
         let bulk = MetabolicBlueprintCalculator.calculate(for: bulkMetrics)
-        // BMR = max(1200, Int(700 + 1093.75 - 125 + 5)) = 1673
-        // TDEE = 1673 * 1.725 = 2885.925; Build Muscle = Int(2885.925 + 350) = 3235
+        // rawBMR = 700 + 1093.75 - 125 + 5 = 1673.75 -> TDEE = 1673.75 * 1.725 = 2887.21875 -> Build Muscle = Int(2887.21875 + 350) = 3237
         XCTAssertEqual(bulk.bmr, 1673)
-        XCTAssertEqual(bulk.dailyCalories, 3235)
+        XCTAssertEqual(bulk.dailyCalories, 3237)
         XCTAssertEqual(bulk.weightGoalType, "gain")
         XCTAssertEqual(bulk.targetWeightKg, 77.0, accuracy: 0.01)
 

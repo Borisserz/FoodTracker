@@ -138,10 +138,10 @@ struct MoreTabView: View {
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12:  return "Good morning,"
-        case 12..<17: return "Good afternoon,"
-        case 17..<22: return "Good evening,"
-        default:      return "Good night,"
+        case 5..<12:  return String(localized: "Good morning,")
+        case 12..<17: return String(localized: "Good afternoon,")
+        case 17..<22: return String(localized: "Good evening,")
+        default:      return String(localized: "Good night,")
         }
     }
 
@@ -161,9 +161,7 @@ struct MoreTabView: View {
     private var crossPromoBanner: some View {
         Button(action: {
             TrackingManager.shared.track(.crossPromoTapped(app: "workout_tracker"))
-            if let url = URL(string: "https://apps.apple.com/app/id6774895106") {
-                UIApplication.shared.open(url)
-            }
+            CrossAppLinkResolver.openWorkoutTracker()
         }) {
             HStack(spacing: 16) {
                 // App Icon Placeholder

@@ -383,7 +383,7 @@ class AINutritionService {
                     "protein": Int,
                     "carbs": Int,
                     "fat": Int,
-                    "ingredients": "String",
+                    "ingredients": "Comma-separated String (e.g. \"2 eggs, 50g spinach, 1 tbsp olive oil\")",
                     "instructions": "String",
                     "prepTimeMinutes": Int
                   }
@@ -395,9 +395,9 @@ class AINutritionService {
         Do not include markdown tags. Only output the raw JSON. Ensure all arrays have 7 items for days, and 4 items for meals.
         """
         
-        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self) {
+        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self, maxOutputTokens: 8192) {
             let normalizedDays = Self.normalizedPlanDays(dto.days)
-            guard !normalizedDays.isEmpty else { return nil }
+            guard Self.isCompleteWeeklyPlan(normalizedDays) else { return nil }
             let plan = WeeklyMealPlan(targetCalories: targetCalories, dietType: diet)
 
             for dayDTO in normalizedDays {
@@ -457,6 +457,14 @@ class AINutritionService {
             .filter { seenIndices.insert($0.dayIndex).inserted }
     }
 
+    static func isCompleteWeeklyPlan(_ days: [AIWeeklyPlanDayDTO]) -> Bool {
+        let normalized = normalizedPlanDays(days)
+        guard normalized.count == 7 else { return false }
+        let expectedIndices = Set(0..<7)
+        guard Set(normalized.map(\.dayIndex)) == expectedIndices else { return false }
+        return normalized.allSatisfy { !$0.meals.isEmpty }
+    }
+
     func sendChatMessage(prompt: String, userContext: String, activeDiet: String, history: [AIChatMessage] = []) async -> String? {
           let recentHistory = history.suffix(8).map { msg in
               "\(msg.isUser ? "USER" : "COACH"): \(msg.text)"
@@ -482,9 +490,15 @@ class AINutritionService {
         return await fetchRawTextFromGemini(prompt: systemPrompt, suppressRateLimitAlert: true) ?? String(localized: "Diet Chat")
     }
 
-    func getMacroFixAdvice(missingCals: Int, missingProtein: Int, missingFats: Int, missingCarbs: Int) async -> MacroFixAdviceDTO? {
+    func getMacroFixAdvice(
+        missingCals: Int,
+        missingProtein: Int,
+        missingFats: Int,
+        missingCarbs: Int,
+        activeDiet: String = "Balanced"
+    ) async -> MacroFixAdviceDTO? {
         let prompt = """
-        You are an elite AI Nutritionist. The user has \(missingCals) kcal left today.
+        You are an elite AI Nutritionist. Active diet: \(activeDiet). The user has \(missingCals) kcal left today.
         They need roughly \(missingProtein)g protein, \(missingFats)g fats, and \(missingCarbs)g carbs to hit their goal perfectly.
 
         If missingCals is negative, they overate. Tell them gently how to recover.
@@ -606,9 +620,19 @@ class AINutritionService {
         }
     }
 
-    private func fetchFromGemini<T: Codable>(prompt: String, responseType: T.Type, suppressRateLimitAlert: Bool = false) async -> T? {
+    private func fetchFromGemini<T: Codable>(
+        prompt: String,
+        responseType: T.Type,
+        maxOutputTokens: Int? = nil,
+        suppressRateLimitAlert: Bool = false
+    ) async -> T? {
         do {
-            return try await client.fetchJSON(prompt: prompt, responseType: responseType, suppressRateLimitAlert: suppressRateLimitAlert)
+            return try await client.fetchJSON(
+                prompt: prompt,
+                responseType: responseType,
+                maxOutputTokens: maxOutputTokens,
+                suppressRateLimitAlert: suppressRateLimitAlert
+            )
         } catch {
             // The client already logs detailed decode/raw info on failure.
             print("❌ AI Service Exception: \(error.localizedDescription)")

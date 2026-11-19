@@ -3,6 +3,7 @@ import XCTest
 
 final class NetworkManagerTests: XCTestCase {
     var networkManager: NetworkManager!
+    var originalSession: URLSession!
     
     override func setUp() {
         super.setUp()
@@ -11,6 +12,7 @@ final class NetworkManagerTests: XCTestCase {
         let session = URLSession(configuration: config)
         
         networkManager = NetworkManager.shared
+        originalSession = networkManager.session
         networkManager.clearCacheForTesting()
         networkManager.session = session
         networkManager.appCheckTokenProvider = { "mock-appcheck-token" }
@@ -21,7 +23,9 @@ final class NetworkManagerTests: XCTestCase {
     override func tearDown() {
         MockURLProtocol.requestHandler = nil
         networkManager.clearCacheForTesting()
-        networkManager.session = .shared
+        if let originalSession {
+            networkManager.session = originalSession
+        }
         networkManager.searchProxyURLProvider = nil
         networkManager.refreshingProxyTokensProvider = nil
         super.tearDown()
@@ -259,5 +263,69 @@ final class NetworkManagerTests: XCTestCase {
         let bucketA = NetworkManager.searchCacheKey(query: "Oats", language: "en", allowAIFallback: true)
         let bucketB = NetworkManager.searchCacheKey(query: "Oats", language: "en", allowAIFallback: false)
         XCTAssertNotEqual(bucketA, bucketB)
+    }
+
+    func testOpenFoodFactsSearchHandlesEmptyProductNameAndServingOnlyNutriments() async {
+        MockURLProtocol.requestHandler = { request in
+            let host = request.url?.host ?? ""
+            if host == "mock.local" {
+                let empty = #"{"items":[]}"#.data(using: .utf8)!
+                return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, empty)
+            }
+            let offSearch = #"""
+            {
+              "products": [
+                {
+                  "product_name": "",
+                  "product_name_en": "US Quest Bar",
+                  "serving_size": "60 g",
+                  "nutriments": {
+                    "energy-kcal_serving": 200,
+                    "proteins_serving": 21,
+                    "fat_serving": 8,
+                    "carbohydrates_serving": 22
+                  }
+                }
+              ]
+            }
+            """#.data(using: .utf8)!
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, offSearch)
+        }
+
+        let results = await networkManager.searchFoodByText(query: "quest", allowAIFallback: false)
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results.first?.name, "US Quest Bar")
+        XCTAssertEqual(results.first?.weight ?? 0, 60.0, accuracy: 0.01)
+        XCTAssertEqual(results.first?.calories, 200)
+        XCTAssertEqual(results.first?.protein ?? 0, 21.0, accuracy: 0.01)
+    }
+
+    func testSearchFoodTrimsQueryAndFetchProductOutcomeSurfacesFailureDirectly() async {
+        var capturedSearchTerms: String?
+        MockURLProtocol.requestHandler = { request in
+            let url = request.url!
+            if url.host == "world.openfoodfacts.org" {
+                let comps = URLComponents(url: url, resolvingAgainstBaseURL: false)
+                capturedSearchTerms = comps?.queryItems?.first(where: { $0.name == "search_terms" })?.value
+                let empty = #"{"products":[]}"#.data(using: .utf8)!
+                return (HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!, empty)
+            }
+            let emptyProxy = #"{"items":[]}"#.data(using: .utf8)!
+            return (HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!, emptyProxy)
+        }
+
+        _ = await networkManager.searchFoodByText(query: "   avocado   ", allowAIFallback: false)
+        XCTAssertEqual(capturedSearchTerms, "avocado")
+
+        MockURLProtocol.requestHandler = { request in
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 503, httpVersion: nil, headerFields: nil)!
+            return (resp, Data())
+        }
+        let outcome = await networkManager.fetchProductOutcome(barcode: "12345678")
+        if case .failed(let message) = outcome {
+            XCTAssertFalse(message.isEmpty)
+        } else {
+            XCTFail("Expected .failed outcome on HTTP 503")
+        }
     }
 }

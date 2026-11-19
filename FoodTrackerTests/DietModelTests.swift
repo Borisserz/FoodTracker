@@ -49,4 +49,13 @@ final class DietModelTests: XCTestCase {
         XCTAssertEqual(diets.count, DietPlan.defaultDiets.count)
         XCTAssertEqual(plans.count, FastingPlan.defaultPlans.count)
     }
+
+    func testDietAndFastingLoadersPreferRemoteCatalogOnlyForEnglish() {
+        XCTAssertTrue(DietDataLoader.shouldPreferRemoteCatalog(languageCode: "en"))
+        XCTAssertFalse(DietDataLoader.shouldPreferRemoteCatalog(languageCode: "ru"))
+        XCTAssertFalse(DietDataLoader.shouldPreferRemoteCatalog(languageCode: "pt-PT"))
+
+        XCTAssertTrue(FastingDataLoader.shouldPreferRemoteCatalog(languageCode: "en"))
+        XCTAssertFalse(FastingDataLoader.shouldPreferRemoteCatalog(languageCode: "de"))
+    }
 }

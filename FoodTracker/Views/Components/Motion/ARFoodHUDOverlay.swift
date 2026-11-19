@@ -76,53 +76,20 @@ public struct ARFoodHUDOverlay: View {
                     .shadow(color: Color.cyan, radius: 6)
                     .position(x: center.x, y: center.y + scanLineOffset)
                 
-                // MARK: 4. Floating AR Nutrient Callout Badges
-                if calloutsAppeared {
-                    // Top-Left: Protein Badge
-                    ARNutrientBadge(
-                        title: String(localized: "PROTEIN"),
-                        value: "+32g",
-                        color: Color.cyan,
-                        icon: "figure.strengthtraining.traditional"
-                    )
-                    .position(x: center.x - boxSize * 0.42, y: center.y - boxSize * 0.52)
-                    .transition(.scale.combined(with: .opacity))
-                    
-                    // Top-Right: Healthy Fats Badge
-                    ARNutrientBadge(
-                        title: String(localized: "HEALTHY FATS"),
-                        value: "+18g",
-                        color: Color.green,
-                        icon: "leaf.fill"
-                    )
-                    .position(x: center.x + boxSize * 0.42, y: center.y - boxSize * 0.52)
-                    .transition(.scale.combined(with: .opacity))
-                    
-                    // Bottom-Right: Complex Carbs Badge
-                    ARNutrientBadge(
-                        title: String(localized: "CARBS"),
-                        value: "+24g",
-                        color: Color.orange,
-                        icon: "bolt.fill"
-                    )
-                    .position(x: center.x + boxSize * 0.42, y: center.y + boxSize * 0.48)
-                    .transition(.scale.combined(with: .opacity))
-                }
-                
-                // Top Telemetry Header
+                // MARK: 4. Top Telemetry Header
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Circle()
                             .fill(Color.red)
                             .frame(width: 8, height: 8)
                         
-                        Text("AI VISION: LIVE ANALYSIS")
+                        Text("AI VISION SCANNER")
                             .font(.system(size: 11, weight: .bold, design: .monospaced))
                             .foregroundStyle(.white)
                         
                         Spacer()
                         
-                        Text("99.4% CONFIDENCE")
+                        Text("READY")
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
                             .foregroundStyle(Color.green)
                     }

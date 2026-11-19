@@ -277,4 +277,11 @@ final class VertexAIManagerTests: XCTestCase {
         XCTAssertEqual(decoded.fats ?? -1, 12.5, accuracy: 0.01)
         XCTAssertEqual(decoded.carbs ?? -1, 120.0, accuracy: 0.01)
     }
+
+    func testScannerOrientationHelperMapsInterfaceOrientationsToVideoRotationAngles() {
+        XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .portrait), 90)
+        XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .landscapeLeft), 0)
+        XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .landscapeRight), 180)
+        XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .portraitUpsideDown), 270)
+    }
 }

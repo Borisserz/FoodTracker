@@ -247,7 +247,17 @@ enum NutritionMath {
 
     /// Marks the given calendar day as claimed and returns `true` only on the first claim for that day.
     @discardableResult
-    static func claimFinishDayXP(for date: Date, defaults: UserDefaults = .standard) -> Bool {
+    static func claimFinishDayXP(
+        for date: Date,
+        now: Date = Date(),
+        defaults: UserDefaults = .standard,
+        calendar: Calendar = .current
+    ) -> Bool {
+        let dayStart = calendar.startOfDay(for: date)
+        let todayStart = calendar.startOfDay(for: now)
+        let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: todayStart) ?? todayStart
+        guard dayStart >= yesterdayStart && dayStart <= todayStart else { return false }
+
         let key = dayKey(for: date)
         var keys = defaults.stringArray(forKey: xpClaimedDateKeysKey) ?? []
         guard !keys.contains(key) else { return false }
@@ -270,6 +280,7 @@ enum NutritionMath {
 
     static func remainingMacros(user: User?, summary: DailySummary?) -> RemainingMacros {
         let calGoal = user?.dailyCaloriesGoal ?? 2000
+        let activeBurn = summary?.activeCaloriesBurned ?? 0
         let protGoal = Int(user?.targetProtein ?? 150)
         let fatGoal = Int(user?.targetFats ?? 70)
         let carbGoal = Int(user?.targetCarbs ?? 250)
@@ -280,7 +291,7 @@ enum NutritionMath {
         let eatenCarbs = Int(summary?.totalCarbs ?? 0)
 
         return RemainingMacros(
-            calories: max(0, calGoal - eatenCals),
+            calories: max(0, (calGoal + activeBurn) - eatenCals),
             protein: max(0, protGoal - eatenProt),
             fat: max(0, fatGoal - eatenFat),
             carbs: max(0, carbGoal - eatenCarbs)
@@ -289,14 +300,15 @@ enum NutritionMath {
 
     // MARK: - Weight & Achievement Synchronization
 
-    /// Persists a weight entry across WeightLog, DailySummary.weight, User.weight, and macro goals.
+    /// Persists a weight entry across WeightLog, DailySummary.weight, User.weight, macro goals, and HealthKit.
     @MainActor
     static func recordWeight(
         _ newWeight: Double,
         date: Date = Date(),
         for user: User?,
         in context: ModelContext,
-        recalculateUserGoals: Bool = true
+        recalculateUserGoals: Bool = true,
+        syncToHealthKit: Bool = true
     ) {
         guard newWeight > 0 else { return }
 
@@ -333,6 +345,13 @@ enum NutritionMath {
 
         try? context.save()
         WidgetReloader.reloadAll()
+
+        if syncToHealthKit, user?.isHealthKitEnabled == true {
+            let syncDate = calendar.isDateInToday(date) ? Date() : date
+            Task { @MainActor in
+                await HealthKitManager.shared.saveBodyMass(kg: newWeight, date: syncDate)
+            }
+        }
     }
 
     /// Removes a weight log entry and rolls User.weight back to the newest remaining log when present.

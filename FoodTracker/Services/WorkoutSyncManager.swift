@@ -13,6 +13,7 @@ final class WorkoutSyncManager {
     nonisolated static let workoutTrackerBrandName = "AI Workout"
     private static let lastSyncedWaterPrefix = "wt_last_synced_water_"
     private static let pendingWidgetWaterPrefix = "pending_hk_water_ml_"
+    private static let pendingWidgetWaterEntriesPrefix = "pending_hk_water_entries_"
     private static let gregorianCalendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
         cal.locale = Locale(identifier: "en_US_POSIX")
@@ -52,6 +53,14 @@ final class WorkoutSyncManager {
         "\(pendingWidgetWaterPrefix)\(dateString(for: date))"
     }
 
+    nonisolated static func pendingHealthKitWaterEntriesKey(for date: Date) -> String {
+        "\(pendingWidgetWaterEntriesPrefix)\(dateString(for: date))"
+    }
+
+    private func resolveSyncStateDefaults(appGroupDefaults: UserDefaults?, localDefaults: UserDefaults?) -> UserDefaults {
+        localDefaults ?? appGroupDefaults ?? defaultFoodTrackerDefaults ?? .standard
+    }
+
     nonisolated static func priorExternalWorkoutCalories(
         totalWorkoutCalories: Int,
         previousLocalActivityCalories: Int
@@ -79,31 +88,66 @@ final class WorkoutSyncManager {
         _ liters: Double,
         for date: Date,
         sharedDefaults: UserDefaults? = nil,
-        localDefaults: UserDefaults = .standard
+        appGroupDefaults: UserDefaults? = nil,
+        localDefaults: UserDefaults? = nil
     ) {
         let sanitized = max(0, liters)
         let waterKey = Self.waterLitersKey(for: date)
         if let defaults = sharedDefaults ?? defaultSharedDefaults {
             defaults.set(sanitized, forKey: waterKey)
         }
-        localDefaults.set(sanitized, forKey: Self.lastSyncedWaterKey(for: date))
+        let syncDefaults = resolveSyncStateDefaults(appGroupDefaults: appGroupDefaults, localDefaults: localDefaults)
+        syncDefaults.set(sanitized, forKey: Self.lastSyncedWaterKey(for: date))
     }
 
     /// Called by WidgetIntents after adding water: updates WorkoutTracker App Group immediately
-    /// and queues the widget-added delta so the main app flushes it to Apple Health on next sync.
+    /// and queues each widget-added delta so the main app flushes distinct HealthKit samples on next sync.
     func syncWaterFromWidget(
         totalLiters: Double,
         addedMl: Double,
         for date: Date,
         sharedDefaults: UserDefaults? = nil,
         appGroupDefaults: UserDefaults? = nil,
-        localDefaults: UserDefaults = .standard
+        localDefaults: UserDefaults? = nil
     ) {
-        syncWater(totalLiters, for: date, sharedDefaults: sharedDefaults, localDefaults: localDefaults)
+        syncWater(
+            totalLiters,
+            for: date,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appGroupDefaults,
+            localDefaults: localDefaults
+        )
         guard addedMl > 0, let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return }
-        let pendingKey = Self.pendingHealthKitWaterKey(for: date)
-        let currentPending = max(0, ftDefaults.double(forKey: pendingKey))
-        ftDefaults.set(currentPending + addedMl, forKey: pendingKey)
+        let entriesKey = Self.pendingHealthKitWaterEntriesKey(for: date)
+        var pendingEntries = (ftDefaults.array(forKey: entriesKey) as? [Double])?.filter { $0 > 0 } ?? []
+        pendingEntries.append(addedMl)
+        ftDefaults.set(pendingEntries, forKey: entriesKey)
+    }
+
+    /// Atomically reads and clears queued widget-added hydration entries (in liters) pending Apple Health sync.
+    func consumePendingWidgetWaterEntriesLiters(
+        for date: Date,
+        appGroupDefaults: UserDefaults? = nil
+    ) -> [Double] {
+        guard let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return [] }
+        let entriesKey = Self.pendingHealthKitWaterEntriesKey(for: date)
+        let pendingEntries = (ftDefaults.array(forKey: entriesKey) as? [Double])?.filter { $0 > 0 } ?? []
+        if ftDefaults.object(forKey: entriesKey) != nil {
+            ftDefaults.removeObject(forKey: entriesKey)
+        }
+
+        // Drain legacy scalar queue if present from an older build.
+        let legacyKey = Self.pendingHealthKitWaterKey(for: date)
+        let legacyMl = max(0, ftDefaults.double(forKey: legacyKey))
+        if ftDefaults.object(forKey: legacyKey) != nil {
+            ftDefaults.removeObject(forKey: legacyKey)
+        }
+
+        var result = pendingEntries.map { $0 / 1000.0 }
+        if legacyMl > 0 {
+            result.append(legacyMl / 1000.0)
+        }
+        return result
     }
 
     /// Atomically reads and clears queued widget-added hydration (in liters) pending Apple Health sync.
@@ -111,27 +155,50 @@ final class WorkoutSyncManager {
         for date: Date,
         appGroupDefaults: UserDefaults? = nil
     ) -> Double {
-        guard let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return 0 }
-        let pendingKey = Self.pendingHealthKitWaterKey(for: date)
-        let ml = max(0, ftDefaults.double(forKey: pendingKey))
-        if ml > 0 {
-            ftDefaults.removeObject(forKey: pendingKey)
-        }
-        return ml / 1000.0
+        consumePendingWidgetWaterEntriesLiters(for: date, appGroupDefaults: appGroupDefaults).reduce(0, +)
     }
 
-    /// Pulls external water added from WorkoutTracker into `summary` and keeps App Group aligned.
-    /// Returns `true` when `summary` was mutated and needs saving.
+    /// Assigns a saved HealthKit sample UUID to the best-matching untagged Water beverage in `summary`.
     @discardableResult
-    func reconcileWater(
+    static func attachHealthKitSampleID(_ sampleID: UUID, volumeLiters: Double, to summary: DailySummary) -> Bool {
+        let targetMl = volumeLiters * 1000.0
+        let untagged = (summary.beverages ?? []).filter { $0.name == "Water" && $0.healthKitSampleID == nil }
+        guard let match = untagged.first(where: { abs($0.volumeMl - targetMl) < 1.0 }) ?? untagged.first else {
+            return false
+        }
+        match.healthKitSampleID = sampleID.uuidString
+        return true
+    }
+
+    struct DeletedWaterHealthSample: Equatable {
+        let sampleID: String?
+        let volumeMl: Double
+    }
+
+    struct WaterReconcileOutcome: Equatable {
+        let mutated: Bool
+        let deletedHealthKitSamples: [DeletedWaterHealthSample]
+    }
+
+    /// Pulls external water added from WorkoutTracker into `summary`, keeps App Group aligned,
+    /// and reports trimmed HealthKit water samples when an external reset/decrease occurred.
+    @discardableResult
+    func reconcileWaterWithOutcome(
         for summary: DailySummary,
         in context: ModelContext,
         sharedDefaults: UserDefaults? = nil,
-        localDefaults: UserDefaults = .standard
-    ) -> Bool {
+        appGroupDefaults: UserDefaults? = nil,
+        localDefaults: UserDefaults? = nil
+    ) -> WaterReconcileOutcome {
         let localWater = summary.totalHydrationLiters
         let lastKey = Self.lastSyncedWaterKey(for: summary.date)
-        let lastSynced = localDefaults.object(forKey: lastKey) as? Double
+        let syncDefaults = resolveSyncStateDefaults(appGroupDefaults: appGroupDefaults, localDefaults: localDefaults)
+        var lastSynced = syncDefaults.object(forKey: lastKey) as? Double
+        if lastSynced == nil, localDefaults == nil,
+           let legacyLastSynced = UserDefaults.standard.object(forKey: lastKey) as? Double {
+            lastSynced = legacyLastSynced
+            syncDefaults.set(legacyLastSynced, forKey: lastKey)
+        }
 
         if let sharedWater = fetchWaterLiters(for: summary.date, sharedDefaults: sharedDefaults) {
             let deltaLiters = sharedWater - localWater
@@ -152,43 +219,90 @@ final class WorkoutSyncManager {
                     )
                     context.insert(syncedDrink)
                     summary.addBeverage(syncedDrink)
-                    localDefaults.set(sharedWater, forKey: lastKey)
-                    return true
+                    syncDefaults.set(sharedWater, forKey: lastKey)
+                    return WaterReconcileOutcome(mutated: true, deletedHealthKitSamples: [])
                 }
             } else if isExternalDecrease {
                 let excessMl = ((localWater - sharedWater) * 1000.0).rounded()
-                if excessMl > 0, trimWaterBeverages(excessMl: excessMl, from: summary, in: context) {
-                    localDefaults.set(sharedWater, forKey: lastKey)
-                    return true
+                if excessMl > 0 {
+                    let trimResult = trimWaterBeverages(excessMl: excessMl, from: summary, in: context)
+                    if trimResult.mutated {
+                        syncDefaults.set(sharedWater, forKey: lastKey)
+                        return WaterReconcileOutcome(
+                            mutated: true,
+                            deletedHealthKitSamples: trimResult.deletedSamples
+                        )
+                    }
                 }
             } else if localWater > sharedWater + 0.01 {
-                syncWater(localWater, for: summary.date, sharedDefaults: sharedDefaults, localDefaults: localDefaults)
+                syncWater(
+                    localWater,
+                    for: summary.date,
+                    sharedDefaults: sharedDefaults,
+                    appGroupDefaults: appGroupDefaults,
+                    localDefaults: localDefaults
+                )
             }
         } else if localWater > 0.01 {
-            syncWater(localWater, for: summary.date, sharedDefaults: sharedDefaults, localDefaults: localDefaults)
+            syncWater(
+                localWater,
+                for: summary.date,
+                sharedDefaults: sharedDefaults,
+                appGroupDefaults: appGroupDefaults,
+                localDefaults: localDefaults
+            )
         }
 
-        return false
+        return WaterReconcileOutcome(mutated: false, deletedHealthKitSamples: [])
     }
 
-    private func trimWaterBeverages(excessMl: Double, from summary: DailySummary, in context: ModelContext) -> Bool {
+    @discardableResult
+    func reconcileWater(
+        for summary: DailySummary,
+        in context: ModelContext,
+        sharedDefaults: UserDefaults? = nil,
+        appGroupDefaults: UserDefaults? = nil,
+        localDefaults: UserDefaults? = nil
+    ) -> Bool {
+        reconcileWaterWithOutcome(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appGroupDefaults,
+            localDefaults: localDefaults
+        ).mutated
+    }
+
+    private func trimWaterBeverages(
+        excessMl: Double,
+        from summary: DailySummary,
+        in context: ModelContext
+    ) -> (mutated: Bool, deletedSamples: [DeletedWaterHealthSample]) {
         var remainingToTrim = excessMl
         var mutated = false
+        var deletedSamples: [DeletedWaterHealthSample] = []
         let waterEntries = (summary.beverages ?? []).filter { $0.name == "Water" }.reversed()
 
         for beverage in waterEntries where remainingToTrim > 0.5 {
             if beverage.volumeMl <= remainingToTrim + 0.5 {
                 remainingToTrim -= beverage.volumeMl
+                deletedSamples.append(
+                    DeletedWaterHealthSample(sampleID: beverage.healthKitSampleID, volumeMl: beverage.volumeMl)
+                )
                 summary.beverages?.removeAll { $0.id == beverage.id }
                 context.delete(beverage)
                 mutated = true
             } else {
+                let originalMl = beverage.volumeMl
                 beverage.volumeMl = max(0, beverage.volumeMl - remainingToTrim)
+                deletedSamples.append(
+                    DeletedWaterHealthSample(sampleID: beverage.healthKitSampleID, volumeMl: originalMl - beverage.volumeMl)
+                )
                 remainingToTrim = 0
                 mutated = true
             }
         }
-        return mutated
+        return (mutated, deletedSamples)
     }
 
     /// Reconciles local activities, WorkoutTracker App Group workouts, and HealthKit active energy
@@ -219,8 +333,11 @@ final class WorkoutSyncManager {
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(lastSyncedWaterPrefix) {
             defaults.removeObject(forKey: key)
         }
-        if let ftDefaults = UserDefaults(suiteName: foodTrackerSuiteName) {
-            for key in ftDefaults.dictionaryRepresentation().keys where key.hasPrefix(pendingWidgetWaterPrefix) {
+        if defaults === UserDefaults.standard, let ftDefaults = UserDefaults(suiteName: foodTrackerSuiteName) {
+            for key in ftDefaults.dictionaryRepresentation().keys
+                where key.hasPrefix(lastSyncedWaterPrefix)
+                    || key.hasPrefix(pendingWidgetWaterPrefix)
+                    || key.hasPrefix(pendingWidgetWaterEntriesPrefix) {
                 ftDefaults.removeObject(forKey: key)
             }
         }

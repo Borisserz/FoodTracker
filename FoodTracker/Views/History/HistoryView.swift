@@ -187,6 +187,9 @@ struct FoodsDashboardView: View {
             DailySummary.DeletedFoodHealthSample(sampleID: $0.healthKitSampleID, calories: $0.calories)
         }
         withAnimation {
+            if let summary = meal.parentDailySummary {
+                summary.meals?.removeAll { $0.id == meal.id }
+            }
             context.delete(meal)
             try? context.save()
             WidgetReloader.reloadAll()

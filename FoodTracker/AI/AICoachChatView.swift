@@ -1,6 +1,22 @@
 import SwiftUI
 import SwiftData
 
+enum AIChatTitleHelper {
+    static func deriveTitle(from raw: String) -> String {
+        let collapsed = raw
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        guard !collapsed.isEmpty else {
+            return String(localized: "Diet Chat")
+        }
+        if collapsed.count <= 40 {
+            return collapsed
+        }
+        return String(collapsed.prefix(37)) + "..."
+    }
+}
+
 struct AICoachChatView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -179,16 +195,12 @@ struct AICoachChatView: View {
 
         // Use persisted session messages (excluding transient error bubbles and the just-sent prompt).
         let priorMessages = Array(targetSession.messages.dropLast().suffix(8))
-        activeTask = Task {
-            if isFirstMessage {
-                let title = await AINutritionService.shared.generateChatTitle(for: text)
-                guard !Task.isCancelled else { return }
-                await MainActor.run {
-                    targetSession.title = title
-                    try? self.context.save()
-                }
-            }
+        if isFirstMessage {
+            targetSession.title = AIChatTitleHelper.deriveTitle(from: text)
+            try? self.context.save()
+        }
 
+        activeTask = Task {
             let userContext = "User's goal is \(userGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(userGoal - consumed) kcal."
 
             let aiResponseText = await AINutritionService.shared.sendChatMessage(
@@ -207,7 +219,7 @@ struct AICoachChatView: View {
                     self.chatHistory.append(aiMsg)
                     targetSession.messages.append(aiMsg)
                     try? self.context.save()
-                } else {
+                } else if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
                     // Show transient error message in UI without persisting fake AI text into SwiftData history.
                     let errorMsg = AIChatMessage(
                         isUser: false,

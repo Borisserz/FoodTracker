@@ -26,6 +26,7 @@ final class SocialAuthService {
     // MARK: - Apple
 
     func prepareAppleRequest(_ request: ASAuthorizationAppleIDRequest) {
+        guard !isAppleAuthorizationInFlight else { return }
         if appleRequestLeaseID == nil {
             let leaseID = UUID()
             appleRequestLeaseID = leaseID
@@ -38,8 +39,10 @@ final class SocialAuthService {
     }
 
     func handleAppleAuthorization(_ result: Result<ASAuthorization, Error>) async throws {
+        isAppleAuthorizationInFlight = true
         let leaseID = appleRequestLeaseID
         defer {
+            isAppleAuthorizationInFlight = false
             currentNonce = nil
             appleRequestLeaseID = nil
             if let leaseID {

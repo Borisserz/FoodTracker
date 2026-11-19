@@ -11,9 +11,11 @@ actor UserRepository: UserRepositoryProtocol {
     // modelContext and init(modelContainer:) are provided by the @ModelActor macro.
 
     func fetchUser() async throws -> User? {
-        var fetchDescriptor = FetchDescriptor<User>()
-        fetchDescriptor.fetchLimit = 1
-        return try modelContext.fetch(fetchDescriptor).first
+        let user = User.deduplicatedPrimary(in: modelContext)
+        if modelContext.hasChanges {
+            try modelContext.save()
+        }
+        return user
     }
 
     func saveUser(_ user: User) async throws {

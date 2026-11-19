@@ -423,18 +423,61 @@ test("parseFatSecretDescription converts Per oz/kg weights cleanly", () => {
   assert.equal(ozDesc.calories, 90);
 });
 
-test("deleteFoodAccountData removes scoped quota docs and deletes Auth user idempotently", async () => {
+test("deleteFoodAccountData removes scoped quota docs, shared WorkoutTracker docs, and deletes Auth user idempotently", async () => {
   const deletedDocs = [];
+  const recursiveDeletedPaths = [];
+  const batchDeletedPaths = [];
   const deletedUsers = [];
+  const makeDocRef = (path) => ({
+    path,
+    async delete() {
+      deletedDocs.push(path);
+    },
+  });
+  const sharedWorkoutRefs = [makeDocRef("shared_workouts/w1"), makeDocRef("shared_workouts/w2")];
+  const reportRefs = [makeDocRef("reports/r1")];
+
   const mockFirestore = {
     collection(col) {
       return {
         doc(id) {
-          return {
-            async delete() {
-              deletedDocs.push(`${col}/${id}`);
-            },
-          };
+          return makeDocRef(`${col}/${id}`);
+        },
+        where(field, op, value) {
+          assert.equal(op, "==");
+          if (col === "shared_workouts" && field === "creatorUid") {
+            return {
+              async get() {
+                return {
+                  docs: value === "uid-123" ? sharedWorkoutRefs.map((ref) => ({ ref })) : [],
+                };
+              },
+            };
+          }
+          if (col === "reports" && field === "reporterUid") {
+            return {
+              async get() {
+                return {
+                  docs: value === "uid-123" ? reportRefs.map((ref) => ({ ref })) : [],
+                };
+              },
+            };
+          }
+          throw new Error(`Unexpected query: ${col}.${field}`);
+        },
+      };
+    },
+    async recursiveDelete(ref) {
+      recursiveDeletedPaths.push(ref.path);
+    },
+    batch() {
+      const queued = [];
+      return {
+        delete(ref) {
+          queued.push(ref.path);
+        },
+        async commit() {
+          batchDeletedPaths.push(...queued);
         },
       };
     },
@@ -451,7 +494,17 @@ test("deleteFoodAccountData removes scoped quota docs and deletes Auth user idem
   };
 
   await t.deleteFoodAccountData({ uid: "uid-123", firestore: mockFirestore, auth: mockAuth });
-  assert.deepEqual(deletedDocs.sort(), ["food_ai_usage/uid-123", "food_search_usage/uid-123"]);
+  assert.deepEqual(deletedDocs.sort(), [
+    "ai_usage/uid-123",
+    "food_ai_usage/uid-123",
+    "food_search_usage/uid-123",
+  ]);
+  assert.deepEqual(recursiveDeletedPaths.sort(), [
+    "shared_workouts/w1",
+    "shared_workouts/w2",
+    "users/uid-123",
+  ]);
+  assert.deepEqual(batchDeletedPaths, ["reports/r1"]);
   assert.deepEqual(deletedUsers, ["uid-123"]);
 
   await t.deleteFoodAccountData({ uid: "uid-missing", firestore: mockFirestore, auth: mockAuth });
@@ -632,4 +685,87 @@ test("geminiBodyToOpenAI enforces data_collection deny and clamps temperature", 
   );
   assert.equal(body.provider?.data_collection, "deny");
   assert.equal(body.temperature, 2);
+});
+
+test("geminiBodyToOpenAI forwards clamped maxOutputTokens as max_tokens", () => {
+  const standard = t.geminiBodyToOpenAI(
+    {
+      contents: [{ role: "user", parts: [{ text: "Weekly plan" }] }],
+      generationConfig: { maxOutputTokens: 8192 },
+    },
+    { streaming: false, model: "google/gemma-3-27b-it:free" }
+  );
+  assert.equal(standard.max_tokens, 8192);
+
+  const clampedHigh = t.geminiBodyToOpenAI(
+    {
+      contents: [{ role: "user", parts: [{ text: "Huge" }] }],
+      generationConfig: { maxOutputTokens: 99999 },
+    },
+    { streaming: false, model: "google/gemma-3-27b-it:free" }
+  );
+  assert.equal(clampedHigh.max_tokens, 16384);
+
+  const invalid = t.geminiBodyToOpenAI(
+    {
+      contents: [{ role: "user", parts: [{ text: "Bad" }] }],
+      generationConfig: { maxOutputTokens: -10 },
+    },
+    { streaming: false, model: "google/gemma-3-27b-it:free" }
+  );
+  assert.equal(invalid.max_tokens, undefined);
+});
+
+test("resolveIpQuotaKey extracts hashed IP even when X-Device-Install-ID is sent", () => {
+  const reqWithDevice = {
+    header: (name) =>
+      name.toLowerCase() === "x-device-install-id" ? "SPOOFED-DEVICE-ID-1234567890" : "",
+    ip: "203.0.113.55",
+  };
+  const secondary = t.resolveSecondaryQuotaKey(reqWithDevice);
+  const ipKey = t.resolveIpQuotaKey(reqWithDevice);
+  assert.ok(secondary.startsWith("device:"));
+  assert.ok(ipKey.startsWith("ip:"));
+  assert.notEqual(secondary, ipKey);
+});
+
+test("validateAiProxyBody rejects whitespace in base64 and normalizes mimeType casing", () => {
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [
+          {
+            role: "user",
+            parts: [{ inlineData: { mimeType: "image/jpeg", data: "YQ==\nYQ==" } }],
+          },
+        ],
+      }),
+    /base64|whitespace/i
+  );
+
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ inlineData: { mimeType: " IMAGE/JPEG ", data: "YQ==" } }],
+      },
+    ],
+  };
+  t.validateAiProxyBody(payload);
+  assert.equal(payload.contents[0].parts[0].inlineData.mimeType, "image/jpeg");
+});
+
+test("assertFatSecretDetailSuccess throws on FatSecret food.get error payloads", () => {
+  assert.doesNotThrow(() => t.assertFatSecretDetailSuccess({ food: { food_name: "Apple" } }));
+  assert.throws(
+    () => t.assertFatSecretDetailSuccess({ error: { code: 12, message: "Internal error" } }),
+    /FatSecret detail error 12/
+  );
+});
+
+test("sanitizeUpstreamErrorMessage strips raw model names and upstream URLs", () => {
+  const clean = t.sanitizeUpstreamErrorMessage("OpenRouter 429 google/gemma-3-27b-it:free https://openrouter.ai/secret");
+  assert.ok(!clean.includes("gemma"));
+  assert.ok(!clean.includes("openrouter.ai"));
+  assert.ok(clean.length > 0);
 });

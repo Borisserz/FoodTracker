@@ -17,6 +17,15 @@ final class FastingManager {
 
     // No more legacy repeating Timer. We drive updates via a structured async Task (see startTimer).
     private var updateTask: Task<Void, Never>?
+    private var notificationGeneration: Int = 0
+
+    nonisolated static func shouldApplyScheduledNotifications(
+        capturedGeneration: Int,
+        currentGeneration: Int,
+        isFasting: Bool
+    ) -> Bool {
+        capturedGeneration == currentGeneration && isFasting
+    }
 
     private init() {
         loadState()
@@ -203,6 +212,8 @@ final class FastingManager {
 
     private func scheduleFastingNotifications(target: Int) {
         guard target > 0 else { return }
+        notificationGeneration += 1
+        let capturedGeneration = notificationGeneration
         let center = UNUserNotificationCenter.current()
 
         center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
@@ -210,7 +221,12 @@ final class FastingManager {
         center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             guard granted else { return }
             Task { @MainActor [weak self] in
-                guard let self, self.isFasting else { return }
+                guard let self,
+                      Self.shouldApplyScheduledNotifications(
+                          capturedGeneration: capturedGeneration,
+                          currentGeneration: self.notificationGeneration,
+                          isFasting: self.isFasting
+                      ) else { return }
 
                 self.scheduleAlert(
                     id: "fasting_goal_reached",
@@ -273,6 +289,7 @@ final class FastingManager {
     }
 
     private func cancelFastingNotifications() {
+        notificationGeneration += 1
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
         center.removeDeliveredNotifications(withIdentifiers: Self.fastingNotificationIDs)

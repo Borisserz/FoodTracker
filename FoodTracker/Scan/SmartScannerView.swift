@@ -440,15 +440,19 @@ struct SmartScannerView: View {
             selectedPhotoItem = nil
             let currentMode = selectedMode
             Task {
-                if let data = try? await newItem.loadTransferable(type: Data.self),
-                   let rawImage = UIImage(data: data) {
-                    let downsampled = await Task.detached(priority: .userInitiated) {
-                        VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
-                    }.value
+                guard let data = try? await newItem.loadTransferable(type: Data.self),
+                      let rawImage = UIImage(data: data) else {
                     await MainActor.run {
-                        guard selectedMode == currentMode, currentMode != .barcode else { return }
-                        routeScannedPhoto(downsampled, mode: currentMode)
+                        scanErrorMessage = String(localized: "Could not load the selected photo. Please try another image.")
                     }
+                    return
+                }
+                let downsampled = await Task.detached(priority: .userInitiated) {
+                    VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
+                }.value
+                await MainActor.run {
+                    guard selectedMode == currentMode, currentMode != .barcode else { return }
+                    routeScannedPhoto(downsampled, mode: currentMode)
                 }
             }
         }
@@ -823,6 +827,15 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     }
 
     func takePhoto() {
+        let interfaceOrientation: UIInterfaceOrientation
+        if Thread.isMainThread {
+            interfaceOrientation = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+                .effectiveGeometry.interfaceOrientation ?? .portrait
+        } else {
+            interfaceOrientation = .portrait
+        }
+        let rotationAngle = ScannerOrientationHelper.videoRotationAngle(for: interfaceOrientation)
+
         sessionQueue.async { [weak self] in
             guard let self,
                   self.session.isRunning,
@@ -832,6 +845,9 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
                     self?.captureError = String(localized: "Camera is not ready yet. Please try again.")
                 }
                 return
+            }
+            if videoConnection.isVideoRotationAngleSupported(rotationAngle) {
+                videoConnection.videoRotationAngle = rotationAngle
             }
             let settings = AVCapturePhotoSettings()
             self.photoOutput.capturePhoto(with: settings, delegate: self)
@@ -859,6 +875,23 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     }
 }
 
+enum ScannerOrientationHelper {
+    static func videoRotationAngle(for orientation: UIInterfaceOrientation) -> CGFloat {
+        switch orientation {
+        case .landscapeLeft:
+            return 0
+        case .portrait:
+            return 90
+        case .landscapeRight:
+            return 180
+        case .portraitUpsideDown:
+            return 270
+        default:
+            return 90
+        }
+    }
+}
+
 struct LiveCameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
 
@@ -874,7 +907,17 @@ struct LiveCameraPreviewView: UIViewRepresentable {
         return view
     }
 
-    func updateUIView(_ uiView: VideoPreviewView, context: Context) {}
+    func updateUIView(_ uiView: VideoPreviewView, context: Context) {
+        let orientation = uiView.window?.windowScene?.effectiveGeometry.interfaceOrientation
+            ?? (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.effectiveGeometry.interfaceOrientation
+            ?? .portrait
+        let angle = ScannerOrientationHelper.videoRotationAngle(for: orientation)
+        if let connection = uiView.videoPreviewLayer.connection,
+           connection.isVideoRotationAngleSupported(angle),
+           connection.videoRotationAngle != angle {
+            connection.videoRotationAngle = angle
+        }
+    }
 }
 
 struct ScannerModePicker: View {

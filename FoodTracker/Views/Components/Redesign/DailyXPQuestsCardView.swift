@@ -1,42 +1,40 @@
 import SwiftUI
 import SwiftData
 
+enum DailyXPQuestsEvaluator {
+    enum QuestType {
+        case steps
+        case meals
+        case water
+    }
+
+    static func isQuestSatisfied(_ quest: QuestType, summary: DailySummary?) -> Bool {
+        guard let summary else { return false }
+        switch quest {
+        case .steps:
+            return summary.stepsCount >= 10_000
+        case .meals:
+            return !(summary.meals ?? []).isEmpty
+        case .water:
+            return summary.totalHydrationLiters >= 2.499
+        }
+    }
+}
+
 // MARK: - Daily Quests & Gold Master XP Progress Card
 struct DailyXPQuestsCardView: View {
     @Environment(\.modelContext) private var context
     @Bindable var user: User
+    @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
 
-    @AppStorage("dailyQuestStates_v1") private var questStatesRaw: String = ""
     @AppStorage("useMetricSystem") private var useMetricSystem: Bool = true
 
     private var todayKey: String {
         NutritionMath.dayKey(for: Date())
     }
 
-    private var completedQuestIDs: Set<String> {
-        let prefix = "\(todayKey):"
-        guard questStatesRaw.hasPrefix(prefix) else { return [] }
-        let payload = String(questStatesRaw.dropFirst(prefix.count))
-        return Set(payload.split(separator: ",").map(String.init))
-    }
-
-    private func isQuestDone(_ id: String) -> Bool {
-        completedQuestIDs.contains(id)
-    }
-
-    private func binding(for questID: String) -> Binding<Bool> {
-        Binding(
-            get: { isQuestDone(questID) },
-            set: { newValue in
-                var current = completedQuestIDs
-                if newValue {
-                    current.insert(questID)
-                } else {
-                    current.remove(questID)
-                }
-                questStatesRaw = "\(todayKey):\(current.sorted().joined(separator: ","))"
-            }
-        )
+    private var todaySummary: DailySummary? {
+        summaries.first(where: { Calendar.current.isDateInToday($0.date) })
     }
 
     @AppStorage("dailyQuestClaimed_v1") private var questClaimedRaw: String = ""
@@ -47,7 +45,15 @@ struct DailyXPQuestsCardView: View {
         return Set(questClaimedRaw.dropFirst(prefix.count).split(separator: ",").map(String.init))
     }
 
-    private func claimQuestXP(_ amount: Int, id: String) {
+    private func isClaimed(_ id: String) -> Bool {
+        claimedQuestIDs.contains(id)
+    }
+
+    private func claimQuestXP(_ amount: Int, id: String, satisfied: Bool) {
+        guard satisfied else {
+            HapticManager.shared.notification(type: .warning)
+            return
+        }
         var claimed = claimedQuestIDs
         guard !claimed.contains(id) else { return }
         claimed.insert(id)
@@ -143,33 +149,39 @@ struct DailyXPQuestsCardView: View {
                         .foregroundStyle(Color(red: 1.0, green: 0.72, blue: 0.0))
                 }
                 
+                let stepsSatisfied = DailyXPQuestsEvaluator.isQuestSatisfied(.steps, summary: todaySummary)
                 XPQuestRow(
                     icon: "figure.walk",
                     title: String(localized: "Walk 10,000 steps"),
                     xp: 150,
-                    isDone: binding(for: "steps")
+                    isSatisfied: stepsSatisfied,
+                    isClaimed: isClaimed("steps")
                 ) {
-                    claimQuestXP(150, id: "steps")
+                    claimQuestXP(150, id: "steps", satisfied: stepsSatisfied)
                 }
                 
+                let mealsSatisfied = DailyXPQuestsEvaluator.isQuestSatisfied(.meals, summary: todaySummary)
                 XPQuestRow(
                     icon: "fork.knife",
                     title: String(localized: "Log all meals"),
                     xp: 100,
-                    isDone: binding(for: "meals")
+                    isSatisfied: mealsSatisfied,
+                    isClaimed: isClaimed("meals")
                 ) {
-                    claimQuestXP(100, id: "meals")
+                    claimQuestXP(100, id: "meals", satisfied: mealsSatisfied)
                 }
                 
+                let waterSatisfied = DailyXPQuestsEvaluator.isQuestSatisfied(.water, summary: todaySummary)
                 XPQuestRow(
                     icon: "drop.fill",
                     title: useMetricSystem
                         ? String(localized: "Drink 2.5L of water")
                         : String(localized: "Drink 85 fl oz of water"),
                     xp: 150,
-                    isDone: binding(for: "water")
+                    isSatisfied: waterSatisfied,
+                    isClaimed: isClaimed("water")
                 ) {
-                    claimQuestXP(150, id: "water")
+                    claimQuestXP(150, id: "water", satisfied: waterSatisfied)
                 }
             }
         }
@@ -211,39 +223,35 @@ private struct XPQuestRow: View {
     let icon: String
     let title: String
     let xp: Int
-    @Binding var isDone: Bool
-    let onToggle: () -> Void
+    let isSatisfied: Bool
+    let isClaimed: Bool
+    let onClaim: () -> Void
     
     var body: some View {
-        Button(action: {
-            isDone.toggle()
-            if isDone {
-                onToggle()
-            }
-        }) {
+        Button(action: onClaim) {
             HStack(spacing: 12) {
-                Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
+                Image(systemName: isClaimed ? "checkmark.circle.fill" : (isSatisfied ? "sparkles" : "circle"))
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(isDone ? Color.green : Color.secondary.opacity(0.4))
+                    .foregroundStyle(isClaimed ? Color.green : (isSatisfied ? Color(red: 1.0, green: 0.72, blue: 0.0) : Color.secondary.opacity(0.4)))
                 
                 Image(systemName: icon)
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(isDone ? Color.primary : Color.secondary)
+                    .foregroundStyle(isClaimed ? Color.primary : Color.secondary)
                     .frame(width: 20)
                 
                 Text(title)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundStyle(isDone ? Color.secondary : Color.primary)
-                    .strikethrough(isDone, color: Color.secondary)
+                    .foregroundStyle(isClaimed ? Color.secondary : Color.primary)
+                    .strikethrough(isClaimed, color: Color.secondary)
                 
                 Spacer()
                 
-                Text("+\(xp) XP")
+                Text(isClaimed ? "+\(xp) XP ✓" : (isSatisfied ? String(localized: "Claim +\(xp) XP") : "+\(xp) XP"))
                     .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundStyle(isDone ? Color.green : Color(red: 1.0, green: 0.72, blue: 0.0))
+                    .foregroundStyle(isClaimed ? Color.green : Color(red: 1.0, green: 0.72, blue: 0.0))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(isDone ? Color.green.opacity(0.12) : Color(red: 1.0, green: 0.72, blue: 0.0).opacity(0.12))
+                    .background(isClaimed ? Color.green.opacity(0.12) : Color(red: 1.0, green: 0.72, blue: 0.0).opacity(isSatisfied ? 0.22 : 0.12))
                     .clipShape(Capsule())
             }
             .padding(12)

@@ -1394,6 +1394,7 @@ struct AICameraScannerView: View {
     @State private var evaluationError: String? = nil
     @State private var pendingConsentImage: UIImage? = nil
     @State private var showPhotoConsentSheet = false
+    @State private var evaluationTask: Task<Void, Never>? = nil
 
     var body: some View {
         ZStack {
@@ -1421,6 +1422,7 @@ struct AICameraScannerView: View {
                             .background(Color.black.opacity(0.45))
                             .clipShape(Circle())
                     }
+                    .disabled(showResult || isAnalyzing || isCapturingPhoto)
                 }
                 .padding()
 
@@ -1547,6 +1549,8 @@ struct AICameraScannerView: View {
             cameraManager.checkPermissionAndStart()
         }
         .onDisappear {
+            evaluationTask?.cancel()
+            evaluationTask = nil
             cameraManager.stop()
         }
         .onChange(of: cameraManager.capturedImage) { _, newImage in
@@ -1561,15 +1565,23 @@ struct AICameraScannerView: View {
             evaluationError = err
         }
         .onChange(of: selectedPhotoItem) { _, newItem in
+            guard let newItem else { return }
+            selectedPhotoItem = nil
             Task {
-                if let data = try? await newItem?.loadTransferable(type: Data.self),
-                   let rawImg = UIImage(data: data) {
-                    let img = await Task.detached(priority: .userInitiated) {
-                        VertexAIManager.downsampledImage(rawImg, maxDimension: 1280)
-                    }.value
+                guard let data = try? await newItem.loadTransferable(type: Data.self),
+                      let rawImg = UIImage(data: data) else {
                     await MainActor.run {
-                        analyzeCapturedStepImage(img)
+                        evaluationError = String(localized: "Could not load the selected photo. Please try another image.")
                     }
+                    return
+                }
+                let img = await Task.detached(priority: .userInitiated) {
+                    VertexAIManager.downsampledImage(rawImg, maxDimension: 1280)
+                }.value
+                await MainActor.run {
+                    showResult = false
+                    evaluationError = nil
+                    analyzeCapturedStepImage(img)
                 }
             }
         }
@@ -1599,10 +1611,13 @@ struct AICameraScannerView: View {
     }
 
     private func resetForRetry() {
+        evaluationTask?.cancel()
+        evaluationTask = nil
         cameraManager.capturedImage = nil
         selectedPhotoItem = nil
         pendingConsentImage = nil
         isCapturingPhoto = false
+        isAnalyzing = false
         showResult = false
         evaluationError = nil
     }
@@ -1622,13 +1637,15 @@ struct AICameraScannerView: View {
         isAnalyzing = true
         evaluationError = nil
 
-        Task {
+        evaluationTask?.cancel()
+        evaluationTask = Task {
             do {
                 let evaluation = try await VertexAIManager.shared.evaluateCookingStep(
                     image: image,
                     dishTitle: dishTitle,
                     stepInstruction: step.instruction
                 )
+                guard !Task.isCancelled else { return }
                 await MainActor.run {
                     isAnalyzing = false
                     showResult = true
@@ -1636,7 +1653,12 @@ struct AICameraScannerView: View {
                     aiVerdict = evaluation.feedback
                     HapticManager.shared.notification(type: evaluation.isGood ? .success : .warning)
                 }
+            } catch is CancellationError {
+                await MainActor.run {
+                    isAnalyzing = false
+                }
             } catch {
+                guard !Task.isCancelled else { return }
                 await MainActor.run {
                     isAnalyzing = false
                     if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {

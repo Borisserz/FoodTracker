@@ -85,6 +85,8 @@ struct FastingPlan: Identifiable, Hashable, Codable {
 }
 
 struct FastingDashboardView: View {
+    @Environment(\.dismiss) private var dismiss
+    var showsDismissButton: Bool = false
     @State private var path = NavigationPath()
 
     var body: some View {
@@ -107,6 +109,11 @@ struct FastingDashboardView: View {
                     .padding(.horizontal, 24)
                     .padding(.top, 16)
 
+                    if FastingManager.shared.isFasting {
+                        ActiveFastingCard()
+                            .padding(.horizontal, 20)
+                    }
+
                     ForEach(FastingCategory.allCases, id: \.self) { category in
                         FastingCategorySection(category: category)
                     }
@@ -116,6 +123,16 @@ struct FastingDashboardView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if showsDismissButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(String(localized: "Done")) {
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
     }
 }
 

@@ -411,7 +411,7 @@ private struct NutritionRow: View {
 
     var body: some View {
         HStack {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.subheadline)
                 .foregroundColor(.primary)
 
@@ -432,7 +432,7 @@ private struct NutritionRow: View {
 private struct NutritionSectionHeader: View {
     let title: String
     var body: some View {
-        Text(title)
+        Text(LocalizedStringKey(title))
             .font(.headline)
             .foregroundColor(.gray)
             .padding(.top, 24)

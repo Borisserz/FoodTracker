@@ -18,6 +18,7 @@ enum LocalDataResetService {
         "remindMeals",
         "remindWater",
         "remindWeight",
+        ReminderNotificationScheduler.hasPromptedKey,
         "useMetricSystem",
         "xpClaimedDateKeys",
         "healthKitAuthRequested_v1",

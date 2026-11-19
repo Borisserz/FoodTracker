@@ -62,8 +62,9 @@ enum MetabolicBlueprintCalculator {
     static func calculate(for metrics: OnboardingMetrics) -> MetabolicBlueprint {
         let genderConstant = metrics.gender == "Female" ? -161.0 : 5.0
         let rawBMR = (10.0 * metrics.weight) + (6.25 * Double(metrics.height)) - Double(5 * metrics.age) + genderConstant
-        let bmr = max(1200, Int(rawBMR))
-        let tdee = Double(bmr) * activityMultiplier(for: metrics.activityLevel)
+        let bmrDouble = max(1200.0, rawBMR)
+        let bmr = Int(bmrDouble)
+        let tdee = bmrDouble * activityMultiplier(for: metrics.activityLevel)
 
         let dailyCalories: Int
         switch metrics.goal {
@@ -75,9 +76,13 @@ enum MetabolicBlueprintCalculator {
             dailyCalories = max(1200, Int(tdee))
         }
 
-        let proteinGrams = Int(metrics.weight * 2.1)
+        let rawProtein = Int(metrics.weight * 2.1)
         let fatGrams = Int(Double(dailyCalories) * 0.25 / 9.0)
-        let carbsGrams = max(100, (dailyCalories - (proteinGrams * 4) - (fatGrams * 9)) / 4)
+        let fatCalories = fatGrams * 9
+        let minCarbGrams = min(100, max(0, Int(Double(dailyCalories) * 0.25 / 4.0)))
+        let maxProteinGrams = max(0, (dailyCalories - fatCalories - (minCarbGrams * 4)) / 4)
+        let proteinGrams = min(rawProtein, maxProteinGrams)
+        let carbsGrams = max(minCarbGrams, (dailyCalories - (proteinGrams * 4) - fatCalories) / 4)
 
         let goalType = weightGoalType(for: metrics.goal)
         let targetWeightKg = goalType == "maintain" ? metrics.weight : metrics.targetWeight
@@ -123,7 +128,8 @@ enum OnboardingPersistence {
             date: Date(),
             for: targetUser,
             in: context,
-            recalculateUserGoals: false
+            recalculateUserGoals: false,
+            syncToHealthKit: false
         )
 
         targetUser.dailyCaloriesGoal = blueprint.dailyCalories

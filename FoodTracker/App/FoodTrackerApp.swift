@@ -100,6 +100,16 @@ struct FoodTrackerApp: App {
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     FastingManager.shared.refreshOnForeground()
+                    if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding_v2"),
+                       !ProcessInfo.processInfo.arguments.contains(where: { $0.hasPrefix("-uiTesting") }) {
+                        Task { await ReminderNotificationScheduler.syncOnAppActive() }
+                    }
+                    if !ProcessInfo.processInfo.arguments.contains(where: { $0.hasPrefix("-uiTesting") }) {
+                        Task {
+                            await RemoteConfigManager.shared.fetchCloudValues()
+                            await VersionManager.shared.checkVersion()
+                        }
+                    }
                 }
             }
         }
@@ -212,7 +222,9 @@ struct ContentView: View {
             SpotlightTourManager.shared.targetFrames = frames
         }
         .onOpenURL { url in
-            _ = appState.handleWidgetURL(url)
+            if !appState.handleWidgetURL(url) {
+                _ = GIDSignIn.sharedInstance.handle(url)
+            }
         }
         .onChange(of: appState.requestedWidgetAction) { _, newAction in
             if newAction == "metabolic" || newAction == "analytics" {
@@ -232,12 +244,15 @@ struct ContentView: View {
             set: { if !$0 { appState.requestedWidgetAction = nil } }
         )) {
             NavigationStack {
-                FastingDashboardView()
+                FastingDashboardView(showsDismissButton: true)
             }
         }
         .onAppear {
             initializeUserIfNeeded()
             SpotlightTourManager.shared.startTourIfNeeded()
+            if !ProcessInfo.processInfo.arguments.contains(where: { $0.hasPrefix("-uiTesting") }) {
+                Task { await ReminderNotificationScheduler.syncOnAppActive() }
+            }
 
             if let user = users.first, user.isHealthKitEnabled {
                 Task {
@@ -267,6 +282,9 @@ struct ContentView: View {
         TrackingManager.shared.track(.onboardingCompleted(goal: metrics.goal, diet: "Standard"))
 
         hasCompletedOnboarding = true
+        if !ProcessInfo.processInfo.arguments.contains(where: { $0.hasPrefix("-uiTesting") }) {
+            Task { await ReminderNotificationScheduler.syncOnAppActive(forcePrompt: true) }
+        }
     }
 }
 enum AppLaunchStep {

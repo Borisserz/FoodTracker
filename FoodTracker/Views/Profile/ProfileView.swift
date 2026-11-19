@@ -420,12 +420,22 @@ struct SettingsView: View {
                             Divider().padding(.leading, 56)
 
                             NavigationLink(destination: UnitsSettingsView(useMetric: $useMetricSystem)) {
-                                SettingsRowView(icon: "ruler.fill", iconColor: .blue, title: "Units settings", value: useMetricSystem ? "Metric" : "Imperial")
+                                SettingsRowView(
+                                    icon: "ruler.fill",
+                                    iconColor: .blue,
+                                    title: "Units settings",
+                                    value: useMetricSystem ? String(localized: "Metric") : String(localized: "Imperial")
+                                )
                             }
                             Divider().padding(.leading, 56)
                             
                             NavigationLink(destination: ThemeSettingsView()) {
-                                SettingsRowView(icon: "paintpalette.fill", iconColor: themeManager.current.secondaryAccent, title: "App Theme", value: themeManager.current.name)
+                                SettingsRowView(
+                                    icon: "paintpalette.fill",
+                                    iconColor: themeManager.current.secondaryAccent,
+                                    title: "App Theme",
+                                    value: String(localized: String.LocalizationValue(themeManager.current.name))
+                                )
                             }
                             Divider().padding(.leading, 56)
 
@@ -800,73 +810,171 @@ struct AccountInfoRow: View {
     }
 }
 
+protocol ReminderNotificationCenterProtocol: Sendable {
+    func authorizationStatus() async -> UNAuthorizationStatus
+    func requestAuthorization(options: UNAuthorizationOptions) async throws -> Bool
+    func removePendingNotificationRequests(withIdentifiers identifiers: [String])
+    func add(_ request: UNNotificationRequest) async throws
+}
+
+extension UNUserNotificationCenter: ReminderNotificationCenterProtocol {
+    func authorizationStatus() async -> UNAuthorizationStatus {
+        await notificationSettings().authorizationStatus
+    }
+}
+
 enum ReminderNotificationScheduler {
     static let mealIDs = ["ft_remind_meals_lunch", "ft_remind_meals_dinner"]
     static let waterID = "ft_remind_water"
     static let weightID = "ft_remind_weight"
+    static let hasPromptedKey = "hasPromptedDefaultReminders_v1"
 
-    static func sync(mealsEnabled: Bool, waterEnabled: Bool, weightEnabled: Bool) {
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: mealIDs + [waterID, weightID])
+    static var allReminderIDs: [String] {
+        mealIDs + [waterID, weightID]
+    }
+
+    static func currentPreferences(defaults: UserDefaults = .standard) -> (meals: Bool, water: Bool, weight: Bool) {
+        let meals = defaults.object(forKey: "remindMeals") as? Bool ?? true
+        let water = defaults.object(forKey: "remindWater") as? Bool ?? true
+        let weight = defaults.object(forKey: "remindWeight") as? Bool ?? false
+        return (meals, water, weight)
+    }
+
+    static func sync(
+        mealsEnabled: Bool,
+        waterEnabled: Bool,
+        weightEnabled: Bool,
+        center: any ReminderNotificationCenterProtocol = UNUserNotificationCenter.current()
+    ) {
+        Task {
+            await syncAsync(
+                mealsEnabled: mealsEnabled,
+                waterEnabled: waterEnabled,
+                weightEnabled: weightEnabled,
+                center: center,
+                requestAuthorizationIfNotDetermined: true
+            )
+        }
+    }
+
+    static func syncOnAppActive(
+        defaults: UserDefaults = .standard,
+        center: any ReminderNotificationCenterProtocol = UNUserNotificationCenter.current(),
+        forcePrompt: Bool = false
+    ) async {
+        let prefs = currentPreferences(defaults: defaults)
+        guard prefs.meals || prefs.water || prefs.weight else {
+            center.removePendingNotificationRequests(withIdentifiers: allReminderIDs)
+            return
+        }
+
+        let status = await center.authorizationStatus()
+        switch status {
+        case .authorized, .provisional, .ephemeral:
+            await syncAsync(
+                mealsEnabled: prefs.meals,
+                waterEnabled: prefs.water,
+                weightEnabled: prefs.weight,
+                center: center,
+                requestAuthorizationIfNotDetermined: false
+            )
+        case .notDetermined:
+            let hasPrompted = defaults.bool(forKey: hasPromptedKey)
+            guard forcePrompt || !hasPrompted else { return }
+            defaults.set(true, forKey: hasPromptedKey)
+            await syncAsync(
+                mealsEnabled: prefs.meals,
+                waterEnabled: prefs.water,
+                weightEnabled: prefs.weight,
+                center: center,
+                requestAuthorizationIfNotDetermined: true
+            )
+        case .denied:
+            center.removePendingNotificationRequests(withIdentifiers: allReminderIDs)
+        @unknown default:
+            break
+        }
+    }
+
+    static func syncAsync(
+        mealsEnabled: Bool,
+        waterEnabled: Bool,
+        weightEnabled: Bool,
+        center: any ReminderNotificationCenterProtocol = UNUserNotificationCenter.current(),
+        requestAuthorizationIfNotDetermined: Bool = true
+    ) async {
+        center.removePendingNotificationRequests(withIdentifiers: allReminderIDs)
 
         guard mealsEnabled || waterEnabled || weightEnabled else { return }
 
-        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
-            guard granted else { return }
+        let status = await center.authorizationStatus()
+        let granted: Bool
+        switch status {
+        case .authorized, .provisional, .ephemeral:
+            granted = true
+        case .notDetermined:
+            guard requestAuthorizationIfNotDetermined else { return }
+            granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+        case .denied:
+            granted = false
+        @unknown default:
+            granted = false
+        }
 
-            if mealsEnabled {
-                schedule(
-                    center: center,
-                    id: mealIDs[0],
-                    title: String(localized: "Time for Lunch"),
-                    body: String(localized: "Log your midday meal to keep your macros balanced."),
-                    hour: 13,
-                    minute: 0
-                )
-                schedule(
-                    center: center,
-                    id: mealIDs[1],
-                    title: String(localized: "Dinner Check-In"),
-                    body: String(localized: "Log your dinner to complete today's nutrition diary."),
-                    hour: 19,
-                    minute: 0
-                )
-            }
+        guard granted else { return }
 
-            if waterEnabled {
-                schedule(
-                    center: center,
-                    id: waterID,
-                    title: String(localized: "Hydration Reminder"),
-                    body: String(localized: "Drink a glass of water to stay on track with your daily goal."),
-                    hour: 15,
-                    minute: 0
-                )
-            }
+        if mealsEnabled {
+            await schedule(
+                center: center,
+                id: mealIDs[0],
+                title: String(localized: "Time for Lunch"),
+                body: String(localized: "Log your midday meal to keep your macros balanced."),
+                hour: 13,
+                minute: 0
+            )
+            await schedule(
+                center: center,
+                id: mealIDs[1],
+                title: String(localized: "Dinner Check-In"),
+                body: String(localized: "Log your dinner to complete today's nutrition diary."),
+                hour: 19,
+                minute: 0
+            )
+        }
 
-            if weightEnabled {
-                schedule(
-                    center: center,
-                    id: weightID,
-                    title: String(localized: "Weekly Weigh-In"),
-                    body: String(localized: "Step on the scale this morning and update your progress."),
-                    hour: 9,
-                    minute: 0,
-                    weekday: 1
-                )
-            }
+        if waterEnabled {
+            await schedule(
+                center: center,
+                id: waterID,
+                title: String(localized: "Hydration Reminder"),
+                body: String(localized: "Drink a glass of water to stay on track with your daily goal."),
+                hour: 15,
+                minute: 0
+            )
+        }
+
+        if weightEnabled {
+            await schedule(
+                center: center,
+                id: weightID,
+                title: String(localized: "Weekly Weigh-In"),
+                body: String(localized: "Step on the scale this morning and update your progress."),
+                hour: 9,
+                minute: 0,
+                weekday: 1
+            )
         }
     }
 
     private static func schedule(
-        center: UNUserNotificationCenter,
+        center: any ReminderNotificationCenterProtocol,
         id: String,
         title: String,
         body: String,
         hour: Int,
         minute: Int,
         weekday: Int? = nil
-    ) {
+    ) async {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -881,7 +989,7 @@ enum ReminderNotificationScheduler {
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-        center.add(request)
+        try? await center.add(request)
     }
 }
 
@@ -988,6 +1096,23 @@ struct AppleHealthSettingsView: View {
                     }
                     .buttonStyle(BounceButtonStyle())
                     .padding(.top, 10)
+
+                    if user.isHealthKitEnabled && !HealthKitManager.shared.isAuthorized {
+                        VStack(spacing: 8) {
+                            Text("Apple Health permissions are currently restricted. Open iOS Settings -> Health -> Data Access & Devices to allow sync.")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                                .multilineTextAlignment(.center)
+                            Button("Open iOS Settings") {
+                                if let url = URL(string: UIApplication.openSettingsURLString) {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                            .font(.caption.bold())
+                            .foregroundColor(.themePink)
+                        }
+                        .padding(.top, 4)
+                    }
                 }
                 .premiumCardStyle()
                 .padding(20)
@@ -1088,7 +1213,7 @@ struct UnitsSettingsView: View {
                         HapticManager.shared.impact(style: .light)
                     }) {
                         HStack {
-                            Text("Imperial (lb, ft, oz)")
+                            Text("Imperial (lb, in, fl oz)")
                                 .font(.system(size: 16, weight: .medium, design: .rounded))
                                 .foregroundColor(.primary)
                             Spacer()
@@ -1205,7 +1330,7 @@ struct ThemeSettingsView: View {
                                     .fill(theme.primaryGradient)
                                     .frame(width: 40, height: 40)
                                 
-                                Text(theme.name)
+                                Text(LocalizedStringKey(theme.name))
                                     .font(.headline)
                                     .foregroundColor(.primary)
                                 

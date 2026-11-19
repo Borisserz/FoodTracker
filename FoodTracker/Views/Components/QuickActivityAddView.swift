@@ -58,7 +58,7 @@ struct QuickActivityAddView: View {
                                     Image(systemName: activity.icon)
                                         .font(.system(size: 32))
                                         .foregroundStyle(selectedActivity == activity ? .white : .primary)
-                                    Text(activity.name)
+                                    Text(LocalizedStringKey(activity.name))
                                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                                         .foregroundStyle(selectedActivity == activity ? .white : .primary)
                                 }

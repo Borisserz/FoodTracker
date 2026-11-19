@@ -177,4 +177,8 @@ final class SocialAuthServiceTests: XCTestCase {
         let countAfterEnd = await bootstrap.activeInteractiveLeaseCountForTesting()
         XCTAssertEqual(countAfterEnd, 0)
     }
+
+    func testAuthManagerAccountDeletionTimeoutExceedsServerWindow() {
+        XCTAssertGreaterThanOrEqual(AuthManager.accountDeletionTimeoutInterval, 60.0)
+    }
 }

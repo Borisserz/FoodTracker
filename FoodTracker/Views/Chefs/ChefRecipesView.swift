@@ -170,7 +170,7 @@ struct TabButton: View {
             }
         }) {
             VStack(spacing: 8) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.system(size: 16, weight: selectedTab == tabIndex ? .bold : .medium, design: .rounded))
                     .foregroundColor(selectedTab == tabIndex ? .themePink : .gray)
 
@@ -406,7 +406,7 @@ struct CalorieRangeCard: View {
                 .font(.system(size: 14))
                 .foregroundColor(color)
 
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundColor(.primary)
         }

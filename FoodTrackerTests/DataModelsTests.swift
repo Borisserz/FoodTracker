@@ -1171,4 +1171,378 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(user.weight, 76.0, accuracy: 0.01)
         XCTAssertNil(DailySummary.fetchExisting(for: Date(), in: context)?.weight)
     }
+
+    @MainActor
+    func testWorkoutSyncWidgetAndAppShareAppGroupLastSyncedWaterState() throws {
+        let sharedSuite = "WorkoutSyncWidgetAppShare.shared.\(UUID().uuidString)"
+        let appSuite = "WorkoutSyncWidgetAppShare.app.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let appDefaults = UserDefaults(suiteName: appSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            appDefaults.removePersistentDomain(forName: appSuite)
+        }
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+        let glass = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        context.insert(glass)
+        summary.addBeverage(glass)
+
+        // Widget writes via App Group without passing an explicit `localDefaults`.
+        WorkoutSyncManager.shared.syncWaterFromWidget(
+            totalLiters: 0.25,
+            addedMl: 250.0,
+            for: today,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appDefaults
+        )
+
+        // Simulate WorkoutTracker resetting today's hydration to 0 in the shared App Group.
+        sharedDefaults.set(0.0, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        // Main app reconciles via the same App Group without passing `localDefaults`.
+        let mutated = WorkoutSyncManager.shared.reconcileWater(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appDefaults
+        )
+        XCTAssertTrue(mutated)
+        XCTAssertEqual(summary.totalHydrationLiters, 0.0, accuracy: 0.001)
+        XCTAssertEqual(WorkoutSyncManager.shared.fetchWaterLiters(for: today, sharedDefaults: sharedDefaults) ?? -1, 0.0, accuracy: 0.001)
+    }
+
+    @MainActor
+    func testPendingWidgetWaterEntriesPreserveIndividualSamplesAndAttachDistinctHealthKitIDs() throws {
+        let sharedSuite = "PendingWidgetEntries.shared.\(UUID().uuidString)"
+        let appSuite = "PendingWidgetEntries.app.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let appDefaults = UserDefaults(suiteName: appSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            appDefaults.removePersistentDomain(forName: appSuite)
+        }
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+        let firstGlass = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        let secondGlass = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        context.insert(firstGlass)
+        context.insert(secondGlass)
+        summary.addBeverage(firstGlass)
+        summary.addBeverage(secondGlass)
+
+        WorkoutSyncManager.shared.syncWaterFromWidget(
+            totalLiters: 0.25,
+            addedMl: 250.0,
+            for: today,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appDefaults
+        )
+        WorkoutSyncManager.shared.syncWaterFromWidget(
+            totalLiters: 0.50,
+            addedMl: 250.0,
+            for: today,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appDefaults
+        )
+
+        let entries = WorkoutSyncManager.shared.consumePendingWidgetWaterEntriesLiters(for: today, appGroupDefaults: appDefaults)
+        XCTAssertEqual(entries.count, 2)
+        XCTAssertEqual(entries[0], 0.25, accuracy: 0.001)
+        XCTAssertEqual(entries[1], 0.25, accuracy: 0.001)
+        XCTAssertTrue(WorkoutSyncManager.shared.consumePendingWidgetWaterEntriesLiters(for: today, appGroupDefaults: appDefaults).isEmpty)
+
+        let id1 = UUID()
+        let id2 = UUID()
+        XCTAssertTrue(WorkoutSyncManager.attachHealthKitSampleID(id1, volumeLiters: entries[0], to: summary))
+        XCTAssertTrue(WorkoutSyncManager.attachHealthKitSampleID(id2, volumeLiters: entries[1], to: summary))
+        XCTAssertEqual(firstGlass.healthKitSampleID, id1.uuidString)
+        XCTAssertEqual(secondGlass.healthKitSampleID, id2.uuidString)
+    }
+
+    func testHomeHealthSyncFlushesTodayEvenWhenViewingPastDateAndSkipsEmptySummary() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+
+        let datesViewingPast = HomeDashboardHealthSync.pendingWidgetWaterFlushDates(selectedDate: yesterday, today: today, calendar: calendar)
+        XCTAssertEqual(datesViewingPast, [yesterday, today])
+
+        let datesViewingToday = HomeDashboardHealthSync.pendingWidgetWaterFlushDates(selectedDate: today, today: today, calendar: calendar)
+        XCTAssertEqual(datesViewingToday, [today])
+
+        XCTAssertFalse(
+            HomeDashboardHealthSync.shouldPersistSummary(
+                existingSummary: nil,
+                workoutCalories: 0,
+                activeCaloriesBurned: 0,
+                stepsCount: 0,
+                sharedWaterLiters: nil,
+                pendingWidgetWaterEntriesLiters: []
+            )
+        )
+        XCTAssertTrue(
+            HomeDashboardHealthSync.shouldPersistSummary(
+                existingSummary: nil,
+                workoutCalories: 250,
+                activeCaloriesBurned: 250,
+                stepsCount: 0,
+                sharedWaterLiters: nil,
+                pendingWidgetWaterEntriesLiters: []
+            )
+        )
+    }
+
+    @MainActor
+    func testWeeklyEnergyBankCalculatorIgnoresEmptyAndOutOfWindowSummaries() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        let twoDaysAgo = calendar.date(byAdding: .day, value: -2, to: today)!
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        let tenDaysAgo = calendar.date(byAdding: .day, value: -10, to: today)!
+
+        let loggedToday = DailySummary(date: today)
+        let meal = Meal(title: "Lunch", date: today, foodItems: [FoodItem(name: "Bowl", weight: 400, calories: 1800, protein: 90, fats: 50, carbs: 200)])
+        loggedToday.addMeal(meal)
+
+        let emptyYesterday = DailySummary(date: yesterday)
+        let emptyTwoDaysAgo = DailySummary(date: twoDaysAgo)
+        let emptyTomorrow = DailySummary(date: tomorrow)
+
+        let oldLogged = DailySummary(date: tenDaysAgo)
+        let oldMeal = Meal(title: "Dinner", date: tenDaysAgo, foodItems: [FoodItem(name: "Steak", weight: 300, calories: 1000, protein: 70, fats: 50, carbs: 40)])
+        oldLogged.addMeal(oldMeal)
+
+        let result = WeeklyEnergyBankCalculator.calculate(
+            summaries: [emptyTomorrow, loggedToday, emptyYesterday, emptyTwoDaysAgo, oldLogged],
+            dailyGoal: 2000,
+            now: today,
+            calendar: calendar
+        )
+        XCTAssertEqual(result.loggedDaysCount, 1)
+        XCTAssertEqual(result.bankBalance, 200)
+
+        let emptyOnly = WeeklyEnergyBankCalculator.calculate(
+            summaries: [emptyYesterday, emptyTwoDaysAgo],
+            dailyGoal: 2000,
+            now: today,
+            calendar: calendar
+        )
+        XCTAssertEqual(emptyOnly.loggedDaysCount, 0)
+        XCTAssertEqual(emptyOnly.bankBalance, 0)
+    }
+
+    @MainActor
+    func testAIWeeklyInsightMetricsIgnoresEmptyBrowsedDaysForWaterAverage() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let d1 = calendar.date(byAdding: .day, value: -1, to: today)!
+        let d2 = calendar.date(byAdding: .day, value: -2, to: today)!
+        let d3 = calendar.date(byAdding: .day, value: -3, to: today)!
+
+        let activeDay = DailySummary(date: today)
+        activeDay.addMeal(Meal(title: "Lunch", date: today, foodItems: [FoodItem(name: "Bowl", weight: 400, calories: 1800, protein: 80, fats: 40, carbs: 210)]))
+        activeDay.addBeverage(Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 2000))
+
+        let empty1 = DailySummary(date: d1)
+        let empty2 = DailySummary(date: d2)
+        let empty3 = DailySummary(date: d3)
+
+        let metrics = AIWeeklyInsightCalculator.metrics(
+            summaries: [activeDay, empty1, empty2, empty3],
+            period: .week,
+            now: today,
+            calendar: calendar
+        )
+        XCTAssertEqual(metrics.avgCalories, 1800)
+        XCTAssertEqual(metrics.avgWater, 2.0, accuracy: 0.001)
+    }
+
+    @MainActor
+    func testHealthKitManagerIncludesBodyMassAndDeduplicatesRecentPull() {
+        XCTAssertTrue(HealthKitManager.readTypeIdentifiers.contains(.bodyMass))
+        XCTAssertTrue(HealthKitManager.writeTypeIdentifiers.contains(.bodyMass))
+
+        XCTAssertFalse(
+            HealthKitWeightSyncHelper.shouldImportHealthKitWeight(
+                latestHKWeightKg: 75.02,
+                currentUserWeightKg: 75.0,
+                existingSameDayLogWeightKg: nil
+            )
+        )
+        XCTAssertFalse(
+            HealthKitWeightSyncHelper.shouldImportHealthKitWeight(
+                latestHKWeightKg: 74.5,
+                currentUserWeightKg: 76.0,
+                existingSameDayLogWeightKg: 74.5
+            )
+        )
+        XCTAssertTrue(
+            HealthKitWeightSyncHelper.shouldImportHealthKitWeight(
+                latestHKWeightKg: 74.2,
+                currentUserWeightKg: 75.0,
+                existingSameDayLogWeightKg: nil
+            )
+        )
+    }
+
+    @MainActor
+    func testMetabolicBlueprintMatchesUserCalculateGoalsAndCapsMacroOverflow() throws {
+        let bulkMetrics = OnboardingMetrics(
+            age: 25,
+            height: 175,
+            weight: 70,
+            targetWeight: 77,
+            goal: "Build Muscle",
+            activityLevel: .beast,
+            gender: "Male"
+        )
+        let blueprint = MetabolicBlueprintCalculator.calculate(for: bulkMetrics)
+        let user = User(name: "Bulk", weight: 70, height: 175, age: 25, gender: "Male")
+        user.activityMultiplier = MetabolicBlueprintCalculator.activityMultiplier(for: .beast)
+        user.weightGoalType = "gain"
+        user.calculateGoals()
+        XCTAssertEqual(user.dailyCaloriesGoal, blueprint.dailyCalories)
+
+        // Heavy user on aggressive cut must not receive macros exceeding target daily calories
+        let heavyCut = OnboardingMetrics(
+            age: 35,
+            height: 170,
+            weight: 140,
+            targetWeight: 95,
+            goal: "Lose Weight",
+            activityLevel: .office,
+            gender: "Male"
+        )
+        let cutBlueprint = MetabolicBlueprintCalculator.calculate(for: heavyCut)
+        let macroCalories = (cutBlueprint.proteinGrams * 4) + (cutBlueprint.fatGrams * 9) + (cutBlueprint.carbsGrams * 4)
+        XCTAssertLessThanOrEqual(macroCalories, cutBlueprint.dailyCalories + 15)
+        XCTAssertGreaterThan(cutBlueprint.carbsGrams, 0)
+    }
+
+    @MainActor
+    func testRemainingMacrosIncludesActiveCaloriesBurned() {
+        let user = User(name: "Active", weight: 75, height: 180, age: 28, gender: "Male")
+        user.dailyCaloriesGoal = 2000
+        let summary = DailySummary(date: Date())
+        summary.activeCaloriesBurned = 450
+        let meal = Meal(title: "Lunch", date: Date(), foodItems: [
+            FoodItem(name: "Pasta", weight: 300, calories: 1800, protein: 60, fats: 40, carbs: 260)
+        ])
+        summary.addMeal(meal)
+
+        let remaining = NutritionMath.remainingMacros(user: user, summary: summary)
+        XCTAssertEqual(remaining.calories, 650)
+    }
+
+    @MainActor
+    func testDailyXPQuestsEvaluatorAndFinishDayXPDateWindow() {
+        let summary = DailySummary(date: Date())
+        XCTAssertFalse(DailyXPQuestsEvaluator.isQuestSatisfied(.steps, summary: summary))
+        XCTAssertFalse(DailyXPQuestsEvaluator.isQuestSatisfied(.meals, summary: summary))
+        XCTAssertFalse(DailyXPQuestsEvaluator.isQuestSatisfied(.water, summary: summary))
+
+        summary.stepsCount = 10_250
+        summary.addMeal(Meal(title: "Breakfast", date: Date(), foodItems: [
+            FoodItem(name: "Oats", weight: 100, calories: 350, protein: 12, fats: 6, carbs: 60)
+        ]))
+        summary.addBeverage(Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 2500))
+
+        XCTAssertTrue(DailyXPQuestsEvaluator.isQuestSatisfied(.steps, summary: summary))
+        XCTAssertTrue(DailyXPQuestsEvaluator.isQuestSatisfied(.meals, summary: summary))
+        XCTAssertTrue(DailyXPQuestsEvaluator.isQuestSatisfied(.water, summary: summary))
+
+        let suite = "FinishDayXPWindow.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        let tenDaysAgo = calendar.date(byAdding: .day, value: -10, to: today)!
+
+        XCTAssertFalse(NutritionMath.claimFinishDayXP(for: tenDaysAgo, now: today, defaults: defaults))
+        XCTAssertTrue(NutritionMath.claimFinishDayXP(for: yesterday, now: today, defaults: defaults))
+        XCTAssertFalse(NutritionMath.claimFinishDayXP(for: yesterday, now: today, defaults: defaults))
+        XCTAssertTrue(NutritionMath.claimFinishDayXP(for: today, now: today, defaults: defaults))
+    }
+
+    func testMidnightRolloverHelperAdvancesOnlyWhenViewingPreviousToday() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        let twoDaysAgo = calendar.date(byAdding: .day, value: -2, to: today)!
+
+        XCTAssertEqual(
+            MidnightRolloverHelper.resolvedSelection(
+                selectedDate: yesterday,
+                previousDayStart: yesterday,
+                newDayStart: today,
+                calendar: calendar
+            ),
+            today
+        )
+        XCTAssertEqual(
+            MidnightRolloverHelper.resolvedSelection(
+                selectedDate: twoDaysAgo,
+                previousDayStart: yesterday,
+                newDayStart: today,
+                calendar: calendar
+            ),
+            twoDaysAgo
+        )
+    }
+
+    func testDataExportServiceUsesPOSIXDateAndEscapesCSVFields() throws {
+        XCTAssertEqual(DataExportService.escapeCSVField("Plain"), "Plain")
+        XCTAssertEqual(DataExportService.escapeCSVField("Oats, \"Organic\""), "\"Oats, \"\"Organic\"\"\"")
+
+        let summary = DailySummary(date: Date(timeIntervalSince1970: 1_767_225_600)) // 2026-01-01 UTC
+        summary.addMeal(Meal(title: "Lunch", date: summary.date, foodItems: [
+            FoodItem(name: "Bowl", weight: 300, calories: 550, protein: 32, fats: 18, carbs: 60)
+        ]))
+        let url = try DataExportService.generateCSV(from: [summary])
+        defer { try? FileManager.default.removeItem(at: url) }
+        let csv = try String(contentsOf: url, encoding: .utf8)
+        XCTAssertTrue(csv.contains("Date,Total Calories (kcal),Total Protein (g),Total Carbs (g),Total Fat (g),Total Meals Logged"))
+        XCTAssertTrue(csv.contains(",550,32,60,18,1"))
+    }
+
+    @MainActor
+    func testWorkoutSyncReconcileWaterDetailReturnsDeletedHealthKitSamples() throws {
+        let sharedSuite = "ReconcileDetail.shared.\(UUID().uuidString)"
+        let appSuite = "ReconcileDetail.app.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let appDefaults = UserDefaults(suiteName: appSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            appDefaults.removePersistentDomain(forName: appSuite)
+        }
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+        let sampleUUID = UUID().uuidString
+        let drink = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 500)
+        drink.healthKitSampleID = sampleUUID
+        context.insert(drink)
+        summary.addBeverage(drink)
+
+        WorkoutSyncManager.shared.syncWater(0.5, for: today, sharedDefaults: sharedDefaults, appGroupDefaults: appDefaults)
+        // WorkoutTracker resets hydration to 0
+        sharedDefaults.set(0.0, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        let outcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appDefaults
+        )
+        XCTAssertTrue(outcome.mutated)
+        XCTAssertEqual(outcome.deletedHealthKitSamples.count, 1)
+        XCTAssertEqual(outcome.deletedHealthKitSamples.first?.sampleID, sampleUUID)
+        XCTAssertEqual(outcome.deletedHealthKitSamples.first?.volumeMl ?? 0, 500.0, accuracy: 0.01)
+    }
 }

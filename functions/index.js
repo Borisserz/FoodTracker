@@ -291,6 +291,7 @@ function validateAiProxyBody(body) {
         if (!ALLOWED_IMAGE_MIME_TYPES.has(mimeType)) {
           throw new Error(`Unsupported image mimeType: ${mimeType || "empty"}`);
         }
+        part.inlineData.mimeType = mimeType;
         const data = part.inlineData?.data;
         if (typeof data !== "string" || data.length === 0) {
           throw new Error("Empty image payload");
@@ -298,8 +299,8 @@ function validateAiProxyBody(body) {
         if (data.length > MAX_AI_IMAGE_BASE64_CHARS) {
           throw new Error(`Image payload too large (max ${MAX_AI_IMAGE_BASE64_CHARS} base64 chars)`);
         }
-        if (!/^[A-Za-z0-9+/=\s]+$/.test(data)) {
-          throw new Error("Invalid base64 image payload");
+        if (!/^[A-Za-z0-9+/=]+$/.test(data)) {
+          throw new Error("Invalid base64 image payload (unexpected whitespace or characters)");
         }
       }
     }
@@ -364,6 +365,13 @@ function geminiBodyToOpenAI(body, { streaming, model }) {
     stream: Boolean(streaming),
     provider: { data_collection: "deny" },
   };
+  if (
+    typeof gen.maxOutputTokens === "number" &&
+    Number.isFinite(gen.maxOutputTokens) &&
+    gen.maxOutputTokens >= 1
+  ) {
+    openAIBody.max_tokens = Math.min(16384, Math.max(1, Math.floor(gen.maxOutputTokens)));
+  }
 
   if (wantsJson) {
     openAIBody.plugins = [{ id: "response-healing" }];
@@ -570,18 +578,23 @@ async function reserveDualRateLimitSlots({
   deviceCollection,
   uid,
   deviceHash,
+  ipHash = null,
   userLimit,
   deviceLimit,
+  ipLimit = null,
   windowMs = AI_WINDOW_MS,
 }) {
   const db = getFirestore();
   const userRef = db.collection(userCollection).doc(uid);
   const deviceRef = deviceHash ? db.collection(deviceCollection).doc(deviceHash) : null;
+  const shouldTrackSeparateIp = Boolean(ipHash && ipHash !== deviceHash && ipLimit);
+  const ipRef = shouldTrackSeparateIp ? db.collection(deviceCollection).doc(ipHash) : null;
 
   return db.runTransaction(async (tx) => {
     const now = Date.now();
     const userSnap = await tx.get(userRef);
     const deviceSnap = deviceRef ? await tx.get(deviceRef) : null;
+    const ipSnap = ipRef ? await tx.get(ipRef) : null;
 
     const userTransition = computeRateLimitTransition(
       userSnap.exists ? userSnap.data() : null,
@@ -603,6 +616,19 @@ async function reserveDualRateLimitSlots({
       );
       if (!deviceTransition.allowed) {
         throw new RateLimitError(deviceTransition.retryAfterSeconds, deviceLimit);
+      }
+    }
+
+    let ipTransition = null;
+    if (ipRef && ipSnap) {
+      ipTransition = computeRateLimitTransition(
+        ipSnap.exists ? ipSnap.data() : null,
+        now,
+        ipLimit,
+        windowMs
+      );
+      if (!ipTransition.allowed) {
+        throw new RateLimitError(ipTransition.retryAfterSeconds, ipLimit);
       }
     }
 
@@ -628,9 +654,22 @@ async function reserveDualRateLimitSlots({
       );
     }
 
+    if (ipRef && ipTransition) {
+      tx.set(
+        ipRef,
+        {
+          windowStart: ipTransition.nextWindowStart,
+          count: ipTransition.nextCount,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    }
+
     return {
       userWindowStart: userTransition.nextWindowStart,
       deviceWindowStart: deviceTransition ? deviceTransition.nextWindowStart : null,
+      ipWindowStart: ipTransition ? ipTransition.nextWindowStart : null,
     };
   });
 }
@@ -672,11 +711,7 @@ function hashDeviceInstallId(raw) {
   return crypto.createHash("sha256").update(cleaned).digest("hex");
 }
 
-function resolveSecondaryQuotaKey(req) {
-  const deviceHash = hashDeviceInstallId(req?.header?.("X-Device-Install-ID"));
-  if (deviceHash) {
-    return `device:${deviceHash}`;
-  }
+function resolveIpQuotaKey(req) {
   const reqIp = String(req?.ip || "").trim();
   const isLoopback = /^(127\.0\.0\.1|::1|::ffff:127\.0\.0\.1)$/i.test(reqIp);
   let clientIp = reqIp && !isLoopback ? reqIp : "";
@@ -693,6 +728,14 @@ function resolveSecondaryQuotaKey(req) {
   if (!clientIp) return null;
   const ipHash = crypto.createHash("sha256").update(clientIp).digest("hex");
   return `ip:${ipHash}`;
+}
+
+function resolveSecondaryQuotaKey(req) {
+  const deviceHash = hashDeviceInstallId(req?.header?.("X-Device-Install-ID"));
+  if (deviceHash) {
+    return `device:${deviceHash}`;
+  }
+  return resolveIpQuotaKey(req);
 }
 
 function openRouterHeaders(apiKey) {
@@ -1006,6 +1049,20 @@ function normalizeFatSecretSearch(json) {
   return list.map(normalizeFatSecretFood).filter(Boolean);
 }
 
+function sanitizeUpstreamErrorMessage(_raw, kind = "ai") {
+  if (kind === "search") {
+    return "Food database temporarily unavailable. Please try again later.";
+  }
+  return "AI service temporarily unavailable. Please try again later.";
+}
+
+function assertFatSecretDetailSuccess(detail) {
+  if (detail?.error) {
+    const code = Number(detail.error?.code);
+    throw new Error(`FatSecret detail error ${Number.isFinite(code) ? code : "unknown"}: ${detail.error?.message || "unknown"}`);
+  }
+}
+
 function normalizeFatSecretBarcode(json) {
   if (!json?.food) return null;
   return normalizeFatSecretFood(json.food);
@@ -1103,8 +1160,15 @@ exports.foodAiProxy = onRequest(
       return;
     }
 
+    const apiKeys = parseApiKeys(openRouterApiKey.value());
+    if (apiKeys.length === 0) {
+      res.status(500).json({ error: "OPENROUTER_API_KEY not configured" });
+      return;
+    }
+
     const settings = await loadAISettings();
     const deviceHash = resolveSecondaryQuotaKey(req);
+    const ipHash = resolveIpQuotaKey(req);
 
     let reservedWindows;
     try {
@@ -1113,8 +1177,10 @@ exports.foodAiProxy = onRequest(
         deviceCollection: "food_ai_device_usage",
         uid,
         deviceHash,
+        ipHash,
         userLimit: settings.weeklyLimit,
         deviceLimit: settings.weeklyLimit * 2,
+        ipLimit: settings.weeklyLimit * 8,
       });
     } catch (e) {
       if (e instanceof RateLimitError) {
@@ -1140,14 +1206,14 @@ exports.foodAiProxy = onRequest(
           reservedWindows.deviceWindowStart
         );
       }
+      if (ipHash && ipHash !== deviceHash && reservedWindows.ipWindowStart !== null) {
+        await refundRateLimitSlot(
+          "food_ai_device_usage",
+          ipHash,
+          reservedWindows.ipWindowStart
+        );
+      }
     };
-
-    const apiKeys = parseApiKeys(openRouterApiKey.value());
-    if (apiKeys.length === 0) {
-      await refundReservedSlots();
-      res.status(500).json({ error: "OPENROUTER_API_KEY not configured" });
-      return;
-    }
 
     const streaming = req.query.stream === "true";
 
@@ -1168,7 +1234,6 @@ exports.foodAiProxy = onRequest(
       const streamDeadlineAt = Date.now() + TOTAL_CHAIN_BUDGET_MS;
       const keys = rotatedKeys(apiKeys);
       let lastError = null;
-      const decoder = new TextDecoder();
 
       const emitStreamLine = (rawLine) => {
         const line = rawLine.trimEnd();
@@ -1217,6 +1282,7 @@ exports.foodAiProxy = onRequest(
             }
 
             const reader = resp.body.getReader();
+            const decoder = new TextDecoder();
             let buffer = "";
             for (;;) {
               const { done, value } = await reader.read();
@@ -1228,6 +1294,7 @@ exports.foodAiProxy = onRequest(
                 emitStreamLine(rawLine);
               }
             }
+            buffer += decoder.decode();
             if (buffer.trim()) {
               emitStreamLine(buffer);
             }
@@ -1258,9 +1325,10 @@ exports.foodAiProxy = onRequest(
       if (!res.headersSent) {
         res.status(502).json({
           error: "upstream_failed",
-          message: String(e?.message || e).slice(0, 500),
+          message: sanitizeUpstreamErrorMessage(e?.message || e, "ai"),
         });
       } else {
+        res.write(`data: ${JSON.stringify({ error: "stream_interrupted" })}\n\ndata: [DONE]\n\n`);
         res.end();
       }
     }
@@ -1345,6 +1413,7 @@ exports.foodSearchProxy = onRequest(
     }
 
     const searchDeviceHash = resolveSecondaryQuotaKey(req);
+    const searchIpHash = resolveIpQuotaKey(req);
     let searchReservedWindows;
     try {
       searchReservedWindows = await reserveDualRateLimitSlots({
@@ -1352,8 +1421,10 @@ exports.foodSearchProxy = onRequest(
         deviceCollection: "food_search_device_usage",
         uid,
         deviceHash: searchDeviceHash,
+        ipHash: searchIpHash,
         userLimit: DEFAULT_SEARCH_WEEKLY_LIMIT,
         deviceLimit: DEFAULT_SEARCH_WEEKLY_LIMIT * 2,
+        ipLimit: DEFAULT_SEARCH_WEEKLY_LIMIT * 8,
       });
     } catch (e) {
       if (e instanceof RateLimitError) {
@@ -1377,6 +1448,13 @@ exports.foodSearchProxy = onRequest(
           "food_search_device_usage",
           searchDeviceHash,
           searchReservedWindows.deviceWindowStart
+        );
+      }
+      if (searchIpHash && searchIpHash !== searchDeviceHash && searchReservedWindows.ipWindowStart !== null) {
+        await refundRateLimitSlot(
+          "food_search_device_usage",
+          searchIpHash,
+          searchReservedWindows.ipWindowStart
         );
       }
     };
@@ -1449,6 +1527,7 @@ exports.foodSearchProxy = onRequest(
           extraParams: { food_id: String(foodId) },
           timeoutMs: boundedFatSecretTimeout(),
         });
+        assertFatSecretDetailSuccess(detail);
         res.status(200).json({ item: normalizeFatSecretBarcode(detail) });
         return;
       }
@@ -1478,17 +1557,48 @@ exports.foodSearchProxy = onRequest(
       console.error("foodSearchProxy error:", e?.message || e);
       res.status(502).json({
         error: "fatsecret_upstream_failed",
-        message: String(e?.message || e).slice(0, 300),
+        message: sanitizeUpstreamErrorMessage(e?.message || e, "search"),
       });
     }
   }
 );
 
+async function deleteRefRecursively(firestore, ref) {
+  if (typeof firestore.recursiveDelete === "function") {
+    await firestore.recursiveDelete(ref);
+    return;
+  }
+  await ref.delete();
+}
+
 async function deleteFoodAccountData({ uid, firestore = getFirestore(), auth = getAuth() }) {
-  // Delete only FoodTracker-scoped per-user server docs (never touch shared `users/{uid}`).
+  // Remove all per-user docs across the shared serzhanovich-ecosystem-ce700 project
+  // before deleting the shared Firebase Auth UID so WorkoutTracker data is never orphaned.
+  const sharedSnap = await firestore
+    .collection("shared_workouts")
+    .where("creatorUid", "==", uid)
+    .get();
+  for (const sharedDoc of sharedSnap.docs) {
+    await deleteRefRecursively(firestore, sharedDoc.ref);
+  }
+
+  const reportsSnap = await firestore
+    .collection("reports")
+    .where("reporterUid", "==", uid)
+    .get();
+  const reportRefs = reportsSnap.docs.map((d) => d.ref);
+  for (let i = 0; i < reportRefs.length; i += 450) {
+    const batch = firestore.batch();
+    reportRefs.slice(i, i + 450).forEach((ref) => batch.delete(ref));
+    await batch.commit();
+  }
+
+  await deleteRefRecursively(firestore, firestore.collection("users").doc(uid));
+
   await Promise.all([
     firestore.collection("food_ai_usage").doc(uid).delete(),
     firestore.collection("food_search_usage").doc(uid).delete(),
+    firestore.collection("ai_usage").doc(uid).delete(),
   ]);
   try {
     await auth.deleteUser(uid);
@@ -1503,8 +1613,8 @@ exports.foodDeleteAccount = onRequest(
   {
     region: "us-central1",
     serviceAccount: SERVICE_ACCOUNT,
-    memory: "256MiB",
-    timeoutSeconds: 60,
+    memory: "512MiB",
+    timeoutSeconds: 120,
   },
   async (req, res) => {
     if (req.method !== "POST") {
@@ -1536,6 +1646,8 @@ module.exports._test = {
   upstreamTimeoutForBody,
   computeRateLimitTransition,
   validateAiProxyBody,
+  sanitizeUpstreamErrorMessage,
+  resolveIpQuotaKey,
   resolveSecondaryQuotaKey,
   modelChainForRequest,
   geminiBodyToOpenAI,
@@ -1552,6 +1664,7 @@ module.exports._test = {
   normalizeFatSecretFood,
   normalizeFatSecretSearch,
   normalizeFatSecretBarcode,
+  assertFatSecretDetailSuccess,
   parseSearchPayload,
   deleteFoodAccountData,
 };

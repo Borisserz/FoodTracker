@@ -92,8 +92,18 @@ final class GeminiProxyClient {
     // MARK: - Public API (used by services)
 
     /// Sends a text-only prompt expecting a JSON response. Returns decoded type.
-    func fetchJSON<T: Decodable>(prompt: String, responseType: T.Type, suppressRateLimitAlert: Bool = false) async throws -> T {
-        let raw = try await performRequest(prompt: prompt, forceJSON: true, suppressRateLimitAlert: suppressRateLimitAlert)
+    func fetchJSON<T: Decodable>(
+        prompt: String,
+        responseType: T.Type,
+        maxOutputTokens: Int? = nil,
+        suppressRateLimitAlert: Bool = false
+    ) async throws -> T {
+        let raw = try await performRequest(
+            prompt: prompt,
+            forceJSON: true,
+            maxOutputTokens: maxOutputTokens,
+            suppressRateLimitAlert: suppressRateLimitAlert
+        )
         let cleaned = cleanJSONResponse(raw)
         return try decode(cleaned, as: T.self, rawForLogging: cleaned)
     }
@@ -130,7 +140,13 @@ final class GeminiProxyClient {
 
     // MARK: - Core Request
 
-    private func performRequest(prompt: String, images: [(base64: String, mime: String)] = [], forceJSON: Bool, suppressRateLimitAlert: Bool = false) async throws -> String {
+    private func performRequest(
+        prompt: String,
+        images: [(base64: String, mime: String)] = [],
+        forceJSON: Bool,
+        maxOutputTokens: Int? = nil,
+        suppressRateLimitAlert: Bool = false
+    ) async throws -> String {
         let configuredURL = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.remoteConfigKey)
         let url = AIProxyEndpoint.resolve(configured: configuredURL)
 
@@ -150,6 +166,9 @@ final class GeminiProxyClient {
         ]
         if forceJSON {
             generationConfig["responseMimeType"] = "application/json"
+        }
+        if let maxOutputTokens, maxOutputTokens > 0 {
+            generationConfig["maxOutputTokens"] = maxOutputTokens
         }
 
         let requestBody: [String: Any] = [

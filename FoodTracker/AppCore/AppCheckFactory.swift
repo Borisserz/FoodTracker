@@ -1,4 +1,5 @@
 import Foundation
+import DeviceCheck
 import FirebaseCore
 import FirebaseAppCheck
 
@@ -7,7 +8,10 @@ final class AppCheckFactory: NSObject, AppCheckProviderFactory {
         #if DEBUG
         return AppCheckDebugProvider(app: app)
         #else
-        return AppAttestProvider(app: app)
+        if DCAppAttestService.shared.isSupported {
+            return AppAttestProvider(app: app)
+        }
+        return DeviceCheckProvider(app: app)
         #endif
     }
 }

@@ -116,16 +116,12 @@ class RecipeDataLoader {
 
             guard let documents = snapshot?.documents, !documents.isEmpty else { return }
 
-            do {
-                let remote = try documents.compactMap { try $0.data(as: PremiumRecipe.self) }
-                if !remote.isEmpty {
-                    let applied = Self.applyFavorites(to: remote)
-                    DispatchQueue.main.async {
-                        self.recipes = applied
-                    }
+            let remote = documents.compactMap { try? $0.data(as: PremiumRecipe.self) }
+            if !remote.isEmpty {
+                let applied = Self.applyFavorites(to: remote)
+                DispatchQueue.main.async {
+                    self.recipes = applied
                 }
-            } catch {
-                print("❌ Error parsing recipes: \(error)")
             }
         }
     }

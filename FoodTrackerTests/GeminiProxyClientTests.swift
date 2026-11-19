@@ -148,4 +148,48 @@ final class GeminiProxyClientTests: XCTestCase {
         XCTAssertEqual(refreshFlags, [false, true])
         XCTAssertEqual(callCount, 2)
     }
+
+    func testFetchJSONIncludesMaxOutputTokensWhenProvided() async throws {
+        struct TinyDTO: Decodable { let ok: Bool }
+        let client = GeminiProxyClient.shared
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let originalSession = client.session
+        client.session = URLSession(configuration: config)
+        defer {
+            MockURLProtocol.requestHandler = nil
+            client.session = originalSession
+            client.refreshingTokenProvider = nil
+        }
+
+        client.refreshingTokenProvider = { _ in (authToken: "t", appCheckToken: "a") }
+        var capturedMaxTokens: Int?
+
+        MockURLProtocol.requestHandler = { request in
+            var bodyData = request.httpBody ?? Data()
+            if bodyData.isEmpty, let stream = request.httpBodyStream {
+                stream.open()
+                defer { stream.close() }
+                var buffer = [UInt8](repeating: 0, count: 4096)
+                while stream.hasBytesAvailable {
+                    let count = stream.read(&buffer, maxLength: buffer.count)
+                    if count > 0 {
+                        bodyData.append(contentsOf: buffer.prefix(count))
+                    } else {
+                        break
+                    }
+                }
+            }
+            if let json = try? JSONSerialization.jsonObject(with: bodyData) as? [String: Any],
+               let genConfig = json["generationConfig"] as? [String: Any] {
+                capturedMaxTokens = genConfig["maxOutputTokens"] as? Int
+            }
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, Data(#"{"ok":true}"#.utf8))
+        }
+
+        let dto = try await client.fetchJSON(prompt: "Plan", responseType: TinyDTO.self, maxOutputTokens: 8192)
+        XCTAssertTrue(dto.ok)
+        XCTAssertEqual(capturedMaxTokens, 8192)
+    }
 }

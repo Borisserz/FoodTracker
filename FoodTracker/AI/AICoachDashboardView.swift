@@ -184,6 +184,12 @@ struct AICoachDashboardView: View {
                     viewModel = di.makeAICoachViewModel()
                 }
             }
+            .onChange(of: selectedDate) { _, _ in
+                viewModel?.resetDailyAnalysis()
+            }
+            .onChange(of: currentSummary.totalCalories) { _, _ in
+                viewModel?.resetDailyAnalysis()
+            }
             .alert(
                 "AI Coach",
                 isPresented: Binding(
@@ -428,7 +434,7 @@ struct AICoachDashboardView: View {
                             .shadow(color: Color.themePink.opacity(0.3), radius: 6)
                     }
                 }
-                .disabled((viewModel?.fridgeInput.isEmpty ?? true) || (viewModel?.isGeneratingRecipe ?? true))
+                .disabled((viewModel?.fridgeInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true) || (viewModel?.isGeneratingRecipe ?? true))
             }
 
             if let recipe = viewModel?.generatedRecipe {
@@ -538,10 +544,12 @@ struct AICoachDashboardView: View {
     }
 
     private func saveGeneratedRecipe(_ recipeDTO: AIRecipeDTO) {
+        let directions = recipeDTO.info.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? [] : [recipeDTO.info]
         let newRecipe = CustomRecipe(
             name: recipeDTO.name, info: recipeDTO.info,
             foodItems: [FoodItem(name: recipeDTO.name, weight: 100, calories: recipeDTO.calories, protein: recipeDTO.protein, fats: recipeDTO.fats, carbs: recipeDTO.carbs)],
-            cookingTime: recipeDTO.cookingTime, difficulty: "Medium")
+            cookingTime: recipeDTO.cookingTime, difficulty: "Medium",
+            directions: directions)
         context.insert(newRecipe); try? context.save()
         withAnimation { viewModel?.generatedRecipe = nil }; HapticManager.shared.impact(style: .light)
     }

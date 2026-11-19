@@ -2,21 +2,46 @@ import Foundation
 import HealthKit
 import Observation
 
+enum HealthKitWeightSyncHelper {
+    static func shouldImportHealthKitWeight(
+        latestHKWeightKg: Double,
+        currentUserWeightKg: Double,
+        existingSameDayLogWeightKg: Double?
+    ) -> Bool {
+        guard latestHKWeightKg > 0 else { return false }
+        if let existingSameDayLogWeightKg, abs(latestHKWeightKg - existingSameDayLogWeightKg) < 0.05 {
+            return false
+        }
+        return abs(latestHKWeightKg - currentUserWeightKg) >= 0.05
+    }
+}
+
 @Observable
 @MainActor
 final class HealthKitManager {
     static let shared = HealthKitManager()
+    nonisolated static let readTypeIdentifiers: [HKQuantityTypeIdentifier] = [
+        .bodyMass,
+        .stepCount,
+        .activeEnergyBurned
+    ]
+    nonisolated static let writeTypeIdentifiers: [HKQuantityTypeIdentifier] = [
+        .dietaryWater,
+        .dietaryEnergyConsumed,
+        .activeEnergyBurned,
+        .bodyMass
+    ]
     private let healthStore = HKHealthStore()
     private let hasRequestedKey = "healthKitAuthRequested_v1"
 
     var isAuthorized: Bool = false
 
     private init() {
-        if HKHealthStore.isHealthDataAvailable(),
-           let water = HKObjectType.quantityType(forIdentifier: .dietaryWater),
-           let dietaryEnergy = HKObjectType.quantityType(forIdentifier: .dietaryEnergyConsumed),
-           let activeEnergy = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned) {
-            let writeTypes: [HKSampleType] = [water, dietaryEnergy, activeEnergy, HKObjectType.workoutType()]
+        if HKHealthStore.isHealthDataAvailable() {
+            var writeTypes: [HKSampleType] = Self.writeTypeIdentifiers.compactMap {
+                HKObjectType.quantityType(forIdentifier: $0)
+            }
+            writeTypes.append(HKObjectType.workoutType())
             let statuses = writeTypes.map { healthStore.authorizationStatus(for: $0) }
             let anyAuthorized = statuses.contains(.sharingAuthorized)
             let anyAllowedAfterPrompt = UserDefaults.standard.bool(forKey: hasRequestedKey)
@@ -27,23 +52,23 @@ final class HealthKitManager {
 
     private func canWrite(_ sampleType: HKObjectType) -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else { return false }
-        let status = healthStore.authorizationStatus(for: sampleType)
-        if status == .sharingAuthorized { return true }
-        return status != .sharingDenied && isAuthorized
+        return healthStore.authorizationStatus(for: sampleType) == .sharingAuthorized
     }
 
     func requestAuthorization() async throws {
         guard HKHealthStore.isHealthDataAvailable() else { return }
 
-        guard let bodyMass = HKObjectType.quantityType(forIdentifier: .bodyMass),
-              let water = HKObjectType.quantityType(forIdentifier: .dietaryWater),
-              let dietaryEnergy = HKObjectType.quantityType(forIdentifier: .dietaryEnergyConsumed),
-              let steps = HKObjectType.quantityType(forIdentifier: .stepCount),
-              let activeEnergy = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)
-        else { return }
+        var typesToRead: Set<HKObjectType> = Set(Self.readTypeIdentifiers.compactMap {
+            HKObjectType.quantityType(forIdentifier: $0)
+        })
+        typesToRead.insert(HKObjectType.workoutType())
 
-        let typesToRead: Set<HKObjectType> = [bodyMass, steps, activeEnergy, HKObjectType.workoutType()]
-        let typesToWrite: Set<HKSampleType> = [water, dietaryEnergy, activeEnergy, HKObjectType.workoutType()]
+        var typesToWrite: Set<HKSampleType> = Set(Self.writeTypeIdentifiers.compactMap {
+            HKObjectType.quantityType(forIdentifier: $0)
+        })
+        typesToWrite.insert(HKObjectType.workoutType())
+
+        guard !typesToRead.isEmpty, !typesToWrite.isEmpty else { return }
 
         let hasRequested = UserDefaults.standard.bool(forKey: hasRequestedKey)
         // Only write types expose real authorizationStatus; prompt if never requested or any write type is still undetermined.
@@ -324,6 +349,38 @@ final class HealthKitManager {
 
         let result = try await query.result(for: healthStore)
         return Int(result?.sumQuantity()?.doubleValue(for: .kilocalorie()) ?? 0)
+    }
+
+    func fetchLatestBodyMassKg() async throws -> Double? {
+        guard HKHealthStore.isHealthDataAvailable(),
+              let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass) else { return nil }
+
+        let descriptor = HKSampleQueryDescriptor<HKQuantitySample>(
+            predicates: [.quantitySample(type: bodyMassType)],
+            sortDescriptors: [SortDescriptor(\.endDate, order: .reverse)],
+            limit: 1
+        )
+        let samples = try await descriptor.result(for: healthStore)
+        guard let latest = samples.first else { return nil }
+        let kg = latest.quantity.doubleValue(for: .gramUnit(with: .kilo))
+        return kg > 0 ? kg : nil
+    }
+
+    @discardableResult
+    func saveBodyMass(kg: Double, date: Date) async -> UUID? {
+        guard kg > 0,
+              let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass),
+              canWrite(bodyMassType) else { return nil }
+
+        let quantity = HKQuantity(unit: .gramUnit(with: .kilo), doubleValue: kg)
+        let sample = HKQuantitySample(type: bodyMassType, quantity: quantity, start: date, end: date)
+        do {
+            try await healthStore.save(sample)
+            return sample.uuid
+        } catch {
+            print("Error saving body mass to HealthKit: \(error.localizedDescription)")
+            return nil
+        }
     }
 
     // Background delivery stub (per healthkit skill). Call once at launch if desired.

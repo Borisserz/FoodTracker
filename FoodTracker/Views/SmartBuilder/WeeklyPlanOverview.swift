@@ -236,10 +236,7 @@ struct WeeklyPlanOverview: View {
         var allIngredients: [String] = []
         for day in (plan.days ?? []) {
             for meal in (day.meals ?? []) {
-                let parts = meal.ingredients.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                for part in parts where !part.isEmpty {
-                    allIngredients.append(part)
-                }
+                allIngredients.append(contentsOf: SmartPlanIngredientParser.split(meal.ingredients))
             }
         }
         
@@ -259,6 +256,17 @@ struct WeeklyPlanOverview: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             withAnimation { showGrocerySuccess = false }
         }
+    }
+}
+
+enum SmartPlanIngredientParser {
+    static func split(_ raw: String) -> [String] {
+        let separators = CharacterSet(charactersIn: ",;\n•")
+        let bulletTrim = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "-*•"))
+        return raw
+            .components(separatedBy: separators)
+            .map { $0.trimmingCharacters(in: bulletTrim) }
+            .filter { !$0.isEmpty }
     }
 }
 

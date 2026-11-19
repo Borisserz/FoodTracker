@@ -635,15 +635,15 @@ struct DetailedMacroRingsCard: View {
         let c = summary.totalCarbs; let targetC = user?.targetCarbs ?? 250
 
         if summary.totalFoodCalories == 0 {
-            return ("Fresh Start", "Log your first meal to see your macro balance.", "leaf.fill", .green)
+            return (String(localized: "Fresh Start"), String(localized: "Log your first meal to see your macro balance."), "leaf.fill", .green)
         } else if p < targetP * 0.4 && summary.totalFoodCalories > 800 {
-            return ("Protein Alert", "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal.", "dumbbell.fill", .themePeach)
+            return (String(localized: "Protein Alert"), String(localized: "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal."), "dumbbell.fill", .themePeach)
         } else if f > targetF {
-            return ("High Fat", "You've exceeded your daily fat limit. Focus on lean proteins and veggies.", "exclamationmark.triangle.fill", .themeYellow)
+            return (String(localized: "High Fat"), String(localized: "You've exceeded your daily fat limit. Focus on lean proteins and veggies."), "exclamationmark.triangle.fill", .themeYellow)
         } else if c < targetC * 0.3 {
-            return ("Low Energy?", "Your carbs are quite low. Complex carbs like oats or rice can boost your energy.", "bolt.fill", .drinkWater)
+            return (String(localized: "Low Energy?"), String(localized: "Your carbs are quite low. Complex carbs like oats or rice can boost your energy."), "bolt.fill", .drinkWater)
         } else {
-            return ("Perfect Balance", "Your macros are looking great today! Keep it up.", "checkmark.seal.fill", .themePink)
+            return (String(localized: "Perfect Balance"), String(localized: "Your macros are looking great today! Keep it up."), "checkmark.seal.fill", .themePink)
         }
     }
 
@@ -1042,6 +1042,25 @@ struct NetRingCard: View {
         .padding(.horizontal, 20)
     }
 }
+enum WeeklyEnergyBankCalculator {
+    static func calculate(
+        summaries: [DailySummary],
+        dailyGoal: Int,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> (bankBalance: Int, loggedDaysCount: Int) {
+        let todayStart = calendar.startOfDay(for: now)
+        let windowStart = calendar.date(byAdding: .day, value: -6, to: todayStart) ?? todayStart
+        let loggedDays = summaries.filter { summary in
+            let day = calendar.startOfDay(for: summary.date)
+            return day >= windowStart && day <= todayStart && summary.totalCalories > 0
+        }
+        let totalNet = loggedDays.reduce(0) { $0 + $1.netCalories }
+        let totalGoal = max(0, dailyGoal) * loggedDays.count
+        return (bankBalance: totalGoal - totalNet, loggedDaysCount: loggedDays.count)
+    }
+}
+
 struct WeeklyEnergyBankCard: View {
     @AppStorage("useMetricSystem") private var useMetricSystem = true
     let summaries: [DailySummary]
@@ -1049,10 +1068,8 @@ struct WeeklyEnergyBankCard: View {
 
     var body: some View {
         let goal = user?.dailyCaloriesGoal ?? 2000
-        let last7Days = summaries.prefix(7)
-        let totalNet = last7Days.reduce(0) { $0 + $1.netCalories }
-        let totalGoal = goal * last7Days.count
-        let bankBalance = totalGoal - totalNet
+        let result = WeeklyEnergyBankCalculator.calculate(summaries: summaries, dailyGoal: goal)
+        let bankBalance = result.bankBalance
 
         VStack(alignment: .leading, spacing: 20) {
             HStack {
@@ -1130,7 +1147,7 @@ struct ActivityIntensityCard: View {
                     Text("Main Source").font(.caption).foregroundColor(.gray)
 
                     let maxVal = max(stepCals, max(appleCals, workoutCals))
-                    let sourceName = maxVal == workoutCals ? "Custom Workouts" : (maxVal == appleCals ? "Apple Fitness" : "Daily Walking")
+                    let sourceName = maxVal == workoutCals ? String(localized: "Custom Workouts") : (maxVal == appleCals ? String(localized: "Apple Fitness") : String(localized: "Daily Walking"))
 
                     Text(sourceName)
                         .font(.headline).foregroundColor(.primary)

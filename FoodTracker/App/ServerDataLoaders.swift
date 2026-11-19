@@ -27,7 +27,12 @@ class DietDataLoader {
         DietPlan.defaultDiets
     }
 
+    static func shouldPreferRemoteCatalog(languageCode: String? = Locale.current.language.languageCode?.identifier) -> Bool {
+        (languageCode ?? "en").lowercased() == "en"
+    }
+
     func fetchDiets() {
+        guard Self.shouldPreferRemoteCatalog() || diets.isEmpty else { return }
         listener?.remove()
         listener = db.collection("diets").addSnapshotListener { [weak self] snapshot, error in
             if let error = error {
@@ -62,7 +67,12 @@ class FastingDataLoader {
         FastingPlan.defaultPlans
     }
 
+    static func shouldPreferRemoteCatalog(languageCode: String? = Locale.current.language.languageCode?.identifier) -> Bool {
+        (languageCode ?? "en").lowercased() == "en"
+    }
+
     func fetchPlans() {
+        guard Self.shouldPreferRemoteCatalog() || plans.isEmpty else { return }
         listener?.remove()
         // Сортируем по часам голодания (от простых к сложным)
         listener = db.collection("fasting_plans").order(by: "fastingHours").addSnapshotListener { [weak self] snapshot, error in

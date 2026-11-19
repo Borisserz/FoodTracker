@@ -135,17 +135,13 @@ class AcademyDataLoader {
 
             guard let documents = snapshot?.documents, !documents.isEmpty else { return }
 
-            do {
-                let fetchedCategories = try documents.compactMap { try $0.data(as: ArticleCategory.self) }
-                guard !fetchedCategories.isEmpty else { return }
+            let fetchedCategories = documents.compactMap { try? $0.data(as: ArticleCategory.self) }
+            guard !fetchedCategories.isEmpty else { return }
 
-                DispatchQueue.main.async {
-                    self.categories = fetchedCategories.sorted { $0.title < $1.title }
-                    self.recalculateProgress()
-                    print("✅ Академия загружена: \(self.categories.count) категорий.")
-                }
-            } catch {
-                print("❌ Ошибка парсинга Академии: \(error)")
+            DispatchQueue.main.async {
+                self.categories = fetchedCategories.sorted { $0.title < $1.title }
+                self.recalculateProgress()
+                print("✅ Академия загружена: \(self.categories.count) категорий.")
             }
         }
     }

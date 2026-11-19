@@ -237,7 +237,6 @@ struct OnboardingView: View {
             GuestWarningView(
                 onStayGuest: {
                     showGuestModal = false
-                    TrackingManager.shared.track(.onboardingCompleted(goal: "guest", diet: "none"))
                     onSuccess()
                 },
                 onSignIn: { showGuestModal = false }

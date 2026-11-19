@@ -171,15 +171,15 @@ class NetworkManager {
             return cached
         }
 
-        print("🔍 Ищем '\(query)' (Язык: \(currentLanguage))")
+        print("🔍 Ищем '\(normalizedQuery)' (Язык: \(currentLanguage))")
 
-        var results = await searchFromOpenFoodFacts(query: query)
+        var results = await searchFromOpenFoodFacts(query: normalizedQuery)
         print("🍏 В Open Food Facts найдено: \(results.count)")
 
         var fatSecretFailed = false
         if results.count < 10 {
             print("⚠️ В OFF мало результатов. Подключаем FatSecret...")
-            let outcome = await searchFromFatSecretOutcome(query: query)
+            let outcome = await searchFromFatSecretOutcome(query: normalizedQuery)
             let fatSecretResults = outcome.items
             fatSecretFailed = outcome.failed
             print("🍔 В FatSecret найдено: \(fatSecretResults.count)")
@@ -191,17 +191,19 @@ class NetworkManager {
             }
         }
 
+        var usedAIFallback = false
         if results.isEmpty && allowAIFallback {
-            print("⚠️ Оба API ничего не нашли. Подключаем ИИ-генерацию для '\(query)'...")
-            TrackingManager.shared.track(.aiChefUsed(queryLength: query.count))
-            if let aiFood = await AINutritionService.shared.generateFoodItem(for: query) {
+            print("⚠️ Оба API ничего не нашли. Подключаем ИИ-генерацию для '\(normalizedQuery)'...")
+            TrackingManager.shared.track(.aiChefUsed(queryLength: normalizedQuery.count))
+            if let aiFood = await AINutritionService.shared.generateFoodItem(for: normalizedQuery) {
                 print("✨ ИИ сгенерировал продукт: \(aiFood.name)")
                 results.append(aiFood)
+                usedAIFallback = true
             }
         }
 
         let capped = Array(results.prefix(20))
-        if !capped.isEmpty && !fatSecretFailed {
+        if !capped.isEmpty && (!fatSecretFailed || usedAIFallback) {
             let snapshots = capped.map { CachedFoodSnapshot(from: $0) }
             let now = Date()
             let expiry = now.addingTimeInterval(searchCacheTTL)
@@ -214,67 +216,152 @@ class NetworkManager {
         return capped
     }
 
+    enum BarcodeFetchOutcome {
+        case found(FoodItem)
+        case notFound
+        case failed(String)
+    }
+
     func fetchProduct(barcode: String) async -> FoodItem? {
+        switch await fetchProductOutcome(barcode: barcode) {
+        case .found(let item):
+            return item
+        case .notFound, .failed:
+            return nil
+        }
+    }
+
+    func fetchProductOutcome(barcode: String) async -> BarcodeFetchOutcome {
         setLastBarcodeLookupError(nil)
         let cacheKey = barcode.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !cacheKey.isEmpty,
-           let cached = cacheLock.withLock({ () -> FoodItem? in
-               guard let entry = barcodeCache[cacheKey], entry.expiresAt > Date() else {
-                   barcodeCache.removeValue(forKey: cacheKey)
-                   return nil
-               }
-               return entry.value.toFoodItem()
-           }) {
-            return cached
+        guard !cacheKey.isEmpty else { return .notFound }
+
+        if let cached = cacheLock.withLock({ () -> FoodItem? in
+            guard let entry = barcodeCache[cacheKey], entry.expiresAt > Date() else {
+                barcodeCache.removeValue(forKey: cacheKey)
+                return nil
+            }
+            return entry.value.toFoodItem()
+        }) {
+            return .found(cached)
         }
 
-        print("🔍 Ищем штрихкод \(barcode)...")
-        var hadNetworkFailure = false
+        print("🔍 Ищем штрихкод \(cacheKey)...")
+        var failureMessage: String?
 
-        switch await fetchBarcodeFromOFF(barcode: barcode) {
+        switch await fetchBarcodeFromOFF(barcode: cacheKey) {
         case .found(let offProduct):
             print("✅ Нашли в Open Food Facts: \(offProduct.name)")
-            if !cacheKey.isEmpty {
-                let snapshot = CachedFoodSnapshot(from: offProduct)
-                let now = Date()
-                let expiry = now.addingTimeInterval(barcodeCacheTTL)
-                cacheLock.withLock {
-                    pruneCache(&barcodeCache, now: now)
-                    barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
-                }
+            let snapshot = CachedFoodSnapshot(from: offProduct)
+            let now = Date()
+            let expiry = now.addingTimeInterval(barcodeCacheTTL)
+            cacheLock.withLock {
+                pruneCache(&barcodeCache, now: now)
+                barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
             }
-            return offProduct
+            return .found(offProduct)
         case .notFound:
             break
         case .failed(let message):
-            hadNetworkFailure = true
+            failureMessage = message
             setLastBarcodeLookupError(message)
         }
 
-        switch await fetchBarcodeFromFatSecretBarcode(barcode: barcode) {
+        switch await fetchBarcodeFromFatSecretBarcode(barcode: cacheKey) {
         case .found(let fatSecretProduct):
             print("✅ Нашли в FatSecret: \(fatSecretProduct.name)")
             setLastBarcodeLookupError(nil)
-            if !cacheKey.isEmpty {
-                let snapshot = CachedFoodSnapshot(from: fatSecretProduct)
-                let now = Date()
-                let expiry = now.addingTimeInterval(barcodeCacheTTL)
-                cacheLock.withLock {
-                    pruneCache(&barcodeCache, now: now)
-                    barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
-                }
+            let snapshot = CachedFoodSnapshot(from: fatSecretProduct)
+            let now = Date()
+            let expiry = now.addingTimeInterval(barcodeCacheTTL)
+            cacheLock.withLock {
+                pruneCache(&barcodeCache, now: now)
+                barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
             }
-            return fatSecretProduct
+            return .found(fatSecretProduct)
         case .notFound:
-            if !hadNetworkFailure {
-                setLastBarcodeLookupError(nil)
+            if let failureMessage {
+                setLastBarcodeLookupError(failureMessage)
+                return .failed(failureMessage)
             }
+            setLastBarcodeLookupError(nil)
         case .failed(let message):
             setLastBarcodeLookupError(message)
+            return .failed(message)
         }
 
         print("❌ Продукт по штрихкоду не найден.")
+        return .notFound
+    }
+
+    private func extractOpenFoodFactsProductName(from product: [String: Any]) -> String? {
+        let lang = Locale.current.language.languageCode?.identifier.lowercased() ?? "en"
+        let candidateKeys = [
+            "product_name",
+            "product_name_\(lang)",
+            "product_name_en",
+            "product_name_ru",
+            "product_name_de",
+            "product_name_es",
+            "product_name_fr",
+            "product_name_it",
+            "product_name_pt",
+            "generic_name"
+        ]
+        for key in candidateKeys {
+            if let raw = product[key] as? String {
+                let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    return trimmed
+                }
+            }
+        }
         return nil
+    }
+
+    private func extractOpenFoodFactsItem(from product: [String: Any]) -> FoodItem? {
+        guard let name = extractOpenFoodFactsProductName(from: product) else { return nil }
+        let nuts = product["nutriments"] as? [String: Any] ?? [:]
+
+        var cals = parseDouble(nuts["energy-kcal_100g"])
+        if cals == 0 { cals = parseDouble(nuts["energy_100g"]) / 4.184 }
+        var protein = parseDouble(nuts["proteins_100g"])
+        var fat = parseDouble(nuts["fat_100g"])
+        var carbs = parseDouble(nuts["carbohydrates_100g"])
+        var weight = 100.0
+
+        // US UPC & catalog entries on Open Food Facts often populate *_serving without *_100g.
+        if cals <= 0 && protein <= 0 && fat <= 0 && carbs <= 0 {
+            var servingCals = parseDouble(nuts["energy-kcal_serving"])
+            if servingCals == 0 { servingCals = parseDouble(nuts["energy_serving"]) / 4.184 }
+            let servingProtein = parseDouble(nuts["proteins_serving"])
+            let servingFat = parseDouble(nuts["fat_serving"])
+            let servingCarbs = parseDouble(nuts["carbohydrates_serving"])
+            guard servingCals > 0 || servingProtein > 0 || servingFat > 0 || servingCarbs > 0 else {
+                return nil
+            }
+            cals = servingCals
+            protein = servingProtein
+            fat = servingFat
+            carbs = servingCarbs
+
+            let qty = parseServingWeight(product["serving_quantity"])
+            if qty > 0 {
+                weight = qty
+            } else {
+                let sizeQty = parseServingWeight(product["serving_size"])
+                if sizeQty > 0 { weight = sizeQty }
+            }
+        }
+
+        return FoodItem(
+            name: name,
+            weight: weight,
+            calories: Int(cals.rounded()),
+            protein: protein,
+            fats: fat,
+            carbs: carbs
+        )
     }
 
     private func searchFromOpenFoodFacts(query: String) async -> [FoodItem] {
@@ -298,24 +385,7 @@ class NetworkManager {
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let products = json["products"] as? [[String: Any]] else { return [] }
 
-            var items: [FoodItem] = []
-            for p in products {
-                guard let name = p["product_name"] as? String ?? p["product_name_ru"] as? String ?? p["product_name_en"] as? String, !name.isEmpty else { continue }
-
-                let nuts = p["nutriments"] as? [String: Any] ?? [:]
-
-                var cals = parseDouble(nuts["energy-kcal_100g"])
-                if cals == 0 { cals = parseDouble(nuts["energy_100g"]) / 4.184 }
-
-                let protein = parseDouble(nuts["proteins_100g"])
-                let fat = parseDouble(nuts["fat_100g"])
-                let carbs = parseDouble(nuts["carbohydrates_100g"])
-
-                if cals > 0 || protein > 0 || fat > 0 || carbs > 0 {
-                    items.append(FoodItem(name: name, weight: 100.0, calories: Int(cals.rounded()), protein: protein, fats: fat, carbs: carbs))
-                }
-            }
-            return items
+            return products.compactMap { extractOpenFoodFactsItem(from: $0) }
         } catch { return [] }
     }
 
@@ -349,44 +419,11 @@ class NetworkManager {
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let status = json["status"] as? Int, status == 1,
                   let p = json["product"] as? [String: Any],
-                  let name = p["product_name"] as? String ?? p["product_name_ru"] as? String ?? p["product_name_en"] as? String, !name.isEmpty else {
+                  let item = extractOpenFoodFactsItem(from: p) else {
                 return .notFound
             }
 
-            let nuts = p["nutriments"] as? [String: Any] ?? [:]
-            var cals = parseDouble(nuts["energy-kcal_100g"])
-            if cals == 0 { cals = parseDouble(nuts["energy_100g"]) / 4.184 }
-            var protein = parseDouble(nuts["proteins_100g"])
-            var fat = parseDouble(nuts["fat_100g"])
-            var carbs = parseDouble(nuts["carbohydrates_100g"])
-            var weight = 100.0
-
-            // US UPC entries on Open Food Facts often populate *_serving without *_100g.
-            if cals <= 0 && protein <= 0 && fat <= 0 && carbs <= 0 {
-                var servingCals = parseDouble(nuts["energy-kcal_serving"])
-                if servingCals == 0 { servingCals = parseDouble(nuts["energy_serving"]) / 4.184 }
-                let servingProtein = parseDouble(nuts["proteins_serving"])
-                let servingFat = parseDouble(nuts["fat_serving"])
-                let servingCarbs = parseDouble(nuts["carbohydrates_serving"])
-                if servingCals > 0 || servingProtein > 0 || servingFat > 0 || servingCarbs > 0 {
-                    cals = servingCals
-                    protein = servingProtein
-                    fat = servingFat
-                    carbs = servingCarbs
-                    let qty = parseServingWeight(p["serving_quantity"])
-                    if qty > 0 {
-                        weight = qty
-                    } else {
-                        let sizeQty = parseServingWeight(p["serving_size"])
-                        if sizeQty > 0 { weight = sizeQty }
-                    }
-                } else {
-                    // Do not return an all-zero product before FatSecret gets a chance.
-                    return .notFound
-                }
-            }
-
-            return .found(FoodItem(name: name, weight: weight, calories: Int(cals.rounded()), protein: protein, fats: fat, carbs: carbs))
+            return .found(item)
         } catch {
             return .failed(error.localizedDescription)
         }
@@ -484,7 +521,8 @@ class NetworkManager {
                     continue
                 }
                 if http.statusCode == 429 {
-                    return .failed(String(localized: "Search limit reached. Please try again shortly."))
+                    let retryAfter = GeminiProxyClient.extractRetryAfter(httpResponse: http, data: data)
+                    return .failed(AIResponseParsing.rateLimitMessage(retryAfter: retryAfter))
                 }
                 guard http.statusCode == 200 else {
                     return .failed(String(localized: "Barcode database temporarily unavailable (HTTP \(http.statusCode))."))

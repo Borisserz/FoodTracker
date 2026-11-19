@@ -164,8 +164,27 @@ struct CalendarCarouselView: View {
             if newPhase == .active {
                 let freshStart = Calendar.current.startOfDay(for: Date())
                 if freshStart != currentDayStart {
+                    selectedDate = MidnightRolloverHelper.resolvedSelection(
+                        selectedDate: selectedDate,
+                        previousDayStart: currentDayStart,
+                        newDayStart: freshStart
+                    )
                     currentDayStart = freshStart
                 }
+            }
+        }
+        .task(id: currentDayStart) {
+            let delay = MidnightRolloverHelper.secondsUntilNextMidnight()
+            try? await Task.sleep(for: .seconds(delay))
+            guard !Task.isCancelled else { return }
+            let freshStart = Calendar.current.startOfDay(for: Date())
+            if freshStart != currentDayStart {
+                selectedDate = MidnightRolloverHelper.resolvedSelection(
+                    selectedDate: selectedDate,
+                    previousDayStart: currentDayStart,
+                    newDayStart: freshStart
+                )
+                currentDayStart = freshStart
             }
         }
     }

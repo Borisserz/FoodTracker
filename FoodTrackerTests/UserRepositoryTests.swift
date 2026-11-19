@@ -33,4 +33,24 @@ final class UserRepositoryTests: XCTestCase {
             XCTAssertEqual(fetchedUser?.weight, 80)
         }
     }
+
+    func testFetchUserDeduplicatesMultipleUsersToPrimary() async throws {
+        await MainActor.run {
+            let defaultAlex = User(name: "Alex", weight: 75, height: 180, age: 28)
+            let customized = User(name: "Boris", weight: 82, height: 183, age: 30)
+            customized.totalXP = 450
+            customized.dailyCaloriesGoal = 2450
+            container.mainContext.insert(defaultAlex)
+            container.mainContext.insert(customized)
+            try? container.mainContext.save()
+        }
+
+        let repository = UserRepository(modelContainer: container)
+        let fetched = try await repository.fetchUser()
+        await MainActor.run {
+            XCTAssertEqual(fetched?.name, "Boris")
+            let all = (try? container.mainContext.fetch(FetchDescriptor<User>())) ?? []
+            XCTAssertEqual(all.count, 1)
+        }
+    }
 }

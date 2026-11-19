@@ -1,6 +1,55 @@
 import SwiftUI
 import SwiftData
 
+enum MidnightRolloverHelper {
+    static func resolvedSelection(
+        selectedDate: Date,
+        previousDayStart: Date,
+        newDayStart: Date,
+        calendar: Calendar = .current
+    ) -> Date {
+        if calendar.isDate(selectedDate, inSameDayAs: previousDayStart) {
+            return newDayStart
+        }
+        return selectedDate
+    }
+
+    static func secondsUntilNextMidnight(from now: Date = Date(), calendar: Calendar = .current) -> TimeInterval {
+        let startOfToday = calendar.startOfDay(for: now)
+        let nextMidnight = calendar.date(byAdding: .day, value: 1, to: startOfToday) ?? now.addingTimeInterval(86_400)
+        return max(1.0, nextMidnight.timeIntervalSince(now) + 1.0)
+    }
+}
+
+enum HomeDashboardHealthSync {
+    static func pendingWidgetWaterFlushDates(
+        selectedDate: Date,
+        today: Date = Date(),
+        calendar: Calendar = .current
+    ) -> [Date] {
+        let selectedStart = calendar.startOfDay(for: selectedDate)
+        let todayStart = calendar.startOfDay(for: today)
+        if calendar.isDate(selectedStart, inSameDayAs: todayStart) {
+            return [selectedStart]
+        }
+        return [selectedStart, todayStart]
+    }
+
+    static func shouldPersistSummary(
+        existingSummary: DailySummary?,
+        workoutCalories: Int,
+        activeCaloriesBurned: Int,
+        stepsCount: Int,
+        sharedWaterLiters: Double?,
+        pendingWidgetWaterEntriesLiters: [Double]
+    ) -> Bool {
+        if existingSummary != nil { return true }
+        if workoutCalories > 0 || activeCaloriesBurned > 0 || stepsCount > 0 { return true }
+        if let sharedWaterLiters, sharedWaterLiters > 0.01 { return true }
+        return pendingWidgetWaterEntriesLiters.contains(where: { $0 > 0 })
+    }
+}
+
 // SharedUI components (BounceButtonStyle, UltraPremiumCardModifier) are now available globally
 
 struct HomeDashboardView: View {
@@ -54,14 +103,6 @@ struct HomeDashboardContentView: View {
         }
     }
 
-    private func ensureCurrentSummary() async {
-        // Ensure canonical summary on the view's mainContext so @Query and child bindings stay attached for any selectedDate.
-        _ = DailySummary.fetchOrCreate(for: selectedDate, in: context)
-        if context.hasChanges {
-            try? context.save()
-        }
-    }
-
     private func getRecommendedCalories(for mealType: String) -> Int {
         let goal = Double(currentUser?.dailyCaloriesGoal ?? 2000)
         switch mealType {
@@ -101,11 +142,9 @@ struct HomeDashboardContentView: View {
                       .ignoresSafeArea()
                   }
 
-                  // Ensure canonical summary whenever selectedDate changes, then sync HealthKit onto that persisted summary
+                  // Sync HealthKit & WorkoutTracker whenever selectedDate changes without creating empty DailySummary rows on browse
                   .task(id: selectedDate) {
-                      await ensureCurrentSummary()
-                      let persisted = DailySummary.fetchOrCreate(for: selectedDate, in: context)
-                      await fetchHealthData(for: persisted)
+                      await fetchHealthData(for: selectedDate)
                   }
 
                   ScrollViewReader { scrollProxy in
@@ -315,19 +354,34 @@ struct HomeDashboardContentView: View {
                   if newPhase == .active {
                       let todayStart = Calendar.current.startOfDay(for: Date())
                       if todayStart != lastActiveDayStart {
-                          if Calendar.current.isDate(selectedDate, inSameDayAs: lastActiveDayStart) {
-                              selectedDate = todayStart
-                          }
+                          selectedDate = MidnightRolloverHelper.resolvedSelection(
+                              selectedDate: selectedDate,
+                              previousDayStart: lastActiveDayStart,
+                              newDayStart: todayStart
+                          )
                           lastActiveDayStart = todayStart
                       }
-                      let persisted = DailySummary.fetchOrCreate(for: selectedDate, in: context)
-                      Task { await fetchHealthData(for: persisted) }
+                      Task { await fetchHealthData(for: selectedDate) }
+                  }
+              }
+              .task(id: lastActiveDayStart) {
+                  let delay = MidnightRolloverHelper.secondsUntilNextMidnight()
+                  try? await Task.sleep(for: .seconds(delay))
+                  guard !Task.isCancelled else { return }
+                  let freshStart = Calendar.current.startOfDay(for: Date())
+                  if freshStart != lastActiveDayStart {
+                      selectedDate = MidnightRolloverHelper.resolvedSelection(
+                          selectedDate: selectedDate,
+                          previousDayStart: lastActiveDayStart,
+                          newDayStart: freshStart
+                      )
+                      lastActiveDayStart = freshStart
+                      await fetchHealthData(for: selectedDate)
                   }
               }
               .onChange(of: HealthKitManager.shared.isAuthorized) { _, isAuth in
                   if isAuth {
-                      let persisted = DailySummary.fetchOrCreate(for: selectedDate, in: context)
-                      Task { await fetchHealthData(for: persisted) }
+                      Task { await fetchHealthData(for: selectedDate) }
                   }
               }
               .navigationDestination(isPresented: $navigateToProfile) { ProfileWrapperView() }
@@ -369,7 +423,7 @@ struct HomeDashboardContentView: View {
                   AddMealView(selectedDate: selectedDate, initialMealType: mealInfo.value)
               }
               .fullScreenCover(isPresented: $showingScanner) {
-                  let remainingCals = max(0, (currentUser?.dailyCaloriesGoal ?? 2000) - Int(currentSummary.totalCalories))
+                  let remainingCals = max(0, currentSummary.remainingCalories(userGoal: currentUser?.dailyCaloriesGoal ?? 2000))
                   let remainingProt = max(0, Int(currentUser?.targetProtein ?? 130) - Int(currentSummary.totalProtein))
                   SmartScannerView(
                       onProductFound: { foundFood in selectedFoodForDetail = foundFood },
@@ -394,16 +448,48 @@ struct HomeDashboardContentView: View {
           }
       }
 
-    private func fetchHealthData(for summary: DailySummary) async {
-            let persistedSummary = DailySummary.fetchOrCreate(for: summary.date, in: context)
-            let targetDate = persistedSummary.date
+    private func fetchHealthData(for targetDateInput: Date) async {
+            let targetDate = Calendar.current.startOfDay(for: targetDateInput)
             let isHKEnabled = currentUser?.isHealthKitEnabled == true
 
-            let wtAppGroupCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: targetDate)
-            let localCals = persistedSummary.localActivityCalories
+            // Flush any queued widget hydration deltas (including today's when browsing a past date) as distinct HealthKit samples.
+            var selectedDayPendingEntries: [Double] = []
+            if isHKEnabled {
+                let flushDates = HomeDashboardHealthSync.pendingWidgetWaterFlushDates(selectedDate: targetDate)
+                for flushDate in flushDates {
+                    let entries = WorkoutSyncManager.shared.consumePendingWidgetWaterEntriesLiters(for: flushDate)
+                    if Calendar.current.isDate(flushDate, inSameDayAs: targetDate) {
+                        selectedDayPendingEntries = entries
+                    }
+                    guard !entries.isEmpty else { continue }
+                    let flushSummary = await MainActor.run {
+                        DailySummary.fetchOrCreate(for: flushDate, in: context)
+                    }
+                    let sampleDate = Calendar.current.isDateInToday(flushDate) ? Date() : flushDate
+                    var attachedAny = false
+                    for entryLiters in entries {
+                        if let sampleUUID = await HealthKitManager.shared.saveWater(liters: entryLiters, date: sampleDate) {
+                            let attached = await MainActor.run {
+                                WorkoutSyncManager.attachHealthKitSampleID(sampleUUID, volumeLiters: entryLiters, to: flushSummary)
+                            }
+                            if attached { attachedAny = true }
+                        }
+                    }
+                    if attachedAny {
+                        await MainActor.run { try? context.save() }
+                    }
+                }
+            }
 
-            var fetchedSteps = persistedSummary.stepsCount
-            var hkTotalActiveCals = persistedSummary.activeCaloriesBurned
+            let existingSummary = await MainActor.run {
+                DailySummary.fetchExisting(for: targetDate, in: context)
+            }
+            let wtAppGroupCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: targetDate)
+            let sharedWater = WorkoutSyncManager.shared.fetchWaterLiters(for: targetDate)
+            let localCals = existingSummary?.localActivityCalories ?? 0
+
+            var fetchedSteps = existingSummary?.stepsCount ?? 0
+            var hkTotalActiveCals = existingSummary?.activeCaloriesBurned ?? 0
             var hkWorkoutBreakdown = HealthKitManager.ExternalWorkoutCaloriesBreakdown(
                 workoutTrackerCalories: 0,
                 otherExternalCalories: 0
@@ -421,6 +507,29 @@ struct HomeDashboardContentView: View {
                 do {
                     hkWorkoutBreakdown = try await HealthKitManager.shared.fetchExternalWorkoutBreakdown(for: targetDate)
                 } catch { print("HK workout cals error: \(error)") }
+
+                if Calendar.current.isDateInToday(targetDate),
+                   let hkWeight = try? await HealthKitManager.shared.fetchLatestBodyMassKg() {
+                    await MainActor.run {
+                        guard let user = currentUser else { return }
+                        let sameDayLog = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)])))?
+                            .first(where: { Calendar.current.isDate($0.date, inSameDayAs: targetDate) })
+                        if HealthKitWeightSyncHelper.shouldImportHealthKitWeight(
+                            latestHKWeightKg: hkWeight,
+                            currentUserWeightKg: user.weight,
+                            existingSameDayLogWeightKg: sameDayLog?.weight
+                        ) {
+                            NutritionMath.recordWeight(
+                                hkWeight,
+                                date: targetDate,
+                                for: user,
+                                in: context,
+                                recalculateUserGoals: true,
+                                syncToHealthKit: false
+                            )
+                        }
+                    }
+                }
             }
 
             let reconciled = WorkoutSyncManager.computeDailyBurn(
@@ -433,22 +542,33 @@ struct HomeDashboardContentView: View {
                 isHealthKitEnabled: isHKEnabled
             )
 
-            let pendingWidgetWaterLiters = isHKEnabled
-                ? WorkoutSyncManager.shared.consumePendingWidgetWaterLiters(for: targetDate)
-                : 0.0
-            if pendingWidgetWaterLiters > 0 {
-                if let sampleUUID = await HealthKitManager.shared.saveWater(liters: pendingWidgetWaterLiters, date: Date()) {
-                    await MainActor.run {
-                        if let untaggedWater = (persistedSummary.beverages ?? []).last(where: { $0.name == "Water" && $0.healthKitSampleID == nil }) {
-                            untaggedWater.healthKitSampleID = sampleUUID.uuidString
-                            try? context.save()
+            let shouldPersist = HomeDashboardHealthSync.shouldPersistSummary(
+                existingSummary: existingSummary,
+                workoutCalories: reconciled.workoutCalories,
+                activeCaloriesBurned: reconciled.activeCaloriesBurned,
+                stepsCount: reconciled.stepsCount,
+                sharedWaterLiters: sharedWater,
+                pendingWidgetWaterEntriesLiters: selectedDayPendingEntries
+            )
+            guard shouldPersist else { return }
+
+            await MainActor.run {
+                let persistedSummary = existingSummary ?? DailySummary.fetchOrCreate(for: targetDate, in: context)
+                let waterOutcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(for: persistedSummary, in: context)
+                var needsSave = waterOutcome.mutated
+
+                if isHKEnabled && !waterOutcome.deletedHealthKitSamples.isEmpty {
+                    let deletedSamples = waterOutcome.deletedHealthKitSamples
+                    Task {
+                        for sample in deletedSamples {
+                            await HealthKitManager.shared.deleteWaterSample(
+                                idString: sample.sampleID,
+                                litersFallback: sample.volumeMl / 1000.0,
+                                date: targetDate
+                            )
                         }
                     }
                 }
-            }
-
-            await MainActor.run {
-                var needsSave = WorkoutSyncManager.shared.reconcileWater(for: persistedSummary, in: context)
 
                 if persistedSummary.workoutCalories != reconciled.workoutCalories {
                     persistedSummary.workoutCalories = reconciled.workoutCalories
@@ -559,7 +679,10 @@ struct HomeDashboardContentView: View {
         guard let user = currentUser else { return }
         guard NutritionMath.claimFinishDayXP(for: selectedDate) else {
             HapticManager.shared.impact(style: .light)
-            finishDayAlertMessage = String(localized: "Daily XP has already been claimed for this date.")
+            let isEligibleWindow = Calendar.current.isDateInToday(selectedDate) || Calendar.current.isDateInYesterday(selectedDate)
+            finishDayAlertMessage = isEligibleWindow
+                ? String(localized: "Daily XP has already been claimed for this date.")
+                : String(localized: "Daily XP can only be claimed for today or yesterday.")
             return
         }
 
@@ -1192,17 +1315,6 @@ private struct ActivityRing: View {
     }
 }
 
-private struct RingLegend: View {
-    let color: Color; let title: String; let value: Double; let unit: String
-    var body: some View {
-        VStack(spacing: 4) {
-            Circle().fill(color).frame(width: 8, height: 8)
-            Text(title).font(.caption).foregroundColor(.gray)
-            Text("\(value, specifier: "%.1f")\(unit)").font(.subheadline.bold())
-        }
-    }
-}
-
 struct ActionSearchBar: View {
     @Binding var text: String
     var onBarcodeTap: () -> Void
@@ -1265,72 +1377,6 @@ struct ActionSearchBar: View {
         }
     }
 }
-struct InteractiveFoodRow: View {
-    let food: FoodItem
-    let isSelected: Bool
-    @State private var weight: Double
-    let action: () -> Void
-
-    init(food: FoodItem, isSelected: Bool, action: @escaping () -> Void) {
-        self.food = food
-        self.isSelected = isSelected
-        self.action = action
-        self._weight = State(initialValue: food.weight)
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Button(action: action) {
-                HStack(spacing: 16) {
-                    Text("🥘")
-                        .font(.system(size: 24))
-                        .frame(width: 44, height: 44)
-                        .background(isSelected ? Color.white : Color.gray.opacity(0.05))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(food.name).font(.system(size: 17, weight: .semibold, design: .rounded)).foregroundColor(.primary)
-                        let currentCals = food.weight > 0 ? Int(((Double(food.calories) / food.weight) * weight).rounded()) : food.calories
-                        Text("\(currentCals) kcal • \(Int(weight))g").font(.system(size: 14, weight: .medium, design: .rounded)).foregroundColor(isSelected ? .themePink : .gray)
-                    }
-                    Spacer()
-                    ZStack {
-                        Circle().fill(isSelected ? Color.themePink : Color.gray.opacity(0.1)).frame(width: 32, height: 32)
-                        Image(systemName: isSelected ? "checkmark" : "plus").font(.system(size: 14, weight: .black)).foregroundColor(isSelected ? .white : .themePink)
-                    }
-                }.padding(16)
-            }.buttonStyle(PlainButtonStyle())
-
-            if isSelected {
-                HStack(spacing: 20) {
-                    HStack {
-                        Button(action: { weight = max(10, weight - 10); HapticManager.shared.impact(style: .light) }) { Image(systemName: "minus.circle.fill").foregroundColor(.gray.opacity(0.3)) }
-                        Text("\(Int(weight)) g").font(.system(size: 15, weight: .bold, design: .monospaced)).frame(width: 70)
-                        Button(action: { weight += 10; HapticManager.shared.impact(style: .light) }) { Image(systemName: "plus.circle.fill").foregroundColor(.gray.opacity(0.3)) }
-                    }
-                    Spacer()
-                    HStack(spacing: 8) {
-                        ForEach([100, 200, 300], id: \.self) { val in
-                            Button(action: { withAnimation(.spring()) { weight = Double(val) }; HapticManager.shared.impact(style: .medium) }) {
-                                Text("\(val)").font(.system(size: 12, weight: .bold)).padding(.horizontal, 8).padding(.vertical, 4).background(weight == Double(val) ? Color.themePink.opacity(0.2) : Color.gray.opacity(0.1)).cornerRadius(8)
-                            }
-                        }
-                    }
-                }.padding(.horizontal, 16).padding(.bottom, 16).transition(.move(edge: .top).combined(with: .opacity))
-            }
-        }.background(Color.white).cornerRadius(24).overlay(RoundedRectangle(cornerRadius: 24).stroke(isSelected ? Color.themePink.opacity(0.3) : Color.clear, lineWidth: 2)).shadow(color: isSelected ? Color.themePink.opacity(0.1) : Color.black.opacity(0.03), radius: 10, y: 5).padding(.horizontal, 4)
-    }
-}
-
-struct MacroText: View {
-    let title: String; let value: Double; let color: Color
-    var body: some View {
-        HStack(spacing: 2) {
-            Text(title).font(.system(size: 10, weight: .bold)).foregroundColor(color)
-            Text("\(Int(value))g").font(.system(size: 11, weight: .medium)).foregroundColor(.gray)
-        }
-    }
-}
 
 struct FloatingCartButton: View {
     let count: Int; let calories: Int; let action: () -> Void
@@ -1349,11 +1395,6 @@ struct FloatingCartButton: View {
             }.padding(.horizontal, 20).padding(.bottom, 30)
         }
     }
-}
-
-struct MacroDot: View {
-    let color: Color; let val: Double
-    var body: some View { VStack(spacing: 2) { Circle().fill(color).frame(width: 6, height: 6); Text("\(Int(val))").font(.system(size: 10, weight: .bold)).foregroundColor(.gray) } }
 }
 
 struct FoodSearchResultRow: View {
@@ -1877,6 +1918,7 @@ struct SmartAddFoodView: View {
 
     @State private var selectedFoodForDetail: FoodItem? = nil
     let mealTitle: String
+    var targetDate: Date = Date()
     var onSave: ([FoodItem]) -> Void
 
     @State private var showingScanner = false
@@ -1885,6 +1927,7 @@ struct SmartAddFoodView: View {
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
 
+    @State private var localCatalogResults: [FoodItem] = []
     @State private var apiSearchResults: [FoodItem] = []
     @State private var isSearchingAPI = false
     @State private var searchTask: Task<Void, Never>? = nil
@@ -1898,29 +1941,35 @@ struct SmartAddFoodView: View {
     }
 
     var filteredLocalFoods: [FoodItem] {
-        var items: [FoodItem]
+        let trimmedSearch = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedSearch.isEmpty {
+            var seen = Set<String>()
+            var combined: [FoodItem] = []
+            for item in cachedAvailableFoods + customRecipes.map({ $0.toFoodItem() }) {
+                if item.name.localizedCaseInsensitiveContains(trimmedSearch),
+                   seen.insert(item.name.lowercased()).inserted {
+                    combined.append(item)
+                }
+            }
+            return combined
+        }
 
         switch selectedCategory {
         case "Recent":
-            items = cachedAvailableFoods
+            return cachedAvailableFoods
         case "Frequent":
-            items = cachedAvailableFoods.sorted {
+            return cachedAvailableFoods.sorted {
                 let c0 = cachedFoodCounts[$0.name] ?? 0
                 let c1 = cachedFoodCounts[$1.name] ?? 0
                 return c0 != c1 ? c0 > c1 : $0.name < $1.name
             }
         case "Favorites":
-            items = cachedAvailableFoods.filter { (cachedFoodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
+            return cachedAvailableFoods.filter { (cachedFoodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
         case "My Recipes":
-            items = customRecipes.map { $0.toFoodItem() }.sorted { $0.name < $1.name }
+            return customRecipes.map { $0.toFoodItem() }.sorted { $0.name < $1.name }
         default:
-            items = cachedAvailableFoods
+            return cachedAvailableFoods
         }
-
-        if !searchText.isEmpty {
-            items = items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-        return items
     }
 
     private func rebuildFoodCaches() {
@@ -2024,12 +2073,19 @@ struct SmartAddFoodView: View {
                                     }
                                 }
 
+                                if !localCatalogResults.isEmpty {
+                                    Text("Local database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                                    ForEach(localCatalogResults, id: \.id) { food in
+                                        FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
+                                    }
+                                }
+
                                 if !apiSearchResults.isEmpty {
                                     Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
                                     ForEach(apiSearchResults, id: \.id) { food in
                                         FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
                                     }
-                                } else if filteredLocalFoods.isEmpty {
+                                } else if filteredLocalFoods.isEmpty && localCatalogResults.isEmpty {
 
                                     VStack(spacing: 16) {
                                         Image(systemName: "questionmark.folder.fill").font(.system(size: 48)).foregroundColor(.themeOrange.opacity(0.5))
@@ -2097,17 +2153,14 @@ struct SmartAddFoodView: View {
             }
         }
         .fullScreenCover(isPresented: $showingScanner) {
-            let todayStart = Calendar.current.startOfDay(for: Date())
-            let tomorrowStart = Calendar.current.date(byAdding: .day, value: 1, to: todayStart) ?? todayStart
-            let todaySummary = (try? context.fetch(FetchDescriptor<DailySummary>(predicate: #Predicate { $0.date >= todayStart && $0.date < tomorrowStart })).first)
-            let user = (try? context.fetch(FetchDescriptor<User>()).first)
-            let remainingCals = max(0, (user?.dailyCaloriesGoal ?? 2000) - Int(todaySummary?.totalCalories ?? 0))
-            let remainingProt = max(0, Int(user?.targetProtein ?? 130) - Int(todaySummary?.totalProtein ?? 0))
+            let daySummary = DailySummary.fetchExisting(for: targetDate, in: context)
+            let user = User.deduplicatedPrimary(in: context)
+            let remaining = NutritionMath.remainingMacros(user: user, summary: daySummary)
             SmartScannerView(
                 onProductFound: { foundFood in selectedFoodForDetail = foundFood },
                 onManualEntryRequest: { showingManualAdd = true },
-                remainingCalories: remainingCals,
-                remainingProtein: remainingProt
+                remainingCalories: remaining.calories,
+                remainingProtein: remaining.protein
             )
         }
         .sheet(isPresented: $showingManualAdd) {
@@ -2124,13 +2177,15 @@ struct SmartAddFoodView: View {
         searchTask?.cancel()
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
+            localCatalogResults = []
             apiSearchResults = []
             isSearchingAPI = false
             return
         }
 
         let localResults = LocalFoodDatabaseService.shared.search(query: trimmed, limit: 20)
-        apiSearchResults = localResults
+        localCatalogResults = localResults
+        apiSearchResults = []
 
         guard trimmed.count > 2 else {
             isSearchingAPI = false
@@ -2151,7 +2206,7 @@ struct SmartAddFoodView: View {
                     guard !Task.isCancelled else { return }
                     let existingNames = Set(localResults.map { $0.name.lowercased() })
                     let uniqueRemote = remoteResults.filter { !existingNames.contains($0.name.lowercased()) }
-                    self.apiSearchResults = localResults + uniqueRemote
+                    self.apiSearchResults = uniqueRemote
                     self.isSearchingAPI = false
                 }
             } catch {

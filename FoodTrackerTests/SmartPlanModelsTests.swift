@@ -87,4 +87,40 @@ final class SmartPlanModelsTests: XCTestCase {
         XCTAssertEqual(stepRecipe.fat, 0)
         XCTAssertEqual(stepRecipe.carbs, 0)
     }
+
+    func testSmartPlanBuilderDefaultsIngredientParserAndCompletenessCheck() {
+        XCTAssertTrue(SmartPlanBuilderConfig.complexities.contains(SmartPlanBuilderConfig.defaultComplexity))
+        XCTAssertEqual(SmartPlanBuilderConfig.defaultComplexity, "Medium (30m)")
+
+        let rawIngredients = "200g Chicken\n- 1 tbsp olive oil; Salt • Pepper, Garlic\n* Herbs"
+        let parsed = SmartPlanIngredientParser.split(rawIngredients)
+        XCTAssertEqual(parsed, ["200g Chicken", "1 tbsp olive oil", "Salt", "Pepper", "Garlic", "Herbs"])
+
+        let sampleMeal = AIWeeklyPlanItemDTO(
+            title: "Eggs",
+            type: "Breakfast",
+            calories: 350,
+            protein: 24,
+            carbs: 4,
+            fat: 26,
+            ingredients: "Eggs",
+            instructions: "Cook",
+            prepTimeMinutes: 10
+        )
+        let incompleteDays = (0..<6).map {
+            AIWeeklyPlanDayDTO(dayIndex: $0, totalCalories: 2000, totalProtein: 150, totalCarbs: 200, totalFat: 65, meals: [sampleMeal])
+        }
+        XCTAssertFalse(AINutritionService.isCompleteWeeklyPlan(incompleteDays))
+
+        var emptyMealDay = (0..<7).map {
+            AIWeeklyPlanDayDTO(dayIndex: $0, totalCalories: 2000, totalProtein: 150, totalCarbs: 200, totalFat: 65, meals: [sampleMeal])
+        }
+        emptyMealDay[3] = AIWeeklyPlanDayDTO(dayIndex: 3, totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0, meals: [])
+        XCTAssertFalse(AINutritionService.isCompleteWeeklyPlan(emptyMealDay))
+
+        let completeDays = (0..<7).map {
+            AIWeeklyPlanDayDTO(dayIndex: $0, totalCalories: 2000, totalProtein: 150, totalCarbs: 200, totalFat: 65, meals: [sampleMeal])
+        }
+        XCTAssertTrue(AINutritionService.isCompleteWeeklyPlan(completeDays))
+    }
 }

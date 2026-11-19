@@ -55,6 +55,13 @@ final class AppStateManagerTests: XCTestCase {
         XCTAssertTrue(state.handleWidgetURL(URL(string: "foodtracker://fasting")!))
         XCTAssertEqual(state.requestedWidgetAction, "fasting")
 
+        XCTAssertTrue(state.handleWidgetURL(URL(string: "foodtracker://")!))
+        XCTAssertEqual(state.selectedTab, 0)
+        XCTAssertNil(state.requestedWidgetAction)
+
+        XCTAssertEqual(CrossAppLinkResolver.workoutTrackerAppURL.absoluteString, "workouttracker://")
+        XCTAssertEqual(CrossAppLinkResolver.workoutTrackerStoreURL.absoluteString, "https://apps.apple.com/app/id6774895106")
+
         XCTAssertFalse(state.handleWidgetURL(URL(string: "https://example.com/other")!))
     }
 }

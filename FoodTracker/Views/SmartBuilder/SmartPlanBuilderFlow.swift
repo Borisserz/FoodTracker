@@ -2,6 +2,12 @@ import SwiftUI
 import SwiftData
 import Combine
 
+enum SmartPlanBuilderConfig {
+    static let dietTypes = ["Any", "Keto", "Vegan", "Paleo", "Mediterranean"]
+    static let complexities = ["Fast (15m)", "Medium (30m)", "Chef (60m)"]
+    static let defaultComplexity = "Medium (30m)"
+}
+
 struct SmartPlanBuilderFlow: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
@@ -11,14 +17,14 @@ struct SmartPlanBuilderFlow: View {
     @State private var currentStep = 0
     @State private var selectedDiet = "Any"
     @State private var targetCalories: Double = 2000
-    @State private var complexity = "Medium"
+    @State private var complexity = SmartPlanBuilderConfig.defaultComplexity
     @State private var isGenerating = false
     @State private var generatedPlan: WeeklyMealPlan? = nil
     @State private var generationError: String? = nil
     @State private var generationTask: Task<Void, Never>? = nil
     
-    let dietTypes = ["Any", "Keto", "Vegan", "Paleo", "Mediterranean"]
-    let complexities = ["Fast (15m)", "Medium (30m)", "Chef (60m)"]
+    let dietTypes = SmartPlanBuilderConfig.dietTypes
+    let complexities = SmartPlanBuilderConfig.complexities
     
     var body: some View {
         NavigationStack {
@@ -97,10 +103,15 @@ struct SmartPlanBuilderFlow: View {
                 generationTask = nil
             }
             .toolbar {
-                if !isGenerating && generatedPlan == nil {
+                if generatedPlan == nil {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(String(localized: "Cancel")) { dismiss() }
-                            .foregroundColor(.gray)
+                        Button(String(localized: "Cancel")) {
+                            generationTask?.cancel()
+                            generationTask = nil
+                            isGenerating = false
+                            dismiss()
+                        }
+                        .foregroundColor(.gray)
                     }
                 }
             }

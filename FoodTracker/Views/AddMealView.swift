@@ -429,7 +429,7 @@ struct AddMealView: View {
             .navigationBarTitleDisplayMode(.inline)
             .tint(.themePink)
             .sheet(isPresented: $showingAddFood) {
-                SmartAddFoodView(mealTitle: localizedMealType(selectedMealType)) { newItems in
+                SmartAddFoodView(mealTitle: localizedMealType(selectedMealType), targetDate: selectedDate) { newItems in
                     let newDrafts = newItems.map { EditableFoodDraft(food: $0) }
                     self.selectedDrafts.append(contentsOf: newDrafts)
                     self.hasModifiedDrafts = true

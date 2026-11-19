@@ -31,12 +31,6 @@
         "value": "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/foodDeleteAccount"
       },
       "valueType": "STRING"
-    },
-    "food_image_proxy_url": {
-      "defaultValue": {
-        "value": "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/imageProxy"
-      },
-      "valueType": "STRING"
     }
   }
 }

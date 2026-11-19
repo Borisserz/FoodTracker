@@ -110,7 +110,6 @@ struct Achievement: Identifiable {
     }
 
     /// Deduplicates `User` singletons created across devices via CloudKit, keeping the customized profile over default `"Alex"`.
-    @MainActor
     static func deduplicatedPrimary(in context: ModelContext) -> User? {
         let descriptor = FetchDescriptor<User>()
         guard let users = try? context.fetch(descriptor), !users.isEmpty else { return nil }

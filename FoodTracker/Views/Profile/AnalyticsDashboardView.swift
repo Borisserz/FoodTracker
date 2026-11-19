@@ -194,7 +194,7 @@ struct GlobalPeriodPicker: View {
                         selection = period
                     }
                 }) {
-                    Text(period.rawValue)
+                    Text(LocalizedStringKey(period.rawValue))
                         .font(.system(size: 15, weight: selection == period ? .bold : .medium, design: .rounded))
                         .foregroundColor(selection == period ? .white : .gray)
                         .frame(maxWidth: .infinity)
@@ -224,6 +224,34 @@ struct GlobalPeriodPicker: View {
     }
 }
 
+enum AIWeeklyInsightCalculator {
+    static func metrics(
+        summaries: [DailySummary],
+        period: AnalyticsPeriod,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> (validCalorieSummaries: [DailySummary], avgCalories: Int, avgWater: Double) {
+        let todayStart = calendar.startOfDay(for: now)
+        let windowStart = calendar.date(byAdding: .day, value: -(period.daysCount - 1), to: todayStart) ?? todayStart
+        let trackedSummaries = summaries.filter { summary in
+            let day = calendar.startOfDay(for: summary.date)
+            let hasLoggedActivity = summary.totalCalories > 0
+                || summary.totalHydrationLiters > 0
+                || !(summary.activities ?? []).isEmpty
+                || summary.workoutCalories > 0
+            return day >= windowStart && day <= todayStart && hasLoggedActivity
+        }
+        let validCalorieSummaries = trackedSummaries.filter { $0.totalCalories > 0 }
+        let avgCalories = validCalorieSummaries.isEmpty
+            ? 0
+            : validCalorieSummaries.reduce(0) { $0 + $1.totalCalories } / validCalorieSummaries.count
+        let avgWater = trackedSummaries.isEmpty
+            ? 0.0
+            : trackedSummaries.reduce(0.0) { $0 + $1.totalHydrationLiters } / Double(trackedSummaries.count)
+        return (validCalorieSummaries: validCalorieSummaries, avgCalories: avgCalories, avgWater: avgWater)
+    }
+}
+
 struct AIWeeklyInsightCard: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("useMetricSystem") private var useMetricSystem: Bool = true
@@ -232,14 +260,10 @@ struct AIWeeklyInsightCard: View {
     let period: AnalyticsPeriod
 
     private var insight: (title: String, text: String, color: Color) {
-        let calendar = Calendar.current
-        let todayStart = calendar.startOfDay(for: Date())
-        let windowStart = calendar.date(byAdding: .day, value: -(period.daysCount - 1), to: todayStart) ?? todayStart
-        let activeSummaries = summaries.filter { $0.date >= windowStart }
-        let validSummaries = activeSummaries.filter { $0.totalCalories > 0 }
-
-        let avgCals = validSummaries.isEmpty ? 0 : validSummaries.reduce(0) { $0 + $1.totalCalories } / validSummaries.count
-        let avgWater = activeSummaries.isEmpty ? 0.0 : activeSummaries.reduce(0.0) { $0 + $1.totalHydrationLiters } / Double(activeSummaries.count)
+        let computed = AIWeeklyInsightCalculator.metrics(summaries: summaries, period: period)
+        let validSummaries = computed.validCalorieSummaries
+        let avgCals = computed.avgCalories
+        let avgWater = computed.avgWater
 
         // Find the lowest micronutrient percentage today or weekly avg
         let micronutrients = AnalyticsMicro.allCases
@@ -602,7 +626,7 @@ struct MicronutrientCell: View {
                 }
 
                 VStack(spacing: 2) {
-                    Text(micro.rawValue)
+                    Text(LocalizedStringKey(micro.rawValue))
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                         .lineLimit(1)
@@ -1253,7 +1277,7 @@ struct TrendsMicroChart: View {
                                 selectedMicro = micro
                             }
                         }) {
-                            Text(micro.rawValue)
+                            Text(LocalizedStringKey(micro.rawValue))
                                 .font(.system(size: 12, weight: .bold, design: .rounded))
                                 .foregroundColor(selectedMicro == micro ? .white : .primary.opacity(0.8))
                                 .padding(.horizontal, 12)
@@ -1522,8 +1546,9 @@ struct TopMicroSourcesSheetView: View {
     }
 
     var body: some View {
+        let microName = String(localized: String.LocalizationValue(micro.rawValue))
         VStack(spacing: 24) {
-            Text("Top \(micro.rawValue) Sources")
+            Text("Top \(microName) Sources")
                 .font(.system(size: 24, weight: .heavy, design: .rounded))
                 .padding(.top, 24)
 

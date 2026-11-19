@@ -30,6 +30,7 @@ enum AccountDeletionError: LocalizedError {
 @Observable
 @MainActor
 final class AuthManager {
+    static let accountDeletionTimeoutInterval: TimeInterval = 90.0
     var isAnonymous: Bool = true
     var isAuthenticated: Bool = false
     var currentUser: FirebaseAuth.User?
@@ -95,7 +96,7 @@ final class AuthManager {
 
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.timeoutInterval = 20.0
+            request.timeoutInterval = Self.accountDeletionTimeoutInterval
             request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
             request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")

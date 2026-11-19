@@ -193,6 +193,12 @@ final class FastingManagerTests: XCTestCase {
             )
         )
     }
+
+    func testNotificationGenerationGuardRejectsStaleAuthorizationCallbacks() {
+        XCTAssertTrue(FastingManager.shouldApplyScheduledNotifications(capturedGeneration: 3, currentGeneration: 3, isFasting: true))
+        XCTAssertFalse(FastingManager.shouldApplyScheduledNotifications(capturedGeneration: 2, currentGeneration: 3, isFasting: true))
+        XCTAssertFalse(FastingManager.shouldApplyScheduledNotifications(capturedGeneration: 3, currentGeneration: 3, isFasting: false))
+    }
 }
 
 @MainActor
