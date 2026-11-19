@@ -632,8 +632,15 @@ private struct Stage4BlueprintRevealView: View {
                 BlueprintPill(title: "FATS", val: "\(fats)", unit: "g", color: .swissCoral)
             }
             .padding(.horizontal, 20)
-            
-            Spacer()
+
+            NutritionMethodologyDisclaimerView(
+                citations: [.bmrAndTdee, .dietaryGuidelines],
+                style: .darkOnboarding,
+                compact: true
+            )
+            .padding(.horizontal, 20)
+
+            Spacer(minLength: 8)
             
             Button(action: onFinish) {
                 Text("Start Tracking Now →")

@@ -95,7 +95,7 @@ struct Achievement: Identifiable {
         } else {
             rawBMR = (10 * weight) + (6.25 * height) - (Double(age) * 5) + 5
         }
-        let bmr = max(1200.0, rawBMR)
+        let bmr = max(800.0, rawBMR)
         let multiplier = activityMultiplier > 0 ? activityMultiplier : 1.3
         let tdee = bmr * multiplier
 
@@ -151,9 +151,12 @@ struct Achievement: Identifiable {
             self.targetFats = (targetCalories * fRatio) / 9.0
             self.targetCarbs = (targetCalories * cRatio) / 4.0
         } else {
-            let protein = max(0, weight * 2.1)
+            let rawProtein = max(0, weight * 2.1)
             let fats = (targetCalories * 0.25) / 9.0
-            let carbs = max(100.0, (targetCalories - (protein * 4.0) - (fats * 9.0)) / 4.0)
+            let minCarbGrams = min(100.0, max(0.0, (targetCalories * 0.25) / 4.0))
+            let maxProteinGrams = max(0.0, (targetCalories - (fats * 9.0) - (minCarbGrams * 4.0)) / 4.0)
+            let protein = min(rawProtein, maxProteinGrams)
+            let carbs = max(minCarbGrams, (targetCalories - (protein * 4.0) - (fats * 9.0)) / 4.0)
             self.targetProtein = protein
             self.targetFats = fats
             self.targetCarbs = carbs
@@ -630,11 +633,13 @@ extension FoodItem {
     var id: UUID = UUID()
     var date: Date = Date()
     var weight: Double = 0.0
+    var healthKitSampleID: String? = nil
 
-    init(id: UUID = UUID(), date: Date = Date(), weight: Double = 0.0) {
+    init(id: UUID = UUID(), date: Date = Date(), weight: Double = 0.0, healthKitSampleID: String? = nil) {
         self.id = id
         self.date = date
         self.weight = weight
+        self.healthKitSampleID = healthKitSampleID
     }
 }
 
@@ -784,9 +789,16 @@ enum WidgetStorageActions {
         sharedDefaults: UserDefaults? = nil,
         appGroupDefaults: UserDefaults? = nil
     ) throws {
+        let summary = DailySummary.fetchOrCreate(for: date, in: context)
+        _ = WorkoutSyncManager.shared.reconcileWater(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appGroupDefaults,
+            localDefaults: appGroupDefaults
+        )
         try addWaterGlass(volumeMl: volumeMl, in: context, for: date)
         if volumeMl > 0 {
-            let summary = DailySummary.fetchOrCreate(for: date, in: context)
             WorkoutSyncManager.shared.syncWaterFromWidget(
                 totalLiters: summary.totalPureWaterLiters,
                 addedMl: volumeMl,

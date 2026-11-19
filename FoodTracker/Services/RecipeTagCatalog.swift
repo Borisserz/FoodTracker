@@ -176,15 +176,24 @@ struct ChefDiscoverSections {
 
         for recipe in recipes {
             let tags = RecipeTagCatalog.canonicalTags(for: recipe.tags)
+            var matchedPrimaryCategory = false
             if tags.contains("High Protein") {
                 highProtein.append(recipe)
-            } else if tags.contains("Low Carb") || tags.contains("Ketogenic") {
+                matchedPrimaryCategory = true
+            }
+            if tags.contains("Low Carb") || tags.contains("Ketogenic") {
                 ketoLowCarb.append(recipe)
-            } else if tags.contains("Quickly Prepared") || tags.contains("Easy") {
+                matchedPrimaryCategory = true
+            }
+            if tags.contains("Quickly Prepared") || tags.contains("Easy") {
                 quickEasy.append(recipe)
-            } else if tags.contains("Vegan") || tags.contains("Vegetarian") {
+                matchedPrimaryCategory = true
+            }
+            if tags.contains("Vegan") || tags.contains("Vegetarian") {
                 plantBased.append(recipe)
-            } else if chefsSpecials.count < 6 {
+                matchedPrimaryCategory = true
+            }
+            if !matchedPrimaryCategory && chefsSpecials.count < 6 {
                 chefsSpecials.append(recipe)
             }
         }

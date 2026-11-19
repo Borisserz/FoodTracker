@@ -76,6 +76,7 @@ enum LocalDataResetService {
             ThemeManager.shared.currentThemeIndex = 0
             AcademyDataLoader.shared.resetProgress()
             RecipeDataLoader.shared.resetFavorites()
+            NetworkManager.shared.clearCacheForTesting()
             SpotlightTourManager.shared.isTourActive = false
             ReminderNotificationScheduler.sync(mealsEnabled: false, waterEnabled: false, weightEnabled: false)
             AIPhotoConsentManager.shared.syncFromDefaults()

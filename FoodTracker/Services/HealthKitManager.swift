@@ -6,9 +6,14 @@ enum HealthKitWeightSyncHelper {
     static func shouldImportHealthKitWeight(
         latestHKWeightKg: Double,
         currentUserWeightKg: Double,
-        existingSameDayLogWeightKg: Double?
+        existingSameDayLogWeightKg: Double?,
+        latestHKSampleDate: Date? = nil,
+        latestLocalLogDate: Date? = nil
     ) -> Bool {
         guard latestHKWeightKg > 0 else { return false }
+        if let latestHKSampleDate, let latestLocalLogDate, latestHKSampleDate < latestLocalLogDate {
+            return false
+        }
         if let existingSameDayLogWeightKg, abs(latestHKWeightKg - existingSameDayLogWeightKg) < 0.05 {
             return false
         }
@@ -238,12 +243,24 @@ final class HealthKitManager {
     }
 
     func deleteWaterSample(idString: String?, litersFallback: Double, date: Date) async {
+        guard idString?.hasPrefix("external:") != true else { return }
         await deleteSourceQuantitySample(
             identifier: .dietaryWater,
             idString: idString,
             fallbackValue: litersFallback,
             unit: .liter(),
             tolerance: 0.002,
+            date: date
+        )
+    }
+
+    func deleteBodyMassSample(idString: String?, kgFallback: Double, date: Date) async {
+        await deleteSourceQuantitySample(
+            identifier: .bodyMass,
+            idString: idString,
+            fallbackValue: kgFallback,
+            unit: .gramUnit(with: .kilo),
+            tolerance: 0.05,
             date: date
         )
     }
@@ -419,14 +436,18 @@ final class HealthKitManager {
             ?? referenceDate.addingTimeInterval(-90 * 86_400)
     }
 
-    func fetchLatestBodyMassKg() async throws -> Double? {
+    func fetchLatestBodyMassSample() async throws -> (kg: Double, date: Date)? {
         guard isHealthDataAvailableProvider() else { return nil }
         guard let latest = try await store.fetchLatestQuantitySample(
             for: .bodyMass,
             since: Self.bodyMassLookbackStartDate()
         ) else { return nil }
         let kg = latest.quantity.doubleValue(for: .gramUnit(with: .kilo))
-        return kg > 0 ? kg : nil
+        return kg > 0 ? (kg, latest.endDate) : nil
+    }
+
+    func fetchLatestBodyMassKg() async throws -> Double? {
+        try await fetchLatestBodyMassSample()?.kg
     }
 
     @discardableResult

@@ -20,6 +20,7 @@ class NetworkManager {
     }
     var searchProxyURLProvider: (() async -> URL)?
     var refreshingProxyTokensProvider: ((_ forceRefresh: Bool) async -> (authToken: String?, appCheckToken: String?))?
+    var aiFallbackConsentProvider: (@MainActor () -> Bool)?
     private var _lastBarcodeLookupError: String?
     var lastBarcodeLookupError: String? {
         cacheLock.withLock { _lastBarcodeLookupError }
@@ -36,6 +37,13 @@ class NetworkManager {
         let protein: Double
         let fats: Double
         let carbs: Double
+        let omega3: Double
+        let calcium: Double
+        let potassium: Double
+        let magnesium: Double
+        let iron: Double
+        let vitaminC: Double
+        let vitaminD: Double
 
         init(from item: FoodItem) {
             self.name = item.name
@@ -44,10 +52,31 @@ class NetworkManager {
             self.protein = item.protein
             self.fats = item.fats
             self.carbs = item.carbs
+            self.omega3 = item.omega3
+            self.calcium = item.calcium
+            self.potassium = item.potassium
+            self.magnesium = item.magnesium
+            self.iron = item.iron
+            self.vitaminC = item.vitaminC
+            self.vitaminD = item.vitaminD
         }
 
         func toFoodItem() -> FoodItem {
-            FoodItem(name: name, weight: weight, calories: calories, protein: protein, fats: fats, carbs: carbs)
+            FoodItem(
+                name: name,
+                weight: weight,
+                calories: calories,
+                protein: protein,
+                fats: fats,
+                carbs: carbs,
+                omega3: omega3,
+                calcium: calcium,
+                potassium: potassium,
+                magnesium: magnesium,
+                iron: iron,
+                vitaminC: vitaminC,
+                vitaminD: vitaminD
+            )
         }
     }
 
@@ -198,8 +227,11 @@ class NetworkManager {
             }
         }
 
+        let aiFallbackAllowed = await MainActor.run {
+            aiFallbackConsentProvider?() ?? AIPhotoConsentManager.shared.hasConsented
+        }
         var usedAIFallback = false
-        if results.isEmpty && allowAIFallback {
+        if results.isEmpty && allowAIFallback && aiFallbackAllowed {
             print("⚠️ Оба API ничего не нашли. Подключаем ИИ-генерацию для '\(normalizedQuery)'...")
             TrackingManager.shared.track(.aiChefUsed(queryLength: normalizedQuery.count))
             if let aiFood = await AINutritionService.shared.generateFoodItem(for: normalizedQuery) {
@@ -359,6 +391,9 @@ class NetworkManager {
             return raw * 1_000_000.0
         case "mg":
             return raw * 1000.0
+        case "iu", "ui":
+            // 1 IU of Vitamin D (cholecalciferol / ergocalciferol) = 0.025 mcg
+            return raw * 0.025
         default:
             return raw
         }
@@ -439,22 +474,19 @@ class NetworkManager {
         let vitaminC = extractOFFMicronutrientMg(from: nuts, baseKey: "vitamin-c", suffix: microSuffix)
         let vitaminD = extractOFFMicronutrientMcg(from: nuts, baseKey: "vitamin-d", suffix: microSuffix)
 
-        let hasExplicitMicros = omega3 > 0 || calcium > 0 || potassium > 0 || magnesium > 0 || iron > 0 || vitaminC > 0 || vitaminD > 0
         let roundedCals = max(0, Int(cals.rounded()))
         let safeProtein = max(0, protein)
         let safeFat = max(0, fat)
         let safeCarbs = max(0, carbs)
 
-        let fallbackMicros = hasExplicitMicros
-            ? MicronutrientProfile.zero
-            : MicronutrientEstimator.estimate(
-                name: name,
-                calories: roundedCals,
-                protein: safeProtein,
-                fat: safeFat,
-                carbs: safeCarbs,
-                weight: weight
-            )
+        let fallbackMicros = MicronutrientEstimator.estimate(
+            name: name,
+            calories: roundedCals,
+            protein: safeProtein,
+            fat: safeFat,
+            carbs: safeCarbs,
+            weight: weight
+        )
 
         return FoodItem(
             name: name,
@@ -463,13 +495,13 @@ class NetworkManager {
             protein: safeProtein,
             fats: safeFat,
             carbs: safeCarbs,
-            omega3: hasExplicitMicros ? omega3 : fallbackMicros.omega3,
-            calcium: hasExplicitMicros ? calcium : fallbackMicros.calcium,
-            potassium: hasExplicitMicros ? potassium : fallbackMicros.potassium,
-            magnesium: hasExplicitMicros ? magnesium : fallbackMicros.magnesium,
-            iron: hasExplicitMicros ? iron : fallbackMicros.iron,
-            vitaminC: hasExplicitMicros ? vitaminC : fallbackMicros.vitaminC,
-            vitaminD: hasExplicitMicros ? vitaminD : fallbackMicros.vitaminD
+            omega3: omega3 > 0 ? omega3 : fallbackMicros.omega3,
+            calcium: calcium > 0 ? calcium : fallbackMicros.calcium,
+            potassium: potassium > 0 ? potassium : fallbackMicros.potassium,
+            magnesium: magnesium > 0 ? magnesium : fallbackMicros.magnesium,
+            iron: iron > 0 ? iron : fallbackMicros.iron,
+            vitaminC: vitaminC > 0 ? vitaminC : fallbackMicros.vitaminC,
+            vitaminD: vitaminD > 0 ? vitaminD : fallbackMicros.vitaminD
         )
     }
 
@@ -568,8 +600,7 @@ class NetworkManager {
             let vitC = max(0, vitaminC ?? 0)
             let vitD = max(0, vitaminD ?? 0)
 
-            let hasMicros = o3 > 0 || ca > 0 || k > 0 || mg > 0 || fe > 0 || vitC > 0 || vitD > 0
-            let fallback = hasMicros ? MicronutrientProfile.zero : MicronutrientEstimator.estimate(
+            let fallback = MicronutrientEstimator.estimate(
                 name: name,
                 calories: safeCalories,
                 protein: safeProtein,
@@ -585,13 +616,13 @@ class NetworkManager {
                 protein: safeProtein,
                 fats: safeFats,
                 carbs: safeCarbs,
-                omega3: hasMicros ? o3 : fallback.omega3,
-                calcium: hasMicros ? ca : fallback.calcium,
-                potassium: hasMicros ? k : fallback.potassium,
-                magnesium: hasMicros ? mg : fallback.magnesium,
-                iron: hasMicros ? fe : fallback.iron,
-                vitaminC: hasMicros ? vitC : fallback.vitaminC,
-                vitaminD: hasMicros ? vitD : fallback.vitaminD
+                omega3: o3 > 0 ? o3 : fallback.omega3,
+                calcium: ca > 0 ? ca : fallback.calcium,
+                potassium: k > 0 ? k : fallback.potassium,
+                magnesium: mg > 0 ? mg : fallback.magnesium,
+                iron: fe > 0 ? fe : fallback.iron,
+                vitaminC: vitC > 0 ? vitC : fallback.vitaminC,
+                vitaminD: vitD > 0 ? vitD : fallback.vitaminD
             )
         }
     }

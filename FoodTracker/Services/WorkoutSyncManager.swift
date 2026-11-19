@@ -11,6 +11,7 @@ final class WorkoutSyncManager {
     nonisolated static let foodTrackerSuiteName = "group.com.borisdev.FoodTracker2026"
     nonisolated static let healthKitBrandName = "FoodTracker"
     nonisolated static let workoutTrackerBrandName = "AI Workout"
+    nonisolated static let externalWaterSentinelID = "external:workouttracker"
     private static let lastSyncedWaterPrefix = "wt_last_synced_water_"
     private static let pendingWidgetWaterPrefix = "pending_hk_water_ml_"
     private static let pendingWidgetWaterEntriesPrefix = "pending_hk_water_entries_"
@@ -173,6 +174,8 @@ final class WorkoutSyncManager {
     struct DeletedWaterHealthSample: Equatable {
         let sampleID: String?
         let volumeMl: Double
+        var replacementVolumeMl: Double = 0
+        var beverageID: PersistentIdentifier? = nil
     }
 
     struct WaterReconcileOutcome: Equatable {
@@ -213,6 +216,7 @@ final class WorkoutSyncManager {
                         caloriesPerGlass: 0,
                         volumeMl: externalDeltaMl
                     )
+                    syncedDrink.healthKitSampleID = Self.externalWaterSentinelID
                     context.insert(syncedDrink)
                     summary.addBeverage(syncedDrink)
                     let mergedTotal = summary.totalPureWaterLiters
@@ -243,6 +247,7 @@ final class WorkoutSyncManager {
                         caloriesPerGlass: 0,
                         volumeMl: deltaMl
                     )
+                    syncedDrink.healthKitSampleID = Self.externalWaterSentinelID
                     context.insert(syncedDrink)
                     summary.addBeverage(syncedDrink)
                     syncDefaults.set(sharedWater, forKey: lastKey)
@@ -320,9 +325,17 @@ final class WorkoutSyncManager {
                 mutated = true
             } else {
                 let originalMl = beverage.volumeMl
-                beverage.volumeMl = max(0, beverage.volumeMl - remainingToTrim)
+                let oldSampleID = beverage.healthKitSampleID
+                let remainingMl = max(0, originalMl - remainingToTrim)
+                beverage.volumeMl = remainingMl
+                beverage.healthKitSampleID = nil
                 deletedSamples.append(
-                    DeletedWaterHealthSample(sampleID: beverage.healthKitSampleID, volumeMl: originalMl - beverage.volumeMl)
+                    DeletedWaterHealthSample(
+                        sampleID: oldSampleID,
+                        volumeMl: originalMl,
+                        replacementVolumeMl: remainingMl,
+                        beverageID: beverage.persistentModelID
+                    )
                 )
                 remainingToTrim = 0
                 mutated = true

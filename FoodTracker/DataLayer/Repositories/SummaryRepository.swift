@@ -3,13 +3,12 @@ import SwiftData
 
 protocol SummaryRepositoryProtocol: Sendable {
     var mainModelContainer: ModelContainer? { get }
-    func fetchSummary(for date: Date) async throws -> DailySummary?
+    func fetchSummaryID(for date: Date) async throws -> PersistentIdentifier?
     func saveSummary(_ summary: DailySummary) async throws
     func fetchAllTimeCalories() async throws -> Int
     func calculateCurrentStreak() async throws -> Int
-    func fetchSummaries(startDate: Date, endDate: Date) async throws -> [DailySummary]
     func fetchSummaryIDs(startDate: Date, endDate: Date) async throws -> [PersistentIdentifier]
-    func ensureSummary(for date: Date) async throws -> DailySummary
+    func ensureSummaryID(for date: Date) async throws -> PersistentIdentifier
 }
 
 extension SummaryRepositoryProtocol {
@@ -22,7 +21,11 @@ actor SummaryRepository: SummaryRepositoryProtocol {
     // modelContext and init(modelContainer:) are provided by the @ModelActor macro.
     // We removed the custom init to avoid redeclaration with the synthesized one.
 
-    func fetchSummary(for date: Date) async throws -> DailySummary? {
+    func fetchSummaryID(for date: Date) async throws -> PersistentIdentifier? {
+        try fetchSummary(for: date)?.persistentModelID
+    }
+
+    private func fetchSummary(for date: Date) throws -> DailySummary? {
         var didMerge = false
         let summary = DailySummary.fetchExisting(for: date, in: modelContext, didMerge: &didMerge)
         if didMerge {
@@ -56,7 +59,7 @@ actor SummaryRepository: SummaryRepositoryProtocol {
         return NutritionMath.consecutiveStreak(from: summaries)
     }
 
-    func fetchSummaries(startDate: Date, endDate: Date) async throws -> [DailySummary] {
+    private func fetchSummaries(startDate: Date, endDate: Date) throws -> [DailySummary] {
         let predicate = #Predicate<DailySummary> { $0.date >= startDate && $0.date <= endDate }
         let fetchDescriptor = FetchDescriptor<DailySummary>(predicate: predicate, sortBy: [SortDescriptor(\.date, order: .forward)])
         let rawSummaries = try modelContext.fetch(fetchDescriptor)
@@ -88,20 +91,18 @@ actor SummaryRepository: SummaryRepositoryProtocol {
     }
 
     func fetchSummaryIDs(startDate: Date, endDate: Date) async throws -> [PersistentIdentifier] {
-        let summaries = try await fetchSummaries(startDate: startDate, endDate: endDate)
+        let summaries = try fetchSummaries(startDate: startDate, endDate: endDate)
         return summaries.map(\.persistentModelID)
     }
 
-    /// Ensures a DailySummary exists for the given date (creates + saves if missing).
-    /// Returns the object fetched in the actor's isolated context.
-    func ensureSummary(for date: Date) async throws -> DailySummary {
-        if let existing = try await fetchSummary(for: date) {
-            return existing
+    /// Ensures a DailySummary exists for the given date (creates + saves if missing) and returns its Sendable PersistentIdentifier.
+    func ensureSummaryID(for date: Date) async throws -> PersistentIdentifier {
+        if let existing = try fetchSummary(for: date) {
+            return existing.persistentModelID
         }
         let startOfDay = Calendar.current.startOfDay(for: date)
         let newSummary = DailySummary(date: startOfDay)
         try await saveSummary(newSummary)
-        // Re-fetch to return a properly attached instance from this context
-        return try await fetchSummary(for: date) ?? newSummary
+        return (try fetchSummary(for: date) ?? newSummary).persistentModelID
     }
 }

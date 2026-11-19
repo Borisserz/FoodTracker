@@ -89,6 +89,11 @@ struct WeeklyPlanOverview: View {
                         ForEach((day.meals ?? []).sorted(by: { typePriority($0.type) < typePriority($1.type) })) { meal in
                             MealPlanItemCard(meal: meal)
                         }
+
+                        NutritionMethodologyDisclaimerView(
+                            citations: [.dietaryGuidelines],
+                            compact: true
+                        )
                     }
                     .padding()
                 } else {

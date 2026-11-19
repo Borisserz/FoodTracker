@@ -266,7 +266,7 @@ struct Step1BasicsView: View {
                         Text("Category").foregroundColor(category.isEmpty ? .gray : .primary)
                         Spacer()
                         Picker("Category", selection: $category) {
-                            ForEach(categories, id: \.self) { Text($0).tag($0) }
+                            ForEach(categories, id: \.self) { Text(LocalizedStringKey($0)).tag($0) }
                         }
                         .tint(.themePink)
                     }
@@ -761,11 +761,11 @@ struct CustomTextFieldRow: View {
                     .clipShape(Circle())
             }
 
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(.primary)
             Spacer()
-            TextField(placeholder, text: $text)
+            TextField(LocalizedStringKey(placeholder), text: $text)
                 .multilineTextAlignment(.trailing)
                 .keyboardType(isNumber ? .decimalPad : .default)
                 .foregroundColor(.themePink)
@@ -813,7 +813,7 @@ struct MacroStatColumn: View {
         VStack(alignment: .center, spacing: 6) {
             Text("\(Int(percent * 100))%").font(.system(size: 14, weight: .bold)).foregroundColor(color)
             Text("\(grams, specifier: "%.1f") g").font(.system(size: 16, weight: .bold, design: .rounded)).contentTransition(.numericText())
-            Text(title).font(.caption).foregroundColor(.gray)
+            Text(LocalizedStringKey(title)).font(.caption).foregroundColor(.gray)
         }.frame(minWidth: 50)
     }
 }

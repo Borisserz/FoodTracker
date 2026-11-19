@@ -289,6 +289,51 @@ struct PremiumDietDetailView: View {
                             }
                         }
 
+                        if !diet.contraindications.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.orange)
+                                    Text("Medical Contraindications")
+                                        .font(.headline)
+                                        .foregroundColor(.primary)
+                                }
+
+                                Text("Consult a doctor before starting if any of the following apply:")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                VStack(alignment: .leading, spacing: 6) {
+                                    ForEach(diet.contraindications, id: \.self) { item in
+                                        HStack(alignment: .top, spacing: 8) {
+                                            Circle()
+                                                .fill(Color.orange)
+                                                .frame(width: 6, height: 6)
+                                                .padding(.top, 6)
+                                            Text(LocalizedStringKey(item))
+                                                .font(.subheadline)
+                                                .foregroundColor(.primary.opacity(0.85))
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(20)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.orange.opacity(0.08))
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.orange.opacity(0.28), lineWidth: 1)
+                            )
+                            .padding(.horizontal, 24)
+                        }
+
+                        NutritionMethodologyDisclaimerView(
+                            citations: [.dietaryGuidelines]
+                        )
+                        .padding(.horizontal, 24)
+
                         Spacer().frame(height: 120)
                     }
                     .background(Color.themeBg)

@@ -911,3 +911,51 @@ test("normalizeFatSecretFood forwards optional micronutrients when present", () 
   assert.equal(hit.vitaminC, 3.9);
   assert.equal(hit.vitaminD, 11.0);
 });
+
+test("normalizeFatSecretBarcodeInput zero-pads 8 and 12 digit barcodes to 13-digit GTIN-13", () => {
+  assert.equal(t.normalizeFatSecretBarcodeInput("012345678905"), "0012345678905");
+  assert.equal(t.normalizeFatSecretBarcodeInput("12345670"), "0000012345670");
+  assert.equal(t.normalizeFatSecretBarcodeInput("4601234567890"), "4601234567890");
+});
+
+test("verifyFirebaseUser enforces recent auth_time when requireRecentAuthSec is set for non-anonymous users", async () => {
+  const nowSec = Math.floor(Date.now() / 1000);
+  const makeRes = () => {
+    const out = { statusCode: 0, body: null };
+    return {
+      status(c) { out.statusCode = c; return this; },
+      json(b) { out.body = b; return this; },
+      _out: out,
+    };
+  };
+  const makeReq = () => ({ header: (n) => (n.toLowerCase() === "authorization" ? "Bearer valid-jwt" : "") });
+
+  const staleRes = makeRes();
+  const staleUid = await t.verifyFirebaseUser(
+    makeReq(),
+    staleRes,
+    async () => ({ uid: "u1", auth_time: nowSec - 900, firebase: { sign_in_provider: "apple.com" } }),
+    { requireRecentAuthSec: 300 }
+  );
+  assert.equal(staleUid, null);
+  assert.equal(staleRes._out.statusCode, 401);
+  assert.equal(staleRes._out.body?.error, "requires_recent_login");
+
+  const freshRes = makeRes();
+  const freshUid = await t.verifyFirebaseUser(
+    makeReq(),
+    freshRes,
+    async () => ({ uid: "u1", auth_time: nowSec - 30, firebase: { sign_in_provider: "apple.com" } }),
+    { requireRecentAuthSec: 300 }
+  );
+  assert.equal(freshUid, "u1");
+
+  const anonRes = makeRes();
+  const anonUid = await t.verifyFirebaseUser(
+    makeReq(),
+    anonRes,
+    async () => ({ uid: "anon1", auth_time: nowSec - 9000, firebase: { sign_in_provider: "anonymous" } }),
+    { requireRecentAuthSec: 300 }
+  );
+  assert.equal(anonUid, "anon1");
+});

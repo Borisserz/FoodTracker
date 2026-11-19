@@ -224,9 +224,10 @@ enum NutritionMath {
             }
 
             if totalCalories > 0 {
-                if totalCalories <= user.dailyCaloriesGoal {
+                let minimumGoalCompletion = Int((Double(user.dailyCaloriesGoal) * 0.75).rounded())
+                if totalCalories >= minimumGoalCompletion && totalCalories <= user.dailyCaloriesGoal {
                     calorieXP = 150
-                } else if totalCalories <= user.dailyCaloriesGoal + 200 {
+                } else if totalCalories > user.dailyCaloriesGoal && totalCalories <= user.dailyCaloriesGoal + 200 {
                     calorieXP = 50
                 }
             }
@@ -348,8 +349,12 @@ enum NutritionMath {
 
         if syncToHealthKit, user?.isHealthKitEnabled == true {
             let syncDate = calendar.isDateInToday(date) ? Date() : date
+            let container = context.container
             Task { @MainActor in
-                await HealthKitManager.shared.saveBodyMass(kg: newWeight, date: syncDate)
+                if let uuid = await HealthKitManager.shared.saveBodyMass(kg: newWeight, date: syncDate) {
+                    activeLog.healthKitSampleID = uuid.uuidString
+                    try? container.mainContext.save()
+                }
             }
         }
     }
@@ -364,6 +369,8 @@ enum NutritionMath {
         let logDate = log.date
         let deletedWeight = log.weight
         let deletedID = log.persistentModelID
+        let sampleID = log.healthKitSampleID
+        let shouldSyncHK = user?.isHealthKitEnabled == true
 
         let summaries = (try? context.fetch(FetchDescriptor<DailySummary>())) ?? []
         let calendar = Calendar.current
@@ -386,6 +393,16 @@ enum NutritionMath {
 
         try? context.save()
         WidgetReloader.reloadAll()
+
+        if shouldSyncHK {
+            Task {
+                await HealthKitManager.shared.deleteBodyMassSample(
+                    idString: sampleID,
+                    kgFallback: deletedWeight,
+                    date: logDate
+                )
+            }
+        }
     }
 
     /// Calculates the consecutive active logging streak ending today or yesterday.

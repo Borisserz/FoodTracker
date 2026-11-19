@@ -241,7 +241,7 @@ struct BeforeAfterView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "photo.badge.plus")
                             .font(.system(size: 32))
-                        Text(title)
+                        Text(LocalizedStringKey(title))
                             .font(.headline)
                     }
                     .foregroundStyle(.gray)
@@ -407,9 +407,8 @@ struct BeforeAfterView: View {
                     HapticManager.shared.notification(type: .error)
                     withAnimation {
                         isAnalyzing = false
-                        if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
-                            analysisError = String(localized: "Couldn't analyze these photos right now. Check your connection and try again.")
-                        }
+                        analysisError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                            ?? String(localized: "Couldn't analyze these photos right now. Check your connection and try again.")
                     }
                 }
             }
@@ -531,6 +530,11 @@ struct BeforeAfterView: View {
                     .padding(14)
                     .background(Color.gray.opacity(0.04))
                     .cornerRadius(14)
+
+                    NutritionMethodologyDisclaimerView(
+                        citations: [.bmi, .dietaryGuidelines],
+                        compact: true
+                    )
                 }
                 .transition(.asymmetric(
                     insertion: .move(edge: .bottom).combined(with: .opacity),

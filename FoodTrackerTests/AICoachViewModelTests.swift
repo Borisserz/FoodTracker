@@ -9,6 +9,7 @@ final class AICoachViewModelTests: XCTestCase {
     var repository: SummaryRepository!
     var userRepository: UserRepository!
     var originalSession: URLSession!
+    var originalConsent: Bool = false
 
     override func setUpWithError() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
@@ -17,6 +18,8 @@ final class AICoachViewModelTests: XCTestCase {
         userRepository = UserRepository(modelContainer: container)
         viewModel = AICoachViewModel(summaryRepository: repository, userRepository: userRepository)
         originalSession = GeminiProxyClient.shared.session
+        originalConsent = AIPhotoConsentManager.shared.hasConsented
+        AIPhotoConsentManager.shared.grantConsent()
         
         let sessionConfig = URLSessionConfiguration.ephemeral
         sessionConfig.protocolClasses = [MockURLProtocol.self]
@@ -31,6 +34,9 @@ final class AICoachViewModelTests: XCTestCase {
         container = nil
         if let originalSession {
             GeminiProxyClient.shared.session = originalSession
+        }
+        if !originalConsent {
+            AIPhotoConsentManager.shared.revokeConsent()
         }
         GeminiProxyClient.shared.tokenProvider = nil
         MockURLProtocol.requestHandler = nil

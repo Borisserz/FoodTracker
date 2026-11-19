@@ -82,7 +82,12 @@ struct AIMoodAdvicePopup: View {
     let onChatWithCoach: () -> Void
 
     @State private var dynamicAdvice: MoodAdviceDTO? = nil
-    @State private var isLoadingAI = true
+    @State private var isLoadingAI = false
+    @State private var showAIConsentSheet = false
+
+    static func shouldAutoFetchAIAdvice(hasConsented: Bool) -> Bool {
+        hasConsented
+    }
 
     private var baseline: (title: String, message: String) {
         MoodAdviceBaseline.advice(forEmoji: moodEmoji, moodName: moodName)
@@ -151,10 +156,32 @@ struct AIMoodAdvicePopup: View {
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
+
+                if !isLoadingAI && dynamicAdvice == nil && !AIPhotoConsentManager.shared.hasConsented {
+                    Button {
+                        showAIConsentSheet = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "sparkles")
+                            Text("Personalize with AI")
+                        }
+                        .font(.caption.bold())
+                        .foregroundColor(themeManager.current.primaryAccent)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(themeManager.current.primaryAccent.opacity(0.12))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
+                }
             }
             .animation(.easeInOut(duration: 0.25), value: aiAdviceMessage)
 
             Spacer()
+
+            NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
+                .padding(.horizontal, 24)
 
             VStack(spacing: 16) {
                 Button(action: {
@@ -189,20 +216,36 @@ struct AIMoodAdvicePopup: View {
             .padding(.bottom, 32)
         }
         .background(Color.themeBg.ignoresSafeArea())
-        .task {
-            let result = await AINutritionService.shared.getMoodAdvice(
-                moodEmoji: moodEmoji,
-                moodName: moodName,
-                note: dayNote,
-                consumedCalories: consumedCalories,
-                goalCalories: goalCalories,
-                waterLiters: waterLiters,
-                activeDiet: activeDiet
+        .sheet(isPresented: $showAIConsentSheet) {
+            AIPhotoConsentSheet(
+                onAllow: {
+                    Task { await fetchPersonalizedAdvice() }
+                },
+                onDecline: {}
             )
-            await MainActor.run {
-                self.dynamicAdvice = result
-                self.isLoadingAI = false
-            }
         }
+        .task {
+            guard Self.shouldAutoFetchAIAdvice(hasConsented: AIPhotoConsentManager.shared.hasConsented) else {
+                return
+            }
+            await fetchPersonalizedAdvice()
+        }
+    }
+
+    @MainActor
+    private func fetchPersonalizedAdvice() async {
+        guard !isLoadingAI else { return }
+        isLoadingAI = true
+        let result = await AINutritionService.shared.getMoodAdvice(
+            moodEmoji: moodEmoji,
+            moodName: moodName,
+            note: dayNote,
+            consumedCalories: consumedCalories,
+            goalCalories: goalCalories,
+            waterLiters: waterLiters,
+            activeDiet: activeDiet
+        )
+        self.dynamicAdvice = result
+        self.isLoadingAI = false
     }
 }

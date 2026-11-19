@@ -56248,6 +56248,1088 @@
           }
         }
       }
+    },
+    "Estimates are for informational and educational purposes only and are not medical advice. Consult a healthcare professional before starting any diet or fasting protocol.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расчёты носят исключительно информационный и образовательный характер и не являются медицинской рекомендацией. Проконсультируйтесь с врачом перед началом диеты или протокола голодания."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Berechnungen dienen nur zu Informations- und Bildungszwecken und stellen keine medizinische Beratung dar. Konsultieren Sie vor Beginn einer Diät oder eines Fastenprotokolls eine Ärztin oder einen Arzt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las estimaciones tienen fines meramente informativos y educativos y no constituyen consejo médico. Consulta a un profesional de la salud antes de iniciar cualquier dieta o protocolo de ayuno."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces estimations sont fournies à titre purement informatif et éducatif et ne constituent pas un avis médical. Consultez un professionnel de santé avant de commencer tout régime ou protocole de jeûne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stime hanno scopo puramente informativo ed educativo e non costituiscono parere medico. Consulta un medico prima di iniziare qualsiasi dieta o protocollo di digiuno."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As estimativas destinam-se apenas a fins informativos e educativos e não constituem aconselhamento médico. Consulte um profissional de saúde antes de iniciar qualquer dieta ou protocolo de jejum."
+          }
+        }
+      }
+    },
+    "Sources & Methodology": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Источники и методология"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quellen & Methodik"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuentes y metodología"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sources et méthodologie"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fonti e metodologia"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fontes e metodologia"
+          }
+        }
+      }
+    },
+    "Mifflin-St Jeor (BMR/TDEE)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Миффлин–Сан Жеор (BMR/TDEE)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mifflin-St Jeor (BMR/TDEE)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mifflin-St Jeor (TMB/GET)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mifflin-St Jeor (MB/DET)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mifflin-St Jeor (MB/TDEE)"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mifflin-St Jeor (TMB/GET)"
+          }
+        }
+      }
+    },
+    "WHO BMI Classification": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Классификация ИМТ ВОЗ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WHO-BMI-Klassifikation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clasificación IMC (OMS)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classification IMC (OMS)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classificazione BMI (OMS)"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classificação IMC (OMS)"
+          }
+        }
+      }
+    },
+    "USDA Dietary Guidelines": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рекомендации по питанию USDA"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USDA-Ernährungsrichtlinien"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guías Alimentarias USDA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommandations USDA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linee guida USDA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diretrizes Alimentares USDA"
+          }
+        }
+      }
+    },
+    "NIH Micronutrient RDAs": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нормы микронутриентов NIH"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NIH-Mikronährstoff-Empfehlungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingestas diarias NIH"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apports conseillés NIH"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fabbisogni NIH micronutrienti"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doses recomendadas NIH"
+          }
+        }
+      }
+    },
+    "NEJM Fasting Review": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обзор голодания NEJM"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NEJM-Fastenstudie"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisión de ayuno NEJM"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revue sur le jeûne NEJM"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Studio sul digiuno NEJM"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisão de jejum NEJM"
+          }
+        }
+      }
+    },
+    "Medical Contraindications": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медицинские противопоказания"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medizinische Gegenanzeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraindicaciones médicas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contre-indications médicales"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controindicazioni mediche"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraindicações médicas"
+          }
+        }
+      }
+    },
+    "Consult a doctor before starting if any of the following apply:": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проконсультируйтесь с врачом перед началом, если у вас есть что-либо из следующего:"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konsultieren Sie vorab eine Ärztin oder einen Arzt, falls Folgendes zutrifft:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulta a un médico antes de empezar si presentas alguna de las siguientes condiciones:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consultez un médecin avant de commencer si vous êtes concerné(e) par l’un des points suivants :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulta un medico prima di iniziare se si applica una delle seguenti condizioni:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulte um médico antes de iniciar caso se aplique alguma das seguintes situações:"
+          }
+        }
+      }
+    },
+    "AI Data & Photo Consent": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Согласие на обработку данных и фото ИИ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einwilligung für KI-Daten & Fotos"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consentimiento de datos y fotos con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consentement données et photos IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenso dati e foto IA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consentimento de dados e fotos com IA"
+          }
+        }
+      }
+    },
+    "Allow AI Analysis": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешить ИИ-анализ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Analyse erlauben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir análisis con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser l’analyse IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti analisi IA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir análise com IA"
+          }
+        }
+      }
+    },
+    "Allow AI Data & Photo Analysis": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешить ИИ-анализ данных и фото"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Daten- & Fotoanalyse erlauben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir análisis de datos y fotos con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser l’analyse IA des données et photos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti analisi IA di dati e foto"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir análise IA de dados e fotos"
+          }
+        }
+      }
+    },
+    "Personalize with AI": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Персонализировать с ИИ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit KI personalisieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personalizar con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personnaliser avec l’IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personalizza con IA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personalizar com IA"
+          }
+        }
+      }
+    },
+    "Review how your photos and nutrition context are processed before using AI features.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ознакомьтесь с тем, как обрабатываются ваши фото и данные о питании, перед использованием ИИ-функций."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfen Sie vor der Nutzung der KI-Funktionen, wie Ihre Fotos und Ernährungsdaten verarbeitet werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisa cómo se procesan tus fotos y tu contexto nutricional antes de usar las funciones de IA."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Découvrez comment vos photos et vos données nutritionnelles sont traitées avant d’utiliser l’IA."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifica come vengono elaborati le tue foto e i tuoi dati nutrizionali prima di usare le funzioni IA."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reveja como as suas fotos e o contexto nutricional são processados antes de utilizar funcionalidades de IA."
+          }
+        }
+      }
+    },
+    "Only the downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for your AI request.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только сжатые фото, выбранные для сканирования, а также цели, приёмы пищи, заметки о настроении или запросы чата, нужные для ответа ИИ."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur herunterskalierte Fotos zum Scannen sowie Ernährungsziele, Mahlzeiten, Stimmungsnotizen oder Chat-Eingaben für Ihre KI-Anfrage."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo las fotos reducidas que elijas escanear y los objetivos, comidas, notas de ánimo o mensajes necesarios para tu consulta de IA."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uniquement les photos réduites que vous scannez ainsi que les objectifs, repas, notes d’humeur ou messages nécessaires à votre requête IA."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo le foto ridimensionate che scegli di scansionare e gli obiettivi, i pasti, le note sull’umore o i messaggi necessari per la richiesta IA."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas as fotos reduzidas que escolher digitalizar e os objetivos, refeições, notas de humor ou mensagens necessários para o pedido de IA."
+          }
+        }
+      }
+    },
+    "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers to estimate nutrition and personalize feedback.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Данные отправляются по шифрованному HTTPS через прокси FoodTracker в OpenRouter и сторонние ИИ-модели для оценки КБЖУ и персонализации советов."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Daten werden über verschlüsseltes HTTPS über den FoodTracker-Proxy an OpenRouter und Drittanbieter-KI-Modelle zur Analyse gesendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los datos se envían mediante HTTPS cifrado a través del proxy de FoodTracker a OpenRouter y proveedores de IA externos para estimar nutrientes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les données sont envoyées via HTTPS chiffré via le proxy de FoodTracker vers OpenRouter et des fournisseurs d’IA tiers pour l’analyse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I dati vengono inviati tramite HTTPS crittografato attraverso il proxy di FoodTracker a OpenRouter e fornitori di IA di terze parti."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dados são enviados por HTTPS encriptado através do proxy do FoodTracker para o OpenRouter e fornecedores de IA externos."
+          }
+        }
+      }
+    },
+    "Requests are processed transiently with provider data retention disabled, and you can revoke this consent anytime in Settings.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запросы обрабатываются транзитно с отключённым хранением у провайдера; отозвать согласие можно в любой момент в Настройках."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anfragen werden flüchtig ohne Speicherung beim Anbieter verarbeitet; Sie können diese Einwilligung jederzeit in den Einstellungen widerrufen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las solicitudes se procesan de forma transitoria sin retención por parte del proveedor y puedes revocar este consentimiento en Ajustes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les requêtes sont traitées de manière transitoire sans conservation par le fournisseur ; vous pouvez révoquer ce consentement dans Réglages."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le richieste sono elaborate in modo transitorio senza conservazione da parte del fornitore e puoi revocare il consenso nelle Impostazioni."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os pedidos são processados de forma transitória sem retenção pelo fornecedor e pode revogar este consentimento nas Definições."
+          }
+        }
+      }
+    },
+    "When enabled, downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers. Requests are processed transiently with provider data retention disabled.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда включено, сжатые фото и цели питания, приёмы пищи, заметки или запросы для ИИ передаются по HTTPS через прокси FoodTracker в OpenRouter и сторонние ИИ-модели. Запросы обрабатываются транзитно без сохранения данных провайдером."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn aktiviert, werden herunterskalierte Fotos sowie Ernährungsziele, Mahlzeiten, Notizen oder Chat-Anfragen per HTTPS über den FoodTracker-Proxy an OpenRouter und KI-Anbieter gesendet. Die Verarbeitung erfolgt flüchtig ohne Datenspeicherung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando está activado, las fotos reducidas y los objetivos, comidas, notas o mensajes de IA se envían por HTTPS mediante el proxy de FoodTracker a OpenRouter y proveedores de IA externos sin retención de datos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsqu’activé, les photos réduites et les objectifs, repas, notes ou requêtes IA sont envoyés via HTTPS par le proxy de FoodTracker à OpenRouter et des fournisseurs d’IA tiers sans conservation des données."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando attivo, le foto ridimensionate e gli obiettivi, i pasti, le note o i messaggi per l’IA vengono inviati tramite HTTPS attraverso il proxy di FoodTracker a OpenRouter e fornitori di IA terzi senza conservazione dei dati."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando ativado, as fotos reduzidas e os objetivos, refeições, notas ou mensagens de IA são enviados por HTTPS através do proxy do FoodTracker para o OpenRouter e fornecedores de IA externos sem retenção de dados."
+          }
+        }
+      }
+    },
+    "Digestion Mode 🌱": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Режим пищеварения 🌱"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verdauungsmodus 🌱"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo digestión 🌱"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode digestion 🌱"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modalità digestione 🌱"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo digestão 🌱"
+          }
+        }
+      }
+    },
+    "Blood sugar has normalized and digestion is winding down. Keep hydrating!": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уровень сахара в крови нормализовался, пищеварение завершается. Пейте больше воды!"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Blutzuckerspiegel hat sich normalisiert und die Verdauung klingt ab. Trinken Sie weiter ausreichend Wasser!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El azúcar en sangre se ha normalizado y la digestión está terminando. ¡Sigue hidratándote!"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La glycémie s’est normalisée et la digestion se termine. Continuez à bien vous hydrater !"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La glicemia si è normalizzata e la digestione sta terminando. Continua a idratarti!"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A glicemia normalizou e a digestão está a terminar. Continue a hidratar-se!"
+          }
+        }
+      }
+    },
+    "AI Limit Reached": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Limit Reached"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Достигнут лимит ИИ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Limit erreicht"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Límite de IA alcanzado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limite d’IA atteinte"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limite IA raggiunto"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limite de IA atingido"
+          }
+        }
+      }
+    },
+    "Temporary Storage Mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temporary Storage Mode"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Временный режим хранения"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temporärer Speichermodus"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo de almacenamiento temporal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode de stockage temporaire"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modalità di archiviazione temporanea"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo de armazenamento temporário"
+          }
+        }
+      }
+    },
+    "Replace Active Fast?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace Active Fast?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заменить активное голодание?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktives Fasten ersetzen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Reemplazar ayuno activo?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacer le jeûne actif ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sostituire il digiuno attivo?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substituir jejum ativo?"
+          }
+        }
+      }
+    },
+    "%lld items": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld items"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld поз."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Einträge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld elementos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld éléments"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld elementi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld itens"
+          }
+        }
+      }
+    },
+    "Next glass in %lld min": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next glass in %lld min"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следующий стакан через %lld мин"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächstes Glas in %lld Min."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximo vaso en %lld min"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prochain verre dans %lld min"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prossimo bicchiere tra %lld min"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximo copo em %lld min"
+          }
+        }
+      }
+    },
+    "Calories shown per %lld serving(s); ingredient amounts reflect full %lld-serving batch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories shown per %lld serving(s); ingredient amounts reflect full %lld-serving batch."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Калории указаны на %lld порц.; количество ингредиентов — на всю партию (%lld порц.)."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalorien pro %lld Portion(en); Zutatenmengen gelten für das gesamte Rezept (%lld Portionen)."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorías por %lld ración(es); los ingredientes corresponden al lote completo de %lld raciones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories pour %lld portion(s) ; les quantités d’ingrédients correspondent au lot complet de %lld portions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorie per %lld porzione/i; le quantità degli ingredienti si riferiscono all’intero lotto da %lld porzioni."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorias por %lld dose(s); as quantidades dos ingredientes referem-se ao lote completo de %lld doses."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

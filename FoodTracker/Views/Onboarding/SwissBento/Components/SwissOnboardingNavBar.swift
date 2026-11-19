@@ -107,7 +107,7 @@ struct SwissOnboardingNavBar: View {
                             
                             // Stage Short Label on Active Step
                             if isCurrent && idx < stageNames.count {
-                                Text(stageNames[idx])
+                                Text(LocalizedStringKey(stageNames[idx]))
                                     .font(.system(size: 8, weight: .black, design: .monospaced))
                                     .foregroundStyle(Color.swissChartreuse)
                                     .lineLimit(1)

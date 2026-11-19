@@ -14,7 +14,8 @@ enum DailyXPQuestsEvaluator {
         case .steps:
             return summary.stepsCount >= 10_000
         case .meals:
-            return !(summary.meals ?? []).isEmpty
+            let loggedSlots = Set((summary.meals ?? []).filter { $0.totalCalories > 0 }.map { DailySummary.canonicalMealSlot($0.title) })
+            return loggedSlots.count >= 3
         case .water:
             return summary.totalHydrationLiters >= 2.499
         }

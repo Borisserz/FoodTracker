@@ -591,7 +591,7 @@ struct SmartScannerView: View {
             Image(systemName: icon)
                 .font(.system(size: 60, weight: .ultraLight))
                 .foregroundColor(.white.opacity(0.8))
-            Text(text)
+            Text(LocalizedStringKey(text))
                 .font(.title3.bold())
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
@@ -649,9 +649,8 @@ struct SmartScannerView: View {
                 case .failed:
                     cameraManager.capturedImage = nil
                     HapticManager.shared.notification(type: .error)
-                    if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
-                        scanErrorMessage = String(localized: "Couldn't recognize food in this photo or the AI service is temporarily unavailable. Please try again or enter manually.")
-                    }
+                    scanErrorMessage = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? String(localized: "Couldn't recognize food in this photo or the AI service is temporarily unavailable. Please try again or enter manually.")
                 }
             }
         }
@@ -675,9 +674,8 @@ struct SmartScannerView: View {
                 } else {
                     withAnimation {
                         isAnalyzingAI = false
-                        if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
-                            scanErrorMessage = String(localized: "Couldn't analyze this menu right now. Please try a clearer photo.")
-                        }
+                        scanErrorMessage = GeminiProxyClient.consumeRateLimitAlertMessage()
+                            ?? String(localized: "Couldn't analyze this menu right now. Please try a clearer photo.")
                     }
                 }
             }
@@ -980,7 +978,7 @@ struct ModeButton: View {
             HapticManager.shared.impact(style: .light)
             action()
         }) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(size: 15, weight: isActive ? .semibold : .medium, design: .rounded))
                 .foregroundColor(isActive ? .green : .white.opacity(0.7))
                 .padding(.vertical, 10)
@@ -1082,13 +1080,30 @@ struct MenuRecCard: View {
                 if let onLogDish {
                     Button(action: {
                         HapticManager.shared.impact(style: .medium)
+                        let fVal = rec.fats ?? 0
+                        let cVal = rec.carbs ?? 0
+                        let micros = MicronutrientEstimator.estimate(
+                            name: rec.dishName,
+                            calories: rec.estimatedCalories,
+                            protein: rec.protein,
+                            fat: fVal,
+                            carbs: cVal,
+                            weight: 250.0
+                        )
                         let item = FoodItem(
                             name: rec.dishName,
                             weight: 250.0,
                             calories: rec.estimatedCalories,
                             protein: rec.protein,
-                            fats: rec.fats ?? 0,
-                            carbs: rec.carbs ?? 0
+                            fats: fVal,
+                            carbs: cVal,
+                            omega3: micros.omega3,
+                            calcium: micros.calcium,
+                            potassium: micros.potassium,
+                            magnesium: micros.magnesium,
+                            iron: micros.iron,
+                            vitaminC: micros.vitaminC,
+                            vitaminD: micros.vitaminD
                         )
                         onLogDish(item)
                     }) {

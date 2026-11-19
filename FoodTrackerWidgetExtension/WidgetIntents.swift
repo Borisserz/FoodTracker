@@ -17,11 +17,9 @@ struct AddWaterIntent: AppIntent {
                 let groupDefaults = UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)
                 let useMetric = groupDefaults?.object(forKey: "useMetricSystem") as? Bool ?? true
                 let volumeMl = useMetric ? 250.0 : (8.0 * 29.5735)
-                try WidgetStorageActions.addWaterGlass(volumeMl: volumeMl, in: context, for: now)
-                let summary = DailySummary.fetchOrCreate(for: now, in: context)
-                WorkoutSyncManager.shared.syncWaterFromWidget(
-                    totalLiters: summary.totalPureWaterLiters,
-                    addedMl: volumeMl,
+                try WidgetStorageActions.addWaterGlassAndRecordPendingDelta(
+                    volumeMl: volumeMl,
+                    in: context,
                     for: now
                 )
                 WidgetReloader.reloadAll()

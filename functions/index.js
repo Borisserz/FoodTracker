@@ -910,7 +910,8 @@ async function verifyAppCheck(
 async function verifyFirebaseUser(
   req,
   res,
-  verifyIdTokenFn = (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked)
+  verifyIdTokenFn = (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked),
+  options = {}
 ) {
   const authHeader = req.header("Authorization") || "";
   const m = authHeader.match(/^Bearer (.+)$/i);
@@ -920,8 +921,18 @@ async function verifyFirebaseUser(
   }
   try {
     const decoded = await verifyIdTokenFn(m[1], true);
+    const provider = decoded?.firebase?.sign_in_provider || "";
+    const requireRecentAuthSec = Number(options?.requireRecentAuthSec || 0);
+    if (requireRecentAuthSec > 0 && provider && provider !== "anonymous") {
+      const authTime = Number(decoded?.auth_time || 0);
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (!Number.isFinite(authTime) || authTime <= 0 || nowSec - authTime > requireRecentAuthSec) {
+        res.status(401).json({ error: "requires_recent_login" });
+        return null;
+      }
+    }
     if (req && typeof req === "object") {
-      req._authSignInProvider = decoded?.firebase?.sign_in_provider || "";
+      req._authSignInProvider = provider;
     }
     return decoded.uid;
   } catch (e) {
@@ -932,6 +943,14 @@ async function verifyFirebaseUser(
     res.status(401).json({ error: message });
     return null;
   }
+}
+
+function normalizeFatSecretBarcodeInput(barcode) {
+  const cleaned = String(barcode || "").trim();
+  if (/^\d{8,12}$/.test(cleaned)) {
+    return cleaned.padStart(13, "0");
+  }
+  return cleaned;
 }
 
 function parseNumericValue(value) {
@@ -1234,7 +1253,12 @@ exports.foodAiProxy = onRequest(
       return;
     }
     if (!(await verifyAppCheck(req, res))) return;
-    const uid = await verifyFirebaseUser(req, res);
+    const uid = await verifyFirebaseUser(
+      req,
+      res,
+      (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked),
+      { requireRecentAuthSec: 300 }
+    );
     if (!uid) return;
 
     const body = req.body || {};
@@ -1487,7 +1511,12 @@ exports.foodSearchProxy = onRequest(
       return;
     }
     if (!(await verifyAppCheck(req, res))) return;
-    const uid = await verifyFirebaseUser(req, res);
+    const uid = await verifyFirebaseUser(
+      req,
+      res,
+      (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked),
+      { requireRecentAuthSec: 300 }
+    );
     if (!uid) return;
 
     let parsed;
@@ -1599,11 +1628,12 @@ exports.foodSearchProxy = onRequest(
         return;
       }
 
+      const normalizedBarcode = normalizeFatSecretBarcodeInput(parsed.barcode);
       const oauth1Barcode = await callFatSecretOAuth1({
         consumerKey: clientId,
         consumerSecret: clientSecret,
         method: "food.find_id_for_barcode",
-        extraParams: { barcode: parsed.barcode },
+        extraParams: { barcode: normalizedBarcode },
         timeoutMs: boundedFatSecretTimeout(),
       });
       if (!oauth1Barcode?.error) {
@@ -1635,7 +1665,7 @@ exports.foodSearchProxy = onRequest(
 
       const url =
         `${FATSECRET_API_BASE}/food/barcode/find-by-id/v2?barcode=${encodeURIComponent(
-          parsed.barcode
+          normalizedBarcode
         )}&format=json`;
       const data = await fetchFatSecretWithRetry({
         url,
@@ -1715,7 +1745,12 @@ exports.foodDeleteAccount = onRequest(
       return;
     }
     if (!(await verifyAppCheck(req, res))) return;
-    const uid = await verifyFirebaseUser(req, res);
+    const uid = await verifyFirebaseUser(
+      req,
+      res,
+      (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked),
+      { requireRecentAuthSec: 300 }
+    );
     if (!uid) return;
 
     try {
@@ -1757,6 +1792,7 @@ module.exports._test = {
   normalizeFatSecretFood,
   normalizeFatSecretSearch,
   normalizeFatSecretBarcode,
+  normalizeFatSecretBarcodeInput,
   assertFatSecretDetailSuccess,
   assertFatSecretResponseSuccess,
   parseSearchPayload,

@@ -82,7 +82,7 @@ enum MetabolicBlueprintCalculator {
     static func calculate(for metrics: OnboardingMetrics) -> MetabolicBlueprint {
         let genderConstant = metrics.gender == "Female" ? -161.0 : 5.0
         let rawBMR = (10.0 * metrics.weight) + (6.25 * Double(metrics.height)) - Double(5 * metrics.age) + genderConstant
-        let bmrDouble = max(1200.0, rawBMR)
+        let bmrDouble = max(800.0, rawBMR)
         let bmr = Int(bmrDouble)
         let tdee = bmrDouble * activityMultiplier(for: metrics.activityLevel)
 

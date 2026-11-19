@@ -118,6 +118,12 @@ struct FastingDashboardView: View {
                         FastingCategorySection(category: category)
                     }
 
+                    NutritionMethodologyDisclaimerView(
+                        citations: [.intermittentFasting],
+                        compact: true
+                    )
+                    .padding(.horizontal, 24)
+
                     Spacer().frame(height: 40)
                 }
             }
@@ -449,6 +455,11 @@ struct PremiumFastingDetailView: View {
                         .background(Color.themeOrange.opacity(0.1))
                         .cornerRadius(20)
                         .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.themeOrange.opacity(0.3), lineWidth: 1))
+                        .padding(.horizontal, 24)
+
+                        NutritionMethodologyDisclaimerView(
+                            citations: [.intermittentFasting]
+                        )
                         .padding(.horizontal, 24)
 
                         Spacer().frame(height: 120)

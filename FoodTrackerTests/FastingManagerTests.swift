@@ -146,8 +146,14 @@ final class FastingManagerTests: XCTestCase {
         XCTAssertTrue(manager.isFasting)
         XCTAssertEqual(mockLiveActivity.startedCalls.count, 0)
         XCTAssertEqual(mockLiveActivity.reattachedCalls.count, 1)
+        XCTAssertEqual(mockLiveActivity.updatedCalls.count, 0, "Cold-start restore must reattach before dispatching updateActivity")
         XCTAssertEqual(mockLiveActivity.reattachedCalls.first?.currentStage, "Digestion Mode")
         XCTAssertEqual(mockLiveActivity.reattachedCalls.first?.progressPct ?? 0, 6.0 / 16.0, accuracy: 0.02)
+    }
+
+    func testPhase4hNotificationTitleMatchesDigestionModeStage() {
+        let phase4Copy = FastingManager.phaseNotificationCopy(forHours: 4)
+        XCTAssertTrue(phase4Copy.title.localizedCaseInsensitiveContains("Digestion"))
     }
 
     func testFastingTimerLoopContinuesInOvertimeWhenStillFasting() {

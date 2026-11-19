@@ -13,6 +13,17 @@ final class PrivacyManifestTests: XCTestCase {
         XCTAssertTrue(types.contains("NSPrivacyCollectedDataTypePhotosOrVideos"))
         XCTAssertFalse(types.contains("NSPrivacyCollectedDataTypePhotosorVideos"))
         XCTAssertTrue(types.contains("NSPrivacyCollectedDataTypeFitness"))
+        XCTAssertTrue(types.contains("NSPrivacyCollectedDataTypeDeviceID"))
+    }
+
+    func testPrivacyManifestDeclaresFileTimestampRequiredReasonAPI() throws {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"))
+        let data = try Data(contentsOf: url)
+        let plist = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+        let apiTypes = try XCTUnwrap(plist["NSPrivacyAccessedAPITypes"] as? [[String: Any]])
+        let fileTimestampEntry = apiTypes.first { ($0["NSPrivacyAccessedAPIType"] as? String) == "NSPrivacyAccessedAPICategoryFileTimestamp" }
+        let reasons = fileTimestampEntry?["NSPrivacyAccessedAPITypeReasons"] as? [String] ?? []
+        XCTAssertTrue(reasons.contains("C617.1"))
     }
 
     func testInfoPlistDoesNotDeclareUnusedRemoteNotificationBackgroundMode() {

@@ -363,11 +363,11 @@ struct MealTypeCard: View {
                 // Content
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(title)
+                        Text(LocalizedStringKey(title))
                             .font(.system(.title3, design: .rounded, weight: .bold))
                             .foregroundColor(.white)
                         
-                        Text(subtitle)
+                        Text(LocalizedStringKey(subtitle))
                             .font(.system(.caption, weight: .medium))
                             .foregroundColor(.white.opacity(0.85))
                             .lineLimit(1)
@@ -640,7 +640,7 @@ struct MacroPill: View {
             Text("\(Int(value))g")
                 .font(.subheadline.bold())
                 .foregroundColor(.primary)
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.caption)
                 .foregroundColor(.gray)
         }
@@ -919,6 +919,13 @@ struct PremiumRecipeDetailView: View {
     private var dynamicProtein: Int { Int((recipe.protein * Double(servings)).rounded()) }
     private var dynamicFat: Int { Int((recipe.fat * Double(servings)).rounded()) }
     private var dynamicCarbs: Int { Int((recipe.carbs * Double(servings)).rounded()) }
+    private var dynamicWeightGrams: Double {
+        let totalBatchGrams = recipe.ingredients.reduce(0.0) { $0 + Double($1.weightGrams) }
+        if totalBatchGrams > 0 {
+            return max(50.0, (totalBatchGrams * multiplier).rounded())
+        }
+        return Double(servings) * 250.0
+    }
 
     private var shareRecipeText: String {
         let ingredientsList = recipe.ingredients.map { "• \($0.name) (\($0.amount))" }.joined(separator: "\n")
@@ -1017,6 +1024,12 @@ struct PremiumRecipeDetailView: View {
                                                                 .background(Color.themePink.opacity(0.1))
                                                                 .clipShape(Capsule())
                                                             }
+                                                        }
+
+                                                        if recipe.baseServings > 1 && servings != recipe.baseServings {
+                                                            Text("Calories shown per \(servings) serving(s); ingredient amounts reflect full \(recipe.baseServings)-serving batch.")
+                                                                .font(.caption)
+                                                                .foregroundColor(.secondary)
                                                         }
 
                                                         VStack(spacing: 16) {
@@ -1152,7 +1165,14 @@ struct PremiumRecipeDetailView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showMealSheet) {
-            ChooseMealSheet(recipe: recipe, calories: dynamicCalories, p: Double(dynamicProtein), f: Double(dynamicFat), c: Double(dynamicCarbs))
+            ChooseMealSheet(
+                recipe: recipe,
+                calories: dynamicCalories,
+                p: Double(dynamicProtein),
+                f: Double(dynamicFat),
+                c: Double(dynamicCarbs),
+                weightGrams: dynamicWeightGrams
+            )
                 .presentationDetents([.fraction(0.5), .large]).presentationCornerRadius(32).presentationDragIndicator(.visible)
         }
         .fullScreenCover(isPresented: $showAICooking) {
@@ -1189,7 +1209,7 @@ struct FilteredRecipesListView: View {
 
                 Spacer()
 
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
 
@@ -1239,15 +1259,16 @@ struct ChooseMealSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
-    let recipe: PremiumRecipe; let calories: Int; let p: Double; let f: Double; let c: Double
+    let recipe: PremiumRecipe; let calories: Int; let p: Double; let f: Double; let c: Double; let weightGrams: Double
     @State private var selectedMeal = "Dinner"; let meals = ["Breakfast", "Lunch", "Dinner", "Snack"]
 
-    init(recipe: PremiumRecipe, calories: Int, p: Double, f: Double, c: Double) {
+    init(recipe: PremiumRecipe, calories: Int, p: Double, f: Double, c: Double, weightGrams: Double = 250.0) {
         self.recipe = recipe
         self.calories = calories
         self.p = p
         self.f = f
         self.c = c
+        self.weightGrams = weightGrams
     }
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -1275,6 +1296,7 @@ struct ChooseMealSheet: View {
         let startOfDay = Calendar.current.startOfDay(for: Date.now)
         let summary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
 
+        let resolvedWeight = max(50.0, weightGrams)
         let micros = MicronutrientEstimator.estimate(
             id: recipe.id ?? "",
             name: recipe.title,
@@ -1282,11 +1304,11 @@ struct ChooseMealSheet: View {
             protein: p,
             fat: f,
             carbs: c,
-            weight: 100
+            weight: resolvedWeight
         )
         let newFood = FoodItem(
             name: recipe.title,
-            weight: 100,
+            weight: resolvedWeight,
             calories: calories,
             protein: p,
             fats: f,

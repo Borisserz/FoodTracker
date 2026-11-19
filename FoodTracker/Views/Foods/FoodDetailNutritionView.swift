@@ -319,7 +319,7 @@ private struct MacroColumnInfo: View {
                 .foregroundColor(.primary)
                 .contentTransition(.numericText())
 
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.gray)
         }

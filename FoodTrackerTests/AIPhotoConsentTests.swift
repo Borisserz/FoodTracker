@@ -59,4 +59,9 @@ final class AIPhotoConsentTests: XCTestCase {
         XCTAssertNil(isolatedDefaults.object(forKey: AIPhotoConsentManager.defaultsKey))
         XCTAssertFalse(manager.hasConsented)
     }
+
+    func testMoodAdviceAutoFetchRequiresExplicitAIConsent() {
+        XCTAssertFalse(AIMoodAdvicePopup.shouldAutoFetchAIAdvice(hasConsented: false))
+        XCTAssertTrue(AIMoodAdvicePopup.shouldAutoFetchAIAdvice(hasConsented: true))
+    }
 }

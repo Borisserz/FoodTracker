@@ -133,6 +133,13 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
         shared.rateLimitAlertMessage != nil
     }
 
+    @MainActor
+    static func consumeRateLimitAlertMessage() -> String? {
+        guard let message = shared.rateLimitAlertMessage else { return nil }
+        shared.rateLimitAlertMessage = nil
+        return message
+    }
+
     var rateLimitAlertMessage: String?
 
     @ObservationIgnored var session: URLSession

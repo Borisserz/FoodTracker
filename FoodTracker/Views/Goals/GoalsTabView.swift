@@ -105,7 +105,11 @@ struct GoalsTabView: View {
                         
                         // Recent Logs
                         recentLogsList
-                        
+
+                        NutritionMethodologyDisclaimerView(
+                            citations: [.bmrAndTdee, .bmi, .dietaryGuidelines]
+                        )
+
                         Spacer(minLength: 40)
                     }
                     .padding()

@@ -72,7 +72,7 @@ struct MetabolicTDEEGaugeView: View {
     }
 
     static func computeTDEE(for user: User, currentWeight: Double) -> Int {
-        // Base Mifflin-St Jeor TDEE estimate (aligned with User.calculateGoals() 1200 kcal BMR floor)
+        // Base Mifflin-St Jeor TDEE estimate (safety floor is applied to daily calorie targets, not BMR)
         let rawBMR: Double
         let weight = currentWeight > 0 ? currentWeight : 75.0
         let height = user.height > 0 ? user.height : 178.0
@@ -83,7 +83,7 @@ struct MetabolicTDEEGaugeView: View {
         } else {
             rawBMR = 10 * weight + 6.25 * height - 5 * age + 5
         }
-        let bmr = max(1200, rawBMR)
+        let bmr = max(800, rawBMR)
         let multiplier = user.activityMultiplier > 0 ? user.activityMultiplier : 1.3
         return Int(bmr * multiplier)
     }
@@ -92,7 +92,7 @@ struct MetabolicTDEEGaugeView: View {
         switch selectedArchetype {
         case .cut: return max(1200, tdeeValue - 450)
         case .leanBulk: return tdeeValue + 350
-        case .longevity: return tdeeValue
+        case .longevity: return max(1200, tdeeValue)
         }
     }
     

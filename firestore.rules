@@ -52,6 +52,7 @@ service cloud.firestore {
                     && request.resource.data.icon is string
                     && request.resource.data.icon.size() > 0
                     && request.resource.data.icon.size() <= 100
+                    && request.resource.data.createdAt is timestamp
                     && request.resource.data.exercises is list
                     && request.resource.data.exercises.size() > 0
                     && request.resource.data.exercises.size() <= 200
@@ -90,6 +91,7 @@ service cloud.firestore {
                     && exists(/databases/$(database)/documents/shared_workouts/$(request.resource.data.workoutId))
                     && request.resource.data.reason in
 ["spam", "hate", "harassment", "sexual", "violence", "dangerous", "other"]
+                    && request.resource.data.createdAt is timestamp
                     && (!("details" in request.resource.data)
                         || (request.resource.data.details is string
                             && request.resource.data.details.size() <= 500));
@@ -104,7 +106,8 @@ service cloud.firestore {
                             && blockedUid != userId
                             && blockedUid.size() > 0
                             && blockedUid.size() <= 128
-                            && request.resource.data.keys().hasOnly(["blockedAt"]);
+                            && request.resource.data.keys().hasOnly(["blockedAt"])
+                            && request.resource.data.blockedAt is timestamp;
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
 

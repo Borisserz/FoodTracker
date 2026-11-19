@@ -103,6 +103,8 @@ struct ProfileView: View {
                 let bmi = heightM > 0 ? user.weight / (heightM * heightM) : 0
                 BMICardView(bmi: bmi)
 
+                NutritionMethodologyDisclaimerView(citations: [.bmi, .bmrAndTdee], compact: true)
+
                 Button(action: { showingNutritionSettings = true }) {
                     HStack {
                         VStack(alignment: .leading, spacing: 8) {
@@ -359,6 +361,12 @@ struct NutritionSettingsEditor: View {
                             MacroAdjusterRow(title: "Fat", color: .themeYellow, pct: $fPct, grams: calculateGrams(pct: fPct, multiplier: 9), onAdjust: { adjustMacros(changed: .fat) })
                             MacroAdjusterRow(title: "Carbs", color: .drinkWater, pct: $cPct, grams: calculateGrams(pct: cPct, multiplier: 4), onAdjust: { adjustMacros(changed: .carbs) })
                         }.padding(20).background(Color.white).cornerRadius(24).shadow(color: .black.opacity(0.04), radius: 10, y: 5).padding(.horizontal, 20)
+
+                        NutritionMethodologyDisclaimerView(
+                            citations: [.bmrAndTdee, .dietaryGuidelines],
+                            compact: true
+                        )
+                        .padding(.horizontal, 20)
 
                         Spacer().frame(height: 100)
                     }
@@ -1209,7 +1217,7 @@ struct AIPhotoPrivacySettingsView: View {
                 VStack(spacing: 20) {
                     VStack(alignment: .leading, spacing: 14) {
                         Toggle(
-                            "Allow AI Photo Analysis",
+                            "Allow AI Data & Photo Analysis",
                             isOn: Binding(
                                 get: { consentManager.hasConsented },
                                 set: { enabled in
@@ -1226,7 +1234,7 @@ struct AIPhotoPrivacySettingsView: View {
 
                         Divider()
 
-                        Text("When enabled, downsampled meal, menu, cooking-step, and progress photos you choose to analyze are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI vision providers. Photos are processed transiently with provider data retention disabled.")
+                        Text("When enabled, downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers. Requests are processed transiently with provider data retention disabled.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

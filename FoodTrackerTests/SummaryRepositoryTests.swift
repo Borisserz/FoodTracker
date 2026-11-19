@@ -14,30 +14,33 @@ final class SummaryRepositoryTests: XCTestCase {
         container = nil
     }
 
+    @MainActor
     func testEnsureSummary() async throws {
         let repo = SummaryRepository(modelContainer: container)
         let date = Date()
         
-        let summary1 = try await repo.ensureSummary(for: date)
-        XCTAssertNotNil(summary1)
+        let id1 = try await repo.ensureSummaryID(for: date)
+        let summary1 = try XCTUnwrap(container.mainContext.model(for: id1) as? DailySummary)
+        XCTAssertTrue(summary1.modelContext === container.mainContext)
         
-        // Fetching again should return the same summary
-        let summary2 = try await repo.ensureSummary(for: date)
-        XCTAssertEqual(summary1.persistentModelID, summary2.persistentModelID)
+        // Fetching again should return the same summary ID
+        let id2 = try await repo.ensureSummaryID(for: date)
+        XCTAssertEqual(id1, id2)
     }
 
+    @MainActor
     func testEnsureSummarySameDayDifferentTimes() async throws {
         let repo = SummaryRepository(modelContainer: container)
         let calendar = Calendar.current
         let morning = calendar.date(bySettingHour: 8, minute: 30, second: 0, of: Date())!
         let evening = calendar.date(bySettingHour: 21, minute: 45, second: 0, of: Date())!
 
-        let s1 = try await repo.ensureSummary(for: morning)
-        let s2 = try await repo.ensureSummary(for: evening)
+        let id1 = try await repo.ensureSummaryID(for: morning)
+        let id2 = try await repo.ensureSummaryID(for: evening)
 
-        XCTAssertEqual(s1.persistentModelID, s2.persistentModelID)
-        let all = try await repo.fetchSummaries(startDate: calendar.startOfDay(for: morning), endDate: calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: morning))!)
-        XCTAssertEqual(all.count, 1)
+        XCTAssertEqual(id1, id2)
+        let allIDs = try await repo.fetchSummaryIDs(startDate: calendar.startOfDay(for: morning), endDate: calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: morning))!)
+        XCTAssertEqual(allIDs.count, 1)
     }
 
     func testStreakCalculation() async throws {
@@ -80,6 +83,7 @@ final class SummaryRepositoryTests: XCTestCase {
         XCTAssertEqual(streak, 3)
     }
 
+    @MainActor
     func testEnsureSummaryMergesCloudKitDuplicates() async throws {
         let repo = SummaryRepository(modelContainer: container)
         let calendar = Calendar.current
@@ -95,17 +99,20 @@ final class SummaryRepositoryTests: XCTestCase {
         try await repo.saveSummary(s1)
         try await repo.saveSummary(s2)
 
-        let ensured = try await repo.ensureSummary(for: today)
-        let fetched = try await repo.fetchSummaries(
+        let ensuredID = try await repo.ensureSummaryID(for: today)
+        let fetchedIDs = try await repo.fetchSummaryIDs(
             startDate: today,
             endDate: calendar.date(byAdding: .day, value: 1, to: today)!
         )
+        let ensured = try XCTUnwrap(container.mainContext.model(for: ensuredID) as? DailySummary)
 
-        XCTAssertEqual(fetched.count, 1)
+        XCTAssertEqual(fetchedIDs.count, 1)
+        XCTAssertTrue(ensured.modelContext === container.mainContext)
         XCTAssertEqual(ensured.totalFoodCalories, 320)
         XCTAssertEqual(ensured.totalHydrationLiters, 0.5, accuracy: 0.01)
     }
 
+    @MainActor
     func testFetchSummariesMergesSameDayDuplicatesWithoutPreMerge() async throws {
         let repo = SummaryRepository(modelContainer: container)
         let calendar = Calendar.current
@@ -124,9 +131,11 @@ final class SummaryRepositoryTests: XCTestCase {
         try await repo.saveSummary(s2)
 
         let rangeEnd = calendar.date(byAdding: .day, value: 1, to: today)!
-        let fetched = try await repo.fetchSummaries(startDate: yesterday, endDate: rangeEnd)
+        let fetchedIDs = try await repo.fetchSummaryIDs(startDate: yesterday, endDate: rangeEnd)
+        let fetched = fetchedIDs.compactMap { container.mainContext.model(for: $0) as? DailySummary }
 
         XCTAssertEqual(fetched.count, 1)
+        XCTAssertTrue(fetched.first?.modelContext === container.mainContext)
         XCTAssertEqual(fetched.first?.totalCalories, 370)
         XCTAssertEqual(fetched.first?.totalHydrationLiters ?? 0, 0.25, accuracy: 0.01)
     }

@@ -66,6 +66,8 @@ struct AICoachChatView: View {
     @FocusState private var isInputFocused: Bool
 
     @State private var showHistorySheet = false
+    @State private var showAIConsentSheet = false
+    @State private var pendingMessageToSend = false
     @State private var activeTask: Task<Void, Never>? = nil
 
     var body: some View {
@@ -181,6 +183,19 @@ struct AICoachChatView: View {
                 }
             )
         }
+        .sheet(isPresented: $showAIConsentSheet) {
+            AIPhotoConsentSheet(
+                onAllow: {
+                    if pendingMessageToSend {
+                        pendingMessageToSend = false
+                        sendMessage()
+                    }
+                },
+                onDecline: {
+                    pendingMessageToSend = false
+                }
+            )
+        }
         .onDisappear {
             activeTask?.cancel()
             activeTask = nil
@@ -193,7 +208,12 @@ struct AICoachChatView: View {
                     try? await Task.sleep(for: .milliseconds(500))
                     guard !Task.isCancelled, self.chatHistory.isEmpty else { return }
                     self.inputText = contextMsg
-                    self.sendMessage()
+                    if AIPhotoConsentManager.shared.hasConsented {
+                        self.sendMessage()
+                    } else {
+                        self.pendingMessageToSend = true
+                        self.showAIConsentSheet = true
+                    }
                 }
             }
         }
@@ -202,6 +222,11 @@ struct AICoachChatView: View {
     private func sendMessage() {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        guard AIPhotoConsentManager.shared.hasConsented else {
+            pendingMessageToSend = true
+            showAIConsentSheet = true
+            return
+        }
 
         let userMsg = AIChatMessage(isUser: true, text: text)
         chatHistory.append(userMsg)
@@ -261,11 +286,13 @@ struct AICoachChatView: View {
                     self.chatHistory.append(aiMsg)
                     targetSession.messages.append(aiMsg)
                     try? self.context.save()
-                } else if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
+                } else {
                     // Show transient error message in UI without persisting fake AI text into SwiftData history.
+                    let message = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? String(localized: "I couldn't process that right now.")
                     let errorMsg = AIChatMessage(
                         isUser: false,
-                        text: String(localized: "I couldn't process that right now."),
+                        text: message,
                         isAnimating: false
                     )
                     self.chatHistory.append(errorMsg)

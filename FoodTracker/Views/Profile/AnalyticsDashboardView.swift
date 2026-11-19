@@ -163,6 +163,11 @@ struct AnalyticsTabView: View {
                             ConsistencyHeatmapCard(summaries: viewModel?.summaries ?? [], user: user)
                                 .padding(.horizontal, 20)
 
+                            NutritionMethodologyDisclaimerView(
+                                citations: [.micronutrients, .dietaryGuidelines]
+                            )
+                            .padding(.horizontal, 20)
+
                         }
                         .padding(.bottom, 120)
                         .onAppear {
@@ -853,7 +858,7 @@ struct AIHydrationAnalyticsCard: View {
         context.insert(newBeverage)
         targetSummary.addBeverage(newBeverage)
         try? context.save()
-        WorkoutSyncManager.shared.syncWater(targetSummary.totalHydrationLiters, for: targetSummary.date)
+        WorkoutSyncManager.shared.syncWater(targetSummary.totalPureWaterLiters, for: targetSummary.date)
         WidgetReloader.reloadAll()
         onUpdate()
         
@@ -886,7 +891,7 @@ struct AIHydrationAnalyticsCard: View {
             }
             context.delete(lastWater)
             try? context.save()
-            WorkoutSyncManager.shared.syncWater(targetSummary.totalHydrationLiters, for: targetSummary.date)
+            WorkoutSyncManager.shared.syncWater(targetSummary.totalPureWaterLiters, for: targetSummary.date)
             WidgetReloader.reloadAll()
             onUpdate()
 

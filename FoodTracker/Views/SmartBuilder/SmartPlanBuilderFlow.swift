@@ -22,6 +22,7 @@ struct SmartPlanBuilderFlow: View {
     @State private var generatedPlan: WeeklyMealPlan? = nil
     @State private var generationError: String? = nil
     @State private var generationTask: Task<Void, Never>? = nil
+    @State private var showAIConsentSheet = false
     
     let dietTypes = SmartPlanBuilderConfig.dietTypes
     let complexities = SmartPlanBuilderConfig.complexities
@@ -136,6 +137,12 @@ struct SmartPlanBuilderFlow: View {
                 }
             } message: {
                 Text(generationError ?? "")
+            }
+            .sheet(isPresented: $showAIConsentSheet) {
+                AIPhotoConsentSheet(
+                    onAllow: { startGeneration() },
+                    onDecline: {}
+                )
             }
         }
     }
@@ -361,6 +368,10 @@ struct SmartPlanBuilderFlow: View {
     
     private func startGeneration() {
         guard !isGenerating else { return }
+        guard AIPhotoConsentManager.shared.hasConsented else {
+            showAIConsentSheet = true
+            return
+        }
         withAnimation {
             isGenerating = true
         }
@@ -390,9 +401,8 @@ struct SmartPlanBuilderFlow: View {
             } else {
                 await MainActor.run {
                     withAnimation { isGenerating = false }
-                    if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
-                        generationError = String(localized: "Couldn't generate a 7-day plan right now. Please try again.")
-                    }
+                    generationError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? String(localized: "Couldn't generate a 7-day plan right now. Please try again.")
                     HapticManager.shared.notification(type: .error)
                 }
             }

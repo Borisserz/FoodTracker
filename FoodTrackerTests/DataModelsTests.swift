@@ -322,6 +322,14 @@ final class DataModelsTests: XCTestCase {
         let breakdown = NutritionMath.finishDayXP(for: emptySummary, user: user)
         XCTAssertEqual(breakdown.calorieGoalXP, 0)
 
+        // Logging only 100 kcal out of 2000 kcal goal (< 75%) must NOT award full +150 calorieGoalXP.
+        let tinySummary = DailySummary(
+            date: Date(),
+            meals: [Meal(title: "Snack", date: Date(), foodItems: [FoodItem(name: "Apple", weight: 150, calories: 100, protein: 1, fats: 0, carbs: 25)])]
+        )
+        XCTAssertEqual(NutritionMath.finishDayXP(for: tinySummary, user: user).calorieGoalXP, 0)
+        XCTAssertFalse(DailyXPQuestsEvaluator.isQuestSatisfied(.meals, summary: tinySummary), "Log all meals quest must require 3 distinct meal slots, not 1 snack")
+
         let defaultsSuite = "test.XPClaim.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: defaultsSuite)!
         defer { defaults.removePersistentDomain(forName: defaultsSuite) }
@@ -883,8 +891,15 @@ final class DataModelsTests: XCTestCase {
         pete.activityMultiplier = 1.55
         pete.weightGoalType = "maintain"
         pete.calculateGoals()
-        // Raw BMR = 10*45 + 6.25*150 - 200 - 161 = 1026.5 -> clamped to 1200 before * 1.55 = 1860
-        XCTAssertEqual(pete.dailyCaloriesGoal, 1860)
+        // Raw BMR = 10*45 + 6.25*150 - 200 - 161 = 1026.5; TDEE = 1026.5 * 1.55 = 1591.075 -> maintain = max(1200, 1591) = 1591
+        XCTAssertEqual(pete.dailyCaloriesGoal, 1591)
+
+        // With lose goal, deficit drops below 1200 so clinical safety floor clamps final dailyCaloriesGoal to 1200.
+        pete.weightGoalType = "lose"
+        pete.calculateGoals()
+        XCTAssertEqual(pete.dailyCaloriesGoal, 1200)
+        pete.weightGoalType = "maintain"
+        pete.calculateGoals()
 
         let alex = User(name: "Alex", weight: 75, height: 180, age: 28, gender: "Male")
         context.insert(alex)
@@ -1155,11 +1170,15 @@ final class DataModelsTests: XCTestCase {
         XCTAssertTrue(all.contains { $0.name == "Salmon" && $0.addedFromRecipe == "Salmon Bowl" })
     }
 
-    func testMetabolicTDEEGaugeComputeTDEEApplies1200Floor() {
+    func testMetabolicTDEEGaugeComputeTDEEDoesNotPreFloorBMRBeforeMultiplier() {
         let user = User(name: "Small", weight: 42, height: 150, age: 30, gender: "Female")
         user.activityMultiplier = 1.4
-        // Raw female BMR = 420 + 937.5 - 150 - 161 = 1046.5 -> clamped to 1200 * 1.4 = 1680
-        XCTAssertEqual(MetabolicTDEEGaugeView.computeTDEE(for: user, currentWeight: 42), 1680)
+        // Raw female BMR = 420 + 937.5 - 150 - 161 = 1046.5; 1046.5 * 1.4 = 1465 (not pre-floored at 1200 before multiplier)
+        XCTAssertEqual(MetabolicTDEEGaugeView.computeTDEE(for: user, currentWeight: 42), 1465)
+
+        user.activityMultiplier = 1.0
+        // Physiological TDEE is Int(1046.5 * 1.0) = 1046; 1200 kcal floor applies to calorie goals, not TDEE.
+        XCTAssertEqual(MetabolicTDEEGaugeView.computeTDEE(for: user, currentWeight: 42), 1046)
     }
 
     func testDeleteLastWeightLogPreservesPositiveUserWeight() throws {
@@ -1394,6 +1413,18 @@ final class DataModelsTests: XCTestCase {
                 existingSameDayLogWeightKg: nil
             )
         )
+        // Stale HK sample older than latest local log must NOT overwrite newer local weight.
+        let today = Date()
+        let yesterday = today.addingTimeInterval(-86_400)
+        XCTAssertFalse(
+            HealthKitWeightSyncHelper.shouldImportHealthKitWeight(
+                latestHKWeightKg: 78.0,
+                currentUserWeightKg: 75.0,
+                existingSameDayLogWeightKg: nil,
+                latestHKSampleDate: yesterday,
+                latestLocalLogDate: today
+            )
+        )
     }
 
     @MainActor
@@ -1459,8 +1490,16 @@ final class DataModelsTests: XCTestCase {
         summary.addBeverage(Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 2500))
 
         XCTAssertTrue(DailyXPQuestsEvaluator.isQuestSatisfied(.steps, summary: summary))
-        XCTAssertTrue(DailyXPQuestsEvaluator.isQuestSatisfied(.meals, summary: summary))
+        XCTAssertFalse(DailyXPQuestsEvaluator.isQuestSatisfied(.meals, summary: summary))
         XCTAssertTrue(DailyXPQuestsEvaluator.isQuestSatisfied(.water, summary: summary))
+
+        summary.addMeal(Meal(title: "Lunch", date: Date(), foodItems: [
+            FoodItem(name: "Salad", weight: 200, calories: 450, protein: 25, fats: 15, carbs: 40)
+        ]))
+        summary.addMeal(Meal(title: "Dinner", date: Date(), foodItems: [
+            FoodItem(name: "Salmon", weight: 200, calories: 550, protein: 40, fats: 25, carbs: 20)
+        ]))
+        XCTAssertTrue(DailyXPQuestsEvaluator.isQuestSatisfied(.meals, summary: summary))
 
         let suite = "FinishDayXPWindow.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
@@ -1654,5 +1693,81 @@ final class DataModelsTests: XCTestCase {
         let resolvedValid = SharedModelContainer.resolvedStoreDirectoryURL(appGroupContainerURL: customGroup)
         XCTAssertFalse(resolvedValid.didUseFallbackDirectory)
         XCTAssertEqual(resolvedValid.url, customGroup)
+    }
+
+    func testReconcileWaterPartialTrimClearsSampleIDAndEmitsReplacementVolume() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let suiteName = "test.water.partialtrim.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: suiteName)!
+        let syncSuite = "test.water.partialtrim.sync.\(UUID().uuidString)"
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: suiteName)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        let summary = DailySummary(date: today)
+        context.insert(summary)
+        let sampleUUID = UUID().uuidString
+        let drink = Beverage(date: today, name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 500)
+        drink.healthKitSampleID = sampleUUID
+        context.insert(drink)
+        summary.addBeverage(drink)
+
+        // Previously synced 0.5 L; WorkoutTracker decreased to 0.25 L (partial trim of 250 ml).
+        sharedDefaults.set(0.25, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+        syncDefaults.set(0.5, forKey: WorkoutSyncManager.lastSyncedWaterKey(for: today))
+
+        let outcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertTrue(outcome.mutated)
+        XCTAssertNil(drink.healthKitSampleID)
+        XCTAssertEqual(drink.volumeMl, 250.0, accuracy: 0.01)
+        XCTAssertEqual(outcome.deletedHealthKitSamples.count, 1)
+        XCTAssertEqual(outcome.deletedHealthKitSamples.first?.sampleID, sampleUUID)
+        XCTAssertEqual(outcome.deletedHealthKitSamples.first?.volumeMl ?? 0, 500.0, accuracy: 0.01)
+        XCTAssertEqual(outcome.deletedHealthKitSamples.first?.replacementVolumeMl ?? 0, 250.0, accuracy: 0.01)
+        XCTAssertEqual(outcome.deletedHealthKitSamples.first?.beverageID, drink.persistentModelID)
+    }
+
+    func testReconcileWaterTagsImportedWorkoutTrackerDrinkAsExternal() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let suiteName = "test.water.externaltag.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: suiteName)!
+        let syncSuite = "test.water.externaltag.sync.\(UUID().uuidString)"
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: suiteName)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        let summary = DailySummary(date: today)
+        context.insert(summary)
+        sharedDefaults.set(0.5, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        let outcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertTrue(outcome.mutated)
+        XCTAssertEqual(summary.beverages?.first?.healthKitSampleID, WorkoutSyncManager.externalWaterSentinelID)
     }
 }

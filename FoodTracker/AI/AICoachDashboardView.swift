@@ -11,6 +11,8 @@ struct AICoachDashboardView: View {
     @State private var viewModel: AICoachViewModel?
     @State private var bgPhase = 0.0
     @State private var selectedTipIndex = 0
+    @State private var showAIConsentSheet = false
+    @State private var pendingConsentedAction: (() -> Void)? = nil
     @FocusState private var isSearchFocused: Bool
 
     let selectedDate: Date
@@ -127,7 +129,10 @@ struct AICoachDashboardView: View {
                                     moodColor: moodColors[0],
                                     isLoading: viewModel.isAnalyzing,
                                     hasAnalyzed: viewModel.hasAnalyzedToday,
-                                    onAnalyze: { if let u = currentUser { viewModel.runDailyAnalysis(currentSummary: currentSummary, currentUser: u) } }
+                                    onAnalyze: {
+                                        guard let u = currentUser else { return }
+                                        performWithAIConsent { viewModel.runDailyAnalysis(currentSummary: currentSummary, currentUser: u) }
+                                    }
                                 )
 
                                 HStack(spacing: 16) {
@@ -136,7 +141,10 @@ struct AICoachDashboardView: View {
                                         icon: "chart.pie.fill",
                                         color: .themeYellow,
                                         isLoading: viewModel.isFixingMacros,
-                                        action: { if let u = currentUser { viewModel.analyzeMacros(currentSummary: currentSummary, currentUser: u) } }
+                                        action: {
+                                            guard let u = currentUser else { return }
+                                            performWithAIConsent { viewModel.analyzeMacros(currentSummary: currentSummary, currentUser: u) }
+                                        }
                                     )
 
                                     AIFixCard(
@@ -144,7 +152,9 @@ struct AICoachDashboardView: View {
                                         icon: "drop.fill",
                                         color: .cyan,
                                         isLoading: viewModel.isFixingHydration,
-                                        action: { viewModel.analyzeHydration(currentSummary: currentSummary) }
+                                        action: {
+                                            performWithAIConsent { viewModel.analyzeHydration(currentSummary: currentSummary) }
+                                        }
                                     )
                                 }
                                 .padding(.horizontal)
@@ -208,6 +218,27 @@ struct AICoachDashboardView: View {
             } message: {
                 Text(viewModel?.errorMessage ?? "")
             }
+            .sheet(isPresented: $showAIConsentSheet) {
+                AIPhotoConsentSheet(
+                    onAllow: {
+                        let action = pendingConsentedAction
+                        pendingConsentedAction = nil
+                        action?()
+                    },
+                    onDecline: {
+                        pendingConsentedAction = nil
+                    }
+                )
+            }
+        }
+    }
+
+    private func performWithAIConsent(_ action: @escaping () -> Void) {
+        if AIPhotoConsentManager.shared.hasConsented {
+            action()
+        } else {
+            pendingConsentedAction = action
+            showAIConsentSheet = true
         }
     }
 
@@ -218,7 +249,7 @@ struct AICoachDashboardView: View {
         context.insert(water)
         summary.addBeverage(water)
         try? context.save()
-        WorkoutSyncManager.shared.syncWater(summary.totalHydrationLiters, for: summary.date)
+        WorkoutSyncManager.shared.syncWater(summary.totalPureWaterLiters, for: summary.date)
         WidgetReloader.reloadAll()
         HapticManager.shared.notification(type: .success)
 
@@ -424,7 +455,10 @@ struct AICoachDashboardView: View {
                         .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
                 )
 
-                Button(action: { if let u = currentUser { viewModel?.generateSmartRecipe(currentSummary: currentSummary, currentUser: u) } }) {
+                Button(action: {
+                    guard let u = currentUser else { return }
+                    performWithAIConsent { viewModel?.generateSmartRecipe(currentSummary: currentSummary, currentUser: u) }
+                }) {
                     if viewModel?.isGeneratingRecipe == true {
                         ProgressView().tint(.white)
                             .padding()
@@ -552,9 +586,32 @@ struct AICoachDashboardView: View {
 
     private func saveGeneratedRecipe(_ recipeDTO: AIRecipeDTO) {
         let directions = recipeDTO.info.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? [] : [recipeDTO.info]
+        let micros = MicronutrientEstimator.estimate(
+            name: recipeDTO.name,
+            calories: recipeDTO.calories,
+            protein: recipeDTO.protein,
+            fat: recipeDTO.fats,
+            carbs: recipeDTO.carbs,
+            weight: 250.0
+        )
+        let food = FoodItem(
+            name: recipeDTO.name,
+            weight: 250,
+            calories: recipeDTO.calories,
+            protein: recipeDTO.protein,
+            fats: recipeDTO.fats,
+            carbs: recipeDTO.carbs,
+            omega3: micros.omega3,
+            calcium: micros.calcium,
+            potassium: micros.potassium,
+            magnesium: micros.magnesium,
+            iron: micros.iron,
+            vitaminC: micros.vitaminC,
+            vitaminD: micros.vitaminD
+        )
         let newRecipe = CustomRecipe(
             name: recipeDTO.name, info: recipeDTO.info,
-            foodItems: [FoodItem(name: recipeDTO.name, weight: 100, calories: recipeDTO.calories, protein: recipeDTO.protein, fats: recipeDTO.fats, carbs: recipeDTO.carbs)],
+            foodItems: [food],
             cookingTime: recipeDTO.cookingTime, difficulty: "Medium",
             directions: directions)
         context.insert(newRecipe); try? context.save()
@@ -674,7 +731,7 @@ struct AIFixCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
+                    Text(LocalizedStringKey(title))
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -961,6 +1018,19 @@ struct HydrationFixResultSheet: View {
                         .multilineTextAlignment(.center)
                         .lineSpacing(3)
                         .padding(.horizontal, 32)
+
+                    if advice.nextGlassTimeMinutes > 0 {
+                        Label(
+                            String(localized: "Next glass in \(advice.nextGlassTimeMinutes) min"),
+                            systemImage: "clock.fill"
+                        )
+                        .font(.caption.bold())
+                        .foregroundColor(color)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(color.opacity(0.12))
+                        .clipShape(Capsule())
+                    }
                 }
 
                 Spacer()

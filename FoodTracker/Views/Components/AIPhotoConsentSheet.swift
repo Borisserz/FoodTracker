@@ -25,10 +25,10 @@ struct AIPhotoConsentSheet: View {
                     .padding(.top, 12)
 
                     VStack(spacing: 8) {
-                        Text("AI Photo Analysis Consent")
+                        Text("AI Data & Photo Consent")
                             .font(.title2.bold())
                             .multilineTextAlignment(.center)
-                        Text("Review how your photos are processed before using AI visual analysis.")
+                        Text("Review how your photos and nutrition context are processed before using AI features.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -39,21 +39,21 @@ struct AIPhotoConsentSheet: View {
                             icon: "photo.on.rectangle.angled",
                             iconColor: .blue,
                             title: "What is sent",
-                            detail: "Only the downsampled photo you capture or pick for meal, menu, cooking-step, or progress analysis."
+                            detail: "Only the downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for your AI request."
                         )
                         Divider()
                         ConsentInfoRow(
                             icon: "network.badge.shield.half.filled",
                             iconColor: themeManager.current.primaryAccent,
                             title: "Who processes it",
-                            detail: "Photos are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI vision models to estimate nutrition and provide feedback."
+                            detail: "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers to estimate nutrition and personalize feedback."
                         )
                         Divider()
                         ConsentInfoRow(
                             icon: "lock.shield.fill",
                             iconColor: .green,
                             title: "Privacy & control",
-                            detail: "Photos are processed transiently with provider data retention disabled, and you can revoke this consent anytime in Settings."
+                            detail: "Requests are processed transiently with provider data retention disabled, and you can revoke this consent anytime in Settings."
                         )
                     }
                     .padding(18)
@@ -72,7 +72,7 @@ struct AIPhotoConsentSheet: View {
                         dismiss()
                         onAllow()
                     } label: {
-                        Text("Allow & Analyze")
+                        Text("Allow AI Analysis")
                             .font(.headline)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)

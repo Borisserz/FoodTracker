@@ -92,6 +92,14 @@ final class HealthKitManagerTests: XCTestCase {
             AppDelegate.notificationDeepLinkRoute(identifier: "FASTING_STAGE_ketosis", categoryIdentifier: ""),
             "fasting"
         )
+        XCTAssertEqual(
+            AppDelegate.notificationDeepLinkRoute(identifier: "phase_4h", categoryIdentifier: ""),
+            "fasting"
+        )
+        XCTAssertEqual(
+            AppDelegate.notificationDeepLinkRoute(identifier: "fasting_goal_reached", categoryIdentifier: "FASTING_PHASE"),
+            "fasting"
+        )
         XCTAssertNil(
             AppDelegate.notificationDeepLinkRoute(identifier: "WATER_REMINDER", categoryIdentifier: "HYDRATION")
         )
@@ -144,12 +152,49 @@ final class HealthKitManagerTests: XCTestCase {
         let kg = try await manager.fetchLatestBodyMassKg()
         XCTAssertEqual(kg ?? 0, 74.6, accuracy: 0.01)
     }
+
+    func testHealthKitManagerIgnoresExternalSentinelOnWaterDeleteAndDeletesBodyMassByUUID() async throws {
+        let mockStore = MockHealthKitStore()
+        let waterType = HKQuantityType.quantityType(forIdentifier: .dietaryWater)!
+        let bodyMassType = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
+        mockStore.authorizedTypes = [waterType, bodyMassType]
+
+        let localWater = HKQuantitySample(
+            type: waterType,
+            quantity: HKQuantity(unit: .liter(), doubleValue: 0.5),
+            start: Date(),
+            end: Date()
+        )
+        let weightSample = HKQuantitySample(
+            type: bodyMassType,
+            quantity: HKQuantity(unit: .gramUnit(with: .kilo), doubleValue: 74.0),
+            start: Date(),
+            end: Date()
+        )
+        mockStore.quantitySamples = [localWater, weightSample]
+        let manager = HealthKitManager(store: mockStore, isAvailable: { true })
+
+        await manager.deleteWaterSample(
+            idString: WorkoutSyncManager.externalWaterSentinelID,
+            litersFallback: 0.5,
+            date: .now
+        )
+        XCTAssertTrue(mockStore.deletedObjectUUIDs.isEmpty, "Deleting WorkoutTracker-imported water must never fallback-delete FoodTracker's own HK water sample")
+
+        await manager.deleteBodyMassSample(
+            idString: weightSample.uuid.uuidString,
+            kgFallback: 74.0,
+            date: .now
+        )
+        XCTAssertEqual(mockStore.deletedObjectUUIDs, [weightSample.uuid])
+    }
 }
 
 private final class MockHealthKitStore: HealthKitStoreExecuting, @unchecked Sendable {
     var authorizedTypes: Set<HKObjectType> = []
     var savedObjects: [HKObject] = []
     var quantitySamples: [HKQuantitySample] = []
+    var deletedObjectUUIDs: [UUID] = []
 
     func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus {
         authorizedTypes.contains(type) ? .sharingAuthorized : .sharingDenied
@@ -162,7 +207,9 @@ private final class MockHealthKitStore: HealthKitStoreExecuting, @unchecked Send
     }
 
     func delete(_ object: HKObject) async throws {
+        deletedObjectUUIDs.append(object.uuid)
         savedObjects.removeAll { $0.uuid == object.uuid }
+        quantitySamples.removeAll { $0.uuid == object.uuid }
     }
 
     func sumQuantity(for identifier: HKQuantityTypeIdentifier, start: Date, end: Date) async throws -> Double {
@@ -232,6 +279,42 @@ final class WidgetIntentStorageTests: XCTestCase {
 
         let pending = WorkoutSyncManager.shared.consumePendingWidgetWaterEntriesLiters(for: fixedDate, appGroupDefaults: defaults)
         XCTAssertEqual(pending.reduce(0, +), 0.25, accuracy: 0.001)
+    }
+
+    func testPerformAddWaterReconcilesExternalWorkoutTrackerWaterBeforeWriting() throws {
+        let context = try makeInMemoryContext()
+        let fixedDate = Date()
+        let sharedSuite = "test.widget.reconcile.shared.\(UUID().uuidString)"
+        let syncSuite = "test.widget.reconcile.sync.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        // Baseline: 0.5 L synced locally and in WorkoutTracker.
+        let summary = DailySummary.fetchOrCreate(for: fixedDate, in: context)
+        let initialDrink = Beverage(date: fixedDate, name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 500)
+        context.insert(initialDrink)
+        summary.addBeverage(initialDrink)
+        try context.save()
+        WorkoutSyncManager.shared.syncWater(0.5, for: fixedDate, sharedDefaults: sharedDefaults, appGroupDefaults: syncDefaults, localDefaults: syncDefaults)
+
+        // WorkoutTracker logs +0.5 L -> shared is now 1.0 L before main FoodTracker app opens.
+        sharedDefaults.set(1.0, forKey: WorkoutSyncManager.waterLitersKey(for: fixedDate))
+
+        // User taps +250 ml on FoodTracker Widget.
+        try WidgetStorageActions.addWaterGlassAndRecordPendingDelta(
+            volumeMl: 250.0,
+            in: context,
+            for: fixedDate,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults
+        )
+
+        XCTAssertEqual(summary.totalPureWaterLiters, 1.25, accuracy: 0.01)
+        XCTAssertEqual(sharedDefaults.double(forKey: WorkoutSyncManager.waterLitersKey(for: fixedDate)), 1.25, accuracy: 0.01)
     }
 }
 
@@ -400,5 +483,72 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
 
     func testAnalyticsMicroIronRDAMatchesCompactCard() {
         XCTAssertEqual(AnalyticsMicro.iron.rda, 18.0, accuracy: 0.001)
+    }
+
+    func testMedicalCitationCatalogProvidesValidOfficialSourcesAndDietsExposeContraindications() {
+        let all = MedicalCitation.allCases
+        XCTAssertEqual(all.count, 5)
+        for citation in all {
+            XCTAssertEqual(citation.url.scheme, "https")
+            XCTAssertNotNil(citation.url.host)
+        }
+        XCTAssertTrue(MedicalCitation.bmrAndTdee.url.absoluteString.contains("pubmed.ncbi.nlm.nih.gov"))
+        XCTAssertTrue(MedicalCitation.bmi.url.absoluteString.contains("who.int"))
+        XCTAssertTrue(MedicalCitation.dietaryGuidelines.url.absoluteString.contains("dietaryguidelines.gov"))
+        XCTAssertTrue(MedicalCitation.micronutrients.url.absoluteString.contains("ods.od.nih.gov"))
+        XCTAssertTrue(MedicalCitation.intermittentFasting.url.absoluteString.contains("pubmed.ncbi.nlm.nih.gov"))
+
+        for diet in DietPlan.defaultDiets {
+            XCTAssertFalse(diet.contraindications.isEmpty, "Diet \(diet.key) must declare medical contraindications")
+        }
+    }
+
+    func testWave1DisclaimerAndConsentKeysLocalizedAcrossAllSevenLocales() throws {
+        let projectRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let catalogURL = projectRoot.appendingPathComponent("Localizable.xcstrings")
+        let data = try Data(contentsOf: catalogURL)
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let strings = try XCTUnwrap(json["strings"] as? [String: Any])
+
+        let requiredKeys = [
+            "Estimates are for informational and educational purposes only and are not medical advice. Consult a healthcare professional before starting any diet or fasting protocol.",
+            "Sources & Methodology",
+            "Mifflin-St Jeor (BMR/TDEE)",
+            "WHO BMI Classification",
+            "USDA Dietary Guidelines",
+            "NIH Micronutrient RDAs",
+            "NEJM Fasting Review",
+            "Medical Contraindications",
+            "Consult a doctor before starting if any of the following apply:",
+            "AI Data & Photo Consent",
+            "Allow AI Analysis",
+            "Allow AI Data & Photo Analysis",
+            "Personalize with AI",
+            "Review how your photos and nutrition context are processed before using AI features.",
+            "Personalized for %@ with %lld kcal/day",
+            "AI Limit Reached",
+            "Temporary Storage Mode",
+            "Fits ~%lld kcal • %@",
+            "Replace Active Fast?",
+            "%lld items",
+            "Over Goal: **%lld**",
+            "Day %lld",
+            "Next glass in %lld min",
+            "Calories shown per %lld serving(s); ingredient amounts reflect full %lld-serving batch."
+        ]
+        let requiredLocales = ["de", "es", "fr", "it", "pt-PT", "ru"]
+
+        for key in requiredKeys {
+            let entry = try XCTUnwrap(strings[key] as? [String: Any], "Missing localization key: \(key)")
+            let localizations = try XCTUnwrap(entry["localizations"] as? [String: Any], "Missing localizations for: \(key)")
+            for locale in requiredLocales {
+                let locDict = try XCTUnwrap(localizations[locale] as? [String: Any], "Missing \(locale) for: \(key)")
+                let stringUnit = try XCTUnwrap(locDict["stringUnit"] as? [String: Any], "Missing stringUnit in \(locale) for: \(key)")
+                let value = stringUnit["value"] as? String ?? ""
+                XCTAssertFalse(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Empty \(locale) translation for: \(key)")
+            }
+        }
     }
 }

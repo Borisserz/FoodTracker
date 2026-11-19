@@ -392,8 +392,14 @@ struct MoodAdviceDTO: Codable {
 class AINutritionService {
     static let shared = AINutritionService()
 
-    init(proxy: any GeminiProxyExecuting = GeminiProxyClient.shared) {
+    init(
+        proxy: any GeminiProxyExecuting = GeminiProxyClient.shared,
+        consentProvider: @escaping @Sendable () async -> Bool = {
+            await MainActor.run { AIPhotoConsentManager.shared.hasConsented }
+        }
+    ) {
         self.client = proxy
+        self.consentProvider = consentProvider
     }
 
     private var currentLanguage: String {
@@ -413,7 +419,7 @@ class AINutritionService {
         "CRITICAL: RESPOND EXCLUSIVELY IN THIS LANGUAGE: \(currentLanguage). If returning JSON, keep JSON keys in English, but translate ALL string values to \(currentLanguage)."
     }
 
-    private let location = "us-central1"
+    private let consentProvider: @Sendable () async -> Bool
 
     func generateDailyVerdict(consumed: Int, goal: Int, protein: Double, targetProtein: Double) async -> DailyVerdictDTO? {
         let prompt = """
@@ -506,8 +512,14 @@ class AINutritionService {
             let safeProtein = max(0, dto.protein)
             let safeFats = max(0, dto.fats)
             let safeCarbs = max(0, dto.carbs)
-            let hasMicros = (dto.omega3 ?? 0) > 0 || (dto.calcium ?? 0) > 0 || (dto.potassium ?? 0) > 0 || (dto.magnesium ?? 0) > 0 || (dto.iron ?? 0) > 0 || (dto.vitaminC ?? 0) > 0 || (dto.vitaminD ?? 0) > 0
-            let fallback = hasMicros ? MicronutrientProfile.zero : MicronutrientEstimator.estimate(
+            let o3 = max(0, dto.omega3 ?? 0)
+            let ca = max(0, dto.calcium ?? 0)
+            let k = max(0, dto.potassium ?? 0)
+            let mg = max(0, dto.magnesium ?? 0)
+            let fe = max(0, dto.iron ?? 0)
+            let vitC = max(0, dto.vitaminC ?? 0)
+            let vitD = max(0, dto.vitaminD ?? 0)
+            let fallback = MicronutrientEstimator.estimate(
                 name: dto.name,
                 calories: safeCalories,
                 protein: safeProtein,
@@ -522,13 +534,13 @@ class AINutritionService {
                 protein: safeProtein,
                 fats: safeFats,
                 carbs: safeCarbs,
-                omega3: hasMicros ? (dto.omega3 ?? 0) : fallback.omega3,
-                calcium: hasMicros ? (dto.calcium ?? 0) : fallback.calcium,
-                potassium: hasMicros ? (dto.potassium ?? 0) : fallback.potassium,
-                magnesium: hasMicros ? (dto.magnesium ?? 0) : fallback.magnesium,
-                iron: hasMicros ? (dto.iron ?? 0) : fallback.iron,
-                vitaminC: hasMicros ? (dto.vitaminC ?? 0) : fallback.vitaminC,
-                vitaminD: hasMicros ? (dto.vitaminD ?? 0) : fallback.vitaminD
+                omega3: o3 > 0 ? o3 : fallback.omega3,
+                calcium: ca > 0 ? ca : fallback.calcium,
+                potassium: k > 0 ? k : fallback.potassium,
+                magnesium: mg > 0 ? mg : fallback.magnesium,
+                iron: fe > 0 ? fe : fallback.iron,
+                vitaminC: vitC > 0 ? vitC : fallback.vitaminC,
+                vitaminD: vitD > 0 ? vitD : fallback.vitaminD
             )
         }
         return nil
@@ -789,6 +801,7 @@ class AINutritionService {
     private let client: any GeminiProxyExecuting
 
     private func fetchRawTextFromGemini(prompt: String, suppressRateLimitAlert: Bool = false) async -> String? {
+        guard await consentProvider() else { return nil }
         do {
             return try await client.fetchText(prompt: prompt, suppressRateLimitAlert: suppressRateLimitAlert)
         } catch {
@@ -803,6 +816,7 @@ class AINutritionService {
         maxOutputTokens: Int? = nil,
         suppressRateLimitAlert: Bool = false
     ) async -> T? {
+        guard await consentProvider() else { return nil }
         do {
             return try await client.fetchJSON(
                 prompt: prompt,

@@ -550,18 +550,20 @@ struct HomeDashboardContentView: View {
                 } catch { print("HK workout cals error: \(error)") }
 
                 if Calendar.current.isDateInToday(targetDate),
-                   let hkWeight = try? await HealthKitManager.shared.fetchLatestBodyMassKg() {
+                   let hkSample = try? await HealthKitManager.shared.fetchLatestBodyMassSample() {
                     await MainActor.run {
                         guard let user = currentUser else { return }
-                        let sameDayLog = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)])))?
-                            .first(where: { Calendar.current.isDate($0.date, inSameDayAs: targetDate) })
+                        let existingLogs = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)]))) ?? []
+                        let sameDayLog = existingLogs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: targetDate) })
                         if HealthKitWeightSyncHelper.shouldImportHealthKitWeight(
-                            latestHKWeightKg: hkWeight,
+                            latestHKWeightKg: hkSample.kg,
                             currentUserWeightKg: user.weight,
-                            existingSameDayLogWeightKg: sameDayLog?.weight
+                            existingSameDayLogWeightKg: sameDayLog?.weight,
+                            latestHKSampleDate: hkSample.date,
+                            latestLocalLogDate: existingLogs.first?.date
                         ) {
                             NutritionMath.recordWeight(
-                                hkWeight,
+                                hkSample.kg,
                                 date: targetDate,
                                 for: user,
                                 in: context,
@@ -600,13 +602,24 @@ struct HomeDashboardContentView: View {
 
                 if isHKEnabled && !waterOutcome.deletedHealthKitSamples.isEmpty {
                     let deletedSamples = waterOutcome.deletedHealthKitSamples
-                    Task {
+                    let container = context.container
+                    Task { @MainActor in
                         for sample in deletedSamples {
                             await HealthKitManager.shared.deleteWaterSample(
                                 idString: sample.sampleID,
                                 litersFallback: sample.volumeMl / 1000.0,
                                 date: targetDate
                             )
+                            if sample.replacementVolumeMl > 0,
+                               let uuid = await HealthKitManager.shared.saveWater(
+                                   liters: sample.replacementVolumeMl / 1000.0,
+                                   date: targetDate
+                               ),
+                               let beverageID = sample.beverageID,
+                               let surviving = (persistedSummary.beverages ?? []).first(where: { $0.persistentModelID == beverageID }) {
+                                surviving.healthKitSampleID = uuid.uuidString
+                                try? container.mainContext.save()
+                            }
                         }
                     }
                 }
@@ -910,6 +923,8 @@ struct MealDetailView: View {
     @State private var generatedRecipe: AIChefRecipe? = nil
     @State private var recipeGenerationError: String? = nil
     @State private var showingRecipeError = false
+    @State private var pendingRecipeMeal: Meal? = nil
+    @State private var showAIConsentSheet = false
     @Environment(DIContainer.self) private var di
 
     private var meal: Meal? {
@@ -939,6 +954,11 @@ struct MealDetailView: View {
     }
     
     private func generateRecipe(from meal: Meal) {
+        guard AIPhotoConsentManager.shared.hasConsented else {
+            pendingRecipeMeal = meal
+            showAIConsentSheet = true
+            return
+        }
         let mealName = title
         let ingredients = (meal.foodItems ?? []).map { $0.name }
         isGeneratingRecipe = true
@@ -966,10 +986,9 @@ struct MealDetailView: View {
                     )
                 } else {
                     HapticManager.shared.notification(type: .error)
-                    if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
-                        self.recipeGenerationError = String(localized: "AI Chef needs a break! Please check your connection and try again.")
-                        self.showingRecipeError = true
-                    }
+                    self.recipeGenerationError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? String(localized: "AI Chef needs a break! Please check your connection and try again.")
+                    self.showingRecipeError = true
                 }
             }
         }
@@ -997,7 +1016,7 @@ struct MealDetailView: View {
                     .padding(.top, 16)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(title)
+                        Text(LocalizedStringKey(title))
                             .font(.system(size: 38, weight: .heavy, design: .rounded))
                         if let mealDate = meal?.date {
                             HStack(spacing: 4) {
@@ -1204,6 +1223,19 @@ struct MealDetailView: View {
                 dismissButton: .default(Text("OK"))
             )
         }
+        .sheet(isPresented: $showAIConsentSheet) {
+            AIPhotoConsentSheet(
+                onAllow: {
+                    if let pending = pendingRecipeMeal {
+                        pendingRecipeMeal = nil
+                        generateRecipe(from: pending)
+                    }
+                },
+                onDecline: {
+                    pendingRecipeMeal = nil
+                }
+            )
+        }
     }
     private func addFoodsToMeal(items: [FoodItem]) {
         let canonicalTitle = NutritionMath.canonicalMealType(title)
@@ -1348,7 +1380,7 @@ private struct RingLegendRow: View {
         HStack(spacing: 12) {
             Circle().fill(color).frame(width: 10, height: 10)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.system(size: 15, weight: .bold, design: .rounded)).foregroundColor(.primary)
+                Text(LocalizedStringKey(title)).font(.system(size: 15, weight: .bold, design: .rounded)).foregroundColor(.primary)
                 Text("\(value, specifier: "%.1f") / \(Int(target)) \(unit)").font(.system(size: 13, weight: .medium)).foregroundColor(.gray)
             }
         }
@@ -1957,10 +1989,10 @@ struct ActivitySourceRow: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
-                Text(subtitle)
+                Text(LocalizedStringKey(subtitle))
                     .font(.caption)
                     .foregroundColor(iconColor)
                     .bold()
@@ -2083,7 +2115,7 @@ struct SmartAddFoodView: View {
 
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(mealTitle).font(.system(size: 28, weight: .bold, design: .rounded))
+                            Text(LocalizedStringKey(mealTitle)).font(.system(size: 28, weight: .bold, design: .rounded))
                             Text("What did you eat?").font(.subheadline).foregroundColor(.gray)
                         }
                         Spacer()

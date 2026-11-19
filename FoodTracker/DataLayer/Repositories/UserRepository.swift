@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 protocol UserRepositoryProtocol: Sendable {
-    func fetchUser() async throws -> User?
+    func fetchPrimaryUserID() async throws -> PersistentIdentifier?
     func saveUser(_ user: User) async throws
 }
 
@@ -10,12 +10,12 @@ protocol UserRepositoryProtocol: Sendable {
 actor UserRepository: UserRepositoryProtocol {
     // modelContext and init(modelContainer:) are provided by the @ModelActor macro.
 
-    func fetchUser() async throws -> User? {
+    func fetchPrimaryUserID() async throws -> PersistentIdentifier? {
         let user = User.deduplicatedPrimary(in: modelContext)
         if modelContext.hasChanges {
             try modelContext.save()
         }
-        return user
+        return user?.persistentModelID
     }
 
     func saveUser(_ user: User) async throws {

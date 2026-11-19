@@ -28,6 +28,7 @@ final class NetworkManagerTests: XCTestCase {
         }
         networkManager.searchProxyURLProvider = nil
         networkManager.refreshingProxyTokensProvider = nil
+        networkManager.aiFallbackConsentProvider = nil
         super.tearDown()
     }
 
@@ -438,5 +439,72 @@ final class NetworkManagerTests: XCTestCase {
         } else {
             XCTFail("Expected .notFound when nutriments dict has no nutrition keys")
         }
+    }
+
+    func testSearchSkipsAIFallbackWhenConsentNotGranted() async {
+        var aiProxyCalled = false
+        networkManager.aiFallbackConsentProvider = { false }
+        MockURLProtocol.requestHandler = { request in
+            if request.url?.absoluteString.contains("foodAiProxy") == true {
+                aiProxyCalled = true
+            }
+            if request.url?.host == "world.openfoodfacts.org" {
+                return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, Data(#"{"products":[]}"#.utf8))
+            }
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, Data(#"{"items":[]}"#.utf8))
+        }
+
+        let results = await networkManager.searchFoodByText(query: "obscure dish xyz", allowAIFallback: true)
+        XCTAssertTrue(results.isEmpty)
+        XCTAssertFalse(aiProxyCalled)
+    }
+
+    func testCachePreservesAllSevenMicronutrientsAndOFFConvertsIUAndPartialMicros() async {
+        MockURLProtocol.requestHandler = { request in
+            let urlStr = request.url?.absoluteString ?? ""
+            if urlStr.contains("99990001") {
+                // Only iron & vitamin D (in IU!) are present; other 5 micros omitted.
+                let json = #"""
+                {
+                  "status": 1,
+                  "product": {
+                    "product_name": "Fortified Salmon Milk",
+                    "nutriments": {
+                      "energy-kcal_100g": 120,
+                      "proteins_100g": 8.0,
+                      "fat_100g": 5.0,
+                      "carbohydrates_100g": 10.0,
+                      "iron_100g": 2.5,
+                      "iron_unit": "mg",
+                      "vitamin-d_100g": 400,
+                      "vitamin-d_unit": "IU"
+                    }
+                  }
+                }
+                """#.data(using: .utf8)!
+                return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+            }
+            return (HTTPURLResponse(url: request.url!, statusCode: 404, httpVersion: nil, headerFields: nil)!, Data())
+        }
+
+        let first = await networkManager.fetchProduct(barcode: "99990001")
+        XCTAssertNotNil(first)
+        XCTAssertEqual(first?.iron ?? 0, 2.5, accuracy: 0.01)
+        // 400 IU Vitamin D = 10.0 mcg (not 400 mcg!)
+        XCTAssertEqual(first?.vitaminD ?? 0, 10.0, accuracy: 0.05)
+        // Unlabelled micros (e.g., calcium, potassium) must be backfilled by MicronutrientEstimator instead of forced to 0.
+        XCTAssertGreaterThan(first?.potassium ?? 0, 0)
+        XCTAssertGreaterThan(first?.calcium ?? 0, 0)
+
+        // Second lookup hits in-memory barcodeCache and MUST preserve all 7 micronutrients!
+        MockURLProtocol.requestHandler = { _ in
+            XCTFail("Expected cache hit on second barcode lookup")
+            return (HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 500, httpVersion: nil, headerFields: nil)!, Data())
+        }
+        let cached = await networkManager.fetchProduct(barcode: "99990001")
+        XCTAssertEqual(cached?.iron ?? 0, 2.5, accuracy: 0.01)
+        XCTAssertEqual(cached?.vitaminD ?? 0, 10.0, accuracy: 0.05)
+        XCTAssertEqual(cached?.potassium ?? 0, first?.potassium ?? -1, accuracy: 0.01)
+        XCTAssertEqual(cached?.calcium ?? 0, first?.calcium ?? -1, accuracy: 0.01)
     }
 }

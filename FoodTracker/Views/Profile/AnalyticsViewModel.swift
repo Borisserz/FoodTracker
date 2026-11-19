@@ -21,12 +21,12 @@ class AnalyticsViewModel {
 
         Task {
             do {
-                if let mainContext = summaryRepository.mainModelContainer?.mainContext {
-                    let ids = try await summaryRepository.fetchSummaryIDs(startDate: startDate, endDate: endDate)
-                    self.summaries = ids.compactMap { mainContext.model(for: $0) as? DailySummary }
-                } else {
-                    self.summaries = try await summaryRepository.fetchSummaries(startDate: startDate, endDate: endDate)
+                guard let mainContext = summaryRepository.mainModelContainer?.mainContext else {
+                    self.summaries = []
+                    return
                 }
+                let ids = try await summaryRepository.fetchSummaryIDs(startDate: startDate, endDate: endDate)
+                self.summaries = ids.compactMap { mainContext.model(for: $0) as? DailySummary }
             } catch {
                 print("Failed to load analytics data: \(error)")
             }

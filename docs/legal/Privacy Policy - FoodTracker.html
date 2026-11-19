@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodTracker — Privacy Policy</title>
+<style>
+:root { color-scheme: light dark; }
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+line-height: 1.6; max-width: 760px; margin: 0 auto; padding: 24px;
+color: #1c1c1e; background: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+body { color: #e5e5e7; background: #1c1c1e; }
+a { color: #0a84ff; }
+}
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.25rem; margin-top: 2rem; }
+code { background: rgba(127,127,127,0.15); padding: 2px 5px; border-radius: 4px; }
+.muted { color: #8e8e93; font-size: 0.9rem; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid rgba(127,127,127,0.3); padding: 8px 10px; text-align: left; vertical-align: top; }
+</style>
+</head>
+<body>
+<h1>Privacy Policy — FoodTracker</h1>
+<p class="muted">Last updated: 20 November 2026</p>
+
+<p>
+This Privacy Policy explains how FoodTracker (“the App”, “we”, “us”),
+developed by Boris Serzhanovich, handles your information. The App is a
+nutrition, diet, and calorie tracking application for iOS. By using the
+App you agree to the practices described below.
+</p>
+
+<h2>1. Information We Collect</h2>
+<table>
+<tr><th>Category</th><th>Examples</th><th>Purpose</th></tr>
+<tr>
+<td>Account &amp; Identity</td>
+<td>Firebase user ID, optional email address and display name (if you sign in with Apple or Google); or an anonymous Firebase session if you stay as a guest</td>
+<td>To authenticate your session, protect API endpoints, and let you delete your account</td>
+</tr>
+<tr>
+<td>Health &amp; Nutrition</td>
+<td>Active energy burned, dietary energy consumed, body weight, workouts, and water logs (via HealthKit); meals, custom recipes, fasting sessions, and goals you enter</td>
+<td>To provide core app functionality: nutrition tracking, daily calorie insights, and goal progression</td>
+</tr>
+<tr>
+<td>Photos &amp; Camera</td>
+<td>Live camera feed for on-device barcode scanning; downsampled meal, restaurant menu, cooking-step, and progress photos only when you explicitly consent and tap to analyze with AI</td>
+<td>Barcode scanning runs on your device. Photos you choose to analyze with AI are uploaded transiently over HTTPS to estimate nutrition or provide visual feedback</td>
+</tr>
+<tr>
+<td>User Content</td>
+<td>Messages and prompts you send to the AI Coach or AI Chef, optional daily mood notes, nutrition context, and custom meal recipes you create</td>
+<td>To generate AI responses and personalize your diet plan when you consent to AI processing</td>
+</tr>
+<tr>
+<td>Device &amp; Abuse Prevention</td>
+<td>An app-scoped random installation identifier stored in Apple Keychain (<code>X-Device-Install-ID</code>) and crash/performance diagnostics</td>
+<td>To prevent abuse of AI and food search rate limits and diagnose crashes</td>
+</tr>
+</table>
+
+<h2>2. HealthKit Data</h2>
+<p>
+When you grant permission, the App reads health metrics (such as active energy burned, workouts, and body weight) from Apple HealthKit
+solely to display them inside the App and compute nutrition insights. We also write data 
+(such as dietary energy, water intake, logged activities, and weight) to HealthKit if you explicitly allow it. We do
+<strong>not</strong> use HealthKit data for advertising, data brokering, or marketing, and we
+do not share HealthKit data with third parties. HealthKit data is processed on your device.
+</p>
+
+<h2>3. How Your Data Is Stored</h2>
+<p>
+  Your personal nutrition records — meals, custom recipes, logs, weight history, and settings — are stored
+  <strong>on your device</strong> using SwiftData. Depending on the feature, data is stored as follows:
+</p>
+<ul>
+  <li>
+    <strong>iCloud sync (Apple CloudKit)</strong> — If you are signed in to iCloud, your
+    nutrition data (meals, custom recipes, daily summaries, and weight history) is synced across your devices using your
+    <strong>private iCloud account</strong> (CloudKit private database, container
+    <code>iCloud.com.borisdev.FoodTracker2026</code>). This data is stored in your personal
+    iCloud space, is governed by
+    <a href="https://www.apple.com/legal/privacy/">Apple’s Privacy Policy</a>, and is
+    <strong>not accessible to us</strong>.
+  </li>
+  <li>
+    <strong>Before &amp; After Progress Photos</strong> — Stored locally on your device inside Application Support with iOS file protection and excluded from iCloud backups. They are never uploaded unless you explicitly consent and tap AI analysis.
+  </li>
+  <li>
+    <strong>Cloud Content &amp; Quotas</strong> — The App fetches curated Academy articles, recipes, and diet plans from Google Firebase Firestore (read-only), and stores weekly API rate-limit counters linked to your Firebase UID and installation identifier.
+  </li>
+  <li>
+    <strong>Ecosystem Sync (WorkoutTracker)</strong> — If you also install our companion app WorkoutTracker, daily workout calories and pure water totals can be exchanged locally on-device via the shared App Group (<code>group.com.borisdev.WorkoutTracker</code>).
+  </li>
+</ul>
+
+<h2>4. AI Features &amp; Third-Party Processing Consent</h2>
+<p>
+FoodTracker asks for your explicit in-app consent before sending photos or personal nutrition/mood/chat context to third-party AI services. You can grant or revoke this consent anytime in <strong>Settings → AI Data &amp; Photo Privacy</strong>.
+</p>
+<p>
+When you consent and invoke an AI feature (Plate Scan, Menu Helper, Fridge-to-Recipe, AI Coach Chat, AI Chef, 7-Day Plan Builder, Mood Advice, or Before/After Analysis), your request is sent over encrypted HTTPS to our backend proxy (Firebase Cloud Functions), authenticated via Firebase Auth and Firebase App Check, and forwarded to <strong>OpenRouter</strong> and downstream third-party AI model providers.
+We configure OpenRouter requests with <code>data_collection: "deny"</code> so images and prompts are processed transiently and not retained for model training. Please avoid including unnecessary sensitive personal identifiers in free-text prompts.
+</p>
+
+<h2>5. Third-Party Services</h2>
+<ul>
+<li><strong>Google Firebase</strong> (Authentication, Cloud Functions, Firestore, Remote Config, Analytics, Crashlytics, App Check) — <a href="https://firebase.google.com/support/privacy">Firebase Privacy</a></li>
+<li><strong>OpenRouter</strong> (AI vision and language model routing via our backend proxy, with provider data collection denied) — <a href="https://openrouter.ai/privacy">OpenRouter Privacy Policy</a></li>
+<li><strong>FatSecret Platform API</strong> (food and barcode database search via our backend proxy) — <a href="https://www.fatsecret.com/static/legal/privacy">FatSecret Privacy</a></li>
+<li><strong>OpenFoodFacts</strong> (open food and barcode database queries) — <a href="https://world.openfoodfacts.org/terms-of-use">OpenFoodFacts Terms</a></li>
+<li><strong>Apple HealthKit, CloudKit &amp; Sign in with Apple</strong> — governed by <a href="https://www.apple.com/legal/privacy/">Apple’s Privacy Policy</a></li>
+</ul>
+
+<h2>6. Data Sharing</h2>
+<p>
+We do not sell your personal data. We do not use your data for tracking across
+apps or websites owned by other companies. Third-party processors listed above receive only the minimum data needed to execute the requested search or AI analysis.
+</p>
+
+<h2>7. Account &amp; Data Deletion</h2>
+<p>
+You can permanently delete your account and all app data at any time inside the App:
+open the <strong>AI Coach</strong> tab (or tap your profile avatar on Home) → <strong>Profile &amp; Settings</strong> → <strong>Settings (gear icon)</strong> → <strong>Account</strong> → <strong>Delete account</strong>.
+</p>
+<p>
+This action deletes your Firebase Authentication account (including revoking Sign in with Apple tokens if used), wipes server-side usage/quota records and shared ecosystem data associated with your UID, and permanently deletes all local SwiftData records, cached items, AI consent state, and local progress photos. Note that private iCloud CloudKit records belong to your personal Apple ID and can be managed in iOS Settings → Apple Account → iCloud. This action cannot be undone.
+</p>
+
+<h2>8. Children’s Privacy</h2>
+<p>
+The App is not directed to children under 13 (or the minimum age required in
+your jurisdiction). We do not knowingly collect personal information from children.
+</p>
+
+<h2>9. Your Rights</h2>
+<p>
+Depending on your location, you may have rights to access, correct, or delete
+your personal data. You can exercise deletion directly in the App, or contact
+us using the details below.
+</p>
+
+<h2>10. Changes to This Policy</h2>
+<p>
+We may update this Privacy Policy from time to time. The “Last updated” date
+above reflects the latest revision.
+</p>
+
+<h2>11. Contact</h2>
+<p>
+If you have questions about this Privacy Policy, contact us at:
+<a href="mailto:foodtrackersupport@gmail.com">foodtrackersupport@gmail.com</a>
+</p>
+
+<h2>Legal</h2>
+<nav>
+<a href="Terms of Use - FoodTracker.html">Terms of Use (EULA)</a>
+<a href="Support- FoodTracker.html">Support</a>
+</nav>
+  
+</body>
+</html>

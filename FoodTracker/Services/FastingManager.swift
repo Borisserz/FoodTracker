@@ -137,6 +137,8 @@ final class FastingManager {
         updateTask = nil
     }
 
+    static let fastingNotificationCategoryID = "FASTING_PHASE"
+
     private static let fastingNotificationIDs = [
         "fasting_goal_reached",
         "phase_4h",
@@ -145,7 +147,32 @@ final class FastingManager {
         "phase_16h"
     ]
 
-    private func updateCalculations() {
+    nonisolated static func phaseNotificationCopy(forHours hours: Int) -> (title: String, body: String) {
+        switch hours {
+        case 4:
+            return (
+                String(localized: "Digestion Mode 🌱"),
+                String(localized: "Blood sugar has normalized and digestion is winding down. Keep hydrating!")
+            )
+        case 8:
+            return (
+                String(localized: "Fat Burning Mode 🔥"),
+                String(localized: "Glycogen is depleted. Your body is switching to fat for fuel.")
+            )
+        case 12:
+            return (
+                String(localized: "Ketosis Achieved 🧠"),
+                String(localized: "Your liver is now producing ketones for energy and mental clarity.")
+            )
+        default:
+            return (
+                String(localized: "Autophagy Started 🧬"),
+                String(localized: "Cellular repair and anti-aging processes are fully active.")
+            )
+        }
+    }
+
+    private func updateCalculations(notifyLiveActivity: Bool = true) {
         guard let start = startTime else { return }
         let now = Date()
         elapsedTime = max(0, now.timeIntervalSince(start))
@@ -157,7 +184,9 @@ final class FastingManager {
 
         let totalTargetSeconds = Double(targetHours * 3600)
         progress = min(elapsedTime / totalTargetSeconds, 1.0)
-        liveActivityManager.updateActivity(currentStage: currentPhase.name, progressPct: progress)
+        if notifyLiveActivity {
+            liveActivityManager.updateActivity(currentStage: currentPhase.name, progressPct: progress)
+        }
     }
 
     private func saveState() {
@@ -190,7 +219,7 @@ final class FastingManager {
             }
             let savedStartDate = Date(timeIntervalSince1970: savedTime)
             startTime = savedStartDate
-            updateCalculations()
+            updateCalculations(notifyLiveActivity: false)
             liveActivityManager.reattachActivity(
                 planName: planName,
                 targetHours: targetHours,
@@ -198,8 +227,18 @@ final class FastingManager {
                 currentStage: currentPhase.name,
                 progressPct: progress
             )
-            // Re-establish live updates (structured task)
-            startUpdateTask()
+            // Re-establish live updates (structured task) without firing an immediate duplicate update before the first tick
+            stopUpdateTask()
+            updateTask = Task { @MainActor [weak self] in
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(1))
+                    guard !Task.isCancelled else { break }
+                    guard let self, Self.shouldContinueTimerLoop(isFasting: self.isFasting, targetHours: self.targetHours, progress: self.progress) else {
+                        break
+                    }
+                    self.updateCalculations()
+                }
+            }
         }
     }
 
@@ -229,36 +268,20 @@ final class FastingManager {
                 )
 
                 if target > 4 {
-                    self.scheduleAlert(
-                        id: "phase_4h",
-                        title: String(localized: "Blood Sugar Normalizing 🩸"),
-                        body: String(localized: "Your insulin is dropping. Your body is resting. Stay hydrated!"),
-                        delayInSeconds: 4 * 3600
-                    )
+                    let copy = Self.phaseNotificationCopy(forHours: 4)
+                    self.scheduleAlert(id: "phase_4h", title: copy.title, body: copy.body, delayInSeconds: 4 * 3600)
                 }
                 if target > 8 {
-                    self.scheduleAlert(
-                        id: "phase_8h",
-                        title: String(localized: "Fat Burning Mode 🔥"),
-                        body: String(localized: "Glycogen is depleted. Your body is switching to fat for fuel."),
-                        delayInSeconds: 8 * 3600
-                    )
+                    let copy = Self.phaseNotificationCopy(forHours: 8)
+                    self.scheduleAlert(id: "phase_8h", title: copy.title, body: copy.body, delayInSeconds: 8 * 3600)
                 }
                 if target > 12 {
-                    self.scheduleAlert(
-                        id: "phase_12h",
-                        title: String(localized: "Ketosis Achieved 🧠"),
-                        body: String(localized: "Your liver is now producing ketones for energy and mental clarity."),
-                        delayInSeconds: 12 * 3600
-                    )
+                    let copy = Self.phaseNotificationCopy(forHours: 12)
+                    self.scheduleAlert(id: "phase_12h", title: copy.title, body: copy.body, delayInSeconds: 12 * 3600)
                 }
                 if target > 16 {
-                    self.scheduleAlert(
-                        id: "phase_16h",
-                        title: String(localized: "Autophagy Started 🧬"),
-                        body: String(localized: "Cellular repair and anti-aging processes are fully active."),
-                        delayInSeconds: 16 * 3600
-                    )
+                    let copy = Self.phaseNotificationCopy(forHours: 16)
+                    self.scheduleAlert(id: "phase_16h", title: copy.title, body: copy.body, delayInSeconds: 16 * 3600)
                 }
             }
         }
@@ -270,6 +293,7 @@ final class FastingManager {
         content.title = title
         content.body = body
         content.sound = .default
+        content.categoryIdentifier = Self.fastingNotificationCategoryID
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delayInSeconds, repeats: false)
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)

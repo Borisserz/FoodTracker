@@ -106,8 +106,8 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: imageName).font(.system(size: 48)).foregroundColor(.gray.opacity(0.3))
-            Text(title).font(.headline).foregroundColor(.gray)
-            Text(description).font(.subheadline).foregroundColor(.textGray.opacity(0.7)).multilineTextAlignment(.center).padding(.horizontal)
+            Text(LocalizedStringKey(title)).font(.headline).foregroundColor(.gray)
+            Text(LocalizedStringKey(description)).font(.subheadline).foregroundColor(.textGray.opacity(0.7)).multilineTextAlignment(.center).padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -823,7 +823,7 @@ struct CompactMicroCard: View {
                 Image(systemName: icon)
                     .font(.caption2)
                     .foregroundColor(color)
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.caption.bold())
                     .foregroundColor(.gray)
                 Spacer()
@@ -891,7 +891,7 @@ struct MealBreakdownCard: View {
                             selectedMeal = meal
                         }
                     }) {
-                        Text(meal)
+                        Text(LocalizedStringKey(meal))
                             .font(.system(size: 13, weight: selectedMeal == meal ? .bold : .medium))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -1179,7 +1179,7 @@ struct IntensityBar: View {
                         .frame(height: geo.size.height * CGFloat(value / max(total, 1)))
                 }
             }
-            Text(title).font(.caption2).foregroundColor(.gray)
+            Text(LocalizedStringKey(title)).font(.caption2).foregroundColor(.gray)
         }
     }
 }

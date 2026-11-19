@@ -189,6 +189,20 @@ struct AddMealView: View {
         selectedDrafts.reduce(0) { $0 + $1.fats }
     }
 
+    private var otherLoggedCalories: Int {
+        guard let summary = summaries.first else { return 0 }
+        let activeCanonical = DailySummary.canonicalMealSlot(selectedMealType)
+        let otherMeals = (summary.meals ?? []).reduce(0) { sum, meal in
+            DailySummary.canonicalMealSlot(meal.title) == activeCanonical ? sum : sum + meal.totalCalories
+        }
+        let beverageCalories = (summary.beverages ?? []).reduce(0) { $0 + $1.caloriesPerGlass }
+        return otherMeals + beverageCalories
+    }
+
+    private var remainingDailyCalorieBudget: Int {
+        max(0, calorieGoal - otherLoggedCalories)
+    }
+
     private var canSaveMeal: Bool {
         !selectedDrafts.isEmpty || existingMealHadItems || !dirtySlots.isEmpty
     }
@@ -220,7 +234,7 @@ struct AddMealView: View {
                             protein: totalMealProtein,
                             fats: totalMealFats,
                             carbs: totalMealCarbs,
-                            calorieGoal: calorieGoal,
+                            calorieGoal: remainingDailyCalorieBudget,
                             proteinGoal: proteinGoal,
                             fatsGoal: fatsGoal,
                             carbsGoal: carbsGoal

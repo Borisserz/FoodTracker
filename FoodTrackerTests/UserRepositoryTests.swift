@@ -14,43 +14,41 @@ final class UserRepositoryTests: XCTestCase {
         container = nil
     }
 
+    @MainActor
     func testFetchAndSaveUser() async throws {
         let repository = UserRepository(modelContainer: container)
         
-        let initialUser = try await repository.fetchUser()
-        XCTAssertNil(initialUser, "User should be nil initially")
+        let initialUserID = try await repository.fetchPrimaryUserID()
+        XCTAssertNil(initialUserID, "User should be nil initially")
         
-        let user = await MainActor.run {
-            User(name: "Test Repository", weight: 80, height: 180, age: 25)
-        }
-        
+        let user = User(name: "Test Repository", weight: 80, height: 180, age: 25)
         try await repository.saveUser(user)
         
-        let fetchedUser = try await repository.fetchUser()
-        XCTAssertNotNil(fetchedUser)
-        await MainActor.run {
-            XCTAssertEqual(fetchedUser?.name, "Test Repository")
-            XCTAssertEqual(fetchedUser?.weight, 80)
-        }
+        let rawUserID = try await repository.fetchPrimaryUserID()
+        let fetchedUserID = try XCTUnwrap(rawUserID)
+        let fetchedUser = try XCTUnwrap(container.mainContext.model(for: fetchedUserID) as? User)
+        XCTAssertTrue(fetchedUser.modelContext === container.mainContext)
+        XCTAssertEqual(fetchedUser.name, "Test Repository")
+        XCTAssertEqual(fetchedUser.weight, 80)
     }
 
+    @MainActor
     func testFetchUserDeduplicatesMultipleUsersToPrimary() async throws {
-        await MainActor.run {
-            let defaultAlex = User(name: "Alex", weight: 75, height: 180, age: 28)
-            let customized = User(name: "Boris", weight: 82, height: 183, age: 30)
-            customized.totalXP = 450
-            customized.dailyCaloriesGoal = 2450
-            container.mainContext.insert(defaultAlex)
-            container.mainContext.insert(customized)
-            try? container.mainContext.save()
-        }
+        let defaultAlex = User(name: "Alex", weight: 75, height: 180, age: 28)
+        let customized = User(name: "Boris", weight: 82, height: 183, age: 30)
+        customized.totalXP = 450
+        customized.dailyCaloriesGoal = 2450
+        container.mainContext.insert(defaultAlex)
+        container.mainContext.insert(customized)
+        try? container.mainContext.save()
 
         let repository = UserRepository(modelContainer: container)
-        let fetched = try await repository.fetchUser()
-        await MainActor.run {
-            XCTAssertEqual(fetched?.name, "Boris")
-            let all = (try? container.mainContext.fetch(FetchDescriptor<User>())) ?? []
-            XCTAssertEqual(all.count, 1)
-        }
+        let rawFetchedID = try await repository.fetchPrimaryUserID()
+        let fetchedID = try XCTUnwrap(rawFetchedID)
+        let fetched = try XCTUnwrap(container.mainContext.model(for: fetchedID) as? User)
+        XCTAssertTrue(fetched.modelContext === container.mainContext)
+        XCTAssertEqual(fetched.name, "Boris")
+        let all = (try? container.mainContext.fetch(FetchDescriptor<User>())) ?? []
+        XCTAssertEqual(all.count, 1)
     }
 }

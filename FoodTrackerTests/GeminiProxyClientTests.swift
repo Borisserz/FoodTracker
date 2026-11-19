@@ -192,4 +192,17 @@ final class GeminiProxyClientTests: XCTestCase {
         XCTAssertTrue(dto.ok)
         XCTAssertEqual(capturedMaxTokens, 8192)
     }
+
+    @MainActor
+    func testConsumeRateLimitAlertMessageReturnsAndClearsStoredMessage() {
+        let client = GeminiProxyClient.shared
+        client.rateLimitAlertMessage = "Limit reached, try again in 2h."
+        XCTAssertTrue(GeminiProxyClient.shouldSuppressSecondaryErrorAlert)
+
+        let consumed = GeminiProxyClient.consumeRateLimitAlertMessage()
+        XCTAssertEqual(consumed, "Limit reached, try again in 2h.")
+        XCTAssertNil(client.rateLimitAlertMessage)
+        XCTAssertFalse(GeminiProxyClient.shouldSuppressSecondaryErrorAlert)
+        XCTAssertNil(GeminiProxyClient.consumeRateLimitAlertMessage())
+    }
 }

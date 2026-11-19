@@ -432,7 +432,7 @@ final class VertexAIManagerTests: XCTestCase {
             "carbs": 35
         }
         """#
-        let service = AINutritionService(proxy: mockProxy)
+        let service = AINutritionService(proxy: mockProxy, consentProvider: { true })
 
         let item = await service.generateFoodItem(for: "salmon bowl")
         XCTAssertNotNil(item)
@@ -443,6 +443,32 @@ final class VertexAIManagerTests: XCTestCase {
         mockProxy.nextError = GeminiProxyError.invalidResponse
         let failedVerdict = await service.generateDailyVerdict(consumed: 1500, goal: 2000, protein: 90, targetProtein: 130)
         XCTAssertNil(failedVerdict)
+    }
+
+    func testAINutritionServiceBlocksAllTextAndNutritionCallsWhenConsentNotGranted() async {
+        let mockProxy = MockGeminiProxyClient()
+        mockProxy.nextJSONString = #"{"title":"Ok","message":"Msg","mood":"perfect"}"#
+        mockProxy.nextTextString = "Advice"
+        let service = AINutritionService(proxy: mockProxy, consentProvider: { false })
+
+        let verdict = await service.generateDailyVerdict(consumed: 1500, goal: 2000, protein: 100, targetProtein: 140)
+        let moodAdvice = await service.getMoodAdvice(
+            moodEmoji: "😊",
+            moodName: "Happy",
+            note: "Private note",
+            consumedCalories: 1200,
+            goalCalories: 2000,
+            waterLiters: 1.5,
+            activeDiet: "Balanced"
+        )
+        let chatReply = await service.sendChatMessage(prompt: "Hi", userContext: "Goal 2000", activeDiet: "Balanced")
+        let food = await service.generateFoodItem(for: "salad")
+
+        XCTAssertNil(verdict)
+        XCTAssertNil(moodAdvice)
+        XCTAssertNil(chatReply)
+        XCTAssertNil(food)
+        XCTAssertEqual(mockProxy.textCallCount, 0)
     }
 
     private static func makeSolidTestImage() -> UIImage {

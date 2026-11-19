@@ -13,7 +13,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         identifier: String,
         categoryIdentifier: String
     ) -> String? {
-        if identifier.hasPrefix("FASTING_") || categoryIdentifier.hasPrefix("FASTING_") {
+        let upperID = identifier.uppercased()
+        let upperCategory = categoryIdentifier.uppercased()
+        if upperID.hasPrefix("FASTING_") || upperID.hasPrefix("PHASE_") || upperCategory.hasPrefix("FASTING_") {
             return "fasting"
         }
         return nil

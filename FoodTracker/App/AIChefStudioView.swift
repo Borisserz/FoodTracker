@@ -108,6 +108,8 @@ struct AIChefStudioView: View {
     @State private var isGeneratingAIRecipe = false
     @State private var generatedAIRecipe: AIChefRecipe? = nil
     @State private var generationError: String? = nil
+    @State private var pendingChefQuery: String? = nil
+    @State private var showAIConsentSheet = false
 
     @State private var bgPhase = 0.0
 
@@ -470,6 +472,19 @@ struct AIChefStudioView: View {
             } message: {
                 Text(generationError ?? "")
             }
+            .sheet(isPresented: $showAIConsentSheet) {
+                AIPhotoConsentSheet(
+                    onAllow: {
+                        if let q = pendingChefQuery {
+                            pendingChefQuery = nil
+                            generateCustomRecipe(named: q)
+                        }
+                    },
+                    onDecline: {
+                        pendingChefQuery = nil
+                    }
+                )
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     currentDayStart = Calendar.current.startOfDay(for: Date())
@@ -481,6 +496,11 @@ struct AIChefStudioView: View {
     private func generateCustomRecipe(named query: String) {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, !isGeneratingAIRecipe else { return }
+        guard AIPhotoConsentManager.shared.hasConsented else {
+            pendingChefQuery = trimmed
+            showAIConsentSheet = true
+            return
+        }
         isGeneratingAIRecipe = true
         let budget = remaining.calories > 0 ? remaining.calories : 500
         let diet = currentUser?.activeDietKey ?? "Balanced"
@@ -494,8 +514,9 @@ struct AIChefStudioView: View {
                 isGeneratingAIRecipe = false
                 if let recipe {
                     generatedAIRecipe = recipe
-                } else if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
-                    generationError = String(localized: "Could not generate that recipe right now. Please try again.")
+                } else {
+                    generationError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? String(localized: "Could not generate that recipe right now. Please try again.")
                 }
             }
         }
@@ -972,13 +993,28 @@ struct RecipeDetailAIView: View {
         let hour = Calendar.current.component(.hour, from: Date())
         let mealTitle = hour < 11 ? "Breakfast" : (hour < 16 ? "Lunch" : (hour < 21 ? "Dinner" : "Snack"))
         let now = Date()
+        let micros = MicronutrientEstimator.estimate(
+            name: recipe.title,
+            calories: recipe.calories,
+            protein: Double(recipe.protein),
+            fat: Double(recipe.fat),
+            carbs: Double(recipe.carbs),
+            weight: 300.0
+        )
         let food = FoodItem(
             name: recipe.title,
             weight: 300,
             calories: recipe.calories,
             protein: Double(recipe.protein),
             fats: Double(recipe.fat),
-            carbs: Double(recipe.carbs)
+            carbs: Double(recipe.carbs),
+            omega3: micros.omega3,
+            calcium: micros.calcium,
+            potassium: micros.potassium,
+            magnesium: micros.magnesium,
+            iron: micros.iron,
+            vitaminC: micros.vitaminC,
+            vitaminD: micros.vitaminD
         )
         context.insert(food)
         if let existing = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == mealTitle }) {
@@ -1008,13 +1044,28 @@ struct RecipeDetailAIView: View {
     private func saveToMyRecipes() {
         guard !didSaveToMyRecipes else { return }
         HapticManager.shared.notification(type: .success)
+        let micros = MicronutrientEstimator.estimate(
+            name: recipe.title,
+            calories: recipe.calories,
+            protein: Double(recipe.protein),
+            fat: Double(recipe.fat),
+            carbs: Double(recipe.carbs),
+            weight: 300.0
+        )
         let food = FoodItem(
             name: recipe.title,
             weight: 300,
             calories: recipe.calories,
             protein: Double(recipe.protein),
             fats: Double(recipe.fat),
-            carbs: Double(recipe.carbs)
+            carbs: Double(recipe.carbs),
+            omega3: micros.omega3,
+            calcium: micros.calcium,
+            potassium: micros.potassium,
+            magnesium: micros.magnesium,
+            iron: micros.iron,
+            vitaminC: micros.vitaminC,
+            vitaminD: micros.vitaminD
         )
         context.insert(food)
         let difficultyText = recipe.difficulty <= 2 ? "Easy" : (recipe.difficulty == 3 ? "Medium" : "Hard")
@@ -1139,6 +1190,8 @@ struct AIAssistantFlowView: View {
     @State private var isPrepPhase = false
     @State private var isGeneratingAI = false
     @State private var generationError: String? = nil
+    @State private var pendingAssistantQuery: String? = nil
+    @State private var showAIConsentSheet = false
 
     var agentResults: [AIChefRecipe] {
         let trimmed = searchAgentText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1222,11 +1275,29 @@ struct AIAssistantFlowView: View {
             } message: {
                 Text(generationError ?? "")
             }
+            .sheet(isPresented: $showAIConsentSheet) {
+                AIPhotoConsentSheet(
+                    onAllow: {
+                        if let q = pendingAssistantQuery {
+                            pendingAssistantQuery = nil
+                            generateRecipeForAssistant(query: q)
+                        }
+                    },
+                    onDecline: {
+                        pendingAssistantQuery = nil
+                    }
+                )
+            }
         }
     }
 
     private func generateRecipeForAssistant(query: String) {
         guard !isGeneratingAI else { return }
+        guard AIPhotoConsentManager.shared.hasConsented else {
+            pendingAssistantQuery = query
+            showAIConsentSheet = true
+            return
+        }
         isGeneratingAI = true
         Task {
             let budget = max(remainingCalories, 400)
@@ -1240,8 +1311,9 @@ struct AIAssistantFlowView: View {
                 if let recipe {
                     selectedRecipe = recipe
                     isPrepPhase = true
-                } else if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
-                    generationError = String(localized: "Could not generate that recipe right now. Please try again.")
+                } else {
+                    generationError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? String(localized: "Could not generate that recipe right now. Please try again.")
                 }
             }
         }
@@ -1669,9 +1741,8 @@ struct AICameraScannerView: View {
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
                     isAnalyzing = false
-                    if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
-                        evaluationError = String(localized: "Couldn't evaluate this step right now. Check your connection and try again.")
-                    }
+                    evaluationError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? String(localized: "Couldn't evaluate this step right now. Check your connection and try again.")
                     HapticManager.shared.notification(type: .error)
                 }
             }
