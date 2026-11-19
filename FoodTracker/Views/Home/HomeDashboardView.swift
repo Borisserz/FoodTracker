@@ -462,7 +462,7 @@ struct HomeDashboardContentView: View {
             newFoodItems.append(copiedItem)
         }
 
-        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == canonicalTitle }) {
+        if let existingMeal = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalTitle }) {
             existingMeal.addFoodItems(newFoodItems)
             existingMeal.date = mealTimestamp
         } else {
@@ -561,6 +561,21 @@ struct HeaderView: View {
         }
     }
 
+    private static let mediumDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        formatter.locale = .current
+        return formatter
+    }()
+
+    private static let monthYearFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        formatter.locale = .current
+        return formatter
+    }()
+
     private var relativeDateString: String {
         let calendar = Calendar.current
         let relativeDay: String
@@ -569,18 +584,10 @@ struct HeaderView: View {
         } else if calendar.isDateInYesterday(selectedDate) {
             relativeDay = String(localized: "Yesterday")
         } else {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .none
-            formatter.locale = Locale.current
-            relativeDay = formatter.string(from: selectedDate)
+            relativeDay = Self.mediumDateFormatter.string(from: selectedDate)
         }
-        
-        let monthFormatter = DateFormatter()
-        monthFormatter.dateFormat = "MMMM yyyy"
-        monthFormatter.locale = Locale.current
-        let monthString = monthFormatter.string(from: selectedDate)
-        
+
+        let monthString = Self.monthYearFormatter.string(from: selectedDate)
         return "\(relativeDay) • \(monthString)"
     }
 
@@ -716,6 +723,10 @@ struct MealDetailView: View {
             withAnimation {
                 meal.foodItems?.remove(at: index)
                 context.delete(food)
+                if (meal.foodItems ?? []).isEmpty {
+                    summaries.first?.meals?.removeAll { $0.id == meal.id }
+                    context.delete(meal)
+                }
                 try? context.save()
                 WidgetReloader.reloadAll()
             }
@@ -995,7 +1006,7 @@ struct MealDetailView: View {
             newFoodItems.append(copiedItem)
         }
 
-        if let existingMeal = (summary.meals ?? []).first(where: { $0.title == canonicalTitle }) {
+        if let existingMeal = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalTitle }) {
             existingMeal.addFoodItems(newFoodItems)
             existingMeal.date = mealTimestamp
         } else {

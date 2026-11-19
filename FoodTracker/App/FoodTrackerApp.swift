@@ -43,7 +43,7 @@ struct FoodTrackerApp: App {
     @State private var geminiClient = GeminiProxyClient.shared
 
     @State private var diContainer: DIContainer?
-    @State private var databaseLoadError: Error?
+    @State private var showInMemoryStorageWarning = false
 
     var body: some Scene {
         WindowGroup {
@@ -57,8 +57,6 @@ struct FoodTrackerApp: App {
                         Button("Update Now") { AppReviewManager.openAppStoreProductPage() }
                             .buttonStyle(.borderedProminent)
                     }
-                } else if let error = databaseLoadError {
-                    Text("Database Error: \(error.localizedDescription)")
                 } else if let di = diContainer {
                     RootLaunchView()
                         .modelContainer(di.modelContainer)
@@ -91,6 +89,11 @@ struct FoodTrackerApp: App {
             } message: {
                 Text(geminiClient.rateLimitAlertMessage ?? "")
             }
+            .alert("Temporary Storage Mode", isPresented: $showInMemoryStorageWarning) {
+                Button("OK", role: .cancel) { showInMemoryStorageWarning = false }
+            } message: {
+                Text("Your device storage database could not be opened, so changes may not persist after closing the app. Free up storage space and restart.")
+            }
             .onAppear {
                 TrackingManager.shared.track(.appOpened(source: "launch"))
             }
@@ -108,12 +111,15 @@ struct FoodTrackerApp: App {
         let useMetric = UserDefaults.standard.object(forKey: "useMetricSystem") as? Bool ?? true
         UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.set(useMetric, forKey: "useMetricSystem")
 
-        let container = await Task.detached(priority: .userInitiated) {
-            SharedModelContainer.shared.container
+        let (container, inMemoryFallback) = await Task.detached(priority: .userInitiated) {
+            (SharedModelContainer.shared.container, SharedModelContainer.shared.didFallBackToInMemory)
         }.value
 
         let di = DIContainer(modelContainer: container)
         self.diContainer = di
+        if inMemoryFallback {
+            self.showInMemoryStorageWarning = true
+        }
         print("🚀 [setupDependencies] diContainer assigned to state using SharedModelContainer. Re-rendering UI...")
 
         do {
@@ -234,6 +240,11 @@ struct ContentView: View {
     }
 
     private func initializeUserIfNeeded() {
+        if users.count > 1 {
+            _ = User.deduplicatedPrimary(in: context)
+            try? context.save()
+            return
+        }
         if users.isEmpty {
             let defaultUser = User(name: "Alex", weight: 75.0, height: 180.0, age: 28, gender: "Male")
             context.insert(defaultUser)

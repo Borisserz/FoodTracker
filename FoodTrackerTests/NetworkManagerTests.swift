@@ -195,4 +195,69 @@ final class NetworkManagerTests: XCTestCase {
         XCTAssertEqual(second?.name, "Cached Oats")
         XCTAssertFalse(first === second, "Cached lookup must return a distinct FoodItem instance for SwiftData")
     }
+
+    func testBarcodeParsesUSParentheticalServingAndRejectsNaNNutriments() async {
+        MockURLProtocol.requestHandler = { request in
+            let offBarcode = #"""
+            {
+              "status": 1,
+              "product": {
+                "product_name": "Almond Pack",
+                "serving_size": "1 oz (28 g)",
+                "nutriments": {
+                  "energy-kcal_serving": 170,
+                  "proteins_serving": "NaN",
+                  "fat_serving": "15",
+                  "carbohydrates_serving": "1,250"
+                }
+              }
+            }
+            """#.data(using: .utf8)!
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, offBarcode)
+        }
+
+        let item = await networkManager.fetchProduct(barcode: "55556666")
+        XCTAssertEqual(item?.weight ?? 0, 28.0, accuracy: 0.01)
+        XCTAssertEqual(item?.protein ?? -1, 0.0, accuracy: 0.01)
+        XCTAssertEqual(item?.carbs ?? 0, 1250.0, accuracy: 0.01)
+    }
+
+    func testSearchProxySendsDeviceInstallIdRetriesMissingInitialTokenAndSeparatesAIFallbackCache() async {
+        var sentDeviceHeaders: [String] = []
+        var forceFlags: [Bool] = []
+        networkManager.refreshingProxyTokensProvider = { forceRefresh in
+            forceFlags.append(forceRefresh)
+            if !forceRefresh {
+                return (authToken: nil, appCheckToken: "app-check")
+            }
+            return (authToken: "fresh-id-token", appCheckToken: "app-check")
+        }
+
+        MockURLProtocol.requestHandler = { request in
+            let host = request.url?.host ?? ""
+            if host == "mock.local" {
+                if let devId = request.value(forHTTPHeaderField: "X-Device-Install-ID") {
+                    sentDeviceHeaders.append(devId)
+                }
+                let body = #"{"items":[{"name":"Proxy Yogurt","weight":150,"calories":90,"protein":15,"fats":0,"carbs":7}]}"#.data(using: .utf8)!
+                let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (resp, body)
+            }
+            let offEmpty = #"{"products":[]}"#.data(using: .utf8)!
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, offEmpty)
+        }
+
+        let noAI = await networkManager.searchFoodByText(query: "yogurt", allowAIFallback: false)
+        XCTAssertEqual(noAI.first?.name, "Proxy Yogurt")
+        XCTAssertEqual(forceFlags, [false, true])
+        XCTAssertEqual(sentDeviceHeaders.count, 1)
+        XCTAssertEqual(sentDeviceHeaders.first?.isEmpty, false)
+
+        // Separate cache bucket for allowAIFallback: true vs false should still isolate entries cleanly.
+        let bucketA = NetworkManager.searchCacheKey(query: "Oats", language: "en", allowAIFallback: true)
+        let bucketB = NetworkManager.searchCacheKey(query: "Oats", language: "en", allowAIFallback: false)
+        XCTAssertNotEqual(bucketA, bucketB)
+    }
 }

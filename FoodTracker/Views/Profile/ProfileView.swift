@@ -321,7 +321,7 @@ struct NutritionSettingsEditor: View {
                                 SectorMark(angle: .value("Protein", pPct), innerRadius: .ratio(0.75), angularInset: 2).foregroundStyle(Color.themePeach.gradient)
                             }
                             VStack {
-                                Text("\(Int(pPct + fPct + cPct))%").font(.title.bold()).foregroundColor(isBalanced ? .primary : .red)
+                                Text("\(Int((pPct + fPct + cPct).rounded()))%").font(.title.bold()).foregroundColor(isBalanced ? .primary : .red)
                                 Text(isBalanced ? "Balanced" : "Adjust to 100%").font(.caption).foregroundColor(isBalanced ? .gray : .red)
                             }
                         }.frame(height: 220)
@@ -724,11 +724,11 @@ struct AccountSettingsView: View {
                         titleVisibility: .visible
                     ) {
                         Button("Delete Account", role: .destructive) {
+                            isLoading = true
                             Task {
+                                defer { isLoading = false }
                                 // Let the confirmation dialog finish dismissing before presenting Google/Apple auth.
                                 try? await Task.sleep(for: .milliseconds(250))
-                                isLoading = true
-                                defer { isLoading = false }
                                 do {
                                     try await AuthManager.runDeletionSequence(
                                         reauthenticate: { try await SocialAuthService.shared.reauthenticateForDeletion() },

@@ -38,6 +38,7 @@ struct WaveLiquidHydrationView: View {
     var currentAmount: Double = 1.875
     var targetAmount: Double = 2.5
     
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var wavePhase: Double = 0.0
     
@@ -76,7 +77,7 @@ struct WaveLiquidHydrationView: View {
                             .font(.system(size: 28, weight: .black, design: .monospaced))
                             .foregroundStyle(Color.black)
                         Spacer()
-                        Text(String(format: "%.1fL", currentAmount))
+                        Text(NutritionMath.formattedHydration(liters: currentAmount, useMetric: useMetricSystem))
                             .font(.system(size: 12, weight: .bold, design: .monospaced))
                             .foregroundStyle(Color.black.opacity(0.8))
                     }

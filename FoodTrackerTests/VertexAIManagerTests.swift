@@ -228,4 +228,33 @@ final class VertexAIManagerTests: XCTestCase {
         let secondHydID = hydAdvice.id
         XCTAssertEqual(firstHydID, secondHydID)
     }
+
+    func testDefensiveDTOsDecodeOmittedFieldsStringBoolsAndDistinctMetricIDs() throws {
+        let macroNoSnacks = #"{"title":"Stay Steady","explanation":"All good today."}"#.data(using: .utf8)!
+        let macro = try JSONDecoder().decode(MacroFixAdviceDTO.self, from: macroNoSnacks)
+        XCTAssertEqual(macro.suggestedSnacks, [])
+
+        let hydNoMinutes = #"{"title":"Goal Hit","message":"Great hydration!"}"#.data(using: .utf8)!
+        let hyd = try JSONDecoder().decode(HydrationAdviceDTO.self, from: hydNoMinutes)
+        XCTAssertEqual(hyd.nextGlassTimeMinutes, 30)
+
+        let stringBoolFood = #"{"isFood":"true","name":"Apple","weight":150,"calories":78,"protein":0.4,"fats":0.2,"carbs":21}"#.data(using: .utf8)!
+        let food = try JSONDecoder().decode(VertexAIManager.AIFoodResponse.self, from: stringBoolFood)
+        XCTAssertTrue(food.isFood)
+
+        let dupMetricJSON = #"""
+        {
+          "metrics": [
+            {"label": "Posture", "value": "+10%", "detail": "Better", "isPositive": "true"},
+            {"label": "Posture", "value": "+12%", "detail": "Also better", "isPositive": "false"}
+          ],
+          "feedback": "Solid"
+        }
+        """#.data(using: .utf8)!
+        let analysis = try JSONDecoder().decode(VertexAIManager.TransformationAnalysisDTO.self, from: dupMetricJSON)
+        XCTAssertEqual(analysis.metrics.count, 2)
+        XCTAssertNotEqual(analysis.metrics[0].id, analysis.metrics[1].id)
+        XCTAssertTrue(analysis.metrics[0].isPositive)
+        XCTAssertFalse(analysis.metrics[1].isPositive)
+    }
 }

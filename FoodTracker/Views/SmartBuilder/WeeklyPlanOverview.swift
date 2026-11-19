@@ -182,7 +182,7 @@ struct WeeklyPlanOverview: View {
                 let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: cals, protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs))
                 context.insert(foodItem)
 
-                if let existingMeal = (currentSummary.meals ?? []).first(where: { $0.title == canonicalType }) {
+                if let existingMeal = (currentSummary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalType }) {
                     existingMeal.addFoodItem(foodItem)
                     existingMeal.date = Date.now
                 } else {

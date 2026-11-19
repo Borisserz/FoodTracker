@@ -38,7 +38,7 @@ final class VertexAIManager {
 
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            isFood = try container.decode(Bool.self, forKey: .isFood)
+            isFood = VertexAIManager.decodeFlexibleBoolIfPresent(from: container, forKey: .isFood) ?? false
             errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
             name = try container.decodeIfPresent(String.self, forKey: .name)
             weight = VertexAIManager.decodeFlexibleDoubleIfPresent(from: container, forKey: .weight)
@@ -89,16 +89,49 @@ final class VertexAIManager {
     }
 
     struct TransformationMetric: Codable, Identifiable, Equatable {
-        var id: String { label }
+        let id: UUID
         let label: String
         let value: String
         let detail: String
         let isPositive: Bool
+
+        private enum CodingKeys: String, CodingKey {
+            case label, value, detail, isPositive
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = UUID()
+            label = try container.decode(String.self, forKey: .label)
+            value = try container.decode(String.self, forKey: .value)
+            detail = try container.decode(String.self, forKey: .detail)
+            isPositive = VertexAIManager.decodeFlexibleBoolIfPresent(from: container, forKey: .isPositive) ?? true
+        }
     }
 
     struct TransformationAnalysisDTO: Codable {
         let metrics: [TransformationMetric]
         let feedback: String
+    }
+
+    private nonisolated static func decodeFlexibleBoolIfPresent<K: CodingKey>(
+        from container: KeyedDecodingContainer<K>,
+        forKey key: K
+    ) -> Bool? {
+        if let boolVal = try? container.decodeIfPresent(Bool.self, forKey: key) {
+            return boolVal
+        }
+        if let intVal = try? container.decodeIfPresent(Int.self, forKey: key) {
+            return intVal != 0
+        }
+        if let strVal = try? container.decodeIfPresent(String.self, forKey: key) {
+            switch strVal.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+            case "true", "yes", "1": return true
+            case "false", "no", "0": return false
+            default: return nil
+            }
+        }
+        return nil
     }
 
     private nonisolated static func decodeFlexibleDoubleIfPresent<K: CodingKey>(
@@ -206,13 +239,14 @@ final class VertexAIManager {
                 return .notFood((reason?.isEmpty == false ? reason! : fallback))
             }
 
+            let safeWeight = (aiResponse.weight ?? 0) > 0 ? aiResponse.weight! : 100.0
             let item = FoodItem(
                 name: aiResponse.name ?? String(localized: "Unknown Meal"),
-                weight: aiResponse.weight ?? 100.0,
-                calories: aiResponse.calories ?? 0,
-                protein: aiResponse.protein ?? 0,
-                fats: aiResponse.fats ?? 0,
-                carbs: aiResponse.carbs ?? 0
+                weight: safeWeight,
+                calories: max(0, aiResponse.calories ?? 0),
+                protein: max(0, aiResponse.protein ?? 0),
+                fats: max(0, aiResponse.fats ?? 0),
+                carbs: max(0, aiResponse.carbs ?? 0)
             )
             return .food(item)
         } catch {

@@ -375,7 +375,9 @@ struct SmartPlanBuilderFlow: View {
             } else {
                 await MainActor.run {
                     withAnimation { isGenerating = false }
-                    generationError = String(localized: "Couldn't generate a 7-day plan right now. Please try again.")
+                    if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
+                        generationError = String(localized: "Couldn't generate a 7-day plan right now. Please try again.")
+                    }
                     HapticManager.shared.notification(type: .error)
                 }
             }

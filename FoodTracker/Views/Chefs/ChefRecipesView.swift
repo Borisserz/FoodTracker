@@ -635,12 +635,12 @@ struct CustomRecipePremiumCard: View {
                     Circle()
                         .stroke(Color.gray.opacity(0.1), lineWidth: 4)
                     Circle()
-                        .trim(from: 0, to: min(Double(recipe.totalCalories) / 2000.0, 1.0))
+                        .trim(from: 0, to: min(Double(macros.calories) / 2000.0, 1.0))
                         .stroke(Color.themePink, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                         .rotationEffect(.degrees(-90))
 
                     VStack(spacing: 0) {
-                        Text("\(recipe.totalCalories)")
+                        Text("\(macros.calories)")
                             .font(.system(size: 16, weight: .heavy, design: .rounded))
                         Text("kcal")
                             .font(.system(size: 9, weight: .bold))
@@ -1293,7 +1293,7 @@ struct ChooseMealSheet: View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
                 Text("Choose a meal").font(.title2.bold()).padding(.top, 24)
-                Picker("Meal", selection: $selectedMeal) { ForEach(meals, id: \.self) { meal in Text(meal).tag(meal) } }.pickerStyle(.wheel).frame(height: 120)
+                Picker("Meal", selection: $selectedMeal) { ForEach(meals, id: \.self) { meal in Text(LocalizedStringKey(meal)).tag(meal) } }.pickerStyle(.wheel).frame(height: 120)
                 Button(action: {
                     HapticManager.shared.impact(style: .heavy)
                     Task {
@@ -1317,10 +1317,12 @@ struct ChooseMealSheet: View {
 
         let newFood = FoodItem(name: recipe.title, weight: 100, calories: calories, protein: p, fats: f, carbs: c)
         context.insert(newFood)
-        if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
+        let canonicalSlot = DailySummary.canonicalMealSlot(selectedMeal)
+        if let meal = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalSlot }) {
             meal.addFoodItem(newFood)
+            meal.date = .now
         } else {
-            let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
+            let newMeal = Meal(title: canonicalSlot, date: .now, foodItems: [newFood])
             context.insert(newMeal)
             summary.addMeal(newMeal)
         }

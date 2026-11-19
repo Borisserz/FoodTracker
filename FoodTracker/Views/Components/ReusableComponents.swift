@@ -27,7 +27,7 @@ struct MacroBatteryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(title).font(.caption).foregroundColor(.textGray).bold()
+                Text(LocalizedStringKey(title)).font(.caption).foregroundColor(.textGray).bold()
                 Spacer()
                 let textColor = color == .themeYellow ? Color.themeDarkYellow : color
                 Text("\(current)/\(total)g").font(.caption.bold()).foregroundColor(textColor)
@@ -69,7 +69,7 @@ struct MiniProgressView: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            Text(title).font(.caption).bold().foregroundColor(.textGray)
+            Text(LocalizedStringKey(title)).font(.caption).bold().foregroundColor(.textGray)
 
             ProgressView(value: min(max(progress, 0.0), 1.0)).tint(color)
         }
@@ -140,7 +140,7 @@ struct DynamicEnergyDashboard: View {
                             selectedTab = tab
                         }
                     }) {
-                        Text(tab.rawValue)
+                        Text(LocalizedStringKey(tab.rawValue))
                             .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -532,6 +532,7 @@ struct EquationBlock: View {
 }
 
 struct NetGoalImpactCard: View {
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     let summary: DailySummary
     let user: User?
 
@@ -592,15 +593,14 @@ struct NetGoalImpactCard: View {
                     .foregroundColor(.gray)
                     .textCase(.uppercase)
 
-                let useMetric = UserDefaults.standard.object(forKey: "useMetricSystem") as? Bool ?? true
-                let displayedDelta = NutritionMath.displayWeight(abs(weightChange), useMetric: useMetric)
+                let displayedDelta = NutritionMath.displayWeight(abs(weightChange), useMetric: useMetricSystem)
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text("\(displayedDelta, specifier: "%.2f")")
                         .font(.system(size: 48, weight: .heavy, design: .rounded))
                         .foregroundColor(.primary)
 
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(NutritionMath.weightUnit(useMetric: useMetric))
+                        Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
                             .font(.title3.bold())
                             .foregroundColor(.gray)
                         Text(isLosing ? "lost per week" : "gained per week")
@@ -1043,6 +1043,7 @@ struct NetRingCard: View {
     }
 }
 struct WeeklyEnergyBankCard: View {
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     let summaries: [DailySummary]
     let user: User?
 
@@ -1081,7 +1082,9 @@ struct WeeklyEnergyBankCard: View {
                     .foregroundColor(bankBalance >= 0 ? .green : .red)
                 Text(
                     bankBalance >= 3850
-                        ? String(localized: "You've saved enough for a 0.5kg weight loss!")
+                        ? (useMetricSystem
+                           ? String(localized: "You've saved enough for a 0.5kg weight loss!")
+                           : String(localized: "You've saved enough for about 1 lb weight loss!"))
                         : (bankBalance > 0
                            ? String(localized: "You're maintaining a healthy calorie deficit this week.")
                            : (bankBalance == 0

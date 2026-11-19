@@ -25,6 +25,9 @@ final class SocialAuthService {
     // MARK: - Apple
 
     func prepareAppleRequest(_ request: ASAuthorizationAppleIDRequest) {
+        if currentNonce == nil {
+            Task { await AnonymousAuthBootstrap.shared.beginInteractiveSignIn() }
+        }
         let nonce = Self.randomNonce()
         currentNonce = nonce
         request.requestedScopes = [.fullName, .email]
@@ -32,7 +35,10 @@ final class SocialAuthService {
     }
 
     func handleAppleAuthorization(_ result: Result<ASAuthorization, Error>) async throws {
-        defer { currentNonce = nil }
+        defer {
+            currentNonce = nil
+            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn() }
+        }
         let authorization = try result.get()
 
         guard

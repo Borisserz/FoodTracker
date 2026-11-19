@@ -195,7 +195,7 @@ struct LegendRow: View {
     var body: some View {
         HStack(spacing: 6) {
             Circle().fill(color).frame(width: 6, height: 6)
-            Text(title).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundColor(.secondary)
+            Text(LocalizedStringKey(title)).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundColor(.secondary)
             Spacer()
             Text(value).font(.system(size: 11, weight: .bold, design: .rounded)).foregroundColor(.primary)
         }

@@ -25,7 +25,7 @@ public struct SmartSearch {
             "греч": ["гречневая", "гречка"],
             "макарон": ["паста", "спагетти", "макароны"],
             "паста": ["макарон", "спагетти"],
-            "яичниц": ["яйцо", "яйца"],
+            "яичниц": ["яицо", "яица"],
             "куриц": ["курин", "петух"],
             "курин": ["куриц", "петух"],
             "мяс": ["говядин", "свинин"],
@@ -83,8 +83,9 @@ public struct SmartSearch {
             
             // Check synonyms based on the root
             for (key, syns) in synonyms {
-                // If the user's root starts with a synonym key or vice-versa
-                if root.starts(with: key) || key.starts(with: root) {
+                // Avoid short 1-2 character prefixes polluting unrelated words (e.g. "по" -> "томат").
+                let prefixMatches = root.count >= 3 && key.starts(with: root)
+                if root.starts(with: key) || prefixMatches {
                     rootsForWord.append(contentsOf: syns)
                 }
             }
@@ -95,9 +96,13 @@ public struct SmartSearch {
         return result
     }
     
-    /// Matches a food name against the generated query roots.
+    /// Matches a raw food name against generated query roots.
     static func matches(name: String, queryRoots: [[String]]) -> Bool {
-        let normalizedName = normalize(name)
+        matchesFolded(normalizedName: normalize(name), queryRoots: queryRoots)
+    }
+
+    /// Matches a pre-folded food name against generated query roots without re-running Unicode normalization.
+    static func matchesFolded(normalizedName: String, queryRoots: [[String]]) -> Bool {
         
         // For every word in the query, we must find at least one match in the food name
         for roots in queryRoots {

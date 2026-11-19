@@ -17,6 +17,12 @@ class RecipeDataLoader {
         fetchRecipes()
     }
 
+    func resetFavorites() {
+        for index in recipes.indices {
+            recipes[index].isFavorite = false
+        }
+    }
+
     deinit {
         listener?.remove()
     }

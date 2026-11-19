@@ -1141,15 +1141,22 @@ struct RecipeDetailView: View {
 
             let newFood = recipe.toFoodItem()
             context.insert(newFood)
-            if let meal = (summary.meals ?? []).first(where: { $0.title == selectedMeal }) {
+            let canonicalSlot = DailySummary.canonicalMealSlot(selectedMeal)
+            if let meal = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalSlot }) {
                 meal.addFoodItem(newFood)
+                meal.date = .now
             } else {
-                let newMeal = Meal(title: selectedMeal, date: .now, foodItems: [newFood])
+                let newMeal = Meal(title: canonicalSlot, date: .now, foodItems: [newFood])
                 context.insert(newMeal)
                 summary.addMeal(newMeal)
             }
             try? context.save()
             WidgetReloader.reloadAll()
+            AppReviewManager.shared.userDidLogMeal()
+            let shouldSyncHK = (try? context.fetch(FetchDescriptor<User>()).first?.isHealthKitEnabled) == true
+            if shouldSyncHK && HealthKitManager.shared.isAuthorized && newFood.calories > 0 {
+                await HealthKitManager.shared.saveDietaryEnergy(calories: newFood.calories, date: .now)
+            }
         }
     }
 

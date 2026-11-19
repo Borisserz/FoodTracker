@@ -191,6 +191,7 @@ struct SmartScannerView: View {
                                     .background(Color.white)
                                     .clipShape(Capsule())
                             }
+                            .disabled(isAnalyzingAI)
                         }
                         .padding(.horizontal, 32)
                     } else if selectedMode == .mealAI {
@@ -329,6 +330,7 @@ struct SmartScannerView: View {
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }
+            isCapturingPhoto = false
             barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
             if selectedMode == .mealAI || selectedMode == .menuAI {
                 cameraManager.checkPermissionAndStart()
@@ -437,6 +439,7 @@ struct SmartScannerView: View {
                         VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
                     }.value
                     await MainActor.run {
+                        guard selectedMode == currentMode else { return }
                         if currentMode == .menuAI {
                             analyzeMenuWithAI(downsampled)
                         } else {
@@ -581,7 +584,9 @@ struct SmartScannerView: View {
                 case .failed:
                     cameraManager.capturedImage = nil
                     HapticManager.shared.notification(type: .error)
-                    scanErrorMessage = String(localized: "Couldn't recognize food in this photo or the AI service is temporarily unavailable. Please try again or enter manually.")
+                    if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
+                        scanErrorMessage = String(localized: "Couldn't recognize food in this photo or the AI service is temporarily unavailable. Please try again or enter manually.")
+                    }
                 }
             }
         }
@@ -605,7 +610,9 @@ struct SmartScannerView: View {
                 } else {
                     withAnimation {
                         isAnalyzingAI = false
-                        scanErrorMessage = String(localized: "Couldn't analyze this menu right now. Please try a clearer photo.")
+                        if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
+                            scanErrorMessage = String(localized: "Couldn't analyze this menu right now. Please try a clearer photo.")
+                        }
                     }
                 }
             }
@@ -787,7 +794,10 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
 
     func takePhoto() {
         sessionQueue.async { [weak self] in
-            guard let self, self.session.isRunning else {
+            guard let self,
+                  self.session.isRunning,
+                  let videoConnection = self.photoOutput.connection(with: .video),
+                  videoConnection.isActive else {
                 DispatchQueue.main.async { [weak self] in
                     self?.captureError = String(localized: "Camera is not ready yet. Please try again.")
                 }

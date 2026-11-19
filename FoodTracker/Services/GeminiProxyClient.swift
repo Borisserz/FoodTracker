@@ -4,7 +4,7 @@ import Security
 import FirebaseAuth
 import FirebaseAppCheck
 
-private enum DeviceInstallIdentifier {
+enum DeviceInstallIdentifier {
     private static let service = "com.borisdev.FoodTracker2026.deviceInstall"
     private static let account = "deviceInstallId"
     private static let lock = NSLock()
@@ -70,6 +70,10 @@ private enum DeviceInstallIdentifier {
 @Observable
 final class GeminiProxyClient {
     static let shared = GeminiProxyClient()
+
+    static var shouldSuppressSecondaryErrorAlert: Bool {
+        shared.rateLimitAlertMessage != nil
+    }
 
     var rateLimitAlertMessage: String?
 

@@ -113,7 +113,7 @@ final class AuthManager {
         } catch {
             let nsError = error as NSError
             let code = AuthErrorCode(rawValue: nsError.code)
-            if code != .userNotFound && code != .userTokenExpired && code != .invalidUserToken {
+            if code != .userNotFound && code != .userTokenExpired && code != .invalidUserToken && code != .requiresRecentLogin {
                 throw error
             }
         }

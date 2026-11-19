@@ -807,7 +807,7 @@ struct MacroFixResultSheet: View {
                 Button(action: { dismiss() }) {
                     Text("Got it")
                         .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(color == .themeYellow ? Color.black.opacity(0.85) : .white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
                         .background(color)

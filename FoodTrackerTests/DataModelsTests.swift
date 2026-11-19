@@ -856,4 +856,37 @@ final class DataModelsTests: XCTestCase {
         )
         XCTAssertEqual(entry.toFoodItem(weight: 50).calories, 53)
     }
+
+    func testSmartSearchCyrillicYotFoldingAndShortPrefixGuard() {
+        let roots = SmartSearch.getRoots(for: "яйцо", languageCode: "ru")
+        let flattened = Set(roots.flatMap { $0 })
+        XCTAssertTrue(flattened.contains("яичниц") || flattened.contains("яиц"))
+
+        let shortRoots = SmartSearch.getRoots(for: "по", languageCode: "ru").flatMap { $0 }
+        XCTAssertFalse(shortRoots.contains("томат"), "2-char prefix 'по' must not inject unrelated 'томат' synonym")
+    }
+
+    @MainActor
+    func testUserGoalsMatchMetabolicFloorAndDeduplicatedPrimaryMergesDuplicates() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, WeightLog.self, configurations: config)
+        let context = container.mainContext
+
+        let pete = User(name: "Pete", weight: 45, height: 150, age: 40, gender: "Female")
+        pete.activityMultiplier = 1.55
+        pete.weightGoalType = "maintain"
+        pete.calculateGoals()
+        // Raw BMR = 10*45 + 6.25*150 - 200 - 161 = 1026.5 -> clamped to 1200 before * 1.55 = 1860
+        XCTAssertEqual(pete.dailyCaloriesGoal, 1860)
+
+        let alex = User(name: "Alex", weight: 75, height: 180, age: 28, gender: "Male")
+        context.insert(alex)
+        context.insert(pete)
+        try context.save()
+
+        let resolved = User.deduplicatedPrimary(in: context)
+        let remaining = try context.fetch(FetchDescriptor<User>())
+        XCTAssertEqual(remaining.count, 1)
+        XCTAssertEqual(resolved?.name, "Pete")
+    }
 }

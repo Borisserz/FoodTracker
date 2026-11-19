@@ -501,7 +501,7 @@ struct AIChefStudioView: View {
                 isGeneratingAIRecipe = false
                 if let recipe {
                     generatedAIRecipe = recipe
-                } else {
+                } else if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
                     generationError = String(localized: "Could not generate that recipe right now. Please try again.")
                 }
             }
@@ -1243,7 +1243,7 @@ struct AIAssistantFlowView: View {
                 if let recipe {
                     selectedRecipe = recipe
                     isPrepPhase = true
-                } else {
+                } else if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
                     generationError = String(localized: "Could not generate that recipe right now. Please try again.")
                 }
             }
@@ -1386,9 +1386,11 @@ struct AICameraScannerView: View {
     var dishTitle: String = ""
     @Binding var isPresented: Bool
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var cameraManager = LiveFoodCameraManager()
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var isAnalyzing = false
+    @State private var isCapturingPhoto = false
     @State private var showResult = false
     @State private var aiVerdict = ""
     @State private var isSuccess = true
@@ -1528,7 +1530,7 @@ struct AICameraScannerView: View {
 
                 Spacer()
 
-                if !isAnalyzing && !showResult && evaluationError == nil && !cameraManager.isCameraUnavailable && !cameraManager.isPermissionDenied {
+                if !isAnalyzing && !isCapturingPhoto && !showResult && evaluationError == nil && !cameraManager.isCameraUnavailable && !cameraManager.isPermissionDenied {
                     Button(action: capturePhoto) {
                         Circle().stroke(Color.white, lineWidth: 4).frame(width: 70, height: 70)
                             .overlay(Circle().fill(Color.white).frame(width: 60, height: 60))
@@ -1540,12 +1542,24 @@ struct AICameraScannerView: View {
         .onAppear {
             cameraManager.checkPermissionAndStart()
         }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else { return }
+            isCapturingPhoto = false
+            cameraManager.checkPermissionAndStart()
+        }
         .onDisappear {
             cameraManager.stop()
         }
         .onChange(of: cameraManager.capturedImage) { _, newImage in
+            isCapturingPhoto = false
             guard let img = newImage else { return }
             analyzeCapturedStepImage(img)
+        }
+        .onChange(of: cameraManager.captureError) { _, err in
+            guard let err else { return }
+            isCapturingPhoto = false
+            cameraManager.captureError = nil
+            evaluationError = err
         }
         .onChange(of: selectedPhotoItem) { _, newItem in
             Task {
@@ -1563,6 +1577,8 @@ struct AICameraScannerView: View {
     }
 
     private func capturePhoto() {
+        guard !isCapturingPhoto, !isAnalyzing, cameraManager.isConfigured else { return }
+        isCapturingPhoto = true
         HapticManager.shared.impact(style: .rigid)
         cameraManager.takePhoto()
     }
@@ -1570,6 +1586,7 @@ struct AICameraScannerView: View {
     private func resetForRetry() {
         cameraManager.capturedImage = nil
         selectedPhotoItem = nil
+        isCapturingPhoto = false
         showResult = false
         evaluationError = nil
     }
@@ -1596,7 +1613,9 @@ struct AICameraScannerView: View {
             } catch {
                 await MainActor.run {
                     isAnalyzing = false
-                    evaluationError = String(localized: "Couldn't evaluate this step right now. Check your connection and try again.")
+                    if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
+                        evaluationError = String(localized: "Couldn't evaluate this step right now. Check your connection and try again.")
+                    }
                     HapticManager.shared.notification(type: .error)
                 }
             }

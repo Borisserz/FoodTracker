@@ -127,7 +127,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     }
     
     func updateActivity(currentStage: String, progressPct: Double) {
-        guard let activity = activeActivity() else { return }
+        guard pendingStartTask == nil, let activity = activeActivity() else { return }
         // Avoid spamming ActivityKit every 1-second timer tick unless stage changed or progress moved >= 1%
         if currentStage == lastSentStage && abs(progressPct - lastSentProgress) < 0.01 {
             return
@@ -140,9 +140,11 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
             progressPct: progressPct
         )
         
+        let targetEnd = activity.attributes.targetEndDate
+        let staleDate = targetEnd > Date() ? targetEnd : Date().addingTimeInterval(3600)
         let updatedContent = ActivityContent(
             state: updatedState,
-            staleDate: activity.attributes.targetEndDate,
+            staleDate: staleDate,
             relevanceScore: 100
         )
         

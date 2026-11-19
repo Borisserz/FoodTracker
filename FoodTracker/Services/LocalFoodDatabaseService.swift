@@ -142,7 +142,7 @@ final class LocalFoodDatabaseService {
                 score = 60
             } else if name.contains(normalizedQuery) {
                 score = 30
-            } else if !queryRoots.isEmpty && SmartSearch.matches(name: indexed.entry.name, queryRoots: queryRoots) {
+            } else if !queryRoots.isEmpty && SmartSearch.matchesFolded(normalizedName: name, queryRoots: queryRoots) {
                 score = 20
             } else {
                 continue

@@ -26,6 +26,7 @@ public final class SharedModelContainer: @unchecked Sendable {
     }
 
     public let container: ModelContainer
+    public private(set) var didFallBackToInMemory: Bool = false
 
     private init() {
         let schema = Self.sharedSchema
@@ -33,10 +34,23 @@ public final class SharedModelContainer: @unchecked Sendable {
         let dbURL = groupURL.appendingPathComponent("FoodDatabase.sqlite")
         let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
 
-        self.container = Self.makeContainer(schema: schema, url: dbURL, enableCloudKit: !isExtension)
+        var fellBack = false
+        self.container = Self.makeContainer(schema: schema, url: dbURL, enableCloudKit: !isExtension, didFallBackToInMemory: &fellBack)
+        self.didFallBackToInMemory = fellBack
     }
 
     public static func makeContainer(schema: Schema, url: URL, enableCloudKit: Bool = true) -> ModelContainer {
+        var ignored = false
+        return makeContainer(schema: schema, url: url, enableCloudKit: enableCloudKit, didFallBackToInMemory: &ignored)
+    }
+
+    private static func makeContainer(
+        schema: Schema,
+        url: URL,
+        enableCloudKit: Bool,
+        didFallBackToInMemory: inout Bool
+    ) -> ModelContainer {
+        didFallBackToInMemory = false
         if enableCloudKit {
             let cloudConfig = ModelConfiguration(
                 schema: schema,
@@ -54,6 +68,7 @@ public final class SharedModelContainer: @unchecked Sendable {
             return try ModelContainer(for: schema, configurations: [localConfig])
         } catch {
             print("⚠️ Local store init failed in SharedModelContainer (\(error)), falling back to in-memory store.")
+            didFallBackToInMemory = true
             let memoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
             do {
                 return try ModelContainer(for: schema, configurations: [memoryConfig])

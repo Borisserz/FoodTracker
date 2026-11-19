@@ -7,6 +7,7 @@ struct DailyXPQuestsCardView: View {
     @Bindable var user: User
 
     @AppStorage("dailyQuestStates_v1") private var questStatesRaw: String = ""
+    @AppStorage("useMetricSystem") private var useMetricSystem: Bool = true
 
     private var todayKey: String {
         NutritionMath.dayKey(for: Date())
@@ -162,7 +163,9 @@ struct DailyXPQuestsCardView: View {
                 
                 XPQuestRow(
                     icon: "drop.fill",
-                    title: String(localized: "Drink 2.5L of water"),
+                    title: useMetricSystem
+                        ? String(localized: "Drink 2.5L of water")
+                        : String(localized: "Drink 85 fl oz of water"),
                     xp: 150,
                     isDone: binding(for: "water")
                 ) {

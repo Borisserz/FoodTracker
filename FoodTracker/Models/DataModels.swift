@@ -89,12 +89,13 @@ struct Achievement: Identifiable {
     }
 
     func calculateGoals() {
-        let bmr: Double
+        let rawBMR: Double
         if gender == "Female" {
-            bmr = (10 * weight) + (6.25 * height) - (Double(age) * 5) - 161
+            rawBMR = (10 * weight) + (6.25 * height) - (Double(age) * 5) - 161
         } else {
-            bmr = (10 * weight) + (6.25 * height) - (Double(age) * 5) + 5
+            rawBMR = (10 * weight) + (6.25 * height) - (Double(age) * 5) + 5
         }
+        let bmr = max(1200.0, rawBMR)
         let multiplier = activityMultiplier > 0 ? activityMultiplier : 1.3
         let tdee = bmr * multiplier
 
@@ -106,6 +107,32 @@ struct Achievement: Identifiable {
         default:
             self.dailyCaloriesGoal = max(1200, Int(tdee))
         }
+    }
+
+    /// Deduplicates `User` singletons created across devices via CloudKit, keeping the customized profile over default `"Alex"`.
+    @MainActor
+    static func deduplicatedPrimary(in context: ModelContext) -> User? {
+        let descriptor = FetchDescriptor<User>()
+        guard let users = try? context.fetch(descriptor), !users.isEmpty else { return nil }
+        guard users.count > 1 else { return users.first }
+
+        let keeper = users.max { lhs, rhs in
+            scoreProfile(lhs) < scoreProfile(rhs)
+        } ?? users[0]
+
+        for user in users where user !== keeper {
+            context.delete(user)
+        }
+        return keeper
+    }
+
+    private static func scoreProfile(_ user: User) -> Int {
+        var score = 0
+        if user.name != "Alex" && !user.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { score += 4 }
+        if user.dailyCaloriesGoal != 2000 { score += 2 }
+        if user.totalXP > 0 || user.streakDays > 0 { score += 3 }
+        if user.targetWeight != nil { score += 1 }
+        return score
     }
 
     /// Recomputes macro targets (g) for the current `dailyCaloriesGoal`, preserving existing macro ratios when valid.

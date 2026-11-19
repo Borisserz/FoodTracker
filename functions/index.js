@@ -182,17 +182,38 @@ function geminiTypeToJson(type) {
   }
 }
 
-function convertGeminiSchema(schema) {
-  if (!schema || typeof schema !== "object") return undefined;
+const MAX_SCHEMA_DEPTH = 10;
+
+function validateSchemaDepth(schema, depth = 0) {
+  if (!schema || typeof schema !== "object") return;
+  if (depth > MAX_SCHEMA_DEPTH) {
+    throw new Error(`responseSchema exceeds max depth (${MAX_SCHEMA_DEPTH})`);
+  }
+  if (schema.properties && typeof schema.properties === "object") {
+    for (const value of Object.values(schema.properties)) {
+      validateSchemaDepth(value, depth + 1);
+    }
+  }
+  if (schema.items && typeof schema.items === "object") {
+    validateSchemaDepth(schema.items, depth + 1);
+  }
+}
+
+function convertGeminiSchema(schema, depth = 0) {
+  if (!schema || typeof schema !== "object" || depth > MAX_SCHEMA_DEPTH) return undefined;
   const out = { type: geminiTypeToJson(schema.type) };
   if (schema.description) out.description = schema.description;
   if (schema.properties && typeof schema.properties === "object") {
     out.properties = {};
     for (const [key, value] of Object.entries(schema.properties)) {
-      out.properties[key] = convertGeminiSchema(value);
+      const converted = convertGeminiSchema(value, depth + 1);
+      if (converted) out.properties[key] = converted;
     }
   }
-  if (schema.items) out.items = convertGeminiSchema(schema.items);
+  if (schema.items) {
+    const convertedItems = convertGeminiSchema(schema.items, depth + 1);
+    if (convertedItems) out.items = convertedItems;
+  }
   if (Array.isArray(schema.required)) out.required = schema.required;
   return out;
 }
@@ -205,6 +226,10 @@ function validateAiProxyBody(body) {
     throw new Error(`Too many content messages (max ${MAX_AI_CONTENTS})`);
   }
 
+  if (body.generationConfig?.responseSchema !== undefined) {
+    validateSchemaDepth(body.generationConfig.responseSchema, 0);
+  }
+
   let totalTextChars = 0;
   let totalImages = 0;
 
@@ -215,7 +240,10 @@ function validateAiProxyBody(body) {
     }
     let sysChars = 0;
     for (const part of sysParts) {
-      if (part?.text !== undefined) {
+      if (!part || typeof part !== "object" || part.inlineData !== undefined) {
+        throw new Error("Invalid systemInstruction part");
+      }
+      if (part.text !== undefined) {
         if (typeof part.text !== "string") {
           throw new Error("Invalid systemInstruction text");
         }
@@ -242,7 +270,7 @@ function validateAiProxyBody(body) {
       throw new Error("Invalid content parts array");
     }
     for (const part of parts) {
-      if (!part || typeof part !== "object") {
+      if (!part || typeof part !== "object" || (part.text === undefined && part.inlineData === undefined)) {
         throw new Error("Invalid part entry");
       }
       if (part.text !== undefined) {
@@ -324,8 +352,8 @@ function geminiBodyToOpenAI(body, { streaming, model }) {
   }
 
   const gen = body?.generationConfig || {};
-  const temperature =
-    typeof gen.temperature === "number" ? gen.temperature : 0.4;
+  const rawTemp = typeof gen.temperature === "number" && Number.isFinite(gen.temperature) ? gen.temperature : 0.4;
+  const temperature = Math.min(2, Math.max(0, rawTemp));
   const wantsJson =
     gen.responseMimeType === "application/json" || Boolean(gen.responseSchema);
 
@@ -334,6 +362,7 @@ function geminiBodyToOpenAI(body, { streaming, model }) {
     messages,
     temperature,
     stream: Boolean(streaming),
+    provider: { data_collection: "deny" },
   };
 
   if (wantsJson) {
@@ -359,6 +388,7 @@ function geminiBodyToOpenAI(body, { streaming, model }) {
 }
 
 function extractBalancedJSON(text) {
+  let fallbackArrayCandidate = null;
   for (let start = 0; start < text.length; start++) {
     const opener = text[start];
     if (opener !== "{" && opener !== "[") continue;
@@ -389,22 +419,32 @@ function extractBalancedJSON(text) {
           const candidate = text.slice(start, i + 1);
           try {
             JSON.parse(candidate);
-            return candidate;
+            if (opener === "{") {
+              return candidate;
+            }
+            // Prefer structured arrays over citation brackets like [1].
+            if (candidate.includes("{") || candidate.includes('"')) {
+              return candidate;
+            }
+            if (!fallbackArrayCandidate) {
+              fallbackArrayCandidate = candidate;
+            }
           } catch {
-            break;
+            // keep scanning
           }
+          break;
         }
       }
     }
   }
-  return null;
+  return fallbackArrayCandidate;
 }
 
 function stripModelJSON(raw) {
-  let text = String(raw || "").trim();
-  const fenceMatch = text.match(/```(?:json|JSON)?\s*([\s\S]*?)```/);
-  if (fenceMatch && fenceMatch[1]) {
-    const inner = fenceMatch[1].trim();
+  const text = String(raw || "").trim();
+  for (const match of text.matchAll(/```(?:json|JSON)?\s*([\s\S]*?)```/g)) {
+    const inner = match[1]?.trim();
+    if (!inner) continue;
     try {
       JSON.parse(inner);
       return inner;
@@ -483,7 +523,9 @@ async function loadAISettings() {
     const data = snap.exists ? snap.data() || {} : {};
     const value = {
       weeklyLimit:
-        typeof data.weeklyLimit === "number"
+        typeof data.weeklyLimit === "number" &&
+        Number.isFinite(data.weeklyLimit) &&
+        data.weeklyLimit > 0
           ? data.weeklyLimit
           : DEFAULT_AI_WEEKLY_LIMIT,
       textModels: Array.isArray(data.textModels) ? data.textModels : null,
@@ -635,8 +677,19 @@ function resolveSecondaryQuotaKey(req) {
   if (deviceHash) {
     return `device:${deviceHash}`;
   }
-  const forwardedFor = String(req?.header?.("x-forwarded-for") || "").split(",")[0].trim();
-  const clientIp = forwardedFor || String(req?.ip || "").trim();
+  const reqIp = String(req?.ip || "").trim();
+  const isLoopback = /^(127\.0\.0\.1|::1|::ffff:127\.0\.0\.1)$/i.test(reqIp);
+  let clientIp = reqIp && !isLoopback ? reqIp : "";
+  if (!clientIp) {
+    const xffParts = String(req?.header?.("x-forwarded-for") || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const nonInternal = [...xffParts]
+      .reverse()
+      .find((ip) => !/^(10\.|127\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1)/i.test(ip));
+    clientIp = nonInternal || xffParts[0] || reqIp;
+  }
   if (!clientIp) return null;
   const ipHash = crypto.createHash("sha256").update(clientIp).digest("hex");
   return `ip:${ipHash}`;
@@ -777,8 +830,11 @@ async function verifyFirebaseUser(req, res) {
 function parseNumericValue(value) {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string") {
-    const cleaned = value.trim().replace(",", ".");
-    if (!cleaned) return 0;
+    const trimmed = value.trim();
+    if (!trimmed) return 0;
+    const cleaned = /^\d{1,3}(,\d{3})+(\.\d+)?$/.test(trimmed)
+      ? trimmed.replace(/,/g, "")
+      : trimmed.replace(",", ".");
     const parsed = Number(cleaned);
     return Number.isFinite(parsed) ? parsed : 0;
   }
@@ -845,8 +901,9 @@ function convertMetricWeightToGrams(amount, rawUnit) {
     case "ml":
       return amount;
     case "oz":
-    case "fl oz":
       return amount * 28.3495;
+    case "fl oz":
+      return amount * 29.5735;
     case "lb":
     case "lbs":
       return amount * 453.59237;
@@ -879,6 +936,12 @@ function pickPreferredFatSecretServing(servingData) {
   return objects.find(hasValidMetric) || objects[0];
 }
 
+function roundServingWeightGrams(weightGrams) {
+  if (!Number.isFinite(weightGrams) || weightGrams <= 0) return 100;
+  const rounded = Math.round(weightGrams * 10) / 10 || Math.round(weightGrams * 1000) / 1000;
+  return rounded > 0 ? rounded : 100;
+}
+
 function parseFatSecretDescription(description) {
   if (typeof description !== "string" || !description) return null;
   const calMatch = description.match(/Calories:\s*([0-9.,]+)\s*kcal/i);
@@ -887,13 +950,15 @@ function parseFatSecretDescription(description) {
   const protMatch = description.match(/Protein:\s*([0-9.,]+)\s*g/i);
   if (!calMatch && !fatMatch && !carbMatch && !protMatch) return null;
 
-  const weightMatch = description.match(/^Per\s+([0-9.,]+)\s*(g|ml|oz|lb|lbs|kg)\b/i);
+  const weightMatch = description.match(/^Per\s+([0-9.,]+)\s*(fl\s+oz|g|ml|oz|lb|lbs|kg|mg)\b/i);
   const parsedWeight = weightMatch
-    ? convertMetricWeightToGrams(parseNumericValue(weightMatch[1]), weightMatch[2])
+    ? convertMetricWeightToGrams(
+        parseNumericValue(weightMatch[1]),
+        weightMatch[2].replace(/\s+/g, " ")
+      )
     : 0;
-
   return {
-    weight: parsedWeight > 0 ? Math.round(parsedWeight * 10) / 10 : 100,
+    weight: roundServingWeightGrams(parsedWeight),
     calories: Math.round(parseNumericValue(calMatch?.[1] || 0)),
     fats: parseNumericValue(fatMatch?.[1] || 0),
     carbs: parseNumericValue(carbMatch?.[1] || 0),
@@ -919,7 +984,7 @@ function normalizeFatSecretFood(food) {
     const weightGrams = convertMetricWeightToGrams(rawAmount, serving.metric_serving_unit);
     return {
       name,
-      weight: weightGrams > 0 ? Math.round(weightGrams * 10) / 10 : 100,
+      weight: roundServingWeightGrams(weightGrams),
       calories: Math.round(parseNumericValue(serving.calories)),
       protein: parseNumericValue(serving.protein),
       fats: parseNumericValue(serving.fat),

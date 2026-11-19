@@ -5,12 +5,14 @@ actor AnonymousAuthBootstrap {
     static let shared = AnonymousAuthBootstrap()
 
     private var inFlightTask: Task<FirebaseAuth.User, Error>?
+    private var inFlightGeneration: UInt64 = 0
     private var interactiveSignInCount = 0
 
     private init() {}
 
     func beginInteractiveSignIn() {
         interactiveSignInCount += 1
+        inFlightGeneration &+= 1
         inFlightTask?.cancel()
         inFlightTask = nil
     }
@@ -28,6 +30,8 @@ actor AnonymousAuthBootstrap {
             return try await existingTask.value
         }
 
+        inFlightGeneration &+= 1
+        let capturedGeneration = inFlightGeneration
         let task = Task<FirebaseAuth.User, Error> {
             // Yield once and re-check so concurrent Apple/Google sign-in isn't overwritten on startup.
             await Task.yield()
@@ -46,7 +50,11 @@ actor AnonymousAuthBootstrap {
             return result.user
         }
         inFlightTask = task
-        defer { inFlightTask = nil }
+        defer {
+            if inFlightGeneration == capturedGeneration {
+                inFlightTask = nil
+            }
+        }
         return try await task.value
     }
 }

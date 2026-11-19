@@ -13,7 +13,10 @@ struct AddWaterIntent: AppIntent {
         await MainActor.run {
             let context = SharedModelContainer.shared.container.mainContext
             do {
-                try WidgetStorageActions.addWaterGlass(volumeMl: 250.0, in: context, for: Date())
+                let groupDefaults = UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)
+                let useMetric = groupDefaults?.object(forKey: "useMetricSystem") as? Bool ?? true
+                let volumeMl = useMetric ? 250.0 : (8.0 * 29.5735)
+                try WidgetStorageActions.addWaterGlass(volumeMl: volumeMl, in: context, for: Date())
                 WidgetReloader.reloadAll()
             } catch {
                 print("Failed to add water from intent: \(error)")

@@ -578,3 +578,58 @@ test("normalizeFatSecretFood selects mg metric serving over non-metric serving",
   assert.equal(result.weight, 50);
   assert.equal(result.calories, 120);
 });
+
+test("stripModelJSON ignores citation brackets like [1] before real JSON", () => {
+  const extracted = t.stripModelJSON('Option [1]: {"calories": 420, "name": "Oats"}');
+  assert.equal(extracted, '{"calories": 420, "name": "Oats"}');
+});
+
+test("validateAiProxyBody rejects systemInstruction images and deep responseSchema", () => {
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        systemInstruction: { parts: [{ inlineData: { mimeType: "image/jpeg", data: "YQ==" } }] },
+        contents: [{ role: "user", parts: [{ text: "Hi" }] }],
+      }),
+    /systemInstruction/i
+  );
+
+  let deep = { type: "OBJECT", properties: {} };
+  let cursor = deep;
+  for (let i = 0; i < 15; i++) {
+    cursor.properties.child = { type: "OBJECT", properties: {} };
+    cursor = cursor.properties.child;
+  }
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [{ role: "user", parts: [{ text: "Hi" }] }],
+        generationConfig: { responseSchema: deep },
+      }),
+    /schema|depth/i
+  );
+});
+
+test("parseFatSecretDescription handles fl oz & mg and parseNumericValue handles 1,250", () => {
+  assert.equal(t.parseNumericValue("1,250"), 1250);
+  const flOzDesc = t.parseFatSecretDescription(
+    "Per 8 fl oz - Calories: 110kcal | Fat: 0g | Carbs: 26g | Protein: 0g"
+  );
+  assert.equal(flOzDesc.weight, 236.6);
+  const mgDesc = t.parseFatSecretDescription(
+    "Per 500 mg - Calories: 5kcal | Fat: 0g | Carbs: 1g | Protein: 0g"
+  );
+  assert.equal(mgDesc.weight, 0.5);
+});
+
+test("geminiBodyToOpenAI enforces data_collection deny and clamps temperature", () => {
+  const body = t.geminiBodyToOpenAI(
+    {
+      contents: [{ role: "user", parts: [{ text: "Hi" }] }],
+      generationConfig: { temperature: 99 },
+    },
+    { streaming: false, model: "google/gemma-3-27b-it:free" }
+  );
+  assert.equal(body.provider?.data_collection, "deny");
+  assert.equal(body.temperature, 2);
+});

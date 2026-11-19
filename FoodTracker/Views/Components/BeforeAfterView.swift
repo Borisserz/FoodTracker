@@ -4,6 +4,7 @@ import PhotosUI
 
 enum BeforeAfterStorage {
     private static let analysisDefaultsKey = "beforeAfterAnalysis_v1"
+    private static let ioQueue = DispatchQueue(label: "com.borisdev.FoodTracker.beforeAfterIO")
 
     private static var storageDirectory: URL? {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
@@ -11,19 +12,25 @@ enum BeforeAfterStorage {
     }
 
     static func saveImage(_ image: UIImage, slot: String) {
-        guard let dir = storageDirectory else { return }
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let url = dir.appendingPathComponent("\(slot).jpg")
         let normalized = VertexAIManager.downsampledImage(image, maxDimension: 1600)
-        if let data = normalized.jpegData(compressionQuality: 0.8) {
+        guard let data = normalized.jpegData(compressionQuality: 0.8) else { return }
+        ioQueue.sync {
+            guard var dir = storageDirectory else { return }
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try? dir.setResourceValues(values)
+            let url = dir.appendingPathComponent("\(slot).jpg")
             try? data.write(to: url, options: [.atomic, .completeFileProtection])
         }
     }
 
     static func loadImage(slot: String) -> UIImage? {
-        guard let url = storageDirectory?.appendingPathComponent("\(slot).jpg"),
-              let data = try? Data(contentsOf: url) else { return nil }
-        return UIImage(data: data)
+        ioQueue.sync {
+            guard let url = storageDirectory?.appendingPathComponent("\(slot).jpg"),
+                  let data = try? Data(contentsOf: url) else { return nil }
+            return UIImage(data: data)
+        }
     }
 
     static func saveAnalysis(_ analysis: VertexAIManager.TransformationAnalysisDTO) {
@@ -37,10 +44,16 @@ enum BeforeAfterStorage {
         return try? JSONDecoder().decode(VertexAIManager.TransformationAnalysisDTO.self, from: data)
     }
 
-    static func clearAll() {
+    static func clearAnalysis() {
         UserDefaults.standard.removeObject(forKey: analysisDefaultsKey)
-        if let dir = storageDirectory {
-            try? FileManager.default.removeItem(at: dir)
+    }
+
+    static func clearAll() {
+        clearAnalysis()
+        ioQueue.async {
+            if let dir = storageDirectory {
+                try? FileManager.default.removeItem(at: dir)
+            }
         }
     }
 }
@@ -143,24 +156,22 @@ struct BeforeAfterView: View {
         .onChange(of: beforeImage) { oldValue, newValue in
             guard didRestorePersisted, let newValue else { return }
             guard oldValue !== newValue else { return }
+            BeforeAfterStorage.clearAnalysis()
             Task.detached(priority: .userInitiated) {
                 BeforeAfterStorage.saveImage(newValue, slot: "before")
             }
             analysisResult = nil
-            if afterImage != nil {
-                triggerAnalysis(force: true)
-            }
+            analysisError = nil
         }
         .onChange(of: afterImage) { oldValue, newValue in
             guard didRestorePersisted, let newValue else { return }
             guard oldValue !== newValue else { return }
+            BeforeAfterStorage.clearAnalysis()
             Task.detached(priority: .userInitiated) {
                 BeforeAfterStorage.saveImage(newValue, slot: "after")
             }
             analysisResult = nil
-            if beforeImage != nil {
-                triggerAnalysis(force: true)
-            }
+            analysisError = nil
         }
     }
     
@@ -380,7 +391,9 @@ struct BeforeAfterView: View {
                     HapticManager.shared.notification(type: .error)
                     withAnimation {
                         isAnalyzing = false
-                        analysisError = String(localized: "Couldn't analyze these photos right now. Check your connection and try again.")
+                        if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
+                            analysisError = String(localized: "Couldn't analyze these photos right now. Check your connection and try again.")
+                        }
                     }
                 }
             }
@@ -507,6 +520,29 @@ struct BeforeAfterView: View {
                     insertion: .move(edge: .bottom).combined(with: .opacity),
                     removal: .opacity
                 ))
+            } else {
+                VStack(spacing: 12) {
+                    Text("Photos stay private on your device until you tap Analyze to send downsampled copies for AI visual comparison.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                    Button {
+                        triggerAnalysis(force: true)
+                    } label: {
+                        Label("Analyze Transformation with AI", systemImage: "sparkles")
+                            .font(.subheadline.bold())
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(themeManager.current.primaryAccent)
+                            .foregroundStyle(.white)
+                            .cornerRadius(14)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(14)
+                .background(Color.gray.opacity(0.05))
+                .cornerRadius(14)
             }
         }
     }

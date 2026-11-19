@@ -24,7 +24,7 @@ struct FastingActivityWidget: Widget {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading) {
-                        Text(context.state.currentStage)
+                        Text(LocalizedStringKey(context.state.currentStage))
                             .font(.caption.bold())
                         ProgressView(value: context.state.progressPct)
                             .tint(.orange)
@@ -83,7 +83,7 @@ struct LockScreenFastingView: View {
                     Text("Current Stage")
                         .font(.caption)
                         .foregroundColor(.gray)
-                    Text(context.state.currentStage)
+                    Text(LocalizedStringKey(context.state.currentStage))
                         .font(.body.bold())
                         .foregroundColor(.white)
                     

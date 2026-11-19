@@ -95,11 +95,7 @@ struct WidgetTimelineProvider: TimelineProvider {
     }
 
     private func buildTodaySnapshot(in modelContext: ModelContext) -> DailyWidgetSnapshot {
-        var didMerge = false
-        let todaySummary = DailySummary.fetchExisting(for: Date(), in: modelContext, didMerge: &didMerge)
-        if didMerge {
-            try? modelContext.save()
-        }
+        let todaySummary = DailySummary.fetchExisting(for: Date(), in: modelContext)
         let user = try? modelContext.fetch(FetchDescriptor<User>()).first
         return DailyWidgetSnapshot.compute(summary: todaySummary, user: user)
     }
@@ -178,7 +174,7 @@ struct ShoppingListTimelineProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<ShoppingListEntry>) -> ()) {
         Task {
             let entry = await fetchItems(in: context)
-            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
+            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date()) ?? Date().addingTimeInterval(1800)
             let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
             completion(timeline)
         }

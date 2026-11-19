@@ -20,7 +20,14 @@ class NetworkManager {
     }
     var searchProxyURLProvider: (() async -> URL)?
     var refreshingProxyTokensProvider: ((_ forceRefresh: Bool) async -> (authToken: String?, appCheckToken: String?))?
-    private(set) var lastBarcodeLookupError: String?
+    private var _lastBarcodeLookupError: String?
+    var lastBarcodeLookupError: String? {
+        cacheLock.withLock { _lastBarcodeLookupError }
+    }
+
+    private func setLastBarcodeLookupError(_ value: String?) {
+        cacheLock.withLock { _lastBarcodeLookupError = value }
+    }
 
     private struct CachedFoodSnapshot: Sendable {
         let name: String
@@ -54,6 +61,21 @@ class NetworkManager {
     private var barcodeCache: [String: CacheEntry<CachedFoodSnapshot>] = [:]
     private let searchCacheTTL: TimeInterval = 300
     private let barcodeCacheTTL: TimeInterval = 1800
+    private let maxCacheEntries = 100
+
+    static func searchCacheKey(query: String, language: String, allowAIFallback: Bool) -> String {
+        let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let lang = language.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return "\(lang)|\(allowAIFallback ? "ai" : "noai")|\(normalized)"
+    }
+
+    private func pruneCache<Value>(_ cache: inout [String: CacheEntry<Value>], now: Date) {
+        cache = cache.filter { $0.value.expiresAt > now }
+        if cache.count >= maxCacheEntries,
+           let oldestKey = cache.min(by: { $0.value.expiresAt < $1.value.expiresAt })?.key {
+            cache.removeValue(forKey: oldestKey)
+        }
+    }
 
     func clearCacheForTesting() {
         cacheLock.withLock {
@@ -76,11 +98,24 @@ class NetworkManager {
 
     private func parseDouble(_ value: Any?) -> Double {
         guard let value = value else { return 0.0 }
-        if let d = value as? Double { return d }
-        if let i = value as? Int { return Double(i) }
+        if let d = value as? Double {
+            return (d.isFinite && d >= 0) ? d : 0.0
+        }
+        if let i = value as? Int {
+            return i >= 0 ? Double(i) : 0.0
+        }
         if let s = value as? String {
-            let cleanString = s.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
-            return Double(cleanString) ?? 0.0
+            let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return 0.0 }
+            let cleanString: String
+            if trimmed.range(of: #"^\d{1,3}(,\d{3})+(\.\d+)?$"#, options: .regularExpression) != nil {
+                cleanString = trimmed.replacingOccurrences(of: ",", with: "")
+            } else {
+                cleanString = trimmed.replacingOccurrences(of: ",", with: ".")
+            }
+            if let parsed = Double(cleanString), parsed.isFinite, parsed >= 0 {
+                return parsed
+            }
         }
         return 0.0
     }
@@ -90,25 +125,49 @@ class NetworkManager {
         if direct > 0 { return direct }
         guard let str = value as? String else { return 0.0 }
         let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let regex = try? NSRegularExpression(pattern: #"^([0-9]+(?:[.,][0-9]+)?)\s*(?:g|gram|grams|gr|ml|г|мл)?\b"#, options: .caseInsensitive),
-              let match = regex.firstMatch(in: trimmed, range: NSRange(trimmed.startIndex..., in: trimmed)),
-              let range = Range(match.range(at: 1), in: trimmed) else {
-            return 0.0
+
+        // Prefer explicit parenthetical metric/oz weight like "1 oz (28 g)" or "2 tbsp (30g)" first.
+        if let grams = Self.extractWeight(from: trimmed, pattern: #"\(\s*([0-9]+(?:[.,][0-9]+)?)\s*(fl\s+oz|oz|g|gram|grams|gr|ml|г|мл)\b"#) {
+            return grams
         }
-        let numStr = String(trimmed[range]).replacingOccurrences(of: ",", with: ".")
-        return Double(numStr) ?? 0.0
+        // Otherwise require an explicit weight/volume unit so leading serving counts ("1 bar") don't parse as 1g.
+        return Self.extractWeight(from: trimmed, pattern: #"^([0-9]+(?:[.,][0-9]+)?)\s*(fl\s+oz|oz|g|gram|grams|gr|ml|г|мл)\b"#) ?? 0.0
+    }
+
+    private static func extractWeight(from text: String, pattern: String) -> Double? {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
+              let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+              let numRange = Range(match.range(at: 1), in: text),
+              let unitRange = Range(match.range(at: 2), in: text) else {
+            return nil
+        }
+        let numStr = String(text[numRange]).replacingOccurrences(of: ",", with: ".")
+        guard let raw = Double(numStr), raw.isFinite, raw > 0 else { return nil }
+        let unit = String(text[unitRange]).lowercased().replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+        if unit == "fl oz" {
+            return (raw * 29.5735 * 10.0).rounded() / 10.0
+        }
+        if unit == "oz" {
+            return (raw * 28.3495 * 10.0).rounded() / 10.0
+        }
+        return raw
     }
 
     func searchFoodByText(query: String, allowAIFallback: Bool = true) async -> [FoodItem] {
-        let normalizedKey = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if !normalizedKey.isEmpty,
-           let cached = cacheLock.withLock({ () -> [FoodItem]? in
-               guard let entry = searchCache[normalizedKey], entry.expiresAt > Date() else {
-                   searchCache.removeValue(forKey: normalizedKey)
-                   return nil
-               }
-               return entry.value.map { $0.toFoodItem() }
-           }) {
+        let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedQuery.isEmpty else { return [] }
+        let cacheKey = Self.searchCacheKey(
+            query: normalizedQuery,
+            language: currentLanguage,
+            allowAIFallback: allowAIFallback
+        )
+        if let cached = cacheLock.withLock({ () -> [FoodItem]? in
+            guard let entry = searchCache[cacheKey], entry.expiresAt > Date() else {
+                searchCache.removeValue(forKey: cacheKey)
+                return nil
+            }
+            return entry.value.map { $0.toFoodItem() }
+        }) {
             return cached
         }
 
@@ -117,9 +176,12 @@ class NetworkManager {
         var results = await searchFromOpenFoodFacts(query: query)
         print("🍏 В Open Food Facts найдено: \(results.count)")
 
+        var fatSecretFailed = false
         if results.count < 10 {
             print("⚠️ В OFF мало результатов. Подключаем FatSecret...")
-            let fatSecretResults = await searchFromFatSecret(query: query)
+            let outcome = await searchFromFatSecretOutcome(query: query)
+            let fatSecretResults = outcome.items
+            fatSecretFailed = outcome.failed
             print("🍔 В FatSecret найдено: \(fatSecretResults.count)")
 
             for fsItem in fatSecretResults {
@@ -139,11 +201,13 @@ class NetworkManager {
         }
 
         let capped = Array(results.prefix(20))
-        if !normalizedKey.isEmpty && !capped.isEmpty {
+        if !capped.isEmpty && !fatSecretFailed {
             let snapshots = capped.map { CachedFoodSnapshot(from: $0) }
-            let expiry = Date().addingTimeInterval(searchCacheTTL)
+            let now = Date()
+            let expiry = now.addingTimeInterval(searchCacheTTL)
             cacheLock.withLock {
-                searchCache[normalizedKey] = CacheEntry(value: snapshots, expiresAt: expiry)
+                pruneCache(&searchCache, now: now)
+                searchCache[cacheKey] = CacheEntry(value: snapshots, expiresAt: expiry)
             }
         }
         print("✅ Итого найдено: \(capped.count) результатов.")
@@ -151,7 +215,7 @@ class NetworkManager {
     }
 
     func fetchProduct(barcode: String) async -> FoodItem? {
-        lastBarcodeLookupError = nil
+        setLastBarcodeLookupError(nil)
         let cacheKey = barcode.trimmingCharacters(in: .whitespacesAndNewlines)
         if !cacheKey.isEmpty,
            let cached = cacheLock.withLock({ () -> FoodItem? in
@@ -172,8 +236,10 @@ class NetworkManager {
             print("✅ Нашли в Open Food Facts: \(offProduct.name)")
             if !cacheKey.isEmpty {
                 let snapshot = CachedFoodSnapshot(from: offProduct)
-                let expiry = Date().addingTimeInterval(barcodeCacheTTL)
+                let now = Date()
+                let expiry = now.addingTimeInterval(barcodeCacheTTL)
                 cacheLock.withLock {
+                    pruneCache(&barcodeCache, now: now)
                     barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
                 }
             }
@@ -182,27 +248,29 @@ class NetworkManager {
             break
         case .failed(let message):
             hadNetworkFailure = true
-            lastBarcodeLookupError = message
+            setLastBarcodeLookupError(message)
         }
 
         switch await fetchBarcodeFromFatSecretBarcode(barcode: barcode) {
         case .found(let fatSecretProduct):
             print("✅ Нашли в FatSecret: \(fatSecretProduct.name)")
-            lastBarcodeLookupError = nil
+            setLastBarcodeLookupError(nil)
             if !cacheKey.isEmpty {
                 let snapshot = CachedFoodSnapshot(from: fatSecretProduct)
-                let expiry = Date().addingTimeInterval(barcodeCacheTTL)
+                let now = Date()
+                let expiry = now.addingTimeInterval(barcodeCacheTTL)
                 cacheLock.withLock {
+                    pruneCache(&barcodeCache, now: now)
                     barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
                 }
             }
             return fatSecretProduct
         case .notFound:
             if !hadNetworkFailure {
-                lastBarcodeLookupError = nil
+                setLastBarcodeLookupError(nil)
             }
         case .failed(let message):
-            lastBarcodeLookupError = message
+            setLastBarcodeLookupError(message)
         }
 
         print("❌ Продукт по штрихкоду не найден.")
@@ -365,7 +433,12 @@ class NetworkManager {
             return (await auth, await appCheck)
         }
         let freshAppCheck = try? await AppCheck.appCheck().token(forcingRefresh: true).token
-        let currentUser = Auth.auth().currentUser
+        let currentUser: FirebaseAuth.User?
+        if let existing = Auth.auth().currentUser {
+            currentUser = existing
+        } else {
+            currentUser = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
+        }
         let freshAuth = try? await currentUser?.getIDTokenResult(forcingRefresh: true).token
         return (freshAuth, freshAppCheck)
     }
@@ -384,10 +457,12 @@ class NetworkManager {
         for forceRefresh in [false, true] {
             let tokens = await resolveProxyTokens(forceRefresh: forceRefresh)
             guard let appCheckToken = tokens.appCheckToken, !appCheckToken.isEmpty else {
+                if !forceRefresh { continue }
                 print("⚠️ foodSearchProxy skipped: missing App Check token")
                 return .failed(String(localized: "Unable to verify app security token. Please try again."))
             }
             guard let authToken = tokens.authToken, !authToken.isEmpty else {
+                if !forceRefresh { continue }
                 print("⚠️ foodSearchProxy skipped: missing Firebase ID token")
                 return .failed(String(localized: "Unable to verify session. Please check your connection."))
             }
@@ -396,6 +471,7 @@ class NetworkManager {
             request.httpMethod = "POST"
             request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
             request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+            request.setValue(DeviceInstallIdentifier.current, forHTTPHeaderField: "X-Device-Install-ID")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = bodyData
 
@@ -406,6 +482,9 @@ class NetworkManager {
                 }
                 if http.statusCode == 401 && !forceRefresh {
                     continue
+                }
+                if http.statusCode == 429 {
+                    return .failed(String(localized: "Search limit reached. Please try again shortly."))
                 }
                 guard http.statusCode == 200 else {
                     return .failed(String(localized: "Barcode database temporarily unavailable (HTTP \(http.statusCode))."))
@@ -419,12 +498,14 @@ class NetworkManager {
         return .failed(String(localized: "Authorization expired. Please try again."))
     }
 
-    private func searchFromFatSecret(query: String) async -> [FoodItem] {
+    private func searchFromFatSecretOutcome(query: String) async -> (items: [FoodItem], failed: Bool) {
         let payload: [String: Any] = ["mode": "search", "query": query, "maxResults": 15]
-        if case .success(let response) = await performSearchProxyRequest(payload: payload, as: ProxySearchResponse.self) {
-            return response.items.map { $0.toFoodItem() }
+        switch await performSearchProxyRequest(payload: payload, as: ProxySearchResponse.self) {
+        case .success(let response):
+            return (response.items.map { $0.toFoodItem() }, false)
+        case .failed:
+            return ([], true)
         }
-        return []
     }
 
     private func fetchBarcodeFromFatSecretBarcode(barcode: String) async -> BarcodeLookupOutcome {

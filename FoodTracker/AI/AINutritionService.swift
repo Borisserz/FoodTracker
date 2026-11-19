@@ -2,6 +2,19 @@ import Foundation
 import FirebaseAuth
 import FirebaseAppCheck
 
+private func parseFlexibleDecimalString(_ raw: String) -> Double? {
+    let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return nil }
+    let clean: String
+    if trimmed.range(of: #"^\d{1,3}(,\d{3})+(\.\d+)?$"#, options: .regularExpression) != nil {
+        clean = trimmed.replacingOccurrences(of: ",", with: "")
+    } else {
+        clean = trimmed.replacingOccurrences(of: ",", with: ".")
+    }
+    guard let parsed = Double(clean), parsed.isFinite else { return nil }
+    return parsed
+}
+
 @propertyWrapper
 struct FlexibleInt: Codable, Hashable {
     var wrappedValue: Int
@@ -16,13 +29,9 @@ struct FlexibleInt: Codable, Hashable {
             self.wrappedValue = intVal
         } else if let doubleVal = try? container.decode(Double.self), doubleVal.isFinite {
             self.wrappedValue = Int(doubleVal.rounded())
-        } else if let strVal = try? container.decode(String.self) {
-            let cleaned = strVal.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
-            if let doubleVal = Double(cleaned), doubleVal.isFinite {
-                self.wrappedValue = Int(doubleVal.rounded())
-            } else {
-                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid integer value: \(strVal)")
-            }
+        } else if let strVal = try? container.decode(String.self),
+                  let doubleVal = parseFlexibleDecimalString(strVal) {
+            self.wrappedValue = Int(doubleVal.rounded())
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Expected numeric value for FlexibleInt")
         }
@@ -48,13 +57,9 @@ struct FlexibleDouble: Codable, Hashable {
             self.wrappedValue = doubleVal
         } else if let intVal = try? container.decode(Int.self) {
             self.wrappedValue = Double(intVal)
-        } else if let strVal = try? container.decode(String.self) {
-            let cleaned = strVal.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
-            if let parsed = Double(cleaned), parsed.isFinite {
-                self.wrappedValue = parsed
-            } else {
-                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid double value: \(strVal)")
-            }
+        } else if let strVal = try? container.decode(String.self),
+                  let parsed = parseFlexibleDecimalString(strVal) {
+            self.wrappedValue = parsed
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Expected numeric value for FlexibleDouble")
         }
@@ -159,6 +164,13 @@ struct MacroFixAdviceDTO: Codable, Identifiable {
         case title, explanation, suggestedSnacks
     }
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        title = try container.decode(String.self, forKey: .title)
+        explanation = try container.decode(String.self, forKey: .explanation)
+        suggestedSnacks = (try? container.decodeIfPresent([SnackIdea].self, forKey: .suggestedSnacks)) ?? []
+    }
+
     struct SnackIdea: Codable, Hashable {
         let name: String
         @FlexibleInt var calories: Int
@@ -174,6 +186,14 @@ struct HydrationAdviceDTO: Codable, Identifiable {
 
     private enum CodingKeys: String, CodingKey {
         case title, message, nextGlassTimeMinutes
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        title = try container.decode(String.self, forKey: .title)
+        message = try container.decode(String.self, forKey: .message)
+        let decodedMinutes = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .nextGlassTimeMinutes))?.wrappedValue
+        self._nextGlassTimeMinutes = FlexibleInt(wrappedValue: decodedMinutes ?? 30)
     }
 }
 
@@ -216,7 +236,7 @@ class AINutritionService {
         - If they need to eat more/less to hit goals, mood is "warning".
         - If they heavily ruined their diet (huge surplus), mood is "danger".
 
-        \(languageInstruction)
+        - Keep ALL JSON keys AND the "mood" field value strictly in English ("perfect", "warning", or "danger"), while writing "title" and "message" exclusively in \(currentLanguage).
         Return ONLY a raw JSON object. No Markdown. Format:
         {"title": "String", "message": "String", "mood": "String"}
         """
@@ -286,10 +306,10 @@ class AINutritionService {
             return FoodItem(
                 name: dto.name,
                 weight: 100.0,
-                calories: dto.calories,
-                protein: dto.protein,
-                fats: dto.fats,
-                carbs: dto.carbs
+                calories: max(0, dto.calories),
+                protein: max(0, dto.protein),
+                fats: max(0, dto.fats),
+                carbs: max(0, dto.carbs)
             )
         }
         return nil
@@ -396,7 +416,7 @@ class AINutritionService {
 
     func generateChatTitle(for userMessage: String) async -> String {
         let systemPrompt = "Create a very short title (max 2-3 words) for a nutrition chat based on this first message: '\(userMessage)'. Return ONLY the text without quotes. \(languageInstruction)"
-        return await fetchRawTextFromGemini(prompt: systemPrompt) ?? String(localized: "Diet Chat")
+        return await fetchRawTextFromGemini(prompt: systemPrompt, suppressRateLimitAlert: true) ?? String(localized: "Diet Chat")
     }
 
     func getMacroFixAdvice(missingCals: Int, missingProtein: Int, missingFats: Int, missingCarbs: Int) async -> MacroFixAdviceDTO? {
@@ -514,9 +534,9 @@ class AINutritionService {
     // This removes massive duplication with VertexAIManager.
     private let client = GeminiProxyClient.shared
 
-    private func fetchRawTextFromGemini(prompt: String) async -> String? {
+    private func fetchRawTextFromGemini(prompt: String, suppressRateLimitAlert: Bool = false) async -> String? {
         do {
-            return try await client.fetchText(prompt: prompt)
+            return try await client.fetchText(prompt: prompt, suppressRateLimitAlert: suppressRateLimitAlert)
         } catch {
             print("❌ AI Chat Error: \(error.localizedDescription)")
             return nil

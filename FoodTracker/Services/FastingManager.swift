@@ -25,6 +25,7 @@ final class FastingManager {
     var liveActivityManager: FastingLiveActivityManaging = FastingLiveActivityManager.shared
 
     func startFast(plan: FastingPlan) {
+        guard plan.fastingHours > 0 else { return }
         let now = Date()
         self.startTime = now
         self.targetHours = plan.fastingHours
@@ -167,7 +168,7 @@ final class FastingManager {
             planName = UserDefaults.standard.string(forKey: "fastingPlanName") ?? "Custom"
             targetHours = UserDefaults.standard.integer(forKey: "fastingTargetHours")
             let savedTime = UserDefaults.standard.double(forKey: "fastingStartTime")
-            guard savedTime > 0 else {
+            guard savedTime > 0, targetHours > 0 else {
                 isFasting = false
                 startTime = nil
                 saveState()

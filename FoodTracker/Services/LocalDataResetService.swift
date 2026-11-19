@@ -72,6 +72,10 @@ enum LocalDataResetService {
         if defaults === UserDefaults.standard {
             UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.removeObject(forKey: "useMetricSystem")
             ThemeManager.shared.currentThemeIndex = 0
+            AcademyDataLoader.shared.resetProgress()
+            RecipeDataLoader.shared.resetFavorites()
+            SpotlightTourManager.shared.isTourActive = false
+            ReminderNotificationScheduler.sync(mealsEnabled: false, waterEnabled: false, weightEnabled: false)
         }
 
         WidgetReloader.reloadAll()

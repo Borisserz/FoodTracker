@@ -61,7 +61,7 @@ enum MetabolicBlueprintCalculator {
 
     static func calculate(for metrics: OnboardingMetrics) -> MetabolicBlueprint {
         let genderConstant = metrics.gender == "Female" ? -161.0 : 5.0
-        let rawBMR = Double(10 * metrics.weight) + (6.25 * Double(metrics.height)) - Double(5 * metrics.age) + genderConstant
+        let rawBMR = (10.0 * metrics.weight) + (6.25 * Double(metrics.height)) - Double(5 * metrics.age) + genderConstant
         let bmr = max(1200, Int(rawBMR))
         let tdee = Double(bmr) * activityMultiplier(for: metrics.activityLevel)
 
@@ -75,12 +75,12 @@ enum MetabolicBlueprintCalculator {
             dailyCalories = max(1200, Int(tdee))
         }
 
-        let proteinGrams = Int(Double(metrics.weight) * 2.1)
+        let proteinGrams = Int(metrics.weight * 2.1)
         let fatGrams = Int(Double(dailyCalories) * 0.25 / 9.0)
         let carbsGrams = max(100, (dailyCalories - (proteinGrams * 4) - (fatGrams * 9)) / 4)
 
         let goalType = weightGoalType(for: metrics.goal)
-        let targetWeightKg = goalType == "maintain" ? Double(metrics.weight) : Double(metrics.targetWeight)
+        let targetWeightKg = goalType == "maintain" ? metrics.weight : metrics.targetWeight
 
         return MetabolicBlueprint(
             bmr: bmr,

@@ -190,10 +190,12 @@ struct PremiumQuickAddSheet: View {
         let quickFood = FoodItem(name: "Quick Entry", weight: 0, calories: Int(quickCalories), protein: 0, fats: 0, carbs: 0)
         context.insert(quickFood)
 
-        if let snackMeal = (summary.meals ?? []).first(where: { $0.title == "Snack" }) {
+        let mealTimestamp = calendar.isDateInToday(selectedDate) ? Date() : startOfDay
+        if let snackMeal = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == "Snack" }) {
             snackMeal.addFoodItem(quickFood)
+            snackMeal.date = mealTimestamp
         } else {
-            let newMeal = Meal(title: "Snack", date: selectedDate, foodItems: [quickFood])
+            let newMeal = Meal(title: "Snack", date: mealTimestamp, foodItems: [quickFood])
             context.insert(newMeal)
             summary.addMeal(newMeal)
         }

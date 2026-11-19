@@ -213,12 +213,12 @@ private struct Stage1BiometricsView: View {
 
     private var weightBinding: Binding<Int> {
         Binding(
-            get: { Int(NutritionMath.displayWeight(Double(metrics.weight), useMetric: useMetricSystem).rounded()) },
+            get: { Int(NutritionMath.displayWeight(metrics.weight, useMetric: useMetricSystem).rounded()) },
             set: { newValue in
                 if useMetricSystem {
-                    metrics.weight = newValue
+                    metrics.weight = Double(newValue)
                 } else {
-                    metrics.weight = Int(NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false).rounded())
+                    metrics.weight = NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false)
                 }
             }
         )
@@ -345,12 +345,12 @@ private struct Stage2GoalProtocolView: View {
 
     private var targetWeightBinding: Binding<Int> {
         Binding(
-            get: { Int(NutritionMath.displayWeight(Double(metrics.targetWeight), useMetric: useMetricSystem).rounded()) },
+            get: { Int(NutritionMath.displayWeight(metrics.targetWeight, useMetric: useMetricSystem).rounded()) },
             set: { newValue in
                 if useMetricSystem {
-                    metrics.targetWeight = newValue
+                    metrics.targetWeight = Double(newValue)
                 } else {
-                    metrics.targetWeight = Int(NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false).rounded())
+                    metrics.targetWeight = NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false)
                 }
             }
         )
@@ -394,11 +394,11 @@ private struct Stage2GoalProtocolView: View {
                             switch item.name {
                             case "Lose Weight":
                                 if metrics.targetWeight >= metrics.weight {
-                                    metrics.targetWeight = max(40, metrics.weight - 5)
+                                    metrics.targetWeight = max(40.0, metrics.weight - 5.0)
                                 }
                             case "Build Muscle":
                                 if metrics.targetWeight <= metrics.weight {
-                                    metrics.targetWeight = min(200, metrics.weight + 5)
+                                    metrics.targetWeight = min(200.0, metrics.weight + 5.0)
                                 }
                             default:
                                 metrics.targetWeight = metrics.weight

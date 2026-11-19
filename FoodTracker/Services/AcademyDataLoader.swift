@@ -106,6 +106,11 @@ class AcademyDataLoader {
         recalculateProgress()
     }
 
+    func resetProgress() {
+        completedArticleIDs.removeAll()
+        recalculateProgress()
+    }
+
     private func recalculateProgress() {
         for i in 0..<categories.count {
             let completedInCat = categories[i].articles.filter { completedArticleIDs.contains($0.id) }.count

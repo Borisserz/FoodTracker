@@ -4,8 +4,8 @@ import SwiftData
 struct OnboardingMetrics {
     var age: Int = 25
     var height: Int = 175
-    var weight: Int = 75
-    var targetWeight: Int = 70
+    var weight: Double = 75.0
+    var targetWeight: Double = 70.0
     var goal: String = "Lose Weight"
     var activityLevel: ActivityType = .none
     var gender: String = "Male"
