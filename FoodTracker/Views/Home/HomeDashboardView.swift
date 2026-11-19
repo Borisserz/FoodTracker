@@ -85,6 +85,8 @@ struct HomeDashboardContentView: View {
     @State private var showingScanner = false
     @State private var showingManualAdd = false
     @State private var selectedFoodForDetail: FoodItem? = nil
+    @State private var pendingScannerFood: FoodItem? = nil
+    @State private var pendingManualEntryAfterScanner = false
     @State private var isMenuExpanded = false
     @State private var lastActiveDayStart: Date = Calendar.current.startOfDay(for: Date())
 
@@ -422,12 +424,23 @@ struct HomeDashboardContentView: View {
               .fullScreenCover(item: $mealToOpenInSmartAdd) { mealInfo in
                   AddMealView(selectedDate: selectedDate, initialMealType: mealInfo.value)
               }
-              .fullScreenCover(isPresented: $showingScanner) {
+              .fullScreenCover(
+                  isPresented: $showingScanner,
+                  onDismiss: {
+                      if let pendingFood = pendingScannerFood {
+                          pendingScannerFood = nil
+                          selectedFoodForDetail = pendingFood
+                      } else if pendingManualEntryAfterScanner {
+                          pendingManualEntryAfterScanner = false
+                          showingManualAdd = true
+                      }
+                  }
+              ) {
                   let remainingCals = max(0, currentSummary.remainingCalories(userGoal: currentUser?.dailyCaloriesGoal ?? 2000))
                   let remainingProt = max(0, Int(currentUser?.targetProtein ?? 130) - Int(currentSummary.totalProtein))
                   SmartScannerView(
-                      onProductFound: { foundFood in selectedFoodForDetail = foundFood },
-                      onManualEntryRequest: { showingManualAdd = true },
+                      onProductFound: { foundFood in pendingScannerFood = foundFood },
+                      onManualEntryRequest: { pendingManualEntryAfterScanner = true },
                       remainingCalories: remainingCals,
                       remainingProtein: remainingProt
                   )
@@ -1709,7 +1722,14 @@ struct DailyNoteSheet: View {
                     userGoal: fetchedUser?.dailyCaloriesGoal ?? 2000,
                     consumed: summary.totalCalories,
                     activeDiet: fetchedUser?.activeDietPlan?.name ?? "Balanced",
-                    initialContext: moodContextForChat
+                    initialContext: moodContextForChat,
+                    consumedProtein: summary.totalProtein,
+                    targetProtein: fetchedUser?.targetProtein ?? 0,
+                    consumedFats: summary.totalFats,
+                    targetFats: fetchedUser?.targetFats ?? 0,
+                    consumedCarbs: summary.totalCarbs,
+                    targetCarbs: fetchedUser?.targetCarbs ?? 0,
+                    hydrationLiters: summary.totalHydrationLiters
                 )
             }
         }
@@ -1923,6 +1943,8 @@ struct SmartAddFoodView: View {
 
     @State private var showingScanner = false
     @State private var showingManualAdd = false
+    @State private var pendingScannerFood: FoodItem? = nil
+    @State private var pendingManualEntryAfterScanner = false
     @State private var selectedFoods: [FoodItem] = []
     @State private var searchText = ""
     @State private var selectedCategory = "Recent"
@@ -2152,13 +2174,24 @@ struct SmartAddFoodView: View {
                 withAnimation(.spring()) { selectedFoods.append(addedFood) }
             }
         }
-        .fullScreenCover(isPresented: $showingScanner) {
+        .fullScreenCover(
+            isPresented: $showingScanner,
+            onDismiss: {
+                if let pendingFood = pendingScannerFood {
+                    pendingScannerFood = nil
+                    selectedFoodForDetail = pendingFood
+                } else if pendingManualEntryAfterScanner {
+                    pendingManualEntryAfterScanner = false
+                    showingManualAdd = true
+                }
+            }
+        ) {
             let daySummary = DailySummary.fetchExisting(for: targetDate, in: context)
             let user = User.deduplicatedPrimary(in: context)
             let remaining = NutritionMath.remainingMacros(user: user, summary: daySummary)
             SmartScannerView(
-                onProductFound: { foundFood in selectedFoodForDetail = foundFood },
-                onManualEntryRequest: { showingManualAdd = true },
+                onProductFound: { foundFood in pendingScannerFood = foundFood },
+                onManualEntryRequest: { pendingManualEntryAfterScanner = true },
                 remainingCalories: remaining.calories,
                 remainingProtein: remaining.protein
             )

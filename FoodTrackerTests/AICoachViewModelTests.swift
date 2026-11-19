@@ -132,4 +132,25 @@ final class AICoachViewModelTests: XCTestCase {
         XCTAssertLessThanOrEqual(title.count, 40)
         XCTAssertEqual(AIChatTitleHelper.deriveTitle(from: "   "), String(localized: "Diet Chat"))
     }
+
+    func testChatUserContextBuilderIncludesCaloriesMacrosAndHydration() {
+        let ctx = AIChatTitleHelper.buildUserContext(
+            userGoal: 2200,
+            consumed: 1500,
+            consumedProtein: 110,
+            targetProtein: 150,
+            consumedFats: 48,
+            targetFats: 70,
+            consumedCarbs: 155,
+            targetCarbs: 230,
+            hydrationLiters: 1.75
+        )
+        XCTAssertTrue(ctx.contains("2200"))
+        XCTAssertTrue(ctx.contains("1500"))
+        XCTAssertTrue(ctx.contains("700"))
+        XCTAssertTrue(ctx.contains("110/150g protein"))
+        XCTAssertTrue(ctx.contains("48/70g fats"))
+        XCTAssertTrue(ctx.contains("155/230g carbs"))
+        XCTAssertTrue(ctx.contains("1.8 L water") || ctx.contains("1.75 L water"))
+    }
 }

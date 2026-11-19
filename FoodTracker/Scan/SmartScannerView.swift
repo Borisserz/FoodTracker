@@ -143,10 +143,8 @@ struct SmartScannerView: View {
 
                                 Button(action: {
                                     HapticManager.shared.impact(style: .medium)
+                                    onManualEntryRequest()
                                     dismiss()
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                        onManualEntryRequest()
-                                    }
                                 }) {
                                     Text("Enter Manually")
                                         .font(.subheadline.bold())
@@ -216,10 +214,8 @@ struct SmartScannerView: View {
                     HStack {
                         FloatingActionButton(icon: "pencil") {
                             HapticManager.shared.impact(style: .medium)
+                            onManualEntryRequest()
                             dismiss()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                onManualEntryRequest()
-                            }
                         }
 
                         Spacer()
@@ -352,10 +348,8 @@ struct SmartScannerView: View {
         ) {
             Button("Enter Manually") {
                 scanErrorMessage = nil
+                onManualEntryRequest()
                 dismiss()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    onManualEntryRequest()
-                }
             }
             Button("Try Again", role: .cancel) {
                 scanErrorMessage = nil
@@ -531,10 +525,8 @@ struct SmartScannerView: View {
 
     private func deliverFoundProduct(_ item: FoodItem) {
         cameraManager.capturedImage = nil
+        onProductFound(item)
         dismiss()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            onProductFound(item)
-        }
     }
 
     private func cancelCurrentAIAnalysis() {

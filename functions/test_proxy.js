@@ -769,3 +769,38 @@ test("sanitizeUpstreamErrorMessage strips raw model names and upstream URLs", ()
   assert.ok(!clean.includes("openrouter.ai"));
   assert.ok(clean.length > 0);
 });
+
+test("verifyFirebaseUser enforces checkRevoked=true and returns 401 on revoked token", async () => {
+  let seenToken = null;
+  let seenCheckRevoked = null;
+  const mockReq = { header: (name) => (name === "Authorization" ? "Bearer valid-jwt" : "") };
+  const mockRes = {
+    statusCode: null,
+    body: null,
+    status(code) { this.statusCode = code; return this; },
+    json(payload) { this.body = payload; return this; },
+  };
+  const uid = await t.verifyFirebaseUser(mockReq, mockRes, async (token, checkRevoked) => {
+    seenToken = token;
+    seenCheckRevoked = checkRevoked;
+    return { uid: "u123" };
+  });
+  assert.equal(uid, "u123");
+  assert.equal(seenToken, "valid-jwt");
+  assert.equal(seenCheckRevoked, true);
+
+  const revokedRes = {
+    statusCode: null,
+    body: null,
+    status(code) { this.statusCode = code; return this; },
+    json(payload) { this.body = payload; return this; },
+  };
+  const revokedUid = await t.verifyFirebaseUser(mockReq, revokedRes, async () => {
+    const err = new Error("Token revoked");
+    err.code = "auth/id-token-revoked";
+    throw err;
+  });
+  assert.equal(revokedUid, null);
+  assert.equal(revokedRes.statusCode, 401);
+  assert.match(revokedRes.body?.error || "", /revoked/i);
+});

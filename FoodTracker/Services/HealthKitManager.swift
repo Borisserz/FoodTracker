@@ -382,14 +382,4 @@ final class HealthKitManager {
             return nil
         }
     }
-
-    // Background delivery stub (per healthkit skill). Call once at launch if desired.
-    // Requires "Background Delivery" capability + proper observer query handling + app launch handling.
-    func enableBackgroundDeliveryIfPossible() async {
-        // Example (uncomment + implement observer when ready):
-        // try? await healthStore.enableBackgroundDelivery(for: HKQuantityType(.stepCount), frequency: .hourly)
-        // Similar for activeEnergyBurned.
-        // Then register HKObserverQuery in AppDelegate or on launch.
-        print("HealthKit background delivery not yet enabled (add capability + observer query to activate).")
-    }
 }

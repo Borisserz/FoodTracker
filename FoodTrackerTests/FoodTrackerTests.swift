@@ -212,4 +212,8 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
             }
         }
     }
+
+    func testAnalyticsMicroIronRDAMatchesCompactCard() {
+        XCTAssertEqual(AnalyticsMicro.iron.rda, 18.0, accuracy: 0.001)
+    }
 }

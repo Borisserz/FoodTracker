@@ -57,7 +57,7 @@ enum AnalyticsMicro: String, CaseIterable, Identifiable {
         case .potassium: return 3500.0
         case .magnesium: return 400.0
         case .calcium: return 1000.0
-        case .iron: return 12.0
+        case .iron: return 18.0
         case .vitaminC: return 90.0
         case .vitaminD: return 20.0
         }

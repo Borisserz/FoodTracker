@@ -15,6 +15,31 @@ enum AIChatTitleHelper {
         }
         return String(collapsed.prefix(37)) + "..."
     }
+
+    static func buildUserContext(
+        userGoal: Int,
+        consumed: Int,
+        consumedProtein: Double,
+        targetProtein: Double,
+        consumedFats: Double,
+        targetFats: Double,
+        consumedCarbs: Double,
+        targetCarbs: Double,
+        hydrationLiters: Double
+    ) -> String {
+        var parts = [
+            "User's goal is \(userGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(userGoal - consumed) kcal."
+        ]
+        if targetProtein > 0 || consumedProtein > 0 || targetFats > 0 || consumedFats > 0 || targetCarbs > 0 || consumedCarbs > 0 {
+            parts.append(
+                "Macros today: \(Int(consumedProtein.rounded()))/\(Int(targetProtein.rounded()))g protein, \(Int(consumedFats.rounded()))/\(Int(targetFats.rounded()))g fats, \(Int(consumedCarbs.rounded()))/\(Int(targetCarbs.rounded()))g carbs."
+            )
+        }
+        if hydrationLiters > 0 {
+            parts.append(String(format: "Hydration today: %.1f L water.", locale: Locale(identifier: "en_US_POSIX"), hydrationLiters))
+        }
+        return parts.joined(separator: " ")
+    }
 }
 
 struct AICoachChatView: View {
@@ -26,6 +51,13 @@ struct AICoachChatView: View {
     let consumed: Int
     let activeDiet: String
     var initialContext: String? = nil
+    var consumedProtein: Double = 0
+    var targetProtein: Double = 0
+    var consumedFats: Double = 0
+    var targetFats: Double = 0
+    var consumedCarbs: Double = 0
+    var targetCarbs: Double = 0
+    var hydrationLiters: Double = 0
 
     @State private var currentSession: AIChatSession?
     @State private var chatHistory: [AIChatMessage] = []
@@ -201,7 +233,17 @@ struct AICoachChatView: View {
         }
 
         activeTask = Task {
-            let userContext = "User's goal is \(userGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(userGoal - consumed) kcal."
+            let userContext = AIChatTitleHelper.buildUserContext(
+                userGoal: userGoal,
+                consumed: consumed,
+                consumedProtein: consumedProtein,
+                targetProtein: targetProtein,
+                consumedFats: consumedFats,
+                targetFats: targetFats,
+                consumedCarbs: consumedCarbs,
+                targetCarbs: targetCarbs,
+                hydrationLiters: hydrationLiters
+            )
 
             let aiResponseText = await AINutritionService.shared.sendChatMessage(
                 prompt: text,

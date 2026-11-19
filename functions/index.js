@@ -854,7 +854,11 @@ async function verifyAppCheck(req, res) {
   }
 }
 
-async function verifyFirebaseUser(req, res) {
+async function verifyFirebaseUser(
+  req,
+  res,
+  verifyIdTokenFn = (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked)
+) {
   const authHeader = req.header("Authorization") || "";
   const m = authHeader.match(/^Bearer (.+)$/i);
   if (!m) {
@@ -862,10 +866,14 @@ async function verifyFirebaseUser(req, res) {
     return null;
   }
   try {
-    const decoded = await getAuth().verifyIdToken(m[1]);
+    const decoded = await verifyIdTokenFn(m[1], true);
     return decoded.uid;
   } catch (e) {
-    res.status(401).json({ error: "Invalid Firebase ID token" });
+    const message =
+      e?.code === "auth/id-token-revoked"
+        ? "Firebase ID token revoked"
+        : "Invalid Firebase ID token";
+    res.status(401).json({ error: message });
     return null;
   }
 }
@@ -1667,4 +1675,5 @@ module.exports._test = {
   assertFatSecretDetailSuccess,
   parseSearchPayload,
   deleteFoodAccountData,
+  verifyFirebaseUser,
 };
