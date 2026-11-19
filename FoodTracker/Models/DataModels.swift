@@ -685,3 +685,27 @@ struct DailyWidgetSnapshot: Equatable {
         return (entries: entries, reloadAt: min(nextHour, startOfTomorrow))
     }
 }
+
+enum WidgetStorageActions {
+    @MainActor
+    static func addWaterGlass(volumeMl: Double = 250.0, in context: ModelContext, for date: Date = Date()) throws {
+        guard volumeMl > 0 else { return }
+        let summary = DailySummary.fetchOrCreate(for: date, in: context)
+        let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: volumeMl)
+        context.insert(newBeverage)
+        summary.addBeverage(newBeverage)
+        try context.save()
+    }
+
+    @MainActor
+    static func toggleShoppingItem(idString: String, in context: ModelContext) throws {
+        guard let uuid = UUID(uuidString: idString) else { return }
+        let descriptor = FetchDescriptor<ShoppingItem>(
+            predicate: #Predicate<ShoppingItem> { $0.id == uuid }
+        )
+        if let item = try context.fetch(descriptor).first {
+            item.isChecked.toggle()
+            try context.save()
+        }
+    }
+}

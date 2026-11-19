@@ -180,6 +180,7 @@ private struct Stage0WelcomeView: View {
                 Text("Initialize Setup →")
             }
             .buttonStyle(SwissPillCTAButtonStyle())
+            .accessibilityIdentifier("onboarding_stage0_next")
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
         }
@@ -305,6 +306,7 @@ private struct Stage1BiometricsView: View {
                     Text("Confirm Biometrics →")
                 }
                 .buttonStyle(SwissPillCTAButtonStyle())
+                .accessibilityIdentifier("onboarding_stage1_next")
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
                 .padding(.bottom, 32)
@@ -486,6 +488,7 @@ private struct Stage2GoalProtocolView: View {
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .accessibilityIdentifier("onboarding_activity_\(String(describing: act.type))")
                         }
                     }
                     .padding(.horizontal, 20)
@@ -497,6 +500,7 @@ private struct Stage2GoalProtocolView: View {
                 }
                 .buttonStyle(SwissPillCTAButtonStyle(isEnabled: metrics.activityLevel != .none))
                 .disabled(metrics.activityLevel == .none)
+                .accessibilityIdentifier("onboarding_stage2_next")
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
                 .padding(.bottom, 32)
@@ -541,6 +545,7 @@ private struct Stage3FeatureLabView: View {
                 Text("Generate Blueprint →")
             }
             .buttonStyle(SwissPillCTAButtonStyle())
+            .accessibilityIdentifier("onboarding_stage3_next")
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
         }
@@ -620,6 +625,7 @@ private struct Stage4BlueprintRevealView: View {
             }
             .buttonStyle(SwissPillCTAButtonStyle(isEnabled: isCompleted))
             .disabled(!isCompleted)
+            .accessibilityIdentifier("onboarding_stage4_finish")
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
         }

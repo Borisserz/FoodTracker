@@ -1,5 +1,15 @@
 import Foundation
 
+struct NutritionXPBreakdown {
+    var baseXP: Int
+    var proteinGoalXP: Int
+    var calorieGoalXP: Int
+
+    var totalXP: Int {
+        baseXP + proteinGoalXP + calorieGoalXP
+    }
+}
+
 struct NutritionProgressManager {
     let user: User
     

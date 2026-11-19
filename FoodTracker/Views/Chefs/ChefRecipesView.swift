@@ -945,31 +945,6 @@ struct PremiumRecipeCard: View {
     }
 }
 
-struct CustomRecipeCard: View {
-    let title: String
-    let calories: String
-    let items: String
-    let cookingTime: Int?
-    let difficulty: String?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.headline).lineLimit(1)
-            Text(items).font(.caption).foregroundColor(.gray).lineLimit(2)
-            HStack(spacing: 12) {
-                if let cookingTime = cookingTime {
-                    HStack(spacing: 4) { Image(systemName: "clock.fill").font(.caption); Text("\(cookingTime)m").font(.caption) }.foregroundColor(.gray)
-                }
-                if let difficulty = difficulty { Text(difficulty).font(.caption2.bold()).foregroundColor(.themeOrange) }
-                Spacer()
-            }
-            Spacer()
-            Text(calories).font(.headline).foregroundColor(.themePink)
-        }
-        .padding().frame(width: 160, height: 140).background(Color.white).cornerRadius(16).shadow(color: Color.black.opacity(0.04), radius: 5, y: 2)
-    }
-}
-
 struct PremiumRecipeDetailView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context

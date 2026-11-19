@@ -38,6 +38,7 @@ struct WaveLiquidHydrationView: View {
     var currentAmount: Double = 1.875
     var targetAmount: Double = 2.5
     
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var wavePhase: Double = 0.0
     
     var body: some View {
@@ -93,6 +94,7 @@ struct WaveLiquidHydrationView: View {
                 .strokeBorder(Color.swissBorder, lineWidth: 1)
         )
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
                 wavePhase = .pi * 2
             }

@@ -3,6 +3,7 @@ import SwiftData
 
 struct AICoachDashboardView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
 
@@ -65,6 +66,7 @@ struct AICoachDashboardView: View {
                         }
                         .ignoresSafeArea()
                         .onAppear {
+                            guard !reduceMotion else { return }
                             withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
                                 bgPhase = 1.0
                             }
@@ -95,14 +97,14 @@ struct AICoachDashboardView: View {
                                                 .stroke(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 2)
                                                 .scaleEffect((viewModel.isAnalyzing || viewModel.isGeneratingRecipe) ? 1.2 : (bgPhase == 0 ? 1.0 : 1.15))
                                                 .opacity((viewModel.isAnalyzing || viewModel.isGeneratingRecipe) ? 0.8 : (bgPhase == 0 ? 0.6 : 0.0))
-                                                .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: bgPhase)
+                                                .animation(reduceMotion ? nil : .easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: bgPhase)
 
                                             Circle()
                                                 .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
                                                 .frame(width: 50, height: 50)
                                                 .shadow(color: Color.themePink.opacity(0.35), radius: 10, x: 0, y: 5)
                                                 .opacity(viewModel.isAnalyzing || viewModel.isGeneratingRecipe ? 0.5 : 1.0)
-                                                .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: viewModel.isAnalyzing || viewModel.isGeneratingRecipe)
+                                                .animation(reduceMotion ? nil : .easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: viewModel.isAnalyzing || viewModel.isGeneratingRecipe)
 
                                             Image(systemName: "message.fill")
                                                 .font(.title3)
@@ -627,6 +629,7 @@ struct DailyVerdictGlassCard: View {
 }
 
 struct AIFixCard: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let title: String
     let icon: String
     let color: Color
@@ -701,7 +704,7 @@ struct AIFixCard: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 24)
                     .stroke(isLoading ? color.opacity(0.4) : Color.clear, lineWidth: 2)
-                    .animation(.easeInOut(duration: 1).repeatForever(), value: isLoading)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 1).repeatForever(), value: isLoading)
             )
         }
         .buttonStyle(BounceButtonStyle())
@@ -913,6 +916,7 @@ struct BioHackingTip: Identifiable {
 }
 
 struct ShimmerEffect: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: CGFloat = 0
     
     func body(content: Content) -> some View {
@@ -927,6 +931,7 @@ struct ShimmerEffect: ViewModifier {
                     .frame(width: geo.size.width * 2)
                     .offset(x: -geo.size.width + (phase * geo.size.width * 2))
                     .onAppear {
+                        guard !reduceMotion else { return }
                         withAnimation(.linear(duration: 2.5).repeatForever(autoreverses: false)) {
                             phase = 1.0
                         }

@@ -6,6 +6,7 @@ public struct ParticleConfettiBurstView: View {
     public let xpEarned: Int
     public let onDismiss: () -> Void
     
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var particles: [CelebrationParticle] = []
     @State private var cardScale: CGFloat = 0.6
     @State private var cardOpacity: Double = 0
@@ -146,6 +147,12 @@ public struct ParticleConfettiBurstView: View {
         generator.prepare()
         generator.notificationOccurred(.success)
         
+        if reduceMotion {
+            cardScale = 1.0
+            cardOpacity = 1.0
+            return
+        }
+
         withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) {
             cardScale = 1.0
             cardOpacity = 1.0

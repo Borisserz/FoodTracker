@@ -5,6 +5,7 @@ struct CircadianFastingClock: View {
     var hoursFasted: Int = 11
     var minutesRemaining: Int = 48
     
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var pulseGlow: Bool = false
     
     var body: some View {
@@ -62,6 +63,7 @@ struct CircadianFastingClock: View {
                 .strokeBorder(Color.swissBorder, lineWidth: 1)
         )
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 pulseGlow = true
             }

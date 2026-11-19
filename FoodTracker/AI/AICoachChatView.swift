@@ -312,6 +312,7 @@ struct FoodTypewriterTextView: View {
 }
 
 struct FoodAILoadingIndicator: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isAnimating = false
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
@@ -322,13 +323,13 @@ struct FoodAILoadingIndicator: View {
             HStack(spacing: 4) {
                 ForEach(0..<3) { i in
                     Circle().fill(Color.gray.opacity(0.6)).frame(width: 8, height: 8).offset(y: isAnimating ? -5 : 0)
-                        .animation(Animation.easeInOut(duration: 0.4).repeatForever().delay(0.15 * Double(i)), value: isAnimating)
+                        .animation(reduceMotion ? nil : Animation.easeInOut(duration: 0.4).repeatForever().delay(0.15 * Double(i)), value: isAnimating)
                 }
             }
             .padding(.horizontal, 16).padding(.vertical, 14)
             .background(Color.white).clipShape(FoodChatBubbleShape(isUser: false))
         }
-        .onAppear { isAnimating = true }
+        .onAppear { if !reduceMotion { isAnimating = true } }
     }
 }
 

@@ -4,6 +4,7 @@ import Charts
 
 struct GoalsTabView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(ThemeManager.self) private var themeManager
     
     @Query private var users: [User]
@@ -75,6 +76,7 @@ struct GoalsTabView: View {
                 }
                 .ignoresSafeArea()
                 .onAppear {
+                    guard !reduceMotion else { return }
                     withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
                         bgPhase = 1.0
                     }

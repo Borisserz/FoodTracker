@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LaserScanViewfinder: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var laserProgress: CGFloat = 0.0
     @State private var isPulsing: Bool = false
     
@@ -139,6 +140,10 @@ struct LaserScanViewfinder: View {
                 .strokeBorder(Color.swissBorder, lineWidth: 1)
         )
         .onAppear {
+            guard !reduceMotion else {
+                laserProgress = 0.5
+                return
+            }
             withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) {
                 laserProgress = 1.0
             }

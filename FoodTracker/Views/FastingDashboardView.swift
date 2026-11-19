@@ -620,6 +620,7 @@ struct FastingTimelineRow: View {
 }
 
 struct ActiveFastingCard: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var manager = FastingManager.shared
     @State private var showEndAlert = false
 
@@ -694,7 +695,7 @@ struct ActiveFastingCard: View {
             RoundedRectangle(cornerRadius: 24)
                 .stroke(manager.currentPhase.color.opacity(0.3), lineWidth: 2)
                 .opacity(manager.progress >= 1.0 ? 1 : 0)
-                .animation(.easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
         )
         .alert("End Fast?", isPresented: $showEndAlert) {
             Button("Cancel", role: .cancel) { }

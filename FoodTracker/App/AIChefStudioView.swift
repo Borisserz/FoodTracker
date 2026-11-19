@@ -11,6 +11,7 @@ import PhotosUI
 
 // MARK: - 🎨 Вспомогательные визуальные элементы (Shimmer & Image)
 struct ShimmerView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: CGFloat = 0
     
     var body: some View {
@@ -36,6 +37,7 @@ struct ShimmerView: View {
                     )
             }
             .onAppear {
+                guard !reduceMotion else { return }
                 withAnimation(
                     Animation.linear(duration: 1.5)
                         .repeatForever(autoreverses: false)
@@ -89,6 +91,7 @@ struct RecipeImageView: View {
 // MARK: - 👨‍🍳 Главный Экран
 struct AIChefStudioView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
     @Query private var summaries: [DailySummary]
@@ -442,6 +445,7 @@ struct AIChefStudioView: View {
             .navigationTitle("AI Chef")
             .onAppear {
                 TrackingManager.shared.track(.featureDiscovered(feature: "ai_chef_studio"))
+                guard !reduceMotion else { return }
                 withAnimation(.easeInOut(duration: 8.0).repeatForever(autoreverses: true)) {
                     bgPhase = 1.0
                 }

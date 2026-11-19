@@ -112,24 +112,6 @@ struct EmptyStateView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
-struct FoodGradeBadge: View {
-    let grade: HealthGrade
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: grade.icon)
-                .font(.system(size: 10, weight: .bold))
-            Text(grade.title)
-                .font(.system(size: 10, weight: .bold, design: .rounded))
-        }
-        .foregroundColor(grade.color)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(grade.color.opacity(0.15))
-        .cornerRadius(8)
-    }
-}
-
 enum EnergyTab: String, CaseIterable {
     case eaten = "Eaten"
     case burned = "Burned"
@@ -643,46 +625,6 @@ struct NetGoalImpactCard: View {
     }
 }
 
-struct EnergyEquationCard: View {
-    let title: String
-    let value: Int
-    let icon: String
-    let color: Color
-    let isNegative: Bool
-
-    var body: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                Circle().fill(color.opacity(0.15)).frame(width: 44, height: 44)
-                Image(systemName: icon).foregroundColor(color).font(.headline)
-            }
-
-            VStack(spacing: 2) {
-                Text(title)
-                    .font(.caption.bold())
-                    .foregroundColor(.gray)
-                    .textCase(.uppercase)
-
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    if isNegative && value > 0 {
-                        Text("-")
-                            .font(.title3.bold())
-                            .foregroundColor(color)
-                    }
-                    Text("\(value)")
-                        .font(.system(size: 26, weight: .heavy, design: .rounded))
-                        .foregroundColor(color)
-                        .contentTransition(.numericText())
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 20)
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
-    }
-}
 struct DetailedMacroRingsCard: View {
     let summary: DailySummary
     let user: User?
@@ -928,61 +870,6 @@ struct CompactMicroCard: View {
         }
     }
 }
-struct MicroProgressBar: View {
-    let title: String
-    let current: Double
-    let target: Double
-    let unit: String
-    let color: Color
-
-    @State private var progress: Double = 0
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(.gray)
-                Spacer()
-                Text("\(current, specifier: "%.1f") / \(Int(target)) \(unit)")
-                    .font(.caption)
-                    .foregroundColor(.primary)
-            }
-
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(color.opacity(0.15))
-
-                    Capsule()
-                        .fill(
-                            LinearGradient(colors: [color.opacity(0.6), color], startPoint: .leading, endPoint: .trailing)
-                        )
-                        .frame(width: min(geo.size.width * CGFloat(progress), geo.size.width))
-                        .shadow(color: color.opacity(0.3), radius: 4, x: 0, y: 0)
-                }
-            }
-            .frame(height: 12)
-        }
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
-                    progress = current / max(target, 1.0)
-                }
-            }
-        }
-        .onChange(of: current) { _, _ in
-            withAnimation(.spring(response: 0.7, dampingFraction: 0.75)) {
-                progress = current / max(target, 1.0)
-            }
-        }
-        .onChange(of: target) { _, _ in
-            withAnimation(.spring(response: 0.7, dampingFraction: 0.75)) {
-                progress = current / max(target, 1.0)
-            }
-        }
-    }
-}
 
 struct MealBreakdownCard: View {
     let summary: DailySummary
@@ -1065,33 +952,6 @@ struct MealMacroRow: View {
         }
     }
 }
-struct EatenDetailsCarousel: View {
-    let summary: DailySummary
-    let user: User?
-    @State private var selectedPage = 0
-
-    var body: some View {
-        VStack(spacing: 12) {
-            TabView(selection: $selectedPage) {
-                DetailedMacroRingsCard(summary: summary, user: user).tag(0)
-                MicronutrientsFocusCard(summary: summary).tag(1)
-                MealBreakdownCard(summary: summary).tag(2)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 320)
-
-            HStack(spacing: 8) {
-                ForEach(0..<3) { index in
-                    Circle()
-                        .fill(selectedPage == index ? Color.themePink : Color.gray.opacity(0.3))
-                        .frame(width: selectedPage == index ? 8 : 6, height: selectedPage == index ? 8 : 6)
-                        .animation(.spring(), value: selectedPage)
-                }
-            }
-        }
-    }
-}
-
 struct EatenRingCard: View {
     let summary: DailySummary
     let user: User?

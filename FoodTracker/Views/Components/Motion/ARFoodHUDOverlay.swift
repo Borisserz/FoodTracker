@@ -2,6 +2,7 @@ import SwiftUI
 
 // MARK: - AR HUD Food Vision Scanner Overlay
 public struct ARFoodHUDOverlay: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var scanLineOffset: CGFloat = -140
     @State private var reticleRotation: Double = 0
     @State private var calloutsAppeared = false
@@ -135,18 +136,26 @@ public struct ARFoodHUDOverlay: View {
             }
         }
         .onAppear {
-            // Sweep laser scan line up and down
-            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
-                scanLineOffset = 140
-            }
-            // Rotate radar reticle
-            withAnimation(.linear(duration: 12).repeatForever(autoreverses: false)) {
-                reticleRotation = 360
+            if !reduceMotion {
+                // Sweep laser scan line up and down
+                withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                    scanLineOffset = 140
+                }
+                // Rotate radar reticle
+                withAnimation(.linear(duration: 12).repeatForever(autoreverses: false)) {
+                    reticleRotation = 360
+                }
+            } else {
+                scanLineOffset = 0
             }
             // Pop in badges with slight delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                if reduceMotion {
                     calloutsAppeared = true
+                } else {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                        calloutsAppeared = true
+                    }
                 }
             }
         }

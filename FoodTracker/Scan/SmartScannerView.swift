@@ -7,6 +7,7 @@ import Combine
 struct SmartScannerView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var onProductFound: (FoodItem) -> Void
     var onManualEntryRequest: () -> Void
@@ -115,8 +116,8 @@ struct SmartScannerView: View {
                             .stroke(Color.white.opacity(isPulseActive ? 0.3 : 1.0), lineWidth: isPulseActive ? 4 : 2)
                             .frame(width: 250, height: 250)
                             .scaleEffect(isPulseActive ? 1.02 : 1.0)
-                            .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isPulseActive)
-                            .onAppear { isPulseActive = true }
+                            .animation(reduceMotion ? nil : .easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isPulseActive)
+                            .onAppear { if !reduceMotion { isPulseActive = true } }
                             .onDisappear { isPulseActive = false }
 
                         if isLoading {

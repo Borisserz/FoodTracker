@@ -682,6 +682,7 @@ struct InsightsWidget: View {
 struct MealDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query private var summaries: [DailySummary]
     @Query private var users: [User]
 
@@ -873,7 +874,7 @@ struct MealDetailView: View {
                                         if isGeneratingRecipe {
                                             Color.white.opacity(0.3)
                                                 .blur(radius: 10)
-                                                .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isGeneratingRecipe)
+                                                .animation(reduceMotion ? nil : .easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isGeneratingRecipe)
                                         }
                                     }
                                 )
@@ -1134,96 +1135,6 @@ private struct RingLegend: View {
             Circle().fill(color).frame(width: 8, height: 8)
             Text(title).font(.caption).foregroundColor(.gray)
             Text("\(value, specifier: "%.1f")\(unit)").font(.subheadline.bold())
-        }
-    }
-}
-
-struct MealCardView: View {
-    let title: String
-    let calories: Int?
-    let recommendedCalories: Int
-    let time: Date?
-    var onCardTap: () -> Void
-    var onQuickAdd: () -> Void
-
-    var iconAndColor: (String, Color) {
-        switch title {
-        case "Breakfast": return ("sunrise.fill", .themeYellow)
-        case "Lunch":     return ("sun.max.fill", .green)
-        case "Dinner":    return ("moon.fill", .themePink)
-        case "Snack":     return ("leaf.fill", .themeOrange)
-        default:          return ("fork.knife", .gray)
-        }
-    }
-
-    var body: some View {
-        HStack(spacing: 16) {
-            let meta = iconAndColor
-            ZStack {
-                Circle().fill(meta.1.opacity(0.15)).frame(width: 50, height: 50)
-                Image(systemName: meta.0).font(.system(size: 22, weight: .semibold)).foregroundColor(meta.1)
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.primary)
-                HStack(spacing: 6) {
-                    if let cals = calories, cals > 0 {
-                        Text("\(cals) kcal").font(.subheadline).foregroundColor(meta.1).bold()
-                        if let logTime = time {
-                            Text("• \(logTime.formatted(date: .omitted, time: .shortened))").font(.caption2).foregroundColor(.gray)
-                        }
-                    } else {
-                        Text("Log Meal").font(.subheadline).foregroundColor(.gray.opacity(0.7))
-                    }
-                }
-                
-                if let cals = calories, cals > 0 {
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(meta.1.opacity(0.12))
-                                .frame(height: 5)
-                            
-                            Capsule()
-                                .fill(meta.1)
-                                .frame(width: geo.size.width * min(Double(cals) / Double(max(recommendedCalories, 1)), 1.0), height: 5)
-                        }
-                    }
-                    .frame(height: 5)
-                    .padding(.top, 4)
-                }
-            }
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("Target").font(.system(size: 10, weight: .bold)).foregroundColor(.gray.opacity(0.6))
-                Text("\(recommendedCalories)").font(.system(size: 14, weight: .bold, design: .rounded)).foregroundColor(.gray.opacity(0.8))
-                Text("kcal").font(.system(size: 8)).foregroundColor(.gray.opacity(0.5))
-            }
-            .padding(.trailing, 8)
-
-            Button(action: {
-                HapticManager.shared.impact(style: .medium)
-                onQuickAdd()
-            }) {
-                ZStack {
-                    Circle().fill(Color.gray.opacity(0.12)).frame(width: 36, height: 36)
-                    Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundColor(Color.gray.opacity(0.8))
-                }
-            }
-        }
-        .padding(16)
-        .background(Color.white)
-        .cornerRadius(24)
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(calories != nil && (calories ?? 0) > 0 ? iconAndColor.1.opacity(0.25) : Color.clear, lineWidth: 1.2)
-        )
-        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            HapticManager.shared.impact(style: .light)
-            onCardTap()
         }
     }
 }

@@ -91,6 +91,7 @@ enum AnalyticsMicro: String, CaseIterable, Identifiable {
 
 
 struct AnalyticsTabView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(DIContainer.self) private var di
     @Query private var users: [User]
 
@@ -119,6 +120,7 @@ struct AnalyticsTabView: View {
                 }
                 .ignoresSafeArea()
                 .onAppear {
+                    guard !reduceMotion else { return }
                     withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
                         bgPhase = 1.0
                     }

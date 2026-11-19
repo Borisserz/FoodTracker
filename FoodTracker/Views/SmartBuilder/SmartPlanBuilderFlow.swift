@@ -387,6 +387,7 @@ struct SmartPlanBuilderFlow: View {
 
 // MARK: - Loading View
 struct AIGenerationLoadingView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(ThemeManager.self) private var themeManager
     let targetCalories: Int
     @State private var isPulsing = false
@@ -426,8 +427,10 @@ struct AIGenerationLoadingView: View {
                 .animation(.easeInOut, value: statusText)
         }
         .onAppear {
-            withAnimation(.easeOut(duration: 1.5).repeatForever(autoreverses: false)) {
-                isPulsing = true
+            if !reduceMotion {
+                withAnimation(.easeOut(duration: 1.5).repeatForever(autoreverses: false)) {
+                    isPulsing = true
+                }
             }
             
             for (index, status) in statuses.enumerated() {

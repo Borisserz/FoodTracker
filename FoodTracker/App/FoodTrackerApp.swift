@@ -9,6 +9,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         AppCheck.setAppCheckProviderFactory(AppCheckFactory())
         FirebaseApp.configure()
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("-uiTestingResetOnboarding") {
+            UserDefaults.standard.set(false, forKey: "hasCompletedInitialOnboarding_v2")
+            UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding_v2")
+        }
+        if args.contains("-uiTestingSkipOnboarding") {
+            UserDefaults.standard.set(true, forKey: "hasCompletedInitialOnboarding_v2")
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding_v2")
+        }
+        if args.contains("-uiTestingDisableSpotlight") {
+            UserDefaults.standard.set(true, forKey: "hasCompletedSpotlightTour_v5")
+        }
+        #endif
         return true
     }
 

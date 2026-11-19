@@ -9,6 +9,7 @@ import GoogleSignIn
 
 // MARK: - 3D Летающий фон (Тематика ЗОЖ)
 struct FloatingGlassShapes: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var moveX = false
     @State private var moveY = false
     @State private var floatZ = false
@@ -48,6 +49,7 @@ struct FloatingGlassShapes: View {
                 .shadow(color: .black.opacity(0.5), radius: 25, x: -15, y: 20)
         }
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 7.3).repeatForever(autoreverses: true)) { moveX = true }
             withAnimation(.easeInOut(duration: 9.7).repeatForever(autoreverses: true)) { moveY = true }
             withAnimation(.easeInOut(duration: 11.1).repeatForever(autoreverses: true)) { floatZ = true }
@@ -335,6 +337,7 @@ struct WelcomeStepView: View {
 
                 Button("Остаться гостем", action: onGuestTap)
                     .buttonStyle(OnboardingGhostAuthButtonStyle(width: controlWidth, height: controlHeight, corner: corner))
+                    .accessibilityIdentifier("onboarding_guest_button")
             }
             .disabled(isAuthenticating)
             .opacity(isAuthenticating ? 0.6 : 1)
@@ -438,6 +441,7 @@ struct GuestWarningView: View {
                             .background(Color.white.opacity(0.15))
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
+                    .accessibilityIdentifier("onboarding_stay_guest_button")
                     
                     Button(action: onSignIn) {
                         Text("Войти")

@@ -4,6 +4,7 @@ import SwiftUI
 public struct StreakFireBadgeView: View {
     public let streakDays: Int
     
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var flameScale: CGFloat = 1.0
     @State private var emberOffsets: [(x: CGFloat, y: CGFloat, opacity: Double)] = (0..<6).map { _ in
         (CGFloat.random(in: -10...10), CGFloat.random(in: -15...0), Double.random(in: 0.4...0.9))
@@ -71,6 +72,7 @@ public struct StreakFireBadgeView: View {
                 .strokeBorder(Color.orange.opacity(0.35), lineWidth: 1.0)
         )
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
                 flameScale = 1.12
             }

@@ -17,6 +17,7 @@ extension View {
 
 // MARK: - Interactive Clean Apple Intelligence Spotlight Overlay (Laser Glow & Multi-Step Tour)
 struct SpotlightOverlayView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var manager: SpotlightTourManager = .shared
     @State private var laserAngle: Double = 0
     @State private var pulseGlow = false
@@ -91,6 +92,7 @@ struct SpotlightOverlayView: View {
             .transition(.opacity)
             .animation(.spring(response: 0.38, dampingFraction: 0.8), value: manager.currentStep)
             .onAppear {
+                guard !reduceMotion else { return }
                 withAnimation(.linear(duration: 2.8).repeatForever(autoreverses: false)) {
                     laserAngle = 360
                 }
@@ -191,6 +193,7 @@ private struct FloatingTourCard: View {
                         .font(.system(size: 16))
                         .foregroundStyle(Color.secondary.opacity(0.6))
                 }
+                .accessibilityIdentifier("spotlight_skip_button")
                 .padding(.leading, 4)
             }
 
