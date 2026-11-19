@@ -36,8 +36,15 @@ struct SmartScannerView: View {
     @State private var aiTask: Task<Void, Never>? = nil
     @State private var startScanWorkItem: DispatchWorkItem? = nil
     @State private var barcodePermissionStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    @State private var pendingPhotoConsentRequest: PendingPhotoConsentRequest? = nil
 
     enum ScannerMode { case barcode, mealAI, menuAI }
+
+    private struct PendingPhotoConsentRequest: Identifiable {
+        let id = UUID()
+        let image: UIImage
+        let mode: ScannerMode
+    }
 
     private var isBarcodePermissionDenied: Bool {
         barcodePermissionStatus == .denied || barcodePermissionStatus == .restricted
@@ -275,7 +282,7 @@ struct SmartScannerView: View {
                         Image(systemName: "sparkles")
                             .font(.system(size: 60))
                             .foregroundStyle(LinearGradient(colors: [.themePink, .blue], startPoint: .top, endPoint: .bottom))
-                            .symbolEffect(.pulse)
+                            .symbolEffect(.pulse, isActive: !reduceMotion)
 
                         Text(selectedMode == .menuAI ? "AI is reading the menu...\nFinding the best options 🕵️‍♂️" : "AI is analyzing your meal...\nCalculating macros 🪄")
                             .font(.headline)
@@ -370,6 +377,7 @@ struct SmartScannerView: View {
             aiTask?.cancel()
             aiTask = nil
             isCapturingPhoto = false
+            pendingPhotoConsentRequest = nil
 
             if isFlashlightOn {
                 cameraManager.setTorch(enabled: false)
@@ -390,6 +398,7 @@ struct SmartScannerView: View {
             notFoundError = false
             recognizedBarcode = nil
             cameraManager.capturedImage = nil
+            pendingPhotoConsentRequest = nil
 
             if isFlashlightOn {
                 cameraManager.setTorch(enabled: false)
@@ -415,10 +424,8 @@ struct SmartScannerView: View {
         .onChange(of: cameraManager.capturedImage) { _, newImage in
             isCapturingPhoto = false
             if let image = newImage {
-                if selectedMode == .mealAI {
-                    analyzeMealWithAI(image)
-                } else if selectedMode == .menuAI {
-                    analyzeMenuWithAI(image)
+                if selectedMode == .mealAI || selectedMode == .menuAI {
+                    routeScannedPhoto(image, mode: selectedMode)
                 }
             }
         }
@@ -439,16 +446,39 @@ struct SmartScannerView: View {
                         VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
                     }.value
                     await MainActor.run {
-                        guard selectedMode == currentMode else { return }
-                        if currentMode == .menuAI {
-                            analyzeMenuWithAI(downsampled)
-                        } else {
-                            selectedMode = (currentMode == .barcode) ? .mealAI : currentMode
-                            analyzeMealWithAI(downsampled)
-                        }
+                        guard selectedMode == currentMode, currentMode != .barcode else { return }
+                        routeScannedPhoto(downsampled, mode: currentMode)
                     }
                 }
             }
+        }
+        .sheet(item: $pendingPhotoConsentRequest) { request in
+            AIPhotoConsentSheet(
+                onAllow: {
+                    pendingPhotoConsentRequest = nil
+                    dispatchScannedPhotoAnalysis(request.image, mode: request.mode)
+                },
+                onDecline: {
+                    pendingPhotoConsentRequest = nil
+                    cameraManager.capturedImage = nil
+                }
+            )
+        }
+    }
+
+    private func routeScannedPhoto(_ image: UIImage, mode: ScannerMode) {
+        if AIPhotoConsentManager.shared.hasConsented {
+            dispatchScannedPhotoAnalysis(image, mode: mode)
+        } else {
+            pendingPhotoConsentRequest = PendingPhotoConsentRequest(image: image, mode: mode)
+        }
+    }
+
+    private func dispatchScannedPhotoAnalysis(_ image: UIImage, mode: ScannerMode) {
+        if mode == .menuAI {
+            analyzeMenuWithAI(image)
+        } else {
+            analyzeMealWithAI(image)
         }
     }
 

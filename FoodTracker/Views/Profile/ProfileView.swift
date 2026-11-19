@@ -159,6 +159,7 @@ struct ProfileView: View {
             SettingsView(user: user)
         }
         .onAppear {
+            NutritionProgressManager(user: user).syncLevel()
             if viewModel == nil {
                 viewModel = di.makeProfileViewModel()
             }
@@ -381,6 +382,7 @@ struct SettingsView: View {
     @Bindable var user: User
 
     @AppStorage("useMetricSystem") private var useMetricSystem = true
+    @State private var consentManager = AIPhotoConsentManager.shared
     @State private var showLegalOptions = false
 
     var body: some View {
@@ -404,6 +406,16 @@ struct SettingsView: View {
 
                             NavigationLink(destination: AppleHealthSettingsView(user: user)) {
                                 SettingsRowView(icon: "heart.fill", iconColor: .red, title: "Apple Health")
+                            }
+                            Divider().padding(.leading, 56)
+
+                            NavigationLink(destination: AIPhotoPrivacySettingsView()) {
+                                SettingsRowView(
+                                    icon: "hand.raised.fill",
+                                    iconColor: .indigo,
+                                    title: "AI Photo Privacy",
+                                    value: consentManager.hasConsented ? String(localized: "Enabled") : String(localized: "Off")
+                                )
                             }
                             Divider().padding(.leading, 56)
 
@@ -750,7 +762,7 @@ struct AccountSettingsView: View {
                         }
                         Button("Cancel", role: .cancel) {}
                     } message: {
-                        Text("This permanently deletes your account and clears all meals, recipes, weight logs, and settings from this device.")
+                        Text(AccountDeletionDialogCopy.confirmationMessage(isAnonymous: authManager.isAnonymous))
                     }
                 }
                 .padding(.horizontal, 20)
@@ -994,6 +1006,50 @@ struct AppleHealthSettingsView: View {
             Task { try? await HealthKitManager.shared.requestAuthorization() }
         }
         try? context.save()
+    }
+}
+
+struct AIPhotoPrivacySettingsView: View {
+    @State private var consentManager = AIPhotoConsentManager.shared
+
+    var body: some View {
+        ZStack {
+            Color.themeBg.ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Toggle(
+                            "Allow AI Photo Analysis",
+                            isOn: Binding(
+                                get: { consentManager.hasConsented },
+                                set: { enabled in
+                                    HapticManager.shared.impact(style: .light)
+                                    if enabled {
+                                        consentManager.grantConsent()
+                                    } else {
+                                        consentManager.revokeConsent()
+                                    }
+                                }
+                            )
+                        )
+                        .tint(.themePink)
+
+                        Divider()
+
+                        Text("When enabled, downsampled meal, menu, cooking-step, and progress photos you choose to analyze are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI vision providers. Photos are processed transiently with provider data retention disabled.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .premiumCardStyle()
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                }
+            }
+        }
+        .navigationTitle("AI Photo Privacy")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

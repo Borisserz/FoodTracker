@@ -163,7 +163,7 @@ struct AICoachDashboardView: View {
             }
             .sheet(isPresented: Binding(get: { viewModel?.macroAdvice != nil }, set: { if !$0 { viewModel?.macroAdvice = nil } })) {
                 if let advice = viewModel?.macroAdvice {
-                    MacroFixResultSheet(advice: advice, color: .themeYellow)
+                    MacroFixResultSheet(advice: advice, color: .themeYellow, selectedDate: selectedDate)
                         .presentationDetents([.medium, .large])
                         .presentationCornerRadius(32)
                         .presentationDragIndicator(.visible)
@@ -210,46 +210,50 @@ struct AICoachDashboardView: View {
         HapticManager.shared.notification(type: .success)
 
         if currentUser?.isHealthKitEnabled == true {
-            Task {
-                await HealthKitManager.shared.saveWater(liters: 0.25, date: logDate)
+            let container = context.container
+            Task { @MainActor in
+                if let uuid = await HealthKitManager.shared.saveWater(liters: 0.25, date: logDate) {
+                    water.healthKitSampleID = uuid.uuidString
+                    try? container.mainContext.save()
+                }
             }
         }
     }
 
     private let tips: [BioHackingTip] = [
         BioHackingTip(
-            title: "Iron Synergy",
-            text: "Pair iron-rich foods (spinach, lentils) with Vitamin C (citrus, peppers) to increase iron absorption by up to 300%.",
+            title: String(localized: "Iron Synergy"),
+            text: String(localized: "Pair iron-rich foods (spinach, lentils) with Vitamin C (citrus, peppers) to increase iron absorption by up to 300%."),
             icon: "leaf.fill",
-            category: "🧬 NUTRIENT SYNERGY",
+            category: String(localized: "🧬 NUTRIENT SYNERGY"),
             gradientColors: [.green, .mint]
         ),
         BioHackingTip(
-            title: "Protein Pacing",
-            text: "Distribute your protein intake in 30-40g portions every 3-4 hours to keep muscle protein synthesis optimized.",
+            title: String(localized: "Protein Pacing"),
+            text: String(localized: "Distribute your protein intake in 30-40g portions every 3-4 hours to keep muscle protein synthesis optimized."),
             icon: "flame.fill",
-            category: "🔋 MUSCLE RECOVERY",
+            category: String(localized: "🔋 MUSCLE RECOVERY"),
             gradientColors: [.themePink, .themeOrange]
         ),
         BioHackingTip(
-            title: "Circadian Fasting",
-            text: "Finish eating at least 3 hours before sleep. This lowers insulin levels and improves deep sleep recovery phases.",
+            title: String(localized: "Circadian Fasting"),
+            text: String(localized: "Finish eating at least 3 hours before sleep. This lowers insulin levels and improves deep sleep recovery phases."),
             icon: "moon.stars.fill",
-            category: "🌙 SLEEP & DIGESTION",
+            category: String(localized: "🌙 SLEEP & DIGESTION"),
             gradientColors: [.purple, .indigo]
         ),
         BioHackingTip(
-            title: "Hydration Window",
-            text: "Drink 500ml of water immediately upon waking to kickstart metabolism and offset overnight dehydration.",
+            title: String(localized: "Hydration Window"),
+            text: String(localized: "Drink 500ml of water immediately upon waking to kickstart metabolism and offset overnight dehydration."),
             icon: "drop.fill",
-            category: "💧 CELLULAR HYDRATION",
+            category: String(localized: "💧 CELLULAR HYDRATION"),
             gradientColors: [.cyan, .blue]
         ),
         BioHackingTip(
-            title: "Sodium Balance",
-            text: "Feeling bloated? Increase potassium intake (avocados, bananas) to assist kidneys in flushing out excess sodium.",
+            title: String(localized: "Sodium Balance"),
+            text: String(localized: "Feeling bloated? Increase potassium intake (avocados, bananas) to assist kidneys in flushing out excess sodium."),
             icon: "sparkles",
-            category: "⚖️ FLUID BALANCE",
+            category: String(localized: "⚖️ FLUID BALANCE"),
             gradientColors: [.themeYellow, .themeOrange]
         )
     ]
@@ -713,8 +717,13 @@ struct AIFixCard: View {
 
 struct MacroFixResultSheet: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context
+    @Query private var users: [User]
     let advice: MacroFixAdviceDTO
     let color: Color
+    let selectedDate: Date
+
+    @State private var loggedIndices: Set<Int> = []
 
     var body: some View {
         ZStack {
@@ -761,27 +770,55 @@ struct MacroFixResultSheet: View {
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
-                                ForEach(advice.suggestedSnacks, id: \.self) { snack in
+                                ForEach(Array(advice.suggestedSnacks.enumerated()), id: \.offset) { index, snack in
+                                    let isLogged = loggedIndices.contains(index)
                                     VStack(alignment: .leading, spacing: 10) {
                                         Text(snack.name)
                                             .font(.system(size: 15, weight: .bold, design: .rounded))
                                             .lineLimit(2)
                                             .foregroundColor(.primary)
 
-                                        Spacer()
-
-                                        HStack {
+                                        HStack(spacing: 8) {
                                             Label("\(snack.calories) kcal", systemImage: "flame.fill")
                                                 .foregroundColor(.themeOrange)
                                             Spacer()
-                                            Text("\(snack.protein)g Protein")
+                                            Text("\(snack.protein)g P")
                                                 .bold()
                                                 .foregroundColor(.themePeach)
                                         }
                                         .font(.system(size: 11, weight: .semibold))
+
+                                        if snack.fats > 0 || snack.carbs > 0 {
+                                            HStack(spacing: 10) {
+                                                Text("F: \(snack.fats)g")
+                                                    .foregroundColor(.orange)
+                                                Text("C: \(snack.carbs)g")
+                                                    .foregroundColor(.blue)
+                                            }
+                                            .font(.system(size: 10, weight: .semibold))
+                                        }
+
+                                        Spacer(minLength: 0)
+
+                                        Button(action: {
+                                            guard !isLogged else { return }
+                                            logSuggestedSnack(snack, index: index)
+                                        }) {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: isLogged ? "checkmark.circle.fill" : "plus.circle.fill")
+                                                Text(isLogged ? "Logged" : "Log Snack")
+                                            }
+                                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                                            .foregroundColor(isLogged ? .green : .white)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 8)
+                                            .background(isLogged ? Color.green.opacity(0.14) : Color.themeOrange)
+                                            .cornerRadius(12)
+                                        }
+                                        .disabled(isLogged)
                                     }
-                                    .padding(16)
-                                    .frame(width: 200, height: 125)
+                                    .padding(14)
+                                    .frame(width: 215, height: 165)
                                     .background(.ultraThinMaterial)
                                     .cornerRadius(20)
                                     .overlay(
@@ -818,6 +855,47 @@ struct MacroFixResultSheet: View {
                 .buttonStyle(BounceButtonStyle())
                 .padding(.horizontal, 24)
                 .padding(.bottom, 20)
+            }
+        }
+    }
+
+    private func logSuggestedSnack(_ snack: MacroFixAdviceDTO.SnackIdea, index: Int) {
+        let logDate = Calendar.current.isDateInToday(selectedDate) ? Date() : selectedDate
+        let summary = DailySummary.fetchOrCreate(for: selectedDate, in: context)
+        let food = FoodItem(
+            name: snack.name,
+            weight: snack.weight,
+            calories: snack.calories,
+            protein: Double(snack.protein),
+            fats: Double(snack.fats),
+            carbs: Double(snack.carbs)
+        )
+        context.insert(food)
+
+        if let existingSnack = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == "Snack" }) {
+            existingSnack.addFoodItem(food)
+            existingSnack.date = logDate
+        } else {
+            let snackMeal = Meal(title: "Snack", date: logDate, foodItems: [food])
+            context.insert(snackMeal)
+            summary.addMeal(snackMeal)
+        }
+
+        try? context.save()
+        WidgetReloader.reloadAll()
+        AppReviewManager.shared.userDidLogMeal()
+        HapticManager.shared.notification(type: .success)
+        withAnimation(.spring()) {
+            _ = loggedIndices.insert(index)
+        }
+
+        if users.first?.isHealthKitEnabled == true && snack.calories > 0 {
+            let container = context.container
+            Task { @MainActor in
+                if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: snack.calories, date: logDate) {
+                    food.healthKitSampleID = uuid.uuidString
+                    try? container.mainContext.save()
+                }
             }
         }
     }

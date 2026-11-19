@@ -1155,7 +1155,10 @@ struct RecipeDetailView: View {
             AppReviewManager.shared.userDidLogMeal()
             let shouldSyncHK = (try? context.fetch(FetchDescriptor<User>()).first?.isHealthKitEnabled) == true
             if shouldSyncHK && HealthKitManager.shared.isAuthorized && newFood.calories > 0 {
-                await HealthKitManager.shared.saveDietaryEnergy(calories: newFood.calories, date: .now)
+                if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: newFood.calories, date: .now) {
+                    newFood.healthKitSampleID = uuid.uuidString
+                    try? context.save()
+                }
             }
         }
     }
@@ -1174,20 +1177,24 @@ extension CustomRecipe {
         case "hard": diff = 5
         default: diff = 3
         }
+        let servingDivisor = Double(max(servings, 1))
+        let totalProtein = items.reduce(0.0) { $0 + $1.protein }
+        let totalFat = items.reduce(0.0) { $0 + $1.fats }
+        let totalCarbs = items.reduce(0.0) { $0 + $1.carbs }
         return AIChefRecipe(
             id: "\(name)-\(cookingTime)-\(servings)-\(totalCalories)",
             title: name,
-            calories: totalCalories,
-            protein: Int(items.reduce(0.0) { $0 + $1.protein }),
-            fat: Int(items.reduce(0.0) { $0 + $1.fats }),
-            carbs: Int(items.reduce(0.0) { $0 + $1.carbs }),
+            calories: Int(Double(totalCalories) / servingDivisor),
+            protein: Int((totalProtein / servingDivisor).rounded()),
+            fat: Int((totalFat / servingDivisor).rounded()),
+            carbs: Int((totalCarbs / servingDivisor).rounded()),
             heroImage: "fork.knife",
             cookTime: cookingTime,
             difficulty: diff,
             history: info,
             ingredients: ingredientNames,
             steps: recipeSteps,
-            platingTip: "Enjoy your freshly prepared dish!"
+            platingTip: String(localized: "Enjoy your freshly prepared dish!")
         )
     }
 }

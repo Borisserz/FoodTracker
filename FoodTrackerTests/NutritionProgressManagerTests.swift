@@ -80,4 +80,16 @@ final class NutritionProgressManagerTests: XCTestCase {
         user.level = 50
         XCTAssertEqual(manager.currentTitle, "Diet Titan")
     }
+
+    func testInitDoesNotMutateUserLevelUntilSyncLevel() {
+        let user = User(name: "Test", weight: 70, height: 175, age: 25)
+        user.totalXP = 2500
+        user.level = 1
+
+        let manager = NutritionProgressManager(user: user)
+        XCTAssertEqual(user.level, 1, "Reading or initializing NutritionProgressManager during SwiftUI layout must not mutate SwiftData models")
+
+        manager.syncLevel()
+        XCTAssertEqual(user.level, 3)
+    }
 }

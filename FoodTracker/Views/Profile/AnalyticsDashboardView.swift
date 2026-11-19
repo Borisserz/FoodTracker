@@ -225,6 +225,7 @@ struct GlobalPeriodPicker: View {
 }
 
 struct AIWeeklyInsightCard: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("useMetricSystem") private var useMetricSystem: Bool = true
     let summaries: [DailySummary]
     let user: User
@@ -261,22 +262,47 @@ struct AIWeeklyInsightCard: View {
             let water = today?.totalHydrationLiters ?? 0.0
             let calories = today?.totalCalories ?? 0
             if water == 0 && calories == 0 {
-                return ("Start Tracking", "Log your meals and fluids to activate personal AI analytics and dynamic trend insights.", .gray)
+                return (
+                    String(localized: "Start Tracking"),
+                    String(localized: "Log your meals and fluids to activate personal AI analytics and dynamic trend insights."),
+                    .gray
+                )
             } else if water < 1.0 {
                 let loggedText = NutritionMath.formattedHydration(liters: water, useMetric: useMetricSystem)
-                return ("Hydration Alert", "You've logged \(loggedText) of water today. Drink a glass now to boost metabolism and energy!", .cyan)
+                return (
+                    String(localized: "Hydration Alert"),
+                    String(localized: "You've logged \(loggedText) of water today. Drink a glass now to boost metabolism and energy!"),
+                    .cyan
+                )
             } else if let lowest = lowestMicro, lowestPct < 0.6 {
                 let hint = getHint(for: lowest)
-                return ("\(lowest.rawValue) Focus", "Your \(lowest.rawValue) is only at \(Int(lowestPct * 100))% of RDA. \(hint)", lowest.color)
+                let microName = String(localized: String.LocalizationValue(lowest.rawValue))
+                return (
+                    String(localized: "\(microName) Focus"),
+                    String(localized: "Your \(microName) is only at \(Int(lowestPct * 100))% of RDA. \(hint)"),
+                    lowest.color
+                )
             } else if let eaten = today?.totalCalories, eaten > user.dailyCaloriesGoal {
-                return ("Caloric Limit", "You've exceeded your daily calorie goal by \(eaten - user.dailyCaloriesGoal) kcal. Keep dinner light today.", .themeOrange)
+                return (
+                    String(localized: "Caloric Limit"),
+                    String(localized: "You've exceeded your daily calorie goal by \(eaten - user.dailyCaloriesGoal) kcal. Keep dinner light today."),
+                    .themeOrange
+                )
             } else {
-                return ("Daily Focus", "All parameters are in range! Continue logging your meals to sustain this streak.", .green)
+                return (
+                    String(localized: "Daily Focus"),
+                    String(localized: "All parameters are in range! Continue logging your meals to sustain this streak."),
+                    .green
+                )
             }
         } else {
             // Weekly/Monthly trend
             if avgCals == 0 {
-                return ("Start Tracking", "Log your meals and fluids to activate personal AI analytics and dynamic trend insights.", .gray)
+                return (
+                    String(localized: "Start Tracking"),
+                    String(localized: "Log your meals and fluids to activate personal AI analytics and dynamic trend insights."),
+                    .gray
+                )
             }
             
             // Check average micro levels
@@ -293,14 +319,31 @@ struct AIWeeklyInsightCard: View {
             if avgWater < 1.5 {
                 let avgText = NutritionMath.formattedHydration(liters: avgWater, useMetric: useMetricSystem)
                 let targetText = NutritionMath.formattedHydration(liters: 2.5, useMetric: useMetricSystem)
-                return ("Hydration Trend", "Your average hydration (\(avgText)) is below the \(targetText) target. Focus on drinking more fluids.", .cyan)
+                return (
+                    String(localized: "Hydration Trend"),
+                    String(localized: "Your average hydration (\(avgText)) is below the \(targetText) target. Focus on drinking more fluids."),
+                    .cyan
+                )
             } else if let lowest = lowestMicro, lowestPct < 0.7 {
                 let hint = getHint(for: lowest)
-                return ("\(lowest.rawValue) Trend", "Your average \(lowest.rawValue) is low (\(Int(lowestPct * 100))%). \(hint)", lowest.color)
+                let microName = String(localized: String.LocalizationValue(lowest.rawValue))
+                return (
+                    String(localized: "\(microName) Trend"),
+                    String(localized: "Your average \(microName) is low (\(Int(lowestPct * 100))%). \(hint)"),
+                    lowest.color
+                )
             } else if avgCals > user.dailyCaloriesGoal + 100 {
-                return ("Calorie Trend", "Your daily average is \(avgCals) kcal, slightly above your goal. Consider adjusting portion sizes.", .themeOrange)
+                return (
+                    String(localized: "Calorie Trend"),
+                    String(localized: "Your daily average is \(avgCals) kcal, slightly above your goal. Consider adjusting portion sizes."),
+                    .themeOrange
+                )
             } else {
-                return ("Perfect Streak", "Excellent consistency! Your average is \(avgCals) kcal. You are perfectly hitting your goals! Keep it up.", .green)
+                return (
+                    String(localized: "Perfect Streak"),
+                    String(localized: "Excellent consistency! Your average is \(avgCals) kcal. You are perfectly hitting your goals! Keep it up."),
+                    .green
+                )
             }
         }
     }
@@ -319,13 +362,13 @@ struct AIWeeklyInsightCard: View {
 
     private func getHint(for micro: AnalyticsMicro) -> String {
         switch micro {
-        case .omega3: return "Try adding fatty fish (salmon), flaxseeds, or walnuts to your meals."
-        case .potassium: return "Foods like bananas, avocados, spinach, and sweet potatoes are rich in potassium."
-        case .magnesium: return "Try eating pumpkin seeds, dark chocolate, almonds, or spinach."
-        case .calcium: return "Add yogurt, cheese, milk, tofu, or almonds to boost your calcium."
-        case .iron: return "Eat red meat, spinach, lentils, or fortified cereals to increase iron."
-        case .vitaminC: return "Oranges, bell peppers, strawberries, and broccoli are great sources."
-        case .vitaminD: return "Consider egg yolks, mushrooms, fatty fish, or brief sun exposure."
+        case .omega3: return String(localized: "Try adding fatty fish (salmon), flaxseeds, or walnuts to your meals.")
+        case .potassium: return String(localized: "Foods like bananas, avocados, spinach, and sweet potatoes are rich in potassium.")
+        case .magnesium: return String(localized: "Try eating pumpkin seeds, dark chocolate, almonds, or spinach.")
+        case .calcium: return String(localized: "Add yogurt, cheese, milk, tofu, or almonds to boost your calcium.")
+        case .iron: return String(localized: "Eat red meat, spinach, lentils, or fortified cereals to increase iron.")
+        case .vitaminC: return String(localized: "Oranges, bell peppers, strawberries, and broccoli are great sources.")
+        case .vitaminD: return String(localized: "Consider egg yolks, mushrooms, fatty fish, or brief sun exposure.")
         }
     }
 
@@ -342,7 +385,7 @@ struct AIWeeklyInsightCard: View {
                 Image(systemName: "sparkles")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(insight.color)
-                    .symbolEffect(.pulse)
+                    .symbolEffect(.pulse, isActive: !reduceMotion)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -792,8 +835,12 @@ struct AIHydrationAnalyticsCard: View {
         
         if let user = users.first, user.isHealthKitEnabled {
             let logDate = Calendar.current.isDateInToday(targetDate) ? Date() : targetDate
-            Task {
-                await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: logDate)
+            let container = context.container
+            Task { @MainActor in
+                if let uuid = await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: logDate) {
+                    newBeverage.healthKitSampleID = uuid.uuidString
+                    try? container.mainContext.save()
+                }
             }
         }
     }
@@ -806,6 +853,10 @@ struct AIHydrationAnalyticsCard: View {
         let targetDate = summary?.date ?? Calendar.current.startOfDay(for: Date())
         guard let targetSummary = DailySummary.fetchExisting(for: targetDate, in: context) else { return }
         if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" }) {
+            let sampleID = lastWater.healthKitSampleID
+            let litersFallback = lastWater.volumeMl / 1000.0
+            let shouldSyncHK = users.first?.isHealthKitEnabled == true
+
             if let index = targetSummary.beverages?.firstIndex(of: lastWater) {
                 targetSummary.beverages?.remove(at: index)
             }
@@ -814,6 +865,16 @@ struct AIHydrationAnalyticsCard: View {
             WorkoutSyncManager.shared.syncWater(targetSummary.totalHydrationLiters, for: targetSummary.date)
             WidgetReloader.reloadAll()
             onUpdate()
+
+            if shouldSyncHK {
+                Task {
+                    await HealthKitManager.shared.deleteWaterSample(
+                        idString: sampleID,
+                        litersFallback: litersFallback,
+                        date: targetDate
+                    )
+                }
+            }
         }
     }
     

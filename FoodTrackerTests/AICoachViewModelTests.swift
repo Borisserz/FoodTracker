@@ -52,8 +52,9 @@ final class AICoachViewModelTests: XCTestCase {
         
         viewModel.runDailyAnalysis(currentSummary: summary, currentUser: user)
         
-        // Wait for task to finish
-        try await Task.sleep(nanoseconds: 200_000_000)
+        for _ in 0..<40 where viewModel.isAnalyzing {
+            try await Task.sleep(for: .milliseconds(50))
+        }
         
         XCTAssertTrue(viewModel.hasAnalyzedToday)
         XCTAssertEqual(viewModel.verdictTitle, "Excellent Job")
@@ -77,7 +78,9 @@ final class AICoachViewModelTests: XCTestCase {
         }
 
         viewModel.runDailyAnalysis(currentSummary: summary, currentUser: user)
-        try await Task.sleep(nanoseconds: 200_000_000)
+        for _ in 0..<40 where viewModel.isAnalyzing {
+            try await Task.sleep(for: .milliseconds(50))
+        }
 
         XCTAssertFalse(viewModel.isAnalyzing)
         XCTAssertFalse(viewModel.hasAnalyzedToday)

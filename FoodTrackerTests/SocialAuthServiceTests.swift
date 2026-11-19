@@ -90,4 +90,91 @@ final class SocialAuthServiceTests: XCTestCase {
         )
         XCTAssertEqual(events, ["reauth", "delete", "revoke:apple-auth-code"])
     }
+
+    func testDeletionSequenceClearsGoogleSessionOnlyAfterSuccessfulDeletion() async throws {
+        var events: [String] = []
+        try await AuthManager.runDeletionSequence(
+            reauthenticate: {
+                events.append("reauth")
+                return nil
+            },
+            deleteAccount: {
+                events.append("delete")
+            },
+            clearGoogleSession: {
+                events.append("google-signout")
+            },
+            revokeAppleToken: { _ in
+                events.append("revoke")
+            }
+        )
+        XCTAssertEqual(events, ["reauth", "delete", "google-signout"])
+
+        var failureEvents: [String] = []
+        do {
+            try await AuthManager.runDeletionSequence(
+                reauthenticate: {
+                    failureEvents.append("reauth")
+                    return nil
+                },
+                deleteAccount: {
+                    failureEvents.append("delete-fail")
+                    throw AccountDeletionError.serverCleanupFailed(statusCode: 500)
+                },
+                clearGoogleSession: {
+                    failureEvents.append("google-signout")
+                },
+                revokeAppleToken: { _ in
+                    failureEvents.append("revoke")
+                }
+            )
+            XCTFail("Expected failure")
+        } catch {
+            XCTAssertEqual(failureEvents, ["reauth", "delete-fail"])
+        }
+    }
+
+    func testDeleteCurrentUserDoesNotSignOutGoogleWhenNoUserSignedIn() async {
+        let authManager = AuthManager()
+        var didSignOutGoogle = false
+        do {
+            try await authManager.deleteCurrentUser(
+                userProvider: { nil },
+                googleSignOut: { didSignOutGoogle = true }
+            )
+            XCTFail("Expected AccountDeletionError.notSignedIn")
+        } catch {
+            XCTAssertFalse(didSignOutGoogle)
+        }
+    }
+
+    func testAccountDeletionDialogCopyWarnsRegisteredUsersAboutSharedEcosystem() {
+        let registeredMessage = AccountDeletionDialogCopy.confirmationMessage(isAnonymous: false)
+        let guestMessage = AccountDeletionDialogCopy.confirmationMessage(isAnonymous: true)
+
+        XCTAssertFalse(registeredMessage.isEmpty)
+        XCTAssertFalse(guestMessage.isEmpty)
+        XCTAssertNotEqual(registeredMessage, guestMessage)
+        XCTAssertTrue(registeredMessage.contains("WorkoutTracker"))
+        XCTAssertFalse(guestMessage.contains("WorkoutTracker"))
+    }
+
+    func testAnonymousAuthBootstrapHandlesOutOfOrderEndBeforeBeginWithoutDeadlock() async {
+        let bootstrap = AnonymousAuthBootstrap.shared
+        await bootstrap.resetLeasesForTesting()
+
+        let leaseID = UUID()
+        await bootstrap.endInteractiveSignIn(leaseID)
+        await bootstrap.beginInteractiveSignIn(id: leaseID)
+        let countAfterOutOfOrder = await bootstrap.activeInteractiveLeaseCountForTesting()
+        XCTAssertEqual(countAfterOutOfOrder, 0)
+
+        let normalLease = await bootstrap.beginInteractiveSignIn()
+        let countDuringLease = await bootstrap.activeInteractiveLeaseCountForTesting()
+        XCTAssertEqual(countDuringLease, 1)
+
+        await bootstrap.endInteractiveSignIn(normalLease)
+        let countAfterEnd = await bootstrap.activeInteractiveLeaseCountForTesting()
+        XCTAssertEqual(countAfterEnd, 0)
+    }
 }

@@ -634,7 +634,7 @@ struct ActiveFastingCard: View {
 
                     HStack(spacing: 6) {
                         Image(systemName: manager.currentPhase.icon)
-                        Text(manager.currentPhase.name)
+                        Text(LocalizedStringKey(manager.currentPhase.name))
                     }
                     .font(.caption.bold())
                     .foregroundColor(manager.currentPhase.color)
@@ -668,7 +668,7 @@ struct ActiveFastingCard: View {
             }
 
             HStack {
-                Text(manager.remainingTimeString)
+                Text(manager.localizedRemainingTimeString)
                     .font(.subheadline)
                     .foregroundColor(.gray)
 

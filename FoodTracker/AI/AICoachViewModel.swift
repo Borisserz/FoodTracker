@@ -14,8 +14,8 @@ class AICoachViewModel {
 
     var isAnalyzing = false
     var hasAnalyzedToday = false
-    var verdictTitle: String = "AI Daily Review"
-    var verdictMessage: String = "Tap the button below to analyze your calories, macros, and get a personalized summary for today."
+    var verdictTitle: String = String(localized: "AI Daily Review")
+    var verdictMessage: String = String(localized: "Tap the button below to analyze your calories, macros, and get a personalized summary for today.")
     var verdictMood: String = "neutral"
 
     var fridgeInput: String = ""

@@ -245,7 +245,7 @@ struct DiscoverTabView: View {
                     .padding(.bottom, 120)
                 }
             } else {
-            let sections = DiscoverSections.partition(allRecipes)
+            let sections = ChefDiscoverSections.partition(allRecipes)
             VStack(spacing: 32) {
 
                 VStack(alignment: .leading, spacing: 16) {
@@ -319,49 +319,9 @@ struct DiscoverTabView: View {
         }
     }
 
-    private struct DiscoverSections {
-        let highProtein: [PremiumRecipe]
-        let ketoLowCarb: [PremiumRecipe]
-        let quickEasy: [PremiumRecipe]
-        let plantBased: [PremiumRecipe]
-        let chefsSpecials: [PremiumRecipe]
-
-        static func partition(_ recipes: [PremiumRecipe]) -> DiscoverSections {
-            var highProtein: [PremiumRecipe] = []
-            var ketoLowCarb: [PremiumRecipe] = []
-            var quickEasy: [PremiumRecipe] = []
-            var plantBased: [PremiumRecipe] = []
-            var chefsSpecials: [PremiumRecipe] = []
-
-            for recipe in recipes {
-                let tags = recipe.tags
-                if tags.contains("High Protein") {
-                    highProtein.append(recipe)
-                } else if tags.contains("Low Carb") || tags.contains("Ketogenic") {
-                    ketoLowCarb.append(recipe)
-                } else if tags.contains("Quickly Prepared") || tags.contains("Easy") {
-                    quickEasy.append(recipe)
-                } else if tags.contains("Vegan") || tags.contains("Vegetarian") {
-                    plantBased.append(recipe)
-                } else if chefsSpecials.count < 6 {
-                    chefsSpecials.append(recipe)
-                }
-            }
-            return DiscoverSections(
-                highProtein: highProtein,
-                ketoLowCarb: ketoLowCarb,
-                quickEasy: quickEasy,
-                plantBased: plantBased,
-                chefsSpecials: chefsSpecials
-            )
-        }
-    }
-
     private func openFiltered(title: String, tags: [String]) {
         HapticManager.shared.impact(style: .medium)
-        let filtered = allRecipes.filter { recipe in
-            !Set(recipe.tags).isDisjoint(with: Set(tags))
-        }
+        let filtered = ChefDiscoverSections.filter(allRecipes, matchingAnyCanonicalTags: tags)
         path.append(FoodsRoute.filteredList(title, filtered))
     }
 }
@@ -702,8 +662,7 @@ struct AdvancedRecipeFilterSheet: View {
     var filteredRecipes: [PremiumRecipe] {
           if selectedTags.isEmpty { return allRecipes }
           return allRecipes.filter { recipe in
-
-              selectedTags.isSubset(of: Set(recipe.tags))
+              selectedTags.isSubset(of: RecipeTagCatalog.canonicalTags(for: recipe.tags))
           }
       }
 
@@ -778,7 +737,7 @@ struct FilterIconSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(title).font(.headline).foregroundColor(.primary)
+            Text(LocalizedStringKey(title)).font(.headline).foregroundColor(.primary)
 
             RecipeTagLayout(spacing: 12) {
                 ForEach(items, id: \.0) { item in
@@ -789,7 +748,7 @@ struct FilterIconSection: View {
                         HStack(spacing: 6) {
                             Image(systemName: item.1)
                                 .font(.system(size: 14))
-                            Text(item.0)
+                            Text(LocalizedStringKey(item.0))
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                         }
                         .foregroundColor(selection.contains(item.0) ? .white : .gray)
@@ -812,7 +771,7 @@ struct FilterColoredSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(title).font(.headline).foregroundColor(.primary)
+            Text(LocalizedStringKey(title)).font(.headline).foregroundColor(.primary)
 
             RecipeTagLayout(spacing: 12) {
                 ForEach(items, id: \.0) { item in
@@ -824,7 +783,7 @@ struct FilterColoredSection: View {
                             Image(systemName: item.1)
                                 .font(.system(size: 14))
                                 .foregroundColor(selection.contains(item.0) ? .white : item.2)
-                            Text(item.0)
+                            Text(LocalizedStringKey(item.0))
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                         }
                         .foregroundColor(selection.contains(item.0) ? .white : .gray)
@@ -854,7 +813,7 @@ struct RecipeHorizontalSection: View {
                 path.append(FoodsRoute.filteredList(title, recipes))
             }) {
                 HStack {
-                    Text(title)
+                    Text(LocalizedStringKey(title))
                         .font(.title2)
                         .bold()
                         .foregroundColor(.primary)
@@ -1038,10 +997,11 @@ struct PremiumRecipeDetailView: View {
                                                             Button(action: {
                                                                 HapticManager.shared.impact(style: .heavy)
 
-                                                                for ingredient in recipe.ingredients {
-                                                                    let item = ShoppingItem(name: ingredient.name, amount: ingredient.amount, addedFromRecipe: recipe.title)
-                                                                    context.insert(item)
-                                                                }
+                                                                ShoppingItem.insertDeduplicated(
+                                                                    items: recipe.ingredients.map { (name: $0.name, amount: $0.amount) },
+                                                                    recipeTitle: recipe.title,
+                                                                    in: context
+                                                                )
                                                                 try? context.save()
                                                                 WidgetReloader.reloadAll()
 
@@ -1330,7 +1290,10 @@ struct ChooseMealSheet: View {
         WidgetReloader.reloadAll()
         AppReviewManager.shared.userDidLogMeal()
         if users.first?.isHealthKitEnabled == true && HealthKitManager.shared.isAuthorized && calories > 0 {
-            await HealthKitManager.shared.saveDietaryEnergy(calories: calories, date: .now)
+            if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: calories, date: .now) {
+                newFood.healthKitSampleID = uuid.uuidString
+                try? context.save()
+            }
         }
     }
 }

@@ -257,4 +257,24 @@ final class VertexAIManagerTests: XCTestCase {
         XCTAssertTrue(analysis.metrics[0].isPositive)
         XCTAssertFalse(analysis.metrics[1].isPositive)
     }
+
+    func testDecodeFlexibleDoubleHandlesThousandsCommasAndDecimalCommas() throws {
+        let json = #"""
+        {
+            "isFood": true,
+            "name": "Party Platter",
+            "weight": "1,250",
+            "calories": 1500,
+            "protein": "1,250.5",
+            "fats": "12,5",
+            "carbs": "120"
+        }
+        """#.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(VertexAIManager.AIFoodResponse.self, from: json)
+        XCTAssertEqual(decoded.weight ?? -1, 1250.0, accuracy: 0.01)
+        XCTAssertEqual(decoded.protein ?? -1, 1250.5, accuracy: 0.01)
+        XCTAssertEqual(decoded.fats ?? -1, 12.5, accuracy: 0.01)
+        XCTAssertEqual(decoded.carbs ?? -1, 120.0, accuracy: 0.01)
+    }
 }

@@ -156,6 +156,43 @@ final class FastingManagerTests: XCTestCase {
         XCTAssertFalse(FastingManager.shouldContinueTimerLoop(isFasting: false, targetHours: 16, progress: 0.5))
         XCTAssertFalse(FastingManager.shouldContinueTimerLoop(isFasting: true, targetHours: 0, progress: 0.5))
     }
+
+    func testFastingActivityTimingCompletionAndBackwardCompatibleDecoding() throws {
+        let now = Date()
+        XCTAssertFalse(FastingActivityTiming.isCompleted(now: now, targetEndDate: now.addingTimeInterval(60), progressPct: 0.9))
+        XCTAssertTrue(FastingActivityTiming.isCompleted(now: now, targetEndDate: now.addingTimeInterval(-1), progressPct: 0.99))
+        XCTAssertTrue(FastingActivityTiming.isCompleted(now: now, targetEndDate: now.addingTimeInterval(60), progressPct: 1.0))
+
+        // Legacy ContentState payload without `isCompleted` should decode cleanly as `false`.
+        let legacyJSON = Data("{\"currentStage\":\"Ketosis State\",\"progressPct\":0.8}".utf8)
+        let decoded = try JSONDecoder().decode(FastingAttributes.ContentState.self, from: legacyJSON)
+        XCTAssertEqual(decoded.currentStage, "Ketosis State")
+        XCTAssertEqual(decoded.progressPct, 0.8, accuracy: 0.001)
+        XCTAssertFalse(decoded.isCompleted)
+    }
+
+    func testFastingLiveActivityUpdateDecisionDispatchesWhenCompletionFlipsAtProgressOne() {
+        XCTAssertFalse(
+            FastingLiveActivityUpdateDecision.shouldDispatch(
+                currentStage: "Deep Autophagy",
+                progressPct: 1.0,
+                isCompleted: true,
+                lastSentStage: "Deep Autophagy",
+                lastSentProgress: 1.0,
+                lastSentCompleted: true
+            )
+        )
+        XCTAssertTrue(
+            FastingLiveActivityUpdateDecision.shouldDispatch(
+                currentStage: "Deep Autophagy",
+                progressPct: 1.0,
+                isCompleted: true,
+                lastSentStage: "Deep Autophagy",
+                lastSentProgress: 1.0,
+                lastSentCompleted: false
+            )
+        )
+    }
 }
 
 @MainActor

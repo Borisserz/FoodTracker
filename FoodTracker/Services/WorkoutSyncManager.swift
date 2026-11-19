@@ -8,24 +8,32 @@ final class WorkoutSyncManager {
     static let shared = WorkoutSyncManager()
 
     nonisolated static let suiteName = "group.com.borisdev.WorkoutTracker"
+    nonisolated static let foodTrackerSuiteName = "group.com.borisdev.FoodTracker2026"
     nonisolated static let healthKitBrandName = "FoodTracker"
+    nonisolated static let workoutTrackerBrandName = "AI Workout"
     private static let lastSyncedWaterPrefix = "wt_last_synced_water_"
-    private static let dayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
+    private static let pendingWidgetWaterPrefix = "pending_hk_water_ml_"
+    private static let gregorianCalendar: Calendar = {
+        var cal = Calendar(identifier: .gregorian)
+        cal.locale = Locale(identifier: "en_US_POSIX")
+        return cal
     }()
 
     private var defaultSharedDefaults: UserDefaults? {
         UserDefaults(suiteName: Self.suiteName)
     }
 
+    private var defaultFoodTrackerDefaults: UserDefaults? {
+        UserDefaults(suiteName: Self.foodTrackerSuiteName)
+    }
+
     private init() {}
 
     nonisolated static func dateString(for date: Date) -> String {
-        dayFormatter.string(from: date)
+        var cal = gregorianCalendar
+        cal.timeZone = .current
+        let comps = cal.dateComponents([.year, .month, .day], from: date)
+        return String(format: "%04d-%02d-%02d", comps.year ?? 0, comps.month ?? 0, comps.day ?? 0)
     }
 
     nonisolated static func workoutCaloriesKey(for date: Date) -> String {
@@ -38,6 +46,17 @@ final class WorkoutSyncManager {
 
     nonisolated static func lastSyncedWaterKey(for date: Date) -> String {
         "\(lastSyncedWaterPrefix)\(dateString(for: date))"
+    }
+
+    nonisolated static func pendingHealthKitWaterKey(for date: Date) -> String {
+        "\(pendingWidgetWaterPrefix)\(dateString(for: date))"
+    }
+
+    nonisolated static func priorExternalWorkoutCalories(
+        totalWorkoutCalories: Int,
+        previousLocalActivityCalories: Int
+    ) -> Int {
+        max(0, totalWorkoutCalories - max(0, previousLocalActivityCalories))
     }
 
     /// Reads daily calories burned written by WorkoutTracker (`WorkoutStore.syncSharedDailyCalories`).
@@ -68,6 +87,37 @@ final class WorkoutSyncManager {
             defaults.set(sanitized, forKey: waterKey)
         }
         localDefaults.set(sanitized, forKey: Self.lastSyncedWaterKey(for: date))
+    }
+
+    /// Called by WidgetIntents after adding water: updates WorkoutTracker App Group immediately
+    /// and queues the widget-added delta so the main app flushes it to Apple Health on next sync.
+    func syncWaterFromWidget(
+        totalLiters: Double,
+        addedMl: Double,
+        for date: Date,
+        sharedDefaults: UserDefaults? = nil,
+        appGroupDefaults: UserDefaults? = nil,
+        localDefaults: UserDefaults = .standard
+    ) {
+        syncWater(totalLiters, for: date, sharedDefaults: sharedDefaults, localDefaults: localDefaults)
+        guard addedMl > 0, let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return }
+        let pendingKey = Self.pendingHealthKitWaterKey(for: date)
+        let currentPending = max(0, ftDefaults.double(forKey: pendingKey))
+        ftDefaults.set(currentPending + addedMl, forKey: pendingKey)
+    }
+
+    /// Atomically reads and clears queued widget-added hydration (in liters) pending Apple Health sync.
+    func consumePendingWidgetWaterLiters(
+        for date: Date,
+        appGroupDefaults: UserDefaults? = nil
+    ) -> Double {
+        guard let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return 0 }
+        let pendingKey = Self.pendingHealthKitWaterKey(for: date)
+        let ml = max(0, ftDefaults.double(forKey: pendingKey))
+        if ml > 0 {
+            ftDefaults.removeObject(forKey: pendingKey)
+        }
+        return ml / 1000.0
     }
 
     /// Pulls external water added from WorkoutTracker into `summary` and keeps App Group aligned.
@@ -142,16 +192,18 @@ final class WorkoutSyncManager {
     }
 
     /// Reconciles local activities, WorkoutTracker App Group workouts, and HealthKit active energy
-    /// without double-counting WorkoutTracker's own HealthKit entries or FoodTracker's saved HKWorkouts.
+    /// without double-counting WorkoutTracker's own HealthKit entries or dropping Apple Watch workouts.
     nonisolated static func computeDailyBurn(
         localActivityCalories: Int,
         workoutTrackerCalories: Int,
         healthKitWorkoutCalories: Int,
+        otherExternalWorkoutCalories: Int = 0,
         healthKitTotalActiveCalories: Int,
         stepsCount: Int,
         isHealthKitEnabled: Bool
     ) -> (workoutCalories: Int, activeCaloriesBurned: Int, stepsCount: Int) {
-        let externalWorkouts = max(0, max(workoutTrackerCalories, healthKitWorkoutCalories))
+        let wtAndSharedWorkouts = max(0, max(workoutTrackerCalories, healthKitWorkoutCalories))
+        let externalWorkouts = wtAndSharedWorkouts + max(0, otherExternalWorkoutCalories)
         let totalWorkouts = max(0, localActivityCalories) + externalWorkouts
 
         if isHealthKitEnabled {
@@ -166,6 +218,11 @@ final class WorkoutSyncManager {
     static func clearLocalSyncMetadata(defaults: UserDefaults = .standard) {
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(lastSyncedWaterPrefix) {
             defaults.removeObject(forKey: key)
+        }
+        if let ftDefaults = UserDefaults(suiteName: foodTrackerSuiteName) {
+            for key in ftDefaults.dictionaryRepresentation().keys where key.hasPrefix(pendingWidgetWaterPrefix) {
+                ftDefaults.removeObject(forKey: key)
+            }
         }
     }
 }

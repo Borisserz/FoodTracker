@@ -1,6 +1,21 @@
 import Foundation
 import ActivityKit
 
+enum FastingLiveActivityUpdateDecision {
+    static func shouldDispatch(
+        currentStage: String,
+        progressPct: Double,
+        isCompleted: Bool,
+        lastSentStage: String?,
+        lastSentProgress: Double,
+        lastSentCompleted: Bool
+    ) -> Bool {
+        if isCompleted != lastSentCompleted { return true }
+        if currentStage != lastSentStage { return true }
+        return abs(progressPct - lastSentProgress) >= 0.01
+    }
+}
+
 @MainActor
 protocol FastingLiveActivityManaging: AnyObject {
     func startActivity(planName: String, targetHours: Int, startTime: Date)
@@ -12,13 +27,14 @@ protocol FastingLiveActivityManaging: AnyObject {
 @Observable
 final class FastingLiveActivityManager: FastingLiveActivityManaging {
     static let shared = FastingLiveActivityManager()
-    
+
     @ObservationIgnored private var currentActivity: Activity<FastingAttributes>?
     @ObservationIgnored private var lastSentStage: String?
     @ObservationIgnored private var lastSentProgress: Double = -1.0
+    @ObservationIgnored private var lastSentCompleted: Bool = false
     @ObservationIgnored private var requestGeneration: UInt64 = 0
     @ObservationIgnored private var pendingStartTask: Task<Void, Never>?
-    
+
     private init() {
         currentActivity = Activity<FastingAttributes>.activities.first
     }
@@ -60,6 +76,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
             currentActivity = existing
             lastSentStage = nil
             lastSentProgress = -1.0
+            lastSentCompleted = false
             updateActivity(currentStage: currentStage, progressPct: progressPct)
             return
         }
@@ -82,19 +99,23 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     ) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled, targetHours > 0 else { return }
 
+        let now = Date()
         let targetEndDate = startTime.addingTimeInterval(TimeInterval(targetHours * 3600))
         let attributes = FastingAttributes(
             planName: planName,
             targetEndDate: targetEndDate
         )
         let clampedProgress = min(max(initialProgress, 0.0), 1.0)
+        let completed = FastingActivityTiming.isCompleted(now: now, targetEndDate: targetEndDate, progressPct: clampedProgress)
         let initialContentState = FastingAttributes.ContentState(
             currentStage: initialStage,
-            progressPct: clampedProgress
+            progressPct: clampedProgress,
+            isCompleted: completed
         )
+        let staleDate = completed ? now.addingTimeInterval(3600) : targetEndDate
         let content = ActivityContent(
             state: initialContentState,
-            staleDate: targetEndDate,
+            staleDate: staleDate,
             relevanceScore: 100
         )
 
@@ -117,6 +138,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
                 )
                 self.lastSentStage = initialStage
                 self.lastSentProgress = clampedProgress
+                self.lastSentCompleted = completed
                 self.pendingStartTask = nil
                 print("Live Activity started successfully: \(self.currentActivity?.id ?? "")")
             } catch {
@@ -125,34 +147,46 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
             }
         }
     }
-    
+
     func updateActivity(currentStage: String, progressPct: Double) {
         guard pendingStartTask == nil, let activity = activeActivity() else { return }
-        // Avoid spamming ActivityKit every 1-second timer tick unless stage changed or progress moved >= 1%
-        if currentStage == lastSentStage && abs(progressPct - lastSentProgress) < 0.01 {
+        let now = Date()
+        let targetEnd = activity.attributes.targetEndDate
+        let isCompleted = FastingActivityTiming.isCompleted(now: now, targetEndDate: targetEnd, progressPct: progressPct)
+
+        guard FastingLiveActivityUpdateDecision.shouldDispatch(
+            currentStage: currentStage,
+            progressPct: progressPct,
+            isCompleted: isCompleted,
+            lastSentStage: lastSentStage,
+            lastSentProgress: lastSentProgress,
+            lastSentCompleted: lastSentCompleted
+        ) else {
             return
         }
+
         lastSentStage = currentStage
         lastSentProgress = progressPct
-        
+        lastSentCompleted = isCompleted
+
         let updatedState = FastingAttributes.ContentState(
             currentStage: currentStage,
-            progressPct: progressPct
+            progressPct: progressPct,
+            isCompleted: isCompleted
         )
-        
-        let targetEnd = activity.attributes.targetEndDate
-        let staleDate = targetEnd > Date() ? targetEnd : Date().addingTimeInterval(3600)
+
+        let staleDate = isCompleted ? now.addingTimeInterval(3600) : targetEnd
         let updatedContent = ActivityContent(
             state: updatedState,
             staleDate: staleDate,
             relevanceScore: 100
         )
-        
+
         Task {
             await activity.update(updatedContent)
         }
     }
-    
+
     func endActivity() {
         requestGeneration &+= 1
         pendingStartTask?.cancel()
@@ -164,9 +198,10 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
 
         let finalState = FastingAttributes.ContentState(
             currentStage: "Completed",
-            progressPct: 1.0
+            progressPct: 1.0,
+            isCompleted: true
         )
-        
+
         let finalContent = ActivityContent(
             state: finalState,
             staleDate: nil,
@@ -176,6 +211,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
         currentActivity = nil
         lastSentStage = nil
         lastSentProgress = -1.0
+        lastSentCompleted = false
 
         Task {
             for activity in activitiesToEnd {

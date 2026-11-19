@@ -145,7 +145,13 @@ final class VertexAIManager {
             return Double(intVal)
         }
         if let strVal = try? container.decodeIfPresent(String.self, forKey: key) {
-            let cleaned = strVal.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
+            let trimmed = strVal.trimmingCharacters(in: .whitespacesAndNewlines)
+            let cleaned: String
+            if trimmed.range(of: #"^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$"#, options: .regularExpression) != nil {
+                cleaned = trimmed.replacingOccurrences(of: ",", with: "")
+            } else {
+                cleaned = trimmed.replacingOccurrences(of: ",", with: ".")
+            }
             if let parsed = Double(cleaned), parsed.isFinite {
                 return parsed
             }

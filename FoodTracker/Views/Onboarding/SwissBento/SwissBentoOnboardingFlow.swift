@@ -561,6 +561,7 @@ private struct Stage4BlueprintRevealView: View {
     let fats: Int
     let onFinish: () -> Void
     
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var progressCount: Int = 0
     @State private var isCompleted: Bool = false
     @State private var progressTimer: Timer?
@@ -631,6 +632,11 @@ private struct Stage4BlueprintRevealView: View {
         }
         .onAppear {
             progressTimer?.invalidate()
+            if reduceMotion {
+                progressCount = 100
+                isCompleted = true
+                return
+            }
             progressTimer = Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { timer in
                 if progressCount < 100 {
                     progressCount += 2

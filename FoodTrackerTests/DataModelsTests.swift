@@ -889,4 +889,286 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(remaining.count, 1)
         XCTAssertEqual(resolved?.name, "Pete")
     }
+
+    func testQuickActivityPriorExternalCaloriesPreventsDoubleCounting() {
+        // Suppose prior state had 150 kcal local + 400 kcal external = 550 total workoutCalories.
+        let priorExternal = WorkoutSyncManager.priorExternalWorkoutCalories(
+            totalWorkoutCalories: 550,
+            previousLocalActivityCalories: 150
+        )
+        XCTAssertEqual(priorExternal, 400)
+
+        // User adds another 200 kcal local activity -> new local total = 350 kcal.
+        let reconciled = WorkoutSyncManager.computeDailyBurn(
+            localActivityCalories: 350,
+            workoutTrackerCalories: 0,
+            healthKitWorkoutCalories: priorExternal,
+            healthKitTotalActiveCalories: 0,
+            stepsCount: 0,
+            isHealthKitEnabled: true
+        )
+        XCTAssertEqual(reconciled.workoutCalories, 750)
+    }
+
+    func testWorkoutSyncComputeDailyBurnPreservesAppleWatchAlongsideWorkoutTracker() {
+        let burn = WorkoutSyncManager.computeDailyBurn(
+            localActivityCalories: 150,
+            workoutTrackerCalories: 400,
+            healthKitWorkoutCalories: 350,
+            otherExternalWorkoutCalories: 300,
+            healthKitTotalActiveCalories: 950,
+            stepsCount: 8000,
+            isHealthKitEnabled: true
+        )
+        // max(400, 350) = 400 WT + 300 Apple Watch + 150 local = 850
+        XCTAssertEqual(burn.workoutCalories, 850)
+        XCTAssertEqual(burn.activeCaloriesBurned, 950)
+    }
+
+    func testWorkoutSyncWidgetWaterRecordsAndConsumesPendingHealthKitDelta() {
+        let sharedSuite = "WorkoutSyncWidgetWater.shared.\(UUID().uuidString)"
+        let appSuite = "WorkoutSyncWidgetWater.app.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let appDefaults = UserDefaults(suiteName: appSuite)!
+        let localDefaults = UserDefaults(suiteName: "WorkoutSyncWidgetWater.local.\(UUID().uuidString)")!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            appDefaults.removePersistentDomain(forName: appSuite)
+        }
+
+        let today = Date()
+        WorkoutSyncManager.shared.syncWaterFromWidget(
+            totalLiters: 0.75,
+            addedMl: 250.0,
+            for: today,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appDefaults,
+            localDefaults: localDefaults
+        )
+        WorkoutSyncManager.shared.syncWaterFromWidget(
+            totalLiters: 1.0,
+            addedMl: 250.0,
+            for: today,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appDefaults,
+            localDefaults: localDefaults
+        )
+
+        XCTAssertEqual(WorkoutSyncManager.shared.fetchWaterLiters(for: today, sharedDefaults: sharedDefaults) ?? 0, 1.0, accuracy: 0.001)
+        let pendingLiters = WorkoutSyncManager.shared.consumePendingWidgetWaterLiters(for: today, appGroupDefaults: appDefaults)
+        XCTAssertEqual(pendingLiters, 0.5, accuracy: 0.001)
+        XCTAssertEqual(WorkoutSyncManager.shared.consumePendingWidgetWaterLiters(for: today, appGroupDefaults: appDefaults), 0.0, accuracy: 0.001)
+    }
+
+    @MainActor
+    func testMealSlotPersistenceWithSyncOpsTracksInsertedEditedAndDeletedItems() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+        let today = Calendar.current.startOfDay(for: .now)
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+
+        let eggs = FoodItem(name: "Eggs", weight: 100, calories: 200, protein: 14, fats: 14, carbs: 2)
+        eggs.healthKitSampleID = "hk-eggs-1"
+        let bacon = FoodItem(name: "Bacon", weight: 50, calories: 250, protein: 12, fats: 22, carbs: 0)
+        bacon.healthKitSampleID = "hk-bacon-1"
+        let breakfast = Meal(title: "Breakfast", date: today, foodItems: [eggs, bacon])
+        context.insert(eggs)
+        context.insert(bacon)
+        context.insert(breakfast)
+        summary.addMeal(breakfast)
+        try context.save()
+
+        // Edit eggs up to 300 kcal, remove bacon, add toast 150 kcal
+        var editedEggsDraft = EditableFoodDraft(food: eggs)
+        editedEggsDraft.weight = 150 // 300 kcal
+        let toastDraft = EditableFoodDraft(name: "Toast", baseWeight: 50, baseCalories: 150, baseProtein: 5, baseFats: 2, baseCarbs: 28)
+
+        let result = MealSlotPersistence.persistWithSyncOps(
+            activeSlot: "Breakfast",
+            activeDrafts: [editedEggsDraft, toastDraft],
+            hasModifiedActiveSlot: true,
+            draftsBySlot: [:],
+            dirtySlots: [],
+            summary: summary,
+            timestamp: today,
+            in: context
+        )
+        try context.save()
+
+        XCTAssertEqual(result.netCaloriesDelta, 0) // (300 + 150) - (200 + 250)
+        XCTAssertEqual(result.deletedSamples.count, 1)
+        XCTAssertEqual(result.deletedSamples.first?.sampleID, "hk-bacon-1")
+        XCTAssertEqual(result.deletedSamples.first?.calories, 250)
+
+        XCTAssertEqual(result.editedItems.count, 1)
+        XCTAssertEqual(result.editedItems.first?.oldSampleID, "hk-eggs-1")
+        XCTAssertEqual(result.editedItems.first?.oldCalories, 200)
+        XCTAssertEqual(result.editedItems.first?.item.calories, 300)
+
+        XCTAssertEqual(result.insertedItems.count, 1)
+        XCTAssertEqual(result.insertedItems.first?.name, "Toast")
+    }
+
+    @MainActor
+    func testDailySummaryRemoveFoodItemDeletesEmptyParentMeal() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+        let today = Calendar.current.startOfDay(for: .now)
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+
+        let apple = FoodItem(name: "Apple", weight: 150, calories: 78, protein: 0.4, fats: 0.3, carbs: 21)
+        apple.healthKitSampleID = "hk-apple-1"
+        let snack = Meal(title: "Snack", date: today, foodItems: [apple])
+        context.insert(apple)
+        context.insert(snack)
+        summary.addMeal(snack)
+        try context.save()
+
+        let deletedInfo = summary.removeFoodItem(apple, from: snack, in: context)
+        try context.save()
+
+        XCTAssertEqual(deletedInfo?.sampleID, "hk-apple-1")
+        XCTAssertEqual(deletedInfo?.calories, 78)
+        XCTAssertTrue((summary.meals ?? []).isEmpty)
+        let remainingMeals = try context.fetch(FetchDescriptor<Meal>())
+        XCTAssertTrue(remainingMeals.isEmpty)
+    }
+
+    func testLocalFoodDatabaseSearchSupplementsSparseLocaleUpToLimit() {
+        let primary = (1...4).map {
+            LocalFoodEntry(id: "pt-\($0)", name: "Frango \($0)", calories: 165, protein: 30, fat: 3, carbs: 0, category: "meat")
+        }
+        let fallback = (1...10).map {
+            LocalFoodEntry(id: "en-\($0)", name: "Frango Style \($0)", calories: 180, protein: 25, fat: 5, carbs: 2, category: "meat")
+        }
+
+        let results = LocalFoodDatabaseService.searchEntries(
+            primary: primary,
+            fallback: fallback,
+            query: "frango",
+            limit: 10,
+            primaryLanguageCode: "pt-PT"
+        )
+        XCTAssertEqual(results.count, 10)
+        XCTAssertEqual(results.prefix(4).map(\.id), ["pt-1", "pt-2", "pt-3", "pt-4"])
+    }
+
+    func testCustomRecipeToAIChefRecipeUsesPerServingNutrition() {
+        let item1 = FoodItem(name: "Chicken Breast", weight: 300, calories: 480, protein: 90, fats: 10, carbs: 0)
+        let item2 = FoodItem(name: "Rice", weight: 200, calories: 260, protein: 6, fats: 2, carbs: 56)
+        let custom = CustomRecipe(
+            name: "Chicken & Rice",
+            info: "Post-workout prep",
+            foodItems: [item1, item2],
+            cookingTime: 25,
+            difficulty: "Medium",
+            servings: 2,
+            directions: ["Cook rice.", "Grill chicken."]
+        )
+
+        let chef = custom.toAIChefRecipe()
+        XCTAssertEqual(chef.calories, 370)
+        XCTAssertEqual(chef.protein, 48)
+        XCTAssertEqual(chef.fat, 6)
+        XCTAssertEqual(chef.carbs, 28)
+    }
+
+    func testMacroFixSnackIdeaDecodesOptionalMacrosAndLegacyPayload() throws {
+        let enrichedJSON = #"""
+        {
+            "title": "Top up Protein",
+            "explanation": "Add a lean snack.",
+            "suggestedSnacks": [
+                {"name": "Greek Yogurt", "calories": 180, "protein": 18, "fats": 4, "carbs": 12, "weight": 200}
+            ]
+        }
+        """#.data(using: .utf8)!
+        let enriched = try JSONDecoder().decode(MacroFixAdviceDTO.self, from: enrichedJSON)
+        XCTAssertEqual(enriched.suggestedSnacks.count, 1)
+        XCTAssertEqual(enriched.suggestedSnacks[0].fats, 4)
+        XCTAssertEqual(enriched.suggestedSnacks[0].carbs, 12)
+        XCTAssertEqual(enriched.suggestedSnacks[0].weight, 200.0, accuracy: 0.01)
+
+        let legacyJSON = #"""
+        {
+            "title": "Light Snack",
+            "explanation": "Keep it simple.",
+            "suggestedSnacks": [
+                {"name": "Boiled Egg", "calories": 75, "protein": 6}
+            ]
+        }
+        """#.data(using: .utf8)!
+        let legacy = try JSONDecoder().decode(MacroFixAdviceDTO.self, from: legacyJSON)
+        XCTAssertEqual(legacy.suggestedSnacks[0].fats, 0)
+        XCTAssertEqual(legacy.suggestedSnacks[0].carbs, 0)
+        XCTAssertEqual(legacy.suggestedSnacks[0].weight, 100.0, accuracy: 0.01)
+    }
+
+    func testNormalizedWeeklyPlanDaysSortsAndDeduplicatesWeek() throws {
+        let meal = AIWeeklyPlanItemDTO(
+            title: "Oats",
+            type: "Breakfast",
+            calories: 350,
+            protein: 15,
+            carbs: 50,
+            fat: 8,
+            ingredients: "Oats, milk",
+            instructions: "Cook for 5 min.",
+            prepTimeMinutes: 5
+        )
+        let dayDup1 = AIWeeklyPlanDayDTO(dayIndex: 1, totalCalories: 350, totalProtein: 15, totalCarbs: 50, totalFat: 8, meals: [meal])
+        let dayDup2 = AIWeeklyPlanDayDTO(dayIndex: 1, totalCalories: 400, totalProtein: 20, totalCarbs: 50, totalFat: 10, meals: [meal])
+        let day0 = AIWeeklyPlanDayDTO(dayIndex: 0, totalCalories: 350, totalProtein: 15, totalCarbs: 50, totalFat: 8, meals: [meal])
+
+        let normalized = AINutritionService.normalizedPlanDays([dayDup1, dayDup2, day0])
+        XCTAssertEqual(normalized.map(\.dayIndex), [0, 1])
+    }
+
+    func testShoppingItemInsertDeduplicatedCaseInsensitive() throws {
+        let existing = ShoppingItem(name: "Olive Oil", amount: "1 bottle")
+        context.insert(existing)
+        try context.save()
+
+        let inserted = ShoppingItem.insertDeduplicated(
+            items: [
+                (name: " olive oil ", amount: "2 tbsp"),
+                (name: "Salmon", amount: "400 g"),
+                (name: "SALMON", amount: "400 g")
+            ],
+            recipeTitle: "Salmon Bowl",
+            in: context
+        )
+        try context.save()
+
+        let all = try context.fetch(FetchDescriptor<ShoppingItem>())
+        XCTAssertEqual(inserted, 1)
+        XCTAssertEqual(all.count, 2)
+        XCTAssertTrue(all.contains { $0.name == "Salmon" && $0.addedFromRecipe == "Salmon Bowl" })
+    }
+
+    func testMetabolicTDEEGaugeComputeTDEEApplies1200Floor() {
+        let user = User(name: "Small", weight: 42, height: 150, age: 30, gender: "Female")
+        user.activityMultiplier = 1.4
+        // Raw female BMR = 420 + 937.5 - 150 - 161 = 1046.5 -> clamped to 1200 * 1.4 = 1680
+        XCTAssertEqual(MetabolicTDEEGaugeView.computeTDEE(for: user, currentWeight: 42), 1680)
+    }
+
+    func testDeleteLastWeightLogPreservesPositiveUserWeight() throws {
+        let user = User(name: "Alex", weight: 78.5, height: 178, age: 29, gender: "Male")
+        context.insert(user)
+        NutritionMath.recordWeight(76.0, date: Date(), for: user, in: context)
+
+        let logs = try context.fetch(FetchDescriptor<WeightLog>())
+        XCTAssertEqual(logs.count, 1)
+
+        NutritionMath.deleteWeightLog(logs[0], for: user, in: context)
+
+        let remainingLogs = try context.fetch(FetchDescriptor<WeightLog>())
+        XCTAssertTrue(remainingLogs.isEmpty)
+        XCTAssertGreaterThan(user.weight, 0)
+        XCTAssertEqual(user.weight, 76.0, accuracy: 0.01)
+        XCTAssertNil(DailySummary.fetchExisting(for: Date(), in: context)?.weight)
+    }
 }

@@ -6,19 +6,38 @@ actor AnonymousAuthBootstrap {
 
     private var inFlightTask: Task<FirebaseAuth.User, Error>?
     private var inFlightGeneration: UInt64 = 0
-    private var interactiveSignInCount = 0
+    private var activeInteractiveLeases: Set<UUID> = []
+    private var endedEarlyLeases: Set<UUID> = []
 
     private init() {}
 
-    func beginInteractiveSignIn() {
-        interactiveSignInCount += 1
+    @discardableResult
+    func beginInteractiveSignIn(id: UUID = UUID()) -> UUID {
+        if endedEarlyLeases.remove(id) == nil {
+            activeInteractiveLeases.insert(id)
+        }
         inFlightGeneration &+= 1
         inFlightTask?.cancel()
         inFlightTask = nil
+        return id
     }
 
-    func endInteractiveSignIn() {
-        interactiveSignInCount = max(0, interactiveSignInCount - 1)
+    func endInteractiveSignIn(_ id: UUID) {
+        if activeInteractiveLeases.remove(id) == nil {
+            if endedEarlyLeases.count > 64 {
+                endedEarlyLeases.removeAll()
+            }
+            endedEarlyLeases.insert(id)
+        }
+    }
+
+    func activeInteractiveLeaseCountForTesting() -> Int {
+        activeInteractiveLeases.count
+    }
+
+    func resetLeasesForTesting() {
+        activeInteractiveLeases.removeAll()
+        endedEarlyLeases.removeAll()
     }
 
     func ensureSignedIn() async throws -> FirebaseAuth.User {
@@ -38,9 +57,11 @@ actor AnonymousAuthBootstrap {
             if let existing = Auth.auth().currentUser {
                 return existing
             }
-            while interactiveSignInCount > 0 {
+            var waitCycles = 0
+            while !activeInteractiveLeases.isEmpty && waitCycles < 1200 {
                 try Task.checkCancellation()
                 try await Task.sleep(for: .milliseconds(50))
+                waitCycles += 1
                 if let existing = Auth.auth().currentUser {
                     return existing
                 }

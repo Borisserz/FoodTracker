@@ -1,7 +1,17 @@
 import Foundation
 import FirebaseAuth
 import FirebaseAppCheck
+import GoogleSignIn
 import Observation
+
+enum AccountDeletionDialogCopy {
+    static func confirmationMessage(isAnonymous: Bool) -> String {
+        if isAnonymous {
+            return String(localized: "This permanently deletes your guest account and clears all meals, recipes, weight logs, and settings from this device.")
+        }
+        return String(localized: "This permanently deletes your shared ecosystem account (including WorkoutTracker sign-in) and clears all FoodTracker meals, recipes, weight logs, and settings from this device.")
+    }
+}
 
 enum AccountDeletionError: LocalizedError {
     case serverCleanupFailed(statusCode: Int)
@@ -64,7 +74,10 @@ final class AuthManager {
         currentUser?.email ?? Auth.auth().currentUser?.email
     }
 
-    func deleteCurrentUser(userProvider: (() -> FirebaseAuth.User?)? = nil) async throws {
+    func deleteCurrentUser(
+        userProvider: (() -> FirebaseAuth.User?)? = nil,
+        googleSignOut: () -> Void = { GIDSignIn.sharedInstance.signOut() }
+    ) async throws {
         let resolvedUser = userProvider != nil ? userProvider?() : (currentUser ?? Auth.auth().currentUser)
         guard let user = resolvedUser else {
             throw AccountDeletionError.notSignedIn
@@ -118,16 +131,19 @@ final class AuthManager {
             }
         }
         try? Auth.auth().signOut()
+        googleSignOut()
         applyUser(nil)
     }
 
     static func runDeletionSequence(
         reauthenticate: () async throws -> String?,
         deleteAccount: () async throws -> Void,
+        clearGoogleSession: () -> Void = {},
         revokeAppleToken: (String) async throws -> Void
     ) async throws {
         let appleAuthorizationCode = try await reauthenticate()
         try await deleteAccount()
+        clearGoogleSession()
         if let appleAuthorizationCode, !appleAuthorizationCode.isEmpty {
             do {
                 try await revokeAppleToken(appleAuthorizationCode)

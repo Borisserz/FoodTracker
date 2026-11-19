@@ -20,13 +20,16 @@ final class SocialAuthService {
     private init() {}
 
     private var currentNonce: String?
+    private var appleRequestLeaseID: UUID?
     private var isAppleAuthorizationInFlight = false
 
     // MARK: - Apple
 
     func prepareAppleRequest(_ request: ASAuthorizationAppleIDRequest) {
-        if currentNonce == nil {
-            Task { await AnonymousAuthBootstrap.shared.beginInteractiveSignIn() }
+        if appleRequestLeaseID == nil {
+            let leaseID = UUID()
+            appleRequestLeaseID = leaseID
+            Task { await AnonymousAuthBootstrap.shared.beginInteractiveSignIn(id: leaseID) }
         }
         let nonce = Self.randomNonce()
         currentNonce = nonce
@@ -35,9 +38,13 @@ final class SocialAuthService {
     }
 
     func handleAppleAuthorization(_ result: Result<ASAuthorization, Error>) async throws {
+        let leaseID = appleRequestLeaseID
         defer {
             currentNonce = nil
-            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn() }
+            appleRequestLeaseID = nil
+            if let leaseID {
+                Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn(leaseID) }
+            }
         }
         let authorization = try result.get()
 
@@ -79,11 +86,11 @@ final class SocialAuthService {
             throw AuthError.invalidAppleCredential
         }
         isAppleAuthorizationInFlight = true
-        await AnonymousAuthBootstrap.shared.beginInteractiveSignIn()
+        let leaseID = await AnonymousAuthBootstrap.shared.beginInteractiveSignIn()
         defer {
             isAppleAuthorizationInFlight = false
             currentNonce = nil
-            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn() }
+            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn(leaseID) }
         }
 
         let nonce = Self.randomNonce()
@@ -110,9 +117,9 @@ final class SocialAuthService {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw AuthError.missingGoogleClientID
         }
-        await AnonymousAuthBootstrap.shared.beginInteractiveSignIn()
+        let leaseID = await AnonymousAuthBootstrap.shared.beginInteractiveSignIn()
         defer {
-            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn() }
+            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn(leaseID) }
         }
  
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)

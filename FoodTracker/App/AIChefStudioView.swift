@@ -92,22 +92,11 @@ struct RecipeImageView: View {
 struct AIChefStudioView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
-    @Query private var summaries: [DailySummary]
-
-    init() {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: Date())
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay.addingTimeInterval(86_400)
-        _summaries = Query(
-            filter: #Predicate<DailySummary> { summary in
-                summary.date >= startOfDay && summary.date < tomorrow
-            },
-            sort: \DailySummary.date,
-            order: .reverse
-        )
-    }
+    @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
+    @State private var currentDayStart = Calendar.current.startOfDay(for: Date())
     @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
     @Query(sort: \WeeklyMealPlan.createdDate, order: .reverse) private var savedPlans: [WeeklyMealPlan]
 
@@ -125,8 +114,7 @@ struct AIChefStudioView: View {
     private var currentUser: User? { users.first }
 
     private var todaySummary: DailySummary? {
-        let start = Calendar.current.startOfDay(for: Date())
-        return summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: start) })
+        summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: currentDayStart) })
     }
 
     private var remaining: NutritionMath.RemainingMacros {
@@ -207,7 +195,7 @@ struct AIChefStudioView: View {
                                     Image(systemName: "camera.viewfinder")
                                         .font(.system(size: 22, weight: .bold))
                                         .foregroundColor(.white)
-                                        .symbolEffect(.pulse)
+                                        .symbolEffect(.pulse, isActive: !reduceMotion)
                                 }
                             }
                             .padding(20)
@@ -278,7 +266,7 @@ struct AIChefStudioView: View {
                                                     HStack(spacing: 6) {
                                                         Image(systemName: "calendar")
                                                             .foregroundColor(themeManager.current.primaryAccent)
-                                                        Text(plan.dietType)
+                                                        Text(LocalizedStringKey(plan.dietType))
                                                             .font(.system(.subheadline, design: .rounded, weight: .bold))
                                                             .foregroundColor(.primary)
                                                             .lineLimit(1)
@@ -481,6 +469,11 @@ struct AIChefStudioView: View {
                 Button("OK", role: .cancel) { generationError = nil }
             } message: {
                 Text(generationError ?? "")
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    currentDayStart = Calendar.current.startOfDay(for: Date())
+                }
             }
         }
     }
@@ -1001,8 +994,12 @@ struct RecipeDetailAIView: View {
         AppReviewManager.shared.userDidLogMeal()
         if users.first?.isHealthKitEnabled == true && recipe.calories > 0 {
             let cals = recipe.calories
-            Task {
-                await HealthKitManager.shared.saveDietaryEnergy(calories: cals, date: now)
+            let container = context.container
+            Task { @MainActor in
+                if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: cals, date: now) {
+                    food.healthKitSampleID = uuid.uuidString
+                    try? container.mainContext.save()
+                }
             }
         }
         withAnimation { didLogToDiary = true }
@@ -1395,6 +1392,8 @@ struct AICameraScannerView: View {
     @State private var aiVerdict = ""
     @State private var isSuccess = true
     @State private var evaluationError: String? = nil
+    @State private var pendingConsentImage: UIImage? = nil
+    @State private var showPhotoConsentSheet = false
 
     var body: some View {
         ZStack {
@@ -1574,6 +1573,22 @@ struct AICameraScannerView: View {
                 }
             }
         }
+        .sheet(isPresented: $showPhotoConsentSheet) {
+            AIPhotoConsentSheet(
+                onAllow: {
+                    showPhotoConsentSheet = false
+                    if let image = pendingConsentImage {
+                        pendingConsentImage = nil
+                        performStepEvaluation(image)
+                    }
+                },
+                onDecline: {
+                    showPhotoConsentSheet = false
+                    pendingConsentImage = nil
+                    resetForRetry()
+                }
+            )
+        }
     }
 
     private func capturePhoto() {
@@ -1586,12 +1601,23 @@ struct AICameraScannerView: View {
     private func resetForRetry() {
         cameraManager.capturedImage = nil
         selectedPhotoItem = nil
+        pendingConsentImage = nil
         isCapturingPhoto = false
         showResult = false
         evaluationError = nil
     }
 
     private func analyzeCapturedStepImage(_ image: UIImage) {
+        guard !isAnalyzing else { return }
+        guard AIPhotoConsentManager.shared.hasConsented else {
+            pendingConsentImage = image
+            showPhotoConsentSheet = true
+            return
+        }
+        performStepEvaluation(image)
+    }
+
+    private func performStepEvaluation(_ image: UIImage) {
         guard !isAnalyzing else { return }
         isAnalyzing = true
         evaluationError = nil

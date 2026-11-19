@@ -75,7 +75,7 @@ struct WeeklyPlanOverview: View {
             
             // Meals List
             ScrollView(showsIndicators: false) {
-                if let day = selectedDay {
+                if let day = selectedDay, !(day.meals ?? []).isEmpty {
                     VStack(spacing: 16) {
                         // Day Summary
                         HStack(spacing: 20) {
@@ -91,6 +91,17 @@ struct WeeklyPlanOverview: View {
                         }
                     }
                     .padding()
+                } else {
+                    VStack(spacing: 12) {
+                        Image(systemName: "calendar.badge.exclamationmark")
+                            .font(.largeTitle)
+                            .foregroundColor(.secondary)
+                        Text("No meals generated for this day.")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 48)
                 }
             }
             
@@ -133,11 +144,11 @@ struct WeeklyPlanOverview: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(themeManager.current.primaryGradient)
+                        .background((selectedDay?.meals ?? []).isEmpty ? AnyShapeStyle(Color.gray.opacity(0.4)) : AnyShapeStyle(themeManager.current.primaryGradient))
                         .cornerRadius(16)
-                        .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
+                        .shadow(color: (selectedDay?.meals ?? []).isEmpty ? .clear : themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
                     }
-                    .disabled(showSuccessToast)
+                    .disabled(showSuccessToast || (selectedDay?.meals ?? []).isEmpty)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 16)
@@ -168,37 +179,45 @@ struct WeeklyPlanOverview: View {
     }
     
     private func applyToToday() {
+        guard let day = selectedDay, let dayMeals = day.meals, !dayMeals.isEmpty else { return }
         HapticManager.shared.impact(style: .medium)
         
         let startOfDay = Calendar.current.startOfDay(for: Date())
         let currentSummary = DailySummary.fetchOrCreate(for: startOfDay, in: context)
         
-        var addedCalories = 0
-        if let day = selectedDay {
-            for planMeal in (day.meals ?? []) {
-                let canonicalType = NutritionMath.canonicalMealType(planMeal.type)
-                let cals = Int(planMeal.calories)
-                addedCalories += max(0, cals)
-                let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: cals, protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs))
-                context.insert(foodItem)
+        var addedItems: [FoodItem] = []
+        for planMeal in dayMeals {
+            let canonicalType = NutritionMath.canonicalMealType(planMeal.type)
+            let cals = Int(planMeal.calories)
+            let foodItem = FoodItem(name: planMeal.title, weight: 100.0, calories: cals, protein: Double(planMeal.protein), fats: Double(planMeal.fat), carbs: Double(planMeal.carbs))
+            context.insert(foodItem)
+            if cals > 0 {
+                addedItems.append(foodItem)
+            }
 
-                if let existingMeal = (currentSummary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalType }) {
-                    existingMeal.addFoodItem(foodItem)
-                    existingMeal.date = Date.now
-                } else {
-                    let meal = Meal(title: canonicalType, date: Date.now, foodItems: [foodItem])
-                    context.insert(meal)
-                    currentSummary.addMeal(meal)
-                }
+            if let existingMeal = (currentSummary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalType }) {
+                existingMeal.addFoodItem(foodItem)
+                existingMeal.date = Date.now
+            } else {
+                let meal = Meal(title: canonicalType, date: Date.now, foodItems: [foodItem])
+                context.insert(meal)
+                currentSummary.addMeal(meal)
             }
         }
         
         try? context.save()
         WidgetReloader.reloadAll()
         AppReviewManager.shared.userDidLogMeal()
-        if users.first?.isHealthKitEnabled == true && addedCalories > 0 {
-            Task {
-                await HealthKitManager.shared.saveDietaryEnergy(calories: addedCalories, date: Date.now)
+        if users.first?.isHealthKitEnabled == true && !addedItems.isEmpty {
+            let now = Date.now
+            let container = context.container
+            Task { @MainActor in
+                for item in addedItems {
+                    if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: item.calories, date: now) {
+                        item.healthKitSampleID = uuid.uuidString
+                    }
+                }
+                try? container.mainContext.save()
             }
         }
         
@@ -214,20 +233,21 @@ struct WeeklyPlanOverview: View {
     private func generateGroceryList() {
         HapticManager.shared.impact(style: .medium)
         
-        var allIngredients: Set<String> = []
+        var allIngredients: [String] = []
         for day in (plan.days ?? []) {
             for meal in (day.meals ?? []) {
                 let parts = meal.ingredients.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 for part in parts where !part.isEmpty {
-                    allIngredients.insert(part)
+                    allIngredients.append(part)
                 }
             }
         }
         
-        for ingredient in allIngredients {
-            let item = ShoppingItem(name: ingredient, amount: "", isChecked: false, addedFromRecipe: "AI Weekly Plan")
-            context.insert(item)
-        }
+        ShoppingItem.insertDeduplicated(
+            items: allIngredients.map { (name: $0, amount: "") },
+            recipeTitle: "AI Weekly Plan",
+            in: context
+        )
         
         try? context.save()
         WidgetReloader.reloadAll()
@@ -249,7 +269,7 @@ struct MealPlanItemCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(meal.type)
+                Text(LocalizedStringKey(meal.type))
                     .font(.caption.bold())
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
@@ -270,9 +290,16 @@ struct MealPlanItemCard: View {
             Text(meal.ingredients)
                 .font(.subheadline)
                 .foregroundColor(.gray)
-                .lineLimit(2)
+                .lineLimit(3)
+
+            if !meal.instructions.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(meal.instructions)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(3)
+            }
             
-            HStack {
+            HStack(spacing: 10) {
                 Label("\(meal.prepTimeMinutes) min", systemImage: "clock")
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -280,6 +307,12 @@ struct MealPlanItemCard: View {
                 Text("P: \(meal.protein)g")
                     .font(.caption.bold())
                     .foregroundColor(.red)
+                Text("C: \(meal.carbs)g")
+                    .font(.caption.bold())
+                    .foregroundColor(.blue)
+                Text("F: \(meal.fat)g")
+                    .font(.caption.bold())
+                    .foregroundColor(.orange)
             }
             .padding(.top, 4)
         }

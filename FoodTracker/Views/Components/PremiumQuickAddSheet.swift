@@ -206,8 +206,12 @@ struct PremiumQuickAddSheet: View {
         let addedCals = Int(quickCalories)
         if users.first?.isHealthKitEnabled == true && addedCals > 0 {
             let logDate = Calendar.current.isDateInToday(selectedDate) ? Date() : startOfDay
-            Task {
-                await HealthKitManager.shared.saveDietaryEnergy(calories: addedCals, date: logDate)
+            let container = context.container
+            Task { @MainActor in
+                if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: addedCals, date: logDate) {
+                    quickFood.healthKitSampleID = uuid.uuidString
+                    try? container.mainContext.save()
+                }
             }
         }
         dismiss()

@@ -31,7 +31,8 @@ enum LocalDataResetService {
         "blockedCommunityFoods",
         "loggedMealsCount",
         "lastReviewPromptAppVersion",
-        "app_first_launch_date"
+        "app_first_launch_date",
+        AIPhotoConsentManager.defaultsKey
     ]
 
     /// Wipes all local SwiftData records, resets active fasting timers, clears app-specific defaults, and refreshes widgets.
@@ -76,6 +77,7 @@ enum LocalDataResetService {
             RecipeDataLoader.shared.resetFavorites()
             SpotlightTourManager.shared.isTourActive = false
             ReminderNotificationScheduler.sync(mealsEnabled: false, waterEnabled: false, weightEnabled: false)
+            AIPhotoConsentManager.shared.syncFromDefaults()
         }
 
         WidgetReloader.reloadAll()

@@ -364,6 +364,10 @@ struct SmartPlanBuilderFlow: View {
             guard !Task.isCancelled else { return }
             if let newPlan {
                 await MainActor.run {
+                    let existingPlans = (try? context.fetch(FetchDescriptor<WeeklyMealPlan>())) ?? []
+                    for oldPlan in existingPlans {
+                        oldPlan.isCurrentPlan = false
+                    }
                     context.insert(newPlan)
                     try? context.save()
 
@@ -393,14 +397,14 @@ struct AIGenerationLoadingView: View {
     @Environment(ThemeManager.self) private var themeManager
     let targetCalories: Int
     @State private var isPulsing = false
-    @State private var statusText = "Analyzing macros..."
+    @State private var statusText = String(localized: "Analyzing macros...")
 
     var statuses: [String] {
         [
-            "Analyzing macros...",
-            "Browsing recipes...",
-            "Optimizing for \(targetCalories) kcal...",
-            "Finalizing menu..."
+            String(localized: "Analyzing macros..."),
+            String(localized: "Browsing recipes..."),
+            String(localized: "Optimizing for \(targetCalories) kcal..."),
+            String(localized: "Finalizing menu...")
         ]
     }
     
@@ -434,11 +438,14 @@ struct AIGenerationLoadingView: View {
                     isPulsing = true
                 }
             }
-            
+        }
+        .task {
             for (index, status) in statuses.enumerated() {
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.8) {
-                    statusText = status
+                if index > 0 {
+                    try? await Task.sleep(for: .milliseconds(800))
                 }
+                guard !Task.isCancelled else { return }
+                statusText = status
             }
         }
     }

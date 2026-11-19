@@ -85,23 +85,57 @@ final class LocalFoodDatabaseService {
     // MARK: - Search
 
     /// Returns up to `limit` foods matching `query` using pre-normalized locale-aware substring matching.
-    /// Falls back to English results if locale-specific database returns fewer than 3 hits.
+    /// Supplements non-English results from `foods_en` up to `limit` without duplicates.
     func search(query: String, limit: Int = 15) -> [FoodItem] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, limit > 0 else { return [] }
 
         let (primary, fallback, primaryLang) = lock.withLock { (indexedFoods, indexedFallbackFoods, primaryLanguageCode) }
-        var results = matchFoods(primary, query: trimmed, languageCode: primaryLang)
+        let matched = Self.searchIndexedEntries(
+            primary: primary,
+            fallback: fallback,
+            query: trimmed,
+            limit: limit,
+            primaryLanguageCode: primaryLang
+        )
+        return matched.map { $0.toFoodItem() }
+    }
 
-        // Supplement with English fallback if not enough locale results
-        if results.count < 3 && !fallback.isEmpty {
+    static func searchEntries(
+        primary: [LocalFoodEntry],
+        fallback: [LocalFoodEntry],
+        query: String,
+        limit: Int = 15,
+        primaryLanguageCode: String = "en"
+    ) -> [LocalFoodEntry] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, limit > 0 else { return [] }
+        return searchIndexedEntries(
+            primary: indexEntries(primary),
+            fallback: indexEntries(fallback),
+            query: trimmed,
+            limit: limit,
+            primaryLanguageCode: primaryLanguageCode
+        )
+    }
+
+    private static func searchIndexedEntries(
+        primary: [IndexedFoodEntry],
+        fallback: [IndexedFoodEntry],
+        query: String,
+        limit: Int,
+        primaryLanguageCode: String
+    ) -> [LocalFoodEntry] {
+        var results = matchFoods(primary, query: query, languageCode: primaryLanguageCode)
+
+        if results.count < limit && !fallback.isEmpty {
             let existingNames = Set(results.map { $0.name.lowercased() })
-            let fallbackMatches = matchFoods(fallback, query: trimmed, languageCode: "en")
+            let fallbackMatches = matchFoods(fallback, query: query, languageCode: "en")
                 .filter { !existingNames.contains($0.name.lowercased()) }
             results += fallbackMatches
         }
 
-        return Array(results.prefix(limit)).map { $0.toFoodItem() }
+        return Array(results.prefix(limit))
     }
 
     /// Async search that ensures background database loading has finished before querying.
@@ -128,7 +162,7 @@ final class LocalFoodDatabaseService {
             .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
     }
 
-    private func matchFoods(_ entries: [IndexedFoodEntry], query: String, languageCode: String) -> [LocalFoodEntry] {
+    private static func matchFoods(_ entries: [IndexedFoodEntry], query: String, languageCode: String) -> [LocalFoodEntry] {
         let normalizedQuery = Self.normalizeForSearch(query)
         let queryRoots = SmartSearch.getRoots(for: query, languageCode: languageCode)
         var scored: [(score: Int, entry: LocalFoodEntry)] = []
@@ -170,6 +204,14 @@ final class LocalFoodDatabaseService {
         }
     }
 
+    private static func indexEntries(_ entries: [LocalFoodEntry]) -> [IndexedFoodEntry] {
+        entries.map { entry in
+            let folded = normalizeForSearch(entry.name)
+            let words = Set(folded.split(separator: " ").map(String.init))
+            return IndexedFoodEntry(entry: entry, foldedName: folded, foldedWords: words)
+        }
+    }
+
     private static func loadAndIndexFoods(language: String) -> [IndexedFoodEntry] {
         guard let url = Bundle.main.url(forResource: "foods_\(language)", withExtension: "json"),
               let data = try? Data(contentsOf: url),
@@ -177,11 +219,7 @@ final class LocalFoodDatabaseService {
             print("⚠️ LocalFoodDB: could not load foods_\(language).json")
             return []
         }
-        return entries.map { entry in
-            let folded = normalizeForSearch(entry.name)
-            let words = Set(folded.split(separator: " ").map(String.init))
-            return IndexedFoodEntry(entry: entry, foldedName: folded, foldedWords: words)
-        }
+        return indexEntries(entries)
     }
 }
 

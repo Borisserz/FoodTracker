@@ -183,6 +183,9 @@ struct DailyXPQuestsCardView: View {
                 .strokeBorder(Color(red: 1.0, green: 0.82, blue: 0.0).opacity(0.25), lineWidth: 1.2)
         )
         .shadow(color: Color.black.opacity(0.04), radius: 15, y: 6)
+        .onAppear {
+            progressManager.syncLevel()
+        }
     }
     
     private func addXP(_ amount: Int) {

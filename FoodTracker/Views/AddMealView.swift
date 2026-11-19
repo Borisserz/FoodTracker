@@ -2,6 +2,19 @@ import SwiftUI
 import SwiftData
 
 enum MealSlotPersistence {
+    struct EditedItemSync {
+        let item: FoodItem
+        let oldSampleID: String?
+        let oldCalories: Int
+    }
+
+    struct PersistenceSyncResult {
+        let netCaloriesDelta: Int
+        let insertedItems: [FoodItem]
+        let editedItems: [EditedItemSync]
+        let deletedSamples: [DailySummary.DeletedFoodHealthSample]
+    }
+
     @MainActor
     static func persist(
         activeSlot: String,
@@ -13,6 +26,29 @@ enum MealSlotPersistence {
         timestamp: Date,
         in context: ModelContext
     ) -> Int {
+        persistWithSyncOps(
+            activeSlot: activeSlot,
+            activeDrafts: activeDrafts,
+            hasModifiedActiveSlot: hasModifiedActiveSlot,
+            draftsBySlot: draftsBySlot,
+            dirtySlots: dirtySlots,
+            summary: summary,
+            timestamp: timestamp,
+            in: context
+        ).netCaloriesDelta
+    }
+
+    @MainActor
+    static func persistWithSyncOps(
+        activeSlot: String,
+        activeDrafts: [EditableFoodDraft],
+        hasModifiedActiveSlot: Bool,
+        draftsBySlot: [String: [EditableFoodDraft]],
+        dirtySlots: Set<String>,
+        summary: DailySummary,
+        timestamp: Date,
+        in context: ModelContext
+    ) -> PersistenceSyncResult {
         let canonicalActive = DailySummary.canonicalMealSlot(activeSlot)
         var slotsToCommit: [String: [EditableFoodDraft]] = [:]
 
@@ -26,25 +62,44 @@ enum MealSlotPersistence {
         }
 
         var netCaloriesDelta = 0
+        var insertedItems: [FoodItem] = []
+        var editedItems: [EditedItemSync] = []
+        var deletedSamples: [DailySummary.DeletedFoodHealthSample] = []
+
+        // Snapshot pre-mutation slot calories BEFORE `draft.apply(to:)` mutates existing `FoodItem`s in place.
+        var previousCaloriesBySlot: [String: Int] = [:]
+        for meal in summary.meals ?? [] {
+            let slot = DailySummary.canonicalMealSlot(meal.title)
+            previousCaloriesBySlot[slot, default: 0] += meal.totalCalories
+        }
+
         for canonicalSlot in slotsToCommit.keys.sorted() {
             let drafts = slotsToCommit[canonicalSlot] ?? []
             var persistedItems: [FoodItem] = []
             for draft in drafts {
                 if let existingItem = draft.existingItem {
+                    let oldCalories = existingItem.calories
+                    let oldSampleID = existingItem.healthKitSampleID
                     draft.apply(to: existingItem)
+                    if oldCalories != existingItem.calories {
+                        editedItems.append(EditedItemSync(item: existingItem, oldSampleID: oldSampleID, oldCalories: oldCalories))
+                    }
                     persistedItems.append(existingItem)
                 } else {
                     let newItem = draft.makeFoodItem()
                     context.insert(newItem)
+                    insertedItems.append(newItem)
                     persistedItems.append(newItem)
                 }
             }
 
-            var previousCalories = 0
+            let previousCalories = previousCaloriesBySlot[canonicalSlot] ?? 0
             if let existingMeal = (summary.meals ?? []).first(where: { DailySummary.canonicalMealSlot($0.title) == canonicalSlot }) {
-                previousCalories = existingMeal.totalCalories
                 let keptIDs = Set(persistedItems.map { $0.id })
                 for food in (existingMeal.foodItems ?? []).filter({ !keptIDs.contains($0.id) }) {
+                    deletedSamples.append(
+                        DailySummary.DeletedFoodHealthSample(sampleID: food.healthKitSampleID, calories: food.calories)
+                    )
                     context.delete(food)
                 }
                 if persistedItems.isEmpty {
@@ -63,7 +118,12 @@ enum MealSlotPersistence {
             let newCalories = persistedItems.reduce(0) { $0 + $1.calories }
             netCaloriesDelta += (newCalories - previousCalories)
         }
-        return netCaloriesDelta
+        return PersistenceSyncResult(
+            netCaloriesDelta: netCaloriesDelta,
+            insertedItems: insertedItems,
+            editedItems: editedItems,
+            deletedSamples: deletedSamples
+        )
     }
 }
 
@@ -435,7 +495,7 @@ struct AddMealView: View {
         let summaryToUse = DailySummary.fetchOrCreate(for: startOfDay, in: modelContext)
         let mealTimestamp = calendar.isDateInToday(selectedDate) ? Date.now : startOfDay
 
-        let addedCaloriesDelta = MealSlotPersistence.persist(
+        let syncResult = MealSlotPersistence.persistWithSyncOps(
             activeSlot: selectedMealType,
             activeDrafts: selectedDrafts,
             hasModifiedActiveSlot: hasModifiedDrafts,
@@ -451,9 +511,34 @@ struct AddMealView: View {
             try modelContext.save()
             WidgetReloader.reloadAll()
             AppReviewManager.shared.userDidLogMeal()
-            if shouldSyncHealthKit && addedCaloriesDelta > 0 {
-                Task {
-                    await HealthKitManager.shared.saveDietaryEnergy(calories: addedCaloriesDelta, date: mealTimestamp)
+            if shouldSyncHealthKit {
+                let inserted = syncResult.insertedItems
+                let edited = syncResult.editedItems
+                let deleted = syncResult.deletedSamples
+                let container = modelContext.container
+                Task { @MainActor in
+                    let hk = HealthKitManager.shared
+                    for sample in deleted {
+                        await hk.deleteDietaryEnergySample(
+                            idString: sample.sampleID,
+                            caloriesFallback: sample.calories,
+                            date: mealTimestamp
+                        )
+                    }
+                    for op in edited {
+                        op.item.healthKitSampleID = await hk.syncEditedDietaryEnergy(
+                            oldID: op.oldSampleID,
+                            oldCalories: op.oldCalories,
+                            newCalories: op.item.calories,
+                            date: mealTimestamp
+                        )
+                    }
+                    for item in inserted where item.calories > 0 {
+                        if let uuid = await hk.saveDietaryEnergy(calories: item.calories, date: mealTimestamp) {
+                            item.healthKitSampleID = uuid.uuidString
+                        }
+                    }
+                    try? container.mainContext.save()
                 }
             }
             dismiss()

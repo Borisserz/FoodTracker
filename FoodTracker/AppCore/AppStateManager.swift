@@ -39,6 +39,9 @@ final class AppStateManager {
         case "shopping":
             requestedWidgetAction = "shopping"
             return true
+        case "fasting":
+            requestedWidgetAction = "fasting"
+            return true
         default:
             return false
         }

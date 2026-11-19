@@ -88,6 +88,18 @@ final class FastingManager {
         return String(format: "%dh %02dm left", h, m)
     }
 
+    var localizedRemainingTimeString: String {
+        let totalTargetSeconds = Double(targetHours * 3600)
+        let remaining = max(totalTargetSeconds - elapsedTime, 0)
+
+        if remaining == 0 { return String(localized: "Goal Reached! 🎉") }
+
+        let h = Int(remaining) / 3600
+        let m = (Int(remaining) % 3600) / 60
+        let minuteText = String(format: "%02d", m)
+        return String(localized: "\(h)h \(minuteText)m left")
+    }
+
     nonisolated static func shouldContinueTimerLoop(isFasting: Bool, targetHours: Int, progress: Double) -> Bool {
         isFasting && targetHours > 0
     }
@@ -202,22 +214,42 @@ final class FastingManager {
 
                 self.scheduleAlert(
                     id: "fasting_goal_reached",
-                    title: "Goal Reached! 🏆",
-                    body: "You've successfully completed your \(target)-hour fast. It's time to eat!",
+                    title: String(localized: "Goal Reached! 🏆"),
+                    body: String(localized: "You've successfully completed your \(target)-hour fast. It's time to eat!"),
                     delayInSeconds: TimeInterval(target * 3600)
                 )
 
                 if target > 4 {
-                    self.scheduleAlert(id: "phase_4h", title: "Blood Sugar Normalizing 🩸", body: "Your insulin is dropping. Your body is resting. Stay hydrated!", delayInSeconds: 4 * 3600)
+                    self.scheduleAlert(
+                        id: "phase_4h",
+                        title: String(localized: "Blood Sugar Normalizing 🩸"),
+                        body: String(localized: "Your insulin is dropping. Your body is resting. Stay hydrated!"),
+                        delayInSeconds: 4 * 3600
+                    )
                 }
                 if target > 8 {
-                    self.scheduleAlert(id: "phase_8h", title: "Fat Burning Mode 🔥", body: "Glycogen is depleted. Your body is switching to fat for fuel.", delayInSeconds: 8 * 3600)
+                    self.scheduleAlert(
+                        id: "phase_8h",
+                        title: String(localized: "Fat Burning Mode 🔥"),
+                        body: String(localized: "Glycogen is depleted. Your body is switching to fat for fuel."),
+                        delayInSeconds: 8 * 3600
+                    )
                 }
                 if target > 12 {
-                    self.scheduleAlert(id: "phase_12h", title: "Ketosis Achieved 🧠", body: "Your liver is now producing ketones for energy and mental clarity.", delayInSeconds: 12 * 3600)
+                    self.scheduleAlert(
+                        id: "phase_12h",
+                        title: String(localized: "Ketosis Achieved 🧠"),
+                        body: String(localized: "Your liver is now producing ketones for energy and mental clarity."),
+                        delayInSeconds: 12 * 3600
+                    )
                 }
                 if target > 16 {
-                    self.scheduleAlert(id: "phase_16h", title: "Autophagy Started 🧬", body: "Cellular repair and anti-aging processes are fully active.", delayInSeconds: 16 * 3600)
+                    self.scheduleAlert(
+                        id: "phase_16h",
+                        title: String(localized: "Autophagy Started 🧬"),
+                        body: String(localized: "Cellular repair and anti-aging processes are fully active."),
+                        delayInSeconds: 16 * 3600
+                    )
                 }
             }
         }

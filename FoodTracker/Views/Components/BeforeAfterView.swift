@@ -76,6 +76,7 @@ struct BeforeAfterView: View {
     @State private var analysisError: String?
     @State private var didRestorePersisted = false
     @State private var analysisTask: Task<Void, Never>?
+    @State private var showPhotoConsentSheet = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -172,6 +173,17 @@ struct BeforeAfterView: View {
             }
             analysisResult = nil
             analysisError = nil
+        }
+        .sheet(isPresented: $showPhotoConsentSheet) {
+            AIPhotoConsentSheet(
+                onAllow: {
+                    showPhotoConsentSheet = false
+                    triggerAnalysis(force: true)
+                },
+                onDecline: {
+                    showPhotoConsentSheet = false
+                }
+            )
         }
     }
     
@@ -363,6 +375,10 @@ struct BeforeAfterView: View {
         guard !isAnalyzing else { return }
         if !force && analysisResult != nil { return }
         guard let before = beforeImage, let after = afterImage else { return }
+        guard AIPhotoConsentManager.shared.hasConsented else {
+            showPhotoConsentSheet = true
+            return
+        }
 
         isAnalyzing = true
         analysisError = nil

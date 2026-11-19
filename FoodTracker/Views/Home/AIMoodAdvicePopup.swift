@@ -59,9 +59,10 @@ enum MoodAdviceBaseline {
                 String(localized: "Stress raises cortisol and cravings. Try warm tea, slow breathing, and a steady meal—I'm here if you want to chat.")
             )
         default:
+            let localizedMood = String(localized: String.LocalizationValue(moodName))
             return (
                 String(localized: "AI Coach Insights"),
-                String(localized: "Noticing how '\(moodName)' connects with meals and hydration helps build sustainable habits over time.")
+                String(localized: "Noticing how '\(localizedMood)' connects with meals and hydration helps build sustainable habits over time.")
             )
         }
     }

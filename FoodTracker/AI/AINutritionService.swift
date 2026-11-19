@@ -173,8 +173,48 @@ struct MacroFixAdviceDTO: Codable, Identifiable {
 
     struct SnackIdea: Codable, Hashable {
         let name: String
-        @FlexibleInt var calories: Int
-        @FlexibleInt var protein: Int
+        let calories: Int
+        let protein: Int
+        let fats: Int
+        let carbs: Int
+        let weight: Double
+
+        private enum CodingKeys: String, CodingKey {
+            case name, calories, protein, fats, fat, carbs, weight
+        }
+
+        init(name: String, calories: Int, protein: Int, fats: Int = 0, carbs: Int = 0, weight: Double = 100.0) {
+            self.name = name
+            self.calories = calories
+            self.protein = protein
+            self.fats = fats
+            self.carbs = carbs
+            self.weight = weight
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            name = try container.decode(String.self, forKey: .name)
+            calories = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .calories))?.wrappedValue ?? 0
+            protein = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .protein))?.wrappedValue ?? 0
+            let parsedFats = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .fats))?.wrappedValue
+                ?? (try? container.decodeIfPresent(FlexibleInt.self, forKey: .fat))?.wrappedValue
+                ?? 0
+            fats = parsedFats
+            carbs = (try? container.decodeIfPresent(FlexibleInt.self, forKey: .carbs))?.wrappedValue ?? 0
+            let parsedWeight = (try? container.decodeIfPresent(FlexibleDouble.self, forKey: .weight))?.wrappedValue ?? 100.0
+            weight = parsedWeight > 0 ? parsedWeight : 100.0
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(name, forKey: .name)
+            try container.encode(calories, forKey: .calories)
+            try container.encode(protein, forKey: .protein)
+            try container.encode(fats, forKey: .fats)
+            try container.encode(carbs, forKey: .carbs)
+            try container.encode(weight, forKey: .weight)
+        }
     }
 }
 
@@ -267,8 +307,10 @@ class AINutritionService {
         Use this exact schema:
         {
           "title": "String (a creative name for the dish)",
-          "calories": Int (estimated total calories),
-          "protein": Int (estimated total protein in grams),
+          "calories": Int (estimated total calories per serving),
+          "protein": Int (estimated protein in grams per serving),
+          "fat": Int (estimated fat in grams per serving),
+          "carbs": Int (estimated carbs in grams per serving),
           "cookTime": Int (estimated cooking time in minutes),
           "difficulty": Int (1 to 5),
           "history": "String (a short fun fact or history about this dish or ingredients)",
@@ -354,13 +396,13 @@ class AINutritionService {
         """
         
         if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self) {
-            guard !dto.days.isEmpty else { return nil }
-            let plan = WeeklyMealPlan(targetCalories: targetCalories, dietType: diet)
             let normalizedDays = Self.normalizedPlanDays(dto.days)
+            guard !normalizedDays.isEmpty else { return nil }
+            let plan = WeeklyMealPlan(targetCalories: targetCalories, dietType: diet)
 
-            for (idx, dayDTO) in normalizedDays.enumerated() {
+            for dayDTO in normalizedDays {
                 let day = MealPlanDay(
-                    dayIndex: idx,
+                    dayIndex: dayDTO.dayIndex,
                     totalCalories: dayDTO.totalCalories,
                     totalProtein: dayDTO.totalProtein,
                     totalCarbs: dayDTO.totalCarbs,
@@ -389,9 +431,30 @@ class AINutritionService {
         return nil
     }
 
-    /// Normalizes LLM-emitted day indices (e.g. 1...7 or unsorted days) to sequential 0...6 order.
+    /// Normalizes LLM-emitted day indices (e.g. 1...7, duplicate, or unsorted days) to sequential 0...6 order.
     static func normalizedPlanDays(_ days: [AIWeeklyPlanDayDTO]) -> [AIWeeklyPlanDayDTO] {
-        days.sorted { $0.dayIndex < $1.dayIndex }
+        let isOneBased = !days.isEmpty
+            && !days.contains(where: { $0.dayIndex == 0 })
+            && days.contains(where: { $0.dayIndex == 7 })
+            && days.allSatisfy { (1...7).contains($0.dayIndex) }
+
+        let remapped = days.compactMap { dto -> AIWeeklyPlanDayDTO? in
+            let normalizedIndex = isOneBased ? (dto.dayIndex - 1) : dto.dayIndex
+            guard (0..<7).contains(normalizedIndex) else { return nil }
+            return AIWeeklyPlanDayDTO(
+                dayIndex: normalizedIndex,
+                totalCalories: dto.totalCalories,
+                totalProtein: dto.totalProtein,
+                totalCarbs: dto.totalCarbs,
+                totalFat: dto.totalFat,
+                meals: dto.meals
+            )
+        }
+
+        var seenIndices: Set<Int> = []
+        return remapped
+            .sorted { $0.dayIndex < $1.dayIndex }
+            .filter { seenIndices.insert($0.dayIndex).inserted }
     }
 
     func sendChatMessage(prompt: String, userContext: String, activeDiet: String, history: [AIChatMessage] = []) async -> String? {
@@ -433,7 +496,7 @@ class AINutritionService {
           "title": "Short punchy title",
           "explanation": "1 short sentence explaining what to focus on",
           "suggestedSnacks": [
-            {"name": "Greek Yogurt with Almonds", "calories": 200, "protein": 15}
+            {"name": "Greek Yogurt with Almonds", "calories": 200, "protein": 15, "fats": 8, "carbs": 14, "weight": 200}
           ]
         }
         """
@@ -479,7 +542,7 @@ class AINutritionService {
         Respond ONLY with a raw JSON object. No Markdown:
         {"title": "Short encouraging title", "message": "2 concise, helpful sentences."}
         """
-        return await fetchFromGemini(prompt: prompt, responseType: MoodAdviceDTO.self)
+        return await fetchFromGemini(prompt: prompt, responseType: MoodAdviceDTO.self, suppressRateLimitAlert: true)
     }
 
     func generateChefRecipe(dishQuery: String, remainingCalories: Int, activeDiet: String) async -> AIChefRecipe? {

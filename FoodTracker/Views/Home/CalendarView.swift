@@ -2,25 +2,19 @@ import SwiftUI
 import SwiftData
 
 struct CalendarCarouselView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @Binding var selectedDate: Date
     @State private var showingFullCalendar = false
-    @Query private var summaries: [DailySummary]
+    @State private var currentDayStart = Calendar.current.startOfDay(for: Date())
+    @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
 
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let startDate = calendar.date(byAdding: .day, value: -35, to: today) ?? today
-        let endDate = calendar.date(byAdding: .day, value: 1, to: today) ?? today
-        self._summaries = Query(
-            filter: #Predicate<DailySummary> { $0.date >= startDate && $0.date < endDate }
-        )
     }
 
     private var days: [Date] {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        return (-30...0).compactMap { calendar.date(byAdding: .day, value: $0, to: today) }
+        return (-30...0).compactMap { calendar.date(byAdding: .day, value: $0, to: currentDayStart) }
     }
 
     enum DayStatus {
@@ -165,6 +159,14 @@ struct CalendarCarouselView: View {
                 .presentationDetents([.medium, .large])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                let freshStart = Calendar.current.startOfDay(for: Date())
+                if freshStart != currentDayStart {
+                    currentDayStart = freshStart
+                }
+            }
         }
     }
 

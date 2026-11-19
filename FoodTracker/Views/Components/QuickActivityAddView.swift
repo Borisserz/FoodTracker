@@ -170,6 +170,12 @@ struct QuickActivityAddView: View {
             workoutDate = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: summary.date) ?? summary.date
         }
 
+        let previousLocalCals = targetSummary.localActivityCalories
+        let priorExternalWorkouts = WorkoutSyncManager.priorExternalWorkoutCalories(
+            totalWorkoutCalories: targetSummary.workoutCalories,
+            previousLocalActivityCalories: previousLocalCals
+        )
+
         let log = ActivityLog(title: activity.name, icon: activity.icon, durationMinutes: duration, calories: cals, date: workoutDate)
         context.insert(log)
         targetSummary.addActivity(log)
@@ -179,7 +185,8 @@ struct QuickActivityAddView: View {
         let reconciled = WorkoutSyncManager.computeDailyBurn(
             localActivityCalories: targetSummary.localActivityCalories,
             workoutTrackerCalories: wtCals,
-            healthKitWorkoutCalories: targetSummary.workoutCalories,
+            healthKitWorkoutCalories: priorExternalWorkouts,
+            otherExternalWorkoutCalories: 0,
             healthKitTotalActiveCalories: max(targetSummary.activeCaloriesBurned, targetSummary.activeCaloriesBurned + cals),
             stepsCount: targetSummary.stepsCount,
             isHealthKitEnabled: shouldSyncHealthKit

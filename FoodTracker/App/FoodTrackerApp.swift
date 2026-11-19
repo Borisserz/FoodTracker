@@ -227,6 +227,14 @@ struct ContentView: View {
                 ShoppingListView()
             }
         }
+        .sheet(isPresented: Binding(
+            get: { appState.requestedWidgetAction == "fasting" },
+            set: { if !$0 { appState.requestedWidgetAction = nil } }
+        )) {
+            NavigationStack {
+                FastingDashboardView()
+            }
+        }
         .onAppear {
             initializeUserIfNeeded()
             SpotlightTourManager.shared.startTourIfNeeded()

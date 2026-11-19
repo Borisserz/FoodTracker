@@ -52,6 +52,9 @@ final class AppStateManagerTests: XCTestCase {
         XCTAssertTrue(state.handleWidgetURL(URL(string: "foodtracker://shopping")!))
         XCTAssertEqual(state.requestedWidgetAction, "shopping")
 
+        XCTAssertTrue(state.handleWidgetURL(URL(string: "foodtracker://fasting")!))
+        XCTAssertEqual(state.requestedWidgetAction, "fasting")
+
         XCTAssertFalse(state.handleWidgetURL(URL(string: "https://example.com/other")!))
     }
 }

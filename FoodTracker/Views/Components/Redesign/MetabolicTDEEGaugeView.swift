@@ -68,17 +68,22 @@ struct MetabolicTDEEGaugeView: View {
     }
     
     private var tdeeValue: Int {
-        // Base Mifflin-St Jeor TDEE estimate
-        let bmr: Double
+        Self.computeTDEE(for: user, currentWeight: currentWeight)
+    }
+
+    static func computeTDEE(for user: User, currentWeight: Double) -> Int {
+        // Base Mifflin-St Jeor TDEE estimate (aligned with User.calculateGoals() 1200 kcal BMR floor)
+        let rawBMR: Double
         let weight = currentWeight > 0 ? currentWeight : 75.0
         let height = user.height > 0 ? user.height : 178.0
         let age = user.age > 0 ? Double(user.age) : 28.0
-        
+
         if user.gender == "Female" {
-            bmr = 10 * weight + 6.25 * height - 5 * age - 161
+            rawBMR = 10 * weight + 6.25 * height - 5 * age - 161
         } else {
-            bmr = 10 * weight + 6.25 * height - 5 * age + 5
+            rawBMR = 10 * weight + 6.25 * height - 5 * age + 5
         }
+        let bmr = max(1200, rawBMR)
         let multiplier = user.activityMultiplier > 0 ? user.activityMultiplier : 1.3
         return Int(bmr * multiplier)
     }

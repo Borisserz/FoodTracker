@@ -178,15 +178,17 @@ struct Achievement: Identifiable {
     var colorHex: String = ""
     var caloriesPerGlass: Int = 0
     var volumeMl: Double = 0.0
+    var healthKitSampleID: String? = nil
     var parentDailySummary: DailySummary?
 
-    init(date: Date = Date(), name: String, icon: String, colorHex: String, caloriesPerGlass: Int, volumeMl: Double = 250.0) {
+    init(date: Date = Date(), name: String, icon: String, colorHex: String, caloriesPerGlass: Int, volumeMl: Double = 250.0, healthKitSampleID: String? = nil) {
         self.date = date
         self.name = name
         self.icon = icon
         self.colorHex = colorHex
         self.caloriesPerGlass = caloriesPerGlass
         self.volumeMl = volumeMl
+        self.healthKitSampleID = healthKitSampleID
     }
 }
 
@@ -206,6 +208,7 @@ struct Achievement: Identifiable {
     var iron: Double = 0.0
     var vitaminC: Double = 0.0
     var vitaminD: Double = 0.0
+    var healthKitSampleID: String? = nil
     var parentMeal: Meal?
     var parentRecipe: CustomRecipe?
 
@@ -333,6 +336,27 @@ struct Achievement: Identifiable {
 
     func remainingCalories(userGoal: Int) -> Int {
         return (userGoal + activeCaloriesBurned) - totalCalories
+    }
+
+    struct DeletedFoodHealthSample: Equatable {
+        let sampleID: String?
+        let calories: Int
+    }
+
+    @MainActor
+    @discardableResult
+    func removeFoodItem(_ food: FoodItem, from meal: Meal, in context: ModelContext) -> DeletedFoodHealthSample? {
+        guard let index = meal.foodItems?.firstIndex(where: { $0.id == food.id }) else {
+            return nil
+        }
+        let info = DeletedFoodHealthSample(sampleID: food.healthKitSampleID, calories: food.calories)
+        meal.foodItems?.remove(at: index)
+        context.delete(food)
+        if (meal.foodItems ?? []).isEmpty {
+            meals?.removeAll { $0.id == meal.id }
+            context.delete(meal)
+        }
+        return info
     }
 
     init(date: Date, meals: [Meal] = [], beverages: [Beverage] = [], activities: [ActivityLog] = []) {
@@ -571,6 +595,34 @@ extension FoodItem {
         self.isChecked = isChecked
         self.addedFromRecipe = addedFromRecipe
         self.dateAdded = Date()
+    }
+
+    @MainActor
+    @discardableResult
+    static func insertDeduplicated(
+        items: [(name: String, amount: String)],
+        recipeTitle: String? = nil,
+        in context: ModelContext
+    ) -> Int {
+        let existingItems = (try? context.fetch(FetchDescriptor<ShoppingItem>())) ?? []
+        var seenKeys = Set(
+            existingItems.map { $0.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+        )
+        var insertedCount = 0
+        for entry in items {
+            let trimmedName = entry.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedName.isEmpty else { continue }
+            let key = trimmedName.lowercased()
+            guard seenKeys.insert(key).inserted else { continue }
+            let item = ShoppingItem(
+                name: trimmedName,
+                amount: entry.amount.trimmingCharacters(in: .whitespacesAndNewlines),
+                addedFromRecipe: recipeTitle
+            )
+            context.insert(item)
+            insertedCount += 1
+        }
+        return insertedCount
     }
 }
 

@@ -7,6 +7,7 @@ struct FastingActivityWidget: Widget {
         ActivityConfiguration(for: FastingAttributes.self) { context in
             // Lock Screen & Notification View
             LockScreenFastingView(context: context)
+                .widgetURL(URL(string: "foodtracker://fasting"))
         } dynamicIsland: { context in
             // Dynamic Island View
             DynamicIsland {
@@ -16,7 +17,11 @@ struct FastingActivityWidget: Widget {
                         .foregroundColor(.orange)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    FastingCountdownText(targetEndDate: context.attributes.targetEndDate)
+                    FastingCountdownText(
+                        targetEndDate: context.attributes.targetEndDate,
+                        isCompleted: context.state.isCompleted,
+                        isStale: context.isStale
+                    )
                         .multilineTextAlignment(.trailing)
                         .frame(minWidth: 50)
                         .lineLimit(1)
@@ -34,7 +39,11 @@ struct FastingActivityWidget: Widget {
                 Image(systemName: "flame.fill")
                     .foregroundColor(.orange)
             } compactTrailing: {
-                FastingCountdownText(targetEndDate: context.attributes.targetEndDate)
+                FastingCountdownText(
+                    targetEndDate: context.attributes.targetEndDate,
+                    isCompleted: context.state.isCompleted,
+                    isStale: context.isStale
+                )
                     .monospacedDigit()
                     .frame(minWidth: 45)
                     .lineLimit(1)
@@ -43,6 +52,7 @@ struct FastingActivityWidget: Widget {
                 Image(systemName: "flame.fill")
                     .foregroundColor(.orange)
             }
+            .widgetURL(URL(string: "foodtracker://fasting"))
         }
     }
 }
@@ -91,7 +101,11 @@ struct LockScreenFastingView: View {
                         Text("Ends in:")
                             .font(.caption)
                             .foregroundColor(.gray)
-                        FastingCountdownText(targetEndDate: context.attributes.targetEndDate)
+                        FastingCountdownText(
+                            targetEndDate: context.attributes.targetEndDate,
+                            isCompleted: context.state.isCompleted,
+                            isStale: context.isStale
+                        )
                             .font(.caption.bold())
                             .monospacedDigit()
                             .foregroundColor(.orange)
@@ -109,9 +123,12 @@ struct LockScreenFastingView: View {
 
 private struct FastingCountdownText: View {
     let targetEndDate: Date
+    let isCompleted: Bool
+    let isStale: Bool
 
     var body: some View {
-        if let interval = FastingActivityTiming.remainingInterval(targetEndDate: targetEndDate) {
+        if !isCompleted && !isStale,
+           let interval = FastingActivityTiming.remainingInterval(targetEndDate: targetEndDate) {
             Text(timerInterval: interval, countsDown: true)
         } else {
             Text("Done")

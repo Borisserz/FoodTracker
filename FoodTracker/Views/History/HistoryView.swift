@@ -22,6 +22,7 @@ struct FoodsDashboardView: View {
     @State private var dataLoader = RecipeDataLoader.shared
     @State private var academyLoader = AcademyDataLoader.shared
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
+    @Query private var users: [User]
 
     @State private var selectedFilter: String = "All"
     @State private var pendingDeleteMeal: Meal? = nil
@@ -180,10 +181,26 @@ struct FoodsDashboardView: View {
     }
 
     private func deleteMeal(_ meal: Meal) {
+        let shouldSyncHK = users.first?.isHealthKitEnabled == true
+        let mealDate = meal.date
+        let deletedSamples = (meal.foodItems ?? []).map {
+            DailySummary.DeletedFoodHealthSample(sampleID: $0.healthKitSampleID, calories: $0.calories)
+        }
         withAnimation {
             context.delete(meal)
             try? context.save()
             WidgetReloader.reloadAll()
+        }
+        if shouldSyncHK {
+            Task {
+                for sample in deletedSamples {
+                    await HealthKitManager.shared.deleteDietaryEnergySample(
+                        idString: sample.sampleID,
+                        caloriesFallback: sample.calories,
+                        date: mealDate
+                    )
+                }
+            }
         }
     }
 
@@ -455,7 +472,7 @@ struct FastingWideCard: View {
                     }
                     
                     if manager.isFasting {
-                        Text("Current: \(manager.planName) • \(manager.elapsedTimeString) elapsed")
+                        Text("Current: \(String(localized: String.LocalizationValue(manager.planName))) • \(manager.elapsedTimeString) elapsed")
                             .font(.system(.subheadline, weight: .semibold))
                             .foregroundStyle(.secondary)
                             .lineLimit(1)

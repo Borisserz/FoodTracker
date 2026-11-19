@@ -37,6 +37,7 @@ struct HomeDashboardContentView: View {
     @State private var showingManualAdd = false
     @State private var selectedFoodForDetail: FoodItem? = nil
     @State private var isMenuExpanded = false
+    @State private var lastActiveDayStart: Date = Calendar.current.startOfDay(for: Date())
 
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
@@ -312,6 +313,13 @@ struct HomeDashboardContentView: View {
               }
               .onChange(of: scenePhase) { _, newPhase in
                   if newPhase == .active {
+                      let todayStart = Calendar.current.startOfDay(for: Date())
+                      if todayStart != lastActiveDayStart {
+                          if Calendar.current.isDate(selectedDate, inSameDayAs: lastActiveDayStart) {
+                              selectedDate = todayStart
+                          }
+                          lastActiveDayStart = todayStart
+                      }
                       let persisted = DailySummary.fetchOrCreate(for: selectedDate, in: context)
                       Task { await fetchHealthData(for: persisted) }
                   }
@@ -396,7 +404,10 @@ struct HomeDashboardContentView: View {
 
             var fetchedSteps = persistedSummary.stepsCount
             var hkTotalActiveCals = persistedSummary.activeCaloriesBurned
-            var hkWorkoutCals = 0
+            var hkWorkoutBreakdown = HealthKitManager.ExternalWorkoutCaloriesBreakdown(
+                workoutTrackerCalories: 0,
+                otherExternalCalories: 0
+            )
 
             if isHKEnabled {
                 do {
@@ -408,18 +419,33 @@ struct HomeDashboardContentView: View {
                 } catch { print("Health cals error: \(error)") }
 
                 do {
-                    hkWorkoutCals = try await HealthKitManager.shared.fetchExternalWorkoutCalories(for: targetDate)
+                    hkWorkoutBreakdown = try await HealthKitManager.shared.fetchExternalWorkoutBreakdown(for: targetDate)
                 } catch { print("HK workout cals error: \(error)") }
             }
 
             let reconciled = WorkoutSyncManager.computeDailyBurn(
                 localActivityCalories: localCals,
                 workoutTrackerCalories: wtAppGroupCals,
-                healthKitWorkoutCalories: hkWorkoutCals,
+                healthKitWorkoutCalories: hkWorkoutBreakdown.workoutTrackerCalories,
+                otherExternalWorkoutCalories: hkWorkoutBreakdown.otherExternalCalories,
                 healthKitTotalActiveCalories: hkTotalActiveCals,
                 stepsCount: fetchedSteps,
                 isHealthKitEnabled: isHKEnabled
             )
+
+            let pendingWidgetWaterLiters = isHKEnabled
+                ? WorkoutSyncManager.shared.consumePendingWidgetWaterLiters(for: targetDate)
+                : 0.0
+            if pendingWidgetWaterLiters > 0 {
+                if let sampleUUID = await HealthKitManager.shared.saveWater(liters: pendingWidgetWaterLiters, date: Date()) {
+                    await MainActor.run {
+                        if let untaggedWater = (persistedSummary.beverages ?? []).last(where: { $0.name == "Water" && $0.healthKitSampleID == nil }) {
+                            untaggedWater.healthKitSampleID = sampleUUID.uuidString
+                            try? context.save()
+                        }
+                    }
+                }
+            }
 
             await MainActor.run {
                 var needsSave = WorkoutSyncManager.shared.reconcileWater(for: persistedSummary, in: context)
@@ -477,9 +503,18 @@ struct HomeDashboardContentView: View {
         
         let addedCals = newFoodItems.reduce(0) { $0 + $1.calories }
         TrackingManager.shared.track(.mealLogged(mealType: canonicalTitle, totalCalories: addedCals))
-        if currentUser?.isHealthKitEnabled == true && addedCals > 0 {
-            Task {
-                await HealthKitManager.shared.saveDietaryEnergy(calories: addedCals, date: mealTimestamp)
+        if currentUser?.isHealthKitEnabled == true {
+            let itemsToSync = newFoodItems.filter { $0.calories > 0 }
+            let container = context.container
+            Task { @MainActor in
+                for item in itemsToSync {
+                    if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: item.calories, date: mealTimestamp) {
+                        item.healthKitSampleID = uuid.uuidString
+                    }
+                }
+                if !itemsToSync.isEmpty {
+                    try? container.mainContext.save()
+                }
             }
         }
     }
@@ -719,16 +754,22 @@ struct MealDetailView: View {
     }
 
     private func deleteFoodItem(_ food: FoodItem) {
-        if let meal = meal, let index = meal.foodItems?.firstIndex(where: { $0.id == food.id }) {
-            withAnimation {
-                meal.foodItems?.remove(at: index)
-                context.delete(food)
-                if (meal.foodItems ?? []).isEmpty {
-                    summaries.first?.meals?.removeAll { $0.id == meal.id }
-                    context.delete(meal)
-                }
-                try? context.save()
-                WidgetReloader.reloadAll()
+        guard let summary = summaries.first, let meal = meal else { return }
+        let shouldSyncHK = users.first?.isHealthKitEnabled == true
+        let logDate = meal.date
+        var deletedInfo: DailySummary.DeletedFoodHealthSample?
+        withAnimation {
+            deletedInfo = summary.removeFoodItem(food, from: meal, in: context)
+            try? context.save()
+            WidgetReloader.reloadAll()
+        }
+        if shouldSyncHK, let deletedInfo {
+            Task {
+                await HealthKitManager.shared.deleteDietaryEnergySample(
+                    idString: deletedInfo.sampleID,
+                    caloriesFallback: deletedInfo.calories,
+                    date: logDate
+                )
             }
         }
     }
@@ -749,7 +790,9 @@ struct MealDetailView: View {
                         title: dto.title,
                         calories: dto.calories,
                         protein: dto.protein,
-                        heroImage: "agent_chef",
+                        fat: dto.fat,
+                        carbs: dto.carbs,
+                        heroImage: "fork.knife",
                         cookTime: dto.cookTime,
                         difficulty: dto.difficulty,
                         history: dto.history,
@@ -759,8 +802,10 @@ struct MealDetailView: View {
                     )
                 } else {
                     HapticManager.shared.notification(type: .error)
-                    self.recipeGenerationError = "AI Chef needs a break! Please check your connection and try again."
-                    self.showingRecipeError = true
+                    if !GeminiProxyClient.shouldSuppressSecondaryErrorAlert {
+                        self.recipeGenerationError = String(localized: "AI Chef needs a break! Please check your connection and try again.")
+                        self.showingRecipeError = true
+                    }
                 }
             }
         }
@@ -945,7 +990,8 @@ struct MealDetailView: View {
         }
         .fullScreenCover(item: $selectedFoodForDetail) { food in
             FoodDetailNutritionView(food: food, mealTitle: title, isEditing: true) { updatedFood in
-                let deltaCalories = updatedFood.calories - food.calories
+                let oldCalories = food.calories
+                let oldSampleID = food.healthKitSampleID
                 food.name = updatedFood.name
                 food.weight = updatedFood.weight
                 food.calories = updatedFood.calories
@@ -961,10 +1007,17 @@ struct MealDetailView: View {
                 food.vitaminD = updatedFood.vitaminD
                 try? context.save()
                 WidgetReloader.reloadAll()
-                if users.first?.isHealthKitEnabled == true && deltaCalories > 0 {
+                if users.first?.isHealthKitEnabled == true && oldCalories != updatedFood.calories {
                     let logDate = meal?.date ?? date
-                    Task {
-                        await HealthKitManager.shared.saveDietaryEnergy(calories: deltaCalories, date: logDate)
+                    let container = context.container
+                    Task { @MainActor in
+                        food.healthKitSampleID = await HealthKitManager.shared.syncEditedDietaryEnergy(
+                            oldID: oldSampleID,
+                            oldCalories: oldCalories,
+                            newCalories: updatedFood.calories,
+                            date: logDate
+                        )
+                        try? container.mainContext.save()
                     }
                 }
             }
@@ -1577,7 +1630,7 @@ struct DailyNoteSheet: View {
                                             )
                                             .cornerRadius(20)
 
-                                        Text(mood.1)
+                                        Text(LocalizedStringKey(mood.1))
                                             .font(.caption)
                                             .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
                                             .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
@@ -1585,8 +1638,8 @@ struct DailyNoteSheet: View {
                                     .frame(minWidth: 64, minHeight: 80) // Ensure good tap target per HIG (44pt minimum)
                                 }
                                 .buttonStyle(PlainButtonStyle())
-                                .accessibilityLabel("\(mood.1) mood")
-                                .accessibilityValue(summary.dayMoodEmoji == mood.0 ? "Selected" : "Not selected")
+                                .accessibilityLabel(Text("\(String(localized: String.LocalizationValue(mood.1))) mood"))
+                                .accessibilityValue(summary.dayMoodEmoji == mood.0 ? String(localized: "Selected") : String(localized: "Not selected"))
                                 .accessibilityAddTraits(.isButton)
                             }
                         }
@@ -1640,8 +1693,9 @@ struct DailyNoteSheet: View {
             waterLiters: summary.totalHydrationLiters,
             activeDiet: user?.activeDietKey ?? "Balanced"
         ) {
+            let localizedMoodName = String(localized: String.LocalizationValue(moodName))
             selectedMoodForAI = nil
-            moodContextForChat = "I feel \(moodName) \(emoji) right now. Can we talk about it?"
+            moodContextForChat = String(localized: "I feel \(localizedMoodName) \(emoji) right now. Can we talk about it?")
             showAIChat = true
         }
     }
@@ -1656,15 +1710,25 @@ struct DailyNoteSheet: View {
 struct DailyLogDetailView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
+    @Query private var users: [User]
     let summary: DailySummary
 
     private func deleteFoodItem(_ food: FoodItem, from meal: Meal) {
-        if let index = meal.foodItems?.firstIndex(where: { $0.id == food.id }) {
-            withAnimation {
-                meal.foodItems?.remove(at: index)
-                context.delete(food)
-                try? context.save()
-                WidgetReloader.reloadAll()
+        let shouldSyncHK = users.first?.isHealthKitEnabled == true
+        let logDate = meal.date
+        var deletedInfo: DailySummary.DeletedFoodHealthSample?
+        withAnimation {
+            deletedInfo = summary.removeFoodItem(food, from: meal, in: context)
+            try? context.save()
+            WidgetReloader.reloadAll()
+        }
+        if shouldSyncHK, let deletedInfo {
+            Task {
+                await HealthKitManager.shared.deleteDietaryEnergySample(
+                    idString: deletedInfo.sampleID,
+                    caloriesFallback: deletedInfo.calories,
+                    date: logDate
+                )
             }
         }
     }

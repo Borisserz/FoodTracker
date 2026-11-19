@@ -29,6 +29,10 @@
 		8A80201B77208F06AF7BBAAE /* GeminiProxyClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E22070AC64BC30036F85C3 /* GeminiProxyClientTests.swift */; };
 		95080326C79AE559C61E789E /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2E4BE762F9C667AA318DD5 /* DataModels.swift */; };
 		9B30BA9C52B7F16ACAA425AC /* AICoachViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 992019EFA64F838EFAF561FE /* AICoachViewModelTests.swift */; };
+		B1A000010000000000000002 /* AIPhotoConsentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000010000000000000001 /* AIPhotoConsentTests.swift */; };
+		B1A000020000000000000002 /* PrivacyManifestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000020000000000000001 /* PrivacyManifestTests.swift */; };
+		B1A000030000000000000002 /* WorkoutSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000030000000000000001 /* WorkoutSyncManager.swift */; };
+		B1A000040000000000000002 /* RecipeTagCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000040000000000000001 /* RecipeTagCatalogTests.swift */; };
 		AC5031B52FD818F600C2DD0A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B42FD818F600C2DD0A /* FirebaseAuth */; };
 		AC5031B72FD818FC00C2DD0A /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B62FD818FC00C2DD0A /* FirebaseCrashlytics */; };
 		AC5031B92FD8191600C2DD0A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B82FD8191600C2DD0A /* FirebaseAppCheck */; };
@@ -113,6 +117,10 @@
 		97F1E3046BDC7EF954BFB294 /* FoodTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FoodTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		992019EFA64F838EFAF561FE /* AICoachViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AICoachViewModelTests.swift; sourceTree = "<group>"; };
 		A36ED771EFBC179A288E27ED /* FoodTrackerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FoodTrackerTests.swift; sourceTree = "<group>"; };
+		B1A000010000000000000001 /* AIPhotoConsentTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AIPhotoConsentTests.swift; sourceTree = "<group>"; };
+		B1A000020000000000000001 /* PrivacyManifestTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PrivacyManifestTests.swift; sourceTree = "<group>"; };
+		B1A000030000000000000001 /* WorkoutSyncManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WorkoutSyncManager.swift; path = Services/WorkoutSyncManager.swift; sourceTree = "<group>"; };
+		B1A000040000000000000001 /* RecipeTagCatalogTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecipeTagCatalogTests.swift; sourceTree = "<group>"; };
 		AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		ACD93EFF2F8AC7E200868265 /* FoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B698F0C0F0C1BF19AA836CC1 /* SharedModelContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedModelContainer.swift; sourceTree = "<group>"; };
@@ -208,6 +216,7 @@
 			isa = PBXGroup;
 			children = (
 				0864CE3F5DF6FDAA86077301 /* Models */,
+				B1A000030000000000000001 /* WorkoutSyncManager.swift */,
 			);
 			name = FoodTracker;
 			path = FoodTracker;
@@ -320,6 +329,9 @@
 				F486F8089FE6062DDC93AEE7 /* Info.plist */,
 				CEA179B8F98B8ABAD182BC01 /* SocialAuthServiceTests.swift */,
 				DC0B4B64C18D8120541A4EC4 /* OnboardingBlueprintTests.swift */,
+				B1A000010000000000000001 /* AIPhotoConsentTests.swift */,
+				B1A000020000000000000001 /* PrivacyManifestTests.swift */,
+				B1A000040000000000000001 /* RecipeTagCatalogTests.swift */,
 			);
 			name = FoodTrackerTests;
 			path = FoodTrackerTests;
@@ -555,6 +567,9 @@
 				4EC7D90BE626683AF617D422 /* VertexAIManagerTests.swift in Sources */,
 				7478CC04707572C1E3D496CB /* SocialAuthServiceTests.swift in Sources */,
 				ECE8044E4385930F846080C4 /* OnboardingBlueprintTests.swift in Sources */,
+				B1A000010000000000000002 /* AIPhotoConsentTests.swift in Sources */,
+				B1A000020000000000000002 /* PrivacyManifestTests.swift in Sources */,
+				B1A000040000000000000002 /* RecipeTagCatalogTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -578,6 +593,7 @@
 				F520850EAF2A4D93D620E33B /* SharedModelContainer.swift in Sources */,
 				1D05E9C7BCC1C2A35A691A74 /* FastingAttributes.swift in Sources */,
 				EC025169B1B3720B5CEEDD13 /* FastingActivityWidget.swift in Sources */,
+				B1A000030000000000000002 /* WorkoutSyncManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
