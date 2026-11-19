@@ -291,11 +291,11 @@ private struct MoreNavCard: View {
 
                 // Text
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(item.title)
+                    Text(LocalizedStringKey(item.title))
                         .font(.system(size: 17, weight: .black, design: .rounded))
                         .foregroundStyle(.primary)
 
-                    Text(item.subtitle)
+                    Text(LocalizedStringKey(item.subtitle))
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

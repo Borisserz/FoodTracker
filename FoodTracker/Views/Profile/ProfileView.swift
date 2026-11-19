@@ -588,7 +588,7 @@ struct AccountSettingsView: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    @Query private var summaries: [DailySummary]
+    @State private var loggedDaysCount = 0
     let user: User
 
     @State private var isLoading = false
@@ -610,7 +610,7 @@ struct AccountSettingsView: View {
                     if !authManager.isAnonymous, let email = authManager.currentUserEmail {
                         AccountInfoRow(title: "Email", value: email)
                     } else {
-                        AccountInfoRow(title: "Total logged days", value: "\(summaries.count)")
+                        AccountInfoRow(title: "Total logged days", value: "\(loggedDaysCount)")
                     }
                 }
                 .padding(20)
@@ -619,6 +619,9 @@ struct AccountSettingsView: View {
                 .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                 .padding(.horizontal, 20)
                 .padding(.top, 24)
+                .task {
+                    loggedDaysCount = (try? context.fetchCount(FetchDescriptor<DailySummary>())) ?? 0
+                }
 
                 Spacer()
 
@@ -901,7 +904,7 @@ struct RemindersSettingsView: View {
                             .foregroundColor(.gray)
                             .padding(.bottom, 8)
 
-                        Toggle("Weight-in", isOn: $remindWeight).tint(.themeOrange)
+                        Toggle("Weigh-in", isOn: $remindWeight).tint(.themeOrange)
                     }
                     .premiumCardStyle()
                     .padding(.horizontal, 20)
@@ -1061,7 +1064,7 @@ struct ProfileStatItem: View {
                 Text(value).font(.system(size: 20, weight: .bold, design: .rounded))
                 Text(unit).font(.caption).foregroundColor(.gray)
             }
-            Text(title).font(.caption).foregroundColor(.gray)
+            Text(LocalizedStringKey(title)).font(.caption).foregroundColor(.gray)
         }.frame(maxWidth: .infinity)
     }
 }
@@ -1071,7 +1074,7 @@ struct MacroDotLabel: View {
     var body: some View {
         HStack(spacing: 4) {
             Circle().fill(color).frame(width: 8, height: 8)
-            Text(title).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundColor(.gray)
+            Text(LocalizedStringKey(title)).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundColor(.gray)
         }
     }
 }
@@ -1081,7 +1084,7 @@ struct MacroAdjusterRow: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack {
-                Text(title).font(.headline).foregroundColor(color)
+                Text(LocalizedStringKey(title)).font(.headline).foregroundColor(color)
                 Spacer()
                 Text("\(Int(pct))%").font(.headline.bold())
                 Text(" / \(grams)g").font(.subheadline).foregroundColor(.gray)
@@ -1159,7 +1162,7 @@ struct ThemeSettingsView: View {
                                 }
                             }
                             .padding()
-                            .background(Color.white.opacity(0.05))
+                            .background(Color.white)
                             .cornerRadius(12)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)

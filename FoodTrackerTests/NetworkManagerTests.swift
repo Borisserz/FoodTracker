@@ -11,6 +11,7 @@ final class NetworkManagerTests: XCTestCase {
         let session = URLSession(configuration: config)
         
         networkManager = NetworkManager.shared
+        networkManager.clearCacheForTesting()
         networkManager.session = session
         networkManager.appCheckTokenProvider = { "mock-appcheck-token" }
         networkManager.authTokenProvider = { "mock-auth-token" }
@@ -19,6 +20,7 @@ final class NetworkManagerTests: XCTestCase {
     
     override func tearDown() {
         MockURLProtocol.requestHandler = nil
+        networkManager.clearCacheForTesting()
         networkManager.session = .shared
         networkManager.searchProxyURLProvider = nil
         networkManager.refreshingProxyTokensProvider = nil
@@ -149,5 +151,48 @@ final class NetworkManagerTests: XCTestCase {
         XCTAssertEqual(item?.weight ?? 0, 60.0, accuracy: 0.01)
         XCTAssertEqual(item?.calories, 210)
         XCTAssertEqual(item?.protein ?? 0, 20.0, accuracy: 0.01)
+    }
+
+    func testBarcodeParsesUnitSuffixedServingQuantity() async {
+        MockURLProtocol.requestHandler = { request in
+            let servingOFF = #"""
+            {
+              "status": 1,
+              "product": {
+                "product_name": "Trail Mix",
+                "serving_quantity": "30 g",
+                "nutriments": {
+                  "energy-kcal_serving": 160,
+                  "proteins_serving": 5,
+                  "fat_serving": 10,
+                  "carbohydrates_serving": 12
+                }
+              }
+            }
+            """#.data(using: .utf8)!
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, servingOFF)
+        }
+
+        let item = await networkManager.fetchProduct(barcode: "77777777")
+        XCTAssertEqual(item?.name, "Trail Mix")
+        XCTAssertEqual(item?.weight ?? 0, 30.0, accuracy: 0.01)
+    }
+
+    func testBarcodeAndSearchCacheAvoidDuplicateNetworkRequestsAndReturnFreshFoodItems() async {
+        var requestCount = 0
+        MockURLProtocol.requestHandler = { request in
+            requestCount += 1
+            let offBarcode = #"{"status":1,"product":{"product_name":"Cached Oats","nutriments":{"energy-kcal_100g":380,"proteins_100g":13,"fat_100g":7,"carbohydrates_100g":65}}}"#.data(using: .utf8)!
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, offBarcode)
+        }
+
+        let first = await networkManager.fetchProduct(barcode: "99999999")
+        let second = await networkManager.fetchProduct(barcode: "99999999")
+        XCTAssertEqual(requestCount, 1)
+        XCTAssertEqual(first?.name, "Cached Oats")
+        XCTAssertEqual(second?.name, "Cached Oats")
+        XCTAssertFalse(first === second, "Cached lookup must return a distinct FoodItem instance for SwiftData")
     }
 }

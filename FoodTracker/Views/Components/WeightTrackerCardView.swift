@@ -9,6 +9,7 @@ struct WeightTrackerCardView: View {
 
     @Query private var allSummaries: [DailySummary]
     @Query private var users: [User]
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     init(summary: DailySummary) {
         self.summary = summary
@@ -23,11 +24,10 @@ struct WeightTrackerCardView: View {
     @State private var showingWeightInputSheet = false
 
     private var chartData: [(date: Date, weight: Double)] {
-
         allSummaries
             .filter { $0.weight != nil && $0.weight! > 0 }
             .prefix(7)
-            .map { (date: $0.date, weight: $0.weight!) }
+            .map { (date: $0.date, weight: NutritionMath.displayWeight($0.weight!, useMetric: useMetricSystem)) }
             .reversed()
     }
 
@@ -72,12 +72,13 @@ struct WeightTrackerCardView: View {
             HStack(alignment: .center, spacing: 20) {
                 VStack(alignment: .leading) {
                     if let weight = summary.weight, weight > 0 {
+                        let displayed = NutritionMath.displayWeight(weight, useMetric: useMetricSystem)
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text(String(format: "%.1f", weight))
+                            Text(String(format: "%.1f", displayed))
                                 .font(.system(size: 40, weight: .heavy, design: .rounded))
                                 .foregroundColor(.themeOrange)
-                                .contentTransition(.numericText(value: weight))
-                            Text("kg")
+                                .contentTransition(.numericText(value: displayed))
+                            Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
                                 .font(.title3.bold())
                                 .foregroundColor(.gray.opacity(0.8))
                         }
@@ -89,9 +90,10 @@ struct WeightTrackerCardView: View {
 
                     let trend = weightTrend
                     if trend.value != 0 {
+                        let displayedTrend = NutritionMath.displayWeight(trend.value, useMetric: useMetricSystem)
                         HStack(spacing: 4) {
                             Image(systemName: trend.icon)
-                            Text(String(format: "%+.1f kg", trend.value))
+                            Text(String(format: "%+.1f %@", displayedTrend, NutritionMath.weightUnit(useMetric: useMetricSystem)))
                         }
                         .font(.subheadline.bold())
                         .foregroundColor(trend.color)
@@ -172,13 +174,16 @@ private struct WeightInputSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var currentWeight: Double?
     var onSave: () -> Void
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
-    @State private var weightValue: Double
+    @State private var displayWeightValue: Double
 
     init(currentWeight: Binding<Double?>, onSave: @escaping () -> Void) {
         self._currentWeight = currentWeight
         self.onSave = onSave
-        self._weightValue = State(initialValue: currentWeight.wrappedValue ?? 75.0)
+        let metric = UserDefaults.standard.object(forKey: "useMetricSystem") as? Bool ?? true
+        let initialKg = currentWeight.wrappedValue ?? 75.0
+        self._displayWeightValue = State(initialValue: NutritionMath.displayWeight(initialKg, useMetric: metric))
     }
 
     var body: some View {
@@ -191,22 +196,22 @@ private struct WeightInputSheet: View {
                 .font(.headline)
 
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(String(format: "%.1f", weightValue))
+                Text(String(format: "%.1f", displayWeightValue))
                     .font(.system(size: 72, weight: .heavy, design: .rounded))
                     .contentTransition(.numericText())
-                Text("kg")
+                Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
                     .font(.title.bold())
                     .foregroundColor(.gray)
             }
 
             HStack(spacing: 20) {
-                WeightStepperButton(icon: "minus") { adjustWeight(by: -0.1) }
-                WeightStepperButton(icon: "plus") { adjustWeight(by: 0.1) }
+                WeightStepperButton(icon: "minus") { adjustWeight(by: useMetricSystem ? -0.1 : -0.2) }
+                WeightStepperButton(icon: "plus") { adjustWeight(by: useMetricSystem ? 0.1 : 0.2) }
             }
 
             Button(action: {
                 HapticManager.shared.impact(style: .heavy)
-                currentWeight = weightValue
+                currentWeight = NutritionMath.kgFromDisplayWeight(displayWeightValue, useMetric: useMetricSystem)
                 onSave()
                 dismiss()
             }) {
@@ -224,8 +229,9 @@ private struct WeightInputSheet: View {
 
     private func adjustWeight(by amount: Double) {
         HapticManager.shared.impact(style: .light)
+        let minDisplay = useMetricSystem ? 30.0 : 66.0
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-            weightValue = max(30, weightValue + amount)
+            displayWeightValue = max(minDisplay, displayWeightValue + amount)
         }
     }
 }

@@ -16,7 +16,7 @@ struct LocalFoodEntry: Codable, Identifiable {
         FoodItem(
             name: name,
             weight: weight,
-            calories: Int(Double(calories) * weight / 100),
+            calories: max(0, Int((Double(calories) * weight / 100).rounded())),
             protein: protein * weight / 100,
             fats: fat * weight / 100,
             carbs: carbs * weight / 100
@@ -40,6 +40,7 @@ final class LocalFoodDatabaseService {
     }
 
     private let lock = NSLock()
+    private var primaryLanguageCode: String = "en"
     private var indexedFoods: [IndexedFoodEntry] = []
     private var indexedFallbackFoods: [IndexedFoodEntry] = []
     private var _isLoaded = false
@@ -62,6 +63,7 @@ final class LocalFoodDatabaseService {
 
     private init() {
         let lang = Self.resolveLanguageCode()
+        primaryLanguageCode = lang
         loadTask = Task.detached(priority: .userInitiated) { [weak self] in
             let primary = Self.loadAndIndexFoods(language: lang)
             let fallback = lang == "en" ? [] : Self.loadAndIndexFoods(language: "en")
@@ -88,13 +90,13 @@ final class LocalFoodDatabaseService {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, limit > 0 else { return [] }
 
-        let (primary, fallback) = lock.withLock { (indexedFoods, indexedFallbackFoods) }
-        var results = matchFoods(primary, query: trimmed)
+        let (primary, fallback, primaryLang) = lock.withLock { (indexedFoods, indexedFallbackFoods, primaryLanguageCode) }
+        var results = matchFoods(primary, query: trimmed, languageCode: primaryLang)
 
         // Supplement with English fallback if not enough locale results
         if results.count < 3 && !fallback.isEmpty {
             let existingNames = Set(results.map { $0.name.lowercased() })
-            let fallbackMatches = matchFoods(fallback, query: trimmed)
+            let fallbackMatches = matchFoods(fallback, query: trimmed, languageCode: "en")
                 .filter { !existingNames.contains($0.name.lowercased()) }
             results += fallbackMatches
         }
@@ -126,9 +128,9 @@ final class LocalFoodDatabaseService {
             .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
     }
 
-    private func matchFoods(_ entries: [IndexedFoodEntry], query: String) -> [LocalFoodEntry] {
+    private func matchFoods(_ entries: [IndexedFoodEntry], query: String, languageCode: String) -> [LocalFoodEntry] {
         let normalizedQuery = Self.normalizeForSearch(query)
-        let queryRoots = SmartSearch.getRoots(for: query)
+        let queryRoots = SmartSearch.getRoots(for: query, languageCode: languageCode)
         var scored: [(score: Int, entry: LocalFoodEntry)] = []
 
         for indexed in entries {

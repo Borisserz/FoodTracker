@@ -168,10 +168,14 @@ struct CalendarCarouselView: View {
         }
     }
 
-    private func dayOfWeekString(_ date: Date) -> String {
+    private static let dayOfWeekFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE"
-        return formatter.string(from: date).prefix(3).capitalized
+        return formatter
+    }()
+
+    private func dayOfWeekString(_ date: Date) -> String {
+        Self.dayOfWeekFormatter.string(from: date).prefix(3).capitalized
     }
 }
 

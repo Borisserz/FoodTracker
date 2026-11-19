@@ -16,7 +16,7 @@ enum BeforeAfterStorage {
         let url = dir.appendingPathComponent("\(slot).jpg")
         let normalized = VertexAIManager.downsampledImage(image, maxDimension: 1600)
         if let data = normalized.jpegData(compressionQuality: 0.8) {
-            try? data.write(to: url, options: .atomic)
+            try? data.write(to: url, options: [.atomic, .completeFileProtection])
         }
     }
 
@@ -126,17 +126,26 @@ struct BeforeAfterView: View {
             }
             .shadow(color: .black.opacity(0.04), radius: 10, y: 4)
         }
-        .onAppear {
+        .task {
             guard !didRestorePersisted else { return }
-            beforeImage = BeforeAfterStorage.loadImage(slot: "before")
-            afterImage = BeforeAfterStorage.loadImage(slot: "after")
-            analysisResult = BeforeAfterStorage.loadAnalysis()
+            let restored = await Task.detached(priority: .userInitiated) {
+                (
+                    before: BeforeAfterStorage.loadImage(slot: "before"),
+                    after: BeforeAfterStorage.loadImage(slot: "after"),
+                    analysis: BeforeAfterStorage.loadAnalysis()
+                )
+            }.value
+            if beforeImage == nil { beforeImage = restored.before }
+            if afterImage == nil { afterImage = restored.after }
+            if analysisResult == nil { analysisResult = restored.analysis }
             didRestorePersisted = true
         }
         .onChange(of: beforeImage) { oldValue, newValue in
             guard didRestorePersisted, let newValue else { return }
             guard oldValue !== newValue else { return }
-            BeforeAfterStorage.saveImage(newValue, slot: "before")
+            Task.detached(priority: .userInitiated) {
+                BeforeAfterStorage.saveImage(newValue, slot: "before")
+            }
             analysisResult = nil
             if afterImage != nil {
                 triggerAnalysis(force: true)
@@ -145,7 +154,9 @@ struct BeforeAfterView: View {
         .onChange(of: afterImage) { oldValue, newValue in
             guard didRestorePersisted, let newValue else { return }
             guard oldValue !== newValue else { return }
-            BeforeAfterStorage.saveImage(newValue, slot: "after")
+            Task.detached(priority: .userInitiated) {
+                BeforeAfterStorage.saveImage(newValue, slot: "after")
+            }
             analysisResult = nil
             if beforeImage != nil {
                 triggerAnalysis(force: true)

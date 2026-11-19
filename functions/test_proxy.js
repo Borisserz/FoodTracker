@@ -557,3 +557,24 @@ test("resolveSecondaryQuotaKey uses device hash or falls back to hashed client I
   });
   assert.equal(missingDevice, sameIpDirect);
 });
+
+test("normalizeFatSecretFood selects mg metric serving over non-metric serving", () => {
+  const result = t.normalizeFatSecretFood({
+    food_name: "Vitamin Powder",
+    servings: {
+      serving: [
+        { serving_description: "1 scoop", calories: "40", protein: "0", fat: "0", carbohydrate: "10" },
+        {
+          metric_serving_amount: "50000",
+          metric_serving_unit: "mg",
+          calories: "120",
+          protein: "20",
+          fat: "1",
+          carbohydrate: "5",
+        },
+      ],
+    },
+  });
+  assert.equal(result.weight, 50);
+  assert.equal(result.calories, 120);
+});

@@ -132,7 +132,7 @@ struct MealShareCard: View {
                     .foregroundColor(.white)
                     .shadow(color: color.opacity(0.5), radius: 8, y: 2)
                 
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.system(size: 10, weight: .bold))
                     .tracking(1)
                     .foregroundColor(.white.opacity(0.5))

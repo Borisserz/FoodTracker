@@ -223,6 +223,7 @@ struct GlobalPeriodPicker: View {
 }
 
 struct AIWeeklyInsightCard: View {
+    @AppStorage("useMetricSystem") private var useMetricSystem: Bool = true
     let summaries: [DailySummary]
     let user: User
     let period: AnalyticsPeriod
@@ -260,7 +261,8 @@ struct AIWeeklyInsightCard: View {
             if water == 0 && calories == 0 {
                 return ("Start Tracking", "Log your meals and fluids to activate personal AI analytics and dynamic trend insights.", .gray)
             } else if water < 1.0 {
-                return ("Hydration Alert", "You've logged \(String(format: "%.1f", water))L of water today. Drink a glass now to boost metabolism and energy!", .cyan)
+                let loggedText = NutritionMath.formattedHydration(liters: water, useMetric: useMetricSystem)
+                return ("Hydration Alert", "You've logged \(loggedText) of water today. Drink a glass now to boost metabolism and energy!", .cyan)
             } else if let lowest = lowestMicro, lowestPct < 0.6 {
                 let hint = getHint(for: lowest)
                 return ("\(lowest.rawValue) Focus", "Your \(lowest.rawValue) is only at \(Int(lowestPct * 100))% of RDA. \(hint)", lowest.color)
@@ -287,7 +289,9 @@ struct AIWeeklyInsightCard: View {
             }
 
             if avgWater < 1.5 {
-                return ("Hydration Trend", "Your average hydration (\(String(format: "%.2f", avgWater))L) is below the 2.5L target. Focus on drinking more fluids.", .cyan)
+                let avgText = NutritionMath.formattedHydration(liters: avgWater, useMetric: useMetricSystem)
+                let targetText = NutritionMath.formattedHydration(liters: 2.5, useMetric: useMetricSystem)
+                return ("Hydration Trend", "Your average hydration (\(avgText)) is below the \(targetText) target. Focus on drinking more fluids.", .cyan)
             } else if let lowest = lowestMicro, lowestPct < 0.7 {
                 let hint = getHint(for: lowest)
                 return ("\(lowest.rawValue) Trend", "Your average \(lowest.rawValue) is low (\(Int(lowestPct * 100))%). \(hint)", lowest.color)
@@ -630,17 +634,17 @@ struct AIHydrationAnalyticsCard: View {
                 HStack(alignment: .bottom) {
                     // Metric Markings on left
                     VStack(alignment: .leading, spacing: 0) {
-                        AnalyticsFlaskTickMark(label: "2.5L", isFilled: progress >= 1.0)
+                        AnalyticsFlaskTickMark(label: useMetricSystem ? "2.5L" : "85 oz", isFilled: progress >= 1.0)
                         Spacer()
-                        AnalyticsFlaskTickMark(label: "2.0L", isFilled: progress >= 0.8)
+                        AnalyticsFlaskTickMark(label: useMetricSystem ? "2.0L" : "68 oz", isFilled: progress >= 0.8)
                         Spacer()
-                        AnalyticsFlaskTickMark(label: "1.5L", isFilled: progress >= 0.6)
+                        AnalyticsFlaskTickMark(label: useMetricSystem ? "1.5L" : "51 oz", isFilled: progress >= 0.6)
                         Spacer()
-                        AnalyticsFlaskTickMark(label: "1.0L", isFilled: progress >= 0.4)
+                        AnalyticsFlaskTickMark(label: useMetricSystem ? "1.0L" : "34 oz", isFilled: progress >= 0.4)
                         Spacer()
-                        AnalyticsFlaskTickMark(label: "0.5L", isFilled: progress >= 0.2)
+                        AnalyticsFlaskTickMark(label: useMetricSystem ? "0.5L" : "17 oz", isFilled: progress >= 0.2)
                     }
-                    .frame(width: 48, height: 130)
+                    .frame(width: 56, height: 130)
                     .padding(.leading, 20)
                     .padding(.bottom, 16)
                     
@@ -657,7 +661,7 @@ struct AIHydrationAnalyticsCard: View {
                                 .font(.system(size: 17, weight: .bold, design: .rounded))
                                 .foregroundStyle(Color.cyan)
                         }
-                        Text("of \(goal, specifier: "%.1f") L goal")
+                        Text("of \(NutritionMath.formattedHydration(liters: goal, useMetric: useMetricSystem)) goal")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Color.secondary)
                     }

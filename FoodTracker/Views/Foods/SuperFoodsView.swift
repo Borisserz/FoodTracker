@@ -173,7 +173,7 @@ struct MacroMiniStat: View {
             }
             .frame(width: 46, height: 46)
             
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(.caption2, design: .rounded, weight: .bold))
                 .foregroundStyle(.secondary)
         }
@@ -382,7 +382,7 @@ struct DietFeatureRow: View {
                 Image(systemName: icon).font(.system(size: 14, weight: .bold)).foregroundColor(color)
             }
 
-            Text(text)
+            Text(LocalizedStringKey(text))
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(.primary.opacity(0.9))
                 .fixedSize(horizontal: false, vertical: true)
@@ -407,7 +407,7 @@ struct MacroDonutStat: View {
                 Circle().trim(from: 0, to: anim).stroke(color, style: StrokeStyle(lineWidth: 6, lineCap: .round)).rotationEffect(.degrees(-90))
                 Text("\(percent)%").font(.system(size: 14, weight: .bold, design: .rounded))
             }.frame(width: 50, height: 50)
-            Text(title).font(.caption).foregroundColor(.gray)
+            Text(LocalizedStringKey(title)).font(.caption).foregroundColor(.gray)
         }
         .frame(maxWidth: .infinity)
         .onAppear { withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) { anim = Double(percent) / 100.0 } }

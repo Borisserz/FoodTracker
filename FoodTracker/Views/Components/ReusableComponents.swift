@@ -371,16 +371,20 @@ struct BurnedDetailsCard: View {
 
 struct BurnedWeeklyTrendCard: View {
     let summaries: [DailySummary]
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+        return formatter
+    }()
 
     private var chartData: [(day: String, calories: Int)] {
         let cal = Calendar.current
         let today = cal.startOfDay(for: Date())
         var data: [(String, Int)] = []
-        let formatter = DateFormatter(); formatter.dateFormat = "EEE"
 
         for i in (0..<7).reversed() {
             let date = cal.date(byAdding: .day, value: -i, to: today)!
-            let dayName = formatter.string(from: date)
+            let dayName = Self.dayFormatter.string(from: date)
             let dailySum = summaries.first(where: { cal.isDate($0.date, inSameDayAs: date) })
             data.append((dayName, dailySum?.activeCaloriesBurned ?? 0))
         }
@@ -520,7 +524,7 @@ struct NetDetailsCard: View {
 }
 
 struct EquationBlock: View {
-    let title: String; let value: Int; let color: Color; let icon: String
+    let title: LocalizedStringKey; let value: Int; let color: Color; let icon: String
 
     var body: some View {
         VStack(spacing: 8) {
@@ -606,13 +610,15 @@ struct NetGoalImpactCard: View {
                     .foregroundColor(.gray)
                     .textCase(.uppercase)
 
+                let useMetric = UserDefaults.standard.object(forKey: "useMetricSystem") as? Bool ?? true
+                let displayedDelta = NutritionMath.displayWeight(abs(weightChange), useMetric: useMetric)
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text("\(abs(weightChange), specifier: "%.2f")")
+                    Text("\(displayedDelta, specifier: "%.2f")")
                         .font(.system(size: 48, weight: .heavy, design: .rounded))
                         .foregroundColor(.primary)
 
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("kg")
+                        Text(NutritionMath.weightUnit(useMetric: useMetric))
                             .font(.title3.bold())
                             .foregroundColor(.gray)
                         Text(isLosing ? "lost per week" : "gained per week")
@@ -727,10 +733,10 @@ struct DetailedMacroRingsCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(insight.title)
+                    Text(LocalizedStringKey(insight.title))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
-                    Text(insight.text)
+                    Text(LocalizedStringKey(insight.text))
                         .font(.caption)
                         .foregroundColor(.gray)
                         .lineLimit(3)
@@ -750,7 +756,7 @@ struct DetailedMacroRingsCard: View {
     }
 }
 struct IndividualMacroRing: View {
-    let title: String
+    let title: LocalizedStringKey
     let current: Double
     let target: Double
     let color: Color
@@ -1041,7 +1047,7 @@ struct MealBreakdownCard: View {
 }
 
 struct MealMacroRow: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: Double
     let unit: String
     let color: Color

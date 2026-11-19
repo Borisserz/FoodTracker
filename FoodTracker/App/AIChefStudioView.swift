@@ -91,7 +91,20 @@ struct AIChefStudioView: View {
     @Environment(\.modelContext) private var context
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
-    @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
+    @Query private var summaries: [DailySummary]
+
+    init() {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay.addingTimeInterval(86_400)
+        _summaries = Query(
+            filter: #Predicate<DailySummary> { summary in
+                summary.date >= startOfDay && summary.date < tomorrow
+            },
+            sort: \DailySummary.date,
+            order: .reverse
+        )
+    }
     @Query(sort: \CustomRecipe.name) private var customRecipes: [CustomRecipe]
     @Query(sort: \WeeklyMealPlan.createdDate, order: .reverse) private var savedPlans: [WeeklyMealPlan]
 

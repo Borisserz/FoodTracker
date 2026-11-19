@@ -1168,7 +1168,7 @@ extension CustomRecipe {
         default: diff = 3
         }
         return AIChefRecipe(
-            id: UUID().uuidString,
+            id: "\(name)-\(cookingTime)-\(servings)-\(totalCalories)",
             title: name,
             calories: totalCalories,
             protein: Int(items.reduce(0.0) { $0 + $1.protein }),

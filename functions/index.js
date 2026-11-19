@@ -44,6 +44,8 @@ const FATSECRET_OAUTH1_URL = "https://platform.fatsecret.com/rest/server.api";
 const FATSECRET_TIMEOUT_MS = 10000;
 
 let fatSecretTokenCache = null;
+let aiSettingsCache = null;
+const AI_SETTINGS_CACHE_TTL_MS = 60_000;
 
 // 10-model text fallback chain ordered by live reliability and structured JSON support.
 const TEXT_MODEL_CHAIN = [
@@ -471,11 +473,15 @@ function openAIStreamChunkToGemini(line) {
 }
 
 async function loadAISettings() {
+  const now = Date.now();
+  if (aiSettingsCache && now - aiSettingsCache.loadedAtMs < AI_SETTINGS_CACHE_TTL_MS) {
+    return aiSettingsCache.value;
+  }
   try {
     const db = getFirestore();
     const snap = await db.collection("config").doc("food_ai_settings").get();
     const data = snap.exists ? snap.data() || {} : {};
-    return {
+    const value = {
       weeklyLimit:
         typeof data.weeklyLimit === "number"
           ? data.weeklyLimit
@@ -483,13 +489,17 @@ async function loadAISettings() {
       textModels: Array.isArray(data.textModels) ? data.textModels : null,
       visionModels: Array.isArray(data.visionModels) ? data.visionModels : null,
     };
+    aiSettingsCache = { value, loadedAtMs: now };
+    return value;
   } catch (e) {
     console.warn("Could not load config/food_ai_settings, using defaults:", e);
-    return {
-      weeklyLimit: DEFAULT_AI_WEEKLY_LIMIT,
-      textModels: null,
-      visionModels: null,
-    };
+    return (
+      aiSettingsCache?.value || {
+        weeklyLimit: DEFAULT_AI_WEEKLY_LIMIT,
+        textModels: null,
+        visionModels: null,
+      }
+    );
   }
 }
 
@@ -864,7 +874,7 @@ function pickPreferredFatSecretServing(servingData) {
   const hasValidMetric = (s) => {
     const unit = String(s.metric_serving_unit || "").trim().toLowerCase();
     const amt = parseNumericValue(s.metric_serving_amount);
-    return amt > 0 && ["g", "gram", "grams", "ml", "oz", "fl oz", "lb", "lbs", "kg"].includes(unit);
+    return amt > 0 && ["g", "gram", "grams", "ml", "oz", "fl oz", "lb", "lbs", "kg", "mg"].includes(unit);
   };
   return objects.find(hasValidMetric) || objects[0];
 }

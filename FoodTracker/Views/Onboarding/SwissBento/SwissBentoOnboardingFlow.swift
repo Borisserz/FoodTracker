@@ -195,6 +195,33 @@ private struct Stage1BiometricsView: View {
     let carbs: Int
     let fats: Int
     let onNext: () -> Void
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
+
+    private var heightBinding: Binding<Int> {
+        Binding(
+            get: { NutritionMath.displayHeight(Double(metrics.height), useMetric: useMetricSystem) },
+            set: { newValue in
+                if useMetricSystem {
+                    metrics.height = newValue
+                } else {
+                    metrics.height = Int(NutritionMath.cmFromDisplayHeight(Double(newValue), useMetric: false).rounded())
+                }
+            }
+        )
+    }
+
+    private var weightBinding: Binding<Int> {
+        Binding(
+            get: { Int(NutritionMath.displayWeight(Double(metrics.weight), useMetric: useMetricSystem).rounded()) },
+            set: { newValue in
+                if useMetricSystem {
+                    metrics.weight = newValue
+                } else {
+                    metrics.weight = Int(NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false).rounded())
+                }
+            }
+        )
+    }
     
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -258,8 +285,18 @@ private struct Stage1BiometricsView: View {
                 // Rulers
                 VStack(spacing: 14) {
                     SwissTapeRuler(title: "Age", unit: "yo", range: 16...99, value: $metrics.age)
-                    SwissTapeRuler(title: "Height", unit: "cm", range: 130...225, value: $metrics.height)
-                    SwissTapeRuler(title: "Current Weight", unit: "kg", range: 40...200, value: $metrics.weight)
+                    SwissTapeRuler(
+                        title: "Height",
+                        unit: NutritionMath.heightUnit(useMetric: useMetricSystem),
+                        range: useMetricSystem ? 130...225 : 51...89,
+                        value: heightBinding
+                    )
+                    SwissTapeRuler(
+                        title: "Current Weight",
+                        unit: NutritionMath.weightUnit(useMetric: useMetricSystem),
+                        range: useMetricSystem ? 40...200 : 88...440,
+                        value: weightBinding
+                    )
                 }
                 .padding(.horizontal, 20)
                 
@@ -302,6 +339,20 @@ private struct Stage1BiometricsView: View {
 private struct Stage2GoalProtocolView: View {
     @Binding var metrics: OnboardingMetrics
     let onNext: () -> Void
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
+
+    private var targetWeightBinding: Binding<Int> {
+        Binding(
+            get: { Int(NutritionMath.displayWeight(Double(metrics.targetWeight), useMetric: useMetricSystem).rounded()) },
+            set: { newValue in
+                if useMetricSystem {
+                    metrics.targetWeight = newValue
+                } else {
+                    metrics.targetWeight = Int(NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false).rounded())
+                }
+            }
+        )
+    }
     
     private let goals: [(name: String, desc: String, icon: String, tag: String)] = [
         ("Lose Weight", "Burn visceral fat and preserve lean metabolic mass.", "flame.fill", "FAT LOSS"),
@@ -393,9 +444,9 @@ private struct Stage2GoalProtocolView: View {
                 if metrics.goal != "Maintain Weight" {
                     SwissTapeRuler(
                         title: "Target Weight",
-                        unit: "kg",
-                        range: 40...200,
-                        value: $metrics.targetWeight
+                        unit: NutritionMath.weightUnit(useMetric: useMetricSystem),
+                        range: useMetricSystem ? 40...200 : 88...440,
+                        value: targetWeightBinding
                     )
                     .padding(.horizontal, 20)
                 }

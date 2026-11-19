@@ -67,13 +67,14 @@ public struct SmartSearch {
     
     // MARK: - Core Logic
     
-    /// Generates search root variations for a given query based on the current system language.
-    static func getRoots(for query: String) -> [[String]] {
+    /// Generates search root variations for a given query based on the provided or current system language.
+    static func getRoots(for query: String, languageCode: String? = nil) -> [[String]] {
         let normalizedQuery = normalize(query)
         let words = normalizedQuery.split(separator: " ").map { String($0) }
         var result: [[String]] = []
         
-        let langCode = Locale.current.language.languageCode?.identifier ?? "en"
+        let rawCode = (languageCode ?? Locale.current.language.languageCode?.identifier ?? "en").lowercased()
+        let langCode = rawCode.hasPrefix("pt") ? "pt" : rawCode
         let synonyms = synonymMaps[langCode] ?? [:]
         
         for word in words {

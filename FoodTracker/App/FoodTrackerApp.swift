@@ -91,6 +91,9 @@ struct FoodTrackerApp: App {
     @MainActor
     private func setupDependencies() async {
         print("🚀 [setupDependencies] Starting initialization...")
+        let useMetric = UserDefaults.standard.object(forKey: "useMetricSystem") as? Bool ?? true
+        UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.set(useMetric, forKey: "useMetricSystem")
+
         let container = await Task.detached(priority: .userInitiated) {
             SharedModelContainer.shared.container
         }.value

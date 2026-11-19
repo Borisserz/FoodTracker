@@ -2157,7 +2157,10 @@ struct SmartAddFoodView: View {
             do {
                 try await Task.sleep(nanoseconds: 400_000_000)
                 guard !Task.isCancelled else { return }
-                let remoteResults = await NetworkManager.shared.searchFoodByText(query: trimmed)
+                let remoteResults = await NetworkManager.shared.searchFoodByText(
+                    query: trimmed,
+                    allowAIFallback: localResults.isEmpty
+                )
                 await MainActor.run {
                     guard !Task.isCancelled else { return }
                     let existingNames = Set(localResults.map { $0.name.lowercased() })

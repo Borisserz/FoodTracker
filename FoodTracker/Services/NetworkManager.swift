@@ -22,6 +22,46 @@ class NetworkManager {
     var refreshingProxyTokensProvider: ((_ forceRefresh: Bool) async -> (authToken: String?, appCheckToken: String?))?
     private(set) var lastBarcodeLookupError: String?
 
+    private struct CachedFoodSnapshot: Sendable {
+        let name: String
+        let weight: Double
+        let calories: Int
+        let protein: Double
+        let fats: Double
+        let carbs: Double
+
+        init(from item: FoodItem) {
+            self.name = item.name
+            self.weight = item.weight
+            self.calories = item.calories
+            self.protein = item.protein
+            self.fats = item.fats
+            self.carbs = item.carbs
+        }
+
+        func toFoodItem() -> FoodItem {
+            FoodItem(name: name, weight: weight, calories: calories, protein: protein, fats: fats, carbs: carbs)
+        }
+    }
+
+    private struct CacheEntry<Value> {
+        let value: Value
+        let expiresAt: Date
+    }
+
+    private let cacheLock = NSLock()
+    private var searchCache: [String: CacheEntry<[CachedFoodSnapshot]>] = [:]
+    private var barcodeCache: [String: CacheEntry<CachedFoodSnapshot>] = [:]
+    private let searchCacheTTL: TimeInterval = 300
+    private let barcodeCacheTTL: TimeInterval = 1800
+
+    func clearCacheForTesting() {
+        cacheLock.withLock {
+            searchCache.removeAll()
+            barcodeCache.removeAll()
+        }
+    }
+
     private init() {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 25.0
@@ -45,7 +85,33 @@ class NetworkManager {
         return 0.0
     }
 
-    func searchFoodByText(query: String) async -> [FoodItem] {
+    private func parseServingWeight(_ value: Any?) -> Double {
+        let direct = parseDouble(value)
+        if direct > 0 { return direct }
+        guard let str = value as? String else { return 0.0 }
+        let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let regex = try? NSRegularExpression(pattern: #"^([0-9]+(?:[.,][0-9]+)?)\s*(?:g|gram|grams|gr|ml|г|мл)?\b"#, options: .caseInsensitive),
+              let match = regex.firstMatch(in: trimmed, range: NSRange(trimmed.startIndex..., in: trimmed)),
+              let range = Range(match.range(at: 1), in: trimmed) else {
+            return 0.0
+        }
+        let numStr = String(trimmed[range]).replacingOccurrences(of: ",", with: ".")
+        return Double(numStr) ?? 0.0
+    }
+
+    func searchFoodByText(query: String, allowAIFallback: Bool = true) async -> [FoodItem] {
+        let normalizedKey = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !normalizedKey.isEmpty,
+           let cached = cacheLock.withLock({ () -> [FoodItem]? in
+               guard let entry = searchCache[normalizedKey], entry.expiresAt > Date() else {
+                   searchCache.removeValue(forKey: normalizedKey)
+                   return nil
+               }
+               return entry.value.map { $0.toFoodItem() }
+           }) {
+            return cached
+        }
+
         print("🔍 Ищем '\(query)' (Язык: \(currentLanguage))")
 
         var results = await searchFromOpenFoodFacts(query: query)
@@ -63,7 +129,7 @@ class NetworkManager {
             }
         }
 
-        if results.isEmpty {
+        if results.isEmpty && allowAIFallback {
             print("⚠️ Оба API ничего не нашли. Подключаем ИИ-генерацию для '\(query)'...")
             TrackingManager.shared.track(.aiChefUsed(queryLength: query.count))
             if let aiFood = await AINutritionService.shared.generateFoodItem(for: query) {
@@ -72,18 +138,45 @@ class NetworkManager {
             }
         }
 
-        print("✅ Итого найдено: \(results.count) результатов.")
-        return Array(results.prefix(20))
+        let capped = Array(results.prefix(20))
+        if !normalizedKey.isEmpty && !capped.isEmpty {
+            let snapshots = capped.map { CachedFoodSnapshot(from: $0) }
+            let expiry = Date().addingTimeInterval(searchCacheTTL)
+            cacheLock.withLock {
+                searchCache[normalizedKey] = CacheEntry(value: snapshots, expiresAt: expiry)
+            }
+        }
+        print("✅ Итого найдено: \(capped.count) результатов.")
+        return capped
     }
 
     func fetchProduct(barcode: String) async -> FoodItem? {
         lastBarcodeLookupError = nil
+        let cacheKey = barcode.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !cacheKey.isEmpty,
+           let cached = cacheLock.withLock({ () -> FoodItem? in
+               guard let entry = barcodeCache[cacheKey], entry.expiresAt > Date() else {
+                   barcodeCache.removeValue(forKey: cacheKey)
+                   return nil
+               }
+               return entry.value.toFoodItem()
+           }) {
+            return cached
+        }
+
         print("🔍 Ищем штрихкод \(barcode)...")
         var hadNetworkFailure = false
 
         switch await fetchBarcodeFromOFF(barcode: barcode) {
         case .found(let offProduct):
             print("✅ Нашли в Open Food Facts: \(offProduct.name)")
+            if !cacheKey.isEmpty {
+                let snapshot = CachedFoodSnapshot(from: offProduct)
+                let expiry = Date().addingTimeInterval(barcodeCacheTTL)
+                cacheLock.withLock {
+                    barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
+                }
+            }
             return offProduct
         case .notFound:
             break
@@ -96,6 +189,13 @@ class NetworkManager {
         case .found(let fatSecretProduct):
             print("✅ Нашли в FatSecret: \(fatSecretProduct.name)")
             lastBarcodeLookupError = nil
+            if !cacheKey.isEmpty {
+                let snapshot = CachedFoodSnapshot(from: fatSecretProduct)
+                let expiry = Date().addingTimeInterval(barcodeCacheTTL)
+                cacheLock.withLock {
+                    barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
+                }
+            }
             return fatSecretProduct
         case .notFound:
             if !hadNetworkFailure {
@@ -144,7 +244,7 @@ class NetworkManager {
                 let carbs = parseDouble(nuts["carbohydrates_100g"])
 
                 if cals > 0 || protein > 0 || fat > 0 || carbs > 0 {
-                    items.append(FoodItem(name: name, weight: 100.0, calories: Int(cals), protein: protein, fats: fat, carbs: carbs))
+                    items.append(FoodItem(name: name, weight: 100.0, calories: Int(cals.rounded()), protein: protein, fats: fat, carbs: carbs))
                 }
             }
             return items
@@ -205,8 +305,13 @@ class NetworkManager {
                     protein = servingProtein
                     fat = servingFat
                     carbs = servingCarbs
-                    let qty = parseDouble(p["serving_quantity"])
-                    if qty > 0 { weight = qty }
+                    let qty = parseServingWeight(p["serving_quantity"])
+                    if qty > 0 {
+                        weight = qty
+                    } else {
+                        let sizeQty = parseServingWeight(p["serving_size"])
+                        if sizeQty > 0 { weight = sizeQty }
+                    }
                 } else {
                     // Do not return an all-zero product before FatSecret gets a chance.
                     return .notFound

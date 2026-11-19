@@ -839,4 +839,21 @@ final class DataModelsTests: XCTestCase {
         XCTAssertTrue(AddIngredientModalView.isFormValid(name: "Olive Oil", weight: "12,5"))
         XCTAssertFalse(AddIngredientModalView.isFormValid(name: "Olive Oil", weight: "0"))
     }
+
+    func testRussianFoodCatalogHasUniqueIDsAndRoundingToFoodItem() {
+        let ruFoods = LocalFoodDatabaseService.loadBundledFoods(languageCode: "ru")
+        let uniqueIDs = Set(ruFoods.map(\.id))
+        XCTAssertEqual(uniqueIDs.count, ruFoods.count, "foods_ru.json should not contain duplicate IDs")
+
+        let entry = LocalFoodEntry(
+            id: "test",
+            name: "Test Food",
+            calories: 105,
+            protein: 10,
+            fat: 2,
+            carbs: 12,
+            category: "Snacks"
+        )
+        XCTAssertEqual(entry.toFoodItem(weight: 50).calories, 53)
+    }
 }

@@ -272,7 +272,14 @@ struct GoalsTabView: View {
                             .foregroundColor(.green)
                     } else {
                         let diff = abs(currentWeight - (targetWeight ?? 0))
-                        Text("\(String(format: "%.1f", diff)) kg left to \(goalType)")
+                        let goalLabel: String = {
+                            switch goalType.lowercased() {
+                            case "lose": return String(localized: "Lose Weight")
+                            case "gain": return String(localized: "Gain Weight")
+                            default: return String(localized: "Maintain Weight")
+                            }
+                        }()
+                        Text("\(NutritionMath.formattedWeight(diff, useMetric: useMetricSystem)) • \(goalLabel)")
                             .font(.system(.subheadline, design: .rounded, weight: .medium))
                             .foregroundColor(.secondary)
                     }

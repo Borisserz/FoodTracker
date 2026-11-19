@@ -534,7 +534,7 @@ struct AllowedDrinksSection: View {
                             Circle().fill(drink.2.opacity(0.15)).frame(width: 50, height: 50)
                             Image(systemName: drink.1).font(.title2).foregroundColor(drink.2)
                         }
-                        Text(drink.0).font(.caption.bold()).foregroundColor(.gray)
+                        Text(LocalizedStringKey(drink.0)).font(.caption.bold()).foregroundColor(.gray)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -606,9 +606,9 @@ struct FastingTimelineRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(hour).font(.system(size: 16, weight: .black, design: .rounded)).foregroundColor(color)
-                    Text(title).font(.headline).foregroundColor(.primary)
+                    Text(LocalizedStringKey(title)).font(.headline).foregroundColor(.primary)
                 }
-                Text(desc)
+                Text(LocalizedStringKey(desc))
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .lineSpacing(2)

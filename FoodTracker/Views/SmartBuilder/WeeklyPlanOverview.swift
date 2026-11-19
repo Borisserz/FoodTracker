@@ -17,7 +17,15 @@ struct WeeklyPlanOverview: View {
         (plan.days ?? []).first(where: { $0.dayIndex == selectedDayIndex })
     }
     
-    let dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    let dayNames = [
+        String(localized: "Mon"),
+        String(localized: "Tue"),
+        String(localized: "Wed"),
+        String(localized: "Thu"),
+        String(localized: "Fri"),
+        String(localized: "Sat"),
+        String(localized: "Sun")
+    ]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -143,7 +151,7 @@ struct WeeklyPlanOverview: View {
             Text(value)
                 .font(.headline.bold())
                 .foregroundColor(color)
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.caption2)
                 .foregroundColor(.gray)
         }

@@ -218,22 +218,6 @@ struct DiscoverTabView: View {
 
     var body: some View {
 
-        var pool = allRecipes
-
-        let highProtein = pool.filter { $0.tags.contains("High Protein") }
-        pool.removeAll { r in highProtein.contains(where: { $0.id == r.id }) }
-
-        let ketoLowCarb = pool.filter { $0.tags.contains("Low Carb") || $0.tags.contains("Ketogenic") }
-        pool.removeAll { r in ketoLowCarb.contains(where: { $0.id == r.id }) }
-
-        let quickEasy = pool.filter { $0.tags.contains("Quickly Prepared") || $0.tags.contains("Easy") }
-        pool.removeAll { r in quickEasy.contains(where: { $0.id == r.id }) }
-
-        let plantBased = pool.filter { $0.tags.contains("Vegan") || $0.tags.contains("Vegetarian") }
-        pool.removeAll { r in plantBased.contains(where: { $0.id == r.id }) }
-
-        let chefsSpecials = Array(pool.prefix(6))
-
         return ScrollView(showsIndicators: false) {
             if !trimmedQuery.isEmpty {
                 if searchedRecipes.isEmpty {
@@ -261,6 +245,7 @@ struct DiscoverTabView: View {
                     .padding(.bottom, 120)
                 }
             } else {
+            let sections = DiscoverSections.partition(allRecipes)
             VStack(spacing: 32) {
 
                 VStack(alignment: .leading, spacing: 16) {
@@ -312,25 +297,63 @@ struct DiscoverTabView: View {
                     }
                 }
 
-                if !highProtein.isEmpty {
-                    RecipeHorizontalSection(title: "High Protein Power", recipes: highProtein, path: $path)
+                if !sections.highProtein.isEmpty {
+                    RecipeHorizontalSection(title: "High Protein Power", recipes: sections.highProtein, path: $path)
                 }
-                if !ketoLowCarb.isEmpty {
-                    RecipeHorizontalSection(title: "Low Carb & Keto", recipes: ketoLowCarb, path: $path)
+                if !sections.ketoLowCarb.isEmpty {
+                    RecipeHorizontalSection(title: "Low Carb & Keto", recipes: sections.ketoLowCarb, path: $path)
                 }
-                if !quickEasy.isEmpty {
-                    RecipeHorizontalSection(title: "Quick & Easy", recipes: quickEasy, path: $path)
+                if !sections.quickEasy.isEmpty {
+                    RecipeHorizontalSection(title: "Quick & Easy", recipes: sections.quickEasy, path: $path)
                 }
-                if !plantBased.isEmpty {
-                    RecipeHorizontalSection(title: "Plant-Based", recipes: plantBased, path: $path)
+                if !sections.plantBased.isEmpty {
+                    RecipeHorizontalSection(title: "Plant-Based", recipes: sections.plantBased, path: $path)
                 }
-                if !chefsSpecials.isEmpty {
-                    RecipeHorizontalSection(title: "Chef's Specials", recipes: chefsSpecials, path: $path)
+                if !sections.chefsSpecials.isEmpty {
+                    RecipeHorizontalSection(title: "Chef's Specials", recipes: sections.chefsSpecials, path: $path)
                 }
 
             }
             .padding(.bottom, 120)
             }
+        }
+    }
+
+    private struct DiscoverSections {
+        let highProtein: [PremiumRecipe]
+        let ketoLowCarb: [PremiumRecipe]
+        let quickEasy: [PremiumRecipe]
+        let plantBased: [PremiumRecipe]
+        let chefsSpecials: [PremiumRecipe]
+
+        static func partition(_ recipes: [PremiumRecipe]) -> DiscoverSections {
+            var highProtein: [PremiumRecipe] = []
+            var ketoLowCarb: [PremiumRecipe] = []
+            var quickEasy: [PremiumRecipe] = []
+            var plantBased: [PremiumRecipe] = []
+            var chefsSpecials: [PremiumRecipe] = []
+
+            for recipe in recipes {
+                let tags = recipe.tags
+                if tags.contains("High Protein") {
+                    highProtein.append(recipe)
+                } else if tags.contains("Low Carb") || tags.contains("Ketogenic") {
+                    ketoLowCarb.append(recipe)
+                } else if tags.contains("Quickly Prepared") || tags.contains("Easy") {
+                    quickEasy.append(recipe)
+                } else if tags.contains("Vegan") || tags.contains("Vegetarian") {
+                    plantBased.append(recipe)
+                } else if chefsSpecials.count < 6 {
+                    chefsSpecials.append(recipe)
+                }
+            }
+            return DiscoverSections(
+                highProtein: highProtein,
+                ketoLowCarb: ketoLowCarb,
+                quickEasy: quickEasy,
+                plantBased: plantBased,
+                chefsSpecials: chefsSpecials
+            )
         }
     }
 
