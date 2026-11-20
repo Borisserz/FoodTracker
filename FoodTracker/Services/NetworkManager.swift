@@ -276,9 +276,61 @@ class NetworkManager {
         }
     }
 
+    static func normalizedBarcode(for raw: String) -> String {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count == 8, trimmed.allSatisfy(\.isNumber),
+              let first = trimmed.first, (first == "0" || first == "1") else {
+            return trimmed
+        }
+        if first == "1", isValidEAN8(trimmed) {
+            return trimmed
+        }
+        return expandUPCEtoUPCA(trimmed) ?? trimmed
+    }
+
+    private static func isValidEAN8(_ digits: String) -> Bool {
+        let vals = digits.compactMap(\.wholeNumberValue)
+        guard vals.count == 8 else { return false }
+        let sum = vals[0] * 3 + vals[1] + vals[2] * 3 + vals[3] + vals[4] * 3 + vals[5] + vals[6] * 3
+        let check = (10 - (sum % 10)) % 10
+        return check == vals[7]
+    }
+
+    private static func isValidUPCACheckDigit(_ upca: String) -> Bool {
+        let vals = upca.compactMap(\.wholeNumberValue)
+        guard vals.count == 12 else { return false }
+        var oddSum = 0
+        var evenSum = 0
+        for i in 0..<11 {
+            if i % 2 == 0 { oddSum += vals[i] } else { evenSum += vals[i] }
+        }
+        let check = (10 - ((oddSum * 3 + evenSum) % 10)) % 10
+        return check == vals[11]
+    }
+
+    private static func expandUPCEtoUPCA(_ upce: String) -> String? {
+        let c = Array(upce)
+        guard c.count == 8, c.allSatisfy(\.isNumber), (c[0] == "0" || c[0] == "1") else { return nil }
+        let n = String(c[0])
+        let d1 = String(c[1]), d2 = String(c[2]), d3 = String(c[3]), d4 = String(c[4]), d5 = String(c[5]), d6 = c[6], check = String(c[7])
+        let expanded: String
+        switch d6 {
+        case "0", "1", "2":
+            expanded = "\(n)\(d1)\(d2)\(d6)0000\(d3)\(d4)\(d5)\(check)"
+        case "3":
+            expanded = "\(n)\(d1)\(d2)\(d3)00000\(d4)\(d5)\(check)"
+        case "4":
+            expanded = "\(n)\(d1)\(d2)\(d3)\(d4)00000\(d5)\(check)"
+        default:
+            expanded = "\(n)\(d1)\(d2)\(d3)\(d4)\(d5)0000\(d6)\(check)"
+        }
+        guard isValidUPCACheckDigit(expanded) else { return nil }
+        return expanded
+    }
+
     func fetchProductOutcome(barcode: String) async -> BarcodeFetchOutcome {
         setLastBarcodeLookupError(nil)
-        let cacheKey = barcode.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cacheKey = Self.normalizedBarcode(for: barcode)
         guard !cacheKey.isEmpty else { return .notFound }
 
         if let cached = cacheLock.withLock({ () -> FoodItem? in
@@ -369,25 +421,25 @@ class NetworkManager {
         return nil
     }
 
+    private static func isPercentOFFUnit(_ rawUnit: Any?) -> Bool {
+        guard let unit = (rawUnit as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() else {
+            return false
+        }
+        return unit.contains("%")
+    }
+
     private func extractOFFMicronutrientMg(
         from nuts: [String: Any],
         baseKey: String,
         suffix: String
     ) -> Double? {
-        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]) else { return nil }
-        let unit = (nuts["\(baseKey)_unit"] as? String)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased() ?? "mg"
-        switch unit {
-        case "", "mg":
-            return raw
-        case "g":
-            return raw * 1000.0
-        case "µg", "ug", "mcg":
-            return raw / 1000.0
-        default:
-            return nil
-        }
+        guard !Self.isPercentOFFUnit(nuts["\(baseKey)_unit"]),
+              let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]),
+              raw >= 0 else { return nil }
+        // OpenFoodFacts `*_100g` and `*_serving` keys are always normalized to grams regardless of label `*_unit`.
+        return raw * 1000.0
     }
 
     private func extractOFFMicronutrientMcg(
@@ -395,23 +447,11 @@ class NetworkManager {
         baseKey: String,
         suffix: String
     ) -> Double? {
-        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]) else { return nil }
-        let unit = (nuts["\(baseKey)_unit"] as? String)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased() ?? "µg"
-        switch unit {
-        case "", "µg", "ug", "mcg":
-            return raw
-        case "g":
-            return raw * 1_000_000.0
-        case "mg":
-            return raw * 1000.0
-        case "iu", "ui":
-            // 1 IU of Vitamin D (cholecalciferol / ergocalciferol) = 0.025 mcg
-            return raw * 0.025
-        default:
-            return nil
-        }
+        guard !Self.isPercentOFFUnit(nuts["\(baseKey)_unit"]),
+              let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]),
+              raw >= 0 else { return nil }
+        // OpenFoodFacts `*_100g` and `*_serving` keys are always normalized to grams regardless of label `*_unit`.
+        return raw * 1_000_000.0
     }
 
     private func extractOFFGramField(
@@ -419,40 +459,20 @@ class NetworkManager {
         baseKey: String,
         suffix: String
     ) -> Double {
-        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]), raw >= 0 else { return 0 }
-        let unit = (nuts["\(baseKey)_unit"] as? String)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased() ?? "g"
-        switch unit {
-        case "", "g":
-            return raw
-        case "mg":
-            return raw / 1000.0
-        case "µg", "ug", "mcg":
-            return raw / 1_000_000.0
-        default:
-            return 0
-        }
+        guard !Self.isPercentOFFUnit(nuts["\(baseKey)_unit"]),
+              let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]),
+              raw >= 0 else { return 0 }
+        return raw
     }
 
     private func extractOFFOmega3Grams(
         from nuts: [String: Any],
         suffix: String
     ) -> Double? {
-        guard let raw = parseOptionalDouble(nuts["omega-3-fat_\(suffix)"]) else { return nil }
-        let unit = (nuts["omega-3-fat_unit"] as? String)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased() ?? "g"
-        switch unit {
-        case "", "g":
-            return raw
-        case "mg":
-            return raw / 1000.0
-        case "µg", "ug", "mcg":
-            return raw / 1_000_000.0
-        default:
-            return nil
-        }
+        guard !Self.isPercentOFFUnit(nuts["omega-3-fat_unit"]),
+              let raw = parseOptionalDouble(nuts["omega-3-fat_\(suffix)"]),
+              raw >= 0 else { return nil }
+        return raw
     }
 
     private func resolvedServingWeight(from product: [String: Any]) -> Double? {
@@ -668,7 +688,7 @@ class NetworkManager {
                 protein: safeProtein,
                 fat: safeFats,
                 carbs: safeCarbs,
-                weight: weight
+                weight: weight > 0 ? weight : 100.0
             )
             let resolved = MicronutrientProfile.resolvingOmitted(
                 omega3: omega3.map { max(0, $0) },

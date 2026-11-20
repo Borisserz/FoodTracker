@@ -69,17 +69,17 @@ final class MicronutrientPipelineTests: XCTestCase {
                   "proteins_100g": 1.0,
                   "fat_100g": 1.5,
                   "carbohydrates_100g": 7.0,
-                  "calcium_100g": 120,
+                  "calcium_100g": 0.12,
                   "calcium_unit": "mg",
                   "iron_100g": 0.004,
                   "iron_unit": "g",
-                  "potassium_100g": 150,
+                  "potassium_100g": 0.15,
                   "potassium_unit": "mg",
-                  "magnesium_100g": 25,
+                  "magnesium_100g": 0.025,
                   "magnesium_unit": "mg",
-                  "vitamin-c_100g": 18,
+                  "vitamin-c_100g": 0.018,
                   "vitamin-c_unit": "mg",
-                  "vitamin-d_100g": 1.5,
+                  "vitamin-d_100g": 0.0000015,
                   "vitamin-d_unit": "µg",
                   "omega-3-fat_100g": 0.3
                 }
@@ -238,11 +238,11 @@ final class MicronutrientPipelineTests: XCTestCase {
                   "iron_unit": "% dv",
                   "vitamin-d_100g": 10,
                   "vitamin-d_unit": "%",
-                  "potassium_100g": 280,
+                  "potassium_100g": 0.28,
                   "potassium_unit": "mg",
                   "vitamin-c_100g": 0,
                   "vitamin-c_unit": "mg",
-                  "omega-3-fat_100g": 500,
+                  "omega-3-fat_100g": 0.5,
                   "omega-3-fat_unit": "mg"
                 }
               }

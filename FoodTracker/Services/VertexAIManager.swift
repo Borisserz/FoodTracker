@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import ImageIO
 
 enum AIErrorReason: Equatable, Sendable {
     case consentRequired
@@ -294,6 +295,23 @@ final class VertexAIManager {
             if rounded <= minBound { return Int.min / 2 }
             return Int(rounded)
         }
+    }
+
+    /// Downscales encoded image Data directly via ImageIO without decoding full 48MP bitmaps into RAM.
+    nonisolated static func downsampledImage(data: Data, maxDimension: CGFloat) -> UIImage? {
+        let cfData = data as CFData
+        guard let source = CGImageSourceCreateWithData(cfData, nil) else { return nil }
+        let pixelLimit = max(1, Int(maxDimension.rounded()))
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: pixelLimit
+        ]
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return nil
+        }
+        return UIImage(cgImage: cgImage, scale: 1.0, orientation: .up)
     }
 
     /// Downscales and normalizes image orientation at explicit 1x pixel scale to avoid 3x screen-scale memory blowup.

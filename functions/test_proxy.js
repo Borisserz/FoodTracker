@@ -178,7 +178,7 @@ test("isTokenValid enforces 60s safety margin", () => {
   assert.equal(t.isTokenValid({ token: "abc", expiresAtMs: now + 120_000 }, now), true);
 });
 
-test("normalizeFatSecretFood handles array/object servings and defaults weight to 100", () => {
+test("normalizeFatSecretFood handles array/object servings and keeps weight = 0 for unmeasured servings", () => {
   const fromArray = t.normalizeFatSecretFood({
     food_name: "Chicken Breast",
     servings: {
@@ -190,7 +190,7 @@ test("normalizeFatSecretFood handles array/object servings and defaults weight t
   });
   assert.deepEqual(fromArray, {
     name: "Chicken Breast",
-    weight: 100,
+    weight: 0,
     calories: 165,
     protein: 31,
     fats: 3.6,
@@ -265,7 +265,7 @@ test("parseFatSecretDescription parses OAuth 1.0 description strings", () => {
     t.parseFatSecretDescription(
       "Per 1 serving - Calories: 90kcal | Fat: 1g | Carbs: 12g | Protein: 4g"
     ),
-    { weight: 100, calories: 90, fats: 1, carbs: 12, protein: 4 }
+    { weight: 0, calories: 90, fats: 1, carbs: 12, protein: 4 }
   );
   assert.equal(t.parseFatSecretDescription("invalid"), null);
 });
@@ -886,7 +886,7 @@ test("assertFatSecretResponseSuccess throws on OAuth2 error envelopes", () => {
   );
 });
 
-test("normalizeFatSecretFood forwards optional micronutrients when present", () => {
+test("normalizeFatSecretFood forwards optional micronutrients and converts %DV fields", () => {
   const hit = t.normalizeFatSecretFood({
     food_name: "Atlantic Salmon",
     servings: {
@@ -898,18 +898,18 @@ test("normalizeFatSecretFood forwards optional micronutrients when present", () 
         fat: "13",
         carbohydrate: "0",
         potassium: "363",
-        calcium: "9",
-        iron: "0.34",
-        vitamin_c: "3.9",
-        vitamin_d: "11.0",
+        calcium: "2",
+        iron: "2",
+        vitamin_c: "5",
+        vitamin_d: "55",
       },
     },
   });
   assert.equal(hit.potassium, 363);
-  assert.equal(hit.calcium, 9);
-  assert.equal(hit.iron, 0.34);
-  assert.equal(hit.vitaminC, 3.9);
-  assert.equal(hit.vitaminD, 11.0);
+  assert.equal(hit.calcium, 26);
+  assert.equal(hit.iron, 0.36);
+  assert.equal(hit.vitaminC, 4.5);
+  assert.equal(hit.vitaminD, 11);
 });
 
 test("normalizeFatSecretBarcodeInput zero-pads 8 and 12 digit barcodes to 13-digit GTIN-13", () => {
@@ -1078,4 +1078,55 @@ test("openAIStreamChunkToGemini throws on mid-stream upstream error object", () 
     () => t.openAIStreamChunkToGemini('data: {"error":{"message":"Upstream interrupted"}}'),
     /Upstream interrupted/
   );
+});
+
+test("normalizeFatSecretBarcodeInput expands 8-digit UPC-E to 13-digit GTIN-13", () => {
+  assert.equal(t.normalizeFatSecretBarcodeInput("04252614"), "0042100005264");
+  assert.equal(t.normalizeFatSecretBarcodeInput("01234565"), "0012345000065");
+  // Valid EAN-8 still zero-pads directly to 13 digits
+  assert.equal(t.normalizeFatSecretBarcodeInput("12345670"), "0000012345670");
+});
+
+test("normalizeFatSecretFood preserves weight = 0 and servingDescription when metric_serving_amount is missing", () => {
+  const item = t.normalizeFatSecretFood({
+    food_name: "Pizza Slice",
+    servings: {
+      serving: {
+        serving_description: "1 slice",
+        calories: "280",
+        protein: "12",
+        fat: "10",
+        carbohydrate: "34",
+      },
+    },
+  });
+  assert.equal(item.weight, 0);
+  assert.equal(item.servingDescription, "1 slice");
+  assert.equal(item.calories, 280);
+});
+
+test("normalizeFatSecretFood converts % Daily Value micronutrients to mg and mcg", () => {
+  const hit = t.normalizeFatSecretFood({
+    food_name: "Fortified Milk",
+    servings: {
+      serving: {
+        metric_serving_amount: "240",
+        metric_serving_unit: "ml",
+        calories: "120",
+        protein: "8",
+        fat: "5",
+        carbohydrate: "12",
+        potassium: "363",
+        calcium: "10",
+        iron: "20",
+        vitamin_c: "50",
+        vitamin_d: "25",
+      },
+    },
+  });
+  assert.equal(hit.potassium, 363);
+  assert.equal(hit.calcium, 130);
+  assert.equal(hit.iron, 3.6);
+  assert.equal(hit.vitaminC, 45);
+  assert.equal(hit.vitaminD, 5);
 });

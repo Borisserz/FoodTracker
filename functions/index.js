@@ -976,8 +976,53 @@ async function verifyFirebaseUser(
   }
 }
 
+function isValidEAN8(digits) {
+  if (!/^\d{8}$/.test(digits)) return false;
+  let sum = 0;
+  for (let i = 0; i < 7; i++) {
+    sum += Number(digits[i]) * (i % 2 === 0 ? 3 : 1);
+  }
+  const check = (10 - (sum % 10)) % 10;
+  return check === Number(digits[7]);
+}
+
+function isValidUPCACheckDigit(upca) {
+  if (!/^\d{12}$/.test(upca)) return false;
+  let oddSum = 0;
+  let evenSum = 0;
+  for (let i = 0; i < 11; i++) {
+    const n = Number(upca[i]);
+    if (i % 2 === 0) oddSum += n;
+    else evenSum += n;
+  }
+  const check = (10 - ((oddSum * 3 + evenSum) % 10)) % 10;
+  return check === Number(upca[11]);
+}
+
+function expandUPCEtoUPCA(upce) {
+  if (!/^[01]\d{7}$/.test(upce)) return null;
+  const [n, d1, d2, d3, d4, d5, d6, check] = upce;
+  let expanded;
+  if (d6 === "0" || d6 === "1" || d6 === "2") {
+    expanded = `${n}${d1}${d2}${d6}0000${d3}${d4}${d5}${check}`;
+  } else if (d6 === "3") {
+    expanded = `${n}${d1}${d2}${d3}00000${d4}${d5}${check}`;
+  } else if (d6 === "4") {
+    expanded = `${n}${d1}${d2}${d3}${d4}00000${d5}${check}`;
+  } else {
+    expanded = `${n}${d1}${d2}${d3}${d4}${d5}0000${d6}${check}`;
+  }
+  return isValidUPCACheckDigit(expanded) ? expanded : null;
+}
+
 function normalizeFatSecretBarcodeInput(barcode) {
-  const cleaned = String(barcode || "").trim();
+  let cleaned = String(barcode || "").trim();
+  if (/^[01]\d{7}$/.test(cleaned)) {
+    const isEan8Only = cleaned[0] === "1" && isValidEAN8(cleaned);
+    if (!isEan8Only) {
+      cleaned = expandUPCEtoUPCA(cleaned) || cleaned;
+    }
+  }
   if (/^\d{8,12}$/.test(cleaned)) {
     return cleaned.padStart(13, "0");
   }
@@ -1094,9 +1139,13 @@ function pickPreferredFatSecretServing(servingData) {
 }
 
 function roundServingWeightGrams(weightGrams) {
-  if (!Number.isFinite(weightGrams) || weightGrams <= 0) return 100;
+  if (!Number.isFinite(weightGrams) || weightGrams <= 0) return 0;
   const rounded = Math.round(weightGrams * 10) / 10 || Math.round(weightGrams * 1000) / 1000;
-  return rounded > 0 ? rounded : 100;
+  return rounded > 0 ? rounded : 0;
+}
+
+function roundNutrientValue(val) {
+  return Math.round(val * 100) / 100;
 }
 
 function parseFatSecretDescription(description) {
@@ -1139,22 +1188,35 @@ function normalizeFatSecretFood(food) {
   if (serving && typeof serving === "object") {
     const rawAmount = parseNumericValue(serving.metric_serving_amount);
     const weightGrams = convertMetricWeightToGrams(rawAmount, serving.metric_serving_unit);
+    const roundedWeight = roundServingWeightGrams(weightGrams);
+    const servingDesc =
+      typeof serving.serving_description === "string"
+        ? serving.serving_description.trim()
+        : "";
     const result = {
       name,
-      weight: roundServingWeightGrams(weightGrams),
+      weight: roundedWeight,
       calories: Math.round(parseNumericValue(serving.calories)),
       protein: parseNumericValue(serving.protein),
       fats: parseNumericValue(serving.fat),
       carbs: parseNumericValue(serving.carbohydrate),
     };
+    if (servingDesc) {
+      result.servingDescription = servingDesc;
+    }
+    // FatSecret reports calcium (1300mg DV), iron (18mg DV), vitamin_c (90mg DV), vitamin_d (20mcg DV) in % Daily Value.
+    const calciumPct = parseNumericValue(serving.calcium);
+    const ironPct = parseNumericValue(serving.iron);
+    const vitCPct = parseNumericValue(serving.vitamin_c);
+    const vitDPct = parseNumericValue(serving.vitamin_d);
     const microMap = {
       omega3: parseNumericValue(serving.omega_3 ?? serving.omega3),
-      calcium: parseNumericValue(serving.calcium),
+      calcium: calciumPct > 0 ? roundNutrientValue((calciumPct / 100) * 1300) : 0,
       potassium: parseNumericValue(serving.potassium),
       magnesium: parseNumericValue(serving.magnesium),
-      iron: parseNumericValue(serving.iron),
-      vitaminC: parseNumericValue(serving.vitamin_c),
-      vitaminD: parseNumericValue(serving.vitamin_d),
+      iron: ironPct > 0 ? roundNutrientValue((ironPct / 100) * 18) : 0,
+      vitaminC: vitCPct > 0 ? roundNutrientValue((vitCPct / 100) * 90) : 0,
+      vitaminD: vitDPct > 0 ? roundNutrientValue((vitDPct / 100) * 20) : 0,
     };
     for (const [k, v] of Object.entries(microMap)) {
       if (v > 0) result[k] = v;

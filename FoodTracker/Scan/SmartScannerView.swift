@@ -39,6 +39,7 @@ struct SmartScannerView: View {
     @State private var startScanWorkItem: DispatchWorkItem? = nil
     @State private var barcodePermissionStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
     @State private var isBarcodeHardwareUnavailable = false
+    @State private var isDataScannerUnavailable = false
     @State private var pendingPhotoConsentRequest: PendingPhotoConsentRequest? = nil
 
     enum ScannerMode { case barcode, mealAI, menuAI }
@@ -54,7 +55,7 @@ struct SmartScannerView: View {
     }
 
     private var canUseDataScanner: Bool {
-        DataScannerViewController.isSupported && DataScannerViewController.isAvailable
+        DataScannerViewController.isSupported && DataScannerViewController.isAvailable && !isDataScannerUnavailable
     }
 
     private var canUseAVBarcodeFallback: Bool {
@@ -82,6 +83,7 @@ struct SmartScannerView: View {
                         recognizedBarcode: $recognizedBarcode,
                         isScanning: $isScanning,
                         onBecameUnavailable: {
+                            isDataScannerUnavailable = true
                             barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
                         }
                     )
@@ -481,8 +483,7 @@ struct SmartScannerView: View {
             photoLoadTask?.cancel()
             photoLoadTask = Task {
                 guard let data = try? await newItem.loadTransferable(type: Data.self),
-                      !Task.isCancelled,
-                      let rawImage = UIImage(data: data) else {
+                      !Task.isCancelled else {
                     if !Task.isCancelled {
                         await MainActor.run {
                             scanErrorMessage = String(localized: "Could not load the selected photo. Please try another image.")
@@ -491,8 +492,16 @@ struct SmartScannerView: View {
                     return
                 }
                 let downsampled = await Task.detached(priority: .userInitiated) {
-                    VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
+                    VertexAIManager.downsampledImage(data: data, maxDimension: 1024)
                 }.value
+                guard let downsampled else {
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            scanErrorMessage = String(localized: "Could not load the selected photo. Please try another image.")
+                        }
+                    }
+                    return
+                }
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
                     guard selectedMode == currentMode, currentMode != .barcode else { return }
@@ -582,8 +591,11 @@ struct SmartScannerView: View {
     private func cancelCurrentAIAnalysis() {
         aiTask?.cancel()
         aiTask = nil
+        captureTimeoutTask?.cancel()
+        captureTimeoutTask = nil
         isAnalyzingAI = false
         isCapturingPhoto = false
+        cameraManager.invalidatePendingCapture()
         cameraManager.capturedImage = nil
     }
 
@@ -595,6 +607,7 @@ struct SmartScannerView: View {
             try? await Task.sleep(for: .seconds(4))
             guard !Task.isCancelled, isCapturingPhoto else { return }
             isCapturingPhoto = false
+            cameraManager.invalidatePendingCapture()
             scanErrorMessage = String(localized: "Camera capture timed out. Please try again.")
         }
         HapticManager.shared.impact(style: .heavy)
@@ -722,11 +735,24 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     var isCameraUnavailable: Bool = false
     var isConfigured = false
 
-    private let photoOutput = AVCapturePhotoOutput()
-    private let sessionQueue = DispatchQueue(label: "com.borisdev.FoodTracker.cameraSession")
-    private var shouldBeRunning = false
-    private var queueConfigured = false
-    private var activeDevice: AVCaptureDevice?
+    @ObservationIgnored private let photoOutput = AVCapturePhotoOutput()
+    @ObservationIgnored private let sessionQueue = DispatchQueue(label: "com.borisdev.FoodTracker.cameraSession")
+    @ObservationIgnored private let captureGenerationLock = NSLock()
+    @ObservationIgnored private var captureGeneration: UInt64 = 0
+    @ObservationIgnored private var inflightCaptureGenerations: [Int64: UInt64] = [:]
+    @ObservationIgnored private var shouldBeRunning = false
+    @ObservationIgnored private var queueConfigured = false
+    @ObservationIgnored private var activeDevice: AVCaptureDevice?
+
+    func invalidatePendingCapture() {
+        captureGenerationLock.withLock {
+            captureGeneration &+= 1
+        }
+    }
+
+    private func currentCaptureGeneration() -> UInt64 {
+        captureGenerationLock.withLock { captureGeneration }
+    }
 
     func checkPermissionAndStart() {
         guard AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) != nil else {
@@ -824,6 +850,7 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
     }
 
     func stop(completion: (() -> Void)? = nil) {
+        invalidatePendingCapture()
         sessionQueue.async { [weak self] in
             guard let self else {
                 if let completion {
@@ -886,13 +913,20 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
         }
         let rotationAngle = ScannerOrientationHelper.videoRotationAngle(for: interfaceOrientation)
 
+        let requestGeneration = captureGenerationLock.withLock { () -> UInt64 in
+            captureGeneration &+= 1
+            return captureGeneration
+        }
+
         sessionQueue.async { [weak self] in
             guard let self,
+                  self.currentCaptureGeneration() == requestGeneration,
                   self.session.isRunning,
                   let videoConnection = self.photoOutput.connection(with: .video),
                   videoConnection.isActive else {
                 DispatchQueue.main.async { [weak self] in
-                    self?.captureError = String(localized: "Camera is not ready yet. Please try again.")
+                    guard let self, self.currentCaptureGeneration() == requestGeneration else { return }
+                    self.captureError = String(localized: "Camera is not ready yet. Please try again.")
                 }
                 return
             }
@@ -900,27 +934,48 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
                 videoConnection.videoRotationAngle = rotationAngle
             }
             let settings = AVCapturePhotoSettings()
+            self.captureGenerationLock.withLock {
+                self.inflightCaptureGenerations[settings.uniqueID] = requestGeneration
+            }
             self.photoOutput.capturePhoto(with: settings, delegate: self)
         }
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        let photoGeneration = captureGenerationLock.withLock {
+            inflightCaptureGenerations.removeValue(forKey: photo.resolvedSettings.uniqueID)
+        }
+        if let photoGeneration, photoGeneration != currentCaptureGeneration() {
+            return
+        }
+        let targetGeneration = photoGeneration ?? currentCaptureGeneration()
+
         if let error {
             DispatchQueue.main.async { [weak self] in
-                self?.captureError = error.localizedDescription
+                guard let self, self.currentCaptureGeneration() == targetGeneration else { return }
+                self.captureError = error.localizedDescription
             }
             return
         }
-        guard let data = photo.fileDataRepresentation(), let rawImage = UIImage(data: data) else {
+        guard let data = photo.fileDataRepresentation() else {
             DispatchQueue.main.async { [weak self] in
-                self?.captureError = String(localized: "Could not read captured photo. Please try again.")
+                guard let self, self.currentCaptureGeneration() == targetGeneration else { return }
+                self.captureError = String(localized: "Could not read captured photo. Please try again.")
             }
             return
         }
 
-        let downsampled = VertexAIManager.downsampledImage(rawImage, maxDimension: 1280)
-        DispatchQueue.main.async { [weak self] in
-            self?.capturedImage = downsampled
+        Task.detached(priority: .userInitiated) { [weak self] in
+            guard let self, self.currentCaptureGeneration() == targetGeneration else { return }
+            let downsampled = VertexAIManager.downsampledImage(data: data, maxDimension: 1024)
+            await MainActor.run {
+                guard self.currentCaptureGeneration() == targetGeneration else { return }
+                if let downsampled {
+                    self.capturedImage = downsampled
+                } else {
+                    self.captureError = String(localized: "Could not read captured photo. Please try again.")
+                }
+            }
         }
     }
 }

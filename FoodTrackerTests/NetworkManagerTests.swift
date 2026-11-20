@@ -474,9 +474,9 @@ final class NetworkManagerTests: XCTestCase {
                       "proteins_100g": 8.0,
                       "fat_100g": 5.0,
                       "carbohydrates_100g": 10.0,
-                      "iron_100g": 2.5,
+                      "iron_100g": 0.0025,
                       "iron_unit": "mg",
-                      "vitamin-d_100g": 400,
+                      "vitamin-d_100g": 0.00001,
                       "vitamin-d_unit": "IU"
                     }
                   }
@@ -536,5 +536,41 @@ final class NetworkManagerTests: XCTestCase {
         XCTAssertEqual(item?.fiber ?? 0, 4.5, accuracy: 0.01)
         XCTAssertEqual(item?.sugar ?? 0, 3.0, accuracy: 0.01)
         XCTAssertEqual(item?.netCarbs ?? 0, 15.5, accuracy: 0.01)
+    }
+
+    func testOpenFoodFactsTreats100gMicronutrientsAsGramsRegardlessOfLabelUnit() async {
+        MockURLProtocol.requestHandler = { request in
+            let json = #"""
+            {
+              "status": 1,
+              "product": {
+                "product_name": "Real OFF Milk",
+                "nutriments": {
+                  "energy-kcal_100g": 60,
+                  "proteins_100g": 3.2,
+                  "fat_100g": 3.2,
+                  "carbohydrates_100g": 4.8,
+                  "calcium_100g": 0.12,
+                  "calcium_value": 120,
+                  "calcium_unit": "mg",
+                  "vitamin-d_100g": 0.00001,
+                  "vitamin-d_unit": "IU"
+                }
+              }
+            }
+            """#.data(using: .utf8)!
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+        }
+
+        let item = await networkManager.fetchProduct(barcode: "88880001")
+        XCTAssertNotNil(item)
+        XCTAssertEqual(item?.calcium ?? 0, 120.0, accuracy: 0.01)
+        XCTAssertEqual(item?.vitaminD ?? 0, 10.0, accuracy: 0.01)
+    }
+
+    func testNormalizedBarcodeExpandsUPCEWhilePreservingEAN8AndGTIN13() {
+        XCTAssertEqual(NetworkManager.normalizedBarcode(for: "04252614"), "042100005264")
+        XCTAssertEqual(NetworkManager.normalizedBarcode(for: "12345670"), "12345670")
+        XCTAssertEqual(NetworkManager.normalizedBarcode(for: "4601234567890"), "4601234567890")
     }
 }
