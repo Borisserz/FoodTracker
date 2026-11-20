@@ -1,12 +1,13 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - More Tab Hub
+// MARK: - AI Coach Hub (Apple HIG HUD Standard with Boris Typed Navigation & ReduceMotion)
 
 struct MoreTabView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
+    @Query private var summaries: [DailySummary]
     @Query(sort: \WeightLog.date, order: .forward) private var weightLogs: [WeightLog]
     @AppStorage("useMetricSystem") private var useMetricSystem = true
 
@@ -14,64 +15,68 @@ struct MoreTabView: View {
 
     private var user: User? { users.first }
     private var currentWeight: Double { weightLogs.last?.weight ?? user?.weight ?? 0.0 }
+    
+    private var todaySummary: DailySummary? {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        return summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) })
+    }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background
-                Color.themeBg.ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
 
-                // Decorative ambient blobs
-                decorativeBackground
-
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
-                        // Header greeting
+                        // Header Greeting
                         headerSection
-                            .padding(.top, 8)
+                            .padding(.top, 4)
 
-                        // Navigation cards
-                        VStack(spacing: 16) {
+                        // 1. Proactive AI Coach Command Hero Card
+                        aiCoachHeroCard
+                            .padding(.horizontal)
+
+                        // 2. Navigation Section (Goals, Full AI Lab, Profile)
+                        VStack(spacing: 14) {
                             ForEach(Array(moreItems.enumerated()), id: \.element.id) { index, item in
                                 MoreNavCard(item: item, reduceMotion: reduceMotion) {
                                     destinationView(for: item.destination)
                                 }
                                 .opacity(reduceMotion || appearedItems.contains(index) ? 1 : 0)
-                                .offset(y: (reduceMotion || appearedItems.contains(index)) ? 0 : 24)
+                                .offset(y: (reduceMotion || appearedItems.contains(index)) ? 0 : 20)
                                 .animation(
                                     reduceMotion
                                         ? nil
-                                        : .spring(response: 0.5, dampingFraction: 0.75)
-                                            .delay(Double(index) * 0.08),
+                                        : .spring(response: 0.45, dampingFraction: 0.75)
+                                            .delay(Double(index) * 0.06),
                                     value: appearedItems.contains(index)
                                 )
                             }
                         }
                         .padding(.horizontal)
 
-                        // Visual Progress Section (Before/After Photo comparison)
+                        // 3. Visual Progress Section (Before/After Photo comparison)
                         BeforeAfterView()
                             .padding(.horizontal)
-                            .padding(.top, 8)
+                            .padding(.top, 4)
                             .opacity(reduceMotion || appearedItems.count >= moreItems.count ? 1 : 0)
-                            .animation(reduceMotion ? nil : .easeIn(duration: 0.5).delay(0.25), value: appearedItems.count)
+                            .animation(reduceMotion ? nil : .easeIn(duration: 0.4).delay(0.2), value: appearedItems.count)
 
-                        // Cross-Promo Banner
+                        // 4. Cross-Promo Companion Banner
                         crossPromoBanner
                             .padding(.horizontal)
-                            .padding(.top, 8)
+                            .padding(.top, 4)
                             .opacity(reduceMotion || appearedItems.count >= moreItems.count ? 1 : 0)
-                            .animation(reduceMotion ? nil : .easeIn(duration: 0.5).delay(0.3), value: appearedItems.count)
+                            .animation(reduceMotion ? nil : .easeIn(duration: 0.4).delay(0.25), value: appearedItems.count)
 
-                        // App info footer
+                        // App Info Footer
                         footerSection
                             .padding(.bottom, 32)
                     }
                 }
-                .scrollIndicators(.hidden)
             }
             .navigationTitle("AI Coach")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
         }
         .onAppear {
             guard appearedItems.isEmpty else { return }
@@ -79,9 +84,8 @@ struct MoreTabView: View {
                 appearedItems = Set(moreItems.indices)
                 return
             }
-            // Stagger card entrance animations
             for i in 0..<moreItems.count {
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.08) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.06) {
                     withAnimation {
                         _ = appearedItems.insert(i)
                     }
@@ -102,56 +106,158 @@ struct MoreTabView: View {
         }
     }
 
-    // MARK: - Data
+    // MARK: - Proactive AI Coach Hero Card
+    private var aiCoachHeroCard: some View {
+        let summary = todaySummary ?? DailySummary(date: Date())
+        let cals = summary.totalCalories
+        let goal = user?.dailyCaloriesGoal ?? 2000
+        let protein = summary.totalProtein
+        let proteinGoal = user?.targetProtein ?? 140
+        
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color(red: 0.65, green: 0.55, blue: 0.95).opacity(0.18))
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(Color(red: 0.65, green: 0.55, blue: 0.95))
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Daily Nutrition Insight")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.primary)
+                    
+                    Text("Proactive analysis of your diet & metabolism")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.secondary)
+                }
+                
+                Spacer()
+            }
+            
+            // Micro Stats Chips
+            HStack(spacing: 8) {
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(cals > goal ? Color.red : Color(red: 0.16, green: 0.72, blue: 0.50))
+                        .frame(width: 6, height: 6)
+                    Text("\(cals) / \(goal) kcal")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundStyle(Color.primary)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color(UIColor.tertiarySystemGroupedBackground))
+                .clipShape(Capsule())
+                
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(Color(red: 0.16, green: 0.72, blue: 0.50))
+                        .frame(width: 6, height: 6)
+                    Text("\(Int(protein)) / \(Int(proteinGoal))g Protein")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundStyle(Color.primary)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color(UIColor.tertiarySystemGroupedBackground))
+                .clipShape(Capsule())
+                
+                Spacer()
+            }
+            
+            // 1-Tap Direct Chat Navigation Link
+            NavigationLink(destination: AICoachChatView(
+                userGoal: user?.dailyCaloriesGoal ?? 2000,
+                consumed: summary.totalCalories,
+                activeDiet: user?.activeDietPlan?.name ?? String(localized: "Balanced"),
+                consumedProtein: summary.totalProtein,
+                targetProtein: user?.targetProtein ?? 0,
+                consumedFats: summary.totalFats,
+                targetFats: user?.targetFats ?? 0,
+                consumedCarbs: summary.totalCarbs,
+                targetCarbs: user?.targetCarbs ?? 0,
+                hydrationLiters: summary.totalHydrationLiters,
+                activeCaloriesBurned: summary.activeCaloriesBurned
+            )) {
+                HStack {
+                    Image(systemName: "message.fill")
+                        .font(.system(size: 14, weight: .bold))
+                    Text("Consult with AI Coach")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                    Spacer()
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.system(size: 16))
+                }
+                .foregroundColor(Color(UIColor.systemBackground))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
+        }
+        .padding(18)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1.2)
+        )
+        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+    }
 
+    // MARK: - Navigation Items Data
     private var moreItems: [MoreItem] {
         [
             MoreItem(
                 id: 0,
-                title: "Goals & Progress",
+                title: "Goals & Targets",
                 subtitle: weightLogs.isEmpty
-                    ? "Set your weight goal"
+                    ? "Set your target weight & macros"
                     : String(localized: "Current: \(NutritionMath.formattedWeight(currentWeight, useMetric: useMetricSystem))"),
                 icon: "target",
-                gradient: [.themePink, .themeOrange],
-                badge: nil,
+                color: Color(red: 0.95, green: 0.55, blue: 0.25),
                 accessibilityId: "more_goals_card",
                 destination: .goals
             ),
             MoreItem(
                 id: 1,
-                title: "AI Coach",
-                subtitle: "Your proactive nutritionist",
-                icon: "sparkles",
-                gradient: [Color(hex: 0x9B59B6), Color(hex: 0xF25C78)],
-                badge: nil,
+                title: "AI Coach Dashboard",
+                subtitle: "Full metabolic diagnostics & tips",
+                icon: "waveform.path.ecg",
+                color: Color(red: 0.65, green: 0.55, blue: 0.95),
                 accessibilityId: "more_coach_card",
                 destination: .aiCoach
             ),
             MoreItem(
                 id: 2,
                 title: "Profile & Settings",
-                subtitle: user.map { String(localized: "Hello, \($0.name)!") } ?? "Edit your profile",
+                subtitle: user.map { String(localized: "Account of \($0.name)") } ?? "Preferences & HealthKit",
                 icon: "person.crop.circle.fill",
-                gradient: [Color(hex: 0x3498DB), Color(hex: 0x6BB8F2)],
-                badge: nil,
+                color: Color(red: 0.35, green: 0.65, blue: 0.95),
                 accessibilityId: "more_profile_card",
                 destination: .profile
             )
         ]
     }
 
-    // MARK: - Subviews
-
+    // MARK: - Header
     private var headerSection: some View {
         HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(greetingText)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(.secondary)
                 Text(user?.name ?? "Champion")
-                    .font(.system(size: 32, weight: .black, design: .rounded))
-                    .foregroundStyle(themeManager.current.primaryGradient)
+                    .font(.system(size: 26, weight: .black, design: .rounded))
+                    .foregroundStyle(Color.primary)
             }
             Spacer()
         }
@@ -169,8 +275,9 @@ struct MoreTabView: View {
         }
     }
 
+    // MARK: - Footer
     private var footerSection: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             Text("FoodTracker")
                 .font(.caption.bold())
                 .foregroundStyle(.secondary)
@@ -182,87 +289,62 @@ struct MoreTabView: View {
         .padding(.top, 8)
     }
 
+    // MARK: - Cross Promo
     private var crossPromoBanner: some View {
         Button(action: {
             TrackingManager.shared.track(.crossPromoTapped(app: "workout_tracker"))
             CrossAppLinkResolver.openWorkoutTracker()
         }) {
-            HStack(spacing: 16) {
-                // App Icon Placeholder
+            HStack(spacing: 14) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(LinearGradient(colors: [Color.themeOrange, Color.themePink], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 60, height: 60)
-                        .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.primary.opacity(0.08))
+                        .frame(width: 50, height: 50)
                     
                     Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(.white)
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color.primary)
                 }
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text("Workout Tracker")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundStyle(.primary)
                     
-                    Text("Your ultimate fitness companion")
+                    Text("Track sets, workouts & active burn")
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
                 }
                 
                 Spacer(minLength: 0)
                 
-                // Companion app CTA button
-                HStack(spacing: 5) {
+                HStack(spacing: 4) {
                     Text("Open")
                     Image(systemName: "arrow.up.right")
                         .font(.system(size: 10, weight: .bold))
                 }
-                .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(LinearGradient(colors: [Color.themeOrange, Color.themePink], startPoint: .leading, endPoint: .trailing))
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(Color.primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color(UIColor.tertiarySystemGroupedBackground))
                 .clipShape(Capsule())
-                .shadow(color: Color.themePink.opacity(0.3), radius: 4, y: 2)
             }
-            .padding(16)
-            .background {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                    
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(LinearGradient(colors: [Color.themeOrange.opacity(0.4), Color.themePink.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
-                }
-                .shadow(color: .black.opacity(0.04), radius: 10, y: 4)
-            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+            )
         }
-        .buttonStyle(BounceButtonStyle())
-    }
-
-    @ViewBuilder
-    private var decorativeBackground: some View {
-        Circle()
-            .fill(themeManager.current.primaryAccent.opacity(0.12))
-            .frame(width: 360, height: 360)
-            .blur(radius: 80)
-            .offset(x: -120, y: -260)
-            .allowsHitTesting(false)
-
-        Circle()
-            .fill(themeManager.current.secondaryAccent.opacity(0.08))
-            .frame(width: 320, height: 320)
-            .blur(radius: 90)
-            .offset(x: 140, y: 220)
-            .allowsHitTesting(false)
+        .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
     }
 }
 
-// MARK: - Model
-
+// MARK: - Navigation Item Model & Card
 private enum MoreDestination: Hashable {
     case goals
     case aiCoach
@@ -274,22 +356,9 @@ private struct MoreItem: Identifiable {
     let title: String
     let subtitle: String
     let icon: String
-    let gradient: [Color]
-    let badge: String?
+    let color: Color
     let accessibilityId: String
     let destination: MoreDestination
-}
-
-// MARK: - Navigation Card
-
-private struct MoreCardButtonStyle: ButtonStyle {
-    var reduceMotion: Bool = false
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(reduceMotion || !configuration.isPressed ? 1.0 : 0.96)
-            .animation(reduceMotion ? nil : .spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
-    }
 }
 
 private struct MoreNavCard<Destination: View>: View {
@@ -299,31 +368,20 @@ private struct MoreNavCard<Destination: View>: View {
 
     var body: some View {
         NavigationLink(destination: destination) {
-            HStack(spacing: 18) {
-
-                // Icon container
+            HStack(spacing: 14) {
                 ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: item.gradient,
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 54, height: 54)
-                        .shadow(color: item.gradient.first?.opacity(0.4) ?? .clear, radius: 8, y: 4)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(item.color.opacity(0.14))
+                        .frame(width: 44, height: 44)
 
                     Image(systemName: item.icon)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(.white)
-
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(item.color)
                 }
 
-                // Text
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(LocalizedStringKey(item.title))
-                        .font(.system(size: 17, weight: .black, design: .rounded))
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundStyle(.primary)
 
                     Text(LocalizedStringKey(item.subtitle))
@@ -334,35 +392,31 @@ private struct MoreNavCard<Destination: View>: View {
 
                 Spacer()
 
-                // Chevron
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(item.gradient.first ?? .secondary)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Color.secondary.opacity(0.4))
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .background {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                    
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    .white.opacity(0.25),
-                                    .white.opacity(0.05)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                }
-                .shadow(color: .black.opacity(0.04), radius: 10, x: 0, y: 4)
-            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+            )
         }
-        .buttonStyle(MoreCardButtonStyle(reduceMotion: reduceMotion))
+        .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
         .accessibilityIdentifier(item.accessibilityId)
+    }
+}
+
+private struct HUDSpringScaleButtonStyle: ButtonStyle {
+    var reduceMotion: Bool = false
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(reduceMotion || !configuration.isPressed ? 1.0 : 0.96)
+            .animation(reduceMotion ? nil : .spring(response: 0.22, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }

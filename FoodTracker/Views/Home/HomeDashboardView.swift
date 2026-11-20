@@ -131,23 +131,6 @@ struct HomeDashboardContentView: View {
               ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
                   ZStack {
                       Color.themeBg.ignoresSafeArea()
-                      
-                      GeometryReader { geo in
-                          ZStack {
-                              Circle()
-                                  .fill(Color.themePink.opacity(0.12))
-                                  .frame(width: 320, height: 320)
-                                  .blur(radius: 80)
-                                  .offset(x: -80, y: -100)
-                              
-                              Circle()
-                                  .fill(Color.themeOrange.opacity(0.08))
-                                  .frame(width: 280, height: 280)
-                                  .blur(radius: 70)
-                                  .offset(x: geo.size.width - 200, y: 220)
-                          }
-                      }
-                      .ignoresSafeArea()
                   }
 
                   // Sync HealthKit & WorkoutTracker whenever selectedDate changes without creating empty DailySummary rows on browse
@@ -159,7 +142,39 @@ struct HomeDashboardContentView: View {
                   ScrollView(showsIndicators: false) {
                       VStack(spacing: 24) {
                           HeaderView(selectedDate: selectedDate, user: currentUser, onProfileTap: { navigateToProfile = true }, onShareTap: { shareDailySummary() })
+                              .id("header_streak")
                           CalendarCarouselView(selectedDate: $selectedDate)
+                          
+                          // Quick Spotlight Search Button (Apple HIG HUD)
+                          Button(action: {
+                              HapticManager.shared.impact(style: .medium)
+                              self.quickAddMealType = "Breakfast"
+                              self.showingQuickAddSheet = true
+                          }) {
+                              HStack(spacing: 10) {
+                                  Image(systemName: "magnifyingglass")
+                                      .font(.system(size: 15, weight: .semibold))
+                                      .foregroundColor(.secondary)
+                                  Text("Search foods, scan meal or barcode...")
+                                      .font(.system(size: 14, weight: .medium, design: .rounded))
+                                      .foregroundColor(.secondary)
+                                  Spacer()
+                                  Image(systemName: "camera.viewfinder")
+                                      .font(.system(size: 16, weight: .semibold))
+                                      .foregroundColor(.primary)
+                              }
+                              .padding(.horizontal, 16)
+                              .padding(.vertical, 12)
+                              .background(Color(UIColor.secondarySystemGroupedBackground))
+                              .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                              .overlay(
+                                  RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                      .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                              )
+                              .shadow(color: Color.black.opacity(0.03), radius: 6, y: 2)
+                          }
+                          .buttonStyle(BounceButtonStyle())
+                          .padding(.horizontal, 20)
                           InsightsWidget(summary: currentSummary, user: currentUser)
 
                           DynamicEnergyDashboard(summary: currentSummary, summaries: summaries, user: currentUser)
@@ -242,9 +257,15 @@ struct HomeDashboardContentView: View {
                   .disabled(isMenuExpanded)
                   .onAppear {
                       handleWidgetScrollIfNeeded(with: scrollProxy)
+                      if SpotlightTourManager.shared.isTourActive {
+                          handleSpotlightScroll(to: SpotlightTourManager.shared.currentStep, with: scrollProxy)
+                      }
                   }
                   .onChange(of: appState.requestedWidgetAction) { _, _ in
                       handleWidgetScrollIfNeeded(with: scrollProxy)
+                  }
+                  .onChange(of: SpotlightTourManager.shared.currentStep) { _, newStep in
+                      handleSpotlightScroll(to: newStep, with: scrollProxy)
                   }
                   } // ScrollViewReader
                   
@@ -737,6 +758,23 @@ struct HomeDashboardContentView: View {
             break
         }
     }
+
+    private func handleSpotlightScroll(to step: SpotlightStep, with proxy: ScrollViewProxy) {
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+            switch step {
+            case .streakFire:
+                proxy.scrollTo("header_streak", anchor: .top)
+            case .macroRings:
+                proxy.scrollTo("macro_rings", anchor: .center)
+            case .fastingWater:
+                proxy.scrollTo("hydration_card", anchor: .center)
+            case .addMeal:
+                proxy.scrollTo("macro_rings", anchor: .top)
+            case .aiChef:
+                break
+            }
+        }
+    }
     
     private func finishDayAndCalculateXP() {
         guard currentSummary.totalCalories > 0 else {
@@ -1217,7 +1255,7 @@ struct MealDetailView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showingAddFood) {
-            AddMealView(selectedDate: date, initialMealType: title)
+            MealHUDQuickLogSheet(selectedDate: date, initialMealType: title)
                 .presentationDetents([.fraction(0.85), .large])
                 .presentationCornerRadius(32)
         }

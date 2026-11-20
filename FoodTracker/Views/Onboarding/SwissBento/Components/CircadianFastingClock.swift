@@ -12,7 +12,7 @@ struct CircadianFastingClock: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("FASTING PROTOCOL")
+                    Text("FASTING PLAN")
                         .font(.system(size: 11, weight: .bold, design: .monospaced))
                         .foregroundStyle(Color.swissChartreuse)
                     Text(protocolName)

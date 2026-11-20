@@ -391,7 +391,7 @@ private struct Stage2GoalProtocolView: View {
                         .font(.system(size: 12, weight: .black, design: .monospaced))
                         .foregroundStyle(Color.swissChartreuse)
                     
-                    Text("Choose Your Protocol")
+                    Text("Choose Your Plan")
                         .font(.system(size: 28, weight: .black, design: .default))
                         .foregroundStyle(.white)
                 }
@@ -509,7 +509,7 @@ private struct Stage2GoalProtocolView: View {
                 
                 // Action
                 Button(action: onNext) {
-                    Text("Lock Protocol →")
+                    Text("Lock Plan →")
                 }
                 .buttonStyle(SwissPillCTAButtonStyle(isEnabled: metrics.activityLevel != .none))
                 .disabled(metrics.activityLevel == .none)

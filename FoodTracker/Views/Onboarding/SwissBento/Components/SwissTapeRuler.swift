@@ -41,7 +41,7 @@ struct SwissTapeRuler: View {
                 // Background groove
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(Color.swissCardElevated)
-                    .frame(height: 70)
+                    .frame(height: 54)
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .strokeBorder(Color.swissBorder, lineWidth: 1)
@@ -57,19 +57,18 @@ struct SwissTapeRuler: View {
                             let isSuperMajor = tick % 10 == 0
                             
                             VStack(spacing: 4) {
-                                Rectangle()
+                                Capsule()
                                     .fill(
                                         tick == value
                                             ? Color.swissChartreuse
-                                            : (isSuperMajor ? Color.white.opacity(0.8) : (isMajor ? Color.white.opacity(0.4) : Color.white.opacity(0.2)))
+                                            : (isSuperMajor ? Color.white.opacity(0.85) : (isMajor ? Color.white.opacity(0.45) : Color.white.opacity(0.22)))
                                     )
-                                    .frame(width: tick == value ? 3 : (isMajor ? 2 : 1), height: isSuperMajor ? 26 : (isMajor ? 18 : 12))
-                                    .cornerRadius(1)
+                                    .frame(width: tick == value ? 2.5 : (isMajor ? 1.8 : 1.2), height: isSuperMajor ? 16 : (isMajor ? 10 : 6))
                                 
                                 if isSuperMajor {
                                     Text("\(tick)")
-                                        .font(.system(size: 9, weight: .bold, design: .monospaced))
-                                        .foregroundStyle(.white.opacity(0.5))
+                                        .font(.system(size: 8.5, weight: .bold, design: .monospaced))
+                                        .foregroundStyle(.white.opacity(0.55))
                                 }
                             }
                             .frame(width: 2)
@@ -77,19 +76,19 @@ struct SwissTapeRuler: View {
                     }
                     .offset(x: center - CGFloat(value - range.lowerBound) * stepWidth + dragOffset)
                 }
-                .frame(height: 70)
+                .frame(height: 54)
                 .clipped()
                 
                 // Central Chartreuse Pointer Needle & Lens
                 VStack(spacing: 0) {
-                    Rectangle()
+                    Capsule()
                         .fill(Color.swissChartreuse)
-                        .frame(width: 3, height: 40)
-                        .shadow(color: Color.swissChartreuseGlow, radius: 8, y: 0)
+                        .frame(width: 2.5, height: 26)
+                        .shadow(color: Color.swissChartreuseGlow, radius: 6, y: 0)
                     
                     Circle()
                         .fill(Color.swissChartreuse)
-                        .frame(width: 6, height: 6)
+                        .frame(width: 5, height: 5)
                 }
             }
             .gesture(
