@@ -23,6 +23,7 @@ final class SocialAuthService {
     private var lastApplePrepareDate: Date?
     private var appleRequestLeaseID: UUID?
     private var isAppleAuthorizationInFlight = false
+    private var isGoogleAuthorizationInFlight = false
 
     nonisolated static func shouldReuseRecentNonce(existingNonce: String?, elapsed: TimeInterval) -> Bool {
         existingNonce != nil && elapsed >= 0 && elapsed < 2.0
@@ -135,11 +136,16 @@ final class SocialAuthService {
     // MARK: - Google
 
     func signInWithGoogle() async throws {
+        guard !isGoogleAuthorizationInFlight else {
+            throw AuthError.invalidGoogleCredential
+        }
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw AuthError.missingGoogleClientID
         }
+        isGoogleAuthorizationInFlight = true
         let leaseID = await AnonymousAuthBootstrap.shared.beginInteractiveSignIn()
         defer {
+            isGoogleAuthorizationInFlight = false
             Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn(leaseID) }
         }
  
@@ -186,12 +192,28 @@ final class SocialAuthService {
                         try? await user.delete()
                     }
                 } else {
-                    throw error
+                    throw Self.mapAuthError(error)
                 }
             }
         } else {
-            _ = try await Auth.auth().signIn(with: credential)
+            do {
+                _ = try await Auth.auth().signIn(with: credential)
+            } catch {
+                throw Self.mapAuthError(error)
+            }
         }
+    }
+
+    nonisolated static func mapAuthError(_ error: Error) -> Error {
+        let nsError = error as NSError
+        guard nsError.domain == AuthErrorDomain,
+              let code = AuthErrorCode(rawValue: nsError.code) else {
+            return error
+        }
+        if code == .accountExistsWithDifferentCredential {
+            return AuthError.accountExistsWithOtherProvider
+        }
+        return error
     }
 
     // MARK: - Sign Out
@@ -339,6 +361,7 @@ enum AuthError: LocalizedError {
     case missingGoogleClientID
     case noPresentingController
     case notSignedIn
+    case accountExistsWithOtherProvider
 
     var errorDescription: String? {
         switch self {
@@ -354,6 +377,8 @@ enum AuthError: LocalizedError {
             return String(localized: "Failed to open login window.")
         case .notSignedIn:
             return String(localized: "You are not signed in.")
+        case .accountExistsWithOtherProvider:
+            return String(localized: "An account already exists with this email using a different sign-in method. Please sign in with your original provider.")
         }
     }
 }

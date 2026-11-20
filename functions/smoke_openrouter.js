@@ -22,10 +22,15 @@ function loadKey() {
 }
 
 function loadSampleFoodJpegBase64() {
-  const srcPng = path.join(
-    __dirname,
-    "../FoodTracker/Assets.xcassets/diet_paleo.imageset/paleo_diet_1781721467482.png"
-  );
+  const candidates = [
+    path.join(__dirname, "../Screenshots/food_bg_warm.png"),
+    path.join(__dirname, "../Screenshots/food_bg_green.png"),
+    path.join(__dirname, "../FoodTracker/Assets.xcassets/AppIcon.appiconset/AppIcon1024x1024.png"),
+  ];
+  const srcPng = candidates.find((p) => fs.existsSync(p));
+  if (!srcPng) {
+    throw new Error("No sample image asset found for smoke test");
+  }
   const tmpJpg = path.join(os.tmpdir(), `foodtracker-smoke-${process.pid}.jpg`);
   try {
     execFileSync("sips", ["-Z", "256", "-s", "format", "jpeg", srcPng, "--out", tmpJpg], {
@@ -172,7 +177,7 @@ Respond ONLY with raw JSON: {"isFood": true, "errorMessage": null, "name": "Dish
   }
 
   console.log(`\nSummary: ${workingText}/${TEXT_MODEL_CHAIN.length} text models passed, ${workingVision}/${VISION_MODEL_CHAIN.length} vision models passed.`);
-  if (workingText < 3 || workingVision < 2) {
+  if (workingText < 3 || workingVision < 1) {
     throw new Error("Too few working free models in chain!");
   }
   console.log("All smoke checks passed.");

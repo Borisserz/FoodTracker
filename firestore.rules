@@ -99,8 +99,8 @@ service cloud.firestore {
     }
 
     function isApprovedWorkout(workoutId) {
-      let workout = get(/databases/$(database)/documents/shared_workouts/$(workoutId));
-      return workout != null && workout.data.status == "approved";
+      let path = /databases/$(database)/documents/shared_workouts/$(workoutId);
+      return exists(path) && get(path).data.status == "approved";
     }
 
     // ===============================================================
@@ -136,7 +136,7 @@ service cloud.firestore {
              && data.exercises is list
              && data.exercises.size() > 0
              && data.exercises.size() <= 100
-             && (data.exercises[0] is map
+             && ((data.exercises[0] is map && data.exercises[0].keys().size() <= 20)
                  || (data.exercises[0] is string
                      && data.exercises[0].size() > 0
                      && data.exercises[0].size() <= 200))
@@ -160,7 +160,7 @@ service cloud.firestore {
              && data.status is string
              && data.status == "pending"
              && validStringLength(data, "workoutId", 1, 128)
-             && !data.workoutId.matches('.*/.*')
+             && !data.workoutId.matches('.*(/|\\.\\.).*')
              && reportId == data.workoutId + "_" + request.auth.uid
              && isApprovedWorkout(data.workoutId)
              && data.reason is string

@@ -688,6 +688,7 @@ struct AccountSettingsView: View {
     @State private var errorMessage: String?
     @State private var showError = false
     @State private var showDeleteConfirmation = false
+    @State private var showSignOutConfirmation = false
 
     var body: some View {
         ZStack {
@@ -770,16 +771,7 @@ struct AccountSettingsView: View {
                         .buttonStyle(BounceButtonStyle())
                     } else {
                         Button(action: {
-                            Task {
-                                isLoading = true
-                                do {
-                                    try await SocialAuthService.shared.signOut()
-                                } catch {
-                                    errorMessage = error.localizedDescription
-                                    showError = true
-                                }
-                                isLoading = false
-                            }
+                            showSignOutConfirmation = true
                         }) {
                             HStack {
                                 Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -794,6 +786,29 @@ struct AccountSettingsView: View {
                             .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
                         }
                         .buttonStyle(BounceButtonStyle())
+                        .confirmationDialog(
+                            "Log out of your account?",
+                            isPresented: $showSignOutConfirmation,
+                            titleVisibility: .visible
+                        ) {
+                            Button("Log out", role: .destructive) {
+                                Task {
+                                    isLoading = true
+                                    do {
+                                        try await SocialAuthService.shared.signOut()
+                                        LocalDataResetService.wipeAllData(in: context)
+                                        dismiss()
+                                    } catch {
+                                        errorMessage = error.localizedDescription
+                                        showError = true
+                                    }
+                                    isLoading = false
+                                }
+                            }
+                            Button("Cancel", role: .cancel) {}
+                        } message: {
+                            Text("Signing out switches to a fresh guest session and clears local device records so personal data is not shared across accounts.")
+                        }
                     }
 
                     Button(action: {

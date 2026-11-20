@@ -17,9 +17,9 @@ test("exports _test helpers and only FoodTracker Cloud Functions", () => {
   assert.equal(mod.deleteAccount, undefined);
 });
 
-test("model chains cover 10 text models and multimodal vision models", () => {
-  assert.equal(t.TEXT_MODEL_CHAIN.length, 10);
-  assert.ok(t.VISION_MODEL_CHAIN.length >= 8);
+test("model chains cover ZDR-compatible text models and multimodal vision models", () => {
+  assert.ok(t.TEXT_MODEL_CHAIN.length >= 6);
+  assert.ok(t.VISION_MODEL_CHAIN.length >= 4);
   assert.ok(t.TEXT_MODEL_CHAIN.includes("openrouter/free"));
   assert.ok(t.VISION_MODEL_CHAIN.includes("openrouter/free"));
 });
@@ -85,7 +85,7 @@ test("geminiBodyToOpenAI converts multimodal inlineData into image_url content a
   };
   const out = t.geminiBodyToOpenAI(body, {
     streaming: false,
-    model: "nvidia/nemotron-3.5-super-vl:free",
+    model: "google/gemma-4-31b-it:free",
   });
   assert.equal(out.messages[0].role, "system");
   assert.equal(out.messages[0].content, "You are a nutritionist.");
@@ -1027,4 +1027,55 @@ test("SSE stream helpers set no-cache headers, flushHeaders, and ensure terminal
   t.finishSSEStreamResponse(res, { yielded: true, emittedDone: true });
   assert.equal(chunks.length, 0);
   assert.equal(ended, true);
+});
+
+test("verifyFirebaseUser enforces recent auth_time even when sign_in_provider claim is missing", async () => {
+  const staleSec = Math.floor(Date.now() / 1000) - 600;
+  const req = { header: (k) => (k.toLowerCase() === "authorization" ? "Bearer tok" : "") };
+  const out = { statusCode: 0, body: null };
+  const res = {
+    status(c) { out.statusCode = c; return this; },
+    json(b) { out.body = b; return this; },
+  };
+  const uid = await t.verifyFirebaseUser(
+    req,
+    res,
+    async () => ({ uid: "u1", auth_time: staleSec, firebase: {} }),
+    { requireRecentAuthSec: 300 }
+  );
+  assert.equal(uid, null);
+  assert.equal(out.statusCode, 401);
+  assert.equal(out.body?.error, "requires_recent_login");
+});
+
+test("isMeaningfulJsonOutput rejects empty object/array and accepts populated payloads", () => {
+  assert.equal(t.isMeaningfulJsonOutput("{}"), false);
+  assert.equal(t.isMeaningfulJsonOutput("[]"), false);
+  assert.equal(t.isMeaningfulJsonOutput('{"mealName":"Oats"}'), true);
+  assert.equal(t.isMeaningfulJsonOutput('[{"name":"Apple"}]'), true);
+});
+
+test("resolveDeviceQuotaLimit tightens anonymous device quota to curb reset abuse", () => {
+  assert.equal(t.resolveDeviceQuotaLimit(200, "anonymous", "ai"), 120);
+  assert.equal(t.resolveDeviceQuotaLimit(200, "apple.com", "ai"), 400);
+  assert.equal(t.resolveDeviceQuotaLimit(1000, "anonymous", "search"), 500);
+  assert.equal(t.resolveDeviceQuotaLimit(1000, "google.com", "search"), 2000);
+});
+
+test("validateAiProxyBody rejects unsupported responseMimeType", () => {
+  assert.throws(
+    () =>
+      t.validateAiProxyBody({
+        contents: [{ role: "user", parts: [{ text: "hello" }] }],
+        generationConfig: { responseMimeType: "text/html" },
+      }),
+    /responseMimeType/i
+  );
+});
+
+test("openAIStreamChunkToGemini throws on mid-stream upstream error object", () => {
+  assert.throws(
+    () => t.openAIStreamChunkToGemini('data: {"error":{"message":"Upstream interrupted"}}'),
+    /Upstream interrupted/
+  );
 });

@@ -51,15 +51,14 @@ const FATSECRET_OAUTH1_URL = "https://platform.fatsecret.com/rest/server.api";
 const FATSECRET_TIMEOUT_MS = 10000;
 
 let fatSecretTokenCache = null;
+let fatSecretTokenInFlight = null;
+let fatSecretAuthModeCache = null;
 let aiSettingsCache = null;
 const AI_SETTINGS_CACHE_TTL_MS = 60_000;
 
-// 10-model text fallback chain ordered by live reliability and structured JSON support.
+// Text fallback chain ordered by live ZDR (data_collection: "deny") compatibility & structured JSON support.
 const TEXT_MODEL_CHAIN = [
-  "particle-ai/particle-1:free",
-  "nvidia/nemotron-3.5-super-vl:free",
   "baidu/ernie-5.5-flash-preview:free",
-  "liquid/lfm-3-1.7b:free",
   "dots-studio/dots-3-note-preview:free",
   "inclusionai/ling-3.2-flash:free",
   "recursive/flint-v1.0:free",
@@ -68,26 +67,19 @@ const TEXT_MODEL_CHAIN = [
   "openrouter/free",
 ];
 
-// Multimodal fallback chain for food/menu photos (image-capable models only).
+// Multimodal fallback chain for food/menu photos (ZDR-compatible image-capable models).
 const VISION_MODEL_CHAIN = [
-  "nvidia/nemotron-3.5-super-vl:free",
-  "particle-ai/particle-1:free",
-  "inclusionai/ling-3.2-flash:free",
   "dots-studio/dots-3-note-preview:free",
+  "inclusionai/ling-3.2-flash:free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
-  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-  "thinkingmachines/inkling-2-small:free",
   "openrouter/free",
 ];
 
 const STRUCTURED_MODELS = new Set([
   "inclusionai/ling-3.2-flash:free",
   "baidu/ernie-5.5-flash-preview:free",
-  "liquid/lfm-3-1.7b:free",
-  "particle-ai/particle-1:free",
   "dots-studio/dots-3-note-preview:free",
-  "nvidia/nemotron-3.5-super-vl:free",
   "openrouter/free",
 ]);
 
@@ -233,6 +225,12 @@ function validateAiProxyBody(body) {
     throw new Error(`Too many content messages (max ${MAX_AI_CONTENTS})`);
   }
 
+  if (body.generationConfig?.responseMimeType !== undefined) {
+    const mime = body.generationConfig.responseMimeType;
+    if (mime !== "text/plain" && mime !== "application/json") {
+      throw new Error(`Unsupported responseMimeType: ${String(mime)}`);
+    }
+  }
   if (body.generationConfig?.responseSchema !== undefined) {
     validateSchemaDepth(body.generationConfig.responseSchema, 0);
     const serializedSchema = JSON.stringify(body.generationConfig.responseSchema);
@@ -515,20 +513,32 @@ function openAIStreamChunkToGemini(line) {
   const payload = line.slice(5).trim();
   if (!payload) return null;
   if (payload === "[DONE]") return "[DONE]";
+  let parsed;
   try {
-    const parsed = JSON.parse(payload);
-    const delta = extractMessageText(
-      parsed?.choices?.[0]?.delta?.content ??
-        parsed?.choices?.[0]?.message?.content ??
-        ""
-    );
-    if (!delta) return null;
-    return JSON.stringify({
-      candidates: [{ content: { parts: [{ text: delta }] } }],
-    });
+    parsed = JSON.parse(payload);
   } catch {
     return null;
   }
+  if (parsed?.error) {
+    const msg = parsed.error?.message || JSON.stringify(parsed.error);
+    throw new Error(`Stream upstream error: ${String(msg).slice(0, 240)}`);
+  }
+  const delta = extractMessageText(
+    parsed?.choices?.[0]?.delta?.content ??
+      parsed?.choices?.[0]?.message?.content ??
+      ""
+  );
+  if (!delta) return null;
+  return JSON.stringify({
+    candidates: [{ content: { parts: [{ text: delta }] } }],
+  });
+}
+
+function isMeaningfulJsonOutput(text) {
+  const parsed = JSON.parse(text);
+  if (Array.isArray(parsed)) return parsed.length > 0;
+  if (parsed && typeof parsed === "object") return Object.keys(parsed).length > 0;
+  return false;
 }
 
 function sanitizeModelOverrides(models) {
@@ -551,6 +561,19 @@ function resolveUserQuotaLimit(baseLimit, signInProvider, kind = "ai") {
     return Math.min(safeBase, anonCap);
   }
   return safeBase;
+}
+
+function resolveDeviceQuotaLimit(baseLimit, signInProvider, kind = "ai") {
+  const safeBase =
+    typeof baseLimit === "number" && Number.isFinite(baseLimit) && baseLimit > 0
+      ? baseLimit
+      : kind === "search"
+        ? DEFAULT_SEARCH_WEEKLY_LIMIT
+        : DEFAULT_AI_WEEKLY_LIMIT;
+  if (signInProvider === "anonymous") {
+    return kind === "search" ? Math.min(safeBase * 2, 500) : Math.min(safeBase * 2, 120);
+  }
+  return safeBase * 2;
 }
 
 async function loadAISettings() {
@@ -863,7 +886,9 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
         }
         if (expectJSON) {
           try {
-            JSON.parse(outText);
+            if (!isMeaningfulJsonOutput(outText)) {
+              throw new Error("Empty JSON container");
+            }
           } catch (e) {
             lastError = new Error(
               `Invalid JSON output from ${model}: ${e.message}`
@@ -929,7 +954,7 @@ async function verifyFirebaseUser(
     const decoded = await verifyIdTokenFn(m[1], true);
     const provider = decoded?.firebase?.sign_in_provider || "";
     const requireRecentAuthSec = Number(options?.requireRecentAuthSec || 0);
-    if (requireRecentAuthSec > 0 && provider && provider !== "anonymous") {
+    if (requireRecentAuthSec > 0 && provider !== "anonymous") {
       const authTime = Number(decoded?.auth_time || 0);
       const nowSec = Math.floor(Date.now() / 1000);
       if (!Number.isFinite(authTime) || authTime <= 0 || nowSec - authTime > requireRecentAuthSec) {
@@ -1205,6 +1230,7 @@ async function getFatSecretAccessToken({
   clientId,
   clientSecret,
   forceRefresh = false,
+  timeoutMs = FATSECRET_TIMEOUT_MS,
 }) {
   if (!forceRefresh && isTokenValid(fatSecretTokenCache)) {
     return fatSecretTokenCache.token;
@@ -1212,36 +1238,50 @@ async function getFatSecretAccessToken({
   if (!clientId || !clientSecret) {
     throw new Error("FatSecret credentials not configured");
   }
+  if (!forceRefresh && fatSecretTokenInFlight) {
+    return fatSecretTokenInFlight;
+  }
 
-  const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-  const resp = await fetch(FATSECRET_TOKEN_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${basic}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials&scope=basic",
-    signal: AbortSignal.timeout(FATSECRET_TIMEOUT_MS),
-  });
-  const text = await resp.text();
-  if (!resp.ok) {
-    fatSecretTokenCache = null;
-    throw new Error(`FatSecret token error ${resp.status}: ${text.slice(0, 200)}`);
+  const runFetch = (async () => {
+    const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+    const resp = await fetch(FATSECRET_TOKEN_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${basic}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "grant_type=client_credentials&scope=basic",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    const text = await resp.text();
+    if (!resp.ok) {
+      fatSecretTokenCache = null;
+      throw new Error(`FatSecret token error ${resp.status}: ${text.slice(0, 200)}`);
+    }
+    const data = JSON.parse(text);
+    if (!data?.access_token) {
+      fatSecretTokenCache = null;
+      throw new Error("FatSecret token missing access_token");
+    }
+    const expiresSec =
+      typeof data.expires_in === "number" && data.expires_in > 120
+        ? data.expires_in
+        : 3600;
+    fatSecretTokenCache = {
+      token: data.access_token,
+      expiresAtMs: Date.now() + expiresSec * 1000,
+    };
+    return fatSecretTokenCache.token;
+  })();
+
+  fatSecretTokenInFlight = runFetch;
+  try {
+    return await runFetch;
+  } finally {
+    if (fatSecretTokenInFlight === runFetch) {
+      fatSecretTokenInFlight = null;
+    }
   }
-  const data = JSON.parse(text);
-  if (!data?.access_token) {
-    fatSecretTokenCache = null;
-    throw new Error("FatSecret token missing access_token");
-  }
-  const expiresSec =
-    typeof data.expires_in === "number" && data.expires_in > 120
-      ? data.expires_in
-      : 3600;
-  fatSecretTokenCache = {
-    token: data.access_token,
-    expiresAtMs: Date.now() + expiresSec * 1000,
-  };
-  return fatSecretTokenCache.token;
 }
 
 exports.foodAiProxy = onRequest(
@@ -1283,6 +1323,7 @@ exports.foodAiProxy = onRequest(
 
     const settings = await loadAISettings();
     const userAiLimit = resolveUserQuotaLimit(settings.weeklyLimit, req._authSignInProvider, "ai");
+    const deviceAiLimit = resolveDeviceQuotaLimit(settings.weeklyLimit, req._authSignInProvider, "ai");
     const deviceHash = resolveSecondaryQuotaKey(req);
     const ipHash = resolveIpQuotaKey(req);
 
@@ -1295,7 +1336,7 @@ exports.foodAiProxy = onRequest(
         deviceHash,
         ipHash,
         userLimit: userAiLimit,
-        deviceLimit: settings.weeklyLimit * 2,
+        deviceLimit: deviceAiLimit,
         ipLimit: settings.weeklyLimit * 8,
       });
     } catch (e) {
@@ -1489,6 +1530,7 @@ async function fetchFatSecretWithRetry({
       clientId,
       clientSecret,
       forceRefresh: attempt > 0,
+      timeoutMs,
     });
     const resp = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
@@ -1544,6 +1586,11 @@ exports.foodSearchProxy = onRequest(
       req._authSignInProvider,
       "search"
     );
+    const deviceSearchLimit = resolveDeviceQuotaLimit(
+      DEFAULT_SEARCH_WEEKLY_LIMIT,
+      req._authSignInProvider,
+      "search"
+    );
     let searchReservedWindows;
     try {
       searchReservedWindows = await reserveDualRateLimitSlots({
@@ -1553,7 +1600,7 @@ exports.foodSearchProxy = onRequest(
         deviceHash: searchDeviceHash,
         ipHash: searchIpHash,
         userLimit: userSearchLimit,
-        deviceLimit: DEFAULT_SEARCH_WEEKLY_LIMIT * 2,
+        deviceLimit: deviceSearchLimit,
         ipLimit: DEFAULT_SEARCH_WEEKLY_LIMIT * 8,
       });
     } catch (e) {
@@ -1603,25 +1650,27 @@ exports.foodSearchProxy = onRequest(
 
     try {
       if (parsed.mode === "search") {
-        // Try OAuth 1.0 Consumer Key/Secret first (stateless, works with Basic FatSecret keys).
-        const oauth1Data = await callFatSecretOAuth1({
-          consumerKey: clientId,
-          consumerSecret: clientSecret,
-          method: "foods.search",
-          extraParams: {
-            search_expression: parsed.query,
-            max_results: String(parsed.maxResults),
-          },
-          timeoutMs: boundedFatSecretTimeout(),
-        });
-        if (!oauth1Data?.error) {
-          res.status(200).json({ items: normalizeFatSecretSearch(oauth1Data) });
-          return;
-        }
-        // Only fall back to OAuth 2.0 if keys are rejected as OAuth 1.0 consumer credentials.
-        const errCode = Number(oauth1Data.error?.code);
-        if (errCode !== 2 && errCode !== 8) {
-          throw new Error(`FatSecret error ${errCode}: ${oauth1Data.error?.message}`);
+        if (fatSecretAuthModeCache !== "oauth2") {
+          const oauth1Data = await callFatSecretOAuth1({
+            consumerKey: clientId,
+            consumerSecret: clientSecret,
+            method: "foods.search",
+            extraParams: {
+              search_expression: parsed.query,
+              max_results: String(parsed.maxResults),
+            },
+            timeoutMs: boundedFatSecretTimeout(),
+          });
+          if (!oauth1Data?.error) {
+            fatSecretAuthModeCache = "oauth1";
+            res.status(200).json({ items: normalizeFatSecretSearch(oauth1Data) });
+            return;
+          }
+          const errCode = Number(oauth1Data.error?.code);
+          if (errCode !== 2 && errCode !== 8) {
+            throw new Error(`FatSecret error ${errCode}: ${oauth1Data.error?.message}`);
+          }
+          fatSecretAuthModeCache = "oauth2";
         }
         const url =
           `${FATSECRET_API_BASE}/foods/search/v1?search_expression=${encodeURIComponent(
@@ -1639,38 +1688,43 @@ exports.foodSearchProxy = onRequest(
       }
 
       const normalizedBarcode = normalizeFatSecretBarcodeInput(parsed.barcode);
-      const oauth1Barcode = await callFatSecretOAuth1({
-        consumerKey: clientId,
-        consumerSecret: clientSecret,
-        method: "food.find_id_for_barcode",
-        extraParams: { barcode: normalizedBarcode },
-        timeoutMs: boundedFatSecretTimeout(),
-      });
-      if (!oauth1Barcode?.error) {
-        const foodId = oauth1Barcode?.food_id?.value;
-        if (!foodId) {
+      if (fatSecretAuthModeCache !== "oauth2") {
+        const oauth1Barcode = await callFatSecretOAuth1({
+          consumerKey: clientId,
+          consumerSecret: clientSecret,
+          method: "food.find_id_for_barcode",
+          extraParams: { barcode: normalizedBarcode },
+          timeoutMs: boundedFatSecretTimeout(),
+        });
+        if (!oauth1Barcode?.error) {
+          fatSecretAuthModeCache = "oauth1";
+          const foodId = oauth1Barcode?.food_id?.value;
+          if (!foodId) {
+            res.status(200).json({ item: null });
+            return;
+          }
+          const detail = await callFatSecretOAuth1({
+            consumerKey: clientId,
+            consumerSecret: clientSecret,
+            method: "food.get",
+            extraParams: { food_id: String(foodId) },
+            timeoutMs: boundedFatSecretTimeout(),
+          });
+          assertFatSecretDetailSuccess(detail);
+          res.status(200).json({ item: normalizeFatSecretBarcode(detail) });
+          return;
+        }
+        const bCode = Number(oauth1Barcode.error?.code);
+        if (bCode === 10) {
+          fatSecretAuthModeCache = "oauth1";
+          // Basic OAuth 1.0 plan has no barcode method; return null cleanly so OFF/AI proceed.
           res.status(200).json({ item: null });
           return;
         }
-        const detail = await callFatSecretOAuth1({
-          consumerKey: clientId,
-          consumerSecret: clientSecret,
-          method: "food.get",
-          extraParams: { food_id: String(foodId) },
-          timeoutMs: boundedFatSecretTimeout(),
-        });
-        assertFatSecretDetailSuccess(detail);
-        res.status(200).json({ item: normalizeFatSecretBarcode(detail) });
-        return;
-      }
-      const bCode = Number(oauth1Barcode.error?.code);
-      if (bCode === 10) {
-        // Basic OAuth 1.0 plan has no barcode method; return null cleanly so OFF/AI proceed.
-        res.status(200).json({ item: null });
-        return;
-      }
-      if (bCode !== 2 && bCode !== 8) {
-        throw new Error(`FatSecret barcode error ${bCode}: ${oauth1Barcode.error?.message}`);
+        if (bCode !== 2 && bCode !== 8) {
+          throw new Error(`FatSecret barcode error ${bCode}: ${oauth1Barcode.error?.message}`);
+        }
+        fatSecretAuthModeCache = "oauth2";
       }
 
       const url =
@@ -1831,6 +1885,8 @@ module.exports._test = {
   ENDPOINT_AUTH_OPTIONS,
   sanitizeModelOverrides,
   resolveUserQuotaLimit,
+  resolveDeviceQuotaLimit,
+  isMeaningfulJsonOutput,
   beginSSEStreamResponse,
   finishSSEStreamResponse,
 };

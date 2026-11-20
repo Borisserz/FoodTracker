@@ -291,4 +291,18 @@ final class SocialAuthServiceTests: XCTestCase {
         let remaining = await bootstrap.activeInteractiveLeaseCountForTesting()
         XCTAssertEqual(remaining, 0, "Stale interactive sign-in lease older than TTL must be pruned")
     }
+
+    func testMapAuthErrorConvertsProviderCollisionToUserFacingMessage() {
+        let collisionError = NSError(
+            domain: AuthErrorDomain,
+            code: AuthErrorCode.accountExistsWithDifferentCredential.rawValue,
+            userInfo: nil
+        )
+        let mapped = SocialAuthService.mapAuthError(collisionError)
+        guard case AuthError.accountExistsWithOtherProvider = mapped else {
+            XCTFail("Expected accountExistsWithOtherProvider, got \(mapped)")
+            return
+        }
+        XCTAssertFalse(mapped.localizedDescription.isEmpty)
+    }
 }
