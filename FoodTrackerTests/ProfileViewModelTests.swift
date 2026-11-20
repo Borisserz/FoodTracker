@@ -13,8 +13,7 @@ final class ProfileViewModelTests: XCTestCase {
         container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
         
         summaryRepo = SummaryRepository(modelContainer: container)
-        let userRepo = UserRepository(modelContainer: container)
-        viewModel = ProfileViewModel(summaryRepository: summaryRepo, userRepository: userRepo)
+        viewModel = ProfileViewModel(summaryRepository: summaryRepo)
     }
 
     override func tearDownWithError() throws {

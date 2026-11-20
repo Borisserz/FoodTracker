@@ -4,9 +4,6 @@ import SwiftData
 @MainActor
 @Observable
 class AICoachViewModel {
-    private let summaryRepository: SummaryRepositoryProtocol
-    private let userRepository: UserRepositoryProtocol
-
     var isFixingMacros = false
     var isFixingHydration = false
     var macroAdvice: MacroFixAdviceDTO? = nil
@@ -28,10 +25,7 @@ class AICoachViewModel {
     private var macroAnalysisTask: Task<Void, Never>?
     private var hydrationAnalysisTask: Task<Void, Never>?
 
-    init(summaryRepository: SummaryRepositoryProtocol, userRepository: UserRepositoryProtocol) {
-        self.summaryRepository = summaryRepository
-        self.userRepository = userRepository
-    }
+    init() {}
 
     func resetDailyAnalysis() {
         dailyAnalysisTask?.cancel()

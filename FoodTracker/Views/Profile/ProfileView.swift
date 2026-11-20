@@ -456,6 +456,7 @@ struct SettingsView: View {
     @AppStorage("useMetricSystem") private var useMetricSystem = true
     @State private var consentManager = AIPhotoConsentManager.shared
     @State private var showLegalOptions = false
+    @State private var exportErrorMessage: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -577,6 +578,17 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
+            .alert(
+                "Export Failed",
+                isPresented: Binding(
+                    get: { exportErrorMessage != nil },
+                    set: { if !$0 { exportErrorMessage = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) { exportErrorMessage = nil }
+            } message: {
+                Text(exportErrorMessage ?? "")
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -597,27 +609,32 @@ struct SettingsView: View {
             let summaries = try context.fetch(
                 FetchDescriptor<DailySummary>(sortBy: [SortDescriptor(\.date, order: .reverse)])
             )
-            let fileURL = try DataExportService.generateCSV(from: summaries)
+            let weightLogs = try context.fetch(
+                FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .forward)])
+            )
+            let fileURL = try DataExportService.generateCSV(from: summaries, weightLogs: weightLogs)
             let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
             
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController {
-                
-                var topVC = rootVC
-                while let presented = topVC.presentedViewController {
-                    topVC = presented
-                }
-                
-                if let popover = activityVC.popoverPresentationController {
-                    popover.sourceView = topVC.view
-                    popover.sourceRect = CGRect(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY, width: 0, height: 0)
-                    popover.permittedArrowDirections = []
-                }
-                
-                topVC.present(activityVC, animated: true)
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
+                exportErrorMessage = String(localized: "Unable to open the share sheet right now. Please try again.")
+                return
             }
+
+            var topVC = rootVC
+            while let presented = topVC.presentedViewController {
+                topVC = presented
+            }
+
+            if let popover = activityVC.popoverPresentationController {
+                popover.sourceView = topVC.view
+                popover.sourceRect = CGRect(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
+
+            topVC.present(activityVC, animated: true)
         } catch {
-            print("Failed to export data: \(error)")
+            exportErrorMessage = error.localizedDescription
         }
     }
 

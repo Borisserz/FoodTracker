@@ -37,12 +37,22 @@ class AcademyDataLoader {
     
     private let db = Firestore.firestore()
     private var listener: ListenerRegistration?
+    private var hasLoadedRemote = false
 
     init() {
         loadCompletedArticles()
-        self.categories = Self.loadBundledCategories()
-        recalculateProgress()
-        fetchCategoriesFromFirestore()
+        let langCode = Locale.current.language.languageCode?.identifier
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let bundled = Self.loadBundledCategories(languageCode: langCode)
+            await MainActor.run {
+                guard let self else { return }
+                if self.categories.isEmpty && !self.hasLoadedRemote {
+                    self.categories = bundled
+                    self.recalculateProgress()
+                }
+                self.fetchCategoriesFromFirestore()
+            }
+        }
     }
 
     deinit {
@@ -139,6 +149,7 @@ class AcademyDataLoader {
             guard !fetchedCategories.isEmpty else { return }
 
             DispatchQueue.main.async {
+                self.hasLoadedRemote = true
                 self.categories = fetchedCategories.sorted { $0.title < $1.title }
                 self.recalculateProgress()
                 print("✅ Академия загружена: \(self.categories.count) категорий.")

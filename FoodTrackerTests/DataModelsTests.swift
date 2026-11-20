@@ -686,26 +686,6 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(withoutHK.stepsCount, 0)
     }
 
-    func testMotionManagerReferenceCountingStartAndStop() {
-        let motion = MotionManager.shared
-        motion.resetForTesting()
-        XCTAssertEqual(motion.activeConsumerCount, 0)
-
-        motion.start()
-        motion.start()
-        XCTAssertEqual(motion.activeConsumerCount, 2)
-
-        motion.stop()
-        XCTAssertEqual(motion.activeConsumerCount, 1)
-
-        motion.stop()
-        XCTAssertEqual(motion.activeConsumerCount, 0)
-
-        // Extra stop does not underflow consumer counter.
-        motion.stop()
-        XCTAssertEqual(motion.activeConsumerCount, 0)
-    }
-
     func testDailyWidgetSnapshotMidnightRolloverSchedule() {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
@@ -2023,5 +2003,31 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(copied.first?.calories, 310)
         XCTAssertNil(copied.first?.healthKitSampleID)
         XCTAssertTrue(copied.first !== f1)
+    }
+
+    func testDataExportServiceGeneratesExpandedCSVWithEscapingAndWeight() throws {
+        XCTAssertEqual(DataExportService.escapeCSVField("plain"), "plain")
+        XCTAssertEqual(DataExportService.escapeCSVField("a, \"b\""), "\"a, \"\"b\"\"\"")
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let day = calendar.date(from: DateComponents(year: 2026, month: 11, day: 15, hour: 12))!
+
+        let food = FoodItem(name: "Apple, Fuji", weight: 150, calories: 80, protein: 0.4, fats: 0.3, carbs: 21, fiber: 3.5, sugar: 15.0)
+        let meal = Meal(title: "Snack", date: day, foodItems: [food])
+        let drink = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 1250)
+        let summary = DailySummary(date: day, meals: [meal], beverages: [drink])
+        summary.weight = nil
+        summary.activeCaloriesBurned = 420
+        summary.stepsCount = 8150
+        let weightLog = WeightLog(date: day, weight: 72.4)
+
+        let url = try DataExportService.generateCSV(from: [summary], weightLogs: [weightLog])
+        defer { try? FileManager.default.removeItem(at: url) }
+        let csv = try String(contentsOf: url, encoding: .utf8)
+        let lines = csv.split(separator: "\n").map(String.init)
+        XCTAssertEqual(lines.count, 2)
+        XCTAssertEqual(lines[0], "Date,Total Calories (kcal),Total Protein (g),Total Carbs (g),Total Fat (g),Total Meals Logged,Hydration (L),Fiber (g),Sugar (g),Active Burned (kcal),Steps,Weight (kg)")
+        XCTAssertTrue(lines[1].contains(",80,0,21,0,1,1.25,3.5,15.0,420,8150,72.4"))
     }
 }

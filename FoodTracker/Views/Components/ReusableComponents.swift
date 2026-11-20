@@ -675,6 +675,7 @@ struct DetailedMacroRingsCard: View {
         .padding(.horizontal)
     }
 }
+
 struct IndividualMacroRing: View {
     let title: LocalizedStringKey
     let current: Double
@@ -783,6 +784,20 @@ struct MicronutrientsFocusCard: View {
         }
         .ultraPremiumCardStyle()
         .padding(.horizontal)
+    }
+}
+
+extension View {
+    func keyboardDoneToolbar() -> some View {
+        toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(String(localized: "Done")) {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
+                .fontWeight(.semibold)
+            }
+        }
     }
 }
 

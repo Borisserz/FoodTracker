@@ -37,12 +37,12 @@ final class DIContainer: @unchecked Sendable {
 
     @MainActor
     func makeAICoachViewModel() -> AICoachViewModel {
-        AICoachViewModel(summaryRepository: summaryRepository, userRepository: userRepository)
+        AICoachViewModel()
     }
 
     @MainActor
     func makeProfileViewModel() -> ProfileViewModel {
-        ProfileViewModel(summaryRepository: summaryRepository, userRepository: userRepository)
+        ProfileViewModel(summaryRepository: summaryRepository)
     }
 
     @MainActor

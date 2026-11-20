@@ -173,6 +173,7 @@ struct FoodDetailNutritionView: View {
             }
             .ignoresSafeArea(edges: .bottom)
         }
+        .keyboardDoneToolbar()
         .navigationBarHidden(true)
     }
 }

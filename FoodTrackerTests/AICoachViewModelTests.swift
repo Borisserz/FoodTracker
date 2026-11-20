@@ -6,17 +6,13 @@ import SwiftData
 final class AICoachViewModelTests: XCTestCase {
     var container: ModelContainer!
     var viewModel: AICoachViewModel!
-    var repository: SummaryRepository!
-    var userRepository: UserRepository!
     var originalSession: URLSession!
     var originalConsent: Bool = false
 
     override func setUpWithError() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         container = try ModelContainer(for: DailySummary.self, User.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
-        repository = SummaryRepository(modelContainer: container)
-        userRepository = UserRepository(modelContainer: container)
-        viewModel = AICoachViewModel(summaryRepository: repository, userRepository: userRepository)
+        viewModel = AICoachViewModel()
         originalSession = GeminiProxyClient.shared.session
         originalConsent = AIPhotoConsentManager.shared.hasConsented
         AIPhotoConsentManager.shared.grantConsent()
@@ -29,8 +25,6 @@ final class AICoachViewModelTests: XCTestCase {
 
     override func tearDownWithError() throws {
         viewModel = nil
-        repository = nil
-        userRepository = nil
         container = nil
         if let originalSession {
             GeminiProxyClient.shared.session = originalSession

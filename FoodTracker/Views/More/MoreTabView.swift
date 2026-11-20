@@ -4,6 +4,7 @@ import SwiftData
 // MARK: - More Tab Hub
 
 struct MoreTabView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
     @Query(sort: \WeightLog.date, order: .forward) private var weightLogs: [WeightLog]
@@ -32,14 +33,18 @@ struct MoreTabView: View {
                         // Navigation cards
                         VStack(spacing: 16) {
                             ForEach(Array(moreItems.enumerated()), id: \.element.id) { index, item in
-                                MoreNavCard(item: item)
-                                    .opacity(appearedItems.contains(index) ? 1 : 0)
-                                    .offset(y: appearedItems.contains(index) ? 0 : 24)
-                                    .animation(
-                                        .spring(response: 0.5, dampingFraction: 0.75)
+                                MoreNavCard(item: item, reduceMotion: reduceMotion) {
+                                    destinationView(for: item.destination)
+                                }
+                                .opacity(reduceMotion || appearedItems.contains(index) ? 1 : 0)
+                                .offset(y: (reduceMotion || appearedItems.contains(index)) ? 0 : 24)
+                                .animation(
+                                    reduceMotion
+                                        ? nil
+                                        : .spring(response: 0.5, dampingFraction: 0.75)
                                             .delay(Double(index) * 0.08),
-                                        value: appearedItems.contains(index)
-                                    )
+                                    value: appearedItems.contains(index)
+                                )
                             }
                         }
                         .padding(.horizontal)
@@ -48,15 +53,15 @@ struct MoreTabView: View {
                         BeforeAfterView()
                             .padding(.horizontal)
                             .padding(.top, 8)
-                            .opacity(appearedItems.count >= moreItems.count ? 1 : 0)
-                            .animation(.easeIn(duration: 0.5).delay(0.25), value: appearedItems.count)
+                            .opacity(reduceMotion || appearedItems.count >= moreItems.count ? 1 : 0)
+                            .animation(reduceMotion ? nil : .easeIn(duration: 0.5).delay(0.25), value: appearedItems.count)
 
                         // Cross-Promo Banner
                         crossPromoBanner
                             .padding(.horizontal)
                             .padding(.top, 8)
-                            .opacity(appearedItems.count >= moreItems.count ? 1 : 0)
-                            .animation(.easeIn(duration: 0.5).delay(0.3), value: appearedItems.count)
+                            .opacity(reduceMotion || appearedItems.count >= moreItems.count ? 1 : 0)
+                            .animation(reduceMotion ? nil : .easeIn(duration: 0.5).delay(0.3), value: appearedItems.count)
 
                         // App info footer
                         footerSection
@@ -70,6 +75,10 @@ struct MoreTabView: View {
         }
         .onAppear {
             guard appearedItems.isEmpty else { return }
+            if reduceMotion {
+                appearedItems = Set(moreItems.indices)
+                return
+            }
             // Stagger card entrance animations
             for i in 0..<moreItems.count {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.08) {
@@ -78,6 +87,18 @@ struct MoreTabView: View {
                     }
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func destinationView(for destination: MoreDestination) -> some View {
+        switch destination {
+        case .goals:
+            GoalsTabView()
+        case .aiCoach:
+            AICoachDashboardView(selectedDate: Date())
+        case .profile:
+            ProfileWrapperView()
         }
     }
 
@@ -95,7 +116,7 @@ struct MoreTabView: View {
                 gradient: [.themePink, .themeOrange],
                 badge: nil,
                 accessibilityId: "more_goals_card",
-                destination: AnyView(GoalsTabView())
+                destination: .goals
             ),
             MoreItem(
                 id: 1,
@@ -105,7 +126,7 @@ struct MoreTabView: View {
                 gradient: [Color(hex: 0x9B59B6), Color(hex: 0xF25C78)],
                 badge: nil,
                 accessibilityId: "more_coach_card",
-                destination: AnyView(AICoachDashboardView(selectedDate: Date()))
+                destination: .aiCoach
             ),
             MoreItem(
                 id: 2,
@@ -115,7 +136,7 @@ struct MoreTabView: View {
                 gradient: [Color(hex: 0x3498DB), Color(hex: 0x6BB8F2)],
                 badge: nil,
                 accessibilityId: "more_profile_card",
-                destination: AnyView(ProfileWrapperView())
+                destination: .profile
             )
         ]
     }
@@ -242,6 +263,12 @@ struct MoreTabView: View {
 
 // MARK: - Model
 
+private enum MoreDestination: Hashable {
+    case goals
+    case aiCoach
+    case profile
+}
+
 private struct MoreItem: Identifiable {
     let id: Int
     let title: String
@@ -250,24 +277,28 @@ private struct MoreItem: Identifiable {
     let gradient: [Color]
     let badge: String?
     let accessibilityId: String
-    let destination: AnyView
+    let destination: MoreDestination
 }
 
 // MARK: - Navigation Card
 
 private struct MoreCardButtonStyle: ButtonStyle {
+    var reduceMotion: Bool = false
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
-            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+            .scaleEffect(reduceMotion || !configuration.isPressed ? 1.0 : 0.96)
+            .animation(reduceMotion ? nil : .spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
-private struct MoreNavCard: View {
+private struct MoreNavCard<Destination: View>: View {
     let item: MoreItem
+    var reduceMotion: Bool = false
+    @ViewBuilder let destination: () -> Destination
 
     var body: some View {
-        NavigationLink(destination: item.destination) {
+        NavigationLink(destination: destination) {
             HStack(spacing: 18) {
 
                 // Icon container
@@ -331,7 +362,7 @@ private struct MoreNavCard: View {
                 .shadow(color: .black.opacity(0.04), radius: 10, x: 0, y: 4)
             }
         }
-        .buttonStyle(MoreCardButtonStyle())
+        .buttonStyle(MoreCardButtonStyle(reduceMotion: reduceMotion))
         .accessibilityIdentifier(item.accessibilityId)
     }
 }

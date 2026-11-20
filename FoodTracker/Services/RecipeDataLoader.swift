@@ -10,11 +10,21 @@ class RecipeDataLoader {
     var recipes: [PremiumRecipe] = []
     private let db = Firestore.firestore()
     private var listener: ListenerRegistration?
+    private var hasLoadedRemote = false
     private static let favoritesDefaultsKey = "favoriteRecipeTitles_v1"
 
     init() {
-        self.recipes = Self.applyFavorites(to: Self.loadBundledRecipes())
-        fetchRecipes()
+        let langCode = Locale.current.language.languageCode?.identifier
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let bundled = Self.applyFavorites(to: Self.loadBundledRecipes(languageCode: langCode))
+            await MainActor.run {
+                guard let self else { return }
+                if self.recipes.isEmpty && !self.hasLoadedRemote {
+                    self.recipes = bundled
+                }
+                self.fetchRecipes()
+            }
+        }
     }
 
     func resetFavorites() {
@@ -120,6 +130,7 @@ class RecipeDataLoader {
             if !remote.isEmpty {
                 let applied = Self.applyFavorites(to: remote)
                 DispatchQueue.main.async {
+                    self.hasLoadedRemote = true
                     self.recipes = applied
                 }
             }

@@ -720,6 +720,7 @@ struct AddIngredientModalView: View {
             }
             .navigationTitle("Custom Ingredient")
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDoneToolbar()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

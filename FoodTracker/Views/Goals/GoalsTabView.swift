@@ -662,6 +662,7 @@ struct AddWeightLogSheet: View {
                     .padding(.bottom, 20)
                 }
             }
+            .keyboardDoneToolbar()
         }
     }
     
@@ -909,6 +910,7 @@ struct SetGoalSheet: View {
                 .padding(.bottom, 20)
             }
         }
+        .keyboardDoneToolbar()
     }
     
     private func iconForGoalType(_ type: String) -> String {

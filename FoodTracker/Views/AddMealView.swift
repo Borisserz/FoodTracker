@@ -447,6 +447,7 @@ struct AddMealView: View {
             .navigationTitle("Log Meal")
             .navigationBarTitleDisplayMode(.inline)
             .tint(.themePink)
+            .keyboardDoneToolbar()
             .sheet(isPresented: $showingAddFood) {
                 SmartAddFoodView(mealTitle: localizedMealType(selectedMealType), targetDate: selectedDate) { newItems in
                     let newDrafts = newItems.map { EditableFoodDraft(food: $0, isNewMealEntry: true) }

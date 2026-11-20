@@ -6,13 +6,11 @@ import SwiftUI
 @Observable
 class ProfileViewModel {
     private let summaryRepository: SummaryRepositoryProtocol
-    private let userRepository: UserRepositoryProtocol
 
     var currentStreak: Int = 0
 
-    init(summaryRepository: SummaryRepositoryProtocol, userRepository: UserRepositoryProtocol) {
+    init(summaryRepository: SummaryRepositoryProtocol) {
         self.summaryRepository = summaryRepository
-        self.userRepository = userRepository
     }
 
     func loadData() {
