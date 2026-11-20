@@ -201,10 +201,11 @@ struct CreateRecipeView: View {
         ) else { return }
         TrackingManager.shared.track(.customRecipeCreated(ingredientsCount: ingredients.count))
 
+        let cleanName = recipeName.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanDirections = directions.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
 
         let newRecipe = CustomRecipe(
-            name: recipeName,
+            name: cleanName,
             info: category,
             foodItems: ingredients,
             cookingTime: cookingTime,
@@ -525,6 +526,7 @@ struct Step4VerificationView: View {
     let directions: [String]
 
     var totalCalories: Int { ingredients.reduce(0) { $0 + $1.calories } }
+    var caloriesPerServing: Int { totalCalories / max(servings, 1) }
     var totalWeight: Double { ingredients.reduce(0) { $0 + $1.weight } }
 
     var body: some View {
@@ -538,13 +540,14 @@ struct Step4VerificationView: View {
 
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(name.isEmpty ? "New Recipe" : name)
+                        let cleanTitle = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                        Text(cleanTitle.isEmpty ? "New Recipe" : cleanTitle)
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .lineLimit(2)
 
                         HStack(spacing: 12) {
-                            Label("\(totalCalories) kcal", systemImage: "flame.fill")
+                            Label("\(caloriesPerServing) kcal / serving", systemImage: "flame.fill")
                             Label("\(time) min", systemImage: "clock.fill")
                         }
                         .font(.subheadline.bold())
@@ -727,16 +730,56 @@ struct AddIngredientModalView: View {
         }
     }
 
+    static func buildIngredient(
+        name: String,
+        weightRaw: String,
+        caloriesRaw: String,
+        proteinRaw: String,
+        fatsRaw: String,
+        carbsRaw: String
+    ) -> FoodItem {
+        let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let w = min(NutritionMath.parsePositiveDecimal(weightRaw) ?? 100.0, 50_000.0)
+        let cals = NutritionMath.clampedInt(NutritionMath.parseNonNegativeDecimal(caloriesRaw) ?? 0)
+        let p = min(NutritionMath.parseNonNegativeDecimal(proteinRaw) ?? 0.0, 10_000.0)
+        let f = min(NutritionMath.parseNonNegativeDecimal(fatsRaw) ?? 0.0, 10_000.0)
+        let c = min(NutritionMath.parseNonNegativeDecimal(carbsRaw) ?? 0.0, 10_000.0)
+        let micros = MicronutrientEstimator.estimate(
+            name: cleanName,
+            calories: cals,
+            protein: p,
+            fat: f,
+            carbs: c,
+            weight: w
+        )
+        return FoodItem(
+            name: cleanName,
+            weight: w,
+            calories: cals,
+            protein: p,
+            fats: f,
+            carbs: c,
+            omega3: micros.omega3,
+            calcium: micros.calcium,
+            potassium: micros.potassium,
+            magnesium: micros.magnesium,
+            iron: micros.iron,
+            vitaminC: micros.vitaminC,
+            vitaminD: micros.vitaminD
+        )
+    }
+
     private func saveIngredient() {
         HapticManager.shared.impact(style: .heavy)
 
-        let w = NutritionMath.parsePositiveDecimal(weight) ?? 100.0
-        let cals = Int(NutritionMath.parseNonNegativeDecimal(calories) ?? 0)
-        let p = NutritionMath.parseNonNegativeDecimal(protein) ?? 0.0
-        let f = NutritionMath.parseNonNegativeDecimal(fats) ?? 0.0
-        let c = NutritionMath.parseNonNegativeDecimal(carbs) ?? 0.0
-
-        let newFood = FoodItem(name: name.trimmingCharacters(in: .whitespacesAndNewlines), weight: w, calories: cals, protein: p, fats: f, carbs: c)
+        let newFood = Self.buildIngredient(
+            name: name,
+            weightRaw: weight,
+            caloriesRaw: calories,
+            proteinRaw: protein,
+            fatsRaw: fats,
+            carbsRaw: carbs
+        )
         context.insert(newFood)
         try? context.save()
 

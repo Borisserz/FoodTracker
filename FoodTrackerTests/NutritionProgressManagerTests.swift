@@ -92,4 +92,46 @@ final class NutritionProgressManagerTests: XCTestCase {
         manager.syncLevel()
         XCTAssertEqual(user.level, 3)
     }
+
+    func testNutritionMathClampedIntAndScaledValuesPreventOverflow() {
+        XCTAssertEqual(NutritionMath.clampedInt(1e25), 999_999)
+        XCTAssertEqual(NutritionMath.clampedInt(Double.infinity), 0)
+        XCTAssertEqual(NutritionMath.clampedInt(-42), 0)
+
+        let scaled = NutritionMath.scaledValues(
+            baseWeight: 100,
+            baseCalories: 500,
+            baseProtein: 20,
+            baseFats: 10,
+            baseCarbs: 50,
+            targetWeight: 1e25
+        )
+        XCTAssertEqual(scaled.calories, 999_999)
+    }
+
+    func testMaintainGoalProgressUsesToleranceAroundTarget() {
+        let withinTolerance = GoalsTabView.computeProgressPercentage(
+            goalType: "maintain",
+            startWeight: 70,
+            currentWeight: 70.8,
+            targetWeight: 70
+        )
+        XCTAssertEqual(withinTolerance, 1.0, accuracy: 0.001)
+
+        let drifting = GoalsTabView.computeProgressPercentage(
+            goalType: "maintain",
+            startWeight: 70,
+            currentWeight: 73.0,
+            targetWeight: 70
+        )
+        XCTAssertEqual(drifting, 0.5, accuracy: 0.01)
+
+        let farOff = GoalsTabView.computeProgressPercentage(
+            goalType: "maintain",
+            startWeight: 70,
+            currentWeight: 76.0,
+            targetWeight: 70
+        )
+        XCTAssertEqual(farOff, 0.0, accuracy: 0.001)
+    }
 }

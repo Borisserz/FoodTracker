@@ -29,17 +29,38 @@ struct GoalsTabView: View {
         user?.weightGoalType ?? "maintain"
     }
     
-    var progressPercentage: Double {
-        guard let target = targetWeight else { return 0 }
-        let startWeight = weightLogs.first?.weight ?? user?.weight
-        guard let startWeight else { return 0 }
+    static func computeProgressPercentage(
+        goalType: String,
+        startWeight: Double,
+        currentWeight: Double,
+        targetWeight: Double
+    ) -> Double {
+        if goalType.lowercased() == "maintain" {
+            let delta = abs(currentWeight - targetWeight)
+            if delta <= 1.0 { return 1.0 }
+            return max(0.0, 1.0 - (delta - 1.0) / 4.0)
+        }
 
-        let totalDelta = target - startWeight
-        if abs(totalDelta) < 0.01 { return 1.0 }
+        let totalDelta = targetWeight - startWeight
+        if abs(totalDelta) < 0.01 {
+            return abs(currentWeight - targetWeight) <= 1.0 ? 1.0 : 0.0
+        }
 
         let currentDelta = currentWeight - startWeight
         let progress = currentDelta / totalDelta
         return min(max(progress, 0.0), 1.0)
+    }
+
+    var progressPercentage: Double {
+        guard let target = targetWeight else { return 0 }
+        let startWeight = weightLogs.first?.weight ?? user?.weight
+        guard let startWeight else { return 0 }
+        return Self.computeProgressPercentage(
+            goalType: goalType,
+            startWeight: startWeight,
+            currentWeight: currentWeight,
+            targetWeight: target
+        )
     }
     
     var currentBMI: Double? {
@@ -781,13 +802,13 @@ struct SetGoalSheet: View {
                                     .tint(themeManager.current.primaryAccent)
                                 
                                 HStack {
-                                    Text("\(NutritionMath.displayHeight(100, useMetric: useMetricSystem)) \(NutritionMath.heightUnit(useMetric: useMetricSystem))")
+                                    Text(NutritionMath.formattedHeight(cm: 100, useMetric: useMetricSystem))
                                     Spacer()
-                                    Text("\(NutritionMath.displayHeight(height, useMetric: useMetricSystem)) \(NutritionMath.heightUnit(useMetric: useMetricSystem))")
+                                    Text(NutritionMath.formattedHeight(cm: height, useMetric: useMetricSystem))
                                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                                         .foregroundColor(themeManager.current.primaryAccent)
                                     Spacer()
-                                    Text("\(NutritionMath.displayHeight(250, useMetric: useMetricSystem)) \(NutritionMath.heightUnit(useMetric: useMetricSystem))")
+                                    Text(NutritionMath.formattedHeight(cm: 250, useMetric: useMetricSystem))
                                 }
                                 .font(.system(size: 11, weight: .medium, design: .rounded))
                                 .foregroundColor(.secondary)

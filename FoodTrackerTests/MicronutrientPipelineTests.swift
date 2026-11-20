@@ -302,4 +302,20 @@ final class MicronutrientPipelineTests: XCTestCase {
             return
         }
     }
+
+    func testAddIngredientModalBuildIngredientClampsOverflowAndEstimatesMicronutrients() {
+        let item = AddIngredientModalView.buildIngredient(
+            name: "  Atlantic Salmon  ",
+            weightRaw: "200",
+            caloriesRaw: "9999999999999999999999999",
+            proteinRaw: "40",
+            fatsRaw: "20",
+            carbsRaw: "0"
+        )
+        XCTAssertEqual(item.name, "Atlantic Salmon")
+        XCTAssertEqual(item.weight, 200.0, accuracy: 0.01)
+        XCTAssertEqual(item.calories, 999_999)
+        XCTAssertGreaterThan(item.omega3, 1.0)
+        XCTAssertGreaterThan(item.vitaminD, 5.0)
+    }
 }

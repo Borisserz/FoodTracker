@@ -530,20 +530,16 @@ struct MyRecipesTabView: View {
                     } else {
                         LazyVStack(spacing: 16) {
                             ForEach(filteredCustomRecipes) { recipe in
-                                Button(action: {
-                                    HapticManager.shared.impact(style: .light)
-                                    path.append(FoodsRoute.recipeDetail(recipe))
-                                }) {
-                                    CustomRecipePremiumCard(recipe: recipe)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                .contextMenu {
-                                    Button(role: .destructive) {
+                                CustomRecipePremiumCard(
+                                    recipe: recipe,
+                                    onSelect: {
+                                        HapticManager.shared.impact(style: .light)
+                                        path.append(FoodsRoute.recipeDetail(recipe))
+                                    },
+                                    onDelete: {
                                         deleteCustomRecipe(recipe)
-                                    } label: {
-                                        Label("Delete Recipe", systemImage: "trash")
                                     }
-                                }
+                                )
                             }
                         }
                         .padding(.horizontal, 20)
@@ -579,6 +575,8 @@ struct MyRecipesTabView: View {
 
 struct CustomRecipePremiumCard: View {
     let recipe: CustomRecipe
+    var onSelect: (() -> Void)? = nil
+    var onDelete: (() -> Void)? = nil
 
     var body: some View {
 
@@ -588,13 +586,25 @@ struct CustomRecipePremiumCard: View {
 
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(recipe.info.uppercased())
-                        .font(.system(size: 10, weight: .black, design: .rounded))
-                        .foregroundColor(.themePink)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.themePink.opacity(0.15))
-                        .clipShape(Capsule())
+                    HStack(spacing: 8) {
+                        Text(recipe.info.uppercased())
+                            .font(.system(size: 10, weight: .black, design: .rounded))
+                            .foregroundColor(.themePink)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.themePink.opacity(0.15))
+                            .clipShape(Capsule())
+
+                        if let onDelete {
+                            Button(role: .destructive, action: onDelete) {
+                                Image(systemName: "trash.circle.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(.secondary.opacity(0.6))
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Delete Recipe")
+                        }
+                    }
 
                     Text(recipe.name)
                         .font(.system(size: 20, weight: .bold, design: .rounded))
@@ -621,9 +631,9 @@ struct CustomRecipePremiumCard: View {
 
                     VStack(spacing: 0) {
                         Text("\(macros.calories)")
-                            .font(.system(size: 16, weight: .heavy, design: .rounded))
-                        Text("kcal")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.system(size: 15, weight: .heavy, design: .rounded))
+                        Text("kcal / serv")
+                            .font(.system(size: 8, weight: .bold))
                             .foregroundColor(.gray)
                     }
                 }
@@ -646,6 +656,17 @@ struct CustomRecipePremiumCard: View {
         .cornerRadius(24)
         .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.1), lineWidth: 1))
         .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
+        .contentShape(RoundedRectangle(cornerRadius: 24))
+        .onTapGesture {
+            onSelect?()
+        }
+        .contextMenu {
+            if let onDelete {
+                Button(role: .destructive, action: onDelete) {
+                    Label("Delete Recipe", systemImage: "trash")
+                }
+            }
+        }
     }
 }
 
@@ -988,7 +1009,7 @@ struct PremiumRecipeDetailView: View {
 
                             HStack(spacing: 16) {
                                 Label(recipe.time, systemImage: "clock")
-                                Label("\(recipe.caloriesPerServing) Cal", systemImage: "flame")
+                                Label("\(recipe.caloriesPerServing) Cal / serving", systemImage: "flame")
                             }
                             .font(.subheadline.bold())
                             .foregroundColor(.white.opacity(0.9))

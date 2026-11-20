@@ -353,15 +353,30 @@ private struct MacroColumnInfo: View {
 
 private struct ServingSizeEditor: View {
     @Binding var weight: Double
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     @State private var textInput: String = ""
     @FocusState private var isWeightFocused: Bool
+
+    private var sliderBinding: Binding<Double> {
+        Binding(
+            get: { min(max(weight, 5), 1000) },
+            set: { weight = $0 }
+        )
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Serving Size")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(.gray)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Serving Size")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.gray)
+                    if !useMetricSystem {
+                        Text(NutritionMath.formattedFoodWeight(weight, useMetric: false))
+                            .font(.caption.bold())
+                            .foregroundColor(.themePink)
+                    }
+                }
                 Spacer()
                 
                 HStack(spacing: 4) {
@@ -378,7 +393,7 @@ private struct ServingSizeEditor: View {
                         .cornerRadius(10)
                         .onChange(of: textInput) { _, newValue in
                             if let val = NutritionMath.parsePositiveDecimal(newValue) {
-                                weight = val
+                                weight = min(val, 50_000)
                             }
                         }
                     
@@ -388,7 +403,7 @@ private struct ServingSizeEditor: View {
                 }
             }
 
-            Slider(value: $weight, in: 5...1000, step: 5)
+            Slider(value: sliderBinding, in: 5...1000, step: 5)
                 .tint(.themePink)
                 .onChange(of: weight) { _, newValue in
                     guard !isWeightFocused else { return }
@@ -407,8 +422,10 @@ private struct ServingSizeEditor: View {
                             textInput = "\(amount)"
                         }
                     }) {
-                        Text("\(amount)g")
+                        Text(useMetricSystem ? "\(amount)g" : NutritionMath.formattedFoodWeight(Double(amount), useMetric: false))
                             .font(.subheadline.bold())
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
                             .background(weight == Double(amount) ? Color.themePink : Color.gray.opacity(0.05))

@@ -182,6 +182,14 @@ enum NutritionMath {
         return value
     }
 
+    /// Clamps a floating-point quantity to a safe non-negative Int without risking overflow traps.
+    static func clampedInt(_ value: Double, maxValue: Int = 999_999) -> Int {
+        guard value.isFinite, value > 0 else { return 0 }
+        let upper = Double(maxValue)
+        if value >= upper { return maxValue }
+        return Int(value.rounded())
+    }
+
     /// Parses a decimal number using either `.` or `,` separator, rejecting non-finite or negative values.
     static func parseNonNegativeDecimal(_ raw: String) -> Double? {
         let trimmed = raw
@@ -217,7 +225,7 @@ enum NutritionMath {
 
         return ScaledNutritionValues(
             weight: baseWeight > 0 ? safeTarget : max(baseWeight, 0),
-            calories: max(0, Int((Double(baseCalories) * multiplier).rounded())),
+            calories: clampedInt(Double(baseCalories) * multiplier),
             protein: max(0, baseProtein * multiplier),
             fats: max(0, baseFats * multiplier),
             carbs: max(0, baseCarbs * multiplier),
@@ -523,6 +531,22 @@ enum NutritionMath {
 
     static func heightUnit(useMetric: Bool) -> String {
         useMetric ? "cm" : "in"
+    }
+
+    static func formattedHeight(cm: Double, useMetric: Bool) -> String {
+        if useMetric {
+            return "\(Int(cm.rounded())) cm"
+        }
+        let totalInches = max(0, Int((cm / 2.54).rounded()))
+        return "\(totalInches / 12)' \(totalInches % 12)\""
+    }
+
+    static func formattedFoodWeight(_ grams: Double, useMetric: Bool) -> String {
+        if useMetric {
+            return "\(Int(grams.rounded())) g"
+        }
+        let oz = grams / 28.349523125
+        return String(format: "%.1f oz", oz)
     }
 
     static func displayFluid(_ liters: Double, useMetric: Bool) -> Double {

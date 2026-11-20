@@ -270,7 +270,9 @@ final class FastingManager {
         "phase_4h",
         "phase_8h",
         "phase_12h",
-        "phase_16h"
+        "phase_16h",
+        "phase_24h",
+        "phase_36h"
     ]
 
     nonisolated static func phaseNotificationCopy(forHours hours: Int) -> (title: String, body: String) {
@@ -289,6 +291,16 @@ final class FastingManager {
             return (
                 String(localized: "Ketosis Achieved 🧠"),
                 String(localized: "Your liver is now producing ketones for energy and mental clarity.")
+            )
+        case 24:
+            return (
+                String(localized: "24h Gut & Stem Cell Repair Renewal 🛡️"),
+                String(localized: "You hit 24 hours! Stay hydrated with electrolytes and water.")
+            )
+        case 36:
+            return (
+                String(localized: "36h Deep Cellular Reset ✨"),
+                String(localized: "Deep metabolic reset reached. Break your fast gently when ready.")
             )
         default:
             return (
@@ -404,7 +416,7 @@ final class FastingManager {
                     )
                 }
 
-                for milestone in [4, 8, 12, 16] where target > milestone {
+                for milestone in [4, 8, 12, 16, 24, 36] where target > milestone {
                     let delay = TimeInterval(milestone * 3600) - elapsed
                     guard delay > 0 else { continue }
                     let copy = Self.phaseNotificationCopy(forHours: milestone)

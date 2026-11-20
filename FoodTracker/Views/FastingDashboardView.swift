@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseFirestore
+import UserNotifications
 
 enum FastingCategory: String, CaseIterable, Codable {
     case beginner = "beginner"
@@ -77,7 +78,7 @@ struct FastingPlan: Identifiable, Hashable, Codable {
                         benefits: [FastingBenefit(icon: "arrow.triangle.2.circlepath", text: String(localized: "Full Reset")), FastingBenefit(icon: "cross.case.fill", text: String(localized: "Cellular Repair"))],
                         breakFastTip: String(localized: "DANGER: Do not break with heavy carbs. Start with bone broth, wait an hour, eat steamed veggies and fish.")),
 
-            FastingPlan(category: .expert, title: "5:2 Diet", description: String(localized: "5 normal days, 2 days under 500 kcal."), icon: "calendar.badge.minus", colorHex: "00C7BE", isPopular: false, fastingHours: 48, eatingHours: 0,
+            FastingPlan(category: .expert, title: "5:2 Diet", description: String(localized: "5 normal days, 2 non-consecutive 24h low-kcal (~500 kcal) days."), icon: "calendar.badge.minus", colorHex: "00C7BE", isPopular: false, fastingHours: 24, eatingHours: 0,
                         difficultyRating: 4,
                         benefits: [FastingBenefit(icon: "calendar", text: String(localized: "Weekly Balance")), FastingBenefit(icon: "scale.3d", text: String(localized: "Steady Loss"))],
                         breakFastTip: String(localized: "On your 500 kcal days, focus entirely on lean protein and leafy greens to stay full."))
@@ -86,11 +87,13 @@ struct FastingPlan: Identifiable, Hashable, Codable {
 
 struct FastingDashboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     var showsDismissButton: Bool = false
     @State private var path = NavigationPath()
     @State private var customHours: Int = 16
     @State private var showReplaceCustomAlert = false
     @State private var showExtendedFastWarning = false
+    @State private var notificationsDenied = false
 
     var body: some View {
         ZStack {
@@ -115,6 +118,31 @@ struct FastingDashboardView: View {
                     if FastingManager.shared.isFasting {
                         ActiveFastingCard()
                             .padding(.horizontal, 20)
+                    }
+
+                    if notificationsDenied {
+                        HStack(spacing: 12) {
+                            Image(systemName: "bell.slash.fill")
+                                .foregroundColor(.themeOrange)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Fasting Alerts Off")
+                                    .font(.caption.bold())
+                                Text("Enable notifications in Settings for milestone & fast-complete alerts.")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                Link("Settings", destination: url)
+                                    .font(.caption.bold())
+                                    .foregroundColor(.themePink)
+                            }
+                        }
+                        .padding(14)
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.03), radius: 8, y: 3)
+                        .padding(.horizontal, 20)
                     }
 
                     CustomFastingDurationCard(
@@ -171,6 +199,13 @@ struct FastingDashboardView: View {
             Text("Fasts of 24 hours or longer deplete essential electrolytes and are not suitable if pregnant, diabetic, under 18, or with a history of eating disorders. Consult a physician before extended fasting.")
         }
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await refreshNotificationStatus()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else { return }
+            Task { await refreshNotificationStatus() }
+        }
         .toolbar {
             if showsDismissButton {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -181,6 +216,11 @@ struct FastingDashboardView: View {
                 }
             }
         }
+    }
+
+    private func refreshNotificationStatus() async {
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        notificationsDenied = (settings.authorizationStatus == .denied)
     }
 }
 

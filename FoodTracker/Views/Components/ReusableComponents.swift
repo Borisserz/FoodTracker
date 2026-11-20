@@ -137,7 +137,7 @@ struct DynamicEnergyDashboard: View {
                         TabView(selection: $eatenPage) {
                             EatenRingCard(summary: summary, user: user).tag(0)
                             DetailedMacroRingsCard(summary: summary, user: user).tag(1)
-                            MicronutrientsFocusCard(summary: summary).tag(2)
+                            MicronutrientsFocusCard(summary: summary, user: user).tag(2)
                             MealBreakdownCard(summary: summary).tag(3)
                         }
                         .tabViewStyle(.page(indexDisplayMode: .never))
@@ -734,6 +734,7 @@ struct IndividualMacroRing: View {
 }
 struct MicronutrientsFocusCard: View {
     let summary: DailySummary
+    var user: User? = nil
 
     private var totalOmega3: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalOmega3 } }
     private var totalMagnesium: Double { (summary.meals ?? []).reduce(0) { $0 + $1.totalMagnesium } }
@@ -751,10 +752,10 @@ struct MicronutrientsFocusCard: View {
             }
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                CompactMicroCard(title: "Omega-3", icon: "fish.fill", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
-                CompactMicroCard(title: "Magnesium", icon: "bolt.heart.fill", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
-                CompactMicroCard(title: "Calcium", icon: "shield.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
-                CompactMicroCard(title: "Iron", icon: "drop.fill", current: totalIron, target: 18, unit: "mg", color: .red.opacity(0.8))
+                CompactMicroCard(title: "Omega-3", icon: "fish.fill", current: totalOmega3, target: AnalyticsMicro.omega3.rda(for: user), unit: "g", color: .themePink)
+                CompactMicroCard(title: "Magnesium", icon: "bolt.heart.fill", current: totalMagnesium, target: AnalyticsMicro.magnesium.rda(for: user), unit: "mg", color: .themeYellow)
+                CompactMicroCard(title: "Calcium", icon: "shield.fill", current: totalCalcium, target: AnalyticsMicro.calcium.rda(for: user), unit: "mg", color: .drinkWater)
+                CompactMicroCard(title: "Iron", icon: "drop.fill", current: totalIron, target: AnalyticsMicro.iron.rda(for: user), unit: "mg", color: .red.opacity(0.8))
             }
 
             HStack {

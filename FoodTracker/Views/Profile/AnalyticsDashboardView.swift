@@ -373,7 +373,7 @@ struct AIWeeklyInsightCard: View {
             for micro in micronutrients {
                 let totalAmount = validSummaries.reduce(0.0) { $0 + getValue(for: micro, in: $1) }
                 let avgAmount = totalAmount / Double(max(1, validSummaries.count))
-                let pct = avgAmount / micro.rda
+                let pct = avgAmount / micro.rda(for: user)
                 if pct < lowestPct {
                     lowestPct = pct
                     lowestMicro = micro
