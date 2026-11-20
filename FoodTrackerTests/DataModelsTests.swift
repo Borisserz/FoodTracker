@@ -1365,6 +1365,16 @@ final class DataModelsTests: XCTestCase {
         )
         XCTAssertEqual(metrics.avgCalories, 1800)
         XCTAssertEqual(metrics.avgWater, 2.0, accuracy: 0.001)
+
+        let coffeeDay = DailySummary(date: d1)
+        coffeeDay.addBeverage(Beverage(name: "Coffee", icon: "cup.and.saucer.fill", colorHex: "6F4E37", caloriesPerGlass: 5, volumeMl: 250))
+        let mixed = AIWeeklyInsightCalculator.metrics(
+            summaries: [activeDay, coffeeDay],
+            period: .week,
+            now: today,
+            calendar: calendar
+        )
+        XCTAssertEqual(mixed.avgWater, 1.0, accuracy: 0.001)
     }
 
     @MainActor
@@ -2029,5 +2039,109 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(lines.count, 2)
         XCTAssertEqual(lines[0], "Date,Total Calories (kcal),Total Protein (g),Total Carbs (g),Total Fat (g),Total Meals Logged,Hydration (L),Fiber (g),Sugar (g),Active Burned (kcal),Steps,Weight (kg)")
         XCTAssertTrue(lines[1].contains(",80,0,21,0,1,1.25,3.5,15.0,420,8150,72.4"))
+    }
+
+    @MainActor
+    func testClearSessionForSignOutPreservesSwiftDataAndClearsSessionKeys() throws {
+        let defaultsSuite = "test.SignOutReset.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: defaultsSuite)!
+        defer { defaults.removePersistentDomain(forName: defaultsSuite) }
+
+        defaults.set(true, forKey: AIPhotoConsentManager.defaultsKey)
+        defaults.set("1.0", forKey: "lastReviewPromptAppVersion")
+        defaults.set(true, forKey: "useMetricSystem")
+        defaults.set(true, forKey: "hasCompletedOnboarding_v2")
+
+        let user = User(name: "KeepMe", weight: 70, height: 175, age: 30)
+        let summary = DailySummary(
+            date: Date(),
+            meals: [Meal(title: "Lunch", date: Date(), foodItems: [FoodItem(name: "Soup", weight: 200, calories: 150, protein: 5, fats: 4, carbs: 20)])]
+        )
+        context.insert(user)
+        context.insert(summary)
+        try context.save()
+
+        LocalDataResetService.clearSessionForSignOut(defaults: defaults)
+
+        XCTAssertEqual(try context.fetch(FetchDescriptor<User>()).count, 1)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<DailySummary>()).count, 1)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<Meal>()).count, 1)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<FoodItem>()).count, 1)
+
+        XCTAssertNil(defaults.object(forKey: AIPhotoConsentManager.defaultsKey))
+        XCTAssertNil(defaults.object(forKey: "lastReviewPromptAppVersion"))
+        XCTAssertTrue(defaults.bool(forKey: "useMetricSystem"))
+        XCTAssertTrue(defaults.bool(forKey: "hasCompletedOnboarding_v2"))
+        XCTAssertFalse(LocalDataResetService.onboardingAndFeatureDefaultsKeys.contains("blockedCommunityFoods"))
+    }
+
+    func testFoodCoverAssetsResolvesBundledNamesAndLegacyUnsplashUrls() {
+        XCTAssertEqual(
+            FoodCoverAssets.assetName(for: "food_cover_1544025162_d76694265947"),
+            "food_cover_1544025162_d76694265947"
+        )
+        XCTAssertEqual(
+            FoodCoverAssets.assetName(for: "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600"),
+            "food_cover_1544025162_d76694265947"
+        )
+        XCTAssertEqual(
+            FoodCoverAssets.assetName(for: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=300&q=80"),
+            "food_cover_1498837167922_ddd27525d352"
+        )
+        XCTAssertNil(FoodCoverAssets.assetName(for: "https://example.com/custom.jpg"))
+    }
+
+    func testDailyWidgetSnapshotUsesPureWaterLitersConsistentlyWithHydrationFlask() {
+        let user = User(name: "Alex", weight: 75, height: 180, age: 30, gender: "Male")
+        let summary = DailySummary(
+            date: Date(),
+            meals: [],
+            beverages: [
+                Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 1000),
+                Beverage(name: "Coffee", icon: "cup.and.saucer.fill", colorHex: "6F4E37", caloriesPerGlass: 5, volumeMl: 250)
+            ]
+        )
+
+        let snapshot = DailyWidgetSnapshot.compute(summary: summary, user: user)
+        XCTAssertEqual(snapshot.hydrationLiters, summary.totalPureWaterLiters, accuracy: 0.001)
+        XCTAssertEqual(snapshot.hydrationLiters, 1.0, accuracy: 0.001)
+    }
+
+    @MainActor
+    func testRecordWeightDeletesPreviousSameDayHealthKitSampleBeforeSavingNewOne() async throws {
+        let user = User(name: "Alex", weight: 80, height: 180, age: 30, gender: "Male")
+        user.isHealthKitEnabled = true
+        context.insert(user)
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let existing = WeightLog(date: today, weight: 80.5)
+        existing.healthKitSampleID = "old-hk-weight-uuid"
+        context.insert(existing)
+        try context.save()
+
+        var events: [String] = []
+        let expectedNewUUID = UUID(uuidString: "11111111-2222-3333-4444-555555555555")!
+
+        NutritionMath.recordWeight(
+            79.8,
+            date: today,
+            for: user,
+            in: context,
+            saveBodyMass: { kg, _ in
+                events.append("save:\(kg)")
+                return expectedNewUUID
+            },
+            deleteBodyMassSample: { idString, _, _ in
+                events.append("delete:\(idString ?? "nil")")
+            }
+        )
+
+        // Yield briefly so the async HealthKit sync Task completes.
+        for _ in 0..<20 where events.count < 2 {
+            try await Task.sleep(for: .milliseconds(25))
+        }
+
+        XCTAssertEqual(events, ["delete:old-hk-weight-uuid", "save:79.8"])
+        XCTAssertEqual(existing.healthKitSampleID, expectedNewUUID.uuidString)
     }
 }

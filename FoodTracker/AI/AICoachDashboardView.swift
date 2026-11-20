@@ -100,7 +100,7 @@ struct AICoachDashboardView: View {
                                         targetFats: currentUser?.targetFats ?? 0,
                                         consumedCarbs: currentSummary.totalCarbs,
                                         targetCarbs: currentUser?.targetCarbs ?? 0,
-                                        hydrationLiters: currentSummary.totalHydrationLiters,
+                                        hydrationLiters: currentSummary.totalPureWaterLiters,
                                         activeCaloriesBurned: currentSummary.activeCaloriesBurned
                                     )) {
                                         ZStack {

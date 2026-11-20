@@ -1130,3 +1130,119 @@ test("normalizeFatSecretFood converts % Daily Value micronutrients to mg and mcg
   assert.equal(hit.vitaminC, 45);
   assert.equal(hit.vitaminD, 5);
 });
+
+test("resolveAllowPaidFallback defaults on and honors an explicit Firestore or env disable", () => {
+  assert.equal(t.resolveAllowPaidFallback(undefined, undefined), true);
+  assert.equal(t.resolveAllowPaidFallback(undefined, "true"), true);
+  assert.equal(t.resolveAllowPaidFallback(undefined, "false"), false);
+  assert.equal(t.resolveAllowPaidFallback(false, "true"), false);
+  assert.equal(t.resolveAllowPaidFallback(true, "false"), true);
+});
+
+test("shouldYieldFreeSlotToPaidFallback reserves the tail budget for the SLA model", () => {
+  const chain = ["mock/free-model:free", "google/gemini-2.5-flash-lite"];
+  assert.equal(
+    t.shouldYieldFreeSlotToPaidFallback("mock/free-model:free", chain, t.PAID_FALLBACK_RESERVE_MS - 1),
+    true
+  );
+  assert.equal(
+    t.shouldYieldFreeSlotToPaidFallback("mock/free-model:free", chain, t.PAID_FALLBACK_RESERVE_MS),
+    false
+  );
+  assert.equal(
+    t.shouldYieldFreeSlotToPaidFallback("google/gemini-2.5-flash-lite", chain, 1000),
+    false
+  );
+  assert.equal(
+    t.shouldYieldFreeSlotToPaidFallback("mock/free-model:free", ["mock/free-model:free"], 1000),
+    false
+  );
+});
+
+test("modelChainForRequest appends deduplicated paid SLA fallback models only when allowPaidFallback is enabled", () => {
+  const textReq = { contents: [{ role: "user", parts: [{ text: "hello" }] }] };
+  const imgReq = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ inlineData: { mimeType: "image/jpeg", data: "YWJj" } }],
+      },
+    ],
+  };
+
+  const defaultText = t.modelChainForRequest(textReq, {});
+  assert.ok(defaultText.every((m) => m.endsWith(":free") || m === "openrouter/free"));
+
+  const withPaidText = t.modelChainForRequest(textReq, { allowPaidFallback: true });
+  assert.ok(t.PAID_TEXT_FALLBACK_MODELS.length >= 1);
+  assert.deepEqual(
+    withPaidText.slice(-t.PAID_TEXT_FALLBACK_MODELS.length),
+    t.PAID_TEXT_FALLBACK_MODELS
+  );
+  assert.ok(t.STRUCTURED_MODELS.has(t.PAID_TEXT_FALLBACK_MODELS[0]));
+  assert.ok(t.JSON_OBJECT_MODELS.has(t.PAID_TEXT_FALLBACK_MODELS[0]));
+
+  const withPaidVision = t.modelChainForRequest(imgReq, {
+    allowPaidFallback: true,
+    visionModels: ["custom/vl:free"],
+    paidVisionModels: ["google/gemini-2.5-flash", "custom/vl:free"],
+  });
+  assert.deepEqual(withPaidVision, ["custom/vl:free", "google/gemini-2.5-flash"]);
+});
+
+test("sanitizeModelOverrides restricts to :free by default and allows paid models when allowPaid is true", () => {
+  assert.deepEqual(
+    t.sanitizeModelOverrides(["google/gemini-2.5-flash", "a/b:free"]),
+    ["a/b:free"]
+  );
+  assert.deepEqual(
+    t.sanitizeModelOverrides(["google/gemini-2.5-flash", " a/b:free ", ""], { allowPaid: true }),
+    ["google/gemini-2.5-flash", "a/b:free"]
+  );
+});
+
+test("callOpenRouterText falls back to paid SLA model when free chain fails and allowPaidFallback is enabled", async () => {
+  const originalFetch = globalThis.fetch;
+  const calledModels = [];
+  globalThis.fetch = async (_url, init) => {
+    const parsed = JSON.parse(init.body);
+    calledModels.push(parsed.model);
+    if (parsed.model.endsWith(":free")) {
+      return {
+        ok: false,
+        status: 429,
+        text: async () => "upstream_provider_shared_pool",
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      text: async () =>
+        JSON.stringify({
+          choices: [{ message: { content: '{"mealName":"Oatmeal"}' } }],
+        }),
+    };
+  };
+
+  try {
+    const result = await t.callOpenRouterText({
+      apiKeys: ["sk-test"],
+      geminiBody: {
+        contents: [{ role: "user", parts: [{ text: "Oatmeal" }] }],
+        generationConfig: { responseMimeType: "application/json" },
+      },
+      overrides: {
+        textModels: ["mock/free-model:free"],
+        allowPaidFallback: true,
+        paidTextModels: ["google/gemini-2.5-flash-lite"],
+      },
+    });
+    assert.deepEqual(calledModels, ["mock/free-model:free", "google/gemini-2.5-flash-lite"]);
+    assert.equal(
+      result.candidates[0].content.parts[0].text,
+      '{"mealName":"Oatmeal"}'
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

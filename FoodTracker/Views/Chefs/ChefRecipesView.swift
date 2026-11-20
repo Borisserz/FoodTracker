@@ -275,16 +275,16 @@ struct DiscoverTabView: View {
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            MealTypeCard(title: "Breakfast", subtitle: "Start your day right", imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=400", color: .themeYellow) {
+                            MealTypeCard(title: "Breakfast", subtitle: "Start your day right", imageUrl: "food_cover_1525351484163_7529414344d8", color: .themeYellow) {
                                 openFiltered(title: "Breakfast", tags: ["Breakfast"])
                             }
-                            MealTypeCard(title: "Lunch", subtitle: "Healthy & filling", imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400", color: .green) {
+                            MealTypeCard(title: "Lunch", subtitle: "Healthy & filling", imageUrl: "food_cover_1546069901_ba9599a7e63c", color: .green) {
                                 openFiltered(title: "Lunch", tags: ["Lunch"])
                             }
-                            MealTypeCard(title: "Dinner", subtitle: "Cozy evenings", imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400", color: .themePink) {
+                            MealTypeCard(title: "Dinner", subtitle: "Cozy evenings", imageUrl: "food_cover_1504674900247_0877df9cc836", color: .themePink) {
                                 openFiltered(title: "Dinner", tags: ["Dinner"])
                             }
-                            MealTypeCard(title: "Snack", subtitle: "Quick bites", imageUrl: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?q=80&w=400", color: .themeOrange) {
+                            MealTypeCard(title: "Snack", subtitle: "Quick bites", imageUrl: "food_cover_1505253716362_afaea1d3d1af", color: .themeOrange) {
                                 openFiltered(title: "Snack", tags: ["Snack"])
                             }
                         }
@@ -356,22 +356,9 @@ struct MealTypeCard: View {
     var body: some View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
-                // Background food image with placeholder
-                AsyncImage(url: URL(string: imageUrl)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        LinearGradient(
-                            colors: [color.opacity(0.85), color],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    }
-                }
-                .frame(width: 260, height: 110)
-                .clipped()
+                RecipeImageView(imageString: imageUrl, fallbackSystemName: "fork.knife")
+                    .frame(width: 260, height: 110)
+                    .clipped()
                 
                 // Dark gradient overlay for text readability
                 LinearGradient(
@@ -910,9 +897,9 @@ struct PremiumRecipeCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .bottomLeading) {
-                AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
-                    if let image = phase.image { image.resizable().aspectRatio(contentMode: .fill) } else { Rectangle().fill(Color.gray.opacity(0.2)).overlay(ProgressView()) }
-                }.frame(height: 160).clipped()
+                RecipeImageView(imageString: recipe.imageUrl, fallbackSystemName: "fork.knife")
+                    .frame(height: 160)
+                    .clipped()
 
                 LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
 
@@ -987,17 +974,10 @@ struct PremiumRecipeDetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     ZStack(alignment: .bottomLeading) {
-
-                        AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
-                            if let image = phase.image {
-                                image.resizable().aspectRatio(contentMode: .fill)
-                            } else {
-                                Rectangle().fill(Color.gray.opacity(0.2))
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 320)
-                        .clipped()
+                        RecipeImageView(imageString: recipe.imageUrl, fallbackSystemName: "fork.knife")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 320)
+                            .clipped()
 
                         LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
 

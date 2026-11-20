@@ -43,7 +43,7 @@ final class DataExportService {
             let resolvedWeight = summary.weight ?? weightByDay[dayStart]
             let weightText = resolvedWeight.map { String(format: "%.1f", locale: Locale(identifier: "en_US_POSIX"), $0) } ?? ""
             let dateStr = escapeCSVField(formatter.string(from: summary.date))
-            let hydrationStr = String(format: "%.2f", locale: Locale(identifier: "en_US_POSIX"), summary.totalHydrationLiters)
+            let hydrationStr = String(format: "%.2f", locale: Locale(identifier: "en_US_POSIX"), summary.totalPureWaterLiters)
             let fiberStr = String(format: "%.1f", locale: Locale(identifier: "en_US_POSIX"), summary.totalFiber)
             let sugarStr = String(format: "%.1f", locale: Locale(identifier: "en_US_POSIX"), summary.totalSugar)
             let line = "\(dateStr),\(summary.totalCalories),\(Int(summary.totalProtein)),\(Int(summary.totalCarbs)),\(Int(summary.totalFats)),\((summary.meals ?? []).count),\(hydrationStr),\(fiberStr),\(sugarStr),\(summary.activeCaloriesBurned),\(summary.stepsCount),\(escapeCSVField(weightText))\n"

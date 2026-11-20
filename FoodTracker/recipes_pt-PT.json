@@ -4,7 +4,7 @@
     "description": "Simples de fazer, reconfortante de saborear e perfeito para noites aconchegantes. 🍂",
     "time": "20 min",
     "caloriesPerServing": 249,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Pequeno-almoço",
@@ -47,7 +47,7 @@
     "description": "Um clássico alimento matinal carregado com gorduras saudáveis ​​e proteínas magras para mantê-lo energizado. 🥑",
     "time": "10 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Pequeno-almoço",
@@ -92,7 +92,7 @@
     "description": "Rico, cremoso e repleto de proteínas vegetais. Tem gosto de sobremesa! 🍫",
     "time": "5 min",
     "caloriesPerServing": 414,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -142,7 +142,7 @@
     "description": "Salmão amanteigado e escamoso combinado com aspargos torrados crocantes. Perfeito para um jantar cetônico. 🐟",
     "time": "25 min",
     "caloriesPerServing": 409,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -193,7 +193,7 @@
     "description": "Uma lancheira perfeitamente equilibrada com frango magro, carboidratos complexos e tomates frescos. 🥗",
     "time": "20 min",
     "caloriesPerServing": 419,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -242,7 +242,7 @@
     "description": "Um jantar leve de inspiração italiana que economiza carboidratos sem sacrificar o sabor. 🍝",
     "time": "30 min",
     "caloriesPerServing": 232,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -291,7 +291,7 @@
     "description": "Um lanche rápido, doce e cheio de proteínas para conter seus desejos do meio-dia. 🍓",
     "time": "5 min",
     "caloriesPerServing": 292,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -341,7 +341,7 @@
     "description": "Uma saborosa alternativa vegetal ao ovo com espinafre e açafrão antiinflamatório. 🌱",
     "time": "10 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Pequeno-almoço",
@@ -391,7 +391,7 @@
     "description": "Um jantar pesado para recuperação muscular. Bife macio e brócolis com manteiga de alho. 🥩",
     "time": "20 min",
     "caloriesPerServing": 508,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -441,7 +441,7 @@
     "description": "Quente, reconfortante e com gosto de torta de maçã no pequeno-almoço. Rico em fibras! 🍎",
     "time": "30 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Pequeno-almoço",
@@ -491,7 +491,7 @@
     "description": "Um lanche refrescante, doce e rico em proteínas, perfeito para a recuperação pós-treino. 🍍",
     "time": "2 min",
     "caloriesPerServing": 261,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -534,7 +534,7 @@
     "description": "Frango suculento recheado com saboroso queijo feta e espinafre. Parece gourmet, mas incrivelmente fácil de fazer! 🌿",
     "time": "35 min",
     "caloriesPerServing": 465,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -584,7 +584,7 @@
     "description": "Um guisado à base de plantas farto, quente e rico em fibras, perfeito para preparar refeições. 🍲",
     "time": "45 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -646,7 +646,7 @@
     "description": "Biscoitos em borracha e sem farinha, perfeitos para aumentar a energia antes do treino ou para um lanche doce. 🍪",
     "time": "15 min",
     "caloriesPerServing": 139,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -690,7 +690,7 @@
     "description": "Uma refrescante mistura de verduras e frutos silvestres que esconde completamente o sabor do espinafre! 🫐",
     "time": "5 min",
     "caloriesPerServing": 247,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -745,7 +745,7 @@
     "description": "Copos de alface crocantes e frescos, recheados com camarão picante e rico em proteínas e abacate cremoso. 🍤",
     "time": "15 min",
     "caloriesPerServing": 269,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -795,7 +795,7 @@
     "description": "Pimentões crocantes atuam como o recipiente perfeito com baixo teor de carboidratos para uma salada de ovo cremosa e rica. 🫑",
     "time": "15 min",
     "caloriesPerServing": 274,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -845,7 +845,7 @@
     "description": "Uma salada vibrante e picante à base de plantas que fica perfeitamente guardada na frigorífico por dias. 🌽",
     "time": "10 min",
     "caloriesPerServing": 220,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -901,7 +901,7 @@
     "description": "Tiras de bife tenras e escaldantes com cebola caramelizada e pimentão. Só falta a tortilha! 🥩",
     "time": "20 min",
     "caloriesPerServing": 358,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -951,7 +951,7 @@
     "description": "Panquecas fofas e douradas com um ingrediente secreto que aumenta a proteína sem esforço. 🥞",
     "time": "15 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Pequeno-almoço",
@@ -995,7 +995,7 @@
     "description": "Um lanche saboroso, salgado e satisfatório à base de plantas, carregado com minerais. 🥢",
     "time": "5 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -1039,7 +1039,7 @@
     "description": "Um toque cremoso e com baixo teor de carboidratos na tradicional salada de ovo usando abacate rico em nutrientes em vez de excesso de maionese. 🥑",
     "time": "10 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -1083,7 +1083,7 @@
     "description": "Um curry perfumado e quente à base de plantas que se prepara rapidamente para uma refeição aconchegante durante a semana. 🥥",
     "time": "25 min",
     "caloriesPerServing": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1133,7 +1133,7 @@
     "description": "Um almoço rico em proteínas e rico em nutrientes, carregado com carboidratos complexos para abastecer o seu dia. 🍠",
     "time": "45 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -1176,7 +1176,7 @@
     "description": "Um pequeno-almoço para viagem repleto de fibras e ômega-3 que se prepara durante a noite. 🍓",
     "time": "5 min",
     "caloriesPerServing": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Pequeno-almoço",
@@ -1226,7 +1226,7 @@
     "description": "Um prato de frutos do mar leve, com alho e amanteigado que mantém baixo teor de carboidratos e alto teor de proteína. 🦐",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1270,7 +1270,7 @@
     "description": "Um batido rico em antioxidantes e cafeína leve, ideal para começar a manhã ou antes do treino. 🍵",
     "time": "5 min",
     "caloriesPerServing": 205,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -1320,7 +1320,7 @@
     "description": "Mozzarella derretida, redução balsâmica e tomate suculento sobre peito de frango magro. 🍅",
     "time": "20 min",
     "caloriesPerServing": 375,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1370,7 +1370,7 @@
     "description": "Um snack estaladiço e salgado que substitui batatas fritas com boa dose de proteína vegetal. 🌶️",
     "time": "35 min",
     "caloriesPerServing": 183,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -1414,7 +1414,7 @@
     "description": "Um almoço rápido sem cozinhar, rico em gorduras saudáveis e proteína, sem pão. 🥑",
     "time": "10 min",
     "caloriesPerServing": 235,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -1458,7 +1458,7 @@
     "description": "Um lanche doce, estaladiço e divertido que se prepara em dois minutos. 🍏",
     "time": "5 min",
     "caloriesPerServing": 296,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -1502,7 +1502,7 @@
     "description": "Um clássico reconfortante rico em queijo, reinventado sem hidratos de carbono. 🧀",
     "time": "25 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1545,7 +1545,7 @@
     "description": "Um chili encorpado e reconfortante com elevada carga proteica para recuperação muscular. 🌶️",
     "time": "40 min",
     "caloriesPerServing": 305,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -1594,7 +1594,7 @@
     "description": "Um salteado rápido de inspiração asiática com proteína fermentada e brócolos estaladiços. 🥢",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1644,7 +1644,7 @@
     "description": "Uma sobremesa aveludada que esconde gorduras boas e uma dose sólida de proteína. 🍫",
     "time": "5 min",
     "caloriesPerServing": 237,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Lanche",
@@ -1694,7 +1694,7 @@
     "description": "Prepare na véspera para um pequeno-almoço prático e rico em proteína pela manhã. 🥣",
     "time": "5 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Pequeno-almoço",
@@ -1744,7 +1744,7 @@
     "description": "Um peixe branco magro e suculento, leve mas muito saciante. 🍋",
     "time": "20 min",
     "caloriesPerServing": 193,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1788,7 +1788,7 @@
     "description": "Um almoço vegano estaladiço e proteico com molho cremoso de amendoim. 🥗",
     "time": "15 min",
     "caloriesPerServing": 300,
-    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1550304943_4f24f54ddde9",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -1838,7 +1838,7 @@
     "description": "Peitos de frango dourados e crocantes no forno, sem pão ralado. 🍗",
     "time": "30 min",
     "caloriesPerServing": 405,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1882,7 +1882,7 @@
     "description": "Um batido verde hidratante e vibrante com sabor tropical. 🥭",
     "time": "5 min",
     "caloriesPerServing": 197,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -1932,7 +1932,7 @@
     "description": "Um jantar clássico baixo em hidratos assado até os pimentos ficarem macios e doces. 🫑",
     "time": "45 min",
     "caloriesPerServing": 260,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -1981,7 +1981,7 @@
     "description": "Vieiras coradas até formarem crosta dourada sobre puré aveludado de açafrão e aroma de trufa negra. ✨",
     "time": "30 min",
     "caloriesPerServing": 403,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2037,7 +2037,7 @@
     "description": "Peito de pato cozinhado com precisão, pele estaladiça e molho agridoce de cereja e vinagre balsâmico. 🦆",
     "time": "90 min",
     "caloriesPerServing": 520,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2092,7 +2092,7 @@
     "description": "Carré de borrego envolvido em pistácio e ervas aromáticas sobre puré verde de ervilha e hortelã. 🥩",
     "time": "45 min",
     "caloriesPerServing": 687,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2148,7 +2148,7 @@
     "description": "Lombos de peixe branco marinados em miso doce, assados até caramelizar sobre caldo límpido de cogumelos. 🐟",
     "time": "40 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2203,7 +2203,7 @@
     "description": "Lombo picado à faca envolvido em emulsão de mostarda e alcaparras, com gema de codorniz e crocante de linhaça. 🥩",
     "time": "20 min",
     "caloriesPerServing": 488,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -2259,7 +2259,7 @@
     "description": "Lavagante cozinhado suavemente em manteiga emulsionada sobre risoto al dente de açafrão. 🦞",
     "time": "45 min",
     "caloriesPerServing": 525,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2313,7 +2313,7 @@
     "description": "Carne de caça magra selada ao ponto malpassado com redução brilhante de amoras silvestres e zimbro. 🌲",
     "time": "45 min",
     "caloriesPerServing": 407,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2368,7 +2368,7 @@
     "description": "Peixe branco com crosta dourada de noz de macadâmia sobre molho aveludado de coco e erva-príncipe. 🥥",
     "time": "35 min",
     "caloriesPerServing": 455,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2417,7 +2417,7 @@
     "description": "Cogumelos cozinhados lentamente em azeite aromático com pasta de alho negro e ovo a baixa temperatura. 🍳",
     "time": "40 min",
     "caloriesPerServing": 426,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Pequeno-almoço",
@@ -2473,7 +2473,7 @@
     "description": "Atum fresco apenas selado por fora, servido com puré verde de edamame e notas cítricas de yuzu-ponzu. 🍣",
     "time": "25 min",
     "caloriesPerServing": 317,
-    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1546039907_7fa05f864c02",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -2528,7 +2528,7 @@
     "description": "Salmão suculento regado em manteiga sobre creme sedoso de tupinambo com caviar negro. 🐟",
     "time": "40 min",
     "caloriesPerServing": 430,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2584,7 +2584,7 @@
     "description": "Lombo de vitela extremamente tenro cozinhado a baixa temperatura com redução de alho negro e espargos. 🥩",
     "time": "90 min",
     "caloriesPerServing": 328,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2639,7 +2639,7 @@
     "description": "Caudas de lagostim cozinhadas em manteiga clarificada sobre nabo daikon estufado e espuma de coco. 🦐",
     "time": "45 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2694,7 +2694,7 @@
     "description": "Pregado corado em frigideira acompanhado de espargos brancos e molho clássico de manteiga e champanhe. 🥂",
     "time": "40 min",
     "caloriesPerServing": 355,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2749,7 +2749,7 @@
     "description": "Peixe untuoso marinado em miso branco doce, caramelizado no forno e servido em caldo dashi quente. 🍄",
     "time": "30 min",
     "caloriesPerServing": 377,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -2804,7 +2804,7 @@
     "description": "Corte marmoreado de porco preto ibérico combinado com molho Romesco fumado de amêndoa e alho-francês assado. 🥩",
     "time": "35 min",
     "caloriesPerServing": 518,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2860,7 +2860,7 @@
     "description": "Carne vermelha ultra-magra selada rapidamente, servida com redução agridoce de amoras e puré sedoso. 🍖",
     "time": "45 min",
     "caloriesPerServing": 312,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -2915,7 +2915,7 @@
     "description": "Codornizes cozinhadas lentamente na própria gordura para máxima maciez, contrastadas por endívia caramelizada. 🪶",
     "time": "120 min",
     "caloriesPerServing": 370,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Almoço",
@@ -2964,7 +2964,7 @@
     "description": "Lombo branco cozinhado suavemente em azeite virgem extra e servido num caldo perfumado com açafrão e salicórnia. 🐟",
     "time": "45 min",
     "caloriesPerServing": 334,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Jantar",
@@ -3020,7 +3020,7 @@
     "description": "Lombo selvagem selado rapidamente com redução brilhante de Porto Ruby e zimbro sobre aipo-rábano fundente. 🦌",
     "time": "50 min",
     "caloriesPerServing": 321,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Jantar",

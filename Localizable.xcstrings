@@ -61385,6 +61385,126 @@
           }
         }
       }
+    },
+    "Signing out switches cloud AI and food search back to a guest session while keeping your meals and health logs safely on this device and in iCloud.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выход переключит облачный ИИ и поиск продуктов на гостевую сессию, сохранив ваши приёмы пищи и данные о здоровье на этом устройстве и в iCloud."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Abmelden werden Cloud-KI und Lebensmittelsuche auf eine Gastsitzung umgestellt, während deine Mahlzeiten und Gesundheitsdaten sicher auf diesem Gerät und in iCloud bleiben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al cerrar sesión, la IA en la nube y la búsqueda de alimentos pasan a una sesión de invitado, manteniendo tus comidas y registros de salud a salvo en este dispositivo y en iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La déconnexion repasse l’IA cloud et la recherche d’aliments en session invité tout en conservant vos repas et données de santé en sécurité sur cet appareil et dans iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnettendoti, l’IA cloud e la ricerca alimenti passano a una sessione ospite mantenendo i tuoi pasti e i dati sulla salute al sicuro su questo dispositivo e su iCloud."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminar sessão muda a IA na nuvem e a pesquisa de alimentos para uma sessão de convidado, mantendo as suas refeições e registos de saúde em segurança neste dispositivo e no iCloud."
+          }
+        }
+      }
+    },
+    "Enable AI Food Search to estimate calories and macros for unlisted dishes, or create a custom entry.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включите ИИ-поиск продуктов для оценки калорий и БЖУ блюд вне базы или создайте продукт вручную."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere die KI-Lebensmittelsuche, um Kalorien und Makros für nicht gelistete Gerichte zu schätzen, oder erstelle einen eigenen Eintrag."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa la búsqueda de alimentos con IA para estimar calorías y macros de platos no listados, o crea una entrada personalizada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez la recherche d’aliments par IA pour estimer les calories et macros des plats absents de la base, ou créez un aliment personnalisé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva la ricerca alimenti con IA per stimare calorie e macro dei piatti non presenti o crea una voce personalizzata."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative a pesquisa de alimentos por IA para estimar calorias e macros de pratos não listados ou crie uma entrada personalizada."
+          }
+        }
+      }
+    },
+    "Enable AI Food Search": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включить ИИ-поиск"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Lebensmittelsuche aktivieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar búsqueda con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer la recherche IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva ricerca IA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativar pesquisa por IA"
+          }
+        }
+      }
     }
   },
   "version": "1.1"

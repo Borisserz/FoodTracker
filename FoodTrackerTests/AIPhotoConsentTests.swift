@@ -64,4 +64,47 @@ final class AIPhotoConsentTests: XCTestCase {
         XCTAssertFalse(AIMoodAdvicePopup.shouldAutoFetchAIAdvice(hasConsented: false))
         XCTAssertTrue(AIMoodAdvicePopup.shouldAutoFetchAIAdvice(hasConsented: true))
     }
+
+    func testSmartAddFoodViewOffersAIConsentPromptOnlyWhenEmptyAndUnconsented() {
+        XCTAssertTrue(
+            SmartAddFoodView.shouldOfferAIConsentPrompt(
+                query: "matcha",
+                hasConsented: false,
+                hasAnyResults: false,
+                isSearching: false
+            )
+        )
+        XCTAssertFalse(
+            SmartAddFoodView.shouldOfferAIConsentPrompt(
+                query: "matcha",
+                hasConsented: true,
+                hasAnyResults: false,
+                isSearching: false
+            )
+        )
+        XCTAssertFalse(
+            SmartAddFoodView.shouldOfferAIConsentPrompt(
+                query: "matcha",
+                hasConsented: false,
+                hasAnyResults: true,
+                isSearching: false
+            )
+        )
+        XCTAssertFalse(
+            SmartAddFoodView.shouldOfferAIConsentPrompt(
+                query: "matcha",
+                hasConsented: false,
+                hasAnyResults: false,
+                isSearching: true
+            )
+        )
+        XCTAssertFalse(
+            SmartAddFoodView.shouldOfferAIConsentPrompt(
+                query: "ab",
+                hasConsented: false,
+                hasAnyResults: false,
+                isSearching: false
+            )
+        )
+    }
 }

@@ -17,7 +17,7 @@ enum DailyXPQuestsEvaluator {
             let loggedSlots = Set((summary.meals ?? []).filter { $0.totalCalories > 0 }.map { DailySummary.canonicalMealSlot($0.title) })
             return loggedSlots.count >= 3
         case .water:
-            return summary.totalHydrationLiters >= 2.499
+            return summary.totalPureWaterLiters >= 2.499
         }
     }
 }

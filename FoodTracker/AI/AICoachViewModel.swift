@@ -157,7 +157,7 @@ class AICoachViewModel {
         HapticManager.shared.impact(style: .medium)
         errorMessage = nil
         isFixingHydration = true
-        let drank = currentSummary.totalHydrationLiters
+        let drank = currentSummary.totalPureWaterLiters
 
         hydrationAnalysisTask?.cancel()
         hydrationAnalysisTask = Task {

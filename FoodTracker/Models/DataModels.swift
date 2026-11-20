@@ -804,7 +804,7 @@ struct DailyWidgetSnapshot: Equatable {
         }
 
         let cals = summary.totalCalories
-        let hyd = summary.totalHydrationLiters
+        let hyd = summary.totalPureWaterLiters
         let prot = Int(summary.totalProtein.rounded())
         let fat = Int(summary.totalFats.rounded())
         let carbs = Int(summary.totalCarbs.rounded())

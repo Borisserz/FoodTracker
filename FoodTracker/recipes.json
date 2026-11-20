@@ -4,7 +4,7 @@
     "description": "Simple to make, comforting to enjoy, and perfect for cozy evenings. 🍂",
     "time": "20 min",
     "caloriesPerServing": 249,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Breakfast",
@@ -47,7 +47,7 @@
     "description": "A classic morning staple loaded with healthy fats and lean protein to keep you energized. 🥑",
     "time": "10 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Breakfast",
@@ -92,7 +92,7 @@
     "description": "Rich, creamy, and packed with plant-based protein. Tastes like dessert! 🍫",
     "time": "5 min",
     "caloriesPerServing": 414,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Smoothie",
@@ -142,7 +142,7 @@
     "description": "Flaky, buttery salmon paired with crisp roasted asparagus. Perfect for a keto dinner. 🐟",
     "time": "25 min",
     "caloriesPerServing": 409,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -193,7 +193,7 @@
     "description": "A perfectly balanced lunch bowl with lean chicken, complex carbs, and fresh tomatoes. 🥗",
     "time": "20 min",
     "caloriesPerServing": 419,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -242,7 +242,7 @@
     "description": "A light Italian-inspired dinner that saves on carbs without sacrificing flavor. 🍝",
     "time": "30 min",
     "caloriesPerServing": 232,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -291,7 +291,7 @@
     "description": "A quick, sweet, and protein-packed snack to curb your mid-day cravings. 🍓",
     "time": "5 min",
     "caloriesPerServing": 292,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -341,7 +341,7 @@
     "description": "A savory, plant-based egg alternative with spinach and anti-inflammatory turmeric. 🌱",
     "time": "10 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Breakfast",
@@ -391,7 +391,7 @@
     "description": "A heavy-hitting dinner for muscle recovery. Tender steak and garlic butter broccoli. 🥩",
     "time": "20 min",
     "caloriesPerServing": 508,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -441,7 +441,7 @@
     "description": "Warm, comforting, and tastes like apple pie for breakfast. High in fiber! 🍎",
     "time": "30 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Breakfast",
@@ -491,7 +491,7 @@
     "description": "A refreshing, sweet, and protein-dense snack perfect for post-workout recovery. 🍍",
     "time": "2 min",
     "caloriesPerServing": 261,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -534,7 +534,7 @@
     "description": "Juicy chicken filled with savory feta and spinach. Looks gourmet, but incredibly easy to make! 🌿",
     "time": "35 min",
     "caloriesPerServing": 465,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -584,7 +584,7 @@
     "description": "A hearty, warming, and fiber-rich plant-based stew that is perfect for meal prep. 🍲",
     "time": "45 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -646,7 +646,7 @@
     "description": "Chewy, flourless cookies perfect for a pre-workout energy boost or a sweet snack. 🍪",
     "time": "15 min",
     "caloriesPerServing": 139,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -690,7 +690,7 @@
     "description": "A refreshing blend of greens and berries that hides the spinach taste completely! 🫐",
     "time": "5 min",
     "caloriesPerServing": 247,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Smoothie",
@@ -745,7 +745,7 @@
     "description": "Crisp, cool lettuce cups filled with zesty, high-protein shrimp and creamy avocado. 🍤",
     "time": "15 min",
     "caloriesPerServing": 269,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -795,7 +795,7 @@
     "description": "Crunchy bell peppers act as the perfect low-carb vessel for creamy, rich egg salad. 🫑",
     "time": "15 min",
     "caloriesPerServing": 274,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -845,7 +845,7 @@
     "description": "A vibrant, tangy plant-based salad that holds up perfectly in the fridge for days. 🌽",
     "time": "10 min",
     "caloriesPerServing": 220,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -901,7 +901,7 @@
     "description": "Sizzling, tender steak strips with caramelized onions and peppers. Just missing the tortilla! 🥩",
     "time": "20 min",
     "caloriesPerServing": 358,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -951,7 +951,7 @@
     "description": "Fluffy, golden pancakes with a secret ingredient that bumps up the protein effortlessly. 🥞",
     "time": "15 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Breakfast",
@@ -995,7 +995,7 @@
     "description": "A savory, salty, and satisfying plant-based snack loaded with trace minerals. 🥢",
     "time": "5 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -1039,7 +1039,7 @@
     "description": "A creamy, low-carb twist on traditional egg salad using nutrient-dense avocado instead of excess mayo. 🥑",
     "time": "10 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -1083,7 +1083,7 @@
     "description": "A fragrant, warming plant-based curry that comes together quickly for a cozy weeknight meal. 🥥",
     "time": "25 min",
     "caloriesPerServing": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -1133,7 +1133,7 @@
     "description": "A high-protein, nutrient-dense lunch loaded with complex carbohydrates to fuel your day. 🍠",
     "time": "45 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -1176,7 +1176,7 @@
     "description": "A grab-and-go breakfast packed with fiber and omega-3s that preps itself overnight. 🍓",
     "time": "5 min",
     "caloriesPerServing": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Breakfast",
@@ -1226,7 +1226,7 @@
     "description": "A light, garlicky, and buttery seafood dish that keeps carbs low and protein high. 🦐",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -1270,7 +1270,7 @@
     "description": "An antioxidant-rich, caffeinated shake perfect for a quick morning start or pre-workout fuel. 🍵",
     "time": "5 min",
     "caloriesPerServing": 205,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Smoothie",
@@ -1320,7 +1320,7 @@
     "description": "Melted mozzarella, sweet balsamic glaze, and juicy tomatoes over lean chicken breasts. 🍅",
     "time": "20 min",
     "caloriesPerServing": 375,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -1370,7 +1370,7 @@
     "description": "A crispy, savory snack that replaces potato chips and packs a nice punch of plant protein. 🌶️",
     "time": "35 min",
     "caloriesPerServing": 183,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -1414,7 +1414,7 @@
     "description": "A quick, no-cook lunch that provides incredibly healthy fats and protein without bread. 🥑",
     "time": "10 min",
     "caloriesPerServing": 235,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -1458,7 +1458,7 @@
     "description": "A fun, crunchy, and sweet snack that takes two minutes to assemble. Perfect for kids and adults! 🍏",
     "time": "5 min",
     "caloriesPerServing": 296,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -1502,7 +1502,7 @@
     "description": "A rich, cheesy comfort food classic completely reimagined without the carbs. 🧀",
     "time": "25 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -1545,7 +1545,7 @@
     "description": "A robust, warming chili that packs a serious protein punch for muscle recovery. 🌶️",
     "time": "40 min",
     "caloriesPerServing": 305,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -1594,7 +1594,7 @@
     "description": "A quick, savory plant-based stir-fry loaded with fermented soy protein and crunchy broccoli. 🥢",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -1644,7 +1644,7 @@
     "description": "A decadent, velvety dessert that secretly delivers healthy fats and a solid dose of protein. 🍫",
     "time": "5 min",
     "caloriesPerServing": 237,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Snack",
@@ -1694,7 +1694,7 @@
     "description": "Prepare this the night before for a stress-free, muscle-building breakfast on the run. 🥣",
     "time": "5 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Breakfast",
@@ -1744,7 +1744,7 @@
     "description": "An incredibly lean and flaky white fish recipe that feels light but filling. 🍋",
     "time": "20 min",
     "caloriesPerServing": 193,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -1788,7 +1788,7 @@
     "description": "A crunchy, protein-packed vegan lunch with a savory peanut dressing. 🥗",
     "time": "15 min",
     "caloriesPerServing": 300,
-    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1550304943_4f24f54ddde9",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -1838,7 +1838,7 @@
     "description": "A crispy, golden, oven-baked chicken breast with zero breadcrumbs required. 🍗",
     "time": "30 min",
     "caloriesPerServing": 405,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -1882,7 +1882,7 @@
     "description": "A hydrating, vibrant green smoothie that tastes like a tropical island vacation. 🥭",
     "time": "5 min",
     "caloriesPerServing": 197,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Smoothie",
@@ -1932,7 +1932,7 @@
     "description": "A hearty, low-carb dinner classic baked until the peppers are sweet and tender. 🫑",
     "time": "45 min",
     "caloriesPerServing": 260,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -1981,7 +1981,7 @@
     "description": "Dry-aged sea scallops pan-roasted to a golden crust, resting on a velvety saffron-infused emulsion with shaved black truffle. ✨",
     "time": "30 min",
     "caloriesPerServing": 403,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2037,7 +2037,7 @@
     "description": "Precisely cooked duck breast featuring rendered, crisp skin paired with a tart, glossy cherry demi-glace. 🦆",
     "time": "90 min",
     "caloriesPerServing": 520,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2092,7 +2092,7 @@
     "description": "Frenched rack of lamb coated in a vibrant pistachio-herb crust, served over an intensely sweet and bright pea purée. 🥩",
     "time": "45 min",
     "caloriesPerServing": 687,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2148,7 +2148,7 @@
     "description": "Buttery sea bass marinated in saikyo miso, slowly roasted and served over a crystal-clear, umami-rich mushroom broth. 🐟",
     "time": "40 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2203,7 +2203,7 @@
     "description": "Hand-cut A5 Wagyu tenderloin bound with an aerated mustard-caper emulsion, served with a raw quail egg yolk and flaxseed tuile. 🥩",
     "time": "20 min",
     "caloriesPerServing": 488,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -2259,7 +2259,7 @@
     "description": "Tender lobster tail slow-poached in beurre monté, served over an al dente, vibrant yellow saffron risotto. 🦞",
     "time": "45 min",
     "caloriesPerServing": 525,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2313,7 +2313,7 @@
     "description": "Gamey, incredibly lean venison roasted to a perfect rare, balanced with an intensely reduced dark berry and juniper jus. 🌲",
     "time": "45 min",
     "caloriesPerServing": 407,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2368,7 +2368,7 @@
     "description": "Pristine white halibut wearing a golden macadamia crust, swimming in an aromatic, velvety coconut-lemongrass sauce. 🥥",
     "time": "35 min",
     "caloriesPerServing": 455,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2417,7 +2417,7 @@
     "description": "Slow-poached exotic mushrooms bathed in olive oil, deeply umami black garlic purée, and a perfectly runny sous-vide egg. 🍳",
     "time": "40 min",
     "caloriesPerServing": 426,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Breakfast",
@@ -2473,7 +2473,7 @@
     "description": "Sushi-grade Ahi seared for mere seconds, accompanied by a vibrant edamame silk and molecular yuzu-ponzu caviar. 🍣",
     "time": "25 min",
     "caloriesPerServing": 317,
-    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1546039907_7fa05f864c02",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -2528,7 +2528,7 @@
     "description": "Ultra-premium Ora King salmon slowly basted in cultured butter, resting on a silky Jerusalem artichoke velouté, crowned with a quenelle of black caviar. 🐟",
     "time": "40 min",
     "caloriesPerServing": 430,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2584,7 +2584,7 @@
     "description": "Incredibly tender, milk-fed veal cooked precisely sous-vide, glazed with a deeply fermented, umami-bomb black garlic reduction. 🥩",
     "time": "90 min",
     "caloriesPerServing": 328,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2639,7 +2639,7 @@
     "description": "Sweet, delicate langoustine gently poached in aromatic butter, elevated by an ethereal, foamy coconut and lemongrass broth. 🦐",
     "time": "45 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2694,7 +2694,7 @@
     "description": "The king of fish, turbot, roasted on the bone for maximum flavor, draped in a luxurious, acidic Champagne butter sauce. 🥂",
     "time": "40 min",
     "caloriesPerServing": 355,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2749,7 +2749,7 @@
     "description": "Sablefish marinated in sweet white miso, yielding a caramelized exterior that gives way to buttery, melt-in-your-mouth flakes in an umami dashi. 🍄",
     "time": "30 min",
     "caloriesPerServing": 377,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -2804,7 +2804,7 @@
     "description": "The highly prized, heavily marbled 'secret' cut of acorn-fed Iberian pork, paired with a smoky Spanish almond-pepper purée. 🥩",
     "time": "35 min",
     "caloriesPerServing": 518,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2860,7 +2860,7 @@
     "description": "Ultra-lean red meat from premium ostrich fillet, complemented by a sweet-and-sour berry reduction and earthy, wood-smoked parsnips. 🍖",
     "time": "45 min",
     "caloriesPerServing": 312,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -2915,7 +2915,7 @@
     "description": "Petite game birds slowly cooked in their own rendered fat for supreme tenderness, cut by the acidity of 'mustard caviar' and bitter endive. 🪶",
     "time": "120 min",
     "caloriesPerServing": 370,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Lunch",
@@ -2964,7 +2964,7 @@
     "description": "Pearly white halibut cooked gently submerged in premium olive oil, resting in a fragrant golden broth with crunchy, salty sea beans. 🐟",
     "time": "45 min",
     "caloriesPerServing": 334,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dinner",
@@ -3020,7 +3020,7 @@
     "description": "Wild, robust elk loin elevated by a sticky reduction of ruby port wine and piney juniper, grounded by earthy celery root. 🦌",
     "time": "50 min",
     "caloriesPerServing": 321,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dinner",

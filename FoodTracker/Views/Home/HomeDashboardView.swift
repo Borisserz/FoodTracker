@@ -361,7 +361,7 @@ struct HomeDashboardContentView: View {
               .onChange(of: summaries.count) { _, _ in
                   syncStreakAndAchievements()
               }
-              .onChange(of: currentSummary.totalHydrationLiters) { _, _ in
+              .onChange(of: currentSummary.totalPureWaterLiters) { _, _ in
                   syncStreakAndAchievements()
               }
               .onChange(of: scenePhase) { _, newPhase in
@@ -881,7 +881,7 @@ struct InsightsWidget: View {
             return (String(localized: "Slightly over limit, but tomorrow is a new day!"), "exclamationmark.circle.fill", .red)
         } else if summary.totalProtein < (user?.targetProtein ?? 150) * 0.3 && summary.totalCalories > 600 {
             return (String(localized: "Great start! Try adding more protein to your next meal."), "bolt.fill", .themePeach)
-        } else if summary.totalHydrationLiters < 1.0 && summary.totalCalories > 1000 {
+        } else if summary.totalPureWaterLiters < 1.0 && summary.totalCalories > 1000 {
             return (String(localized: "Don't forget to drink water to stay hydrated!"), "drop.fill", .drinkWater)
         } else {
             return (String(localized: "You're on track! Keep up the great work."), "star.fill", .themePink)
@@ -1896,7 +1896,7 @@ struct DailyNoteSheet: View {
                     targetFats: fetchedUser?.targetFats ?? 0,
                     consumedCarbs: summary.totalCarbs,
                     targetCarbs: fetchedUser?.targetCarbs ?? 0,
-                    hydrationLiters: summary.totalHydrationLiters,
+                    hydrationLiters: summary.totalPureWaterLiters,
                     activeCaloriesBurned: summary.activeCaloriesBurned
                 )
             }
@@ -1919,7 +1919,7 @@ struct DailyNoteSheet: View {
             dayNote: draftNote,
             consumedCalories: Int(summary.totalCalories),
             goalCalories: user?.dailyCaloriesGoal ?? 2000,
-            waterLiters: summary.totalHydrationLiters,
+            waterLiters: summary.totalPureWaterLiters,
             activeDiet: user?.activeDietKey ?? "Balanced"
         ) {
             let localizedMoodName = String(localized: String.LocalizationValue(moodName))
@@ -2268,6 +2268,7 @@ struct SmartAddFoodView: View {
 
     @State private var showingScanner = false
     @State private var showingManualAdd = false
+    @State private var showingAIConsentSheet = false
     @State private var pendingScannerFood: FoodItem? = nil
     @State private var pendingManualEntryAfterScanner = false
     @State private var selectedFoods: [FoodItem] = []
@@ -2286,6 +2287,18 @@ struct SmartAddFoodView: View {
 
     private var activeDietPlan: DietPlan? {
         users.first?.activeDietPlan
+    }
+
+    static func shouldOfferAIConsentPrompt(
+        query: String,
+        hasConsented: Bool,
+        hasAnyResults: Bool,
+        isSearching: Bool
+    ) -> Bool {
+        !isSearching
+            && !hasAnyResults
+            && !hasConsented
+            && query.trimmingCharacters(in: .whitespacesAndNewlines).count > 2
     }
 
     var filteredLocalFoods: [FoodItem] {
@@ -2436,11 +2449,39 @@ struct SmartAddFoodView: View {
                                 ProgressView("Searching global database...")
                                     .padding(.top, 24)
                             } else if filteredLocalFoods.isEmpty && localCatalogResults.isEmpty && apiSearchResults.isEmpty {
+                                let offersAIConsent = Self.shouldOfferAIConsentPrompt(
+                                    query: searchText,
+                                    hasConsented: AIPhotoConsentManager.shared.hasConsented,
+                                    hasAnyResults: false,
+                                    isSearching: false
+                                )
                                 VStack(spacing: 16) {
-                                    Image(systemName: "questionmark.folder.fill").font(.system(size: 48)).foregroundColor(.themeOrange.opacity(0.5))
+                                    Image(systemName: offersAIConsent ? "sparkles.rectangle.stack.fill" : "questionmark.folder.fill")
+                                        .font(.system(size: 48))
+                                        .foregroundColor(offersAIConsent ? .themePink.opacity(0.75) : .themeOrange.opacity(0.5))
                                     Text("Can't find '\(searchText)'?").font(.headline)
-                                    Text("No worries! You can quickly add it to your personal database and use it forever.")
+                                    Text(
+                                        offersAIConsent
+                                            ? "Enable AI Food Search to estimate calories and macros for unlisted dishes, or create a custom entry."
+                                            : "No worries! You can quickly add it to your personal database and use it forever."
+                                    )
                                         .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center).padding(.horizontal, 20)
+
+                                    if offersAIConsent {
+                                        Button(action: {
+                                            HapticManager.shared.impact(style: .medium)
+                                            showingAIConsentSheet = true
+                                        }) {
+                                            HStack {
+                                                Image(systemName: "sparkles")
+                                                Text("Enable AI Food Search")
+                                            }
+                                            .font(.headline).foregroundColor(.white).padding(.vertical, 14).padding(.horizontal, 24)
+                                            .background(ThemeManager.shared.current.primaryGradient)
+                                            .cornerRadius(20).shadow(color: ThemeManager.shared.current.primaryAccent.opacity(0.3), radius: 8, y: 4)
+                                        }
+                                        .buttonStyle(BounceButtonStyle())
+                                    }
 
                                     Button(action: {
                                         HapticManager.shared.impact(style: .medium)
@@ -2531,6 +2572,17 @@ struct SmartAddFoodView: View {
             .presentationDetents([.fraction(0.85), .large])
             .presentationCornerRadius(32)
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showingAIConsentSheet) {
+            AIPhotoConsentSheet(
+                onAllow: {
+                    AIPhotoConsentManager.shared.grantConsent()
+                    if !searchText.isEmpty {
+                        performSearch(query: searchText)
+                    }
+                },
+                onDecline: {}
+            )
         }
     }
 

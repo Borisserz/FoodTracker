@@ -224,20 +224,9 @@ struct RecipesHeroCard: View {
     var body: some View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
-                // Background image with fallback
-                AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    LinearGradient(
-                        colors: [.themePink.opacity(0.85), .themeOrange.opacity(0.85)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                }
-                .frame(height: 190)
-                .clipped()
+                RecipeImageView(imageString: "food_cover_1546069901_ba9599a7e63c", fallbackSystemName: "fork.knife")
+                    .frame(height: 190)
+                    .clipped()
                 
                 // Dark overlay gradient for readable texts
                 LinearGradient(

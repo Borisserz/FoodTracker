@@ -4,7 +4,7 @@
     "description": "Sencillo de hacer, reconfortante de disfrutar y perfecto para veladas acogedoras. 🍂",
     "time": "20 min",
     "caloriesPerServing": 249,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Desayuno",
@@ -47,7 +47,7 @@
     "description": "Un clásico alimento básico de la mañana cargado de grasas saludables y proteínas magras para mantenerte con energía. 🥑",
     "time": "10 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Desayuno",
@@ -92,7 +92,7 @@
     "description": "Rica, cremosa y repleta de proteínas de origen vegetal. ¡Sabe a postre! 🍫",
     "time": "5 min",
     "caloriesPerServing": 414,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -142,7 +142,7 @@
     "description": "Salmón hojaldrado y mantecoso combinado con espárragos crujientes asados. Perfecto para una cena cetogénica. 🐟",
     "time": "25 min",
     "caloriesPerServing": 409,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -193,7 +193,7 @@
     "description": "Un almuerzo perfectamente equilibrado con pollo magro, carbohidratos complejos y tomates frescos. 🥗",
     "time": "20 min",
     "caloriesPerServing": 419,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -242,7 +242,7 @@
     "description": "Una cena ligera de inspiración italiana que ahorra carbohidratos sin sacrificar el sabor. 🍝",
     "time": "30 min",
     "caloriesPerServing": 232,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -291,7 +291,7 @@
     "description": "Un refrigerio rápido, dulce y lleno de proteínas para frenar los antojos del mediodía. 🍓",
     "time": "5 min",
     "caloriesPerServing": 292,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Bocadillo",
@@ -341,7 +341,7 @@
     "description": "Una sabrosa alternativa al huevo de origen vegetal con espinacas y cúrcuma antiinflamatoria. 🌱",
     "time": "10 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Desayuno",
@@ -391,7 +391,7 @@
     "description": "Una cena contundente para la recuperación muscular. Filete tierno y brócoli con mantequilla de ajo. 🥩",
     "time": "20 min",
     "caloriesPerServing": 508,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -441,7 +441,7 @@
     "description": "Cálido, reconfortante y sabe a tarta de manzana para el desayuno. ¡Alto en fibra! 🍎",
     "time": "30 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Desayuno",
@@ -491,7 +491,7 @@
     "description": "Un snack refrescante, dulce y rico en proteínas, perfecto para la recuperación post-entrenamiento. 🍍",
     "time": "2 min",
     "caloriesPerServing": 261,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Bocadillo",
@@ -534,7 +534,7 @@
     "description": "Pollo jugoso relleno de sabroso queso feta y espinacas. ¡Parece gourmet, pero increíblemente fácil de hacer! 🌿",
     "time": "35 min",
     "caloriesPerServing": 465,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -584,7 +584,7 @@
     "description": "Un guiso a base de plantas abundante, cálido y rico en fibra que es perfecto para preparar comidas. 🍲",
     "time": "45 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -646,7 +646,7 @@
     "description": "Galletas masticables sin harina, perfectas para aumentar la energía antes del entrenamiento o como refrigerio dulce. 🍪",
     "time": "15 min",
     "caloriesPerServing": 139,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Bocadillo",
@@ -690,7 +690,7 @@
     "description": "¡Una refrescante mezcla de verduras y bayas que oculta por completo el sabor de las espinacas! 🫐",
     "time": "5 min",
     "caloriesPerServing": 247,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -745,7 +745,7 @@
     "description": "Tazas de lechuga frescas y crujientes rellenas de camarones picantes y ricos en proteínas y aguacate cremoso. 🍤",
     "time": "15 min",
     "caloriesPerServing": 269,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -795,7 +795,7 @@
     "description": "Los pimientos morrones crujientes actúan como el recipiente perfecto bajo en carbohidratos para una rica y cremosa ensalada de huevo. 🫑",
     "time": "15 min",
     "caloriesPerServing": 274,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -845,7 +845,7 @@
     "description": "Una ensalada vegetal vibrante y picante que se conserva perfectamente en el refrigerador durante días. 🌽",
     "time": "10 min",
     "caloriesPerServing": 220,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -901,7 +901,7 @@
     "description": "Tiras de bistec tiernas y chisporroteantes con cebollas y pimientos caramelizados. ¡Solo falta la tortilla! 🥩",
     "time": "20 min",
     "caloriesPerServing": 358,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -951,7 +951,7 @@
     "description": "Panqueques dorados y esponjosos con un ingrediente secreto que aumenta la proteína sin esfuerzo. 🥞",
     "time": "15 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Desayuno",
@@ -995,7 +995,7 @@
     "description": "Un refrigerio a base de plantas sabroso, salado y saciante, cargado de oligoelementos. 🥢",
     "time": "5 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Bocadillo",
@@ -1039,7 +1039,7 @@
     "description": "Una versión cremosa y baja en carbohidratos de la tradicional ensalada de huevo que utiliza aguacate rico en nutrientes en lugar de exceso de mayonesa. 🥑",
     "time": "10 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -1083,7 +1083,7 @@
     "description": "Un curry aromático y cálido a base de plantas que se prepara rápidamente para una comida acogedora entre semana. 🥥",
     "time": "25 min",
     "caloriesPerServing": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1133,7 +1133,7 @@
     "description": "Un almuerzo rico en proteínas y nutrientes cargado con carbohidratos complejos para alimentar tu día. 🍠",
     "time": "45 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -1176,7 +1176,7 @@
     "description": "Un desayuno para llevar lleno de fibra y omega-3 que se prepara solo durante la noche. 🍓",
     "time": "5 min",
     "caloriesPerServing": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Desayuno",
@@ -1226,7 +1226,7 @@
     "description": "Un plato de mariscos ligero, con ajo y mantecoso que mantiene bajos los carbohidratos y alto las proteínas. 🦐",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1270,7 +1270,7 @@
     "description": "Un batido rico en antioxidantes y con cafeína, perfecto para empezar rápidamente la mañana o como combustible antes del entrenamiento. 🍵",
     "time": "5 min",
     "caloriesPerServing": 205,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -1320,7 +1320,7 @@
     "description": "Mozzarella derretida, glaseado balsámico dulce y tomates jugosos sobre pechugas de pollo magras. 🍅",
     "time": "20 min",
     "caloriesPerServing": 375,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1370,7 +1370,7 @@
     "description": "Un refrigerio crujiente y sabroso que reemplaza las papas fritas y contiene una buena cantidad de proteína vegetal. 🌶️",
     "time": "35 min",
     "caloriesPerServing": 183,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Bocadillo",
@@ -1414,7 +1414,7 @@
     "description": "Un almuerzo rápido, sin cocinar, que proporciona grasas y proteínas increíblemente saludables sin pan. 🥑",
     "time": "10 min",
     "caloriesPerServing": 235,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -1458,7 +1458,7 @@
     "description": "Un snack divertido, crujiente y dulce que se prepara en dos minutos. ¡Perfecto para niños y adultos! 🍏",
     "time": "5 min",
     "caloriesPerServing": 296,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Bocadillo",
@@ -1502,7 +1502,7 @@
     "description": "Un clásico de la comida reconfortante, rica y con queso, completamente reinventado sin carbohidratos. 🧀",
     "time": "25 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1545,7 +1545,7 @@
     "description": "Un chile robusto y cálido que contiene una gran cantidad de proteínas para la recuperación muscular. 🌶️",
     "time": "40 min",
     "caloriesPerServing": 305,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -1594,7 +1594,7 @@
     "description": "Un salteado rápido y sabroso a base de plantas cargado con proteína de soja fermentada y brócoli crujiente. 🥢",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1644,7 +1644,7 @@
     "description": "Un postre delicioso y aterciopelado que secretamente proporciona grasas saludables y una dosis sólida de proteínas. 🍫",
     "time": "5 min",
     "caloriesPerServing": 237,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Bocadillo",
@@ -1694,7 +1694,7 @@
     "description": "Prepárelo la noche anterior para disfrutar de un desayuno sin estrés y para desarrollar músculos mientras corre. 🥣",
     "time": "5 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Desayuno",
@@ -1744,7 +1744,7 @@
     "description": "Una receta de pescado blanco increíblemente magra y hojaldrada que resulta ligera pero abundante. 🍋",
     "time": "20 min",
     "caloriesPerServing": 193,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1788,7 +1788,7 @@
     "description": "Un almuerzo vegano crujiente y rico en proteínas con un sabroso aderezo de maní. 🥗",
     "time": "15 min",
     "caloriesPerServing": 300,
-    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1550304943_4f24f54ddde9",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -1838,7 +1838,7 @@
     "description": "Una pechuga de pollo crujiente, dorada y horneada sin necesidad de pan rallado. 🍗",
     "time": "30 min",
     "caloriesPerServing": 405,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1882,7 +1882,7 @@
     "description": "Un batido verde vibrante e hidratante que sabe a vacaciones en una isla tropical. 🥭",
     "time": "5 min",
     "caloriesPerServing": 197,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Batido",
@@ -1932,7 +1932,7 @@
     "description": "Una cena clásica abundante y baja en carbohidratos horneada hasta que los pimientos estén dulces y tiernos. 🫑",
     "time": "45 min",
     "caloriesPerServing": 260,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1981,7 +1981,7 @@
     "description": "Vieiras añejadas en seco asadas hasta obtener una corteza dorada, reposando sobre una emulsión aterciopelada con infusión de azafrán y trufa negra raspada. ✨",
     "time": "30 min",
     "caloriesPerServing": 403,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2037,7 +2037,7 @@
     "description": "Pechuga de pato cocida con precisión con piel crujiente y desmenuzada combinada con un demi-glace de cereza brillante y agrio. 🦆",
     "time": "90 min",
     "caloriesPerServing": 520,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2092,7 +2092,7 @@
     "description": "Carré de cordero a la francesa cubierto con una vibrante costra de pistachos y hierbas, servido sobre un puré de guisantes intensamente dulce y brillante. 🥩",
     "time": "45 min",
     "caloriesPerServing": 687,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2148,7 +2148,7 @@
     "description": "Lubina mantecosa marinada en miso saikyo, asada lentamente y servida sobre un caldo de champiñones cristalino y rico en umami. 🐟",
     "time": "40 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2203,7 +2203,7 @@
     "description": "Lomo Wagyu A5 cortado a mano, atado con una emulsión de mostaza aireada y alcaparras, servido con yema de huevo de codorniz cruda y tuile de linaza. 🥩",
     "time": "20 min",
     "caloriesPerServing": 488,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -2259,7 +2259,7 @@
     "description": "Tierna cola de langosta escalfada a fuego lento en beurre monté, servida sobre un vibrante risotto de azafrán amarillo al dente. 🦞",
     "time": "45 min",
     "caloriesPerServing": 525,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2313,7 +2313,7 @@
     "description": "Carne de venado jugosa e increíblemente magra asada a un punto perfecto, equilibrada con un jugo de bayas oscuras y enebro intensamente reducido. 🌲",
     "time": "45 min",
     "caloriesPerServing": 407,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2368,7 +2368,7 @@
     "description": "Fletán blanco prístino con una corteza dorada de macadamia, nadando en una aromática y aterciopelada salsa de coco y limoncillo. 🥥",
     "time": "35 min",
     "caloriesPerServing": 455,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2417,7 +2417,7 @@
     "description": "Hongos exóticos escalfados a fuego lento bañados en aceite de oliva, puré de ajo negro profundamente umami y un huevo sous-vide perfectamente líquido. 🍳",
     "time": "40 min",
     "caloriesPerServing": 426,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Desayuno",
@@ -2473,7 +2473,7 @@
     "description": "Ahi de calidad sushi chamuscado durante unos segundos, acompañado de una vibrante seda de edamame y caviar molecular de yuzu-ponzu. 🍣",
     "time": "25 min",
     "caloriesPerServing": 317,
-    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1546039907_7fa05f864c02",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -2528,7 +2528,7 @@
     "description": "Salmón Ora King ultra premium bañado lentamente en mantequilla cultivada, reposando sobre una sedosa velouté de alcachofa de Jerusalén, coronado con una quenelle de caviar negro. 🐟",
     "time": "40 min",
     "caloriesPerServing": 430,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2584,7 +2584,7 @@
     "description": "Ternera increíblemente tierna, alimentada con leche, cocinada precisamente al vacío, glaseada con una reducción de ajo negro con forma de bomba umami, profundamente fermentada. 🥩",
     "time": "90 min",
     "caloriesPerServing": 328,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2639,7 +2639,7 @@
     "description": "Langostinos dulces y delicados escalfados suavemente en mantequilla aromática, realzados con un etéreo y espumoso caldo de coco y hierba de limón. 🦐",
     "time": "45 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2694,7 +2694,7 @@
     "description": "El rey del pescado, el rodaballo, asado con hueso para obtener el máximo sabor, envuelto en una lujosa y ácida salsa de mantequilla con champán. 🥂",
     "time": "40 min",
     "caloriesPerServing": 355,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2749,7 +2749,7 @@
     "description": "Bacalao negro marinado en miso blanco dulce, lo que produce un exterior caramelizado que da paso a hojuelas mantecosas que se derriten en la boca en un umami dashi. 🍄",
     "time": "30 min",
     "caloriesPerServing": 377,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -2804,7 +2804,7 @@
     "description": "El preciado corte \"secreto\" de cerdo ibérico alimentado con bellota, muy veteado, acompañado de un ahumado puré español de almendras y pimiento. 🥩",
     "time": "35 min",
     "caloriesPerServing": 518,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2860,7 +2860,7 @@
     "description": "Carne roja ultramagra de filete de avestruz de primera calidad, complementada con una reducción de frutos rojos agridulce y chirivías terrosas ahumadas en leña. 🍖",
     "time": "45 min",
     "caloriesPerServing": 312,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2915,7 +2915,7 @@
     "description": "Pequeñas aves de caza cocinadas lentamente en su propia grasa extraída para obtener una ternura suprema, cortada por la acidez del \"caviar de mostaza\" y la escarola amarga. 🪶",
     "time": "120 min",
     "caloriesPerServing": 370,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Almuerzo",
@@ -2964,7 +2964,7 @@
     "description": "Fletán blanco nacarado cocinado suavemente sumergido en aceite de oliva de primera calidad, reposando en un fragante caldo dorado con crujientes y saladas alubias. 🐟",
     "time": "45 min",
     "caloriesPerServing": 334,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -3020,7 +3020,7 @@
     "description": "Lomo de alce salvaje y robusto, elevado por una reducción pegajosa de vino de Oporto rubí y enebro de pino, molido con raíz de apio terroso. 🦌",
     "time": "50 min",
     "caloriesPerServing": 321,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",

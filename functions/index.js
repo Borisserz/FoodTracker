@@ -76,11 +76,26 @@ const VISION_MODEL_CHAIN = [
   "openrouter/free",
 ];
 
+// Paid ZDR-compatible SLA fallback. Appended after the free chain when allowPaidFallback is on.
+// Production defaults this on; set config/food_ai_settings.allowPaidFallback = false or
+// FOOD_AI_ALLOW_PAID_FALLBACK=false to disable without an iOS release.
+const PAID_TEXT_FALLBACK_MODELS = [
+  "google/gemini-2.5-flash-lite",
+  "google/gemini-2.5-flash",
+];
+
+const PAID_VISION_FALLBACK_MODELS = [
+  "google/gemini-2.5-flash-lite",
+  "google/gemini-2.5-flash",
+];
+
 const STRUCTURED_MODELS = new Set([
   "inclusionai/ling-3.2-flash:free",
   "baidu/ernie-5.5-flash-preview:free",
   "dots-studio/dots-3-note-preview:free",
   "openrouter/free",
+  "google/gemini-2.5-flash-lite",
+  "google/gemini-2.5-flash",
 ]);
 
 const JSON_OBJECT_MODELS = new Set([
@@ -149,17 +164,74 @@ function upstreamTimeoutForBody(body) {
   return UPSTREAM_TIMEOUT_MS;
 }
 
+function isFreeModelId(model) {
+  return model.endsWith(":free") || model === "openrouter/free";
+}
+
+// Keep the tail of the chain budget for a paid SLA attempt so slow :free timeouts
+// cannot consume the whole 85s window before Gemini Flash is tried.
+const PAID_FALLBACK_RESERVE_MS = 25000;
+
+function resolveAllowPaidFallback(explicitValue, envValue = process.env.FOOD_AI_ALLOW_PAID_FALLBACK) {
+  if (typeof explicitValue === "boolean") return explicitValue;
+  return envValue !== "false";
+}
+
+function shouldYieldFreeSlotToPaidFallback(model, chain, remainingMs, reserveMs = PAID_FALLBACK_RESERVE_MS) {
+  if (!model || !isFreeModelId(model)) return false;
+  if (!Array.isArray(chain) || !chain.some((candidate) => candidate && !isFreeModelId(candidate))) {
+    return false;
+  }
+  return remainingMs < reserveMs;
+}
+
+function logUpstreamModelFailure(model, status, errText) {
+  const statusNum = Number(status) || 0;
+  const payload = JSON.stringify({
+    event: "openrouter_upstream_failure",
+    model,
+    status: statusNum,
+    paidFallback: !isFreeModelId(model),
+  });
+  const detail = String(errText || "").slice(0, 180);
+  if (statusNum === 429 || statusNum === 502 || statusNum === 503) {
+    console.error(payload, detail);
+  } else {
+    console.warn(payload, detail);
+  }
+}
+
 function modelChainForRequest(body, overrides = {}) {
-  if (hasImageContent(body)) {
-    if (Array.isArray(overrides.visionModels) && overrides.visionModels.length > 0) {
-      return overrides.visionModels;
+  const isVision = hasImageContent(body);
+  const primary = isVision
+    ? Array.isArray(overrides.visionModels) && overrides.visionModels.length > 0
+      ? overrides.visionModels
+      : VISION_MODEL_CHAIN
+    : Array.isArray(overrides.textModels) && overrides.textModels.length > 0
+      ? overrides.textModels
+      : TEXT_MODEL_CHAIN;
+
+  if (!overrides.allowPaidFallback) {
+    return primary;
+  }
+
+  const paid = isVision
+    ? Array.isArray(overrides.paidVisionModels) && overrides.paidVisionModels.length > 0
+      ? overrides.paidVisionModels
+      : PAID_VISION_FALLBACK_MODELS
+    : Array.isArray(overrides.paidTextModels) && overrides.paidTextModels.length > 0
+      ? overrides.paidTextModels
+      : PAID_TEXT_FALLBACK_MODELS;
+
+  const seen = new Set();
+  const combined = [];
+  for (const m of [...primary, ...paid]) {
+    if (m && !seen.has(m)) {
+      seen.add(m);
+      combined.push(m);
     }
-    return VISION_MODEL_CHAIN;
   }
-  if (Array.isArray(overrides.textModels) && overrides.textModels.length > 0) {
-    return overrides.textModels;
-  }
-  return TEXT_MODEL_CHAIN;
+  return combined;
 }
 
 function geminiTypeToJson(type) {
@@ -541,11 +613,11 @@ function isMeaningfulJsonOutput(text) {
   return false;
 }
 
-function sanitizeModelOverrides(models) {
+function sanitizeModelOverrides(models, { allowPaid = false } = {}) {
   if (!Array.isArray(models)) return null;
   const cleaned = models
     .map((m) => (typeof m === "string" ? m.trim() : ""))
-    .filter((m) => m.length > 0 && m.endsWith(":free"));
+    .filter((m) => m.length > 0 && (allowPaid || isFreeModelId(m)));
   return cleaned.length > 0 ? cleaned : null;
 }
 
@@ -585,6 +657,8 @@ async function loadAISettings() {
     const db = getFirestore();
     const snap = await db.collection("config").doc("food_ai_settings").get();
     const data = snap.exists ? snap.data() || {} : {};
+    const allowPaidModels = data.allowPaidModels === true;
+    const allowPaidFallback = resolveAllowPaidFallback(data.allowPaidFallback);
     const value = {
       weeklyLimit:
         typeof data.weeklyLimit === "number" &&
@@ -592,8 +666,11 @@ async function loadAISettings() {
         data.weeklyLimit > 0
           ? data.weeklyLimit
           : DEFAULT_AI_WEEKLY_LIMIT,
-      textModels: sanitizeModelOverrides(data.textModels),
-      visionModels: sanitizeModelOverrides(data.visionModels),
+      textModels: sanitizeModelOverrides(data.textModels, { allowPaid: allowPaidModels }),
+      visionModels: sanitizeModelOverrides(data.visionModels, { allowPaid: allowPaidModels }),
+      allowPaidFallback,
+      paidTextModels: sanitizeModelOverrides(data.paidTextModels, { allowPaid: true }),
+      paidVisionModels: sanitizeModelOverrides(data.paidVisionModels, { allowPaid: true }),
     };
     aiSettingsCache = { value, loadedAtMs: now };
     return value;
@@ -604,6 +681,9 @@ async function loadAISettings() {
         weeklyLimit: DEFAULT_AI_WEEKLY_LIMIT,
         textModels: null,
         visionModels: null,
+        allowPaidFallback: resolveAllowPaidFallback(undefined),
+        paidTextModels: null,
+        paidVisionModels: null,
       }
     );
   }
@@ -840,8 +920,17 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
   let lastError = null;
   for (const model of chain) {
     const remainingMs = deadlineAt - Date.now();
+    if (shouldYieldFreeSlotToPaidFallback(model, chain, remainingMs)) {
+      console.warn(
+        `Skipping free model ${model}; reserving ${remainingMs}ms for paid SLA fallback`
+      );
+      continue;
+    }
     if (remainingMs < 5000) {
       break;
+    }
+    if (!isFreeModelId(model)) {
+      console.warn(`OpenRouter free chain exhausted; falling back to SLA model ${model}`);
     }
     const perCallTimeout = Math.min(attemptTimeoutMs, remainingMs);
     const attempt = geminiBodyToOpenAI(geminiBody, {
@@ -865,7 +954,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
           lastError = new Error(
             `OpenRouter ${resp.status} ${model}: ${text.slice(0, 400)}`
           );
-          console.warn(lastError.message);
+          logUpstreamModelFailure(model, resp.status, text);
           if (!shouldTryNextKeyForError(resp.status, text)) break;
           continue;
         }
@@ -1480,7 +1569,16 @@ exports.foodAiProxy = onRequest(
       for (const model of chain) {
         if (yielded) break;
         const remainingMs = streamDeadlineAt - Date.now();
+        if (shouldYieldFreeSlotToPaidFallback(model, chain, remainingMs)) {
+          console.warn(
+            `Skipping free stream model ${model}; reserving ${remainingMs}ms for paid SLA fallback`
+          );
+          continue;
+        }
         if (remainingMs < 5000) break;
+        if (!isFreeModelId(model)) {
+          console.warn(`OpenRouter free stream chain exhausted; falling back to SLA model ${model}`);
+        }
         const perCallTimeout = Math.min(streamTimeoutMs, remainingMs);
         const attempt = geminiBodyToOpenAI(body, { streaming: true, model });
         for (const apiKey of keys) {
@@ -1499,7 +1597,7 @@ exports.foodAiProxy = onRequest(
               lastError = new Error(
                 `stream ${resp.status} ${model}: ${errText.slice(0, 300)}`
               );
-              console.warn(lastError.message);
+              logUpstreamModelFailure(model, resp.status, errText);
               if (!shouldTryNextKeyForError(resp.status, errText)) break;
               continue;
             }
@@ -1911,6 +2009,8 @@ function finishSSEStreamResponse(res, { yielded = true, emittedDone = false } = 
 module.exports._test = {
   TEXT_MODEL_CHAIN,
   VISION_MODEL_CHAIN,
+  PAID_TEXT_FALLBACK_MODELS,
+  PAID_VISION_FALLBACK_MODELS,
   STRUCTURED_MODELS,
   JSON_OBJECT_MODELS,
   parseApiKeys,
@@ -1923,6 +2023,9 @@ module.exports._test = {
   resolveIpQuotaKey,
   resolveSecondaryQuotaKey,
   modelChainForRequest,
+  resolveAllowPaidFallback,
+  shouldYieldFreeSlotToPaidFallback,
+  PAID_FALLBACK_RESERVE_MS,
   geminiBodyToOpenAI,
   stripModelJSON,
   openAIToGeminiResponse,

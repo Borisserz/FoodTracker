@@ -363,15 +363,15 @@ struct SmartPlanBuilderFlow: View {
     private func imageUrlForDiet(_ diet: String) -> String {
         switch diet {
         case "Keto":
-            return "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=300&q=80"
+            return "food_cover_1552566626_52f8b828add9"
         case "Vegan":
-            return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=300&q=80"
+            return "food_cover_1512621776951_a57141f2eefd"
         case "Paleo":
-            return "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=300&q=80"
+            return "food_cover_1544025162_d76694265947"
         case "Mediterranean":
-            return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=300&q=80"
+            return "food_cover_1498837167922_ddd27525d352"
         default: // Any
-            return "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80"
+            return "food_cover_1546069901_ba9599a7e63c"
         }
     }
     

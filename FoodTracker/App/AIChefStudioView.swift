@@ -54,7 +54,11 @@ struct RecipeImageView: View {
     let fallbackSystemName: String
     
     var body: some View {
-        if let url = URL(string: imageString), imageString.hasPrefix("http") {
+        if let localAsset = FoodCoverAssets.assetName(for: imageString) {
+            Image(localAsset)
+                .resizable()
+                .scaledToFill()
+        } else if let url = URL(string: imageString), imageString.hasPrefix("http") {
             AsyncImage(url: url) { phase in
                 switch phase {
                 case .empty:

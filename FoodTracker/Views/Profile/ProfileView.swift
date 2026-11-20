@@ -813,7 +813,8 @@ struct AccountSettingsView: View {
                                     isLoading = true
                                     do {
                                         try await SocialAuthService.shared.signOut()
-                                        LocalDataResetService.wipeAllData(in: context)
+                                        LocalDataResetService.clearSessionForSignOut()
+                                        _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                         dismiss()
                                     } catch {
                                         errorMessage = error.localizedDescription
@@ -824,7 +825,7 @@ struct AccountSettingsView: View {
                             }
                             Button("Cancel", role: .cancel) {}
                         } message: {
-                            Text("Signing out switches to a fresh guest session and clears local device records so personal data is not shared across accounts.")
+                            Text("Signing out switches cloud AI and food search back to a guest session while keeping your meals and health logs safely on this device and in iCloud.")
                         }
                     }
 

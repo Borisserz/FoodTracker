@@ -4,7 +4,7 @@
     "description": "Semplice da realizzare, confortante da gustare e perfetto per serate intime. 🍂",
     "time": "20 min",
     "caloriesPerServing": 249,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Colazione",
@@ -47,7 +47,7 @@
     "description": "Un classico alimento mattutino ricco di grassi sani e proteine ​​magre per mantenerti pieno di energia. 🥑",
     "time": "10 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Colazione",
@@ -92,7 +92,7 @@
     "description": "Ricco, cremoso e ricco di proteine ​​vegetali. Ha il sapore del dessert! 🍫",
     "time": "5 min",
     "caloriesPerServing": 414,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Frullato",
@@ -142,7 +142,7 @@
     "description": "Salmone traballante e burroso abbinato a croccanti asparagi arrostiti. Perfetto per una cena cheto. 🐟",
     "time": "25 min",
     "caloriesPerServing": 409,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -193,7 +193,7 @@
     "description": "Una ciotola per il pranzo perfettamente bilanciata con pollo magro, carboidrati complessi e pomodori freschi. 🥗",
     "time": "20 min",
     "caloriesPerServing": 419,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -242,7 +242,7 @@
     "description": "Una cena leggera di ispirazione italiana che risparmia carboidrati senza sacrificare il sapore. 🍝",
     "time": "30 min",
     "caloriesPerServing": 232,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -291,7 +291,7 @@
     "description": "Uno spuntino veloce, dolce e ricco di proteine ​​per frenare le voglie di metà giornata. 🍓",
     "time": "5 min",
     "caloriesPerServing": 292,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Spuntino",
@@ -341,7 +341,7 @@
     "description": "Un'alternativa salata all'uovo a base vegetale con spinaci e curcuma antinfiammatoria. 🌱",
     "time": "10 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Colazione",
@@ -391,7 +391,7 @@
     "description": "Una cena intensa per il recupero muscolare. Bistecca tenera e broccoli al burro all'aglio. 🥩",
     "time": "20 min",
     "caloriesPerServing": 508,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -441,7 +441,7 @@
     "description": "Caldo, confortante e sa di torta di mele a colazione. Alto contenuto di fibre! 🍎",
     "time": "30 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Colazione",
@@ -491,7 +491,7 @@
     "description": "Uno spuntino rinfrescante, dolce e ricco di proteine, perfetto per il recupero post-allenamento. 🍍",
     "time": "2 min",
     "caloriesPerServing": 261,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Spuntino",
@@ -534,7 +534,7 @@
     "description": "Pollo succoso ripieno di gustosa feta e spinaci. Sembra gourmet, ma incredibilmente facile da preparare! 🌿",
     "time": "35 min",
     "caloriesPerServing": 465,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -584,7 +584,7 @@
     "description": "Uno stufato a base vegetale sostanzioso, riscaldante e ricco di fibre, perfetto per la preparazione dei pasti. 🍲",
     "time": "45 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -646,7 +646,7 @@
     "description": "Biscotti gommosi e senza farina, perfetti per una sferzata di energia prima dell'allenamento o per uno spuntino dolce. 🍪",
     "time": "15 min",
     "caloriesPerServing": 139,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Spuntino",
@@ -690,7 +690,7 @@
     "description": "Una miscela rinfrescante di verdure e frutti di bosco che nasconde completamente il gusto degli spinaci! 🫐",
     "time": "5 min",
     "caloriesPerServing": 247,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Frullato",
@@ -745,7 +745,7 @@
     "description": "Coppe di lattuga fresche e croccanti ripiene di gamberi saporiti e ad alto contenuto proteico e avocado cremoso. 🍤",
     "time": "15 min",
     "caloriesPerServing": 269,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -795,7 +795,7 @@
     "description": "I peperoni croccanti fungono da perfetto contenitore a basso contenuto di carboidrati per un'insalata di uova cremosa e ricca. 🫑",
     "time": "15 min",
     "caloriesPerServing": 274,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -845,7 +845,7 @@
     "description": "Un'insalata vegetale vivace e piccante che resiste perfettamente in frigorifero per giorni. 🌽",
     "time": "10 min",
     "caloriesPerServing": 220,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -901,7 +901,7 @@
     "description": "Straccetti di bistecca sfrigolanti e teneri con cipolle e peperoni caramellati. Manca solo la tortilla! 🥩",
     "time": "20 min",
     "caloriesPerServing": 358,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -951,7 +951,7 @@
     "description": "Pancake soffici e dorati con un ingrediente segreto che aumenta le proteine ​​senza sforzo. 🥞",
     "time": "15 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Colazione",
@@ -995,7 +995,7 @@
     "description": "Uno spuntino a base vegetale saporito, salato e soddisfacente, ricco di oligoelementi. 🥢",
     "time": "5 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Spuntino",
@@ -1039,7 +1039,7 @@
     "description": "Una versione cremosa e a basso contenuto di carboidrati della tradizionale insalata di uova, utilizzando avocado ricco di nutrienti al posto della maionese in eccesso. 🥑",
     "time": "10 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -1083,7 +1083,7 @@
     "description": "Un curry fragrante e riscaldante a base vegetale che si prepara rapidamente per un accogliente pasto notturno. 🥥",
     "time": "25 min",
     "caloriesPerServing": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1133,7 +1133,7 @@
     "description": "Un pranzo ricco di proteine ​​e ricco di nutrienti ricco di carboidrati complessi per alimentare la tua giornata. 🍠",
     "time": "45 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -1176,7 +1176,7 @@
     "description": "Una colazione da asporto ricca di fibre e omega-3 che si prepara da sola durante la notte. 🍓",
     "time": "5 min",
     "caloriesPerServing": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Colazione",
@@ -1226,7 +1226,7 @@
     "description": "Un piatto di pesce leggero, burroso e con aglio che mantiene bassi i carboidrati e alte le proteine. 🦐",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1270,7 +1270,7 @@
     "description": "Un frullato ricco di antiossidanti e caffeina, perfetto per un rapido inizio mattutino o per un carburante pre-allenamento. 🍵",
     "time": "5 min",
     "caloriesPerServing": 205,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Frullato",
@@ -1320,7 +1320,7 @@
     "description": "Mozzarella fusa, glassa balsamica dolce e pomodori succosi su petti di pollo magri. 🍅",
     "time": "20 min",
     "caloriesPerServing": 375,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1370,7 +1370,7 @@
     "description": "Uno spuntino croccante e saporito che sostituisce le patatine e racchiude una bella dose di proteine ​​vegetali. 🌶️",
     "time": "35 min",
     "caloriesPerServing": 183,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Spuntino",
@@ -1414,7 +1414,7 @@
     "description": "Un pranzo veloce senza cottura che fornisce grassi e proteine ​​incredibilmente salutari senza pane. 🥑",
     "time": "10 min",
     "caloriesPerServing": 235,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -1458,7 +1458,7 @@
     "description": "Uno spuntino divertente, croccante e dolce pronto in due minuti. Perfetto per adulti e bambini! 🍏",
     "time": "5 min",
     "caloriesPerServing": 296,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Spuntino",
@@ -1502,7 +1502,7 @@
     "description": "Un grande classico cremoso e ricco di formaggio rivisitato senza carboidrati. 🧀",
     "time": "25 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1545,7 +1545,7 @@
     "description": "Un chili caldo e sostanzioso ricco di proteine per il recupero muscolare. 🌶️",
     "time": "40 min",
     "caloriesPerServing": 305,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -1594,7 +1594,7 @@
     "description": "Un piatto vegetale veloce e saporito con proteine fermentate della soia e broccoli croccanti. 🥢",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1644,7 +1644,7 @@
     "description": "Un dessert vellutato e goloso che nasconde grassi sani e un'ottima dose di proteine. 🍫",
     "time": "5 min",
     "caloriesPerServing": 237,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Spuntino",
@@ -1694,7 +1694,7 @@
     "description": "Da preparare la sera prima per una colazione rapida e nutriente pronta al mattino. 🥣",
     "time": "5 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Colazione",
@@ -1744,7 +1744,7 @@
     "description": "Un pesce bianco leggerissimo, morbido e ricco di proteine che sazia con poche calorie. 🍋",
     "time": "20 min",
     "caloriesPerServing": 193,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1788,7 +1788,7 @@
     "description": "Un pranzo vegetale croccante e ricco di proteine con condimento saporito alle arachidi. 🥗",
     "time": "15 min",
     "caloriesPerServing": 300,
-    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1550304943_4f24f54ddde9",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -1838,7 +1838,7 @@
     "description": "Petto di pollo dorato e croccante al forno, zero pangrattato ma tutto il gusto. 🍗",
     "time": "30 min",
     "caloriesPerServing": 405,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1882,7 +1882,7 @@
     "description": "Uno smoothie verde fresco e idratante dal sapore tropicale. 🥭",
     "time": "5 min",
     "caloriesPerServing": 197,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Frullato",
@@ -1932,7 +1932,7 @@
     "description": "Un grande classico low-carb al forno con peperoni dolci e ripieno saporito. 🫑",
     "time": "45 min",
     "caloriesPerServing": 260,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -1981,7 +1981,7 @@
     "description": "Capesante arrostite in crosta dorata su una vellutata allo zafferano e note di tartufo nero. ✨",
     "time": "30 min",
     "caloriesPerServing": 403,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2037,7 +2037,7 @@
     "description": "Petto d'anatra cotto a bassa temperatura con pelle croccante e salsa agrodolce alle ciliegie. 🦆",
     "time": "90 min",
     "caloriesPerServing": 520,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2092,7 +2092,7 @@
     "description": "Carré d'agnello in crosta di pistacchi ed erbe aromatiche su vellutata dolce di piselli e menta. 🥩",
     "time": "45 min",
     "caloriesPerServing": 687,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2148,7 +2148,7 @@
     "description": "Filetti di pesce marinati nel miso dolce bianco e cotti al grill su un brodo limpido ai funghi shiitake. 🐟",
     "time": "40 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2203,7 +2203,7 @@
     "description": "Filetto di manzo battuto al coltello con emulsione di senape e capperi, tuorlo di quaglia e cialda ai semi di lino. 🥩",
     "time": "20 min",
     "caloriesPerServing": 488,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -2259,7 +2259,7 @@
     "description": "Aragosta cotta dolcemente nel burro emulsionato servita su un risotto mantecato allo zafferano. 🦞",
     "time": "45 min",
     "caloriesPerServing": 525,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2313,7 +2313,7 @@
     "description": "Lombo di cervo tenero scottato al sangue con una riduzione intensa di more nere e ginepro. 🌲",
     "time": "45 min",
     "caloriesPerServing": 407,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2368,7 +2368,7 @@
     "description": "Halibut bianco con crosta dorata di noci di macadamia su vellutata profumata al cocco e lemongrass. 🥥",
     "time": "35 min",
     "caloriesPerServing": 455,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2417,7 +2417,7 @@
     "description": "Funghi pregiati cotti lentamente in olio d'oliva con crema d'aglio nero e uovo morbido. 🍳",
     "time": "40 min",
     "caloriesPerServing": 426,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Colazione",
@@ -2473,7 +2473,7 @@
     "description": "Tonno fresco appena scottato al sesamo nero su crema liscia di edamame e note agrumate di yuzu-ponzu. 🍣",
     "time": "25 min",
     "caloriesPerServing": 317,
-    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1546039907_7fa05f864c02",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -2528,7 +2528,7 @@
     "description": "Salmone pregiato con pelle croccante nappato al burro su crema di topinambur e quenelle di caviale. 🐟",
     "time": "40 min",
     "caloriesPerServing": 430,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2584,7 +2584,7 @@
     "description": "Tenerissimo filetto di vitello cotto a bassa temperatura con glassatura umami all'aglio nero e asparagi alla brace. 🥩",
     "time": "90 min",
     "caloriesPerServing": 328,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2639,7 +2639,7 @@
     "description": "Scampi dolci cotti dolcemente nel burro chiarificato su daikon brasato ed emulsione leggera al cocco e lemongrass. 🦐",
     "time": "45 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2694,7 +2694,7 @@
     "description": "Filetto di rombo dorato in padella con asparagi bianchi delicati e salsa al burro e Champagne. 🥂",
     "time": "40 min",
     "caloriesPerServing": 355,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2749,7 +2749,7 @@
     "description": "Pesce marinato nel miso dolce bianco, caramellato al grill e servito in un brodo dashi caldo ai funghi. 🍄",
     "time": "30 min",
     "caloriesPerServing": 377,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -2804,7 +2804,7 @@
     "description": "Taglio pregiato e marezzato di maiale iberico servito con salsa Romesco affumicata alle mandorle e porri grigliati. 🥩",
     "time": "35 min",
     "caloriesPerServing": 518,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2860,7 +2860,7 @@
     "description": "Carne rossa magrissima di struzzo scottata al sangue, abbinata a riduzione agrodolce di more e pastinaca cremosa. 🍖",
     "time": "45 min",
     "caloriesPerServing": 312,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -2915,7 +2915,7 @@
     "description": "Quaglie cotte lentamente a bassa temperatura fino a sciogliersi in bocca, bilanciate da indivia caramellata e semi di senape. 🪶",
     "time": "120 min",
     "caloriesPerServing": 370,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Pranzo",
@@ -2964,7 +2964,7 @@
     "description": "Halibut perlato cotto delicatamente in olio d'oliva profumato e servito in un brodo dorato di finocchio e salicornia. 🐟",
     "time": "45 min",
     "caloriesPerServing": 334,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Cena",
@@ -3020,7 +3020,7 @@
     "description": "Lombo di selvaggina rosolato velocemente con riduzione lucida al vino Porto e ginepro su fondente di sedano rapa. 🦌",
     "time": "50 min",
     "caloriesPerServing": 321,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Cena",

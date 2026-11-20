@@ -4,7 +4,7 @@
     "description": "Simple à réaliser, réconfortant à déguster et parfait pour des soirées douillettes. 🍂",
     "time": "20 min",
     "caloriesPerServing": 249,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Petit-déjeuner",
@@ -47,7 +47,7 @@
     "description": "Un aliment de base classique du matin chargé de graisses saines et de protéines maigres pour vous garder sous tension. 🥑",
     "time": "10 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Petit-déjeuner",
@@ -92,7 +92,7 @@
     "description": "Riche, crémeux et riche en protéines végétales. Ça a le goût d'un dessert ! 🍫",
     "time": "5 min",
     "caloriesPerServing": 414,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Smoothies",
@@ -142,7 +142,7 @@
     "description": "Saumon feuilleté et beurré accompagné d'asperges rôties croustillantes. Parfait pour un dîner céto. 🐟",
     "time": "25 min",
     "caloriesPerServing": 409,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -193,7 +193,7 @@
     "description": "Un bol à lunch parfaitement équilibré avec du poulet maigre, des glucides complexes et des tomates fraîches. 🥗",
     "time": "20 min",
     "caloriesPerServing": 419,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -242,7 +242,7 @@
     "description": "Un dîner léger d'inspiration italienne qui permet d'économiser des glucides sans sacrifier la saveur. 🍝",
     "time": "30 min",
     "caloriesPerServing": 232,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -291,7 +291,7 @@
     "description": "Une collation rapide, sucrée et riche en protéines pour freiner vos fringales de midi. 🍓",
     "time": "5 min",
     "caloriesPerServing": 292,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Collation",
@@ -341,7 +341,7 @@
     "description": "Une alternative savoureuse aux œufs à base de plantes avec des épinards et du curcuma anti-inflammatoire. 🌱",
     "time": "10 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Petit-déjeuner",
@@ -391,7 +391,7 @@
     "description": "Un dîner percutant pour la récupération musculaire. Steak tendre et brocoli au beurre d'ail. 🥩",
     "time": "20 min",
     "caloriesPerServing": 508,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -441,7 +441,7 @@
     "description": "Chaud, réconfortant et a le goût d’une tarte aux pommes pour le petit-déjeuner. Riche en fibres ! 🍎",
     "time": "30 min",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Petit-déjeuner",
@@ -491,7 +491,7 @@
     "description": "Une collation rafraîchissante, sucrée et riche en protéines, parfaite pour la récupération après l'entraînement. 🍍",
     "time": "2 min",
     "caloriesPerServing": 261,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Collation",
@@ -534,7 +534,7 @@
     "description": "Poulet juteux rempli de feta savoureuse et d'épinards. Ça a l'air gourmand, mais incroyablement facile à réaliser ! 🌿",
     "time": "35 min",
     "caloriesPerServing": 465,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -584,7 +584,7 @@
     "description": "Un ragoût à base de plantes copieux, réchauffant et riche en fibres, parfait pour la préparation des repas. 🍲",
     "time": "45 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -646,7 +646,7 @@
     "description": "Biscuits moelleux et sans farine, parfaits pour un regain d'énergie avant l'entraînement ou une collation sucrée. 🍪",
     "time": "15 min",
     "caloriesPerServing": 139,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Collation",
@@ -690,7 +690,7 @@
     "description": "Un mélange rafraîchissant de légumes verts et de baies qui cache complètement le goût des épinards ! 🫐",
     "time": "5 min",
     "caloriesPerServing": 247,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Smoothies",
@@ -745,7 +745,7 @@
     "description": "Coupes de laitue croustillantes et fraîches remplies de crevettes piquantes et riches en protéines et d'avocat crémeux. 🍤",
     "time": "15 min",
     "caloriesPerServing": 269,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -795,7 +795,7 @@
     "description": "Les poivrons croquants constituent le récipient parfait à faible teneur en glucides pour une salade aux œufs crémeuse et riche. 🫑",
     "time": "15 min",
     "caloriesPerServing": 274,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -845,7 +845,7 @@
     "description": "Une salade végétale vibrante et acidulée qui se conserve parfaitement au réfrigérateur pendant des jours. 🌽",
     "time": "10 min",
     "caloriesPerServing": 220,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -901,7 +901,7 @@
     "description": "Lanières de steak tendres et grésillantes avec oignons et poivrons caramélisés. Il manque juste la tortilla ! 🥩",
     "time": "20 min",
     "caloriesPerServing": 358,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -951,7 +951,7 @@
     "description": "Des crêpes moelleuses et dorées avec un ingrédient secret qui augmente les protéines sans effort. 🥞",
     "time": "15 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Petit-déjeuner",
@@ -995,7 +995,7 @@
     "description": "Une collation à base de plantes savoureuse, salée et satisfaisante, chargée d'oligo-éléments. 🥢",
     "time": "5 min",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Collation",
@@ -1039,7 +1039,7 @@
     "description": "Une version crémeuse et faible en glucides de la salade aux œufs traditionnelle utilisant de l'avocat riche en nutriments au lieu d'un excès de mayonnaise. 🥑",
     "time": "10 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -1083,7 +1083,7 @@
     "description": "Un curry végétal parfumé et réchauffant qui se prépare rapidement pour un repas agréable en semaine. 🥥",
     "time": "25 min",
     "caloriesPerServing": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -1133,7 +1133,7 @@
     "description": "Un déjeuner riche en protéines et riche en nutriments, chargé de glucides complexes pour alimenter votre journée. 🍠",
     "time": "45 min",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -1176,7 +1176,7 @@
     "description": "Un petit-déjeuner à emporter riche en fibres et en oméga-3 qui se prépare toute la nuit. 🍓",
     "time": "5 min",
     "caloriesPerServing": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Petit-déjeuner",
@@ -1226,7 +1226,7 @@
     "description": "Un plat de fruits de mer léger, à l'ail et au beurre qui maintient les glucides faibles et les protéines élevées. 🦐",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -1270,7 +1270,7 @@
     "description": "Un shake caféiné riche en antioxydants, parfait pour un démarrage rapide le matin ou comme carburant avant l'entraînement. 🍵",
     "time": "5 min",
     "caloriesPerServing": 205,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Smoothies",
@@ -1320,7 +1320,7 @@
     "description": "Mozzarella fondue, glaçage balsamique sucré et tomates juteuses sur des poitrines de poulet maigres. 🍅",
     "time": "20 min",
     "caloriesPerServing": 375,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -1370,7 +1370,7 @@
     "description": "Une collation croustillante et savoureuse qui remplace les chips et contient une bonne dose de protéines végétales. 🌶️",
     "time": "35 min",
     "caloriesPerServing": 183,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Collation",
@@ -1414,7 +1414,7 @@
     "description": "Un déjeuner rapide et sans cuisson qui fournit des graisses et des protéines incroyablement saines sans pain. 🥑",
     "time": "10 min",
     "caloriesPerServing": 235,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -1458,7 +1458,7 @@
     "description": "Une collation amusante, croquante et sucrée qui prend deux minutes à assembler. Parfait pour les enfants et les adultes ! 🍏",
     "time": "5 min",
     "caloriesPerServing": 296,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Collation",
@@ -1502,7 +1502,7 @@
     "description": "Un classique de la nourriture réconfortante riche et au fromage entièrement réinventé sans les glucides. 🧀",
     "time": "25 min",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -1545,7 +1545,7 @@
     "description": "Un piment robuste et réchauffant qui contient une sérieuse dose de protéines pour la récupération musculaire. 🌶️",
     "time": "40 min",
     "caloriesPerServing": 305,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -1594,7 +1594,7 @@
     "description": "Un sauté rapide et savoureux à base de plantes, chargé de protéines de soja fermentées et de brocoli croquant. 🥢",
     "time": "15 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -1644,7 +1644,7 @@
     "description": "Un dessert décadent et velouté qui fournit secrètement des graisses saines et une solide dose de protéines. 🍫",
     "time": "5 min",
     "caloriesPerServing": 237,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Collation",
@@ -1694,7 +1694,7 @@
     "description": "Préparez-le la veille pour un petit-déjeuner sans stress et favorisant le renforcement musculaire sur le pouce. 🥣",
     "time": "5 min",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Petit-déjeuner",
@@ -1744,7 +1744,7 @@
     "description": "Une recette de poisson blanc incroyablement maigre et feuilletée, légère mais copieuse. 🍋",
     "time": "20 min",
     "caloriesPerServing": 193,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -1788,7 +1788,7 @@
     "description": "Un déjeuner végétalien croquant et riche en protéines avec une savoureuse vinaigrette aux arachides. 🥗",
     "time": "15 min",
     "caloriesPerServing": 300,
-    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1550304943_4f24f54ddde9",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -1838,7 +1838,7 @@
     "description": "Une poitrine de poulet croustillante et dorée cuite au four sans chapelure requise. 🍗",
     "time": "30 min",
     "caloriesPerServing": 405,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -1882,7 +1882,7 @@
     "description": "Un smoothie vert hydratant et vibrant qui a le goût de vacances sur une île tropicale. 🥭",
     "time": "5 min",
     "caloriesPerServing": 197,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Smoothies",
@@ -1932,7 +1932,7 @@
     "description": "Un dîner classique copieux et faible en glucides, cuit jusqu'à ce que les poivrons soient doux et tendres. 🫑",
     "time": "45 min",
     "caloriesPerServing": 260,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -1981,7 +1981,7 @@
     "description": "Noix de Saint-Jacques vieillies à sec, poêlées jusqu'à obtenir une croûte dorée, reposant sur une émulsion veloutée infusée de safran et de copeaux de truffe noire. ✨",
     "time": "30 min",
     "caloriesPerServing": 403,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2037,7 +2037,7 @@
     "description": "Magret de canard cuit avec précision avec une peau fondue et croustillante associée à une demi-glace aux cerises acidulée et brillante. 🦆",
     "time": "90 min",
     "caloriesPerServing": 520,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2092,7 +2092,7 @@
     "description": "Carré d'agneau à la française enrobé d'une croûte vibrante de pistaches et d'herbes, servi sur une purée de pois intensément sucrée et lumineuse. 🥩",
     "time": "45 min",
     "caloriesPerServing": 687,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2148,7 +2148,7 @@
     "description": "Bar au beurre mariné dans du saikyo miso, rôti lentement et servi sur un bouillon de champignons cristallin et riche en umami. 🐟",
     "time": "40 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2203,7 +2203,7 @@
     "description": "Filet mignon Wagyu A5 coupé à la main, lié d'une émulsion aérée moutarde-câpres, servi avec un jaune d'œuf de caille cru et une tuile aux graines de lin. 🥩",
     "time": "20 min",
     "caloriesPerServing": 488,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -2259,7 +2259,7 @@
     "description": "Tendre queue de homard pochée lentement dans du beurre monté, servie sur un risotto al dente au safran jaune vif. 🦞",
     "time": "45 min",
     "caloriesPerServing": 525,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2313,7 +2313,7 @@
     "description": "Un gibier incroyablement maigre rôti à un point saignant parfait, équilibré avec un jus de baies noires et de genièvre intensément réduit. 🌲",
     "time": "45 min",
     "caloriesPerServing": 407,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2368,7 +2368,7 @@
     "description": "Flétan blanc immaculé recouvert d'une croûte de macadamia dorée, nageant dans une sauce aromatique et veloutée à la noix de coco et à la citronnelle. 🥥",
     "time": "35 min",
     "caloriesPerServing": 455,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2417,7 +2417,7 @@
     "description": "Champignons exotiques pochés lentement baignés d'huile d'olive, purée d'ail noir profondément umami et œuf sous vide parfaitement coulant. 🍳",
     "time": "40 min",
     "caloriesPerServing": 426,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Petit-déjeuner",
@@ -2473,7 +2473,7 @@
     "description": "Ahi de qualité sushi saisi pendant quelques secondes, accompagné d'une soie d'edamame vibrante et d'un caviar moléculaire de yuzu-ponzu. 🍣",
     "time": "25 min",
     "caloriesPerServing": 317,
-    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1546039907_7fa05f864c02",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -2528,7 +2528,7 @@
     "description": "Saumon Ora King ultra-premium arrosé lentement de beurre de culture, reposant sur un velouté soyeux de topinambour, couronné d'une quenelle de caviar noir. 🐟",
     "time": "40 min",
     "caloriesPerServing": 430,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2584,7 +2584,7 @@
     "description": "Veau de lait incroyablement tendre, cuit avec précision sous vide, glacé avec une réduction d'ail noir profondément fermentée et bombe umami. 🥩",
     "time": "90 min",
     "caloriesPerServing": 328,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2639,7 +2639,7 @@
     "description": "Langoustine douce et délicate pochée doucement dans un beurre aromatique, relevée par un bouillon éthéré et mousseux de noix de coco et de citronnelle. 🦐",
     "time": "45 min",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2694,7 +2694,7 @@
     "description": "Le roi des poissons, le turbot, rôti sur l'os pour un maximum de saveur, drapé d'une luxueuse sauce au beurre champenoise acidulée. 🥂",
     "time": "40 min",
     "caloriesPerServing": 355,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2749,7 +2749,7 @@
     "description": "Morue charbonnière marinée dans du miso blanc sucré, donnant un extérieur caramélisé qui cède la place à des flocons beurrés et fondants dans la bouche dans un dashi umami. 🍄",
     "time": "30 min",
     "caloriesPerServing": 377,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -2804,7 +2804,7 @@
     "description": "La coupe « secrète » très prisée et très persillée de porc ibérique nourri aux glands, accompagnée d'une purée d'amandes et de poivrons fumés d'Espagne. 🥩",
     "time": "35 min",
     "caloriesPerServing": 518,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2860,7 +2860,7 @@
     "description": "Viande rouge ultra maigre issue d'un filet d'autruche de première qualité, complétée par une réduction de baies aigre-douce et des panais terreux fumés au bois. 🍖",
     "time": "45 min",
     "caloriesPerServing": 312,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -2915,7 +2915,7 @@
     "description": "Le petit gibier à plumes est cuit lentement dans sa propre graisse fondue pour une tendreté suprême, coupé par l'acidité du « caviar de moutarde » et de l'endive amère. 🪶",
     "time": "120 min",
     "caloriesPerServing": 370,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Déjeuner",
@@ -2964,7 +2964,7 @@
     "description": "Flétan blanc nacré cuit doucement immergé dans de l'huile d'olive de première qualité, reposant dans un bouillon doré parfumé avec des haricots de mer croquants et salés. 🐟",
     "time": "45 min",
     "caloriesPerServing": 334,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Dîner",
@@ -3020,7 +3020,7 @@
     "description": "Longe d'élan sauvage et robuste rehaussée par une réduction collante de porto rubis et de genévrier de pin, ancrée dans du céleri-rave terreux. 🦌",
     "time": "50 min",
     "caloriesPerServing": 321,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Dîner",

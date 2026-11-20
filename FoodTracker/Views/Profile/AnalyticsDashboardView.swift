@@ -276,6 +276,7 @@ enum AIWeeklyInsightCalculator {
         let trackedSummaries = summaries.filter { summary in
             let day = calendar.startOfDay(for: summary.date)
             let hasLoggedActivity = summary.totalCalories > 0
+                || summary.totalPureWaterLiters > 0
                 || summary.totalHydrationLiters > 0
                 || !(summary.activities ?? []).isEmpty
                 || summary.workoutCalories > 0
@@ -287,7 +288,7 @@ enum AIWeeklyInsightCalculator {
             : validCalorieSummaries.reduce(0) { $0 + $1.totalCalories } / validCalorieSummaries.count
         let avgWater = trackedSummaries.isEmpty
             ? 0.0
-            : trackedSummaries.reduce(0.0) { $0 + $1.totalHydrationLiters } / Double(trackedSummaries.count)
+            : trackedSummaries.reduce(0.0) { $0 + $1.totalPureWaterLiters } / Double(trackedSummaries.count)
         return (validCalorieSummaries: validCalorieSummaries, avgCalories: avgCalories, avgWater: avgWater)
     }
 }
@@ -323,7 +324,7 @@ struct AIWeeklyInsightCard: View {
                 }
             }
 
-            let water = today?.totalHydrationLiters ?? 0.0
+            let water = today?.totalPureWaterLiters ?? 0.0
             let calories = today?.totalCalories ?? 0
             if water == 0 && calories == 0 {
                 return (
@@ -696,7 +697,7 @@ struct AIHydrationAnalyticsCard: View {
     var onUpdate: () -> Void = {}
     
     var body: some View {
-        let liters = summary?.totalHydrationLiters ?? 0
+        let liters = summary?.totalPureWaterLiters ?? 0
         let goal = 2.5
         let progress = min(max(liters / goal, 0.0), 1.0)
         let isGoalReached = liters >= goal
@@ -1421,7 +1422,7 @@ struct TrendsWaterChart: View {
         return (0..<period.daysCount).map { i in
             let date = calendar.date(byAdding: .day, value: -i, to: today)!
             let summary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
-            let liters = summary?.totalHydrationLiters ?? 0
+            let liters = summary?.totalPureWaterLiters ?? 0
             return (date: date, volume: NutritionMath.displayFluid(liters, useMetric: useMetricSystem))
         }.reversed()
     }

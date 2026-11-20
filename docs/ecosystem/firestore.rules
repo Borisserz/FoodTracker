@@ -136,18 +136,17 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // === Custom Barcodes (Shared Crowdsourced DB) ===
+    // Retired FoodTracker collections. Reads stay public so legacy clients do not break.
+    // All client writes are denied: anonymous create used to spam barcodes, and any
+    // signed-in user could overwrite global_community_foods.
     match /custom_barcodes/{barcode} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
+      allow write: if false;
     }
 
-    // === Global Community Foods (AI & Manual) ===
     match /global_community_foods/{foodId} {
       allow read: if true;
-      allow create, update: if request.auth != null;
-      allow delete: if false;
+      allow write: if false;
     }
 
     // =====================================================
@@ -158,6 +157,14 @@ service cloud.firestore {
 
     function isSignedIn() {
       return request.auth != null;
+    }
+
+    function isNonAnonymousUser() {
+      return isSignedIn()
+        && 'firebase' in request.auth.token
+        && request.auth.token.firebase is map
+        && 'sign_in_provider' in request.auth.token.firebase
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
     function isUser(userId) {
@@ -244,7 +251,10 @@ service cloud.firestore {
 
     // Users Collection (and all its subcollections like notifications)
     match /users/{userId} {
-      allow read: if isSignedIn();
+      // Owner can always read their own doc, including anonymous sibling-app users.
+      // Other anonymous users cannot enumerate profiles. Registered users can still
+      // read profiles because FitRPG friend discovery and duels load users/{uid}.
+      allow read: if isUser(userId) || isNonAnonymousUser();
 
       // Create character (or sibling-app first write). FitRPG starter caps apply when gold present.
       allow create: if isUser(userId)

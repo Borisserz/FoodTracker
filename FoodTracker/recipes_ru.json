@@ -4,7 +4,7 @@
     "description": "Прост в изготовлении, приятен в использовании и идеально подходит для уютных вечеров. 🍂",
     "time": "20 мин",
     "caloriesPerServing": 249,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Завтрак",
@@ -47,7 +47,7 @@
     "description": "Классический утренний продукт, богатый полезными жирами и нежирным белком, который зарядит вас энергией. 🥑",
     "time": "10 мин",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Завтрак",
@@ -92,7 +92,7 @@
     "description": "Насыщенный, кремовый и насыщенный растительным белком. На вкус как десерт! 🍫",
     "time": "5 мин",
     "caloriesPerServing": 414,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Смузи",
@@ -142,7 +142,7 @@
     "description": "Нежный, маслянистый лосось в сочетании с хрустящей жареной спаржей. Идеально подходит для кето-ужина. 🐟",
     "time": "25 мин",
     "caloriesPerServing": 409,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -193,7 +193,7 @@
     "description": "Идеально сбалансированный обед с нежирной курицей, сложными углеводами и свежими помидорами. 🥗",
     "time": "20 мин",
     "caloriesPerServing": 419,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -242,7 +242,7 @@
     "description": "Легкий ужин в итальянском стиле, позволяющий экономить углеводы без ущерба для вкуса. 🍝",
     "time": "30 мин",
     "caloriesPerServing": 232,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -291,7 +291,7 @@
     "description": "Быстрая, сладкая и богатая белком закуска, которая обуздает тягу к еде в середине дня. 🍓",
     "time": "5 мин",
     "caloriesPerServing": 292,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Закуска",
@@ -341,7 +341,7 @@
     "description": "Пикантная альтернатива яйцам на растительной основе со шпинатом и противовоспалительной куркумой. 🌱",
     "time": "10 мин",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Завтрак",
@@ -391,7 +391,7 @@
     "description": "Плотный ужин для восстановления мышц. Нежный стейк и брокколи с чесночным маслом. 🥩",
     "time": "20 мин",
     "caloriesPerServing": 508,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -441,7 +441,7 @@
     "description": "Теплый, уютный, со вкусом яблочного пирога на завтрак. Высокое содержание клетчатки! 🍎",
     "time": "30 мин",
     "caloriesPerServing": 256,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Завтрак",
@@ -491,7 +491,7 @@
     "description": "Освежающая, сладкая и богатая белком закуска, идеально подходящая для восстановления после тренировки. 🍍",
     "time": "2 мин",
     "caloriesPerServing": 261,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Закуска",
@@ -534,7 +534,7 @@
     "description": "Сочная курица с пикантной начинкой из феты и шпината. Выглядит изысканно, а готовится невероятно легко! 🌿",
     "time": "35 мин",
     "caloriesPerServing": 465,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -584,7 +584,7 @@
     "description": "Сытное, согревающее и богатое клетчаткой рагу на растительной основе, которое идеально подходит для приготовления еды. 🍲",
     "time": "45 мин",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -646,7 +646,7 @@
     "description": "Жевательное печенье без муки идеально подходит для повышения энергии перед тренировкой или сладкого перекуса. 🍪",
     "time": "15 мин",
     "caloriesPerServing": 139,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Закуска",
@@ -690,7 +690,7 @@
     "description": "Освежающая смесь зелени и ягод, полностью скрывающая вкус шпината! 🫐",
     "time": "5 мин",
     "caloriesPerServing": 247,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Смузи",
@@ -745,7 +745,7 @@
     "description": "Хрустящие, прохладные салатные чашки, наполненные пикантными креветками с высоким содержанием белка и сливочным авокадо. 🍤",
     "time": "15 мин",
     "caloriesPerServing": 269,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -795,7 +795,7 @@
     "description": "Хрустящий сладкий перец станет идеальным низкоуглеводным соусом для насыщенного сливочного яичного салата. 🫑",
     "time": "15 мин",
     "caloriesPerServing": 274,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -845,7 +845,7 @@
     "description": "Яркий, пикантный салат на растительной основе, который прекрасно хранится в холодильнике в течение нескольких дней. 🌽",
     "time": "10 мин",
     "caloriesPerServing": 220,
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1512621776951_a57141f2eefd",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -901,7 +901,7 @@
     "description": "Шипящие, нежные стейки-стрипсы с карамелизированным луком и перцем. Просто не хватает тортильи! 🥩",
     "time": "20 мин",
     "caloriesPerServing": 358,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -951,7 +951,7 @@
     "description": "Пышные золотистые блины с секретным ингредиентом, который легко увеличивает содержание белка. 🥞",
     "time": "15 мин",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1528207776546_365bb710ee93",
     "isFavorite": false,
     "tags": [
       "Завтрак",
@@ -995,7 +995,7 @@
     "description": "Пикантная, соленая и сытная закуска на растительной основе, богатая микроэлементами. 🥢",
     "time": "5 мин",
     "caloriesPerServing": 245,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Закуска",
@@ -1039,7 +1039,7 @@
     "description": "Сливочный вариант традиционного яичного салата с низким содержанием углеводов, в котором вместо лишнего майонеза используется богатый питательными веществами авокадо. 🥑",
     "time": "10 мин",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -1083,7 +1083,7 @@
     "description": "Ароматное, согревающее карри на растительной основе, которое быстро готовится для уютного ужина в будние дни. 🥥",
     "time": "25 мин",
     "caloriesPerServing": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -1133,7 +1133,7 @@
     "description": "Обед с высоким содержанием белка и питательными веществами, наполненный сложными углеводами, которые зарядят ваш день. 🍠",
     "time": "45 мин",
     "caloriesPerServing": 310,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -1176,7 +1176,7 @@
     "description": "Быстрый завтрак, богатый клетчаткой и жирными кислотами омега-3, который готовится за ночь. 🍓",
     "time": "5 мин",
     "caloriesPerServing": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Завтрак",
@@ -1226,7 +1226,7 @@
     "description": "Легкое, чесночное и маслянистое блюдо из морепродуктов, в котором содержится мало углеводов и много белка. 🦐",
     "time": "15 мин",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -1270,7 +1270,7 @@
     "description": "Богатый антиоксидантами коктейль с кофеином идеально подходит для быстрого утреннего старта или перед тренировкой. 🍵",
     "time": "5 мин",
     "caloriesPerServing": 205,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Смузи",
@@ -1320,7 +1320,7 @@
     "description": "Растопленная моцарелла, сладкая бальзамическая глазурь и сочные помидоры на постной куриной грудке. 🍅",
     "time": "20 мин",
     "caloriesPerServing": 375,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -1370,7 +1370,7 @@
     "description": "Хрустящая пикантная закуска, которая заменяет картофельные чипсы и содержит большое количество растительного белка. 🌶️",
     "time": "35 мин",
     "caloriesPerServing": 183,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Закуска",
@@ -1414,7 +1414,7 @@
     "description": "Быстрый обед без приготовления пищи, который содержит невероятно полезные жиры и белки без хлеба. 🥑",
     "time": "10 мин",
     "caloriesPerServing": 235,
-    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1546069901_ba9599a7e63c",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -1458,7 +1458,7 @@
     "description": "Веселая, хрустящая и сладкая закуска, на приготовление которой уходит две минуты. Идеально подходит для детей и взрослых! 🍏",
     "time": "5 мин",
     "caloriesPerServing": 296,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Закуска",
@@ -1502,7 +1502,7 @@
     "description": "Насыщенная, сырная классика комфортной еды, полностью переосмысленная без углеводов. 🧀",
     "time": "25 мин",
     "caloriesPerServing": 266,
-    "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1498837167922_ddd27525d352",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -1545,7 +1545,7 @@
     "description": "Крепкий, согревающий перец чили, содержащий серьезный протеиновый заряд для восстановления мышц. 🌶️",
     "time": "40 мин",
     "caloriesPerServing": 305,
-    "imageUrl": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1543339308_43e59d6b73a6",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -1594,7 +1594,7 @@
     "description": "Быстрое и пикантное жаркое на растительной основе с ферментированным соевым белком и хрустящей брокколи. 🥢",
     "time": "15 мин",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -1644,7 +1644,7 @@
     "description": "Декадентский, бархатистый десерт, который тайно содержит полезные жиры и солидную дозу белка. 🍫",
     "time": "5 мин",
     "caloriesPerServing": 237,
-    "imageUrl": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1610832958506_aa56368176cf",
     "isFavorite": false,
     "tags": [
       "Закуска",
@@ -1694,7 +1694,7 @@
     "description": "Приготовьте это накануне вечером, чтобы получить беззаботный завтрак для наращивания мышечной массы на бегу. 🥣",
     "time": "5 мин",
     "caloriesPerServing": 330,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Завтрак",
@@ -1744,7 +1744,7 @@
     "description": "Невероятно постный и слоеный рецепт белой рыбы, легкий, но сытный. 🍋",
     "time": "20 мин",
     "caloriesPerServing": 193,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -1788,7 +1788,7 @@
     "description": "Хрустящий, богатый белком веганский обед с пикантной арахисовой заправкой. 🥗",
     "time": "15 мин",
     "caloriesPerServing": 300,
-    "imageUrl": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1550304943_4f24f54ddde9",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -1838,7 +1838,7 @@
     "description": "Хрустящая золотистая куриная грудка, запеченная в духовке, без панировочных сухарей. 🍗",
     "time": "30 мин",
     "caloriesPerServing": 405,
-    "imageUrl": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1604908176997_125f25cc6f3d",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -1882,7 +1882,7 @@
     "description": "Увлажняющий, яркий зеленый коктейль со вкусом отпуска на тропическом острове. 🥭",
     "time": "5 мин",
     "caloriesPerServing": 197,
-    "imageUrl": "https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1556881286_fc6915169721",
     "isFavorite": false,
     "tags": [
       "Смузи",
@@ -1932,7 +1932,7 @@
     "description": "Классический сытный ужин с низким содержанием углеводов, запеченный до тех пор, пока перец не станет сладким и нежным. 🫑",
     "time": "45 мин",
     "caloriesPerServing": 260,
-    "imageUrl": "https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1582169505937_b9992bd01ed9",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -1981,7 +1981,7 @@
     "description": "Морские гребешки сухой выдержки, обжаренные на сковороде до золотистой корочки, лежат на бархатистой эмульсии, пропитанной шафраном и стружкой черного трюфеля. ✨",
     "time": "30 мин",
     "caloriesPerServing": 403,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2037,7 +2037,7 @@
     "description": "Точно приготовленная утиная грудка с отварной хрустящей кожей в сочетании с терпким глянцевым вишнёвым демигласом. 🦆",
     "time": "90 мин",
     "caloriesPerServing": 520,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2092,7 +2092,7 @@
     "description": "Каре ягненка по-французски, покрытое яркой корочкой из фисташек и трав, подается с очень сладким и ярким гороховым пюре. 🥩",
     "time": "45 мин",
     "caloriesPerServing": 687,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2148,7 +2148,7 @@
     "description": "Масляный морской окунь, маринованный в мисо сайкё, медленно обжаренный и подаваемый с кристально чистым, насыщенным умами грибным бульоном. 🐟",
     "time": "40 мин",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2203,7 +2203,7 @@
     "description": "Нарезанная вручную вырезка вагю А5, переплетенная с воздушной горчично-каперсовой эмульсией, подается с сырым перепелиным желтком и тюль из льняного семени. 🥩",
     "time": "20 мин",
     "caloriesPerServing": 488,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -2259,7 +2259,7 @@
     "description": "Нежный хвост омара, приготовленный на медленном огне в соусе бер-монте, подается с ризотто аль денте с ярким желтым шафраном. 🦞",
     "time": "45 мин",
     "caloriesPerServing": 525,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2313,7 +2313,7 @@
     "description": "Невероятно нежирная оленина, обжаренная до идеальной прожарки, сбалансированная с сильно сниженным содержанием темных ягод и можжевелового сока. 🌲",
     "time": "45 мин",
     "caloriesPerServing": 407,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2368,7 +2368,7 @@
     "description": "Нетронутый белый палтус с золотистой корочкой макадамии, плавающий в ароматном, бархатистом кокосово-лемонграссовом соусе. 🥥",
     "time": "35 мин",
     "caloriesPerServing": 455,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2417,7 +2417,7 @@
     "description": "Приготовленные на медленном огне экзотические грибы, залитые оливковым маслом, густое пюре из черного чеснока умами и идеально жидкое яйцо, приготовленное в су-виде. 🍳",
     "time": "40 мин",
     "caloriesPerServing": 426,
-    "imageUrl": "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1511690656952_34342bb7c2f2",
     "isFavorite": false,
     "tags": [
       "Завтрак",
@@ -2473,7 +2473,7 @@
     "description": "Ахи суши-класса, обжаренные всего на несколько секунд, в сопровождении яркого шелка эдамаме и молекулярной икры юзу-понзу. 🍣",
     "time": "25 мин",
     "caloriesPerServing": 317,
-    "imageUrl": "https://images.unsplash.com/photo-1546039907-7fa05f864c02?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1546039907_7fa05f864c02",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -2528,7 +2528,7 @@
     "description": "Ультра-премиальный лосось Ора Кинг, медленно поливаемый кисломолочным маслом, покоится на шелковистом велюте из топинамбура, увенчанном кнелем из черной икры. 🐟",
     "time": "40 мин",
     "caloriesPerServing": 430,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2584,7 +2584,7 @@
     "description": "Невероятно нежная телятина на молочном откорме, приготовленная точно по технологии су-вид, глазированная глубоко ферментированным соусом из черного чеснока с ароматом умами. 🥩",
     "time": "90 мин",
     "caloriesPerServing": 328,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2639,7 +2639,7 @@
     "description": "Сладкий, нежный лангустин, нежно приготовленный в ароматном сливочном масле с эфирным пенистым бульоном из кокоса и лемонграсса. 🦐",
     "time": "45 мин",
     "caloriesPerServing": 280,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2694,7 +2694,7 @@
     "description": "Король рыбы, палтус, обжаренный на кости для максимального вкуса, заправленный роскошным кисловатым масляным соусом из шампанского. 🥂",
     "time": "40 мин",
     "caloriesPerServing": 355,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2749,7 +2749,7 @@
     "description": "Черная рыба, маринованная в сладком белом мисо, имеет карамелизированную поверхность, которая уступает место маслянистым, тающим во рту хлопьям умами даси. 🍄",
     "time": "30 мин",
     "caloriesPerServing": 377,
-    "imageUrl": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1564834724105_918b73d1b9e0",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -2804,7 +2804,7 @@
     "description": "Высоко ценимый, мраморный «секретный» кусок иберийской свинины откормленной на желудях в сочетании с дымным испанским миндально-перцовым пюре. 🥩",
     "time": "35 мин",
     "caloriesPerServing": 518,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2860,7 +2860,7 @@
     "description": "Ультра-нежирное красное мясо из премиального филе страуса, дополненное кисло-сладким ягодным соусом и земляным пастернаком, копченным на дровах. 🍖",
     "time": "45 мин",
     "caloriesPerServing": 312,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -2915,7 +2915,7 @@
     "description": "Миниатюрные дикие птицы, медленно приготовленные в собственном вытопленном жире для достижения максимальной нежности, с кислинкой «горчичной икры» и горьким эндивием. 🪶",
     "time": "120 мин",
     "caloriesPerServing": 370,
-    "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "food_cover_1552566626_52f8b828add9",
     "isFavorite": false,
     "tags": [
       "Обед",
@@ -2964,7 +2964,7 @@
     "description": "Жемчужно-белый палтус, аккуратно приготовленный в оливковом масле премиум-класса, в ароматном золотистом бульоне с хрустящими солеными морскими бобами. 🐟",
     "time": "45 мин",
     "caloriesPerServing": 334,
-    "imageUrl": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1519708227418_c8fd9a32b7a2",
     "isFavorite": false,
     "tags": [
       "Ужин",
@@ -3020,7 +3020,7 @@
     "description": "Дикая, крепкая корейка лося, приподнятая липкой нотой рубинового портвейна и соснового можжевельника, с землистым корнем сельдерея. 🦌",
     "time": "50 мин",
     "caloriesPerServing": 321,
-    "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop",
+    "imageUrl": "food_cover_1544025162_d76694265947",
     "isFavorite": false,
     "tags": [
       "Ужин",

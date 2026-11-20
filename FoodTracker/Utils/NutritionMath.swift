@@ -343,7 +343,13 @@ enum NutritionMath {
         for user: User?,
         in context: ModelContext,
         recalculateUserGoals: Bool = true,
-        syncToHealthKit: Bool = true
+        syncToHealthKit: Bool = true,
+        saveBodyMass: @escaping @Sendable (_ kg: Double, _ date: Date) async -> UUID? = { kg, date in
+            await HealthKitManager.shared.saveBodyMass(kg: kg, date: date)
+        },
+        deleteBodyMassSample: @escaping @Sendable (_ idString: String?, _ kgFallback: Double, _ date: Date) async -> Void = { idString, kgFallback, date in
+            await HealthKitManager.shared.deleteBodyMassSample(idString: idString, kgFallback: kgFallback, date: date)
+        }
     ) {
         guard newWeight > 0 else { return }
 
@@ -351,7 +357,11 @@ enum NutritionMath {
         let existingLogs = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)]))) ?? []
 
         let activeLog: WeightLog
+        var previousSampleToDelete: (sampleID: String, kg: Double, date: Date)?
         if let sameDayLog = existingLogs.first(where: { calendar.isDate($0.date, inSameDayAs: date) }) {
+            if let existingSampleID = sameDayLog.healthKitSampleID, !existingSampleID.isEmpty {
+                previousSampleToDelete = (existingSampleID, sameDayLog.weight, sameDayLog.date)
+            }
             sameDayLog.weight = newWeight
             sameDayLog.date = date
             activeLog = sameDayLog
@@ -384,8 +394,12 @@ enum NutritionMath {
         if syncToHealthKit, user?.isHealthKitEnabled == true {
             let syncDate = calendar.isDateInToday(date) ? Date() : date
             let container = context.container
+            let sampleToDelete = previousSampleToDelete
             Task { @MainActor in
-                if let uuid = await HealthKitManager.shared.saveBodyMass(kg: newWeight, date: syncDate) {
+                if let sampleToDelete {
+                    await deleteBodyMassSample(sampleToDelete.sampleID, sampleToDelete.kg, sampleToDelete.date)
+                }
+                if let uuid = await saveBodyMass(newWeight, syncDate) {
                     activeLog.healthKitSampleID = uuid.uuidString
                     try? container.mainContext.save()
                 }
@@ -488,7 +502,7 @@ enum NutritionMath {
             if summary.totalCalories > 0 {
                 hasLoggedAnyCalories = true
             }
-            hydrationByDay[day, default: 0] += summary.totalHydrationLiters
+            hydrationByDay[day, default: 0] += summary.totalPureWaterLiters
         }
 
         func unlock(_ id: String) {

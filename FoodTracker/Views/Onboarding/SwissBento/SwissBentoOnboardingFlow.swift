@@ -1,6 +1,5 @@
 import SwiftUI
 import UIKit
-import OnboardingKit
 
 enum OnboardingStageGuard {
     static func canAdvance(from stage: Int, metrics: OnboardingMetrics) -> Bool {

@@ -3,7 +3,7 @@ import SwiftData
 
 @MainActor
 enum LocalDataResetService {
-    private static let onboardingAndFeatureDefaultsKeys: [String] = [
+    static let onboardingAndFeatureDefaultsKeys: [String] = [
         "hasCompletedOnboarding_v2",
         "hasCompletedInitialOnboarding_v2",
         "hasCompletedOnboarding",
@@ -30,12 +30,30 @@ enum LocalDataResetService {
         "favoriteRecipeIDs",
         "favoriteRecipeTitles_v1",
         "favoriteFoodNames_v1",
-        "blockedCommunityFoods",
         "loggedMealsCount",
         "lastReviewPromptAppVersion",
         "app_first_launch_date",
         AIPhotoConsentManager.defaultsKey
     ]
+
+    private static let signOutSessionDefaultsKeys: [String] = [
+        "lastReviewPromptAppVersion",
+        AIPhotoConsentManager.defaultsKey
+    ]
+
+    /// Clears account-scoped session state and caches on Sign Out without deleting SwiftData records,
+    /// preventing accidental CloudKit diary deletions across the user's iCloud devices.
+    static func clearSessionForSignOut(defaults: UserDefaults = .standard) {
+        for key in signOutSessionDefaultsKeys {
+            defaults.removeObject(forKey: key)
+        }
+        WorkoutSyncManager.clearLocalSyncMetadata(defaults: defaults)
+
+        if defaults === UserDefaults.standard {
+            NetworkManager.shared.clearCacheForTesting()
+            AIPhotoConsentManager.shared.syncFromDefaults()
+        }
+    }
 
     /// Wipes all local SwiftData records, resets active fasting timers, clears app-specific defaults, and refreshes widgets.
     static func wipeAllData(in context: ModelContext, defaults: UserDefaults = .standard) {

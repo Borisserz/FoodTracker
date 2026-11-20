@@ -74,22 +74,9 @@ struct DietHeroCard: View {
         VStack(alignment: .leading, spacing: 0) {
 
             ZStack(alignment: .topLeading) {
-                // Background Unsplash food photo
-                AsyncImage(url: URL(string: diet.imageUrl)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        LinearGradient(
-                            colors: [diet.color.opacity(0.85), diet.color],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    }
-                }
-                .frame(height: 240)
-                .clipped()
+                RecipeImageView(imageString: diet.imageUrl, fallbackSystemName: "leaf.fill")
+                    .frame(height: 240)
+                    .clipped()
 
                 // Overlay gradient for readability
                 LinearGradient(
@@ -201,23 +188,10 @@ struct PremiumDietDetailView: View {
                         let isScrollingDown = minY > 0
 
                         ZStack(alignment: .bottomLeading) {
-
-                            AsyncImage(url: URL(string: diet.imageUrl)) { phase in
-                                if let image = phase.image {
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                } else {
-                                    LinearGradient(
-                                        colors: [diet.color.opacity(0.7), diet.color],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                }
-                            }
-                            .frame(height: isScrollingDown ? 350 + minY : 350)
-                            .clipped()
-                            .offset(y: isScrollingDown ? -minY : 0)
+                            RecipeImageView(imageString: diet.imageUrl, fallbackSystemName: "leaf.fill")
+                                .frame(height: isScrollingDown ? 350 + minY : 350)
+                                .clipped()
+                                .offset(y: isScrollingDown ? -minY : 0)
 
                             Image(systemName: "sparkles")
                                 .font(.system(size: 150))
@@ -506,11 +480,11 @@ struct PremiumFoodCategorySection: View {
 extension DietPlan {
     var imageUrl: String {
         switch key {
-        case "keto": return "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600"
-        case "vegan": return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600"
-        case "high_protein": return "https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=80&w=600"
-        case "mediterranean": return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=600"
-        default: return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600"
+        case "keto": return "food_cover_1544025162_d76694265947"
+        case "vegan": return "food_cover_1512621776951_a57141f2eefd"
+        case "high_protein": return "food_cover_1532550907401_a500c9a57435"
+        case "mediterranean": return "food_cover_1498837167922_ddd27525d352"
+        default: return "food_cover_1512621776951_a57141f2eefd"
         }
     }
 }
