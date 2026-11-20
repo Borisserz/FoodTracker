@@ -502,7 +502,7 @@ struct HomeDashboardContentView: View {
             if isHKEnabled {
                 let flushDates = HomeDashboardHealthSync.pendingWidgetWaterFlushDates(selectedDate: targetDate)
                 for flushDate in flushDates {
-                    let entries = WorkoutSyncManager.shared.consumePendingWidgetWaterEntriesLiters(for: flushDate)
+                    let entries = WorkoutSyncManager.shared.peekPendingWidgetWaterEntriesLiters(for: flushDate)
                     if Calendar.current.isDate(flushDate, inSameDayAs: targetDate) {
                         selectedDayPendingEntries = entries
                     }
@@ -513,16 +513,27 @@ struct HomeDashboardContentView: View {
                     }
                     let sampleDate = Calendar.current.isDateInToday(flushDate) ? Date() : flushDate
                     var attachedAny = false
-                    for entryLiters in entries {
+                    var syncedIndices: Set<Int> = []
+                    for (idx, entryLiters) in entries.enumerated() {
+                        guard !Task.isCancelled else { break }
                         if let sampleUUID = await HealthKitManager.shared.saveWater(liters: entryLiters, date: sampleDate) {
+                            syncedIndices.insert(idx)
                             let attached = await MainActor.run {
                                 WorkoutSyncManager.attachHealthKitSampleID(sampleUUID, volumeLiters: entryLiters, to: flushSummary)
                             }
                             if attached { attachedAny = true }
                         }
                     }
-                    if attachedAny {
-                        await MainActor.run { try? context.save() }
+                    if !syncedIndices.isEmpty {
+                        await MainActor.run {
+                            WorkoutSyncManager.shared.acknowledgePendingWidgetWaterEntries(
+                                syncedIndices: syncedIndices,
+                                for: flushDate
+                            )
+                            if attachedAny {
+                                try? context.save()
+                            }
+                        }
                     }
                 }
             }
@@ -711,11 +722,13 @@ struct HomeDashboardContentView: View {
         switch action {
         case "hydration":
             appState.requestedWidgetAction = nil
+            selectedDate = Calendar.current.startOfDay(for: Date())
             withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                 proxy.scrollTo("hydration_card", anchor: .center)
             }
         case "macros":
             appState.requestedWidgetAction = nil
+            selectedDate = Calendar.current.startOfDay(for: Date())
             withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                 proxy.scrollTo("macro_rings", anchor: .center)
             }
@@ -1276,10 +1289,27 @@ struct MealDetailView: View {
         }
     }
     private func copyCurrentMeal(_ sourceMeal: Meal, to targetDate: Date) {
-        let count = DailySummary.copyMeal(sourceMeal, toDate: targetDate, targetSlot: title, in: context)
+        let copiedItems = DailySummary.copyMealReturningItems(sourceMeal, toDate: targetDate, targetSlot: title, in: context)
+        let count = copiedItems.count
         guard count > 0 else { return }
         try? context.save()
         WidgetReloader.reloadAll()
+        if users.first?.isHealthKitEnabled == true {
+            let syncDate = Calendar.current.isDateInToday(targetDate) ? Date() : targetDate
+            let container = context.container
+            Task { @MainActor in
+                var didAttach = false
+                for item in copiedItems where item.calories > 0 {
+                    if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: item.calories, date: syncDate) {
+                        item.healthKitSampleID = uuid.uuidString
+                        didAttach = true
+                    }
+                }
+                if didAttach {
+                    try? container.mainContext.save()
+                }
+            }
+        }
         HapticManager.shared.notification(type: .success)
         let message = Calendar.current.isDateInToday(targetDate)
             ? String(localized: "Copied \(count) items to Today")
@@ -1914,18 +1944,56 @@ struct DailyLogDetailView: View {
     @State private var copiedBannerText: String? = nil
 
     private func deleteActivity(_ activity: ActivityLog) {
+        let shouldSyncHK = users.first?.isHealthKitEnabled == true
+        let title = activity.title
+        let date = activity.date
+        let calories = activity.calories
+        let durationMinutes = activity.durationMinutes
+        let hkIDs = WorkoutSyncManager.shared.consumeActivityHealthKitIDs(
+            title: title,
+            date: date,
+            calories: calories,
+            durationMinutes: durationMinutes
+        )
         withAnimation {
             _ = summary.removeActivity(activity, in: context)
             try? context.save()
             WidgetReloader.reloadAll()
         }
+        if shouldSyncHK {
+            Task {
+                await HealthKitManager.shared.deleteWorkoutAndEnergySamples(
+                    workoutID: hkIDs.workoutID,
+                    energySampleID: hkIDs.energySampleID,
+                    caloriesFallback: calories,
+                    date: date
+                )
+            }
+        }
     }
 
     private func copyDay(to targetDate: Date) {
-        let count = DailySummary.copyDay(from: summary, toDate: targetDate, in: context)
+        let copiedItems = DailySummary.copyDayReturningItems(from: summary, toDate: targetDate, in: context)
+        let count = copiedItems.count
         guard count > 0 else { return }
         try? context.save()
         WidgetReloader.reloadAll()
+        if users.first?.isHealthKitEnabled == true {
+            let syncDate = Calendar.current.isDateInToday(targetDate) ? Date() : targetDate
+            let container = context.container
+            Task { @MainActor in
+                var didAttach = false
+                for item in copiedItems where item.calories > 0 {
+                    if let uuid = await HealthKitManager.shared.saveDietaryEnergy(calories: item.calories, date: syncDate) {
+                        item.healthKitSampleID = uuid.uuidString
+                        didAttach = true
+                    }
+                }
+                if didAttach {
+                    try? container.mainContext.save()
+                }
+            }
+        }
         HapticManager.shared.notification(type: .success)
         let message = Calendar.current.isDateInToday(targetDate)
             ? String(localized: "Copied \(count) items to Today")
@@ -2447,7 +2515,7 @@ struct SmartAddFoodView: View {
             }
         ) {
             let daySummary = DailySummary.fetchExisting(for: targetDate, in: context)
-            let user = User.deduplicatedPrimary(in: context)
+            let user = users.first
             let remaining = NutritionMath.remainingMacros(user: user, summary: daySummary)
             SmartScannerView(
                 onProductFound: { foundFood in pendingScannerFood = foundFood },

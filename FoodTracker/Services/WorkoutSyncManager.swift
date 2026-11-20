@@ -13,8 +13,14 @@ final class WorkoutSyncManager {
     nonisolated static let workoutTrackerBrandName = "AI Workout"
     nonisolated static let externalWaterSentinelID = "external:workouttracker"
     private static let lastSyncedWaterPrefix = "wt_last_synced_water_"
+    private static let waterLitersPrefix = "water_liters_"
     private static let pendingWidgetWaterPrefix = "pending_hk_water_ml_"
     private static let pendingWidgetWaterEntriesPrefix = "pending_hk_water_entries_"
+    private static let activityHealthKitMapKey = "hk_activity_sample_ids_v1"
+
+    nonisolated static func standardWaterGlassMl(useMetric: Bool) -> Double {
+        useMetric ? 250.0 : (8.0 * 29.5735)
+    }
     private static let gregorianCalendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
         cal.locale = Locale(identifier: "en_US_POSIX")
@@ -156,30 +162,109 @@ final class WorkoutSyncManager {
         ftDefaults.set(pendingEntries, forKey: entriesKey)
     }
 
-    /// Atomically reads and clears queued widget-added hydration entries (in liters) pending Apple Health sync.
-    func consumePendingWidgetWaterEntriesLiters(
+    /// Reads queued widget-added hydration entries (in liters) without clearing them until Apple Health confirms save.
+    func peekPendingWidgetWaterEntriesLiters(
         for date: Date,
         appGroupDefaults: UserDefaults? = nil
     ) -> [Double] {
         guard let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return [] }
         let entriesKey = Self.pendingHealthKitWaterEntriesKey(for: date)
         let pendingEntries = (ftDefaults.array(forKey: entriesKey) as? [Double])?.filter { $0 > 0 } ?? []
-        if ftDefaults.object(forKey: entriesKey) != nil {
-            ftDefaults.removeObject(forKey: entriesKey)
-        }
-
-        // Drain legacy scalar queue if present from an older build.
         let legacyKey = Self.pendingHealthKitWaterKey(for: date)
         let legacyMl = max(0, ftDefaults.double(forKey: legacyKey))
-        if ftDefaults.object(forKey: legacyKey) != nil {
-            ftDefaults.removeObject(forKey: legacyKey)
-        }
 
         var result = pendingEntries.map { $0 / 1000.0 }
         if legacyMl > 0 {
             result.append(legacyMl / 1000.0)
         }
         return result
+    }
+
+    /// Removes only acknowledged widget hydration entries after Apple Health save succeeds.
+    func acknowledgePendingWidgetWaterEntries(
+        syncedIndices: Set<Int>,
+        for date: Date,
+        appGroupDefaults: UserDefaults? = nil
+    ) {
+        guard !syncedIndices.isEmpty,
+              let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return }
+        let entriesKey = Self.pendingHealthKitWaterEntriesKey(for: date)
+        let pendingEntries = (ftDefaults.array(forKey: entriesKey) as? [Double])?.filter { $0 > 0 } ?? []
+        let remainingEntries = pendingEntries.enumerated().compactMap { idx, ml in
+            syncedIndices.contains(idx) ? nil : ml
+        }
+        if remainingEntries.isEmpty {
+            ftDefaults.removeObject(forKey: entriesKey)
+        } else {
+            ftDefaults.set(remainingEntries, forKey: entriesKey)
+        }
+
+        let legacyKey = Self.pendingHealthKitWaterKey(for: date)
+        let legacyMl = max(0, ftDefaults.double(forKey: legacyKey))
+        if legacyMl > 0 && syncedIndices.contains(pendingEntries.count) {
+            ftDefaults.removeObject(forKey: legacyKey)
+        }
+    }
+
+    func acknowledgePendingWidgetWaterEntries(
+        syncedCount: Int,
+        for date: Date,
+        appGroupDefaults: UserDefaults? = nil
+    ) {
+        guard syncedCount > 0 else { return }
+        acknowledgePendingWidgetWaterEntries(
+            syncedIndices: Set(0..<syncedCount),
+            for: date,
+            appGroupDefaults: appGroupDefaults
+        )
+    }
+
+    /// Atomically reads and clears queued widget-added hydration entries (in liters) pending Apple Health sync.
+    func consumePendingWidgetWaterEntriesLiters(
+        for date: Date,
+        appGroupDefaults: UserDefaults? = nil
+    ) -> [Double] {
+        let entries = peekPendingWidgetWaterEntriesLiters(for: date, appGroupDefaults: appGroupDefaults)
+        acknowledgePendingWidgetWaterEntries(
+            syncedCount: entries.count,
+            for: date,
+            appGroupDefaults: appGroupDefaults
+        )
+        return entries
+    }
+
+    /// Removes a water beverage while reconciling external WorkoutTracker water so shared App Group water is preserved.
+    @discardableResult
+    func removeWaterAndReconcile(
+        _ beverage: Beverage,
+        from summary: DailySummary,
+        in context: ModelContext,
+        sharedDefaults: UserDefaults? = nil,
+        appGroupDefaults: UserDefaults? = nil,
+        localDefaults: UserDefaults? = nil
+    ) -> [DeletedWaterHealthSample] {
+        let targetID = beverage.id
+        let outcome = reconcileWaterWithOutcome(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appGroupDefaults,
+            localDefaults: localDefaults
+        )
+        if let index = summary.beverages?.firstIndex(where: { $0.id == targetID }) {
+            let toDelete = summary.beverages![index]
+            summary.beverages?.remove(at: index)
+            context.delete(toDelete)
+        }
+        try? context.save()
+        syncWater(
+            summary.totalPureWaterLiters,
+            for: summary.date,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appGroupDefaults,
+            localDefaults: localDefaults
+        )
+        return outcome.deletedHealthKitSamples
     }
 
     /// Atomically reads and clears queued widget-added hydration (in liters) pending Apple Health sync.
@@ -398,17 +483,99 @@ final class WorkoutSyncManager {
         }
     }
 
-    /// Clears FoodTracker-scoped water sync tracking keys without mutating WorkoutTracker's own keys.
-    static func clearLocalSyncMetadata(defaults: UserDefaults = .standard) {
+    private static func activityHealthKitStorageKey(
+        title: String,
+        date: Date,
+        calories: Int,
+        durationMinutes: Int
+    ) -> String {
+        "\(Int(date.timeIntervalSince1970))|\(calories)|\(durationMinutes)|\(title)"
+    }
+
+    func storeActivityHealthKitIDs(
+        workoutID: String?,
+        energySampleID: String?,
+        title: String,
+        date: Date,
+        calories: Int,
+        durationMinutes: Int,
+        defaults: UserDefaults = .standard
+    ) {
+        guard workoutID != nil || energySampleID != nil else { return }
+        let key = Self.activityHealthKitStorageKey(
+            title: title,
+            date: date,
+            calories: calories,
+            durationMinutes: durationMinutes
+        )
+        var map = defaults.dictionary(forKey: Self.activityHealthKitMapKey) as? [String: [String]] ?? [:]
+        map[key] = [workoutID ?? "", energySampleID ?? ""]
+        defaults.set(map, forKey: Self.activityHealthKitMapKey)
+    }
+
+    func consumeActivityHealthKitIDs(
+        title: String,
+        date: Date,
+        calories: Int,
+        durationMinutes: Int,
+        defaults: UserDefaults = .standard
+    ) -> (workoutID: String?, energySampleID: String?) {
+        let key = Self.activityHealthKitStorageKey(
+            title: title,
+            date: date,
+            calories: calories,
+            durationMinutes: durationMinutes
+        )
+        var map = defaults.dictionary(forKey: Self.activityHealthKitMapKey) as? [String: [String]] ?? [:]
+        guard let pair = map.removeValue(forKey: key) else {
+            return (nil, nil)
+        }
+        defaults.set(map, forKey: Self.activityHealthKitMapKey)
+        let workoutID = pair.first.flatMap { $0.isEmpty ? nil : $0 }
+        let energyID = pair.count > 1 ? (pair[1].isEmpty ? nil : pair[1]) : nil
+        return (workoutID, energyID)
+    }
+
+    /// Clears FoodTracker-scoped water sync tracking keys without mutating WorkoutTracker's own keys,
+    /// while anchoring `wt_last_synced_water_*` to any existing WorkoutTracker values so pre-wipe water isn't re-imported.
+    static func clearLocalSyncMetadata(
+        defaults: UserDefaults = .standard,
+        sharedDefaults: UserDefaults? = nil,
+        appGroupDefaults: UserDefaults? = nil
+    ) {
+        defaults.removeObject(forKey: activityHealthKitMapKey)
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(lastSyncedWaterPrefix) {
             defaults.removeObject(forKey: key)
         }
-        if defaults === UserDefaults.standard, let ftDefaults = UserDefaults(suiteName: foodTrackerSuiteName) {
-            for key in ftDefaults.dictionaryRepresentation().keys
+
+        let effectiveShared = sharedDefaults ?? UserDefaults(suiteName: suiteName)
+        var existingSharedWaterByDateSuffix: [String: Double] = [:]
+        if let effectiveShared {
+            for (key, value) in effectiveShared.dictionaryRepresentation() where key.hasPrefix(waterLitersPrefix) {
+                let dateSuffix = String(key.dropFirst(waterLitersPrefix.count))
+                if let liters = value as? Double, liters > 0 {
+                    existingSharedWaterByDateSuffix[dateSuffix] = liters
+                } else if let num = value as? NSNumber, num.doubleValue > 0 {
+                    existingSharedWaterByDateSuffix[dateSuffix] = num.doubleValue
+                }
+            }
+        }
+
+        let effectiveAppGroup = appGroupDefaults ?? (defaults === UserDefaults.standard ? UserDefaults(suiteName: foodTrackerSuiteName) : defaults)
+        if let effectiveAppGroup {
+            for key in effectiveAppGroup.dictionaryRepresentation().keys
                 where key.hasPrefix(lastSyncedWaterPrefix)
                     || key.hasPrefix(pendingWidgetWaterPrefix)
                     || key.hasPrefix(pendingWidgetWaterEntriesPrefix) {
-                ftDefaults.removeObject(forKey: key)
+                effectiveAppGroup.removeObject(forKey: key)
+            }
+            for (dateSuffix, liters) in existingSharedWaterByDateSuffix {
+                effectiveAppGroup.set(liters, forKey: "\(lastSyncedWaterPrefix)\(dateSuffix)")
+            }
+        }
+        if defaults !== effectiveAppGroup {
+            for (dateSuffix, liters) in existingSharedWaterByDateSuffix {
+                defaults.set(liters, forKey: "\(lastSyncedWaterPrefix)\(dateSuffix)")
             }
         }
     }

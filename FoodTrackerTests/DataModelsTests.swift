@@ -1989,4 +1989,39 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(fetchedUsers.count, 1)
         XCTAssertEqual(fetchedUsers.first?.name, "MigrationTest")
     }
+
+    func testEditableFoodDraftTemplateDoesNotMutateSourceFoodItem() {
+        let customTemplate = FoodItem(name: "Homemade Granola", weight: 100, calories: 450, protein: 12, fats: 18, carbs: 60)
+        var draft = EditableFoodDraft(food: customTemplate, isNewMealEntry: true)
+        draft.weight = 50
+        let logged = draft.makeFoodItem()
+
+        XCTAssertEqual(customTemplate.weight, 100)
+        XCTAssertEqual(customTemplate.calories, 450)
+        XCTAssertEqual(logged.weight, 50)
+        XCTAssertEqual(logged.calories, 225)
+        XCTAssertNil(draft.existingItem)
+    }
+
+    func testCopyMealAndCopyDayReturnCreatedItemsForHealthKitSync() throws {
+        let config = ModelConfiguration(schema: SharedModelContainer.sharedSchema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: SharedModelContainer.sharedSchema, configurations: [config])
+        let context = ModelContext(container)
+
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+
+        let f1 = FoodItem(name: "Salmon", weight: 150, calories: 310, protein: 30, fats: 18, carbs: 0)
+        f1.healthKitSampleID = "old-hk-id"
+        context.insert(f1)
+        let meal = Meal(title: "Dinner", date: yesterday, foodItems: [f1])
+        context.insert(meal)
+
+        let copied = DailySummary.copyMealReturningItems(meal, toDate: today, targetSlot: "Dinner", in: context)
+        XCTAssertEqual(copied.count, 1)
+        XCTAssertEqual(copied.first?.calories, 310)
+        XCTAssertNil(copied.first?.healthKitSampleID)
+        XCTAssertTrue(copied.first !== f1)
+    }
 }

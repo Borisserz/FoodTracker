@@ -198,14 +198,25 @@ struct QuickActivityAddView: View {
         try? context.save()
         WidgetReloader.reloadAll()
 
+        let logTitle = activity.name
         Task {
             if shouldSyncHealthKit {
-                await HealthKitManager.shared.saveWorkout(
+                let ids = await HealthKitManager.shared.saveWorkout(
                     activityType: activity.hkType,
                     calories: cals,
                     durationMinutes: duration,
                     date: workoutDate
                 )
+                await MainActor.run {
+                    WorkoutSyncManager.shared.storeActivityHealthKitIDs(
+                        workoutID: ids.workoutID,
+                        energySampleID: ids.energySampleID,
+                        title: logTitle,
+                        date: workoutDate,
+                        calories: cals,
+                        durationMinutes: duration
+                    )
+                }
             }
             await MainActor.run {
                 dismiss()

@@ -34,6 +34,15 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     @ObservationIgnored private var lastSentCompleted: Bool = false
     @ObservationIgnored private var requestGeneration: UInt64 = 0
     @ObservationIgnored private var pendingStartTask: Task<Void, Never>?
+    @ObservationIgnored private var pendingOperationTask: Task<Void, Never>?
+
+    private func enqueueOperation(_ work: @escaping @MainActor () async -> Void) {
+        let prior = pendingOperationTask
+        pendingOperationTask = Task { @MainActor in
+            _ = await prior?.value
+            await work()
+        }
+    }
 
     private init() {
         currentActivity = Activity<FastingAttributes>.activities.first
@@ -182,7 +191,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
             relevanceScore: 100
         )
 
-        Task {
+        enqueueOperation {
             await activity.update(updatedContent)
         }
     }
@@ -192,8 +201,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
         pendingStartTask?.cancel()
         pendingStartTask = nil
 
-        let activitiesToEnd = Activity<FastingAttributes>.activities
-        guard !activitiesToEnd.isEmpty || currentActivity != nil else { return }
+        let capturedGeneration = requestGeneration
         let fallbackCurrent = currentActivity
 
         let finalState = FastingAttributes.ContentState(
@@ -213,7 +221,9 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
         lastSentProgress = -1.0
         lastSentCompleted = false
 
-        Task {
+        enqueueOperation { [weak self] in
+            guard let self, self.requestGeneration == capturedGeneration else { return }
+            let activitiesToEnd = Activity<FastingAttributes>.activities
             for activity in activitiesToEnd {
                 await activity.end(finalContent, dismissalPolicy: .default)
             }

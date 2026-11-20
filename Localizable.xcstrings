@@ -60489,6 +60489,246 @@
           }
         }
       }
+    },
+    "Extended Fast Safety Notice": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предупреждение о длительном голодании"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sicherheitshinweis für längeres Fasten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aviso de seguridad para ayuno prolongado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avis de sécurité pour jeûne prolongé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avviso di sicurezza per digiuno prolungato"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aviso de segurança para jejum prolongado"
+          }
+        }
+      }
+    },
+    "I Understand, Start Fast": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Понятно, начать голодание"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verstanden, Fasten starten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entendido, iniciar ayuno"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compris, démarrer le jeûne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ho capito, inizia digiuno"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compreendi, iniciar jejum"
+          }
+        }
+      }
+    },
+    "Fasts of 24 hours or longer deplete essential electrolytes and are not suitable if pregnant, diabetic, under 18, or with a history of eating disorders. Consult a physician before extended fasting.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голодание от 24 часов истощает запасы электролитов и не подходит при беременности, диабете, возрасте до 18 лет или расстройствах пищевого поведения. Проконсультируйтесь с врачом перед началом."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fasten ab 24 Stunden entzieht wichtige Elektrolyte und ist nicht geeignet bei Schwangerschaft, Diabetes, unter 18 Jahren oder Essstörungen. Bitte vorab ärztlichen Rat einholen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los ayunos de 24 horas o más agotan electrolitos esenciales y no son adecuados en embarazo, diabetes, menores de 18 años o antecedentes de trastornos alimentarios. Consulta a un médico antes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les jeûnes de 24 heures ou plus épuisent les électrolytes essentiels et ne conviennent pas en cas de grossesse, diabète, moins de 18 ans ou troubles alimentaires. Consultez un médecin avant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I digiuni di 24 ore o più riducono gli elettroliti essenziali e non sono adatti in gravidanza, diabete, sotto i 18 anni o con disturbi alimentari. Consulta un medico prima di iniziare."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jejuns de 24 horas ou mais esgotam eletrólitos essenciais e não são adequados na gravidez, diabetes, menores de 18 anos ou distúrbios alimentares. Consulte um médico antes."
+          }
+        }
+      }
+    },
+    "An account already exists with this email using a different sign-in method. Please sign in with your original provider.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Аккаунт с этим email уже существует с другим способом входа. Войдите через исходный провайдер."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit dieser E-Mail-Adresse existiert bereits ein Konto mit einer anderen Anmeldemethode. Bitte melde dich mit deinem ursprünglichen Anbieter an."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya existe una cuenta con este correo usando otro método de inicio de sesión. Inicia sesión con tu proveedor original."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un compte existe déjà avec cet e-mail via une autre méthode de connexion. Veuillez vous connecter avec votre fournisseur d'origine."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esiste già un account con questa email tramite un altro metodo di accesso. Accedi con il provider originale."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Já existe uma conta com este e-mail usando outro método de início de sessão. Inicie sessão com o seu fornecedor original."
+          }
+        }
+      }
+    },
+    "Log out of your account?": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выйти из аккаунта?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Konto abmelden?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cerrar sesión de tu cuenta?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter de votre compte ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnettersi dall'account?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminar sessão da sua conta?"
+          }
+        }
+      }
+    },
+    "Signing out switches to a fresh guest session and clears local device records so personal data is not shared across accounts.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выход переключит приложение в новую гостевую сессию и очистит локальные данные на устройстве, чтобы личные записи не смешивались между аккаунтами."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Abmelden wird eine neue Gast-Sitzung gestartet und lokale Gerätedaten werden gelöscht, damit persönliche Daten nicht zwischen Konten geteilt werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al cerrar sesión se iniciará una nueva sesión de invitado y se borrarán los datos locales del dispositivo para no mezclar datos personales entre cuentas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La déconnexion ouvre une nouvelle session invité et efface les données locales de l'appareil afin qu'elles ne soient pas partagées entre comptes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La disconnessione avvia una nuova sessione ospite e cancella i dati locali sul dispositivo per non condividere i dati personali tra account."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminar sessão inicia uma nova sessão de convidado e limpa os dados locais do dispositivo para que os dados pessoais não sejam partilhados entre contas."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

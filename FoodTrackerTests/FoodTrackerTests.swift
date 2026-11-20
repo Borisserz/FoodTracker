@@ -880,4 +880,101 @@ final class AppStoreReadinessTests: XCTestCase {
         XCTAssertNil(BeforeAfterStorage.loadImage(slot: "before"))
         XCTAssertNil(BeforeAfterStorage.loadAnalysis())
     }
+
+    func testPeekPendingWidgetWaterDoesNotClearUntilAcknowledged() {
+        let suiteName = "test.widget.peek.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let today = Date()
+        let key = WorkoutSyncManager.pendingHealthKitWaterEntriesKey(for: today)
+        defaults.set([250.0, 300.0], forKey: key)
+
+        let peeked = WorkoutSyncManager.shared.peekPendingWidgetWaterEntriesLiters(for: today, appGroupDefaults: defaults)
+        XCTAssertEqual(peeked.count, 2)
+        XCTAssertEqual(peeked[0], 0.25, accuracy: 0.001)
+        XCTAssertEqual(peeked[1], 0.30, accuracy: 0.001)
+        XCTAssertEqual(defaults.array(forKey: key) as? [Double], [250.0, 300.0])
+
+        WorkoutSyncManager.shared.acknowledgePendingWidgetWaterEntries(syncedCount: 1, for: today, appGroupDefaults: defaults)
+        let remaining = WorkoutSyncManager.shared.peekPendingWidgetWaterEntriesLiters(for: today, appGroupDefaults: defaults)
+        XCTAssertEqual(remaining.count, 1)
+        XCTAssertEqual(remaining[0], 0.30, accuracy: 0.001)
+    }
+
+    func testRemoveWaterAndReconcilePreservesExternalWorkoutTrackerWater() throws {
+        let config = ModelConfiguration(schema: SharedModelContainer.sharedSchema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: SharedModelContainer.sharedSchema, configurations: [config])
+        let context = ModelContext(container)
+
+        let sharedSuite = "test.remove.shared.\(UUID().uuidString)"
+        let syncSuite = "test.remove.sync.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        let today = Date()
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+        let glass = Beverage(date: today, name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        context.insert(glass)
+        summary.addBeverage(glass)
+        try context.save()
+        WorkoutSyncManager.shared.syncWater(0.25, for: today, sharedDefaults: sharedDefaults, appGroupDefaults: syncDefaults, localDefaults: syncDefaults)
+
+        // WorkoutTracker logs +0.5 L externally -> shared is now 0.75 L.
+        sharedDefaults.set(0.75, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        // User undoes the 250 ml FoodTracker glass -> WorkoutTracker's 0.5 L must survive!
+        let _ = WorkoutSyncManager.shared.removeWaterAndReconcile(
+            glass,
+            from: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertEqual(summary.totalPureWaterLiters, 0.50, accuracy: 0.01)
+        XCTAssertEqual(sharedDefaults.double(forKey: WorkoutSyncManager.waterLitersKey(for: today)), 0.50, accuracy: 0.01)
+    }
+
+    func testClearLocalSyncMetadataPreventsReimportOfOldWorkoutWaterAfterWipe() throws {
+        let config = ModelConfiguration(schema: SharedModelContainer.sharedSchema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: SharedModelContainer.sharedSchema, configurations: [config])
+        let context = ModelContext(container)
+
+        let sharedSuite = "test.wipe.shared.\(UUID().uuidString)"
+        let syncSuite = "test.wipe.sync.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        let today = Date()
+        sharedDefaults.set(1.2, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        WorkoutSyncManager.clearLocalSyncMetadata(defaults: syncDefaults, sharedDefaults: sharedDefaults, appGroupDefaults: syncDefaults)
+
+        let freshSummary = DailySummary.fetchOrCreate(for: today, in: context)
+        let outcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(
+            for: freshSummary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertFalse(outcome.mutated)
+        XCTAssertEqual(freshSummary.totalPureWaterLiters, 0.0, accuracy: 0.001)
+    }
+
+    func testStandardWaterGlassMlConsistency() {
+        XCTAssertEqual(NutritionMath.standardWaterGlassMl(useMetric: true), 250.0, accuracy: 0.001)
+        XCTAssertEqual(NutritionMath.standardWaterGlassMl(useMetric: false), 8.0 * 29.5735, accuracy: 0.001)
+    }
 }

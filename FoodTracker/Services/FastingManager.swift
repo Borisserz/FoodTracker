@@ -376,6 +376,13 @@ final class FastingManager {
         let center = UNUserNotificationCenter.current()
 
         center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
+        let fastingCategory = UNNotificationCategory(
+            identifier: Self.fastingNotificationCategoryID,
+            actions: [],
+            intentIdentifiers: [],
+            options: []
+        )
+        center.setNotificationCategories([fastingCategory])
 
         center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             guard granted else { return }
@@ -429,6 +436,13 @@ final class FastingManager {
         notificationGeneration += 1
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
+        let fastingCategory = UNNotificationCategory(
+            identifier: Self.fastingNotificationCategoryID,
+            actions: [],
+            intentIdentifiers: [],
+            options: []
+        )
+        center.setNotificationCategories([fastingCategory])
         center.removeDeliveredNotifications(withIdentifiers: Self.fastingNotificationIDs)
     }
 }

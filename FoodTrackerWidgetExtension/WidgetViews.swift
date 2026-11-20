@@ -83,6 +83,7 @@ struct HydrationWidgetView: View {
                     Text(hydrationText)
                         .font(.system(size: 22, weight: .heavy, design: .rounded))
                         .foregroundColor(.primary)
+                        .privacySensitive()
                 }
                 Spacer()
                 Image(systemName: "drop.fill")
@@ -155,6 +156,7 @@ struct MacroRingsWidgetView: View {
                         .foregroundStyle(
                             LinearGradient(colors: [.primary, .primary.opacity(0.7)], startPoint: .top, endPoint: .bottom)
                         )
+                        .privacySensitive()
                     Text("kcal")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.secondary)
@@ -164,9 +166,9 @@ struct MacroRingsWidgetView: View {
                 
                 // Mini legend
                 VStack(alignment: .leading, spacing: 4) {
-                    LegendRow(color: .widgetProtein, title: "Protein", value: "\(entry.protein)g")
-                    LegendRow(color: .widgetFat, title: "Fat", value: "\(entry.fat)g")
-                    LegendRow(color: .widgetCarbs, title: "Carbs", value: "\(entry.carbs)g")
+                    LegendRow(color: .widgetProtein, title: "Protein", grams: entry.protein)
+                    LegendRow(color: .widgetFat, title: "Fat", grams: entry.fat)
+                    LegendRow(color: .widgetCarbs, title: "Carbs", grams: entry.carbs)
                 }
             }
             
@@ -190,14 +192,17 @@ struct MacroRingsWidgetView: View {
 struct LegendRow: View {
     let color: Color
     let title: String
-    let value: String
+    let grams: Int
     
     var body: some View {
         HStack(spacing: 6) {
             Circle().fill(color).frame(width: 6, height: 6)
             Text(LocalizedStringKey(title)).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundColor(.secondary)
             Spacer()
-            Text(value).font(.system(size: 11, weight: .bold, design: .rounded)).foregroundColor(.primary)
+            Text("\(grams)g")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
+                .privacySensitive()
         }
     }
 }
@@ -270,10 +275,12 @@ struct MetabolicScoreWidgetView: View {
                             Text("\(entry.totalCalories) / \(entry.calorieGoal) kcal")
                                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                                 .foregroundColor(.secondary)
+                                .privacySensitive()
                             if WidgetUnitPreferences.useMetricSystem {
                                 Text(String(format: String(localized: "%.2f / %.1f L hydration"), entry.hydrationLiters, entry.hydrationGoalLiters))
                                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                                     .foregroundColor(.secondary)
+                                    .privacySensitive()
                             } else {
                                 Text(String(
                                     format: String(localized: "%.0f / %.0f fl oz hydration"),
@@ -282,6 +289,7 @@ struct MetabolicScoreWidgetView: View {
                                 ))
                                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                                 .foregroundColor(.secondary)
+                                .privacySensitive()
                             }
                         }
                     }
@@ -335,6 +343,7 @@ struct MetabolicScoreWidgetView: View {
                     .foregroundStyle(
                         LinearGradient(colors: [.primary, .primary.opacity(0.8)], startPoint: .top, endPoint: .bottom)
                     )
+                    .privacySensitive()
                 Text("SCORE")
                     .font(.system(size: 9, weight: .black, design: .rounded))
                     .foregroundColor(.secondary)

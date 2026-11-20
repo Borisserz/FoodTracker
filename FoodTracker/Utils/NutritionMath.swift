@@ -82,10 +82,10 @@ struct EditableFoodDraft: Identifiable {
         self.weight = weight ?? (baseWeight > 0 ? baseWeight : 100.0)
     }
 
-    init(food: FoodItem) {
+    init(food: FoodItem, isNewMealEntry: Bool = false) {
         self.init(
-            id: food.id,
-            existingItem: food,
+            id: isNewMealEntry ? UUID() : food.id,
+            existingItem: isNewMealEntry ? nil : food,
             name: food.name,
             baseWeight: food.weight,
             baseCalories: food.calories,
@@ -531,6 +531,10 @@ enum NutritionMath {
 
     static func fluidShortUnit(useMetric: Bool) -> String {
         useMetric ? "L" : "fl oz"
+    }
+
+    static func standardWaterGlassMl(useMetric: Bool) -> Double {
+        WorkoutSyncManager.standardWaterGlassMl(useMetric: useMetric)
     }
 
     static func formattedHydration(liters: Double, useMetric: Bool) -> String {

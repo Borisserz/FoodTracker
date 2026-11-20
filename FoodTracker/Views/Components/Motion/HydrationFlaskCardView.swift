@@ -134,7 +134,7 @@ struct HydrationFlaskCardView: View {
                     title: useMetricSystem ? "+250 ml" : "+8 fl oz",
                     color: Color.cyan
                 ) {
-                    addWater(ml: 250)
+                    addWater(ml: WorkoutSyncManager.standardWaterGlassMl(useMetric: useMetricSystem))
                 }
                 .accessibilityIdentifier("hydration_add_250ml_button")
                 
@@ -231,19 +231,26 @@ struct HydrationFlaskCardView: View {
         let litersFallback = lastWater.volumeMl / 1000.0
         let logDate = summary.date
         let shouldSyncHK = users.first?.isHealthKitEnabled == true
-        
+
+        var trimmedSamples: [WorkoutSyncManager.DeletedWaterHealthSample] = []
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-            if let index = summary.beverages?.firstIndex(of: lastWater) {
-                summary.beverages?.remove(at: index)
-            }
-            context.delete(lastWater)
-            try? context.save()
-            WorkoutSyncManager.shared.syncWater(summary.totalPureWaterLiters, for: summary.date)
+            trimmedSamples = WorkoutSyncManager.shared.removeWaterAndReconcile(
+                lastWater,
+                from: summary,
+                in: context
+            )
             WidgetReloader.reloadAll()
         }
         
         if shouldSyncHK {
             Task {
+                for sample in trimmedSamples {
+                    await HealthKitManager.shared.deleteWaterSample(
+                        idString: sample.sampleID,
+                        litersFallback: sample.volumeMl / 1000.0,
+                        date: logDate
+                    )
+                }
                 await HealthKitManager.shared.deleteWaterSample(
                     idString: sampleID,
                     litersFallback: litersFallback,

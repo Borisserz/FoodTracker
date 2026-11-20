@@ -811,7 +811,7 @@ struct AIHydrationAnalyticsCard: View {
             // Clean Modern Action Buttons
             HStack(spacing: 10) {
                 Button(action: {
-                    addWaterVolume(ml: 250)
+                    addWaterVolume(ml: WorkoutSyncManager.standardWaterGlassMl(useMetric: useMetricSystem))
                 }) {
                     HStack(spacing: 8) {
                         Image(systemName: "drop.fill")
@@ -932,17 +932,23 @@ struct AIHydrationAnalyticsCard: View {
             let litersFallback = lastWater.volumeMl / 1000.0
             let shouldSyncHK = users.first?.isHealthKitEnabled == true
 
-            if let index = targetSummary.beverages?.firstIndex(of: lastWater) {
-                targetSummary.beverages?.remove(at: index)
-            }
-            context.delete(lastWater)
-            try? context.save()
-            WorkoutSyncManager.shared.syncWater(targetSummary.totalPureWaterLiters, for: targetSummary.date)
+            let trimmedSamples = WorkoutSyncManager.shared.removeWaterAndReconcile(
+                lastWater,
+                from: targetSummary,
+                in: context
+            )
             WidgetReloader.reloadAll()
             onUpdate()
 
             if shouldSyncHK {
                 Task {
+                    for sample in trimmedSamples {
+                        await HealthKitManager.shared.deleteWaterSample(
+                            idString: sample.sampleID,
+                            litersFallback: sample.volumeMl / 1000.0,
+                            date: targetDate
+                        )
+                    }
                     await HealthKitManager.shared.deleteWaterSample(
                         idString: sampleID,
                         litersFallback: litersFallback,

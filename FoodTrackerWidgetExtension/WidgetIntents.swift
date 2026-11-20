@@ -16,7 +16,7 @@ struct AddWaterIntent: AppIntent {
                 let now = Date()
                 let groupDefaults = UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)
                 let useMetric = groupDefaults?.object(forKey: "useMetricSystem") as? Bool ?? true
-                let volumeMl = useMetric ? 250.0 : (8.0 * 29.5735)
+                let volumeMl = WorkoutSyncManager.standardWaterGlassMl(useMetric: useMetric)
                 try WidgetStorageActions.addWaterGlassAndRecordPendingDelta(
                     volumeMl: volumeMl,
                     in: context,

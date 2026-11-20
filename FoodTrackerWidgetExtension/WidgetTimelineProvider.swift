@@ -74,10 +74,7 @@ public struct ShoppingListEntry: TimelineEntry {
 
 struct WidgetTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> FoodTrackerEntry {
-        if let actualData = fetchTodayDataSynchronously() {
-            return actualData
-        }
-        return FoodTrackerEntry(
+        FoodTrackerEntry(
             date: Date(),
             hydrationLiters: 1.25,
             protein: 80,
@@ -86,12 +83,6 @@ struct WidgetTimelineProvider: TimelineProvider {
             totalCalories: 1200,
             metabolicScore: 85
         )
-    }
-
-    private func fetchTodayDataSynchronously() -> FoodTrackerEntry? {
-        let container = SharedModelContainer.shared.container
-        let modelContext = ModelContext(container)
-        return FoodTrackerEntry.from(snapshot: buildTodaySnapshot(in: modelContext))
     }
 
     private func buildTodaySnapshot(in modelContext: ModelContext) -> DailyWidgetSnapshot {
@@ -130,38 +121,12 @@ struct WidgetTimelineProvider: TimelineProvider {
 
 struct ShoppingListTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> ShoppingListEntry {
-        if let actualData = fetchItemsSynchronously(), !actualData.items.isEmpty {
-            return actualData
-        }
-        return ShoppingListEntry(date: Date(), items: [
-            (UUID().uuidString, "Eggs", "12", false),
-            (UUID().uuidString, "Milk", "1L", false),
-            (UUID().uuidString, "Avocado", "2", true),
-            (UUID().uuidString, "Chicken Breast", "500g", false)
+        ShoppingListEntry(date: Date(), items: [
+            ("placeholder-eggs", "Eggs", "12", false),
+            ("placeholder-milk", "Milk", "1L", false),
+            ("placeholder-avocado", "Avocado", "2", true),
+            ("placeholder-chicken", "Chicken Breast", "500g", false)
         ])
-    }
-
-    private func fetchItemsSynchronously() -> ShoppingListEntry? {
-        let container = SharedModelContainer.shared.container
-        let modelContext = ModelContext(container)
-        
-        var fetchDescriptor = FetchDescriptor<ShoppingItem>()
-        fetchDescriptor.sortBy = [SortDescriptor(\.dateAdded, order: .reverse)]
-        
-        do {
-            let allItems = try modelContext.fetch(fetchDescriptor)
-            let active = allItems.filter { !$0.isChecked }
-            let completed = allItems.filter { $0.isChecked }
-            
-            let displayItems = (active + completed).prefix(6).map { 
-                (id: $0.id.uuidString, name: $0.name, amount: $0.amount, isChecked: $0.isChecked)
-            }
-            
-            return ShoppingListEntry(date: Date(), items: Array(displayItems))
-        } catch {
-            print("Failed to fetch shopping items synchronously: \(error)")
-        }
-        return nil
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ShoppingListEntry) -> ()) {

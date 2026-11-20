@@ -326,9 +326,10 @@ final class HealthKitManager {
         return (clampedStart, date)
     }
 
-    func saveWorkout(activityType: HKWorkoutActivityType, calories: Int, durationMinutes: Int, date: Date) async {
+    @discardableResult
+    func saveWorkout(activityType: HKWorkoutActivityType, calories: Int, durationMinutes: Int, date: Date) async -> (workoutID: String?, energySampleID: String?) {
         guard calories > 0, durationMinutes > 0,
-              canWrite(HKObjectType.workoutType()) else { return }
+              canWrite(HKObjectType.workoutType()) else { return (nil, nil) }
         let interval = Self.clampedWorkoutInterval(date: date, durationMinutes: durationMinutes)
         let startDate = interval.start
         let duration = interval.end.timeIntervalSince(startDate)
@@ -347,14 +348,58 @@ final class HealthKitManager {
 
         do {
             try await store.save(workout)
+            var energySampleID: String?
             if let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned),
                canWrite(energyType) {
                 let sample = HKQuantitySample(type: energyType, quantity: energyBurned, start: startDate, end: date)
                 try await store.save(sample)
+                energySampleID = sample.uuid.uuidString
             }
             print("Successfully saved workout to HealthKit: \(calories) kcal for \(durationMinutes) min.")
+            return (workout.uuid.uuidString, energySampleID)
         } catch {
             print("Error saving workout to HealthKit: \(error.localizedDescription)")
+            return (nil, nil)
+        }
+    }
+
+    func deleteWorkoutAndEnergySamples(
+        workoutID: String?,
+        energySampleID: String?,
+        caloriesFallback: Int,
+        date: Date
+    ) async {
+        guard isHealthDataAvailableProvider() else { return }
+
+        await deleteSourceQuantitySample(
+            identifier: .activeEnergyBurned,
+            idString: energySampleID,
+            fallbackValue: Double(caloriesFallback),
+            unit: .kilocalorie(),
+            tolerance: 0.5,
+            date: date
+        )
+
+        guard canWrite(HKObjectType.workoutType()) else { return }
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return }
+
+        let workouts = (try? await store.fetchWorkouts(start: startOfDay, end: endOfDay)) ?? []
+        if let workoutID, let uuid = UUID(uuidString: workoutID),
+           let uuidMatch = workouts.first(where: { $0.uuid == uuid }) {
+            try? await store.delete(uuidMatch)
+            return
+        }
+
+        let fallbackMatch = workouts.first { workout in
+            let brand = workout.metadata?[HKMetadataKeyWorkoutBrandName] as? String
+            guard brand == WorkoutSyncManager.healthKitBrandName else { return false }
+            let kcal = workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0
+            return abs(kcal - Double(caloriesFallback)) <= 0.5
+        }
+        if let fallbackMatch {
+            try? await store.delete(fallbackMatch)
         }
     }
 

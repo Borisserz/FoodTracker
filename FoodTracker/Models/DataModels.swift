@@ -389,14 +389,14 @@ struct Achievement: Identifiable {
 
     @MainActor
     @discardableResult
-    static func copyMeal(
+    static func copyMealReturningItems(
         _ sourceMeal: Meal,
         toDate targetDate: Date,
         targetSlot: String? = nil,
         in context: ModelContext
-    ) -> Int {
+    ) -> [FoodItem] {
         let items = sourceMeal.foodItems ?? []
-        guard !items.isEmpty else { return 0 }
+        guard !items.isEmpty else { return [] }
 
         let slot = canonicalMealSlot(targetSlot ?? sourceMeal.title)
         let targetSummary = DailySummary.fetchOrCreate(for: targetDate, in: context)
@@ -419,7 +419,32 @@ struct Achievement: Identifiable {
             context.insert(newMeal)
             targetSummary.addMeal(newMeal)
         }
-        return duplicated.count
+        return duplicated
+    }
+
+    @MainActor
+    @discardableResult
+    static func copyMeal(
+        _ sourceMeal: Meal,
+        toDate targetDate: Date,
+        targetSlot: String? = nil,
+        in context: ModelContext
+    ) -> Int {
+        copyMealReturningItems(sourceMeal, toDate: targetDate, targetSlot: targetSlot, in: context).count
+    }
+
+    @MainActor
+    @discardableResult
+    static func copyDayReturningItems(
+        from sourceSummary: DailySummary,
+        toDate targetDate: Date,
+        in context: ModelContext
+    ) -> [FoodItem] {
+        var copiedItems: [FoodItem] = []
+        for meal in sourceSummary.meals ?? [] {
+            copiedItems.append(contentsOf: copyMealReturningItems(meal, toDate: targetDate, targetSlot: meal.title, in: context))
+        }
+        return copiedItems
     }
 
     @MainActor
@@ -429,11 +454,7 @@ struct Achievement: Identifiable {
         toDate targetDate: Date,
         in context: ModelContext
     ) -> Int {
-        var totalCopied = 0
-        for meal in sourceSummary.meals ?? [] {
-            totalCopied += copyMeal(meal, toDate: targetDate, targetSlot: meal.title, in: context)
-        }
-        return totalCopied
+        copyDayReturningItems(from: sourceSummary, toDate: targetDate, in: context).count
     }
 
     init(date: Date, meals: [Meal] = [], beverages: [Beverage] = [], activities: [ActivityLog] = []) {
