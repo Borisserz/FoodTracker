@@ -816,7 +816,7 @@ test("verifyAppCheck pins decoded.appId to FoodTracker appId allowlist", async (
 
   const okRes = mkRes();
   const ok = await t.verifyAppCheck(mkReq("tok-ft"), okRes, async () => ({
-    appId: "1:667537183554:ios:00b48bad38f5be0d786edb",
+    appId: "1:667537183554:ios:d28f3e33988402cc786edb",
   }));
   assert.equal(ok, true);
 

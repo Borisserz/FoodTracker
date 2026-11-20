@@ -23,7 +23,7 @@ const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/heif",
 ]);
 const ALLOWED_APP_CHECK_APP_IDS = new Set(
-  String(process.env.FOODTRACKER_APP_CHECK_APP_IDS || "1:667537183554:ios:00b48bad38f5be0d786edb")
+  String(process.env.FOODTRACKER_APP_CHECK_APP_IDS || "1:667537183554:ios:d28f3e33988402cc786edb")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean)
