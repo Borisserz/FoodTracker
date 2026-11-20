@@ -198,6 +198,7 @@ struct HomeDashboardContentView: View {
                                       fats: meal?.totalFats,
                                       carbs: meal?.totalCarbs,
                                       time: meal?.date,
+                                      foodItems: meal?.foodItems,
                                       onCardTap: { self.selectedMealForDetail = mealType },
                                       onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
                                   )
@@ -414,7 +415,7 @@ struct HomeDashboardContentView: View {
                       .presentationDragIndicator(.visible)
               }
               .sheet(isPresented: $showingQuickAddSheet) {
-                  AddMealView(selectedDate: selectedDate, initialMealType: quickAddMealType)
+                  MealHUDQuickLogSheet(selectedDate: selectedDate, initialMealType: quickAddMealType)
                       .presentationDetents([.fraction(0.85), .large])
                       .presentationCornerRadius(32)
                       .presentationDragIndicator(.hidden)

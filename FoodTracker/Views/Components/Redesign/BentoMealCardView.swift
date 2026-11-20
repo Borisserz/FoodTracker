@@ -10,6 +10,7 @@ struct BentoMealCardView: View {
     let fats: Double?
     let carbs: Double?
     let time: Date?
+    var foodItems: [FoodItem]? = nil
     let onCardTap: () -> Void
     let onQuickAdd: () -> Void
     
@@ -150,6 +151,40 @@ struct BentoMealCardView: View {
                     )
                     
                     Spacer()
+                }
+
+                // Inline Food Chips (Apple HIG HUD)
+                if let items = foodItems, !items.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(Array(items.prefix(4).enumerated()), id: \.offset) { _, item in
+                                HStack(spacing: 4) {
+                                    Text(item.name)
+                                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                        .foregroundStyle(Color.primary.opacity(0.85))
+                                        .lineLimit(1)
+                                    if item.weight > 0 {
+                                        Text("\(Int(item.weight))g")
+                                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                            .foregroundStyle(Color.secondary)
+                                    }
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color(UIColor.tertiarySystemGroupedBackground).opacity(0.85))
+                                .clipShape(Capsule())
+                            }
+                            if items.count > 4 {
+                                Text("+\(items.count - 4)")
+                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .foregroundStyle(Color.secondary)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 4)
+                                    .background(Color(UIColor.tertiarySystemGroupedBackground).opacity(0.85))
+                                    .clipShape(Capsule())
+                            }
+                        }
+                    }
                 }
                 
                 // Progress Bar
