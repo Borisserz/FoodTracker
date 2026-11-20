@@ -186,24 +186,33 @@ struct HydrationFlaskCardView: View {
         generator.prepare()
         generator.impactOccurred()
         
-        let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
         TrackingManager.shared.track(.waterLogged(volume: ml))
-        
+
+        var loggedBeverage: Beverage?
+        var deletedSamples: [WorkoutSyncManager.DeletedWaterHealthSample] = []
         withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-            if summary.modelContext == nil {
-                context.insert(summary)
-            }
-            context.insert(newBeverage)
-            summary.addBeverage(newBeverage)
-            try? context.save()
-            WorkoutSyncManager.shared.syncWater(summary.totalPureWaterLiters, for: summary.date)
+            let result = WorkoutSyncManager.shared.logWaterAndReconcile(
+                volumeMl: ml,
+                for: summary.date,
+                in: context
+            )
+            loggedBeverage = result.beverage
+            deletedSamples = result.deletedHealthKitSamples
             WidgetReloader.reloadAll()
         }
-        
-        if let user = users.first, user.isHealthKitEnabled {
+
+        if let user = users.first, user.isHealthKitEnabled, let newBeverage = loggedBeverage {
             let logDate = Calendar.current.isDateInToday(summary.date) ? Date() : summary.date
+            let summaryDate = summary.date
             let container = context.container
             Task { @MainActor in
+                for sample in deletedSamples {
+                    await HealthKitManager.shared.deleteWaterSample(
+                        idString: sample.sampleID,
+                        litersFallback: sample.volumeMl / 1000.0,
+                        date: summaryDate
+                    )
+                }
                 if let uuid = await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: logDate) {
                     newBeverage.healthKitSampleID = uuid.uuidString
                     try? container.mainContext.save()

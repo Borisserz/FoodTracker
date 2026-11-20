@@ -90,6 +90,7 @@ struct FoodTrackerApp: App {
 
     @State private var diContainer: DIContainer?
     @State private var showInMemoryStorageWarning = false
+    @State private var pendingOpenURL: URL? = nil
 
     var body: some Scene {
         WindowGroup {
@@ -143,8 +144,21 @@ struct FoodTrackerApp: App {
             .onAppear {
                 TrackingManager.shared.track(.appOpened(source: "launch"))
             }
-            .onChange(of: scenePhase) { _, newPhase in
+            .onOpenURL { url in
+                if let di = diContainer {
+                    if !di.appState.handleWidgetURL(url) {
+                        _ = GIDSignIn.sharedInstance.handle(url)
+                    }
+                } else {
+                    pendingOpenURL = url
+                }
+            }
+            .onChange(of: scenePhase, initial: true) { _, newPhase in
                 if newPhase == .active {
+                    if let di = diContainer {
+                        SharedModelContainer.refreshMainContext(di.modelContainer.mainContext)
+                    }
+                    FastingManager.shared.reconcileLiveActivityOnAppActive()
                     FastingManager.shared.refreshOnForeground()
                     if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding_v2"),
                        !ProcessInfo.processInfo.arguments.contains(where: { $0.hasPrefix("-uiTesting") }) {
@@ -178,6 +192,12 @@ struct FoodTrackerApp: App {
             AppDelegate.pendingNotificationRoute = nil
         }
         self.diContainer = di
+        if let pendingURL = pendingOpenURL {
+            pendingOpenURL = nil
+            if !di.appState.handleWidgetURL(pendingURL) {
+                _ = GIDSignIn.sharedInstance.handle(pendingURL)
+            }
+        }
         if inMemoryFallback {
             self.showInMemoryStorageWarning = true
         }
@@ -272,22 +292,12 @@ struct ContentView: View {
         .onPreferenceChange(SpotlightFramePreferenceKey.self) { frames in
             SpotlightTourManager.shared.targetFrames = frames
         }
-        .onOpenURL { url in
-            if !appState.handleWidgetURL(url) {
-                _ = GIDSignIn.sharedInstance.handle(url)
-            }
-        }
-        .onChange(of: appState.requestedWidgetAction) { _, newAction in
-            if newAction == "metabolic" || newAction == "analytics" {
-                appState.requestedWidgetAction = nil
-            }
-        }
         .sheet(isPresented: Binding(
             get: { appState.requestedWidgetAction == "shopping" },
             set: { if !$0 { appState.requestedWidgetAction = nil } }
         )) {
             NavigationStack {
-                ShoppingListView()
+                ShoppingListView(showsDismissButton: true)
             }
         }
         .sheet(isPresented: Binding(
@@ -338,11 +348,6 @@ struct ContentView: View {
         }
     }
 }
-enum AppLaunchStep {
-    case screen1
-    case mainApp
-}
-
 struct RootLaunchView: View {
     @Environment(AppStateManager.self) private var appState
 

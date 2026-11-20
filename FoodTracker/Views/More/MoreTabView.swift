@@ -193,21 +193,19 @@ struct MoreTabView: View {
                 
                 Spacer(minLength: 0)
                 
-                // "GET" Button
-                VStack(spacing: 3) {
-                    Text("GET")
-                        .font(.system(size: 13, weight: .black, design: .rounded))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 8)
-                        .background(LinearGradient(colors: [Color.themeOrange, Color.themePink], startPoint: .leading, endPoint: .trailing))
-                        .clipShape(Capsule())
-                        .shadow(color: Color.themePink.opacity(0.3), radius: 4, y: 2)
-                    
-                    Text("In-App Purchases")
-                        .font(.system(size: 7, weight: .bold, design: .rounded))
-                        .foregroundStyle(.secondary)
+                // Companion app CTA button
+                HStack(spacing: 5) {
+                    Text("Open")
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 10, weight: .bold))
                 }
+                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(LinearGradient(colors: [Color.themeOrange, Color.themePink], startPoint: .leading, endPoint: .trailing))
+                .clipShape(Capsule())
+                .shadow(color: Color.themePink.opacity(0.3), radius: 4, y: 2)
             }
             .padding(16)
             .background {

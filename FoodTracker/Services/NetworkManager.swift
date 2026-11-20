@@ -37,6 +37,8 @@ class NetworkManager {
         let protein: Double
         let fats: Double
         let carbs: Double
+        let fiber: Double
+        let sugar: Double
         let omega3: Double
         let calcium: Double
         let potassium: Double
@@ -52,6 +54,8 @@ class NetworkManager {
             self.protein = item.protein
             self.fats = item.fats
             self.carbs = item.carbs
+            self.fiber = item.fiber
+            self.sugar = item.sugar
             self.omega3 = item.omega3
             self.calcium = item.calcium
             self.potassium = item.potassium
@@ -69,6 +73,8 @@ class NetworkManager {
                 protein: protein,
                 fats: fats,
                 carbs: carbs,
+                fiber: fiber,
+                sugar: sugar,
                 omega3: omega3,
                 calcium: calcium,
                 potassium: potassium,
@@ -325,8 +331,13 @@ class NetworkManager {
             }
             setLastBarcodeLookupError(nil)
         case .failed(let message):
-            setLastBarcodeLookupError(message)
-            return .failed(message)
+            if let failureMessage {
+                setLastBarcodeLookupError(failureMessage)
+                return .failed(failureMessage)
+            }
+            // OpenFoodFacts already succeeded with .notFound; do not mask it with a secondary FatSecret proxy error.
+            setLastBarcodeLookupError(nil)
+            return .notFound
         }
 
         print("❌ Продукт по штрихкоду не найден.")
@@ -362,18 +373,20 @@ class NetworkManager {
         from nuts: [String: Any],
         baseKey: String,
         suffix: String
-    ) -> Double {
-        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]) else { return 0 }
+    ) -> Double? {
+        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]) else { return nil }
         let unit = (nuts["\(baseKey)_unit"] as? String)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased() ?? "mg"
         switch unit {
+        case "", "mg":
+            return raw
         case "g":
             return raw * 1000.0
         case "µg", "ug", "mcg":
             return raw / 1000.0
         default:
-            return raw
+            return nil
         }
     }
 
@@ -381,12 +394,14 @@ class NetworkManager {
         from nuts: [String: Any],
         baseKey: String,
         suffix: String
-    ) -> Double {
-        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]) else { return 0 }
+    ) -> Double? {
+        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]) else { return nil }
         let unit = (nuts["\(baseKey)_unit"] as? String)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased() ?? "µg"
         switch unit {
+        case "", "µg", "ug", "mcg":
+            return raw
         case "g":
             return raw * 1_000_000.0
         case "mg":
@@ -395,7 +410,48 @@ class NetworkManager {
             // 1 IU of Vitamin D (cholecalciferol / ergocalciferol) = 0.025 mcg
             return raw * 0.025
         default:
+            return nil
+        }
+    }
+
+    private func extractOFFGramField(
+        from nuts: [String: Any],
+        baseKey: String,
+        suffix: String
+    ) -> Double {
+        guard let raw = parseOptionalDouble(nuts["\(baseKey)_\(suffix)"]), raw >= 0 else { return 0 }
+        let unit = (nuts["\(baseKey)_unit"] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() ?? "g"
+        switch unit {
+        case "", "g":
             return raw
+        case "mg":
+            return raw / 1000.0
+        case "µg", "ug", "mcg":
+            return raw / 1_000_000.0
+        default:
+            return 0
+        }
+    }
+
+    private func extractOFFOmega3Grams(
+        from nuts: [String: Any],
+        suffix: String
+    ) -> Double? {
+        guard let raw = parseOptionalDouble(nuts["omega-3-fat_\(suffix)"]) else { return nil }
+        let unit = (nuts["omega-3-fat_unit"] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() ?? "g"
+        switch unit {
+        case "", "g":
+            return raw
+        case "mg":
+            return raw / 1000.0
+        case "µg", "ug", "mcg":
+            return raw / 1_000_000.0
+        default:
+            return nil
         }
     }
 
@@ -455,7 +511,7 @@ class NetworkManager {
             protein = proteinServing ?? 0
             fat = fatServing ?? 0
             carbs = carbsServing ?? 0
-            weight = resolvedServingWeight(from: product) ?? 100.0
+            weight = resolvedServingWeight(from: product) ?? 0.0
             microSuffix = "serving"
         } else {
             cals = cals100 ?? 0
@@ -466,7 +522,9 @@ class NetworkManager {
             microSuffix = "100g"
         }
 
-        let omega3 = parseOptionalDouble(nuts["omega-3-fat_\(microSuffix)"]) ?? 0
+        let fiber = extractOFFGramField(from: nuts, baseKey: "fiber", suffix: microSuffix)
+        let sugar = extractOFFGramField(from: nuts, baseKey: "sugars", suffix: microSuffix)
+        let omega3 = extractOFFOmega3Grams(from: nuts, suffix: microSuffix)
         let calcium = extractOFFMicronutrientMg(from: nuts, baseKey: "calcium", suffix: microSuffix)
         let potassium = extractOFFMicronutrientMg(from: nuts, baseKey: "potassium", suffix: microSuffix)
         let magnesium = extractOFFMicronutrientMg(from: nuts, baseKey: "magnesium", suffix: microSuffix)
@@ -485,7 +543,17 @@ class NetworkManager {
             protein: safeProtein,
             fat: safeFat,
             carbs: safeCarbs,
-            weight: weight
+            weight: weight > 0 ? weight : 100.0
+        )
+        let resolvedMicros = MicronutrientProfile.resolvingOmitted(
+            omega3: omega3,
+            calcium: calcium,
+            potassium: potassium,
+            magnesium: magnesium,
+            iron: iron,
+            vitaminC: vitaminC,
+            vitaminD: vitaminD,
+            fallback: fallbackMicros
         )
 
         return FoodItem(
@@ -495,13 +563,15 @@ class NetworkManager {
             protein: safeProtein,
             fats: safeFat,
             carbs: safeCarbs,
-            omega3: omega3 > 0 ? omega3 : fallbackMicros.omega3,
-            calcium: calcium > 0 ? calcium : fallbackMicros.calcium,
-            potassium: potassium > 0 ? potassium : fallbackMicros.potassium,
-            magnesium: magnesium > 0 ? magnesium : fallbackMicros.magnesium,
-            iron: iron > 0 ? iron : fallbackMicros.iron,
-            vitaminC: vitaminC > 0 ? vitaminC : fallbackMicros.vitaminC,
-            vitaminD: vitaminD > 0 ? vitaminD : fallbackMicros.vitaminD
+            fiber: fiber,
+            sugar: sugar,
+            omega3: resolvedMicros.omega3,
+            calcium: resolvedMicros.calcium,
+            potassium: resolvedMicros.potassium,
+            magnesium: resolvedMicros.magnesium,
+            iron: resolvedMicros.iron,
+            vitaminC: resolvedMicros.vitaminC,
+            vitaminD: resolvedMicros.vitaminD
         )
     }
 
@@ -592,14 +662,6 @@ class NetworkManager {
             let safeProtein = max(0, protein)
             let safeFats = max(0, fats)
             let safeCarbs = max(0, carbs)
-            let o3 = max(0, omega3 ?? 0)
-            let ca = max(0, calcium ?? 0)
-            let k = max(0, potassium ?? 0)
-            let mg = max(0, magnesium ?? 0)
-            let fe = max(0, iron ?? 0)
-            let vitC = max(0, vitaminC ?? 0)
-            let vitD = max(0, vitaminD ?? 0)
-
             let fallback = MicronutrientEstimator.estimate(
                 name: name,
                 calories: safeCalories,
@@ -607,6 +669,16 @@ class NetworkManager {
                 fat: safeFats,
                 carbs: safeCarbs,
                 weight: weight
+            )
+            let resolved = MicronutrientProfile.resolvingOmitted(
+                omega3: omega3.map { max(0, $0) },
+                calcium: calcium.map { max(0, $0) },
+                potassium: potassium.map { max(0, $0) },
+                magnesium: magnesium.map { max(0, $0) },
+                iron: iron.map { max(0, $0) },
+                vitaminC: vitaminC.map { max(0, $0) },
+                vitaminD: vitaminD.map { max(0, $0) },
+                fallback: fallback
             )
 
             return FoodItem(
@@ -616,13 +688,13 @@ class NetworkManager {
                 protein: safeProtein,
                 fats: safeFats,
                 carbs: safeCarbs,
-                omega3: o3 > 0 ? o3 : fallback.omega3,
-                calcium: ca > 0 ? ca : fallback.calcium,
-                potassium: k > 0 ? k : fallback.potassium,
-                magnesium: mg > 0 ? mg : fallback.magnesium,
-                iron: fe > 0 ? fe : fallback.iron,
-                vitaminC: vitC > 0 ? vitC : fallback.vitaminC,
-                vitaminD: vitD > 0 ? vitD : fallback.vitaminD
+                omega3: resolved.omega3,
+                calcium: resolved.calcium,
+                potassium: resolved.potassium,
+                magnesium: resolved.magnesium,
+                iron: resolved.iron,
+                vitaminC: resolved.vitaminC,
+                vitaminD: resolved.vitaminD
             )
         }
     }

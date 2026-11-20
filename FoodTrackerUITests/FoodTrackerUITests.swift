@@ -121,11 +121,16 @@ final class FoodTrackerUITests: XCTestCase {
         logMealButton.tap()
 
         let addFoodButton = app.buttons["add_meal_add_food_button"]
-        if addFoodButton.waitForExistence(timeout: 5.0) {
+        if addFoodButton.waitForExistence(timeout: 3.0) {
+            if !addFoodButton.isHittable { app.swipeUp() }
             addFoodButton.tap()
         } else {
             let addAnother = app.buttons["add_meal_add_another_button"]
+            for _ in 0..<3 where !addAnother.waitForExistence(timeout: 1.5) {
+                app.swipeUp()
+            }
             XCTAssertTrue(addAnother.waitForExistence(timeout: 5.0))
+            if !addAnother.isHittable { app.swipeUp() }
             addAnother.tap()
         }
 

@@ -35,6 +35,7 @@ struct SmartScannerView: View {
     @State private var barcodeTask: Task<Void, Never>? = nil
     @State private var aiTask: Task<Void, Never>? = nil
     @State private var photoLoadTask: Task<Void, Never>? = nil
+    @State private var captureTimeoutTask: Task<Void, Never>? = nil
     @State private var startScanWorkItem: DispatchWorkItem? = nil
     @State private var barcodePermissionStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
     @State private var isBarcodeHardwareUnavailable = false
@@ -108,7 +109,12 @@ struct SmartScannerView: View {
                             ARFoodHUDOverlay()
                         }
                     }
-                    .onAppear { cameraManager.checkPermissionAndStart() }
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                            guard selectedMode == .mealAI || selectedMode == .menuAI else { return }
+                            cameraManager.checkPermissionAndStart()
+                        }
+                    }
                     .onDisappear { cameraManager.stop() }
             }
 
@@ -401,6 +407,8 @@ struct SmartScannerView: View {
             aiTask = nil
             photoLoadTask?.cancel()
             photoLoadTask = nil
+            captureTimeoutTask?.cancel()
+            captureTimeoutTask = nil
             isCapturingPhoto = false
             pendingPhotoConsentRequest = nil
 
@@ -449,6 +457,8 @@ struct SmartScannerView: View {
             }
         }
         .onChange(of: cameraManager.capturedImage) { _, newImage in
+            captureTimeoutTask?.cancel()
+            captureTimeoutTask = nil
             isCapturingPhoto = false
             if let image = newImage {
                 if selectedMode == .mealAI || selectedMode == .menuAI {
@@ -458,6 +468,8 @@ struct SmartScannerView: View {
         }
         .onChange(of: cameraManager.captureError) { _, err in
             guard let err else { return }
+            captureTimeoutTask?.cancel()
+            captureTimeoutTask = nil
             isCapturingPhoto = false
             cameraManager.captureError = nil
             scanErrorMessage = err
@@ -578,6 +590,13 @@ struct SmartScannerView: View {
     private func takePhoto() {
         guard canCapturePhoto else { return }
         isCapturingPhoto = true
+        captureTimeoutTask?.cancel()
+        captureTimeoutTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(4))
+            guard !Task.isCancelled, isCapturingPhoto else { return }
+            isCapturingPhoto = false
+            scanErrorMessage = String(localized: "Camera capture timed out. Please try again.")
+        }
         HapticManager.shared.impact(style: .heavy)
         withAnimation(.linear(duration: 0.1)) { showShutterFlash = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -937,8 +956,11 @@ struct LiveCameraPreviewView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: VideoPreviewView, context: Context) {
+        let activeScene = UIApplication.shared.connectedScenes
+            .first { $0.activationState == .foregroundActive } as? UIWindowScene
+            ?? UIApplication.shared.connectedScenes.first as? UIWindowScene
         let orientation = uiView.window?.windowScene?.effectiveGeometry.interfaceOrientation
-            ?? (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.effectiveGeometry.interfaceOrientation
+            ?? activeScene?.effectiveGeometry.interfaceOrientation
             ?? .portrait
         let angle = ScannerOrientationHelper.videoRotationAngle(for: orientation)
         if let connection = uiView.videoPreviewLayer.connection,
@@ -1030,6 +1052,12 @@ struct MenuHackerResultsView: View {
                     }
                     if let avoid = response.avoid {
                         MenuRecCard(rec: avoid, type: "Avoid", icon: "xmark.octagon.fill", color: .red, onLogDish: onLogDish)
+                    }
+
+                    NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
+                    HStack {
+                        Spacer()
+                        ReportAIContentButton(surface: "menu_scanner")
                     }
                 }
             }

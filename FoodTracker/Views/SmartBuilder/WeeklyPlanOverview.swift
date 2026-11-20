@@ -94,6 +94,10 @@ struct WeeklyPlanOverview: View {
                             citations: [.dietaryGuidelines],
                             compact: true
                         )
+                        HStack {
+                            Spacer()
+                            ReportAIContentButton(surface: "weekly_plan")
+                        }
                     }
                     .padding()
                 } else {
@@ -251,9 +255,9 @@ struct WeeklyPlanOverview: View {
         withAnimation {
             showSuccessToast = true
         }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            onDismiss()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation { showSuccessToast = false }
         }
     }
     

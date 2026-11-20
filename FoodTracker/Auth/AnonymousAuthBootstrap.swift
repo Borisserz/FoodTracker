@@ -6,15 +6,16 @@ actor AnonymousAuthBootstrap {
 
     private var inFlightTask: Task<FirebaseAuth.User, Error>?
     private var inFlightGeneration: UInt64 = 0
-    private var activeInteractiveLeases: Set<UUID> = []
+    private var activeInteractiveLeases: [UUID: Date] = [:]
     private var endedEarlyLeases: Set<UUID> = []
+    private let defaultLeaseTTL: TimeInterval = 120
 
     private init() {}
 
     @discardableResult
-    func beginInteractiveSignIn(id: UUID = UUID()) -> UUID {
+    func beginInteractiveSignIn(id: UUID = UUID(), startedAt: Date = Date()) -> UUID {
         if endedEarlyLeases.remove(id) == nil {
-            activeInteractiveLeases.insert(id)
+            activeInteractiveLeases[id] = startedAt
         }
         inFlightGeneration &+= 1
         inFlightTask?.cancel()
@@ -22,8 +23,14 @@ actor AnonymousAuthBootstrap {
         return id
     }
 
+    func pruneExpiredLeases(now: Date = Date(), ttl: TimeInterval = 120) {
+        activeInteractiveLeases = activeInteractiveLeases.filter { _, startedAt in
+            now.timeIntervalSince(startedAt) < ttl
+        }
+    }
+
     func endInteractiveSignIn(_ id: UUID) {
-        if activeInteractiveLeases.remove(id) == nil {
+        if activeInteractiveLeases.removeValue(forKey: id) == nil {
             if endedEarlyLeases.count > 64 {
                 endedEarlyLeases.removeAll()
             }
@@ -32,7 +39,8 @@ actor AnonymousAuthBootstrap {
     }
 
     func activeInteractiveLeaseCountForTesting() -> Int {
-        activeInteractiveLeases.count
+        pruneExpiredLeases(ttl: defaultLeaseTTL)
+        return activeInteractiveLeases.count
     }
 
     func resetLeasesForTesting() {
@@ -58,10 +66,12 @@ actor AnonymousAuthBootstrap {
                 return existing
             }
             var waitCycles = 0
+            pruneExpiredLeases(ttl: defaultLeaseTTL)
             while !activeInteractiveLeases.isEmpty && waitCycles < 1200 {
                 try Task.checkCancellation()
                 try await Task.sleep(for: .milliseconds(50))
                 waitCycles += 1
+                pruneExpiredLeases(ttl: defaultLeaseTTL)
                 if let existing = Auth.auth().currentUser {
                     return existing
                 }

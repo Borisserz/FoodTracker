@@ -67,6 +67,24 @@ struct MetabolicTDEEGaugeView: View {
         }
     }
     
+    static func applyArchetype(_ archetype: GoalArchetype, to user: User) {
+        let previousCalories = user.dailyCaloriesGoal
+        user.weightGoalType = archetype.goalTypeKey
+        let goalName: String
+        switch archetype {
+        case .cut: goalName = "Lose Weight"
+        case .leanBulk: goalName = "Build Muscle"
+        case .longevity: goalName = "Maintain Weight"
+        }
+        user.targetWeight = MetabolicBlueprintCalculator.sanitizedTargetWeight(
+            for: goalName,
+            weight: user.weight,
+            targetWeight: user.targetWeight ?? 0
+        )
+        user.calculateGoals()
+        user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)
+    }
+
     private var tdeeValue: Int {
         Self.computeTDEE(for: user, currentWeight: currentWeight)
     }
@@ -119,11 +137,8 @@ struct MetabolicTDEEGaugeView: View {
                         generator.prepare()
                         generator.impactOccurred()
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                            let previousCalories = user.dailyCaloriesGoal
                             selectedArchetype = archetype
-                            user.weightGoalType = archetype.goalTypeKey
-                            user.calculateGoals()
-                            user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)
+                            Self.applyArchetype(archetype, to: user)
                             try? context.save()
                             WidgetReloader.reloadAll()
                         }

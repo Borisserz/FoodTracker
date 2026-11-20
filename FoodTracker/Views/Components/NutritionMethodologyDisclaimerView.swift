@@ -131,3 +131,52 @@ private struct FlowLayoutCitations: View {
         }
     }
 }
+
+/// Lightweight safety control allowing users to report inaccurate or inappropriate AI-generated output.
+struct ReportAIContentButton: View {
+    let surface: String
+    var iconOnly: Bool = false
+
+    @State private var showReasonDialog = false
+    @State private var showConfirmation = false
+
+    var body: some View {
+        Button {
+            HapticManager.shared.impact(style: .light)
+            showReasonDialog = true
+        } label: {
+            if iconOnly {
+                Image(systemName: "flag")
+                    .foregroundColor(.secondary)
+            } else {
+                Label("Report AI Output", systemImage: "flag")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(Color.primary.opacity(0.05))
+                    .clipShape(Capsule())
+            }
+        }
+        .accessibilityLabel("Report AI Output")
+        .confirmationDialog("Report AI Output", isPresented: $showReasonDialog, titleVisibility: .visible) {
+            Button("Inaccurate nutrition estimate") { submitReport("inaccurate_nutrition") }
+            Button("Unsafe or inappropriate content") { submitReport("unsafe_or_inappropriate") }
+            Button("Other issue") { submitReport("other") }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Tell us what went wrong with this AI response so we can improve safety and accuracy.")
+        }
+        .alert("Report Submitted", isPresented: $showConfirmation) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Thank you for your feedback. Please verify critical nutrition details manually.")
+        }
+    }
+
+    private func submitReport(_ reason: String) {
+        TrackingManager.shared.track(.aiOutputReported(surface: surface, reason: reason))
+        HapticManager.shared.notification(type: .success)
+        showConfirmation = true
+    }
+}

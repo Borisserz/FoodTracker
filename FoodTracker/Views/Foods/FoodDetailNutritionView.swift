@@ -25,6 +25,8 @@ struct FoodDetailNutritionView: View {
             baseProtein: food.protein,
             baseFats: food.fats,
             baseCarbs: food.carbs,
+            fiber: food.fiber,
+            sugar: food.sugar,
             omega3: food.omega3,
             calcium: food.calcium,
             potassium: food.potassium,
@@ -62,8 +64,25 @@ struct FoodDetailNutritionView: View {
                         .padding(.bottom, -40)
                     }
 
-                    ServingSizeEditor(weight: $weight)
+                    if food.weight > 0 {
+                        ServingSizeEditor(weight: $weight)
+                            .padding(.horizontal, 20)
+                    } else {
+                        HStack {
+                            Text("Serving Size")
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.gray)
+                            Spacer()
+                            Text("1 serving")
+                                .font(.subheadline.bold())
+                                .foregroundColor(.themePink)
+                        }
+                        .padding(20)
+                        .background(Color.white)
+                        .cornerRadius(24)
+                        .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                         .padding(.horizontal, 20)
+                    }
 
                     VStack(alignment: .leading, spacing: 0) {
                         Text("Nutrition Facts")
@@ -75,6 +94,9 @@ struct FoodDetailNutritionView: View {
                             NutritionRow(title: "Proteins", value: currentP, unit: "g")
                             NutritionRow(title: "Total Fat", value: currentF, unit: "g")
                             NutritionRow(title: "Carbs", value: currentC, unit: "g")
+                            NutritionRow(title: "Dietary Fiber", value: scaled.fiber, unit: "g")
+                            NutritionRow(title: "Total Sugars", value: scaled.sugar, unit: "g")
+                            NutritionRow(title: "Net Carbs", value: scaled.netCarbs, unit: "g")
 
                             NutritionSectionHeader(title: "Vitamins & Minerals")
 
@@ -116,6 +138,8 @@ struct FoodDetailNutritionView: View {
                             protein: currentP,
                             fats: currentF,
                             carbs: currentC,
+                            fiber: scaled.fiber,
+                            sugar: scaled.sugar,
                             omega3: scaled.omega3,
                             calcium: scaled.calcium,
                             potassium: scaled.potassium,

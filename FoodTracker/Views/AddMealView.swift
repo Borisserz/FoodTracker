@@ -200,7 +200,8 @@ struct AddMealView: View {
     }
 
     private var remainingDailyCalorieBudget: Int {
-        max(0, calorieGoal - otherLoggedCalories)
+        let burned = max(0, summaries.first?.activeCaloriesBurned ?? 0)
+        return max(0, (calorieGoal + burned) - otherLoggedCalories)
     }
 
     private var canSaveMeal: Bool {
@@ -332,34 +333,36 @@ struct AddMealView: View {
                                 .padding(.horizontal)
                             } else {
                                 // Food List with inline expansion
-                                LazyVStack(spacing: 12) {
-                                    ForEach(selectedDrafts) { draft in
-                                        FoodItemRowCard(
-                                            draft: draft,
-                                            isExpanded: expandedFoodId == draft.id,
-                                            onToggleExpand: {
-                                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                    if expandedFoodId == draft.id {
-                                                        expandedFoodId = nil
-                                                    } else {
-                                                        expandedFoodId = draft.id
+                                VStack(spacing: 12) {
+                                    LazyVStack(spacing: 12) {
+                                        ForEach(selectedDrafts) { draft in
+                                            FoodItemRowCard(
+                                                draft: draft,
+                                                isExpanded: expandedFoodId == draft.id,
+                                                onToggleExpand: {
+                                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                        if expandedFoodId == draft.id {
+                                                            expandedFoodId = nil
+                                                        } else {
+                                                            expandedFoodId = draft.id
+                                                        }
+                                                    }
+                                                    HapticManager.shared.impact(style: .light)
+                                                },
+                                                onUpdateWeight: { newWeight in
+                                                    updateDraftWeight(draftId: draft.id, newWeight: newWeight)
+                                                },
+                                                onDelete: {
+                                                    withAnimation(.spring()) {
+                                                        selectedDrafts.removeAll { $0.id == draft.id }
+                                                        hasModifiedDrafts = true
                                                     }
                                                 }
-                                                HapticManager.shared.impact(style: .light)
-                                            },
-                                            onUpdateWeight: { newWeight in
-                                                updateDraftWeight(draftId: draft.id, newWeight: newWeight)
-                                            },
-                                            onDelete: {
-                                                withAnimation(.spring()) {
-                                                    selectedDrafts.removeAll { $0.id == draft.id }
-                                                    hasModifiedDrafts = true
-                                                }
-                                            }
-                                        )
+                                            )
+                                        }
                                     }
-                                    
-                                    // Add More Button
+
+                                    // Keep outside LazyVStack so VoiceOver and UITests always discover it when items overflow vertically.
                                     Button(action: {
                                         HapticManager.shared.impact(style: .medium)
                                         showingAddFood = true
@@ -388,18 +391,16 @@ struct AddMealView: View {
                             }
                         }
                         
-                        Spacer().frame(height: 120)
+                        Spacer().frame(height: 24)
                     }
                 }
-                
-                // 4. Sticky Bottom Action Overlay
-                VStack {
-                    Spacer()
-                    ZStack {
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    ZStack(alignment: .bottom) {
                         Rectangle()
                             .fill(.ultraThinMaterial)
-                            .frame(height: 110)
+                            .frame(height: 92)
                             .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
+                            .allowsHitTesting(false)
                         
                         HStack(spacing: 16) {
                             Button(action: { dismiss() }) {
@@ -438,10 +439,10 @@ struct AddMealView: View {
                             .accessibilityIdentifier("add_meal_save_button")
                         }
                         .padding(.horizontal, 24)
-                        .padding(.bottom, 30)
+                        .padding(.top, 12)
+                        .padding(.bottom, 16)
                     }
                 }
-                .ignoresSafeArea(edges: .bottom)
             }
             .navigationTitle("Log Meal")
             .navigationBarTitleDisplayMode(.inline)
@@ -733,7 +734,10 @@ private struct FoodItemRowCard: View {
                             .multilineTextAlignment(.leading)
                             .lineLimit(1)
                         
-                        Text("\(Int(draft.scaled.weight))g • \(draft.calories) kcal")
+                        let weightLabel = draft.baseWeight > 0
+                            ? "\(Int(draft.scaled.weight))g"
+                            : String(localized: "1 serving")
+                        Text("\(weightLabel) • \(draft.calories) kcal")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.gray)
                     }
@@ -761,84 +765,104 @@ private struct FoodItemRowCard: View {
                     .padding(.horizontal, 16)
                 
                 VStack(spacing: 16) {
-                    VStack(spacing: 8) {
-                        HStack {
-                            Text("Portion Weight")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.gray)
-                            Spacer()
+                    if draft.baseWeight > 0 {
+                        VStack(spacing: 8) {
+                            HStack {
+                                Text("Portion Weight")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(.gray)
+                                Spacer()
+                                
+                                HStack(spacing: 4) {
+                                    TextField("100", text: $textInput)
+                                        .keyboardType(.decimalPad)
+                                        .multilineTextAlignment(.trailing)
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .foregroundColor(.themePink)
+                                        .focused($isWeightFieldFocused)
+                                        .frame(width: 80)
+                                        .padding(.vertical, 6)
+                                        .padding(.horizontal, 10)
+                                        .background(Color.themeBg.opacity(0.5))
+                                        .cornerRadius(10)
+                                        .onChange(of: textInput) { _, newValue in
+                                            if let val = NutritionMath.parsePositiveDecimal(newValue) {
+                                                localWeight = val
+                                                onUpdateWeight(val)
+                                            }
+                                        }
+                                    
+                                    Text("g")
+                                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                                        .foregroundColor(.gray)
+                                }
+                            }
                             
-                            HStack(spacing: 4) {
-                                TextField("100", text: $textInput)
-                                    .keyboardType(.decimalPad)
-                                    .multilineTextAlignment(.trailing)
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(.themePink)
-                                    .focused($isWeightFieldFocused)
-                                    .frame(width: 80)
-                                    .padding(.vertical, 6)
-                                    .padding(.horizontal, 10)
-                                    .background(Color.themeBg.opacity(0.5))
-                                    .cornerRadius(10)
-                                    .onChange(of: textInput) { _, newValue in
-                                        if let val = NutritionMath.parsePositiveDecimal(newValue) {
-                                            localWeight = val
-                                            onUpdateWeight(val)
+                            Slider(value: $localWeight, in: 5...1000, step: 5)
+                                .tint(.themePink)
+                                .onChange(of: localWeight) { _, newValue in
+                                    if !isWeightFieldFocused {
+                                        let newText = String(format: "%.0f", newValue)
+                                        if textInput != newText {
+                                            textInput = newText
                                         }
                                     }
-                                
-                                Text("g")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundColor(.gray)
-                            }
+                                    onUpdateWeight(newValue)
+                                }
                         }
                         
-                        Slider(value: $localWeight, in: 5...1000, step: 5)
-                            .tint(.themePink)
-                            .onChange(of: localWeight) { _, newValue in
-                                if !isWeightFieldFocused {
-                                    let newText = String(format: "%.0f", newValue)
-                                    if textInput != newText {
-                                        textInput = newText
-                                    }
+                        HStack(spacing: 8) {
+                            ForEach([50, 100, 150, 200], id: \.self) { amount in
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .medium)
+                                    let amountDbl = Double(amount)
+                                    localWeight = amountDbl
+                                    textInput = "\(amount)"
+                                    onUpdateWeight(amountDbl)
+                                }) {
+                                    Text("\(amount)g")
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(draft.weight == Double(amount) ? Color.themePink.opacity(0.15) : Color.gray.opacity(0.06))
+                                        .foregroundColor(draft.weight == Double(amount) ? .themePink : .primary)
+                                        .cornerRadius(10)
                                 }
-                                onUpdateWeight(newValue)
+                                .buttonStyle(PlainButtonStyle())
                             }
-                    }
-                    
-                    HStack(spacing: 8) {
-                        ForEach([50, 100, 150, 200], id: \.self) { amount in
+                            
+                            Spacer()
+                            
                             Button(action: {
                                 HapticManager.shared.impact(style: .medium)
-                                let amountDbl = Double(amount)
-                                localWeight = amountDbl
-                                textInput = "\(amount)"
-                                onUpdateWeight(amountDbl)
+                                onDelete()
                             }) {
-                                Text("\(amount)g")
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(draft.weight == Double(amount) ? Color.themePink.opacity(0.15) : Color.gray.opacity(0.06))
-                                    .foregroundColor(draft.weight == Double(amount) ? .themePink : .primary)
-                                    .cornerRadius(10)
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red.opacity(0.8))
+                                    .padding(8)
+                                    .background(Color.red.opacity(0.08))
+                                    .clipShape(Circle())
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            HapticManager.shared.impact(style: .medium)
-                            onDelete()
-                        }) {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red.opacity(0.8))
-                                .padding(8)
-                                .background(Color.red.opacity(0.08))
-                                .clipShape(Circle())
+                    } else {
+                        HStack {
+                            Text("Fixed per serving — nutrition applies as logged.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Button(action: {
+                                HapticManager.shared.impact(style: .medium)
+                                onDelete()
+                            }) {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red.opacity(0.8))
+                                    .padding(8)
+                                    .background(Color.red.opacity(0.08))
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .padding(16)

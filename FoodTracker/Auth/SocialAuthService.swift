@@ -32,14 +32,19 @@ final class SocialAuthService {
 
     func prepareAppleRequest(_ request: ASAuthorizationAppleIDRequest) {
         guard !isAppleAuthorizationInFlight else { return }
+        let elapsed = lastApplePrepareDate.map { Date().timeIntervalSince($0) } ?? .infinity
+        let reuseNonce = Self.shouldReuseRecentNonce(existingNonce: currentNonce, elapsed: elapsed)
+        if !reuseNonce, let staleLease = appleRequestLeaseID {
+            appleRequestLeaseID = nil
+            Task { await AnonymousAuthBootstrap.shared.endInteractiveSignIn(staleLease) }
+        }
         if appleRequestLeaseID == nil {
             let leaseID = UUID()
             appleRequestLeaseID = leaseID
             Task { await AnonymousAuthBootstrap.shared.beginInteractiveSignIn(id: leaseID) }
         }
-        let elapsed = lastApplePrepareDate.map { Date().timeIntervalSince($0) } ?? .infinity
         let nonce: String
-        if Self.shouldReuseRecentNonce(existingNonce: currentNonce, elapsed: elapsed), let existing = currentNonce {
+        if reuseNonce, let existing = currentNonce {
             nonce = existing
         } else {
             nonce = Self.randomNonce()
@@ -176,7 +181,10 @@ final class SocialAuthService {
                 if code == .credentialAlreadyInUse || code == .emailAlreadyInUse {
                     let updated = nsError
                         .userInfo[AuthErrorUserInfoUpdatedCredentialKey] as? AuthCredential
-                    _ = try await Auth.auth().signIn(with: updated ?? credential)
+                    let signedInResult = try await Auth.auth().signIn(with: updated ?? credential)
+                    if signedInResult.user.uid != user.uid {
+                        try? await user.delete()
+                    }
                 } else {
                     throw error
                 }
@@ -276,12 +284,16 @@ final class SocialAuthService {
         // Satisfy requiresRecentLogin; caller revokes the Apple token after server deletion succeeds.
         try await user.reauthenticate(with: firebaseCredential)
 
-        if let codeData = appleIDCredential.authorizationCode,
-           let authCode = String(data: codeData, encoding: .utf8),
-           !authCode.isEmpty {
-            return authCode
+        return try Self.extractAppleAuthorizationCode(from: appleIDCredential.authorizationCode)
+    }
+
+    nonisolated static func extractAppleAuthorizationCode(from codeData: Data?) throws -> String {
+        guard let codeData,
+              let authCode = String(data: codeData, encoding: .utf8),
+              !authCode.isEmpty else {
+            throw AuthError.missingAppleAuthorizationCode
         }
-        return nil
+        return authCode
     }
 
     private func reauthenticateWithGoogle(user: FirebaseAuth.User) async throws {
@@ -322,6 +334,7 @@ final class SocialAuthService {
 
 enum AuthError: LocalizedError {
     case invalidAppleCredential
+    case missingAppleAuthorizationCode
     case invalidGoogleCredential
     case missingGoogleClientID
     case noPresentingController
@@ -329,11 +342,18 @@ enum AuthError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .invalidAppleCredential:  return "Unable to retrieve Apple ID information."
-        case .invalidGoogleCredential: return "Failed to obtain Google token."
-        case .missingGoogleClientID:   return "Google sign-in is not configured (no clientID)."
-        case .noPresentingController:  return "Failed to open login window."
-        case .notSignedIn:             return "You are not signed in."
+        case .invalidAppleCredential:
+            return String(localized: "Unable to retrieve Apple ID information.")
+        case .missingAppleAuthorizationCode:
+            return String(localized: "Missing Apple authorization code. Please try signing in with Apple again before deleting your account.")
+        case .invalidGoogleCredential:
+            return String(localized: "Failed to obtain Google token.")
+        case .missingGoogleClientID:
+            return String(localized: "Google sign-in is not configured (no clientID).")
+        case .noPresentingController:
+            return String(localized: "Failed to open login window.")
+        case .notSignedIn:
+            return String(localized: "You are not signed in.")
         }
     }
 }

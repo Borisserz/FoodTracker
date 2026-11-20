@@ -12,17 +12,35 @@ public enum WidgetReloader {
     }
 }
 
+public enum FoodTrackerSchemaV1: VersionedSchema {
+    public static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
+
+    public static var models: [any PersistentModel.Type] {
+        [
+            User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self,
+            DailySummary.self, AIChatSession.self, ShoppingItem.self,
+            WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
+        ]
+    }
+}
+
+public enum FoodTrackerMigrationPlan: SchemaMigrationPlan {
+    public static var schemas: [any VersionedSchema.Type] {
+        [FoodTrackerSchemaV1.self]
+    }
+
+    public static var stages: [MigrationStage] { [] }
+}
+
 public final class SharedModelContainer: @unchecked Sendable {
     public static let shared = SharedModelContainer()
 
     public static let appGroupIdentifier = "group.com.borisdev.FoodTracker2026"
     public static let iCloudContainerIdentifier = "iCloud.com.borisdev.FoodTracker2026"
+    public static let widgetStoreMutationTimestampKey = "lastWidgetStoreMutationAt"
 
     public static var sharedSchema: Schema {
-        Schema([
-            User.self, Beverage.self, FoodItem.self, Meal.self, CustomRecipe.self, ActivityLog.self, DailySummary.self, AIChatSession.self, ShoppingItem.self,
-            WeeklyMealPlan.self, MealPlanDay.self, MealPlanItem.self, WeightLog.self
-        ])
+        Schema(versionedSchema: FoodTrackerSchemaV1.self)
     }
 
     public let container: ModelContainer
@@ -61,6 +79,12 @@ public final class SharedModelContainer: @unchecked Sendable {
         self.didUseFallbackDirectory = resolved.didUseFallbackDirectory
     }
 
+    @MainActor
+    public static func refreshMainContext(_ context: ModelContext) {
+        guard !context.hasChanges else { return }
+        context.rollback()
+    }
+
     public static func makeContainer(schema: Schema, url: URL, enableCloudKit: Bool = true) -> ModelContainer {
         var ignored = false
         return makeContainer(schema: schema, url: url, enableCloudKit: enableCloudKit, didFallBackToInMemory: &ignored)
@@ -79,7 +103,11 @@ public final class SharedModelContainer: @unchecked Sendable {
                 url: url,
                 cloudKitDatabase: .private(iCloudContainerIdentifier)
             )
-            if let cloudContainer = try? ModelContainer(for: schema, configurations: [cloudConfig]) {
+            if let cloudContainer = try? ModelContainer(
+                for: schema,
+                migrationPlan: FoodTrackerMigrationPlan.self,
+                configurations: [cloudConfig]
+            ) {
                 return cloudContainer
             }
             print("⚠️ CloudKit init failed in SharedModelContainer, falling back to local store.")
@@ -87,7 +115,11 @@ public final class SharedModelContainer: @unchecked Sendable {
 
         let localConfig = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
         do {
-            return try ModelContainer(for: schema, configurations: [localConfig])
+            return try ModelContainer(
+                for: schema,
+                migrationPlan: FoodTrackerMigrationPlan.self,
+                configurations: [localConfig]
+            )
         } catch {
             print("⚠️ Local store init failed in SharedModelContainer (\(error)), falling back to in-memory store.")
             didFallBackToInMemory = true

@@ -45,8 +45,9 @@ struct FastingActivityWidget: Widget {
                     isStale: context.isStale
                 )
                     .monospacedDigit()
-                    .frame(minWidth: 45)
+                    .frame(minWidth: 52, maxWidth: 72, alignment: .trailing)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.65)
                     .font(.caption2)
             } minimal: {
                 Image(systemName: "flame.fill")

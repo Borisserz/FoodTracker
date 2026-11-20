@@ -2,10 +2,40 @@ import SwiftUI
 import Observation
 import UserNotifications
 
+struct FastingRecord: Codable, Identifiable, Equatable {
+    let id: UUID
+    let planName: String
+    let targetHours: Int
+    let startTime: Date
+    let endTime: Date
+    let durationSeconds: TimeInterval
+    let reachedGoal: Bool
+
+    init(
+        id: UUID = UUID(),
+        planName: String,
+        targetHours: Int,
+        startTime: Date,
+        endTime: Date,
+        durationSeconds: TimeInterval,
+        reachedGoal: Bool
+    ) {
+        self.id = id
+        self.planName = planName
+        self.targetHours = targetHours
+        self.startTime = startTime
+        self.endTime = endTime
+        self.durationSeconds = durationSeconds
+        self.reachedGoal = reachedGoal
+    }
+}
+
 @MainActor
 @Observable
 final class FastingManager {
     static let shared = FastingManager()
+    static let historyDefaultsKey = "fastingHistory_v1"
+    private static let maxHistoryCount = 50
 
     var isFasting: Bool = false
     var planName: String = ""
@@ -14,6 +44,7 @@ final class FastingManager {
 
     var elapsedTime: TimeInterval = 0
     var progress: Double = 0
+    private(set) var history: [FastingRecord] = []
 
     // No more legacy repeating Timer. We drive updates via a structured async Task (see startTimer).
     private var updateTask: Task<Void, Never>?
@@ -28,6 +59,7 @@ final class FastingManager {
     }
 
     private init() {
+        loadHistory()
         loadState()
     }
 
@@ -46,10 +78,68 @@ final class FastingManager {
         startUpdateTask()
         HapticManager.shared.impact(style: .heavy)
 
-        scheduleFastingNotifications(target: plan.fastingHours)
+        scheduleFastingNotifications(target: plan.fastingHours, startTime: now)
     }
 
-    func endFast() {
+    func startCustomFast(hours: Int) {
+        let clampedHours = min(max(hours, 1), 168)
+        let customTitle = String(localized: "Custom \(clampedHours)h")
+        let customPlan = FastingPlan(
+            category: .intermediate,
+            title: customTitle,
+            description: String(localized: "Custom fasting schedule."),
+            icon: "timer",
+            colorHex: "F25C78",
+            isPopular: false,
+            fastingHours: clampedHours,
+            eatingHours: max(0, 24 - clampedHours),
+            difficultyRating: 3,
+            benefits: [],
+            breakFastTip: String(localized: "Break your fast gently with protein and whole foods.")
+        )
+        startFast(plan: customPlan)
+    }
+
+    func updateStartTime(_ newStartTime: Date) {
+        guard isFasting, targetHours > 0 else { return }
+        let clampedStart = min(newStartTime, Date())
+        self.startTime = clampedStart
+        saveState()
+        updateCalculations(notifyLiveActivity: false)
+        liveActivityManager.reattachActivity(
+            planName: planName,
+            targetHours: targetHours,
+            startTime: clampedStart,
+            currentStage: currentPhase.name,
+            progressPct: progress
+        )
+        scheduleFastingNotifications(target: targetHours, startTime: clampedStart)
+        if updateTask == nil || updateTask?.isCancelled == true {
+            startUpdateTask()
+        }
+    }
+
+    func endFast(recordInHistory: Bool = true) {
+        if recordInHistory, let start = startTime, targetHours > 0 {
+            let now = Date()
+            let duration = max(0, now.timeIntervalSince(start))
+            if duration >= 60 {
+                let record = FastingRecord(
+                    planName: planName.isEmpty ? "\(targetHours)h Fast" : planName,
+                    targetHours: targetHours,
+                    startTime: start,
+                    endTime: now,
+                    durationSeconds: duration,
+                    reachedGoal: duration >= Double(targetHours * 3600)
+                )
+                history.insert(record, at: 0)
+                if history.count > Self.maxHistoryCount {
+                    history = Array(history.prefix(Self.maxHistoryCount))
+                }
+                saveHistory()
+            }
+        }
+
         self.isFasting = false
         self.startTime = nil
         self.elapsedTime = 0
@@ -61,6 +151,26 @@ final class FastingManager {
         HapticManager.shared.impact(style: .rigid)
 
         cancelFastingNotifications()
+    }
+
+    func clearHistory() {
+        history.removeAll()
+        UserDefaults.standard.removeObject(forKey: Self.historyDefaultsKey)
+    }
+
+    private func loadHistory() {
+        guard let data = UserDefaults.standard.data(forKey: Self.historyDefaultsKey),
+              let decoded = try? JSONDecoder().decode([FastingRecord].self, from: data) else {
+            history = []
+            return
+        }
+        history = decoded
+    }
+
+    private func saveHistory() {
+        if let encoded = try? JSONEncoder().encode(history) {
+            UserDefaults.standard.set(encoded, forKey: Self.historyDefaultsKey)
+        }
     }
 
     var currentPhase: (name: String, icon: String, color: Color) {
@@ -129,6 +239,22 @@ final class FastingManager {
         updateCalculations()
         if updateTask == nil || updateTask?.isCancelled == true {
             startUpdateTask()
+        }
+    }
+
+    /// Ensures Live Activities match persisted fasting state on launch or foreground return.
+    func reconcileLiveActivityOnAppActive() {
+        if isFasting, targetHours > 0, let start = startTime {
+            updateCalculations(notifyLiveActivity: false)
+            liveActivityManager.reattachActivity(
+                planName: planName.isEmpty ? "\(targetHours)h Fast" : planName,
+                targetHours: targetHours,
+                startTime: start,
+                currentStage: currentPhase.name,
+                progressPct: progress
+            )
+        } else {
+            liveActivityManager.endActivity()
         }
     }
 
@@ -242,10 +368,11 @@ final class FastingManager {
         }
     }
 
-    private func scheduleFastingNotifications(target: Int) {
+    private func scheduleFastingNotifications(target: Int, startTime: Date = Date()) {
         guard target > 0 else { return }
         notificationGeneration += 1
         let capturedGeneration = notificationGeneration
+        let elapsed = max(0, Date().timeIntervalSince(startTime))
         let center = UNUserNotificationCenter.current()
 
         center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
@@ -260,28 +387,21 @@ final class FastingManager {
                           isFasting: self.isFasting
                       ) else { return }
 
-                self.scheduleAlert(
-                    id: "fasting_goal_reached",
-                    title: String(localized: "Goal Reached! 🏆"),
-                    body: String(localized: "You've successfully completed your \(target)-hour fast. It's time to eat!"),
-                    delayInSeconds: TimeInterval(target * 3600)
-                )
+                let goalDelay = TimeInterval(target * 3600) - elapsed
+                if goalDelay > 0 {
+                    self.scheduleAlert(
+                        id: "fasting_goal_reached",
+                        title: String(localized: "Goal Reached! 🏆"),
+                        body: String(localized: "You've successfully completed your \(target)-hour fast. It's time to eat!"),
+                        delayInSeconds: goalDelay
+                    )
+                }
 
-                if target > 4 {
-                    let copy = Self.phaseNotificationCopy(forHours: 4)
-                    self.scheduleAlert(id: "phase_4h", title: copy.title, body: copy.body, delayInSeconds: 4 * 3600)
-                }
-                if target > 8 {
-                    let copy = Self.phaseNotificationCopy(forHours: 8)
-                    self.scheduleAlert(id: "phase_8h", title: copy.title, body: copy.body, delayInSeconds: 8 * 3600)
-                }
-                if target > 12 {
-                    let copy = Self.phaseNotificationCopy(forHours: 12)
-                    self.scheduleAlert(id: "phase_12h", title: copy.title, body: copy.body, delayInSeconds: 12 * 3600)
-                }
-                if target > 16 {
-                    let copy = Self.phaseNotificationCopy(forHours: 16)
-                    self.scheduleAlert(id: "phase_16h", title: copy.title, body: copy.body, delayInSeconds: 16 * 3600)
+                for milestone in [4, 8, 12, 16] where target > milestone {
+                    let delay = TimeInterval(milestone * 3600) - elapsed
+                    guard delay > 0 else { continue }
+                    let copy = Self.phaseNotificationCopy(forHours: milestone)
+                    self.scheduleAlert(id: "phase_\(milestone)h", title: copy.title, body: copy.body, delayInSeconds: delay)
                 }
             }
         }

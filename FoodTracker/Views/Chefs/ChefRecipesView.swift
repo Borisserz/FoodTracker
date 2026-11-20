@@ -66,6 +66,31 @@ extension PremiumRecipe {
         )
     }
 }
+struct ChefCalorieRange {
+    let title: String
+    let minCalories: Int
+    let maxCalories: Int
+
+    @MainActor
+    var color: Color {
+        switch minCalories {
+        case ..<300: return .green
+        case 300..<450: return .themeYellow
+        case 450..<600: return .themeOrange
+        default: return .themePink
+        }
+    }
+}
+
+enum ChefCalorieRangeCatalog {
+    static let ranges: [ChefCalorieRange] = [
+        ChefCalorieRange(title: "Under 300", minCalories: 0, maxCalories: 299),
+        ChefCalorieRange(title: "300 - 450", minCalories: 300, maxCalories: 449),
+        ChefCalorieRange(title: "450 - 600", minCalories: 450, maxCalories: 599),
+        ChefCalorieRange(title: "600+ kcal", minCalories: 600, maxCalories: 5000)
+    ]
+}
+
 struct RecipeIngredient: Hashable, Codable {
     let name: String
     let amount: String
@@ -209,12 +234,7 @@ struct DiscoverTabView: View {
         }
     }
 
-    let calorieRanges = [
-        ("Under 300", Color.green, 0, 300),
-        ("300 - 450", Color.themeYellow, 300, 450),
-        ("450 - 600", Color.themeOrange, 450, 600),
-        ("600+ kcal", Color.themePink, 600, 5000)
-    ]
+    let calorieRanges = ChefCalorieRangeCatalog.ranges
 
     var body: some View {
 
@@ -281,13 +301,13 @@ struct DiscoverTabView: View {
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
-                            ForEach(calorieRanges, id: \.0) { range in
+                            ForEach(calorieRanges, id: \.title) { range in
                                 Button(action: {
                                     HapticManager.shared.impact(style: .light)
-                                    let filtered = allRecipes.filter { $0.caloriesPerServing >= range.2 && $0.caloriesPerServing <= range.3 }
-                                    path.append(FoodsRoute.filteredList(range.0, filtered))
+                                    let filtered = allRecipes.filter { $0.caloriesPerServing >= range.minCalories && $0.caloriesPerServing <= range.maxCalories }
+                                    path.append(FoodsRoute.filteredList(range.title, filtered))
                                 }) {
-                                    CalorieRangeCard(title: range.0, color: range.1)
+                                    CalorieRangeCard(title: range.title, color: range.color)
                                 }
                                 .buttonStyle(BounceButtonStyle())
                             }
@@ -655,9 +675,17 @@ struct AdvancedRecipeFilterSheet: View {
 
     @State private var selectedTags: Set<String> = []
 
+    static let dietFilterOptions: [(String, String, Color)] = [
+        ("Vegetarian", "leaf.fill", Color.green),
+        ("Vegan", "leaf.arrow.circlepath", Color.mint),
+        ("Low Carb", "fish.fill", Color.orange),
+        ("High Protein", "dumbbell.fill", Color.blue),
+        ("Ketogenic", "flame.fill", Color.red)
+    ]
+
     let meals = [("Breakfast", "cup.and.saucer.fill"), ("Lunch", "takeoutbag.and.cup.and.straw.fill"), ("Dinner", "fork.knife"), ("Snack", "apple.logo"), ("Smoothie", "drop.fill")]
     let prep = [("Quickly Prepared", "timer"), ("On the Go", "figure.walk"), ("Few Ingredients", "cart.fill"), ("Baking", "oven.fill"), ("Easy", "hand.thumbsup.fill")]
-    let diets = [("Vegetarian", "leaf.fill", Color.green), ("Vegan", "leaf.arrow.circlepath", Color.mint), ("Low Carb", "meatcases.fill", Color.orange), ("High Protein", "dumbbell.fill", Color.blue), ("Ketogenic", "flame.fill", Color.red)]
+    var diets: [(String, String, Color)] { Self.dietFilterOptions }
 
     var filteredRecipes: [PremiumRecipe] {
           if selectedTags.isEmpty { return allRecipes }
@@ -1185,10 +1213,18 @@ struct PremiumRecipeDetailView: View {
 
 struct FilteredRecipesListView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(RecipeDataLoader.self) private var dataLoader
 
     let title: String
     let recipes: [PremiumRecipe]
     @Binding var path: NavigationPath
+
+    private var liveRecipes: [PremiumRecipe] {
+        let latestByKey = Dictionary(
+            uniqueKeysWithValues: dataLoader.recipes.map { ($0.id ?? $0.title, $0) }
+        )
+        return recipes.map { latestByKey[$0.id ?? $0.title] ?? $0 }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -1224,7 +1260,7 @@ struct FilteredRecipesListView: View {
             .zIndex(1)
 
             ScrollView(showsIndicators: false) {
-                if recipes.isEmpty {
+                if liveRecipes.isEmpty {
 
                     EmptyStateView(
                         imageName: "magnifyingglass",
@@ -1234,7 +1270,7 @@ struct FilteredRecipesListView: View {
                     .padding(.top, 80)
                 } else {
                     LazyVStack(spacing: 20) {
-                        ForEach(recipes) { recipe in
+                        ForEach(liveRecipes) { recipe in
                             Button(action: {
                                 HapticManager.shared.impact(style: .light)
                                 path.append(FoodsRoute.premiumRecipeDetail(recipe))

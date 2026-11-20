@@ -834,6 +834,15 @@ struct AccountSettingsView: View {
                                     LocalDataResetService.wipeAllData(in: context)
                                     _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                     dismiss()
+                                } catch let deletionError as AccountDeletionError {
+                                    if case .appleTokenRevocationFailed = deletionError {
+                                        // Server account deletion already succeeded; still wipe local state,
+                                        // then surface the revocation warning so the user can revoke in iOS Settings.
+                                        LocalDataResetService.wipeAllData(in: context)
+                                        _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
+                                    }
+                                    errorMessage = deletionError.localizedDescription
+                                    showError = true
                                 } catch {
                                     if !SocialAuthService.isCancellationError(error) {
                                         errorMessage = error.localizedDescription
@@ -901,8 +910,21 @@ enum ReminderNotificationScheduler {
     static let weightID = "ft_remind_weight"
     static let hasPromptedKey = "hasPromptedDefaultReminders_v1"
 
+    @MainActor private static var tailSyncTask: Task<Void, Never>?
+
     static var allReminderIDs: [String] {
         mealIDs + [waterID, weightID]
+    }
+
+    @MainActor
+    private static func serialized(_ work: @escaping @Sendable () async -> Void) async {
+        let previous = tailSyncTask
+        let next = Task { @MainActor in
+            _ = await previous?.value
+            await work()
+        }
+        tailSyncTask = next
+        await next.value
     }
 
     static func currentPreferences(defaults: UserDefaults = .standard) -> (meals: Bool, water: Bool, weight: Bool) {
@@ -934,6 +956,16 @@ enum ReminderNotificationScheduler {
         center: any ReminderNotificationCenterProtocol = UNUserNotificationCenter.current(),
         forcePrompt: Bool = false
     ) async {
+        await serialized {
+            await performSyncOnAppActive(defaults: defaults, center: center, forcePrompt: forcePrompt)
+        }
+    }
+
+    private static func performSyncOnAppActive(
+        defaults: UserDefaults,
+        center: any ReminderNotificationCenterProtocol,
+        forcePrompt: Bool
+    ) async {
         let prefs = currentPreferences(defaults: defaults)
         guard prefs.meals || prefs.water || prefs.weight else {
             center.removePendingNotificationRequests(withIdentifiers: allReminderIDs)
@@ -943,7 +975,7 @@ enum ReminderNotificationScheduler {
         let status = await center.authorizationStatus()
         switch status {
         case .authorized, .provisional, .ephemeral:
-            await syncAsync(
+            await performSyncAsync(
                 mealsEnabled: prefs.meals,
                 waterEnabled: prefs.water,
                 weightEnabled: prefs.weight,
@@ -954,7 +986,7 @@ enum ReminderNotificationScheduler {
             let hasPrompted = defaults.bool(forKey: hasPromptedKey)
             guard forcePrompt || !hasPrompted else { return }
             defaults.set(true, forKey: hasPromptedKey)
-            await syncAsync(
+            await performSyncAsync(
                 mealsEnabled: prefs.meals,
                 waterEnabled: prefs.water,
                 weightEnabled: prefs.weight,
@@ -974,6 +1006,24 @@ enum ReminderNotificationScheduler {
         weightEnabled: Bool,
         center: any ReminderNotificationCenterProtocol = UNUserNotificationCenter.current(),
         requestAuthorizationIfNotDetermined: Bool = true
+    ) async {
+        await serialized {
+            await performSyncAsync(
+                mealsEnabled: mealsEnabled,
+                waterEnabled: waterEnabled,
+                weightEnabled: weightEnabled,
+                center: center,
+                requestAuthorizationIfNotDetermined: requestAuthorizationIfNotDetermined
+            )
+        }
+    }
+
+    private static func performSyncAsync(
+        mealsEnabled: Bool,
+        waterEnabled: Bool,
+        weightEnabled: Bool,
+        center: any ReminderNotificationCenterProtocol,
+        requestAuthorizationIfNotDetermined: Bool
     ) async {
         center.removePendingNotificationRequests(withIdentifiers: allReminderIDs)
 
@@ -1066,9 +1116,11 @@ enum ReminderNotificationScheduler {
 }
 
 struct RemindersSettingsView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage("remindMeals") private var remindMeals = true
     @AppStorage("remindWater") private var remindWater = true
     @AppStorage("remindWeight") private var remindWeight = false
+    @State private var isNotificationsDenied = false
 
     var body: some View {
         ZStack {
@@ -1076,8 +1128,29 @@ struct RemindersSettingsView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
+                    if isNotificationsDenied {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Label("Notifications Disabled in iOS Settings", systemImage: "bell.slash.fill")
+                                .font(.subheadline.bold())
+                                .foregroundColor(.orange)
+                            Text("Enable notifications in Settings to receive meal, hydration, and weigh-in reminders.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Button("Open iOS Settings") {
+                                if let url = URL(string: UIApplication.openSettingsURLString) {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                            .font(.caption.bold())
+                            .foregroundColor(.themePink)
+                        }
+                        .premiumCardStyle()
+                        .padding(.horizontal, 20)
+                        .padding(.top, 24)
+                    }
+
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Water and meals reminders adapt to your habits. Keep using the app and times will be personalized.")
+                        Text("Daily reminders help you log lunch (13:00), dinner (19:00), and afternoon hydration (15:00) consistently.")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                             .padding(.bottom, 8)
@@ -1088,7 +1161,7 @@ struct RemindersSettingsView: View {
                     }
                     .premiumCardStyle()
                     .padding(.horizontal, 20)
-                    .padding(.top, 24)
+                    .padding(.top, isNotificationsDenied ? 0 : 24)
 
                     VStack(alignment: .leading, spacing: 16) {
                         Text("It's best to track your measurements on the same day each week, at the same time and under the same circumstances.")
@@ -1105,8 +1178,16 @@ struct RemindersSettingsView: View {
         }
         .navigationTitle("Reminders")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
+        .task {
+            await refreshAuthorizationBanner()
             syncNotifications()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else { return }
+            Task {
+                await refreshAuthorizationBanner()
+                syncNotifications()
+            }
         }
         .onChange(of: remindMeals) { _, _ in
             syncNotifications()
@@ -1117,6 +1198,11 @@ struct RemindersSettingsView: View {
         .onChange(of: remindWeight) { _, _ in
             syncNotifications()
         }
+    }
+
+    private func refreshAuthorizationBanner() async {
+        let status = await UNUserNotificationCenter.current().authorizationStatus()
+        isNotificationsDenied = (status == .denied)
     }
 
     private func syncNotifications() {
@@ -1130,6 +1216,7 @@ struct RemindersSettingsView: View {
 
 struct AppleHealthSettingsView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
     @Bindable var user: User
 
     var body: some View {
@@ -1194,6 +1281,10 @@ struct AppleHealthSettingsView: View {
         }
         .navigationTitle("Apple Health")
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active, user.isHealthKitEnabled else { return }
+            Task { try? await HealthKitManager.shared.requestAuthorization() }
+        }
     }
 
     private func toggleHealthKit() {

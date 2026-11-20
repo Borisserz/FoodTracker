@@ -69,7 +69,7 @@ struct FastingPlan: Identifiable, Hashable, Codable {
 
             FastingPlan(category: .expert, title: "23:1 (OMAD)", description: String(localized: "One Meal A Day. Extreme fat burn and repair."), icon: "crown.fill", colorHex: "E5A93B", isPopular: false, fastingHours: 23, eatingHours: 1,
                         difficultyRating: 5,
-                        benefits: [FastingBenefit(icon: "crown.fill", text: String(localized: "Ultimate Discipline")), FastingBenefit(icon: "cell.cell", text: String(localized: "Deep Autophagy")), FastingBenefit(icon: "flame.fill", text: String(localized: "Rapid Fat Loss"))],
+                        benefits: [FastingBenefit(icon: "crown.fill", text: String(localized: "Ultimate Discipline")), FastingBenefit(icon: "waveform.path.ecg", text: String(localized: "Deep Autophagy")), FastingBenefit(icon: "flame.fill", text: String(localized: "Rapid Fat Loss"))],
                         breakFastTip: String(localized: "Eat a massive, nutrient-dense meal. Make sure to hit your daily protein and fat macros in this window!")),
 
             FastingPlan(category: .expert, title: "36-Hour", description: String(localized: "Monk Fast. Full day water fast for a reset."), icon: "drop.fill", colorHex: "AF52DE", isPopular: false, fastingHours: 36, eatingHours: 0,
@@ -88,6 +88,8 @@ struct FastingDashboardView: View {
     @Environment(\.dismiss) private var dismiss
     var showsDismissButton: Bool = false
     @State private var path = NavigationPath()
+    @State private var customHours: Int = 16
+    @State private var showReplaceCustomAlert = false
 
     var body: some View {
         ZStack {
@@ -114,8 +116,25 @@ struct FastingDashboardView: View {
                             .padding(.horizontal, 20)
                     }
 
+                    CustomFastingDurationCard(
+                        hours: $customHours,
+                        onStart: {
+                            if FastingManager.shared.isFasting {
+                                showReplaceCustomAlert = true
+                            } else {
+                                FastingManager.shared.startCustomFast(hours: customHours)
+                            }
+                        }
+                    )
+                    .padding(.horizontal, 20)
+
                     ForEach(FastingCategory.allCases, id: \.self) { category in
                         FastingCategorySection(category: category)
+                    }
+
+                    if !FastingManager.shared.history.isEmpty {
+                        FastingHistorySection(records: FastingManager.shared.history)
+                            .padding(.horizontal, 20)
                     }
 
                     NutritionMethodologyDisclaimerView(
@@ -127,6 +146,14 @@ struct FastingDashboardView: View {
                     Spacer().frame(height: 40)
                 }
             }
+        }
+        .alert("Replace Active Fast?", isPresented: $showReplaceCustomAlert) {
+            Button("Start New Fast", role: .destructive) {
+                FastingManager.shared.startCustomFast(hours: customHours)
+            }
+            Button("Keep Current", role: .cancel) {}
+        } message: {
+            Text("You already have an active fasting session. Starting a custom \(customHours)h fast will reset your current timer.")
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -651,6 +678,8 @@ struct ActiveFastingCard: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var manager = FastingManager.shared
     @State private var showEndAlert = false
+    @State private var showEditStartSheet = false
+    @State private var draftStartTime = Date()
 
     var body: some View {
         VStack(spacing: 20) {
@@ -696,9 +725,25 @@ struct ActiveFastingCard: View {
             }
 
             HStack {
-                Text(manager.localizedRemainingTimeString)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(manager.localizedRemainingTimeString)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+
+                    if let start = manager.startTime {
+                        Button {
+                            draftStartTime = start
+                            showEditStartSheet = true
+                        } label: {
+                            Label(
+                                "Started \(start.formatted(date: .omitted, time: .shortened))",
+                                systemImage: "pencil"
+                            )
+                            .font(.caption.bold())
+                            .foregroundColor(.themePink)
+                        }
+                    }
+                }
 
                 Spacer()
 
@@ -725,6 +770,37 @@ struct ActiveFastingCard: View {
                 .opacity(manager.progress >= 1.0 ? 1 : 0)
                 .animation(reduceMotion ? nil : .easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
         )
+        .sheet(isPresented: $showEditStartSheet) {
+            NavigationStack {
+                VStack(spacing: 20) {
+                    DatePicker(
+                        "Fast Start Time",
+                        selection: $draftStartTime,
+                        in: Date().addingTimeInterval(-7 * 86400)...Date(),
+                        displayedComponents: [.date, .hourAndMinute]
+                    )
+                    .datePickerStyle(.graphical)
+                    .tint(.themePink)
+                    Spacer()
+                }
+                .padding()
+                .navigationTitle("Edit Start Time")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { showEditStartSheet = false }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            manager.updateStartTime(draftStartTime)
+                            showEditStartSheet = false
+                        }
+                        .fontWeight(.bold)
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
+        }
         .alert("End Fast?", isPresented: $showEndAlert) {
             Button("Cancel", role: .cancel) { }
             Button("End Fast", role: .destructive) {
@@ -732,6 +808,87 @@ struct ActiveFastingCard: View {
             }
         } message: {
             Text("Are you sure you want to break your fast? You've done great so far!")
+        }
+    }
+}
+
+private struct CustomFastingDurationCard: View {
+    @Binding var hours: Int
+    var onStart: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Label("Custom Fast", systemImage: "slider.horizontal.3")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                Spacer()
+                Text("\(hours)h")
+                    .font(.system(size: 22, weight: .heavy, design: .rounded))
+                    .foregroundColor(.themePink)
+            }
+
+            Stepper(
+                value: $hours,
+                in: 1...72,
+                step: 1
+            ) {
+                Text("Duration: \(hours) hours")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+
+            Button(action: onStart) {
+                Text("Start Custom \(hours)h Fast")
+                    .font(.subheadline.bold())
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.themePink)
+                    .cornerRadius(16)
+            }
+            .buttonStyle(BounceButtonStyle())
+        }
+        .padding(18)
+        .background(Color.white)
+        .cornerRadius(22)
+        .shadow(color: Color.black.opacity(0.03), radius: 8, y: 4)
+    }
+}
+
+private struct FastingHistorySection: View {
+    let records: [FastingRecord]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Fasting History")
+                .font(.title3.bold())
+
+            VStack(spacing: 10) {
+                ForEach(records.prefix(10)) { record in
+                    let hours = Int(record.durationSeconds) / 3600
+                    let minutes = (Int(record.durationSeconds) % 3600) / 60
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(record.planName)
+                                .font(.subheadline.bold())
+                            Text(record.endTime.formatted(date: .abbreviated, time: .shortened))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Text("\(hours)h \(minutes)m")
+                            .font(.subheadline.bold())
+                            .foregroundColor(record.reachedGoal ? .green : .orange)
+                        Image(systemName: record.reachedGoal ? "checkmark.seal.fill" : "clock.fill")
+                            .foregroundColor(record.reachedGoal ? .green : .orange)
+                    }
+                    .padding(14)
+                    .background(Color.white)
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.02), radius: 5, y: 2)
+                }
+            }
         }
     }
 }

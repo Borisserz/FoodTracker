@@ -907,6 +907,12 @@ async function verifyAppCheck(
   }
 }
 
+const ENDPOINT_AUTH_OPTIONS = Object.freeze({
+  foodAiProxy: Object.freeze({}),
+  foodSearchProxy: Object.freeze({}),
+  foodDeleteAccount: Object.freeze({ requireRecentAuthSec: 300 }),
+});
+
 async function verifyFirebaseUser(
   req,
   res,
@@ -1257,7 +1263,7 @@ exports.foodAiProxy = onRequest(
       req,
       res,
       (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked),
-      { requireRecentAuthSec: 300 }
+      ENDPOINT_AUTH_OPTIONS.foodAiProxy
     );
     if (!uid) return;
 
@@ -1345,17 +1351,21 @@ exports.foodAiProxy = onRequest(
       const keys = rotatedKeys(apiKeys);
       let lastError = null;
 
+      let emittedDone = false;
       const emitStreamLine = (rawLine) => {
         const line = rawLine.trimEnd();
         if (!line) return false;
         const converted = openAIStreamChunkToGemini(line);
         if (converted === "[DONE]") {
-          if (yielded) res.write("data: [DONE]\n\n");
+          if (yielded && !emittedDone) {
+            res.write("data: [DONE]\n\n");
+            emittedDone = true;
+          }
           return true;
         }
         if (converted) {
           if (!yielded) {
-            res.status(200).set("Content-Type", "text/event-stream");
+            beginSSEStreamResponse(res);
             yielded = true;
           }
           res.write(`data: ${converted}\n\n`);
@@ -1426,7 +1436,7 @@ exports.foodAiProxy = onRequest(
       if (!yielded) {
         throw lastError || new Error("All streaming models failed");
       }
-      res.end();
+      finishSSEStreamResponse(res, { yielded, emittedDone });
     } catch (e) {
       if (!yielded) {
         await refundReservedSlots();
@@ -1515,7 +1525,7 @@ exports.foodSearchProxy = onRequest(
       req,
       res,
       (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked),
-      { requireRecentAuthSec: 300 }
+      ENDPOINT_AUTH_OPTIONS.foodSearchProxy
     );
     if (!uid) return;
 
@@ -1749,7 +1759,7 @@ exports.foodDeleteAccount = onRequest(
       req,
       res,
       (token, checkRevoked) => getAuth().verifyIdToken(token, checkRevoked),
-      { requireRecentAuthSec: 300 }
+      ENDPOINT_AUTH_OPTIONS.foodDeleteAccount
     );
     if (!uid) return;
 
@@ -1762,6 +1772,25 @@ exports.foodDeleteAccount = onRequest(
     }
   }
 );
+
+function beginSSEStreamResponse(res) {
+  res
+    .status(200)
+    .set("Content-Type", "text/event-stream")
+    .set("Cache-Control", "no-cache, no-transform")
+    .set("Connection", "keep-alive")
+    .set("X-Accel-Buffering", "no");
+  if (typeof res.flushHeaders === "function") {
+    res.flushHeaders();
+  }
+}
+
+function finishSSEStreamResponse(res, { yielded = true, emittedDone = false } = {}) {
+  if (yielded && !emittedDone) {
+    res.write("data: [DONE]\n\n");
+  }
+  res.end();
+}
 
 module.exports._test = {
   TEXT_MODEL_CHAIN,
@@ -1799,6 +1828,9 @@ module.exports._test = {
   deleteFoodAccountData,
   verifyAppCheck,
   verifyFirebaseUser,
+  ENDPOINT_AUTH_OPTIONS,
   sanitizeModelOverrides,
   resolveUserQuotaLimit,
+  beginSSEStreamResponse,
+  finishSSEStreamResponse,
 };

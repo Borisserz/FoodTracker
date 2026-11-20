@@ -1,29 +1,6 @@
 import SwiftUI
 import SwiftData
 import Observation
-enum MacroType: String, Identifiable {
-    case protein = "Protein"
-    case fat = "Fat"
-    case carbs = "Carbs"
-
-    var id: String { self.rawValue }
-
-    var localizedName: String {
-        switch self {
-        case .protein: return String(localized: "Protein")
-        case .fat: return String(localized: "Fat")
-        case .carbs: return String(localized: "Carbs")
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .protein: return Color(red: 1.0, green: 0.22, blue: 0.52)
-        case .fat: return .orange
-        case .carbs: return .blue
-        }
-    }
-}
 
 struct Achievement: Identifiable {
     let id: String
@@ -202,6 +179,8 @@ struct Achievement: Identifiable {
     var protein: Double = 0.0
     var fats: Double = 0.0
     var carbs: Double = 0.0
+    var fiber: Double = 0.0
+    var sugar: Double = 0.0
 
     var omega3: Double = 0.0
     var calcium: Double = 0.0
@@ -214,7 +193,12 @@ struct Achievement: Identifiable {
     var parentMeal: Meal?
     var parentRecipe: CustomRecipe?
 
+    var netCarbs: Double {
+        max(0.0, carbs - fiber)
+    }
+
     init(name: String, weight: Double, calories: Int, protein: Double, fats: Double, carbs: Double,
+         fiber: Double = 0, sugar: Double = 0,
          omega3: Double = 0, calcium: Double = 0, potassium: Double = 0,
          magnesium: Double = 0, iron: Double = 0, vitaminC: Double = 0, vitaminD: Double = 0) {
 
@@ -222,6 +206,7 @@ struct Achievement: Identifiable {
 
         self.name = name; self.weight = weight; self.calories = calories
         self.protein = protein; self.fats = fats; self.carbs = carbs
+        self.fiber = fiber; self.sugar = sugar
         self.omega3 = omega3; self.calcium = calcium; self.potassium = potassium
         self.magnesium = magnesium; self.iron = iron; self.vitaminC = vitaminC; self.vitaminD = vitaminD
     }
@@ -237,6 +222,9 @@ struct Achievement: Identifiable {
     var totalProtein: Double { (foodItems ?? []).reduce(0) { $0 + $1.protein } }
     var totalFats: Double { (foodItems ?? []).reduce(0) { $0 + $1.fats } }
     var totalCarbs: Double { (foodItems ?? []).reduce(0) { $0 + $1.carbs } }
+    var totalFiber: Double { (foodItems ?? []).reduce(0) { $0 + $1.fiber } }
+    var totalSugar: Double { (foodItems ?? []).reduce(0) { $0 + $1.sugar } }
+    var totalNetCarbs: Double { (foodItems ?? []).reduce(0) { $0 + $1.netCarbs } }
 
     var totalOmega3: Double { (foodItems ?? []).reduce(0) { $0 + $1.omega3 } }
     var totalPotassium: Double { (foodItems ?? []).reduce(0) { $0 + $1.potassium } }
@@ -322,6 +310,9 @@ struct Achievement: Identifiable {
     var totalProtein: Double { (meals ?? []).reduce(0) { $0 + $1.totalProtein } }
     var totalFats: Double { (meals ?? []).reduce(0) { $0 + $1.totalFats } }
     var totalCarbs: Double { (meals ?? []).reduce(0) { $0 + $1.totalCarbs } }
+    var totalFiber: Double { (meals ?? []).reduce(0) { $0 + $1.totalFiber } }
+    var totalSugar: Double { (meals ?? []).reduce(0) { $0 + $1.totalSugar } }
+    var totalNetCarbs: Double { (meals ?? []).reduce(0) { $0 + $1.totalNetCarbs } }
 
     var totalOmega3: Double { (meals ?? []).reduce(0) { $0 + $1.totalOmega3 } }
     var totalPotassium: Double { (meals ?? []).reduce(0) { $0 + $1.totalPotassium } }
@@ -360,6 +351,89 @@ struct Achievement: Identifiable {
             context.delete(meal)
         }
         return info
+    }
+
+    @MainActor
+    @discardableResult
+    func removeActivity(_ activity: ActivityLog, in context: ModelContext) -> Int? {
+        guard let index = activities?.firstIndex(where: { $0.persistentModelID == activity.persistentModelID }) else {
+            return nil
+        }
+        let calories = max(0, activity.calories)
+        activities?.remove(at: index)
+        context.delete(activity)
+        workoutCalories = max(0, workoutCalories - calories)
+        activeCaloriesBurned = max(0, activeCaloriesBurned - calories)
+        return calories
+    }
+
+    static func duplicateFoodItem(_ item: FoodItem) -> FoodItem {
+        FoodItem(
+            name: item.name,
+            weight: item.weight,
+            calories: item.calories,
+            protein: item.protein,
+            fats: item.fats,
+            carbs: item.carbs,
+            fiber: item.fiber,
+            sugar: item.sugar,
+            omega3: item.omega3,
+            calcium: item.calcium,
+            potassium: item.potassium,
+            magnesium: item.magnesium,
+            iron: item.iron,
+            vitaminC: item.vitaminC,
+            vitaminD: item.vitaminD
+        )
+    }
+
+    @MainActor
+    @discardableResult
+    static func copyMeal(
+        _ sourceMeal: Meal,
+        toDate targetDate: Date,
+        targetSlot: String? = nil,
+        in context: ModelContext
+    ) -> Int {
+        let items = sourceMeal.foodItems ?? []
+        guard !items.isEmpty else { return 0 }
+
+        let slot = canonicalMealSlot(targetSlot ?? sourceMeal.title)
+        let targetSummary = DailySummary.fetchOrCreate(for: targetDate, in: context)
+        let timestamp = Calendar.current.isDateInToday(targetDate)
+            ? Date()
+            : Calendar.current.startOfDay(for: targetDate)
+
+        var duplicated: [FoodItem] = []
+        for item in items {
+            let copy = duplicateFoodItem(item)
+            context.insert(copy)
+            duplicated.append(copy)
+        }
+
+        if let existingMeal = (targetSummary.meals ?? []).first(where: { canonicalMealSlot($0.title) == slot }) {
+            existingMeal.addFoodItems(duplicated)
+            existingMeal.date = timestamp
+        } else {
+            let newMeal = Meal(title: slot, date: timestamp, foodItems: duplicated)
+            context.insert(newMeal)
+            targetSummary.addMeal(newMeal)
+        }
+        return duplicated.count
+    }
+
+    @MainActor
+    @discardableResult
+    static func copyDay(
+        from sourceSummary: DailySummary,
+        toDate targetDate: Date,
+        in context: ModelContext
+    ) -> Int {
+        var totalCopied = 0
+        for meal in sourceSummary.meals ?? [] {
+            totalCopied += copyMeal(meal, toDate: targetDate, targetSlot: meal.title, in: context)
+        }
+        return totalCopied
     }
 
     init(date: Date, meals: [Meal] = [], beverages: [Beverage] = [], activities: [ActivityLog] = []) {
@@ -509,6 +583,8 @@ extension CustomRecipe {
         let totalProtein = items.reduce(0) { $0 + $1.protein }
         let totalFats = items.reduce(0) { $0 + $1.fats }
         let totalCarbs = items.reduce(0) { $0 + $1.carbs }
+        let totalFiber = items.reduce(0) { $0 + $1.fiber }
+        let totalSugar = items.reduce(0) { $0 + $1.sugar }
         let totalOmega3 = items.reduce(0) { $0 + $1.omega3 }
         let totalCalcium = items.reduce(0) { $0 + $1.calcium }
         let totalPotassium = items.reduce(0) { $0 + $1.potassium }
@@ -527,6 +603,8 @@ extension CustomRecipe {
             protein: totalProtein * portionFactor,
             fats: totalFats * portionFactor,
             carbs: totalCarbs * portionFactor,
+            fiber: totalFiber * portionFactor,
+            sugar: totalSugar * portionFactor,
             omega3: totalOmega3 * portionFactor,
             calcium: totalCalcium * portionFactor,
             potassium: totalPotassium * portionFactor,

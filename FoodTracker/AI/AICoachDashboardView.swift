@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 struct AICoachDashboardView: View {
     @Environment(\.modelContext) private var context
@@ -99,7 +100,8 @@ struct AICoachDashboardView: View {
                                         targetFats: currentUser?.targetFats ?? 0,
                                         consumedCarbs: currentSummary.totalCarbs,
                                         targetCarbs: currentUser?.targetCarbs ?? 0,
-                                        hydrationLiters: currentSummary.totalHydrationLiters
+                                        hydrationLiters: currentSummary.totalHydrationLiters,
+                                        activeCaloriesBurned: currentSummary.activeCaloriesBurned
                                     )) {
                                         ZStack {
                                             Circle()
@@ -170,6 +172,9 @@ struct AICoachDashboardView: View {
                                     .multilineTextAlignment(.center)
                                     .padding(.horizontal, 28)
                                     .padding(.top, 16)
+
+                                ReportAIContentButton(surface: "ai_coach_dashboard")
+                                    .padding(.top, 4)
                             }
                             .padding(.bottom, 120)
                         }
@@ -202,9 +207,6 @@ struct AICoachDashboardView: View {
                 }
             }
             .onChange(of: selectedDate) { _, _ in
-                viewModel?.resetDailyAnalysis()
-            }
-            .onChange(of: currentSummary.totalCalories) { _, _ in
                 viewModel?.resetDailyAnalysis()
             }
             .alert(
@@ -244,18 +246,27 @@ struct AICoachDashboardView: View {
 
     private func logQuickWaterGlass() {
         let logDate = Calendar.current.isDateInToday(selectedDate) ? Date() : selectedDate
-        let summary = DailySummary.fetchOrCreate(for: selectedDate, in: context)
-        let water = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
-        context.insert(water)
-        summary.addBeverage(water)
-        try? context.save()
-        WorkoutSyncManager.shared.syncWater(summary.totalPureWaterLiters, for: summary.date)
+        let result = WorkoutSyncManager.shared.logWaterAndReconcile(
+            volumeMl: 250,
+            for: selectedDate,
+            in: context
+        )
         WidgetReloader.reloadAll()
         HapticManager.shared.notification(type: .success)
 
         if currentUser?.isHealthKitEnabled == true {
             let container = context.container
+            let water = result.beverage
+            let deletedSamples = result.deletedHealthKitSamples
+            let summaryDate = selectedDate
             Task { @MainActor in
+                for sample in deletedSamples {
+                    await HealthKitManager.shared.deleteWaterSample(
+                        idString: sample.sampleID,
+                        litersFallback: sample.volumeMl / 1000.0,
+                        date: summaryDate
+                    )
+                }
                 if let uuid = await HealthKitManager.shared.saveWater(liters: 0.25, date: logDate) {
                     water.healthKitSampleID = uuid.uuidString
                     try? container.mainContext.save()
@@ -934,13 +945,28 @@ struct MacroFixResultSheet: View {
     private func logSuggestedSnack(_ snack: MacroFixAdviceDTO.SnackIdea, index: Int) {
         let logDate = Calendar.current.isDateInToday(selectedDate) ? Date() : selectedDate
         let summary = DailySummary.fetchOrCreate(for: selectedDate, in: context)
+        let micros = MicronutrientEstimator.estimate(
+            name: snack.name,
+            calories: snack.calories,
+            protein: Double(snack.protein),
+            fat: Double(snack.fats),
+            carbs: Double(snack.carbs),
+            weight: snack.weight > 0 ? snack.weight : 100.0
+        )
         let food = FoodItem(
             name: snack.name,
             weight: snack.weight,
             calories: snack.calories,
             protein: Double(snack.protein),
             fats: Double(snack.fats),
-            carbs: Double(snack.carbs)
+            carbs: Double(snack.carbs),
+            omega3: micros.omega3,
+            calcium: micros.calcium,
+            potassium: micros.potassium,
+            magnesium: micros.magnesium,
+            iron: micros.iron,
+            vitaminC: micros.vitaminC,
+            vitaminD: micros.vitaminD
         )
         context.insert(food)
 
@@ -978,6 +1004,7 @@ struct HydrationFixResultSheet: View {
     let advice: HydrationAdviceDTO
     let color: Color
     var onDrinkNow: (() -> Void)? = nil
+    @State private var reminderScheduled = false
 
     var body: some View {
         ZStack {
@@ -1020,16 +1047,21 @@ struct HydrationFixResultSheet: View {
                         .padding(.horizontal, 32)
 
                     if advice.nextGlassTimeMinutes > 0 {
-                        Label(
-                            String(localized: "Next glass in \(advice.nextGlassTimeMinutes) min"),
-                            systemImage: "clock.fill"
-                        )
-                        .font(.caption.bold())
-                        .foregroundColor(color)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(color.opacity(0.12))
-                        .clipShape(Capsule())
+                        Button(action: scheduleHydrationReminder) {
+                            Label(
+                                reminderScheduled
+                                    ? String(localized: "Reminder set for \(advice.nextGlassTimeMinutes) min")
+                                    : String(localized: "Next glass in \(advice.nextGlassTimeMinutes) min • Tap to remind"),
+                                systemImage: reminderScheduled ? "bell.badge.fill" : "clock.fill"
+                            )
+                            .font(.caption.bold())
+                            .foregroundColor(reminderScheduled ? .green : color)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background((reminderScheduled ? Color.green : color).opacity(0.12))
+                            .clipShape(Capsule())
+                        }
+                        .disabled(reminderScheduled)
                     }
                 }
 
@@ -1064,6 +1096,29 @@ struct HydrationFixResultSheet: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 20)
+            }
+        }
+    }
+
+    private func scheduleHydrationReminder() {
+        let minutes = max(1, advice.nextGlassTimeMinutes)
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+            guard granted else { return }
+            let content = UNMutableNotificationContent()
+            content.title = String(localized: "Time to Hydrate 💧")
+            content.body = String(localized: "Drink your next glass of water to hit today's hydration target.")
+            content.sound = .default
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(minutes * 60), repeats: false)
+            let request = UNNotificationRequest(identifier: "ft_hydration_coach_reminder", content: content, trigger: trigger)
+            center.removePendingNotificationRequests(withIdentifiers: ["ft_hydration_coach_reminder"])
+            center.add(request) { error in
+                if error == nil {
+                    DispatchQueue.main.async {
+                        HapticManager.shared.notification(type: .success)
+                        withAnimation { reminderScheduled = true }
+                    }
+                }
             }
         }
     }

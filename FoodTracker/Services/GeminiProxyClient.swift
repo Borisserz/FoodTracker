@@ -140,7 +140,19 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
         return message
     }
 
-    var rateLimitAlertMessage: String?
+    @ObservationIgnored private let alertLock = NSLock()
+    @ObservationIgnored private var _rateLimitAlertMessage: String?
+    var rateLimitAlertMessage: String? {
+        get {
+            access(keyPath: \.rateLimitAlertMessage)
+            return alertLock.withLock { _rateLimitAlertMessage }
+        }
+        set {
+            withMutation(keyPath: \.rateLimitAlertMessage) {
+                alertLock.withLock { _rateLimitAlertMessage = newValue }
+            }
+        }
+    }
 
     @ObservationIgnored var session: URLSession
     @ObservationIgnored var tokenProvider: (() async throws -> (authToken: String, appCheckToken: String))?
@@ -411,13 +423,13 @@ enum GeminiProxyError: LocalizedError {
         switch self {
         case .rateLimited(let retryAfter):
             if let r = retryAfter {
-                return "AI rate limit reached. Retry after \(r) seconds."
+                return String(localized: "AI rate limit reached. Retry after \(r) seconds.")
             }
-            return "AI rate limit reached. Please try again later."
+            return String(localized: "AI rate limit reached. Please try again later.")
         case .serverError(let status, _):
-            return "AI service error (HTTP \(status))"
+            return String(localized: "AI service error (HTTP \(status))")
         default:
-            return "AI service temporarily unavailable."
+            return String(localized: "AI service temporarily unavailable.")
         }
     }
 }

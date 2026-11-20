@@ -533,7 +533,7 @@ struct AddWeightLogSheet: View {
     }
 
     private var weightRange: ClosedRange<Double> {
-        useMetricSystem ? 30.0...200.0 : 66.0...440.0
+        useMetricSystem ? 30.0...200.0 : 66.0...441.0
     }
 
     private var weightStep: Double {
@@ -685,7 +685,7 @@ struct SetGoalSheet: View {
     }
 
     private var weightRange: ClosedRange<Double> {
-        useMetricSystem ? 30.0...200.0 : 66.0...440.0
+        useMetricSystem ? 30.0...200.0 : 66.0...441.0
     }
 
     private var weightStep: Double {
@@ -901,11 +901,17 @@ struct SetGoalSheet: View {
     private func saveGoal() {
         let previousCalories = user.dailyCaloriesGoal
         user.weightGoalType = goalType
-        if goalType == "maintain" {
-            user.targetWeight = user.weight
-        } else {
-            user.targetWeight = targetWeight
+        let goalName: String
+        switch goalType {
+        case "lose": goalName = "Lose Weight"
+        case "gain": goalName = "Build Muscle"
+        default: goalName = "Maintain Weight"
         }
+        user.targetWeight = MetabolicBlueprintCalculator.sanitizedTargetWeight(
+            for: goalName,
+            weight: user.weight,
+            targetWeight: targetWeight
+        )
         user.height = height
         user.calculateGoals()
         user.recalculateMacrosPreservingRatios(fromPreviousCalories: previousCalories)

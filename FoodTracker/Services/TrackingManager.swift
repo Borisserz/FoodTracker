@@ -16,6 +16,7 @@ public final class TrackingManager {
         case featureDiscovered(feature: String)
         case errorOccurred(errorType: String, screen: String)
         case crossPromoTapped(app: String)
+        case aiOutputReported(surface: String, reason: String)
 
         var name: String {
             switch self {
@@ -28,6 +29,7 @@ public final class TrackingManager {
             case .featureDiscovered: return "feature_discovered"
             case .errorOccurred: return "error_occurred"
             case .crossPromoTapped: return "cross_promo_tapped"
+            case .aiOutputReported: return "ai_output_reported"
             }
         }
 
@@ -42,6 +44,7 @@ public final class TrackingManager {
             case .featureDiscovered(let feature): return ["feature": feature]
             case .errorOccurred(let err, let screen): return ["error_type": err, "screen": screen]
             case .crossPromoTapped(let app): return ["app": app]
+            case .aiOutputReported(let surface, let reason): return ["surface": surface, "reason": reason]
             }
         }
     }

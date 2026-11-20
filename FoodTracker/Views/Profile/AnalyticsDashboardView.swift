@@ -63,12 +63,30 @@ enum AnalyticsMicro: String, CaseIterable, Identifiable {
         }
     }
 
+    func rda(for user: User?) -> Double {
+        guard let user else { return rda }
+        switch self {
+        case .iron:
+            if user.gender == "Male" {
+                return 8.0
+            }
+            if user.gender == "Female" && user.age > 50 {
+                return 8.0
+            }
+            return 18.0
+        case .vitaminD:
+            return user.age > 70 ? 20.0 : 15.0
+        default:
+            return rda
+        }
+    }
+
     var icon: String {
         switch self {
         case .omega3: return "brain.fill"
         case .potassium: return "heart.fill"
         case .magnesium: return "bolt.fill"
-        case .calcium: return "bone.fill"
+        case .calcium: return "shield.fill"
         case .iron: return "dumbbell.fill"
         case .vitaminC: return "sparkles"
         case .vitaminD: return "sun.max.fill"
@@ -93,6 +111,7 @@ enum AnalyticsMicro: String, CaseIterable, Identifiable {
 struct AnalyticsTabView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(DIContainer.self) private var di
+    @Environment(AppStateManager.self) private var appState
     @Query private var users: [User]
 
     @State private var viewModel: AnalyticsViewModel?
@@ -127,6 +146,7 @@ struct AnalyticsTabView: View {
                 }
 
                 if let user = users.first {
+                    ScrollViewReader { scrollProxy in
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 24) {
 
@@ -148,6 +168,7 @@ struct AnalyticsTabView: View {
                                 }
 
                             AIWeeklyInsightCard(summaries: viewModel?.summaries ?? [], user: user, period: globalPeriod)
+                                .id("metabolic_section")
                                 .padding(.horizontal, 20)
 
                             if globalPeriod == .day {
@@ -175,13 +196,27 @@ struct AnalyticsTabView: View {
                                 viewModel = di.makeAnalyticsViewModel()
                             }
                             viewModel?.loadData(for: globalPeriod)
+                            handleDeepLinkScrollIfNeeded(proxy: scrollProxy)
                         }
+                        .onChange(of: appState.requestedWidgetAction) { _, _ in
+                            handleDeepLinkScrollIfNeeded(proxy: scrollProxy)
+                        }
+                    }
                     }
                 } else {
                     EmptyStateView(imageName: "chart.bar.xaxis", title: "No Data", description: "User data not found.")
                 }
             }
             .navigationBarHidden(true)
+        }
+    }
+
+    private func handleDeepLinkScrollIfNeeded(proxy: ScrollViewProxy) {
+        let action = appState.requestedWidgetAction
+        guard action == "metabolic" || action == "analytics" else { return }
+        appState.requestedWidgetAction = nil
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+            proxy.scrollTo("metabolic_section", anchor: .top)
         }
     }
 }
@@ -280,7 +315,7 @@ struct AIWeeklyInsightCard: View {
             if let today = today {
                 for micro in micronutrients {
                     let amount = getValue(for: micro, in: today)
-                    let pct = amount / micro.rda
+                    let pct = amount / micro.rda(for: user)
                     if pct < lowestPct {
                         lowestPct = pct
                         lowestMicro = micro
@@ -547,6 +582,7 @@ struct MacroBar: View {
 }
 
 struct MicronutrientsGridCard: View {
+    @Query private var users: [User]
     let summary: DailySummary?
     let onMicroTap: (AnalyticsMicro) -> Void
 
@@ -570,7 +606,7 @@ struct MicronutrientsGridCard: View {
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(AnalyticsMicro.allCases) { micro in
                     let amount = getValue(for: micro)
-                    MicronutrientCell(micro: micro, amount: amount) {
+                    MicronutrientCell(micro: micro, amount: amount, targetRDA: micro.rda(for: users.first)) {
                         onMicroTap(micro)
                     }
                 }
@@ -596,10 +632,12 @@ struct MicronutrientsGridCard: View {
 struct MicronutrientCell: View {
     let micro: AnalyticsMicro
     let amount: Double
+    var targetRDA: Double? = nil
     let action: () -> Void
 
     var body: some View {
-        let pct = min(amount / max(0.1, micro.rda), 2.0)
+        let effectiveRDA = targetRDA ?? micro.rda
+        let pct = min(amount / max(0.1, effectiveRDA), 2.0)
 
         Button(action: action) {
             VStack(spacing: 10) {
@@ -853,19 +891,27 @@ struct AIHydrationAnalyticsCard: View {
         generator.impactOccurred()
         
         let targetDate = summary?.date ?? Calendar.current.startOfDay(for: Date())
-        let targetSummary = DailySummary.fetchOrCreate(for: targetDate, in: context)
-        let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: ml)
-        context.insert(newBeverage)
-        targetSummary.addBeverage(newBeverage)
-        try? context.save()
-        WorkoutSyncManager.shared.syncWater(targetSummary.totalPureWaterLiters, for: targetSummary.date)
+        let result = WorkoutSyncManager.shared.logWaterAndReconcile(
+            volumeMl: ml,
+            for: targetDate,
+            in: context
+        )
         WidgetReloader.reloadAll()
         onUpdate()
         
         if let user = users.first, user.isHealthKitEnabled {
             let logDate = Calendar.current.isDateInToday(targetDate) ? Date() : targetDate
             let container = context.container
+            let newBeverage = result.beverage
+            let deletedSamples = result.deletedHealthKitSamples
             Task { @MainActor in
+                for sample in deletedSamples {
+                    await HealthKitManager.shared.deleteWaterSample(
+                        idString: sample.sampleID,
+                        litersFallback: sample.volumeMl / 1000.0,
+                        date: targetDate
+                    )
+                }
                 if let uuid = await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: logDate) {
                     newBeverage.healthKitSampleID = uuid.uuidString
                     try? container.mainContext.save()
@@ -1227,10 +1273,15 @@ struct DivineCaloriesChart: View {
 }
 
 struct TrendsMicroChart: View {
+    @Query private var users: [User]
     let summaries: [DailySummary]
     let period: AnalyticsPeriod
 
     @State private var selectedMicro: AnalyticsMicro = .vitaminC
+
+    private var effectiveRDA: Double {
+        selectedMicro.rda(for: users.first)
+    }
 
     private var chartData: [(date: Date, value: Double)] {
         let calendar = Calendar.current
@@ -1258,7 +1309,7 @@ struct TrendsMicroChart: View {
 
     private var maxVal: Double {
         let maxData = chartData.map { $0.value }.max() ?? 0
-        return max(selectedMicro.rda * 1.2, maxData * 1.1)
+        return max(effectiveRDA * 1.2, maxData * 1.1)
     }
 
     var body: some View {
@@ -1298,11 +1349,11 @@ struct TrendsMicroChart: View {
             }
 
             Chart {
-                RuleMark(y: .value("RDA Goal", selectedMicro.rda))
+                RuleMark(y: .value("RDA Goal", effectiveRDA))
                     .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
                     .foregroundStyle(selectedMicro.color.opacity(0.8))
                     .annotation(position: .top, alignment: .leading) {
-                        Text("GOAL (\(Int(selectedMicro.rda))\(selectedMicro.unit))")
+                        Text("GOAL (\(Int(effectiveRDA))\(selectedMicro.unit))")
                             .font(.system(size: 9, weight: .bold, design: .rounded))
                             .foregroundColor(selectedMicro.color)
                     }
@@ -1620,16 +1671,6 @@ struct LegendDot: View {
         HStack(spacing: 4) {
             Circle().fill(color).frame(width: 8, height: 8)
             Text(text).font(.caption2.bold()).foregroundColor(.gray)
-        }
-    }
-}
-
-struct ChartLegendItem: View {
-    let color: Color; let text: String
-    var body: some View {
-        HStack(spacing: 6) {
-            Circle().fill(color).frame(width: 8, height: 8).shadow(color: color.opacity(0.5), radius: 2)
-            Text(text).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundColor(.gray)
         }
     }
 }

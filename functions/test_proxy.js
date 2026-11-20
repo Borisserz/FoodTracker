@@ -959,3 +959,72 @@ test("verifyFirebaseUser enforces recent auth_time when requireRecentAuthSec is 
   );
   assert.equal(anonUid, "anon1");
 });
+
+test("ENDPOINT_AUTH_OPTIONS allows older auth_time for foodAiProxy and foodSearchProxy while enforcing recent login on foodDeleteAccount", async () => {
+  assert.ok(t.ENDPOINT_AUTH_OPTIONS, "ENDPOINT_AUTH_OPTIONS must be exported");
+  const nowSec = Math.floor(Date.now() / 1000);
+  const makeReq = () => ({ header: (n) => (n.toLowerCase() === "authorization" ? "Bearer valid-jwt" : "") });
+  const makeRes = () => {
+    const out = { statusCode: 0, body: null };
+    return {
+      status(c) { out.statusCode = c; return this; },
+      json(b) { out.body = b; return this; },
+      _out: out,
+    };
+  };
+  const staleAppleUser = async () => ({
+    uid: "apple-user-1",
+    auth_time: nowSec - 7200,
+    firebase: { sign_in_provider: "apple.com" },
+  });
+
+  const aiRes = makeRes();
+  const aiUid = await t.verifyFirebaseUser(makeReq(), aiRes, staleAppleUser, t.ENDPOINT_AUTH_OPTIONS.foodAiProxy);
+  assert.equal(aiUid, "apple-user-1");
+
+  const searchRes = makeRes();
+  const searchUid = await t.verifyFirebaseUser(makeReq(), searchRes, staleAppleUser, t.ENDPOINT_AUTH_OPTIONS.foodSearchProxy);
+  assert.equal(searchUid, "apple-user-1");
+
+  const deleteRes = makeRes();
+  const deleteUid = await t.verifyFirebaseUser(makeReq(), deleteRes, staleAppleUser, t.ENDPOINT_AUTH_OPTIONS.foodDeleteAccount);
+  assert.equal(deleteUid, null);
+  assert.equal(deleteRes._out.statusCode, 401);
+  assert.equal(deleteRes._out.body?.error, "requires_recent_login");
+});
+
+test("SSE stream helpers set no-cache headers, flushHeaders, and ensure terminal [DONE] marker", () => {
+  assert.equal(typeof t.beginSSEStreamResponse, "function");
+  assert.equal(typeof t.finishSSEStreamResponse, "function");
+
+  const headers = {};
+  const chunks = [];
+  let flushed = false;
+  let ended = false;
+  const res = {
+    statusCode: 0,
+    status(c) { this.statusCode = c; return this; },
+    set(k, v) { headers[k] = v; return this; },
+    flushHeaders() { flushed = true; },
+    write(chunk) { chunks.push(chunk); },
+    end() { ended = true; },
+  };
+
+  t.beginSSEStreamResponse(res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(headers["Content-Type"], "text/event-stream");
+  assert.equal(headers["Cache-Control"], "no-cache, no-transform");
+  assert.equal(headers["Connection"], "keep-alive");
+  assert.equal(flushed, true);
+
+  t.finishSSEStreamResponse(res, { yielded: true, emittedDone: false });
+  assert.equal(chunks.includes("data: [DONE]\n\n"), true);
+  assert.equal(ended, true);
+
+  // If [DONE] was already emitted, don't duplicate it.
+  chunks.length = 0;
+  ended = false;
+  t.finishSSEStreamResponse(res, { yielded: true, emittedDone: true });
+  assert.equal(chunks.length, 0);
+  assert.equal(ended, true);
+});

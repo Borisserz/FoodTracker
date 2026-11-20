@@ -15,6 +15,7 @@ enum LocalDataResetService {
         "fastingPlanName",
         "fastingTargetHours",
         "fastingStartTime",
+        FastingManager.historyDefaultsKey,
         "remindMeals",
         "remindWater",
         "remindWeight",
@@ -60,8 +61,9 @@ enum LocalDataResetService {
         try? context.save()
 
         if FastingManager.shared.isFasting {
-            FastingManager.shared.endFast()
+            FastingManager.shared.endFast(recordInHistory: false)
         }
+        FastingManager.shared.clearHistory()
 
         BeforeAfterStorage.clearAll()
 

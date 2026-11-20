@@ -164,11 +164,13 @@ struct WeightTrackerCardView: View {
         .sheet(isPresented: $showingWeightInputSheet) {
                     WeightInputSheet(
                         currentWeight: $summary.weight,
+                        fallbackWeightKg: users.first?.weight,
                         onSave: {
                             if let enteredWeight = summary.weight, enteredWeight > 0 {
+                                let logDate = Calendar.current.isDateInToday(summary.date) ? Date() : summary.date
                                 NutritionMath.recordWeight(
                                     enteredWeight,
-                                    date: summary.date,
+                                    date: logDate,
                                     for: users.first,
                                     in: context
                                 )
@@ -194,11 +196,13 @@ private struct WeightInputSheet: View {
 
     @State private var displayWeightValue: Double
 
-    init(currentWeight: Binding<Double?>, onSave: @escaping () -> Void) {
+    init(currentWeight: Binding<Double?>, fallbackWeightKg: Double? = nil, onSave: @escaping () -> Void) {
         self._currentWeight = currentWeight
         self.onSave = onSave
         let metric = UserDefaults.standard.object(forKey: "useMetricSystem") as? Bool ?? true
-        let initialKg = currentWeight.wrappedValue ?? 75.0
+        let initialKg = currentWeight.wrappedValue
+            ?? (fallbackWeightKg.flatMap { $0 > 0 ? $0 : nil })
+            ?? 75.0
         self._displayWeightValue = State(initialValue: NutritionMath.displayWeight(initialKg, useMetric: metric))
     }
 

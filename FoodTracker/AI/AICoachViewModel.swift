@@ -74,6 +74,7 @@ class AICoachViewModel {
                 withAnimation(.spring()) {
                     self.isAnalyzing = false
                     self.errorMessage = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? AINutritionService.shared.lastUserFacingError
                         ?? String(localized: "Couldn't analyze your day right now. Please check your connection and try again.")
                     HapticManager.shared.notification(type: .error)
                 }
@@ -85,7 +86,8 @@ class AICoachViewModel {
         let trimmedIngredients = fridgeInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !isGeneratingRecipe, !trimmedIngredients.isEmpty else { return }
 
-        let missingCals = max(0, currentUser.dailyCaloriesGoal - currentSummary.totalCalories)
+        let effectiveGoal = currentUser.dailyCaloriesGoal + max(0, currentSummary.activeCaloriesBurned)
+        let missingCals = max(0, effectiveGoal - currentSummary.totalCalories)
         let missingProtein = max(0, Int(currentUser.targetProtein - currentSummary.totalProtein))
 
         HapticManager.shared.impact(style: .medium)
@@ -109,6 +111,7 @@ class AICoachViewModel {
             } else {
                 self.isGeneratingRecipe = false
                 self.errorMessage = GeminiProxyClient.consumeRateLimitAlertMessage()
+                    ?? AINutritionService.shared.lastUserFacingError
                     ?? String(localized: "Couldn't generate a recipe right now. Please try again.")
                 HapticManager.shared.notification(type: .error)
             }
@@ -121,7 +124,8 @@ class AICoachViewModel {
         errorMessage = nil
         isFixingMacros = true
 
-        let missingCals = currentUser.dailyCaloriesGoal - currentSummary.totalCalories
+        let effectiveGoal = currentUser.dailyCaloriesGoal + max(0, currentSummary.activeCaloriesBurned)
+        let missingCals = effectiveGoal - currentSummary.totalCalories
         let missingP = Int(currentUser.targetProtein - currentSummary.totalProtein)
         let missingF = Int(currentUser.targetFats - currentSummary.totalFats)
         let missingC = Int(currentUser.targetCarbs - currentSummary.totalCarbs)
@@ -147,6 +151,7 @@ class AICoachViewModel {
             } else {
                 self.isFixingMacros = false
                 self.errorMessage = GeminiProxyClient.consumeRateLimitAlertMessage()
+                    ?? AINutritionService.shared.lastUserFacingError
                     ?? String(localized: "Couldn't fetch macro advice right now. Please try again.")
                 HapticManager.shared.notification(type: .error)
             }
@@ -174,6 +179,7 @@ class AICoachViewModel {
             } else {
                 self.isFixingHydration = false
                 self.errorMessage = GeminiProxyClient.consumeRateLimitAlertMessage()
+                    ?? AINutritionService.shared.lastUserFacingError
                     ?? String(localized: "Couldn't fetch hydration advice right now. Please try again.")
                 HapticManager.shared.notification(type: .error)
             }

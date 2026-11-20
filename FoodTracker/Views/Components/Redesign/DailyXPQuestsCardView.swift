@@ -197,7 +197,11 @@ struct DailyXPQuestsCardView: View {
         )
         .shadow(color: Color.black.opacity(0.04), radius: 15, y: 6)
         .onAppear {
+            let levelBefore = user.level
             progressManager.syncLevel()
+            if user.level != levelBefore {
+                try? context.save()
+            }
         }
     }
     

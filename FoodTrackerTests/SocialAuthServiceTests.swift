@@ -220,4 +220,75 @@ final class SocialAuthServiceTests: XCTestCase {
         XCTAssertEqual(attempts, 2)
         XCTAssertEqual(refreshFlags, [false, true])
     }
+
+    func testDeletionSequenceRetriesAndSurfacesErrorWhenAppleRevocationFails() async {
+        var events: [String] = []
+        var revocationAttempts = 0
+        do {
+            try await AuthManager.runDeletionSequence(
+                reauthenticate: {
+                    events.append("reauth")
+                    return "apple-auth-code"
+                },
+                deleteAccount: {
+                    events.append("delete")
+                },
+                clearGoogleSession: {
+                    events.append("google-signout")
+                },
+                revokeAppleToken: { _ in
+                    revocationAttempts += 1
+                    events.append("revoke-attempt-\(revocationAttempts)")
+                    throw NSError(domain: "AppleRevoke", code: -1)
+                }
+            )
+            XCTFail("Expected revocation failure to be surfaced rather than silently swallowed")
+        } catch {
+            XCTAssertEqual(revocationAttempts, 2)
+            XCTAssertEqual(events, ["reauth", "delete", "google-signout", "revoke-attempt-1", "revoke-attempt-2"])
+        }
+    }
+
+    func testDeletionSequenceSucceedsAfterTransientAppleRevocationFailure() async throws {
+        var revocationAttempts = 0
+        try await AuthManager.runDeletionSequence(
+            reauthenticate: { "apple-auth-code" },
+            deleteAccount: {},
+            revokeAppleToken: { _ in
+                revocationAttempts += 1
+                if revocationAttempts == 1 {
+                    throw NSError(domain: "AppleRevoke", code: -1)
+                }
+            }
+        )
+        XCTAssertEqual(revocationAttempts, 2)
+    }
+
+    func testExtractAppleAuthorizationCodeThrowsWhenNilOrEmpty() throws {
+        XCTAssertThrowsError(try SocialAuthService.extractAppleAuthorizationCode(from: nil)) { error in
+            guard case AuthError.missingAppleAuthorizationCode = error else {
+                XCTFail("Expected missingAppleAuthorizationCode, got \(error)")
+                return
+            }
+        }
+        XCTAssertThrowsError(try SocialAuthService.extractAppleAuthorizationCode(from: Data())) { error in
+            guard case AuthError.missingAppleAuthorizationCode = error else {
+                XCTFail("Expected missingAppleAuthorizationCode, got \(error)")
+                return
+            }
+        }
+        let code = try SocialAuthService.extractAppleAuthorizationCode(from: Data("auth-code-123".utf8))
+        XCTAssertEqual(code, "auth-code-123")
+    }
+
+    func testAnonymousAuthBootstrapExpiresStaleInteractiveLeases() async {
+        let bootstrap = AnonymousAuthBootstrap.shared
+        await bootstrap.resetLeasesForTesting()
+        let staleID = UUID()
+        let now = Date()
+        await bootstrap.beginInteractiveSignIn(id: staleID, startedAt: now.addingTimeInterval(-300))
+        await bootstrap.pruneExpiredLeases(now: now, ttl: 120)
+        let remaining = await bootstrap.activeInteractiveLeaseCountForTesting()
+        XCTAssertEqual(remaining, 0, "Stale interactive sign-in lease older than TTL must be pruned")
+    }
 }

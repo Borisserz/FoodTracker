@@ -159,4 +159,43 @@ final class AICoachViewModelTests: XCTestCase {
         XCTAssertTrue(ctx.contains("155/230g carbs"))
         XCTAssertTrue(ctx.contains("1.8 L water") || ctx.contains("1.75 L water"))
     }
+
+    func testAnalyzeMacrosAccountsForActiveCaloriesBurned() async throws {
+        let user = User(name: "ActiveUser", weight: 75, height: 180, age: 29)
+        user.dailyCaloriesGoal = 2000
+        let summary = DailySummary(date: Date())
+        summary.activeCaloriesBurned = 450
+        let meal = Meal(
+            title: "Lunch",
+            date: Date(),
+            foodItems: [FoodItem(name: "Chicken Rice", weight: 300, calories: 1800, protein: 90, fats: 40, carbs: 200)]
+        )
+        summary.meals = [meal]
+
+        var capturedBodyText = ""
+        MockURLProtocol.requestHandler = { request in
+            var data = request.httpBody ?? Data()
+            if data.isEmpty, let stream = request.httpBodyStream {
+                stream.open()
+                defer { stream.close() }
+                var buf = [UInt8](repeating: 0, count: 4096)
+                while stream.hasBytesAvailable {
+                    let read = stream.read(&buf, maxLength: buf.count)
+                    if read > 0 { data.append(contentsOf: buf.prefix(read)) } else { break }
+                }
+            }
+            capturedBodyText = String(data: data, encoding: .utf8) ?? ""
+            let payload = #"{"title":"Refuel","explanation":"You have room for 650 kcal.","suggestedSnacks":[]}"#
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, Data(payload.utf8))
+        }
+
+        viewModel.analyzeMacros(currentSummary: summary, currentUser: user)
+        for _ in 0..<40 where viewModel.isFixingMacros {
+            try await Task.sleep(for: .milliseconds(50))
+        }
+
+        // Effective goal = 2000 + 450 = 2450, eaten = 1800 -> remaining 650 kcal
+        XCTAssertTrue(capturedBodyText.contains("650"), "Expected burned-adjusted 650 kcal deficit in prompt, got: \(capturedBodyText)")
+    }
 }

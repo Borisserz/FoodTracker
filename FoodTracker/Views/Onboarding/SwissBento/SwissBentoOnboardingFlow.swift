@@ -309,7 +309,7 @@ private struct Stage1BiometricsView: View {
                     SwissTapeRuler(
                         title: "Current Weight",
                         unit: NutritionMath.weightUnit(useMetric: useMetricSystem),
-                        range: useMetricSystem ? 40...200 : 88...440,
+                        range: useMetricSystem ? 40...200 : 88...441,
                         value: weightBinding
                     )
                 }
@@ -461,7 +461,7 @@ private struct Stage2GoalProtocolView: View {
                     SwissTapeRuler(
                         title: "Target Weight",
                         unit: NutritionMath.weightUnit(useMetric: useMetricSystem),
-                        range: useMetricSystem ? 40...200 : 88...440,
+                        range: useMetricSystem ? 40...200 : 88...441,
                         value: targetWeightBinding
                     )
                     .padding(.horizontal, 20)

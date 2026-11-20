@@ -126,6 +126,8 @@ struct AVBarcodeScannerRepresentable: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: AVBarcodeScannerViewController, context: Context) {
+        guard context.coordinator.lastIsScanning != isScanning else { return }
+        context.coordinator.lastIsScanning = isScanning
         if isScanning {
             context.coordinator.hasEmittedScan = false
             uiViewController.startScanning()
@@ -143,6 +145,7 @@ struct AVBarcodeScannerRepresentable: UIViewControllerRepresentable {
     }
 
     final class Coordinator {
+        var lastIsScanning: Bool?
         var hasEmittedScan = false
     }
 }
@@ -210,7 +213,7 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
                 guard let device = AVCaptureDevice.default(for: .video),
                       let input = try? AVCaptureDeviceInput(device: device),
                       self.session.canAddInput(input) else {
-                    self.onUnavailable?()
+                    DispatchQueue.main.async { [weak self] in self?.onUnavailable?() }
                     return
                 }
                 self.session.beginConfiguration()
@@ -225,7 +228,7 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
                     metadataOutput.metadataObjectTypes = supported
                 } else {
                     self.session.commitConfiguration()
-                    self.onUnavailable?()
+                    DispatchQueue.main.async { [weak self] in self?.onUnavailable?() }
                     return
                 }
                 self.session.commitConfiguration()

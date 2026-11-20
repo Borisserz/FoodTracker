@@ -22,6 +22,7 @@ struct AddWaterIntent: AppIntent {
                     in: context,
                     for: now
                 )
+                groupDefaults?.set(Date().timeIntervalSince1970, forKey: SharedModelContainer.widgetStoreMutationTimestampKey)
                 WidgetReloader.reloadAll()
             } catch {
                 print("Failed to add water from intent: \(error)")
@@ -51,6 +52,8 @@ struct ToggleShoppingItemIntent: AppIntent {
             let context = ModelContext(SharedModelContainer.shared.container)
             do {
                 try WidgetStorageActions.toggleShoppingItem(idString: itemID, in: context)
+                UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?
+                    .set(Date().timeIntervalSince1970, forKey: SharedModelContainer.widgetStoreMutationTimestampKey)
                 WidgetReloader.reloadAll()
             } catch {
                 print("Failed to toggle shopping item from intent: \(error)")

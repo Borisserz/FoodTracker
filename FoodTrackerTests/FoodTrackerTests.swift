@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 import SwiftData
 import HealthKit
 import UserNotifications
@@ -6,15 +7,25 @@ import UserNotifications
 
 @MainActor
 final class AuthManagerTests: XCTestCase {
-    func testRunDeletionSequenceToleratesRevokeErrorAfterSuccessfulDeletion() async throws {
+    func testRunDeletionSequenceCompletesServerDeletionBeforeSurfacingRevokeError() async {
         var deletionCompleted = false
         struct DummyRevokeError: Error {}
 
-        try await AuthManager.runDeletionSequence(
-            reauthenticate: { "apple_code_123" },
-            deleteAccount: { deletionCompleted = true },
-            revokeAppleToken: { _ in throw DummyRevokeError() }
-        )
+        do {
+            try await AuthManager.runDeletionSequence(
+                reauthenticate: { "apple_code_123" },
+                deleteAccount: { deletionCompleted = true },
+                revokeAppleToken: { _ in throw DummyRevokeError() }
+            )
+            XCTFail("Expected AccountDeletionError.appleTokenRevocationFailed")
+        } catch let error as AccountDeletionError {
+            guard case .appleTokenRevocationFailed = error else {
+                XCTFail("Expected appleTokenRevocationFailed, got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Unexpected error type: \(error)")
+        }
 
         XCTAssertTrue(deletionCompleted)
     }
@@ -326,6 +337,8 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
         var requestAuthorizationCalls = 0
         var removedIdentifierBatches: [[String]] = []
         var addedIdentifiers: [String] = []
+        var pendingIdentifiers: Set<String> = []
+        var addDelayNanoseconds: UInt64 = 0
 
         init(status: UNAuthorizationStatus, grantOnRequest: Bool = true) {
             self.status = status
@@ -346,10 +359,17 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
 
         func removePendingNotificationRequests(withIdentifiers identifiers: [String]) {
             removedIdentifierBatches.append(identifiers)
+            for id in identifiers {
+                pendingIdentifiers.remove(id)
+            }
         }
 
         func add(_ request: UNNotificationRequest) async throws {
+            if addDelayNanoseconds > 0 {
+                try? await Task.sleep(nanoseconds: addDelayNanoseconds)
+            }
             addedIdentifiers.append(request.identifier)
+            pendingIdentifiers.insert(request.identifier)
         }
     }
 
@@ -407,6 +427,33 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
 
         LocalDataResetService.wipeAllData(in: container.mainContext, defaults: defaults)
         XCTAssertFalse(defaults.bool(forKey: ReminderNotificationScheduler.hasPromptedKey))
+    }
+
+    func testReminderSchedulerSerializesConcurrentSyncCalls() async {
+        let center = MockReminderCenter(status: .authorized)
+        center.addDelayNanoseconds = 30_000_000
+
+        async let first: Void = ReminderNotificationScheduler.syncAsync(
+            mealsEnabled: true,
+            waterEnabled: true,
+            weightEnabled: false,
+            center: center,
+            requestAuthorizationIfNotDetermined: false
+        )
+        async let second: Void = ReminderNotificationScheduler.syncAsync(
+            mealsEnabled: true,
+            waterEnabled: true,
+            weightEnabled: false,
+            center: center,
+            requestAuthorizationIfNotDetermined: false
+        )
+        _ = await (first, second)
+
+        XCTAssertEqual(
+            center.pendingIdentifiers,
+            Set(ReminderNotificationScheduler.mealIDs + [ReminderNotificationScheduler.waterID]),
+            "Serialized sync calls must leave all expected reminder IDs scheduled without mid-flight removal races"
+        )
     }
 
     func testLocalizableStringsCatalogCoversAuditMissingKeysAcrossAllSevenLocales() throws {
@@ -485,6 +532,28 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
         XCTAssertEqual(AnalyticsMicro.iron.rda, 18.0, accuracy: 0.001)
     }
 
+    func testAnalyticsMicroGenderAndAgeAwareRDAs() {
+        let male30 = User(name: "Max", weight: 80, height: 180, age: 30, gender: "Male")
+        let female30 = User(name: "Anna", weight: 60, height: 165, age: 30, gender: "Female")
+        let female55 = User(name: "Elena", weight: 62, height: 165, age: 55, gender: "Female")
+        let male72 = User(name: "Boris", weight: 75, height: 175, age: 72, gender: "Male")
+
+        XCTAssertEqual(AnalyticsMicro.iron.rda(for: male30), 8.0, accuracy: 0.001)
+        XCTAssertEqual(AnalyticsMicro.iron.rda(for: female30), 18.0, accuracy: 0.001)
+        XCTAssertEqual(AnalyticsMicro.iron.rda(for: female55), 8.0, accuracy: 0.001)
+        XCTAssertEqual(AnalyticsMicro.vitaminD.rda(for: female30), 15.0, accuracy: 0.001)
+        XCTAssertEqual(AnalyticsMicro.vitaminD.rda(for: male72), 20.0, accuracy: 0.001)
+    }
+
+    func testChefCalorieRangesPartitionWithoutOverlap() {
+        let ranges = ChefCalorieRangeCatalog.ranges
+        XCTAssertEqual(ranges.count, 4)
+        for boundary in [300, 450, 600] {
+            let matching = ranges.filter { boundary >= $0.minCalories && boundary <= $0.maxCalories }
+            XCTAssertEqual(matching.count, 1, "Boundary \(boundary) kcal must belong to exactly one range")
+        }
+    }
+
     func testMedicalCitationCatalogProvidesValidOfficialSourcesAndDietsExposeContraindications() {
         let all = MedicalCitation.allCases
         XCTAssertEqual(all.count, 5)
@@ -550,5 +619,265 @@ final class ReminderNotificationSchedulerTests: XCTestCase {
                 XCTAssertFalse(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Empty \(locale) translation for: \(key)")
             }
         }
+    }
+}
+
+@MainActor
+final class AppStoreReadinessTests: XCTestCase {
+    func testCriticalSFSymbolsExistInSystemCatalog() {
+        for micro in AnalyticsMicro.allCases {
+            XCTAssertNotNil(
+                UIImage(systemName: micro.icon),
+                "Invalid SF Symbol '\(micro.icon)' in AnalyticsMicro.\(micro)"
+            )
+        }
+
+        for plan in FastingPlan.defaultPlans {
+            XCTAssertNotNil(
+                UIImage(systemName: plan.icon),
+                "Invalid SF Symbol '\(plan.icon)' in FastingPlan '\(plan.title)'"
+            )
+            for benefit in plan.benefits {
+                XCTAssertNotNil(
+                    UIImage(systemName: benefit.icon),
+                    "Invalid SF Symbol '\(benefit.icon)' in FastingPlan '\(plan.title)' benefit '\(benefit.text)'"
+                )
+            }
+        }
+
+        for (label, symbol, _) in AdvancedRecipeFilterSheet.dietFilterOptions {
+            XCTAssertNotNil(
+                UIImage(systemName: symbol),
+                "Invalid SF Symbol '\(symbol)' in AdvancedRecipeFilterSheet diet '\(label)'"
+            )
+        }
+
+        for diet in ["Keto", "Vegan", "Paleo", "Mediterranean", "Balanced"] {
+            let symbol = SmartPlanBuilderFlow.iconForDiet(diet)
+            XCTAssertNotNil(
+                UIImage(systemName: symbol),
+                "Invalid SF Symbol '\(symbol)' in SmartPlanBuilderFlow diet '\(diet)'"
+            )
+        }
+    }
+
+    func testAppTargetsIPhoneOnlyForV1Release() throws {
+        let families = try XCTUnwrap(Bundle.main.infoDictionary?["UIDeviceFamily"] as? [Int])
+        XCTAssertEqual(families, [1], "v1.0 release must target iPhone only until iPad layouts are implemented")
+    }
+
+    func testP0AuthAndPromoKeysLocalizedAcrossAllSevenLocales() throws {
+        let projectRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let catalogURL = projectRoot.appendingPathComponent("Localizable.xcstrings")
+        let data = try Data(contentsOf: catalogURL)
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let strings = try XCTUnwrap(json["strings"] as? [String: Any])
+
+        let keys = [
+            "Open",
+            "Failed to remove server account data (HTTP %lld). Please try again.",
+            "No active user session found to delete.",
+            "Your FoodTracker account and local data were deleted, but automatic Sign in with Apple revocation failed (%@). Please revoke access manually in iOS Settings → Apple Account → Sign in with Apple.",
+            "Unable to retrieve Apple ID information.",
+            "Missing Apple authorization code. Please try signing in with Apple again before deleting your account.",
+            "Failed to obtain Google token.",
+            "Google sign-in is not configured (no clientID).",
+            "Failed to open login window.",
+            "You are not signed in."
+        ]
+        for key in keys {
+            let entry = try XCTUnwrap(strings[key] as? [String: Any], "Missing key: \(key)")
+            let localizations = try XCTUnwrap(entry["localizations"] as? [String: Any], "Missing localizations: \(key)")
+            for locale in ["en", "ru", "de", "es", "fr", "it", "pt-PT"] {
+                let locDict = try XCTUnwrap(localizations[locale] as? [String: Any], "Missing \(locale) for \(key)")
+                let unit = try XCTUnwrap(locDict["stringUnit"] as? [String: Any])
+                let val = unit["value"] as? String ?? ""
+                XCTAssertFalse(val.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Empty \(locale) for \(key)")
+            }
+        }
+    }
+
+    func testCriticalNonEnglishStringsAreTranslatedInAllFiveLocales() throws {
+        let projectRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let catalogURL = projectRoot.appendingPathComponent("Localizable.xcstrings")
+        let data = try Data(contentsOf: catalogURL)
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let strings = try XCTUnwrap(json["strings"] as? [String: Any])
+
+        let checks: [(locale: String, key: String)] = [
+            ("fr", "Net %lld calories, %@"),
+            ("fr", "Expert"),
+            ("fr", "EXPERT"),
+            ("de", "Hydration"),
+            ("de", "HYDRATION"),
+            ("de", "Protein"),
+            ("de", "PROTEIN"),
+            ("de", "Level %lld"),
+            ("de", "Imperial (lb, in, fl oz)"),
+            ("de", "Imperial (lb, ft, oz)"),
+            ("es", "Imperial (lb, in, fl oz)"),
+            ("es", "Imperial (lb, ft, oz)"),
+            ("pt-PT", "Imperial (lb, in, fl oz)"),
+            ("pt-PT", "Imperial (lb, ft, oz)")
+        ]
+
+        for check in checks {
+            let entry = try XCTUnwrap(strings[check.key] as? [String: Any], "Missing key \(check.key)")
+            let locs = try XCTUnwrap(entry["localizations"] as? [String: Any])
+            let enVal = (locs["en"] as? [String: Any])?["stringUnit"].flatMap { ($0 as? [String: Any])?["value"] as? String } ?? check.key
+            let locVal = (locs[check.locale] as? [String: Any])?["stringUnit"].flatMap { ($0 as? [String: Any])?["value"] as? String } ?? ""
+            XCTAssertFalse(locVal.isEmpty, "Empty \(check.locale) value for \(check.key)")
+            XCTAssertNotEqual(locVal, enVal, "Untranslated \(check.locale) value '\(locVal)' for key '\(check.key)'")
+        }
+
+        let newAIAndErrorKeys = [
+            "AI rate limit reached. Retry after %@ seconds.",
+            "AI rate limit reached. Please try again later.",
+            "AI service error (HTTP %lld)",
+            "AI service temporarily unavailable.",
+            "Report AI Output",
+            "Inaccurate nutrition estimate",
+            "Unsafe or inappropriate content",
+            "Other issue",
+            "Tell us what went wrong with this AI response so we can improve safety and accuracy.",
+            "Report Submitted",
+            "Thank you for your feedback. Please verify critical nutrition details manually."
+        ]
+        for key in newAIAndErrorKeys {
+            let entry = try XCTUnwrap(strings[key] as? [String: Any], "Missing key \(key)")
+            let locs = try XCTUnwrap(entry["localizations"] as? [String: Any])
+            for locale in ["en", "ru", "de", "es", "fr", "it", "pt-PT"] {
+                let locVal = (locs[locale] as? [String: Any])?["stringUnit"].flatMap { ($0 as? [String: Any])?["value"] as? String } ?? ""
+                XCTAssertFalse(locVal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Empty \(locale) for \(key)")
+            }
+        }
+    }
+
+    func testWave4LocalizationAndWidgetAssetIntegrity() throws {
+        let projectRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+
+        let catalogURL = projectRoot.appendingPathComponent("Localizable.xcstrings")
+        let catalogData = try Data(contentsOf: catalogURL)
+        let catalogJson = try XCTUnwrap(try JSONSerialization.jsonObject(with: catalogData) as? [String: Any])
+        let strings = try XCTUnwrap(catalogJson["strings"] as? [String: Any])
+
+        let translatedChecks: [(locale: String, key: String)] = [
+            ("de", "SETUP"),
+            ("de", "TOOLS"),
+            ("de", "SCORE"),
+            ("fr", "SCORE"),
+            ("de", "LVL %lld"),
+            ("de", "Snack"),
+            ("es", "Snack"),
+            ("es", "Smoothie"),
+            ("fr", "GAMIFICATION & XP"),
+            ("de", "Optional")
+        ]
+        for check in translatedChecks {
+            let entry = try XCTUnwrap(strings[check.key] as? [String: Any], "Missing key \(check.key)")
+            let locs = try XCTUnwrap(entry["localizations"] as? [String: Any])
+            let enVal = (locs["en"] as? [String: Any])?["stringUnit"].flatMap { ($0 as? [String: Any])?["value"] as? String } ?? check.key
+            let locVal = (locs[check.locale] as? [String: Any])?["stringUnit"].flatMap { ($0 as? [String: Any])?["value"] as? String } ?? ""
+            XCTAssertFalse(locVal.isEmpty, "Empty \(check.locale) value for \(check.key)")
+            XCTAssertNotEqual(locVal, enVal, "Untranslated \(check.locale) value '\(locVal)' for \(check.key)")
+        }
+
+        let wave4Keys = [
+            "Dietary Fiber",
+            "Total Sugars",
+            "Net Carbs",
+            "Custom Fast",
+            "Custom %lldh",
+            "Start Custom %lldh Fast",
+            "Duration: %lld hours",
+            "Custom fasting schedule.",
+            "Edit Start Time",
+            "Fasting History",
+            "Break your fast gently with protein and whole foods.",
+            "Copy Meal",
+            "Copy to Today",
+            "Copy to Tomorrow",
+            "Copied %lld items to Today",
+            "Copied %lld items to Tomorrow",
+            "Copy Day",
+            "Copy Day to Today",
+            "Copy Day to Tomorrow",
+            "Logged Activities",
+            "Fixed per serving — nutrition applies as logged.",
+            "Workouts & Activity",
+            "Apple Watch Workouts",
+            "Notifications Disabled in iOS Settings",
+            "Enable notifications in Settings to receive meal, hydration, and weigh-in reminders.",
+            "Camera capture timed out. Please try again.",
+            "No internet connection. Please check your network and try again.",
+            "The AI request timed out. Please try again.",
+            "Network error while contacting AI service. Please try again.",
+            "AI returned an unexpected format. Please try again.",
+            "AI service is currently unavailable. Please try again.",
+            "Log to Today's Diary (%lld kcal)",
+            "Next glass in %lld min • Tap to remind",
+            "Reminder set for %lld min",
+            "Time to Hydrate 💧"
+        ]
+        for key in wave4Keys {
+            let entry = try XCTUnwrap(strings[key] as? [String: Any], "Missing Wave 4 key \(key)")
+            let locs = try XCTUnwrap(entry["localizations"] as? [String: Any])
+            for locale in ["en", "ru", "de", "es", "fr", "it", "pt-PT"] {
+                let locVal = (locs[locale] as? [String: Any])?["stringUnit"].flatMap { ($0 as? [String: Any])?["value"] as? String } ?? ""
+                XCTAssertFalse(locVal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Empty \(locale) for \(key)")
+            }
+        }
+
+        let ptRecipesURL = projectRoot.appendingPathComponent("FoodTracker/recipes_pt-PT.json")
+        let ptRecipesText = try String(contentsOf: ptRecipesURL, encoding: .utf8)
+        XCTAssertFalse(ptRecipesText.contains("Cetogênico"), "Brazilian spelling 'Cetogênico' found in recipes_pt-PT.json")
+
+        let accentURLs = [
+            projectRoot.appendingPathComponent("FoodTracker/Assets.xcassets/AccentColor.colorset/Contents.json"),
+            projectRoot.appendingPathComponent("FoodTrackerWidgetExtension/Assets.xcassets/AccentColor.colorset/Contents.json")
+        ]
+        for accentURL in accentURLs {
+            let accentData = try Data(contentsOf: accentURL)
+            let accentJson = try XCTUnwrap(try JSONSerialization.jsonObject(with: accentData) as? [String: Any])
+            let colors = try XCTUnwrap(accentJson["colors"] as? [[String: Any]])
+            let colorEntry = try XCTUnwrap(colors.first?["color"] as? [String: Any])
+            let components = try XCTUnwrap(colorEntry["components"] as? [String: String])
+            XCTAssertFalse(components.isEmpty, "Missing AccentColor components in \(accentURL.path)")
+        }
+
+        let widgetPlistCatalogURL = projectRoot.appendingPathComponent("FoodTrackerWidgetExtension/InfoPlist.xcstrings")
+        let widgetData = try Data(contentsOf: widgetPlistCatalogURL)
+        let widgetJson = try XCTUnwrap(try JSONSerialization.jsonObject(with: widgetData) as? [String: Any])
+        let widgetStrings = try XCTUnwrap(widgetJson["strings"] as? [String: Any])
+        let displayName = try XCTUnwrap(widgetStrings["CFBundleDisplayName"] as? [String: Any])
+        let widgetLocs = try XCTUnwrap(displayName["localizations"] as? [String: Any])
+        for locale in ["en", "ru", "de", "es", "fr", "it", "pt-PT"] {
+            let val = (widgetLocs[locale] as? [String: Any])?["stringUnit"].flatMap { ($0 as? [String: Any])?["value"] as? String } ?? ""
+            XCTAssertFalse(val.isEmpty, "Missing CFBundleDisplayName localization for \(locale)")
+        }
+    }
+
+    func testBeforeAfterStorageSavesAndSynchronouslyClears() {
+        BeforeAfterStorage.clearAll()
+        addTeardownBlock { BeforeAfterStorage.clearAll() }
+
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 8, height: 8))
+        let sampleImage = renderer.image { ctx in
+            UIColor.systemPink.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 8, height: 8))
+        }
+
+        BeforeAfterStorage.saveImage(sampleImage, slot: "before")
+        XCTAssertNotNil(BeforeAfterStorage.loadImage(slot: "before"))
+
+        BeforeAfterStorage.clearAll()
+        XCTAssertNil(BeforeAfterStorage.loadImage(slot: "before"))
+        XCTAssertNil(BeforeAfterStorage.loadAnalysis())
     }
 }

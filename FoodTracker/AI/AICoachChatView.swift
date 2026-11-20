@@ -25,10 +25,12 @@ enum AIChatTitleHelper {
         targetFats: Double,
         consumedCarbs: Double,
         targetCarbs: Double,
-        hydrationLiters: Double
+        hydrationLiters: Double,
+        activeCaloriesBurned: Int = 0
     ) -> String {
+        let effectiveGoal = userGoal + max(0, activeCaloriesBurned)
         var parts = [
-            "User's goal is \(userGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(userGoal - consumed) kcal."
+            "User's goal is \(effectiveGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(effectiveGoal - consumed) kcal."
         ]
         if targetProtein > 0 || consumedProtein > 0 || targetFats > 0 || consumedFats > 0 || targetCarbs > 0 || consumedCarbs > 0 {
             parts.append(
@@ -58,6 +60,7 @@ struct AICoachChatView: View {
     var consumedCarbs: Double = 0
     var targetCarbs: Double = 0
     var hydrationLiters: Double = 0
+    var activeCaloriesBurned: Int = 0
 
     @State private var currentSession: AIChatSession?
     @State private var chatHistory: [AIChatMessage] = []
@@ -156,6 +159,9 @@ struct AICoachChatView: View {
                         .foregroundColor(.gray)
                         .font(.title2)
                 }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                ReportAIContentButton(surface: "ai_coach_chat", iconOnly: true)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showHistorySheet = true } label: {
@@ -267,7 +273,8 @@ struct AICoachChatView: View {
                 targetFats: targetFats,
                 consumedCarbs: consumedCarbs,
                 targetCarbs: targetCarbs,
-                hydrationLiters: hydrationLiters
+                hydrationLiters: hydrationLiters,
+                activeCaloriesBurned: activeCaloriesBurned
             )
 
             let aiResponseText = await AINutritionService.shared.sendChatMessage(

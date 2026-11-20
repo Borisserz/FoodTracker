@@ -129,43 +129,6 @@ public struct ARFoodHUDOverlay: View {
     }
 }
 
-// MARK: - AR Callout Badge
-private struct ARNutrientBadge: View {
-    let title: String
-    let value: String
-    let color: Color
-    let icon: String
-    
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(color)
-            
-            VStack(alignment: .leading, spacing: 1) {
-                Text(title)
-                    .font(.system(size: 8, weight: .black, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.8))
-                
-                Text(value)
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundStyle(color)
-            }
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThickMaterial)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(color.opacity(0.6), lineWidth: 1.2)
-        )
-        .shadow(color: color.opacity(0.3), radius: 6, y: 2)
-    }
-}
-
 // MARK: - Corner Viewfinder Brackets Shape
 private struct ViewfinderBracketsShape: Shape {
     let boxSize: CGFloat

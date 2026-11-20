@@ -17,6 +17,27 @@ struct MicronutrientProfile: Equatable {
         omega3 <= 0 && calcium <= 0 && potassium <= 0 && magnesium <= 0 && iron <= 0 && vitaminC <= 0 && vitaminD <= 0
     }
 
+    static func resolvingOmitted(
+        omega3: Double?,
+        calcium: Double?,
+        potassium: Double?,
+        magnesium: Double?,
+        iron: Double?,
+        vitaminC: Double?,
+        vitaminD: Double?,
+        fallback: MicronutrientProfile
+    ) -> MicronutrientProfile {
+        MicronutrientProfile(
+            omega3: max(0, omega3 ?? fallback.omega3),
+            calcium: max(0, calcium ?? fallback.calcium),
+            potassium: max(0, potassium ?? fallback.potassium),
+            magnesium: max(0, magnesium ?? fallback.magnesium),
+            iron: max(0, iron ?? fallback.iron),
+            vitaminC: max(0, vitaminC ?? fallback.vitaminC),
+            vitaminD: max(0, vitaminD ?? fallback.vitaminD)
+        )
+    }
+
     func scaled(by factor: Double) -> MicronutrientProfile {
         guard factor.isFinite, factor > 0 else { return .zero }
         return MicronutrientProfile(
@@ -45,63 +66,68 @@ enum MicronutrientEstimator {
         weight: Double = 100.0
     ) -> MicronutrientProfile {
         let key = "\(id) \(name)".lowercased()
+        let words = Set(
+            key.components(separatedBy: CharacterSet.alphanumerics.inverted)
+                .filter { !$0.isEmpty }
+        )
         let cat = category.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
         // Pure water / zero-calorie plain drinks have no micronutrients.
         if calories <= 2 && protein <= 0.1 && fat <= 0.1 && carbs <= 0.2 {
             return .zero
         }
-        if key.contains("water") || key.contains("вода") || key.contains("wasser") || key.contains("agua") || key.contains("eau") || key.contains("acqua") || key.contains("água") {
+        if containsAny(key, words: words, terms: ["water", "вода", "wasser", "agua", "eau", "acqua", "água"]) {
             if calories <= 5 { return .zero }
         }
 
-        let per100g = per100gProfile(key: key, category: cat, protein: protein, fat: fat, carbs: carbs)
+        let per100g = per100gProfile(key: key, words: words, category: cat, protein: protein, fat: fat, carbs: carbs)
         let safeWeight = weight > 0 ? weight : 100.0
         return per100g.scaled(by: safeWeight / 100.0)
     }
 
     private static func per100gProfile(
         key: String,
+        words: Set<String>,
         category: String,
         protein: Double,
         fat: Double,
         carbs: Double
     ) -> MicronutrientProfile {
         // High-precision food keyword matches first
-        if containsAny(key, ["salmon", "лосос", "семг", "форел", "trout", "mackerel", "скумбр", "sardine", "сардин", "herring", "сельд", "lachs", "salmón", "saumon", "salmone", "salmão"]) {
+        if containsAny(key, words: words, terms: ["salmon", "лосос", "семг", "форел", "trout", "mackerel", "скумбр", "sardine", "сардин", "herring", "сельд", "lachs", "salmón", "saumon", "salmone", "salmão"]) {
             return MicronutrientProfile(omega3: 2.1, calcium: 15, potassium: 380, magnesium: 30, iron: 0.8, vitaminC: 1.0, vitaminD: 11.0)
         }
-        if containsAny(key, ["tuna", "тунец", "cod", "треск", "tilapia", "shrimp", "кревет", "fish", "рыб", "fisch", "pescado", "poisson", "pesce", "peixe"]) || category == "fish" {
+        if containsAny(key, words: words, terms: ["tuna", "тунец", "cod", "треск", "tilapia", "shrimp", "кревет", "fish", "рыб", "fisch", "pescado", "poisson", "pesce", "peixe"]) || category == "fish" {
             return MicronutrientProfile(omega3: 0.6, calcium: 20, potassium: 310, magnesium: 32, iron: 0.9, vitaminC: 0.5, vitaminD: 3.5)
         }
-        if containsAny(key, ["chia", "flax", "лен", "льнян", "walnut", "грецк"]) {
+        if containsAny(key, words: words, terms: ["chia", "flax", "лен", "льнян", "walnut", "грецк"]) {
             return MicronutrientProfile(omega3: 6.5, calcium: 220, potassium: 420, magnesium: 240, iron: 4.5, vitaminC: 1.0, vitaminD: 0)
         }
-        if containsAny(key, ["spinach", "шпинат", "kale", "кейл", "broccoli", "броккол", "arugula", "рукол"]) {
+        if containsAny(key, words: words, terms: ["spinach", "шпинат", "kale", "кейл", "broccoli", "броккол", "arugula", "рукол"]) {
             return MicronutrientProfile(omega3: 0.1, calcium: 85, potassium: 420, magnesium: 62, iron: 2.4, vitaminC: 55, vitaminD: 0)
         }
-        if containsAny(key, ["orange", "апельсин", "lemon", "лимон", "kiwi", "киви", "strawberry", "клубник", "berry", "ягод", "pepper", "перец", "citrus"]) {
+        if containsAny(key, words: words, terms: ["orange", "апельсин", "lemon", "лимон", "kiwi", "киви", "strawberry", "клубник", "berry", "ягод", "pepper", "перец", "citrus"]) {
             return MicronutrientProfile(omega3: 0.03, calcium: 30, potassium: 210, magnesium: 14, iron: 0.4, vitaminC: 65, vitaminD: 0)
         }
-        if containsAny(key, ["avocado", "авокадо"]) {
+        if containsAny(key, words: words, terms: ["avocado", "авокадо"]) {
             return MicronutrientProfile(omega3: 0.11, calcium: 12, potassium: 485, magnesium: 29, iron: 0.55, vitaminC: 10, vitaminD: 0)
         }
-        if containsAny(key, ["banana", "банан", "potato", "картоф"]) {
+        if containsAny(key, words: words, terms: ["banana", "банан", "potato", "картоф"]) {
             return MicronutrientProfile(omega3: 0.02, calcium: 8, potassium: 390, magnesium: 27, iron: 0.5, vitaminC: 12, vitaminD: 0)
         }
-        if containsAny(key, ["liver", "печень", "beef", "говядин", "steak", "стейк", "lamb", "баранин", "pork", "свинин"]) {
+        if containsAny(key, words: words, terms: ["liver", "печень", "beef", "говядин", "steak", "стейк", "lamb", "баранин", "pork", "свинин"]) {
             return MicronutrientProfile(omega3: 0.08, calcium: 12, potassium: 320, magnesium: 22, iron: 2.8, vitaminC: 0, vitaminD: 0.4)
         }
-        if containsAny(key, ["egg", "яйц", "яич", "omelet", "омлет", "ei", "huevo", "oeuf", "uovo", "ovo"]) || category == "eggs" {
+        if containsAny(key, words: words, terms: ["egg", "яйц", "яич", "omelet", "омлет", "ei", "eier", "eigelb", "eiweiß", "eiweiss", "spiegelei", "rührei", "huevo", "oeuf", "uovo", "ovo"]) || category == "eggs" {
             return MicronutrientProfile(omega3: 0.12, calcium: 56, potassium: 138, magnesium: 12, iron: 1.8, vitaminC: 0, vitaminD: 2.0)
         }
-        if containsAny(key, ["milk", "молок", "yogurt", "йогурт", "kefir", "кефир", "cottage", "творог", "cheese", "сыр", "milch", "leche", "lait", "latte", "leite"]) || category == "dairy" {
+        if containsAny(key, words: words, terms: ["milk", "молок", "yogurt", "йогурт", "kefir", "кефир", "cottage", "творог", "cheese", "сыр", "milch", "leche", "lait", "latte", "leite"]) || category == "dairy" {
             return MicronutrientProfile(omega3: 0.04, calcium: 160, potassium: 155, magnesium: 14, iron: 0.15, vitaminC: 0.5, vitaminD: 1.1)
         }
-        if containsAny(key, ["oat", "овся", "quinoa", "киноа", "buckwheat", "греч", "lentil", "чечевиц", "bean", "фасол", "chickpea", "нут"]) || category == "legumes" {
+        if containsAny(key, words: words, terms: ["oat", "овся", "quinoa", "киноа", "buckwheat", "греч", "lentil", "чечевиц", "bean", "фасол", "chickpea", "нут"]) || category == "legumes" {
             return MicronutrientProfile(omega3: 0.08, calcium: 38, potassium: 340, magnesium: 95, iron: 3.1, vitaminC: 1.0, vitaminD: 0)
         }
-        if containsAny(key, ["almond", "миндал", "cashew", "кешью", "peanut", "арахис", "seed", "семеч", "nut", "орех"]) || category == "nuts" {
+        if containsAny(key, words: words, terms: ["almond", "миндал", "cashew", "кешью", "peanut", "арахис", "seed", "семеч", "nut", "nuts", "орех"]) || category == "nuts" {
             return MicronutrientProfile(omega3: 0.25, calcium: 110, potassium: 580, magnesium: 210, iron: 3.2, vitaminC: 0.5, vitaminD: 0)
         }
 
@@ -139,7 +165,16 @@ enum MicronutrientEstimator {
         }
     }
 
-    private static func containsAny(_ text: String, _ terms: [String]) -> Bool {
-        terms.contains { text.contains($0) }
+    private static let exactTokenTerms: Set<String> = [
+        "ei", "eier", "ovo", "uovo", "nut", "nuts", "cod", "oat", "oats", "лен"
+    ]
+
+    private static func containsAny(_ text: String, words: Set<String>, terms: [String]) -> Bool {
+        terms.contains { term in
+            if exactTokenTerms.contains(term) {
+                return words.contains(term)
+            }
+            return text.contains(term)
+        }
     }
 }

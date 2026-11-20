@@ -50,7 +50,7 @@ enum BeforeAfterStorage {
 
     static func clearAll() {
         clearAnalysis()
-        ioQueue.async {
+        ioQueue.sync {
             if let dir = storageDirectory {
                 try? FileManager.default.removeItem(at: dir)
             }

@@ -507,4 +507,34 @@ final class NetworkManagerTests: XCTestCase {
         XCTAssertEqual(cached?.potassium ?? 0, first?.potassium ?? -1, accuracy: 0.01)
         XCTAssertEqual(cached?.calcium ?? 0, first?.calcium ?? -1, accuracy: 0.01)
     }
+
+    func testOpenFoodFactsServingWithoutGramWeightPreservesZeroWeightAndParsesFiberSugar() async {
+        MockURLProtocol.requestHandler = { request in
+            let json = #"""
+            {
+              "status": 1,
+              "product": {
+                "product_name": "Artisan Protein Cookie",
+                "nutriments": {
+                  "energy-kcal_serving": 210,
+                  "proteins_serving": 16,
+                  "fat_serving": 7,
+                  "carbohydrates_serving": 20,
+                  "fiber_serving": 4.5,
+                  "sugars_serving": 3.0
+                }
+              }
+            }
+            """#.data(using: .utf8)!
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+        }
+
+        let item = await networkManager.fetchProduct(barcode: "77770001")
+        XCTAssertNotNil(item)
+        XCTAssertEqual(item?.weight ?? -1, 0.0, accuracy: 0.001, "Serving-only product without gram weight must keep weight=0 rather than bogus 100g")
+        XCTAssertEqual(item?.calories, 210)
+        XCTAssertEqual(item?.fiber ?? 0, 4.5, accuracy: 0.01)
+        XCTAssertEqual(item?.sugar ?? 0, 3.0, accuracy: 0.01)
+        XCTAssertEqual(item?.netCarbs ?? 0, 15.5, accuracy: 0.01)
+    }
 }

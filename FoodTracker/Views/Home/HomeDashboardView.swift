@@ -358,6 +358,9 @@ struct HomeDashboardContentView: View {
                   syncStreakAndAchievements()
                   Task { allTimeCalories = (try? await di.summaryRepository.fetchAllTimeCalories()) ?? 0 }
               }
+              .onChange(of: summaries.count) { _, _ in
+                  syncStreakAndAchievements()
+              }
               .onChange(of: currentSummary.totalHydrationLiters) { _, _ in
                   syncStreakAndAchievements()
               }
@@ -372,6 +375,7 @@ struct HomeDashboardContentView: View {
                           )
                           lastActiveDayStart = todayStart
                       }
+                      syncStreakAndAchievements()
                       Task { await fetchHealthData(for: selectedDate) }
                   }
               }
@@ -504,7 +508,8 @@ struct HomeDashboardContentView: View {
                     }
                     guard !entries.isEmpty else { continue }
                     let flushSummary = await MainActor.run {
-                        DailySummary.fetchOrCreate(for: flushDate, in: context)
+                        SharedModelContainer.refreshMainContext(context)
+                        return DailySummary.fetchOrCreate(for: flushDate, in: context)
                     }
                     let sampleDate = Calendar.current.isDateInToday(flushDate) ? Date() : flushDate
                     var attachedAny = false
@@ -652,12 +657,7 @@ struct HomeDashboardContentView: View {
         var newFoodItems: [FoodItem] = []
 
         for item in items {
-            let copiedItem = FoodItem(
-                name: item.name, weight: item.weight, calories: item.calories,
-                protein: item.protein, fats: item.fats, carbs: item.carbs,
-                omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
-                magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
-            )
+            let copiedItem = DailySummary.duplicateFoodItem(item)
             context.insert(copiedItem)
             newFoodItems.append(copiedItem)
         }
@@ -925,6 +925,7 @@ struct MealDetailView: View {
     @State private var showingRecipeError = false
     @State private var pendingRecipeMeal: Meal? = nil
     @State private var showAIConsentSheet = false
+    @State private var copiedFeedbackText: String? = nil
     @Environment(DIContainer.self) private var di
 
     private var meal: Meal? {
@@ -1011,9 +1012,44 @@ struct MealDetailView: View {
                                 .shadow(color: .black.opacity(0.04), radius: 5, y: 2)
                         }
                         Spacer()
+                        if let meal, !(meal.foodItems ?? []).isEmpty {
+                            Menu {
+                                Button {
+                                    copyCurrentMeal(meal, to: Date())
+                                } label: {
+                                    Label("Copy to Today", systemImage: "doc.on.doc")
+                                }
+                                if let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date())) {
+                                    Button {
+                                        copyCurrentMeal(meal, to: tomorrow)
+                                    } label: {
+                                        Label("Copy to Tomorrow", systemImage: "calendar.badge.plus")
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "doc.on.doc")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.themePink)
+                                    .frame(width: 44, height: 44)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.04), radius: 5, y: 2)
+                            }
+                            .accessibilityLabel("Copy Meal")
+                        }
                     }
                     .padding(.horizontal)
                     .padding(.top, 16)
+
+                    if let copiedFeedbackText {
+                        Text(copiedFeedbackText)
+                            .font(.caption.bold())
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(Color.green.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(LocalizedStringKey(title))
@@ -1181,6 +1217,8 @@ struct MealDetailView: View {
                 food.protein = updatedFood.protein
                 food.fats = updatedFood.fats
                 food.carbs = updatedFood.carbs
+                food.fiber = updatedFood.fiber
+                food.sugar = updatedFood.sugar
                 food.omega3 = updatedFood.omega3
                 food.calcium = updatedFood.calcium
                 food.potassium = updatedFood.potassium
@@ -1237,6 +1275,22 @@ struct MealDetailView: View {
             )
         }
     }
+    private func copyCurrentMeal(_ sourceMeal: Meal, to targetDate: Date) {
+        let count = DailySummary.copyMeal(sourceMeal, toDate: targetDate, targetSlot: title, in: context)
+        guard count > 0 else { return }
+        try? context.save()
+        WidgetReloader.reloadAll()
+        HapticManager.shared.notification(type: .success)
+        let message = Calendar.current.isDateInToday(targetDate)
+            ? String(localized: "Copied \(count) items to Today")
+            : String(localized: "Copied \(count) items to Tomorrow")
+        withAnimation { copiedFeedbackText = message }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            withAnimation { copiedFeedbackText = nil }
+        }
+    }
+
     private func addFoodsToMeal(items: [FoodItem]) {
         let canonicalTitle = NutritionMath.canonicalMealType(title)
         let startOfDay = Calendar.current.startOfDay(for: date)
@@ -1245,12 +1299,7 @@ struct MealDetailView: View {
 
         var newFoodItems: [FoodItem] = []
         for item in items {
-            let copiedItem = FoodItem(
-                name: item.name, weight: item.weight, calories: item.calories,
-                protein: item.protein, fats: item.fats, carbs: item.carbs,
-                omega3: item.omega3, calcium: item.calcium, potassium: item.potassium,
-                magnesium: item.magnesium, iron: item.iron, vitaminC: item.vitaminC, vitaminD: item.vitaminD
-            )
+            let copiedItem = DailySummary.duplicateFoodItem(item)
             context.insert(copiedItem)
             newFoodItems.append(copiedItem)
         }
@@ -1669,7 +1718,7 @@ struct DailyNoteCard: View {
 struct DailyNoteSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
-    @Bindable var summary: DailySummary
+    let summary: DailySummary
 
     let moods = [
         ("☀️", "Great Day"),
@@ -1680,11 +1729,19 @@ struct DailyNoteSheet: View {
         ("🧘‍♀️", "Relaxed"),
         ("🤢", "Felt Sick")
     ]
-    
+
+    @State private var draftNote: String
+    @State private var draftMoodEmoji: String
     @State private var selectedMoodForAI: String? = nil
     @State private var showAIChat = false
     @State private var moodContextForChat: String? = nil
-    
+
+    init(summary: DailySummary) {
+        self.summary = summary
+        self._draftNote = State(initialValue: summary.dayNote)
+        self._draftMoodEmoji = State(initialValue: summary.dayMoodEmoji)
+    }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
@@ -1699,11 +1756,11 @@ struct DailyNoteSheet: View {
                     Spacer()
                     Button("Save") {
                         HapticManager.shared.impact(style: .heavy)
-                        if summary.modelContext == nil {
-                            let persisted = DailySummary.fetchOrCreate(for: summary.date, in: context)
-                            persisted.dayNote = summary.dayNote
-                            persisted.dayMoodEmoji = summary.dayMoodEmoji
-                        }
+                        let persisted = summary.modelContext != nil
+                            ? summary
+                            : DailySummary.fetchOrCreate(for: summary.date, in: context)
+                        persisted.dayNote = draftNote
+                        persisted.dayMoodEmoji = draftMoodEmoji
                         try? context.save()
                         clearAIMoodStates()
                         dismiss()
@@ -1713,7 +1770,7 @@ struct DailyNoteSheet: View {
                 }
                 .padding(.horizontal, 24)
 
-                TextField("Write about your meals, feelings, or workouts...", text: $summary.dayNote, axis: .vertical)
+                TextField("Write about your meals, feelings, or workouts...", text: $draftNote, axis: .vertical)
                     .lineLimit(4...8)
                     .padding(16)
                     .background(Color.gray.opacity(0.05))
@@ -1733,19 +1790,19 @@ struct DailyNoteSheet: View {
                                 Button(action: {
                                     HapticManager.shared.impact(style: .light)
                                     withAnimation {
-                                        if summary.dayMoodEmoji == mood.0 {
-                                            summary.dayMoodEmoji = ""
+                                        if draftMoodEmoji == mood.0 {
+                                            draftMoodEmoji = ""
                                             clearAIMoodStates()
                                         } else {
-                                            summary.dayMoodEmoji = mood.0
+                                            draftMoodEmoji = mood.0
                                             clearAIMoodStates() // prevent stale chat state from previous mood
-                                            
+
                                             // Trigger AI Advice popup with a small delay for nice animation feel
                                             let tappedMood = mood.0
                                             Task {
                                                 try? await Task.sleep(for: .milliseconds(250))
                                                 await MainActor.run {
-                                                    if summary.dayMoodEmoji == tappedMood {
+                                                    if draftMoodEmoji == tappedMood {
                                                         selectedMoodForAI = tappedMood
                                                     }
                                                 }
@@ -1757,23 +1814,23 @@ struct DailyNoteSheet: View {
                                         Text(mood.0)
                                             .font(.system(size: 30))
                                             .frame(minWidth: 52, minHeight: 52)
-                                            .background(summary.dayMoodEmoji == mood.0 ? Color.themePink.opacity(0.2) : Color.white)
+                                            .background(draftMoodEmoji == mood.0 ? Color.themePink.opacity(0.2) : Color.white)
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 20)
-                                                    .stroke(summary.dayMoodEmoji == mood.0 ? Color.themePink : Color.gray.opacity(0.2), lineWidth: 2)
+                                                    .stroke(draftMoodEmoji == mood.0 ? Color.themePink : Color.gray.opacity(0.2), lineWidth: 2)
                                             )
                                             .cornerRadius(20)
 
                                         Text(LocalizedStringKey(mood.1))
                                             .font(.caption)
-                                            .fontWeight(summary.dayMoodEmoji == mood.0 ? .bold : .medium)
-                                            .foregroundColor(summary.dayMoodEmoji == mood.0 ? .themePink : .gray)
+                                            .fontWeight(draftMoodEmoji == mood.0 ? .bold : .medium)
+                                            .foregroundColor(draftMoodEmoji == mood.0 ? .themePink : .gray)
                                     }
                                     .frame(minWidth: 64, minHeight: 80) // Ensure good tap target per HIG (44pt minimum)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .accessibilityLabel(Text("\(String(localized: String.LocalizationValue(mood.1))) mood"))
-                                .accessibilityValue(summary.dayMoodEmoji == mood.0 ? String(localized: "Selected") : String(localized: "Not selected"))
+                                .accessibilityValue(draftMoodEmoji == mood.0 ? String(localized: "Selected") : String(localized: "Not selected"))
                                 .accessibilityAddTraits(.isButton)
                             }
                         }
@@ -1809,7 +1866,8 @@ struct DailyNoteSheet: View {
                     targetFats: fetchedUser?.targetFats ?? 0,
                     consumedCarbs: summary.totalCarbs,
                     targetCarbs: fetchedUser?.targetCarbs ?? 0,
-                    hydrationLiters: summary.totalHydrationLiters
+                    hydrationLiters: summary.totalHydrationLiters,
+                    activeCaloriesBurned: summary.activeCaloriesBurned
                 )
             }
         }
@@ -1828,7 +1886,7 @@ struct DailyNoteSheet: View {
         AIMoodAdvicePopup(
             moodEmoji: emoji,
             moodName: moodName,
-            dayNote: summary.dayNote,
+            dayNote: draftNote,
             consumedCalories: Int(summary.totalCalories),
             goalCalories: user?.dailyCaloriesGoal ?? 2000,
             waterLiters: summary.totalHydrationLiters,
@@ -1853,6 +1911,31 @@ struct DailyLogDetailView: View {
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
     let summary: DailySummary
+    @State private var copiedBannerText: String? = nil
+
+    private func deleteActivity(_ activity: ActivityLog) {
+        withAnimation {
+            _ = summary.removeActivity(activity, in: context)
+            try? context.save()
+            WidgetReloader.reloadAll()
+        }
+    }
+
+    private func copyDay(to targetDate: Date) {
+        let count = DailySummary.copyDay(from: summary, toDate: targetDate, in: context)
+        guard count > 0 else { return }
+        try? context.save()
+        WidgetReloader.reloadAll()
+        HapticManager.shared.notification(type: .success)
+        let message = Calendar.current.isDateInToday(targetDate)
+            ? String(localized: "Copied \(count) items to Today")
+            : String(localized: "Copied \(count) items to Tomorrow")
+        withAnimation { copiedBannerText = message }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            withAnimation { copiedBannerText = nil }
+        }
+    }
 
     private func deleteFoodItem(_ food: FoodItem, from meal: Meal) {
         let shouldSyncHK = users.first?.isHealthKitEnabled == true
@@ -1891,8 +1974,19 @@ struct DailyLogDetailView: View {
                     .padding(.vertical, 20)
 
                     let activeMeals = (summary.meals ?? []).filter { !($0.foodItems ?? []).isEmpty }
+                    let loggedActivities = summary.activities ?? []
 
-                    if activeMeals.isEmpty {
+                    if let copiedBannerText {
+                        Text(copiedBannerText)
+                            .font(.caption.bold())
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(Color.green.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+
+                    if activeMeals.isEmpty && loggedActivities.isEmpty {
                         EmptyStateView(imageName: "doc.text.magnifyingglass", title: "No Food Logged", description: "You haven't logged any food for this day yet.")
                             .padding(.top, 40)
                     } else {
@@ -1961,6 +2055,63 @@ struct DailyLogDetailView: View {
                             .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                             .padding(.horizontal, 20)
                         }
+
+                        if !loggedActivities.isEmpty {
+                            VStack(alignment: .leading, spacing: 0) {
+                                HStack {
+                                    Text("Logged Activities")
+                                        .font(.title3.bold())
+                                    Spacer()
+                                    Text("\(summary.localActivityCalories) kcal")
+                                        .font(.headline)
+                                        .foregroundColor(.themeOrange)
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.top, 20)
+                                .padding(.bottom, 12)
+
+                                VStack(spacing: 0) {
+                                    ForEach(loggedActivities) { activity in
+                                        HStack(spacing: 14) {
+                                            Image(systemName: activity.icon)
+                                                .font(.title3)
+                                                .foregroundColor(.themeOrange)
+                                                .frame(width: 40, height: 40)
+                                                .background(Color.themeOrange.opacity(0.12))
+                                                .clipShape(Circle())
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(LocalizedStringKey(activity.title))
+                                                    .font(.subheadline.bold())
+                                                Text("\(activity.durationMinutes) min")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            Spacer()
+                                            Text("-\(activity.calories) kcal")
+                                                .font(.subheadline.bold())
+                                                .foregroundColor(.themeOrange)
+                                            Button {
+                                                HapticManager.shared.impact(style: .medium)
+                                                deleteActivity(activity)
+                                            } label: {
+                                                Image(systemName: "trash")
+                                                    .foregroundColor(.red.opacity(0.8))
+                                                    .padding(.leading, 8)
+                                            }
+                                        }
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 12)
+                                        if activity.persistentModelID != loggedActivities.last?.persistentModelID {
+                                            Divider().padding(.leading, 74)
+                                        }
+                                    }
+                                }
+                            }
+                            .background(Color.white)
+                            .cornerRadius(24)
+                            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+                            .padding(.horizontal, 20)
+                        }
                     }
                 }
                 .padding(.bottom, 60)
@@ -1968,6 +2119,32 @@ struct DailyLogDetailView: View {
         }
         .navigationTitle("Daily Log")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if !(summary.meals ?? []).allSatisfy({ ($0.foodItems ?? []).isEmpty }) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        if !Calendar.current.isDateInToday(summary.date) {
+                            Button {
+                                copyDay(to: Date())
+                            } label: {
+                                Label("Copy Day to Today", systemImage: "doc.on.doc")
+                            }
+                        }
+                        if let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date())) {
+                            Button {
+                                copyDay(to: tomorrow)
+                            } label: {
+                                Label("Copy Day to Tomorrow", systemImage: "calendar.badge.plus")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .foregroundColor(.themePink)
+                    }
+                    .accessibilityLabel("Copy Day")
+                }
+            }
+        }
     }
 }
 struct ActivitySourceRow: View {
@@ -2034,6 +2211,7 @@ struct SmartAddFoodView: View {
     @State private var isSearchingAPI = false
     @State private var searchTask: Task<Void, Never>? = nil
     @State private var cachedAvailableFoods: [FoodItem] = []
+    @State private var cachedRecipeFoods: [FoodItem] = []
     @State private var cachedFoodCounts: [String: Int] = [:]
 
     let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
@@ -2047,7 +2225,7 @@ struct SmartAddFoodView: View {
         if !trimmedSearch.isEmpty {
             var seen = Set<String>()
             var combined: [FoodItem] = []
-            for item in cachedAvailableFoods + customRecipes.map({ $0.toFoodItem() }) {
+            for item in cachedAvailableFoods + cachedRecipeFoods {
                 if item.name.localizedCaseInsensitiveContains(trimmedSearch),
                    seen.insert(item.name.lowercased()).inserted {
                     combined.append(item)
@@ -2068,7 +2246,7 @@ struct SmartAddFoodView: View {
         case "Favorites":
             return cachedAvailableFoods.filter { (cachedFoodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
         case "My Recipes":
-            return customRecipes.map { $0.toFoodItem() }.sorted { $0.name < $1.name }
+            return cachedRecipeFoods
         default:
             return cachedAvailableFoods
         }
@@ -2099,6 +2277,7 @@ struct SmartAddFoodView: View {
             ]
         }
         cachedAvailableFoods = results
+        cachedRecipeFoods = customRecipes.map { $0.toFoodItem() }.sorted { $0.name < $1.name }
         cachedFoodCounts = counts
     }
 
@@ -2164,53 +2343,52 @@ struct SmartAddFoodView: View {
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 12) {
                         if !searchText.isEmpty {
+                            if !filteredLocalFoods.isEmpty {
+                                Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
+                                ForEach(filteredLocalFoods, id: \.id) { food in
+                                    FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
+                                }
+                            }
+
+                            if !localCatalogResults.isEmpty {
+                                Text("Local database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                                ForEach(localCatalogResults, id: \.id) { food in
+                                    FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
+                                }
+                            }
+
+                            if !apiSearchResults.isEmpty {
+                                Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                                ForEach(apiSearchResults, id: \.id) { food in
+                                    FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
+                                }
+                            }
+
                             if isSearchingAPI {
                                 ProgressView("Searching global database...")
-                                    .padding(.top, 40)
-                            } else {
-                                if !filteredLocalFoods.isEmpty {
-                                    Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
-                                    ForEach(filteredLocalFoods, id: \.id) { food in
-                                        FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
-                                    }
-                                }
+                                    .padding(.top, 24)
+                            } else if filteredLocalFoods.isEmpty && localCatalogResults.isEmpty && apiSearchResults.isEmpty {
+                                VStack(spacing: 16) {
+                                    Image(systemName: "questionmark.folder.fill").font(.system(size: 48)).foregroundColor(.themeOrange.opacity(0.5))
+                                    Text("Can't find '\(searchText)'?").font(.headline)
+                                    Text("No worries! You can quickly add it to your personal database and use it forever.")
+                                        .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center).padding(.horizontal, 20)
 
-                                if !localCatalogResults.isEmpty {
-                                    Text("Local database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
-                                    ForEach(localCatalogResults, id: \.id) { food in
-                                        FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
-                                    }
-                                }
-
-                                if !apiSearchResults.isEmpty {
-                                    Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
-                                    ForEach(apiSearchResults, id: \.id) { food in
-                                        FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
-                                    }
-                                } else if filteredLocalFoods.isEmpty && localCatalogResults.isEmpty {
-
-                                    VStack(spacing: 16) {
-                                        Image(systemName: "questionmark.folder.fill").font(.system(size: 48)).foregroundColor(.themeOrange.opacity(0.5))
-                                        Text("Can't find '\(searchText)'?").font(.headline)
-                                        Text("No worries! You can quickly add it to your personal database and use it forever.")
-                                            .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center).padding(.horizontal, 20)
-
-                                        Button(action: {
-                                            HapticManager.shared.impact(style: .medium)
-                                            showingManualAdd = true
-                                        }) {
-                                            HStack {
-                                                Image(systemName: "plus.circle.fill")
-                                                Text("Create Custom Food")
-                                            }
-                                            .font(.headline).foregroundColor(.white).padding(.vertical, 14).padding(.horizontal, 24)
-                                            .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                            .cornerRadius(20).shadow(color: Color.green.opacity(0.3), radius: 8, y: 4)
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .medium)
+                                        showingManualAdd = true
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "plus.circle.fill")
+                                            Text("Create Custom Food")
                                         }
-                                        .buttonStyle(BounceButtonStyle())
+                                        .font(.headline).foregroundColor(.white).padding(.vertical, 14).padding(.horizontal, 24)
+                                        .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .cornerRadius(20).shadow(color: Color.green.opacity(0.3), radius: 8, y: 4)
                                     }
-                                    .padding(.top, 40)
+                                    .buttonStyle(BounceButtonStyle())
                                 }
+                                .padding(.top, 40)
                             }
                         } else {
                             if filteredLocalFoods.isEmpty {
@@ -2248,6 +2426,7 @@ struct SmartAddFoodView: View {
         }
         .onChange(of: pastMeals.count) { _, _ in rebuildFoodCaches() }
         .onChange(of: allDatabaseFoods.count) { _, _ in rebuildFoodCaches() }
+        .onChange(of: customRecipes.count) { _, _ in rebuildFoodCaches() }
         .onChange(of: searchText) { _, newValue in performSearch(query: newValue) }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedFoods.isEmpty)
         .fullScreenCover(item: $selectedFoodForDetail) { food in
@@ -2297,35 +2476,43 @@ struct SmartAddFoodView: View {
             return
         }
 
-        let localResults = LocalFoodDatabaseService.shared.search(query: trimmed, limit: 20)
-        localCatalogResults = localResults
         apiSearchResults = []
+        isSearchingAPI = trimmed.count > 2 && filteredLocalFoods.isEmpty
 
-        guard trimmed.count > 2 else {
-            isSearchingAPI = false
-            return
-        }
-
-        // Only show loading spinner when there are no immediate offline hits
-        isSearchingAPI = localResults.isEmpty
         searchTask = Task {
             do {
-                try await Task.sleep(nanoseconds: 400_000_000)
+                try await Task.sleep(for: .milliseconds(150))
                 guard !Task.isCancelled else { return }
+
+                let localEntries = await Task.detached(priority: .userInitiated) {
+                    LocalFoodDatabaseService.shared.searchEntriesSnapshot(query: trimmed, limit: 20)
+                }.value
+                guard !Task.isCancelled else { return }
+
+                let localResults = localEntries.map { $0.toFoodItem() }
+                self.localCatalogResults = localResults
+
+                guard trimmed.count > 2 else {
+                    self.isSearchingAPI = false
+                    return
+                }
+
+                self.isSearchingAPI = localResults.isEmpty && self.filteredLocalFoods.isEmpty
+                try await Task.sleep(for: .milliseconds(250))
+                guard !Task.isCancelled else { return }
+
                 let remoteResults = await NetworkManager.shared.searchFoodByText(
                     query: trimmed,
-                    allowAIFallback: localResults.isEmpty
+                    allowAIFallback: localResults.isEmpty && self.filteredLocalFoods.isEmpty
                 )
-                await MainActor.run {
-                    guard !Task.isCancelled else { return }
-                    let existingNames = Set(localResults.map { $0.name.lowercased() })
-                    let uniqueRemote = remoteResults.filter { !existingNames.contains($0.name.lowercased()) }
-                    self.apiSearchResults = uniqueRemote
-                    self.isSearchingAPI = false
-                }
+                guard !Task.isCancelled else { return }
+                let existingNames = Set((localResults + self.filteredLocalFoods).map { $0.name.lowercased() })
+                let uniqueRemote = remoteResults.filter { !existingNames.contains($0.name.lowercased()) }
+                self.apiSearchResults = uniqueRemote
+                self.isSearchingAPI = false
             } catch {
                 if !Task.isCancelled {
-                    await MainActor.run { self.isSearchingAPI = false }
+                    self.isSearchingAPI = false
                 }
             }
         }

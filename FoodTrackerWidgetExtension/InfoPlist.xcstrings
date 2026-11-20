@@ -1,0 +1,18 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker Widgets" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoodTracker Widgets" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Widgets de FoodTracker" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Widgets FoodTracker" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Widget FoodTracker" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Widgets FoodTracker" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Виджеты FoodTracker" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

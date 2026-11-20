@@ -216,6 +216,72 @@ final class FastingManagerTests: XCTestCase {
         XCTAssertEqual(FastingActivityTiming.overtimeInterval(now: atEnd, targetEndDate: targetEnd), targetEnd...atEnd)
         XCTAssertEqual(FastingActivityTiming.overtimeInterval(now: after, targetEndDate: targetEnd), targetEnd...after)
     }
+
+    func testStartCustomFastStartsCustomPlanAndResets() {
+        let mockLiveActivity = MockFastingLiveActivityManager()
+        manager.liveActivityManager = mockLiveActivity
+        defer { manager.liveActivityManager = FastingLiveActivityManager.shared }
+
+        manager.startCustomFast(hours: 20)
+
+        XCTAssertTrue(manager.isFasting)
+        XCTAssertEqual(manager.targetHours, 20)
+        XCTAssertFalse(manager.planName.isEmpty)
+        XCTAssertNotNil(manager.startTime)
+        XCTAssertEqual(mockLiveActivity.startedCalls.last?.targetHours, 20)
+
+        manager.endFast(recordInHistory: false)
+    }
+
+    func testUpdateStartTimeRecalculatesElapsedAndReattachesLiveActivity() {
+        let mockLiveActivity = MockFastingLiveActivityManager()
+        manager.liveActivityManager = mockLiveActivity
+        defer { manager.liveActivityManager = FastingLiveActivityManager.shared }
+
+        let plan = makeTestPlan(title: "16:8", fastingHours: 16)
+        manager.startFast(plan: plan)
+
+        let eightHoursAgo = Date().addingTimeInterval(-8 * 3600)
+        manager.updateStartTime(eightHoursAgo)
+
+        XCTAssertEqual(manager.elapsedTime, 8 * 3600, accuracy: 5.0)
+        XCTAssertEqual(manager.progress, 0.5, accuracy: 0.01)
+        XCTAssertEqual(manager.currentPhase.name, "Fat Burning Begins")
+        XCTAssertEqual(mockLiveActivity.reattachedCalls.count, 1)
+    }
+
+    func testEndFastRecordsCompletedSessionInHistoryAndClearsWithClearHistory() {
+        manager.clearHistory()
+        XCTAssertTrue(manager.history.isEmpty)
+
+        let plan = makeTestPlan(title: "16:8", fastingHours: 16)
+        manager.startFast(plan: plan)
+        let tenHoursAgo = Date().addingTimeInterval(-10 * 3600)
+        manager.updateStartTime(tenHoursAgo)
+
+        manager.endFast()
+
+        XCTAssertEqual(manager.history.count, 1)
+        XCTAssertEqual(manager.history.first?.planName, "16:8")
+        XCTAssertEqual(manager.history.first?.targetHours, 16)
+        XCTAssertEqual(manager.history.first?.durationSeconds ?? 0, 10 * 3600, accuracy: 5.0)
+        XCTAssertFalse(manager.history.first?.reachedGoal ?? true)
+
+        manager.clearHistory()
+        XCTAssertTrue(manager.history.isEmpty)
+    }
+
+    func testReconcileLiveActivityOnAppActiveEndsOrphanedActivityWhenNotFasting() {
+        let mockLiveActivity = MockFastingLiveActivityManager()
+        manager.liveActivityManager = mockLiveActivity
+        defer { manager.liveActivityManager = FastingLiveActivityManager.shared }
+
+        manager.endFast(recordInHistory: false)
+        mockLiveActivity.endCallCount = 0
+
+        manager.reconcileLiveActivityOnAppActive()
+        XCTAssertEqual(mockLiveActivity.endCallCount, 1)
+    }
 }
 
 @MainActor

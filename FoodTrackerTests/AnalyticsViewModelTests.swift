@@ -75,4 +75,62 @@ final class AnalyticsViewModelTests: XCTestCase {
         let loaded = try XCTUnwrap(viewModel.summaries.first)
         XCTAssertTrue(loaded.modelContext === container.mainContext)
     }
+
+    func testRapidPeriodSwitchingCancelsStaleLoad() async throws {
+        let today = Calendar.current.startOfDay(for: Date())
+        let summary = DailySummary(date: today)
+        container.mainContext.insert(summary)
+        try container.mainContext.save()
+
+        let slowDelayRepo = DelayedSummaryRepository(
+            container: container,
+            monthDelayNanoseconds: 350_000_000,
+            dayDelayNanoseconds: 10_000_000,
+            monthIDs: [],
+            dayIDs: [summary.persistentModelID]
+        )
+        let racedVM = AnalyticsViewModel(summaryRepository: slowDelayRepo)
+
+        racedVM.loadData(for: .month)
+        try await Task.sleep(nanoseconds: 20_000_000)
+        racedVM.loadData(for: .day)
+
+        try await Task.sleep(nanoseconds: 450_000_000)
+        XCTAssertEqual(racedVM.summaries.count, 1, "Fast .day load must not be overwritten by slower cancelled .month load")
+    }
+}
+
+private final class DelayedSummaryRepository: SummaryRepositoryProtocol, @unchecked Sendable {
+    let mainModelContainer: ModelContainer?
+    let monthDelayNanoseconds: UInt64
+    let dayDelayNanoseconds: UInt64
+    let monthIDs: [PersistentIdentifier]
+    let dayIDs: [PersistentIdentifier]
+
+    init(
+        container: ModelContainer,
+        monthDelayNanoseconds: UInt64,
+        dayDelayNanoseconds: UInt64,
+        monthIDs: [PersistentIdentifier],
+        dayIDs: [PersistentIdentifier]
+    ) {
+        self.mainModelContainer = container
+        self.monthDelayNanoseconds = monthDelayNanoseconds
+        self.dayDelayNanoseconds = dayDelayNanoseconds
+        self.monthIDs = monthIDs
+        self.dayIDs = dayIDs
+    }
+
+    func fetchSummaryID(for date: Date) async throws -> PersistentIdentifier? { nil }
+    func saveSummary(_ summary: DailySummary) async throws {}
+    func fetchAllTimeCalories() async throws -> Int { 0 }
+    func calculateCurrentStreak() async throws -> Int { 0 }
+    func ensureSummaryID(for date: Date) async throws -> PersistentIdentifier { fatalError("unused") }
+
+    func fetchSummaryIDs(startDate: Date, endDate: Date) async throws -> [PersistentIdentifier] {
+        let days = Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0
+        let delay = days >= 25 ? monthDelayNanoseconds : dayDelayNanoseconds
+        try await Task.sleep(nanoseconds: delay)
+        return days >= 25 ? monthIDs : dayIDs
+    }
 }

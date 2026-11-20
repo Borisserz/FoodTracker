@@ -4,6 +4,7 @@ import SwiftData
 struct ShoppingListView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    var showsDismissButton: Bool = false
 
     @Query(sort: \ShoppingItem.dateAdded, order: .reverse) private var allItems: [ShoppingItem]
 
@@ -121,6 +122,16 @@ struct ShoppingListView: View {
         }
         .navigationTitle("Shopping List")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if showsDismissButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(String(localized: "Done")) {
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
     }
 
     private func saveAndReloadWidgets() {
@@ -134,8 +145,10 @@ struct ShoppingListView: View {
         guard !text.isEmpty else { return }
 
         HapticManager.shared.impact(style: .light)
-        let item = ShoppingItem(name: text, amount: amount)
-        context.insert(item)
+        ShoppingItem.insertDeduplicated(
+            items: [(name: text, amount: amount)],
+            in: context
+        )
         saveAndReloadWidgets()
         newItemName = ""
         newItemAmount = ""

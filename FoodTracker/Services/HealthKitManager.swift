@@ -363,6 +363,15 @@ final class HealthKitManager {
         let otherExternalCalories: Int
     }
 
+    nonisolated static func isWorkoutTrackerWorkout(sourceBundleIdentifier: String?, brandName: String?) -> Bool {
+        if brandName == WorkoutSyncManager.workoutTrackerBrandName {
+            return true
+        }
+        guard let bundleID = sourceBundleIdentifier, !bundleID.isEmpty else { return false }
+        return bundleID == "com.borisdev.WorkoutTracker"
+            || bundleID.hasPrefix("com.borisdev.WorkoutTracker.")
+    }
+
     /// Sums active calories from external HKWorkouts, separating WorkoutTracker entries
     /// from other external sources (e.g., Apple Watch) so neither is dropped nor double-counted.
     func fetchExternalWorkoutBreakdown(for date: Date) async throws -> ExternalWorkoutCaloriesBreakdown {
@@ -396,7 +405,10 @@ final class HealthKitManager {
                 kcal = workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0.0
             }
 
-            if brandName == WorkoutSyncManager.workoutTrackerBrandName {
+            if Self.isWorkoutTrackerWorkout(
+                sourceBundleIdentifier: workout.sourceRevision.source.bundleIdentifier,
+                brandName: brandName
+            ) {
                 wtTotal += kcal
             } else {
                 otherTotal += kcal

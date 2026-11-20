@@ -516,6 +516,7 @@ struct AIChefStudioView: View {
                     generatedAIRecipe = recipe
                 } else {
                     generationError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? AINutritionService.shared.lastUserFacingError
                         ?? String(localized: "Could not generate that recipe right now. Please try again.")
                 }
             }
@@ -988,6 +989,20 @@ struct RecipeDetailAIView: View {
     }
 
     private func logRecipeToToday() {
+        AIChefRecipePersistence.logRecipeToToday(recipe, in: context, users: users)
+        withAnimation { didLogToDiary = true }
+    }
+
+    private func saveToMyRecipes() {
+        guard !didSaveToMyRecipes else { return }
+        AIChefRecipePersistence.saveToMyRecipes(recipe, in: context)
+        withAnimation { didSaveToMyRecipes = true }
+    }
+}
+
+@MainActor
+enum AIChefRecipePersistence {
+    static func logRecipeToToday(_ recipe: AIChefRecipe, in context: ModelContext, users: [User]) {
         HapticManager.shared.notification(type: .success)
         let summary = DailySummary.fetchOrCreate(for: Date(), in: context)
         let hour = Calendar.current.component(.hour, from: Date())
@@ -1038,11 +1053,9 @@ struct RecipeDetailAIView: View {
                 }
             }
         }
-        withAnimation { didLogToDiary = true }
     }
 
-    private func saveToMyRecipes() {
-        guard !didSaveToMyRecipes else { return }
+    static func saveToMyRecipes(_ recipe: AIChefRecipe, in context: ModelContext) {
         HapticManager.shared.notification(type: .success)
         let micros = MicronutrientEstimator.estimate(
             name: recipe.title,
@@ -1080,7 +1093,6 @@ struct RecipeDetailAIView: View {
         )
         context.insert(custom)
         try? context.save()
-        withAnimation { didSaveToMyRecipes = true }
     }
 }
 
@@ -1230,7 +1242,7 @@ struct AIAssistantFlowView: View {
                                             Text(isGeneratingAI ? "AI Chef is creating your recipe..." : "Generate AI step-by-step for \"\(trimmed)\"")
                                                 .font(.subheadline.bold())
                                                 .foregroundColor(.white)
-                                            Text("Fits ~\(max(remainingCalories, 350)) kcal • \(activeDiet)")
+                                            Text("Fits ~\(max(remainingCalories, 400)) kcal • \(activeDiet)")
                                                 .font(.caption2)
                                                 .foregroundColor(.white.opacity(0.85))
                                         }
@@ -1313,6 +1325,7 @@ struct AIAssistantFlowView: View {
                     isPrepPhase = true
                 } else {
                     generationError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? AINutritionService.shared.lastUserFacingError
                         ?? String(localized: "Could not generate that recipe right now. Please try again.")
                 }
             }
@@ -1371,10 +1384,14 @@ struct PrepChecklistView: View {
 }
 
 struct AgentCookingView: View {
+    @Environment(\.modelContext) private var context
+    @Query private var users: [User]
     let recipe: AIChefRecipe
     @Binding var isFlowPresented: Bool
     @State private var showCameraScanner = false
     @State private var currentStepForCamera: RecipeStep? = nil
+    @State private var didLogToDiary = false
+    @State private var didSaveToMyRecipes = false
     
     var body: some View {
         ScrollView {
@@ -1419,12 +1436,50 @@ struct AgentCookingView: View {
                         .foregroundColor(.primary)
                 }
                 .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeOrange.opacity(0.1)).cornerRadius(20).padding(.horizontal)
-                
+
+                VStack(spacing: 10) {
+                    Button {
+                        AIChefRecipePersistence.logRecipeToToday(recipe, in: context, users: users)
+                        withAnimation { didLogToDiary = true }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: didLogToDiary ? "checkmark.circle.fill" : "plus.circle.fill")
+                            Text(didLogToDiary ? "Added to Today's Diary" : "Log to Today's Diary (\(recipe.calories) kcal)")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(didLogToDiary ? Color.green : Color.themePink)
+                        .cornerRadius(16)
+                    }
+                    .disabled(didLogToDiary)
+
+                    Button {
+                        guard !didSaveToMyRecipes else { return }
+                        AIChefRecipePersistence.saveToMyRecipes(recipe, in: context)
+                        withAnimation { didSaveToMyRecipes = true }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: didSaveToMyRecipes ? "bookmark.fill" : "bookmark")
+                            Text(didSaveToMyRecipes ? "Saved to My Recipes" : "Save to My Recipes")
+                        }
+                        .font(.subheadline.bold())
+                        .foregroundColor(didSaveToMyRecipes ? .green : .themePink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(didSaveToMyRecipes ? Color.green.opacity(0.1) : Color.themePink.opacity(0.1))
+                        .cornerRadius(16)
+                    }
+                    .disabled(didSaveToMyRecipes)
+                }
+                .padding(.horizontal)
+
                 Button("Finish Cooking") {
                     HapticManager.shared.impact(style: .rigid)
                     isFlowPresented = false
                 }
-                .foregroundColor(.gray).padding(.top, 20).padding(.bottom, 40)
+                .foregroundColor(.gray).padding(.top, 12).padding(.bottom, 40)
             }.padding(.top, 16)
         }
         .background(Color.themeBg.ignoresSafeArea())

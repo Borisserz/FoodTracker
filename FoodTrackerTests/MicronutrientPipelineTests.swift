@@ -132,4 +132,174 @@ final class MicronutrientPipelineTests: XCTestCase {
         XCTAssertEqual(decoded.vitaminC ?? 0, 14.0, accuracy: 0.01)
         XCTAssertEqual(decoded.vitaminD ?? 0, 11.5, accuracy: 0.01)
     }
+
+    func testMicronutrientEstimatorDoesNotMatchSubstringsEiOrNutInsideUnrelatedWords() {
+        let proteinShake = MicronutrientEstimator.estimate(
+            id: "protein_shake",
+            name: "Protein Shake",
+            category: "supplements",
+            calories: 140,
+            protein: 25,
+            fat: 2,
+            carbs: 4,
+            weight: 100
+        )
+        XCTAssertNotEqual(proteinShake.calcium, 56.0, "Protein must not match German 'ei' egg profile")
+        XCTAssertEqual(proteinShake.calcium, 80.0, accuracy: 0.01)
+
+        let fleisch = MicronutrientEstimator.estimate(
+            id: "rindfleisch",
+            name: "Rindfleisch",
+            category: "meat",
+            calories: 210,
+            protein: 26,
+            fat: 12,
+            carbs: 0,
+            weight: 100
+        )
+        XCTAssertEqual(fleisch.vitaminD, 0.2, accuracy: 0.01, "Fleisch must use meat profile, not egg ('ei') vitamin D 2.0")
+
+        let reis = MicronutrientEstimator.estimate(
+            id: "weisser_reis",
+            name: "Reis",
+            category: "grains",
+            calories: 130,
+            protein: 2.7,
+            fat: 0.3,
+            carbs: 28,
+            weight: 100
+        )
+        XCTAssertEqual(reis.vitaminD, 0.0, accuracy: 0.01, "Reis must use grains profile, not egg ('ei')")
+
+        let eggDE = MicronutrientEstimator.estimate(
+            id: "huehner_ei",
+            name: "Bio Ei",
+            category: "",
+            calories: 155,
+            protein: 13,
+            fat: 11,
+            carbs: 1.1,
+            weight: 100
+        )
+        XCTAssertEqual(eggDE.vitaminD, 2.0, accuracy: 0.01)
+
+        let donut = MicronutrientEstimator.estimate(
+            id: "glazed_donut",
+            name: "Glazed Donut",
+            category: "sweets",
+            calories: 320,
+            protein: 4,
+            fat: 15,
+            carbs: 42,
+            weight: 100
+        )
+        XCTAssertEqual(donut.magnesium, 28.0, accuracy: 0.01, "Donut must not match 'nut' nuts profile (210mg Mg)")
+
+        let mixedNuts = MicronutrientEstimator.estimate(
+            id: "mixed_nuts",
+            name: "Mixed Nuts",
+            category: "",
+            calories: 600,
+            protein: 20,
+            fat: 52,
+            carbs: 16,
+            weight: 100
+        )
+        XCTAssertEqual(mixedNuts.magnesium, 210.0, accuracy: 0.01)
+    }
+
+    func testOpenFoodFactsIgnoresPercentDVUnitsScalesOmega3MgAndPreservesKnownZeroMicros() async {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let manager = NetworkManager.shared
+        let originalSession = manager.session
+        manager.clearCacheForTesting()
+        manager.session = URLSession(configuration: config)
+        defer {
+            MockURLProtocol.requestHandler = nil
+            manager.clearCacheForTesting()
+            manager.session = originalSession
+        }
+
+        MockURLProtocol.requestHandler = { request in
+            let json = #"""
+            {
+              "status": 1,
+              "product": {
+                "product_name": "US Cereal",
+                "nutriments": {
+                  "energy-kcal_100g": 370,
+                  "proteins_100g": 8.0,
+                  "fat_100g": 2.0,
+                  "carbohydrates_100g": 80.0,
+                  "calcium_100g": 42,
+                  "calcium_unit": "%",
+                  "iron_100g": 20,
+                  "iron_unit": "% dv",
+                  "vitamin-d_100g": 10,
+                  "vitamin-d_unit": "%",
+                  "potassium_100g": 280,
+                  "potassium_unit": "mg",
+                  "vitamin-c_100g": 0,
+                  "vitamin-c_unit": "mg",
+                  "omega-3-fat_100g": 500,
+                  "omega-3-fat_unit": "mg"
+                }
+              }
+            }
+            """#.data(using: .utf8)!
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+        }
+
+        let outcome = await manager.fetchProductOutcome(barcode: "44440001")
+        guard case .found(let item) = outcome else {
+            XCTFail("Expected .found")
+            return
+        }
+        XCTAssertEqual(item.omega3, 0.5, accuracy: 0.01)
+        XCTAssertEqual(item.potassium, 280.0, accuracy: 0.01)
+        XCTAssertNotEqual(item.calcium, 42.0, accuracy: 0.01)
+        XCTAssertNotEqual(item.iron, 20.0, accuracy: 0.01)
+        XCTAssertNotEqual(item.vitaminD, 10.0, accuracy: 0.01)
+        XCTAssertEqual(item.vitaminC, 0.0, accuracy: 0.01)
+    }
+
+    func testBarcodeReturnsNotFoundWhenOFFReturnsNotFoundAndFatSecretFails() async {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let manager = NetworkManager.shared
+        let originalSession = manager.session
+        let originalProxyURL = manager.searchProxyURLProvider
+        let originalAuth = manager.authTokenProvider
+        let originalAppCheck = manager.appCheckTokenProvider
+        let originalRefreshing = manager.refreshingProxyTokensProvider
+        manager.clearCacheForTesting()
+        manager.session = URLSession(configuration: config)
+        manager.searchProxyURLProvider = { URL(string: "https://mock.local/foodSearchProxy")! }
+        manager.authTokenProvider = { "mock-auth" }
+        manager.appCheckTokenProvider = { "mock-appcheck" }
+        manager.refreshingProxyTokensProvider = { _ in (authToken: "mock-auth", appCheckToken: "mock-appcheck") }
+        defer {
+            MockURLProtocol.requestHandler = nil
+            manager.clearCacheForTesting()
+            manager.session = originalSession
+            manager.searchProxyURLProvider = originalProxyURL
+            manager.authTokenProvider = originalAuth
+            manager.appCheckTokenProvider = originalAppCheck
+            manager.refreshingProxyTokensProvider = originalRefreshing
+        }
+
+        MockURLProtocol.requestHandler = { request in
+            if request.url?.host == "world.openfoodfacts.org" {
+                return (HTTPURLResponse(url: request.url!, statusCode: 404, httpVersion: nil, headerFields: nil)!, Data())
+            }
+            return (HTTPURLResponse(url: request.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!, Data())
+        }
+
+        let outcome = await manager.fetchProductOutcome(barcode: "44449999")
+        guard case .notFound = outcome else {
+            XCTFail("Expected .notFound when OFF succeeded with 404 and FatSecret failed, got \(outcome)")
+            return
+        }
+    }
 }

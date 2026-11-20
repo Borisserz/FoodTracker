@@ -96,8 +96,9 @@ struct SmartPlanBuilderFlow: View {
                     }
                 }
             }
-            .navigationTitle(isGenerating ? "" : (generatedPlan != nil ? String(localized: "Weekly Menu") : String(localized: "Smart Builder")))
+            .navigationTitle(isGenerating ? "" : String(localized: "Smart Builder"))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar(generatedPlan != nil ? .hidden : .visible, for: .navigationBar)
             .interactiveDismissDisabled(isGenerating)
             .onDisappear {
                 generationTask?.cancel()
@@ -217,6 +218,10 @@ struct SmartPlanBuilderFlow: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
+
+                NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
             }
         }
     }
@@ -276,6 +281,10 @@ struct SmartPlanBuilderFlow: View {
                 )
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
+
+                NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
             }
         }
     }
@@ -318,18 +327,26 @@ struct SmartPlanBuilderFlow: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
+
+                NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
             }
         }
     }
     
-    private func iconForDiet(_ diet: String) -> String {
+    static func iconForDiet(_ diet: String) -> String {
         switch diet {
-        case "Keto": return "meat.fill"
+        case "Keto": return "flame.fill"
         case "Vegan": return "leaf.fill"
         case "Paleo": return "hare.fill"
         case "Mediterranean": return "fish.fill"
         default: return "star.fill"
         }
+    }
+
+    private func iconForDiet(_ diet: String) -> String {
+        Self.iconForDiet(diet)
     }
     
     private func localizedNameForDiet(_ diet: String) -> String {

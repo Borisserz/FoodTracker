@@ -736,7 +736,9 @@ struct AddIngredientModalView: View {
         let f = NutritionMath.parseNonNegativeDecimal(fats) ?? 0.0
         let c = NutritionMath.parseNonNegativeDecimal(carbs) ?? 0.0
 
-        let newFood = FoodItem(name: name, weight: w, calories: cals, protein: p, fats: f, carbs: c)
+        let newFood = FoodItem(name: name.trimmingCharacters(in: .whitespacesAndNewlines), weight: w, calories: cals, protein: p, fats: f, carbs: c)
+        context.insert(newFood)
+        try? context.save()
 
         onSave(newFood)
         dismiss()

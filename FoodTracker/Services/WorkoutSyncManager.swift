@@ -76,6 +76,37 @@ final class WorkoutSyncManager {
         return max(0, defaults.integer(forKey: key))
     }
 
+    @discardableResult
+    func logWaterAndReconcile(
+        volumeMl: Double,
+        for date: Date,
+        in context: ModelContext,
+        sharedDefaults: UserDefaults? = nil,
+        appGroupDefaults: UserDefaults? = nil,
+        localDefaults: UserDefaults? = nil
+    ) -> (summary: DailySummary, beverage: Beverage, deletedHealthKitSamples: [DeletedWaterHealthSample]) {
+        let summary = DailySummary.fetchOrCreate(for: date, in: context)
+        let reconcileOutcome = reconcileWaterWithOutcome(
+            for: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appGroupDefaults,
+            localDefaults: localDefaults
+        )
+        let newBeverage = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: volumeMl)
+        context.insert(newBeverage)
+        summary.addBeverage(newBeverage)
+        try? context.save()
+        syncWater(
+            summary.totalPureWaterLiters,
+            for: summary.date,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appGroupDefaults,
+            localDefaults: localDefaults
+        )
+        return (summary, newBeverage, reconcileOutcome.deletedHealthKitSamples)
+    }
+
     /// Reads explicit daily hydration in liters from the shared App Group (`HydrationLog`).
     func fetchWaterLiters(for date: Date, sharedDefaults: UserDefaults? = nil) -> Double? {
         guard let defaults = sharedDefaults ?? defaultSharedDefaults else { return nil }

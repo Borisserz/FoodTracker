@@ -1770,4 +1770,223 @@ final class DataModelsTests: XCTestCase {
         XCTAssertTrue(outcome.mutated)
         XCTAssertEqual(summary.beverages?.first?.healthKitSampleID, WorkoutSyncManager.externalWaterSentinelID)
     }
+
+    func testHealthKitRecognizesWorkoutTrackerWatchAppWithoutBrandMetadata() {
+        XCTAssertTrue(
+            HealthKitManager.isWorkoutTrackerWorkout(
+                sourceBundleIdentifier: "com.borisdev.WorkoutTracker.watchapp2026",
+                brandName: nil
+            )
+        )
+        XCTAssertTrue(
+            HealthKitManager.isWorkoutTrackerWorkout(
+                sourceBundleIdentifier: "com.borisdev.WorkoutTracker",
+                brandName: nil
+            )
+        )
+        XCTAssertTrue(
+            HealthKitManager.isWorkoutTrackerWorkout(
+                sourceBundleIdentifier: "com.apple.Health",
+                brandName: WorkoutSyncManager.workoutTrackerBrandName
+            )
+        )
+        XCTAssertFalse(
+            HealthKitManager.isWorkoutTrackerWorkout(
+                sourceBundleIdentifier: "com.apple.Health",
+                brandName: nil
+            )
+        )
+    }
+
+    func testLogWaterAndReconcilePreservesExternalWorkoutTrackerWater() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let suiteName = "test.logwater.shared.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: suiteName)!
+        let syncSuite = "test.logwater.sync.\(UUID().uuidString)"
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: suiteName)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        // WorkoutTracker logged 0.5 L before FoodTracker synced
+        sharedDefaults.set(0.5, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        let result = WorkoutSyncManager.shared.logWaterAndReconcile(
+            volumeMl: 250.0,
+            for: today,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertEqual(result.summary.totalPureWaterLiters, 0.75, accuracy: 0.001)
+        XCTAssertEqual(sharedDefaults.double(forKey: WorkoutSyncManager.waterLitersKey(for: today)), 0.75, accuracy: 0.001)
+    }
+
+    func testMetabolicTDEEGaugeApplyArchetypeSanitizesTargetWeight() {
+        let user = User(name: "Test", weight: 75.0, height: 178.0, age: 28, gender: "Male")
+        user.weightGoalType = "lose"
+        user.targetWeight = 68.0
+        user.dailyCaloriesGoal = 2100
+
+        MetabolicTDEEGaugeView.applyArchetype(.leanBulk, to: user)
+        XCTAssertEqual(user.weightGoalType, "gain")
+        XCTAssertGreaterThan(user.targetWeight ?? 0, user.weight, "Switching from Cut to Lean Bulk must not keep stale targetWeight below current weight")
+
+        MetabolicTDEEGaugeView.applyArchetype(.longevity, to: user)
+        XCTAssertEqual(user.weightGoalType, "maintain")
+        XCTAssertEqual(user.targetWeight ?? 0, user.weight, accuracy: 0.01)
+
+        MetabolicTDEEGaugeView.applyArchetype(.cut, to: user)
+        XCTAssertEqual(user.weightGoalType, "lose")
+        XCTAssertLessThan(user.targetWeight ?? .greatestFiniteMagnitude, user.weight)
+    }
+
+    func testCrossContainerWidgetMutationIsVisibleAfterMainContextRefresh() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("swifdata-sync-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        let storeURL = tempDir.appendingPathComponent("TestStore.sqlite")
+
+        let appContainer = SharedModelContainer.makeContainer(schema: SharedModelContainer.sharedSchema, url: storeURL, enableCloudKit: false)
+        let widgetContainer = SharedModelContainer.makeContainer(schema: SharedModelContainer.sharedSchema, url: storeURL, enableCloudKit: false)
+
+        let item = ShoppingItem(name: "Oat Milk", amount: "1L", isChecked: false)
+        appContainer.mainContext.insert(item)
+        let today = Calendar.current.startOfDay(for: Date())
+        let appSummary = DailySummary.fetchOrCreate(for: today, in: appContainer.mainContext)
+        try appContainer.mainContext.save()
+
+        let initialFetched = try appContainer.mainContext.fetch(FetchDescriptor<ShoppingItem>())
+        XCTAssertEqual(initialFetched.first?.isChecked, false)
+        XCTAssertEqual(appSummary.beverages?.count ?? 0, 0)
+
+        let widgetContext = ModelContext(widgetContainer)
+        try WidgetStorageActions.toggleShoppingItem(idString: item.id.uuidString, in: widgetContext)
+        try WidgetStorageActions.addWaterGlass(volumeMl: 250.0, in: widgetContext, for: today)
+
+        SharedModelContainer.refreshMainContext(appContainer.mainContext)
+        let refreshed = try appContainer.mainContext.fetch(FetchDescriptor<ShoppingItem>())
+        XCTAssertEqual(refreshed.first?.isChecked, true, "Main app context must observe widget SQLite toggles after refresh")
+        let refreshedSummary = DailySummary.fetchOrCreate(for: today, in: appContainer.mainContext)
+        XCTAssertEqual(refreshedSummary.totalPureWaterLiters, 0.25, accuracy: 0.001, "Main app DailySummary must observe widget-inserted Beverage after refresh")
+    }
+
+    func testFoodItemNetCarbsAndNutritionMathFiberSugarScaling() {
+        let oats = FoodItem(
+            name: "Rolled Oats",
+            weight: 100,
+            calories: 380,
+            protein: 13,
+            fats: 7,
+            carbs: 66,
+            fiber: 10,
+            sugar: 2
+        )
+        XCTAssertEqual(oats.netCarbs, 56, accuracy: 0.001)
+
+        let fiberHeavy = FoodItem(name: "Flaxseed", weight: 20, calories: 100, protein: 4, fats: 8, carbs: 6, fiber: 6.5, sugar: 0.5)
+        XCTAssertEqual(fiberHeavy.netCarbs, 0, accuracy: 0.001)
+
+        let scaled = NutritionMath.scaledValues(
+            baseWeight: 100,
+            baseCalories: 380,
+            baseProtein: 13,
+            baseFats: 7,
+            baseCarbs: 66,
+            fiber: 10,
+            sugar: 2,
+            targetWeight: 50
+        )
+        XCTAssertEqual(scaled.fiber, 5.0, accuracy: 0.001)
+        XCTAssertEqual(scaled.sugar, 1.0, accuracy: 0.001)
+        XCTAssertEqual(scaled.netCarbs, 28.0, accuracy: 0.001)
+    }
+
+    func testDailySummaryCopyMealDuplicatesItemsWithoutHealthKitIDs() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+
+        let calendar = Calendar.current
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: calendar.startOfDay(for: Date()))!
+        let today = calendar.startOfDay(for: Date())
+
+        let item = FoodItem(name: "Greek Yogurt", weight: 200, calories: 140, protein: 20, fats: 2, carbs: 8, fiber: 1, sugar: 6)
+        item.healthKitSampleID = "old-hk-id"
+        context.insert(item)
+        let breakfast = Meal(title: "Breakfast", date: yesterday, foodItems: [item])
+        context.insert(breakfast)
+
+        let copiedCount = DailySummary.copyMeal(breakfast, toDate: today, targetSlot: "Breakfast", in: context)
+        XCTAssertEqual(copiedCount, 1)
+
+        let todaySummary = try XCTUnwrap(DailySummary.fetchExisting(for: today, in: context))
+        let copiedMeal = try XCTUnwrap(todaySummary.meals?.first(where: { DailySummary.canonicalMealSlot($0.title) == "Breakfast" }))
+        XCTAssertEqual(copiedMeal.foodItems?.count, 1)
+        let copiedFood = try XCTUnwrap(copiedMeal.foodItems?.first)
+        XCTAssertEqual(copiedFood.name, "Greek Yogurt")
+        XCTAssertEqual(copiedFood.fiber, 1.0, accuracy: 0.001)
+        XCTAssertEqual(copiedFood.sugar, 6.0, accuracy: 0.001)
+        XCTAssertNil(copiedFood.healthKitSampleID)
+        XCTAssertNotEqual(copiedFood.id, item.id)
+    }
+
+    func testDailySummaryCopyDayDuplicatesAllMealsWithoutHealthKitIDs() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: User.self, DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+
+        let calendar = Calendar.current
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: calendar.startOfDay(for: Date()))!
+        let today = calendar.startOfDay(for: Date())
+
+        let sourceSummary = DailySummary.fetchOrCreate(for: yesterday, in: context)
+        let f1 = FoodItem(name: "Omelette", weight: 180, calories: 260, protein: 18, fats: 19, carbs: 2)
+        f1.healthKitSampleID = "hk-1"
+        let f2 = FoodItem(name: "Salad", weight: 250, calories: 320, protein: 22, fats: 16, carbs: 14, fiber: 5)
+        f2.healthKitSampleID = "hk-2"
+        context.insert(f1)
+        context.insert(f2)
+        let m1 = Meal(title: "Breakfast", date: yesterday, foodItems: [f1])
+        let m2 = Meal(title: "Lunch", date: yesterday, foodItems: [f2])
+        context.insert(m1)
+        context.insert(m2)
+        sourceSummary.addMeal(m1)
+        sourceSummary.addMeal(m2)
+
+        let copiedItems = DailySummary.copyDay(from: sourceSummary, toDate: today, in: context)
+        XCTAssertEqual(copiedItems, 2)
+
+        let targetSummary = try XCTUnwrap(DailySummary.fetchExisting(for: today, in: context))
+        XCTAssertEqual(targetSummary.totalFoodCalories, 580)
+        XCTAssertEqual(targetSummary.totalFiber, 5.0, accuracy: 0.001)
+        XCTAssertTrue((targetSummary.meals ?? []).flatMap { $0.foodItems ?? [] }.allSatisfy { $0.healthKitSampleID == nil })
+    }
+
+    func testSharedModelContainerSchemaMigrationPlanMatchesSharedSchema() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("swifdata-mig-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        let storeURL = tempDir.appendingPathComponent("MigrationStore.sqlite")
+
+        XCTAssertFalse(FoodTrackerMigrationPlan.schemas.isEmpty)
+        XCTAssertEqual(FoodTrackerSchemaV1.models.count, SharedModelContainer.sharedSchema.entities.count)
+
+        let container = SharedModelContainer.makeContainer(schema: SharedModelContainer.sharedSchema, url: storeURL, enableCloudKit: false)
+        let user = User(name: "MigrationTest", weight: 70, height: 175, age: 30, gender: "Male")
+        container.mainContext.insert(user)
+        try container.mainContext.save()
+
+        let reopened = SharedModelContainer.makeContainer(schema: SharedModelContainer.sharedSchema, url: storeURL, enableCloudKit: false)
+        let fetchedUsers = try reopened.mainContext.fetch(FetchDescriptor<User>())
+        XCTAssertEqual(fetchedUsers.count, 1)
+        XCTAssertEqual(fetchedUsers.first?.name, "MigrationTest")
+    }
 }

@@ -75,29 +75,6 @@ struct MiniProgressView: View {
         }
     }
 }
-struct FoodItemRow: View {
-    let name: String
-    let weight: String
-    let calories: Int
-
-    var body: some View {
-        HStack(spacing: 16) {
-            ZStack {
-                Circle().fill(Color.themePink.opacity(0.05)).frame(width: 44, height: 44)
-                Image(systemName: "fork.knife").foregroundColor(.themePink.opacity(0.6))
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name).font(.subheadline).bold()
-                Text(weight).font(.caption).foregroundColor(.textGray)
-            }
-            Spacer()
-            Text("\(calories) kcal").font(.headline).foregroundColor(.themePink)
-        }
-        .padding(.horizontal).padding(.vertical, 8)
-        .background(Color.white)
-    }
-}
-
 struct EmptyStateView: View {
     let imageName: String
     let title: String
@@ -252,14 +229,15 @@ struct BurnedDetailsCard: View {
     private var workoutSourceSubtitle: String {
         let hasWT = workoutTrackerAppGroupCalories > 0
         let hasCustom = summary.localActivityCalories > 0
-        if hasWT && hasCustom {
-            return String(localized: "Workout Tracker & Custom")
-        } else if hasWT {
-            return String(localized: "Workout Tracker")
-        } else if hasCustom {
-            return String(localized: "Custom Workouts")
+        let hasAppleWatch = appWorkoutCalories > (workoutTrackerAppGroupCalories + summary.localActivityCalories)
+        var parts: [String] = []
+        if hasWT { parts.append(String(localized: "Workout Tracker")) }
+        if hasCustom { parts.append(String(localized: "Custom Workouts")) }
+        if hasAppleWatch { parts.append(String(localized: "Apple Watch Workouts")) }
+        if parts.isEmpty {
+            return String(localized: "Workouts & Activity")
         }
-        return String(localized: "Workout Tracker")
+        return parts.joined(separator: " • ")
     }
 
     private var syncStatusTitle: LocalizedStringKey {
@@ -775,7 +753,7 @@ struct MicronutrientsFocusCard: View {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                 CompactMicroCard(title: "Omega-3", icon: "fish.fill", current: totalOmega3, target: 1.6, unit: "g", color: .themePink)
                 CompactMicroCard(title: "Magnesium", icon: "bolt.heart.fill", current: totalMagnesium, target: 400, unit: "mg", color: .themeYellow)
-                CompactMicroCard(title: "Calcium", icon: "bone.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
+                CompactMicroCard(title: "Calcium", icon: "shield.fill", current: totalCalcium, target: 1000, unit: "mg", color: .drinkWater)
                 CompactMicroCard(title: "Iron", icon: "drop.fill", current: totalIron, target: 18, unit: "mg", color: .red.opacity(0.8))
             }
 

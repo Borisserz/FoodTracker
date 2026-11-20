@@ -55,6 +55,8 @@
 		EC025169B1B3720B5CEEDD13 /* FastingActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDAC78C0A7D93A557E994339 /* FastingActivityWidget.swift */; };
 		ECE8044E4385930F846080C4 /* OnboardingBlueprintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0B4B64C18D8120541A4EC4 /* OnboardingBlueprintTests.swift */; };
 		F520850EAF2A4D93D620E33B /* SharedModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B698F0C0F0C1BF19AA836CC1 /* SharedModelContainer.swift */; };
+		FA1000012026112000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA1000012026112000000002 /* Assets.xcassets */; };
+		FA1000012026112000000003 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FA1000012026112000000004 /* InfoPlist.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -140,6 +142,8 @@
 		EF86E0D94E40FFE80CD8C1F2 /* SummaryRepositoryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SummaryRepositoryTests.swift; sourceTree = "<group>"; };
 		F486F8089FE6062DDC93AEE7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F60F5882B60154B4929EBD19 /* AppStateManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppStateManagerTests.swift; sourceTree = "<group>"; };
+		FA1000012026112000000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FA1000012026112000000004 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -295,6 +299,8 @@
 				0E14A366AF7D10BEB62996BE /* WidgetTimelineProvider.swift */,
 				0D5A3EF1AEDA75F9D3127E7E /* WidgetIntents.swift */,
 				91D676D441EB37B7C1C341E9 /* WidgetViews.swift */,
+				FA1000012026112000000002 /* Assets.xcassets */,
+				FA1000012026112000000004 /* InfoPlist.xcstrings */,
 				71D0782EF74519AAD03B5AAE /* Info.plist */,
 				7DDCF33702ED0DC7C043FAE1 /* FoodTrackerWidget.entitlements */,
 			);
@@ -495,6 +501,8 @@
 			files = (
 				E1A2B3C4D5E6F708192A3B4C /* Localizable.xcstrings in Resources */,
 				D8C97A640158A90893E73170 /* PrivacyInfo.xcprivacy in Resources */,
+				FA1000012026112000000001 /* Assets.xcassets in Resources */,
+				FA1000012026112000000003 /* InfoPlist.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -654,7 +662,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -680,7 +688,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FoodTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FoodTracker";
 				TEST_TARGET_NAME = FoodTracker;
 			};
@@ -705,7 +713,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_TARGET_NAME = FoodTracker;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -730,7 +738,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_TARGET_NAME = FoodTracker;
 			};
 			name = Debug;
@@ -756,7 +764,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FoodTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FoodTracker";
 				TEST_TARGET_NAME = FoodTracker;
 				VALIDATE_PRODUCT = YES;
@@ -916,7 +924,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -950,7 +958,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -979,7 +987,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};

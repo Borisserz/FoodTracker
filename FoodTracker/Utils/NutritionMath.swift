@@ -7,6 +7,8 @@ struct ScaledNutritionValues: Equatable {
     let protein: Double
     let fats: Double
     let carbs: Double
+    let fiber: Double
+    let sugar: Double
     let omega3: Double
     let calcium: Double
     let potassium: Double
@@ -14,6 +16,10 @@ struct ScaledNutritionValues: Equatable {
     let iron: Double
     let vitaminC: Double
     let vitaminD: Double
+
+    var netCarbs: Double {
+        max(0.0, carbs - fiber)
+    }
 }
 
 struct EditableFoodDraft: Identifiable {
@@ -25,6 +31,8 @@ struct EditableFoodDraft: Identifiable {
     let baseProtein: Double
     let baseFats: Double
     let baseCarbs: Double
+    let baseFiber: Double
+    let baseSugar: Double
     let baseOmega3: Double
     let baseCalcium: Double
     let basePotassium: Double
@@ -43,6 +51,8 @@ struct EditableFoodDraft: Identifiable {
         baseProtein: Double,
         baseFats: Double,
         baseCarbs: Double,
+        baseFiber: Double = 0,
+        baseSugar: Double = 0,
         baseOmega3: Double = 0,
         baseCalcium: Double = 0,
         basePotassium: Double = 0,
@@ -60,6 +70,8 @@ struct EditableFoodDraft: Identifiable {
         self.baseProtein = baseProtein
         self.baseFats = baseFats
         self.baseCarbs = baseCarbs
+        self.baseFiber = baseFiber
+        self.baseSugar = baseSugar
         self.baseOmega3 = baseOmega3
         self.baseCalcium = baseCalcium
         self.basePotassium = basePotassium
@@ -80,6 +92,8 @@ struct EditableFoodDraft: Identifiable {
             baseProtein: food.protein,
             baseFats: food.fats,
             baseCarbs: food.carbs,
+            baseFiber: food.fiber,
+            baseSugar: food.sugar,
             baseOmega3: food.omega3,
             baseCalcium: food.calcium,
             basePotassium: food.potassium,
@@ -98,6 +112,8 @@ struct EditableFoodDraft: Identifiable {
             baseProtein: baseProtein,
             baseFats: baseFats,
             baseCarbs: baseCarbs,
+            fiber: baseFiber,
+            sugar: baseSugar,
             omega3: baseOmega3,
             calcium: baseCalcium,
             potassium: basePotassium,
@@ -113,6 +129,8 @@ struct EditableFoodDraft: Identifiable {
     var protein: Double { scaled.protein }
     var fats: Double { scaled.fats }
     var carbs: Double { scaled.carbs }
+    var fiber: Double { scaled.fiber }
+    var sugar: Double { scaled.sugar }
 
     func apply(to item: FoodItem) {
         let s = scaled
@@ -122,6 +140,8 @@ struct EditableFoodDraft: Identifiable {
         item.protein = s.protein
         item.fats = s.fats
         item.carbs = s.carbs
+        item.fiber = s.fiber
+        item.sugar = s.sugar
         item.omega3 = s.omega3
         item.calcium = s.calcium
         item.potassium = s.potassium
@@ -140,6 +160,8 @@ struct EditableFoodDraft: Identifiable {
             protein: s.protein,
             fats: s.fats,
             carbs: s.carbs,
+            fiber: s.fiber,
+            sugar: s.sugar,
             omega3: s.omega3,
             calcium: s.calcium,
             potassium: s.potassium,
@@ -178,6 +200,8 @@ enum NutritionMath {
         baseProtein: Double,
         baseFats: Double,
         baseCarbs: Double,
+        fiber: Double = 0,
+        sugar: Double = 0,
         omega3: Double = 0,
         calcium: Double = 0,
         potassium: Double = 0,
@@ -197,6 +221,8 @@ enum NutritionMath {
             protein: max(0, baseProtein * multiplier),
             fats: max(0, baseFats * multiplier),
             carbs: max(0, baseCarbs * multiplier),
+            fiber: max(0, fiber * multiplier),
+            sugar: max(0, sugar * multiplier),
             omega3: max(0, omega3 * multiplier),
             calcium: max(0, calcium * multiplier),
             potassium: max(0, potassium * multiplier),

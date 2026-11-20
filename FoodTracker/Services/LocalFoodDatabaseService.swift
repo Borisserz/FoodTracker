@@ -109,21 +109,25 @@ final class LocalFoodDatabaseService {
 
     // MARK: - Search
 
-    /// Returns up to `limit` foods matching `query` using pre-normalized locale-aware substring matching.
-    /// Supplements non-English results from `foods_en` up to `limit` without duplicates.
-    func search(query: String, limit: Int = 15) -> [FoodItem] {
+    /// Thread-safe raw entry search that can run off the main actor before creating SwiftData `FoodItem` instances.
+    func searchEntriesSnapshot(query: String, limit: Int = 15) -> [LocalFoodEntry] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, limit > 0 else { return [] }
 
         let (primary, fallback, primaryLang) = lock.withLock { (indexedFoods, indexedFallbackFoods, primaryLanguageCode) }
-        let matched = Self.searchIndexedEntries(
+        return Self.searchIndexedEntries(
             primary: primary,
             fallback: fallback,
             query: trimmed,
             limit: limit,
             primaryLanguageCode: primaryLang
         )
-        return matched.map { $0.toFoodItem() }
+    }
+
+    /// Returns up to `limit` foods matching `query` using pre-normalized locale-aware substring matching.
+    /// Supplements non-English results from `foods_en` up to `limit` without duplicates.
+    func search(query: String, limit: Int = 15) -> [FoodItem] {
+        searchEntriesSnapshot(query: query, limit: limit).map { $0.toFoodItem() }
     }
 
     static func searchEntries(

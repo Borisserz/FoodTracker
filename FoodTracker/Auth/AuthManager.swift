@@ -16,13 +16,20 @@ enum AccountDeletionDialogCopy {
 enum AccountDeletionError: LocalizedError {
     case serverCleanupFailed(statusCode: Int)
     case notSignedIn
+    case appleTokenRevocationFailed(underlyingDescription: String)
 
     var errorDescription: String? {
         switch self {
         case .serverCleanupFailed(let statusCode):
-            return "Failed to remove server account data (HTTP \(statusCode)). Please try again."
+            return String(
+                localized: "Failed to remove server account data (HTTP \(statusCode)). Please try again."
+            )
         case .notSignedIn:
-            return "No active user session found to delete."
+            return String(localized: "No active user session found to delete.")
+        case .appleTokenRevocationFailed(let underlyingDescription):
+            return String(
+                localized: "Your FoodTracker account and local data were deleted, but automatic Sign in with Apple revocation failed (\(underlyingDescription)). Please revoke access manually in iOS Settings → Apple Account → Sign in with Apple."
+            )
         }
     }
 }
@@ -169,11 +176,21 @@ final class AuthManager {
         try await deleteAccount()
         clearGoogleSession()
         if let appleAuthorizationCode, !appleAuthorizationCode.isEmpty {
-            do {
-                try await revokeAppleToken(appleAuthorizationCode)
-            } catch {
-                // Server and Firebase Auth account deletion already succeeded; log and continue so local wipe completes.
-                print("⚠️ Apple token revocation warning after account deletion: \(error.localizedDescription)")
+            let maxAttempts = 2
+            var lastError: Error?
+            for _ in 0..<maxAttempts {
+                do {
+                    try await revokeAppleToken(appleAuthorizationCode)
+                    lastError = nil
+                    break
+                } catch {
+                    lastError = error
+                }
+            }
+            if let lastError {
+                throw AccountDeletionError.appleTokenRevocationFailed(
+                    underlyingDescription: lastError.localizedDescription
+                )
             }
         }
     }
