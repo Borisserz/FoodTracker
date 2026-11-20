@@ -90,6 +90,7 @@ struct FastingDashboardView: View {
     @State private var path = NavigationPath()
     @State private var customHours: Int = 16
     @State private var showReplaceCustomAlert = false
+    @State private var showExtendedFastWarning = false
 
     var body: some View {
         ZStack {
@@ -121,6 +122,8 @@ struct FastingDashboardView: View {
                         onStart: {
                             if FastingManager.shared.isFasting {
                                 showReplaceCustomAlert = true
+                            } else if customHours >= 24 {
+                                showExtendedFastWarning = true
                             } else {
                                 FastingManager.shared.startCustomFast(hours: customHours)
                             }
@@ -149,11 +152,23 @@ struct FastingDashboardView: View {
         }
         .alert("Replace Active Fast?", isPresented: $showReplaceCustomAlert) {
             Button("Start New Fast", role: .destructive) {
-                FastingManager.shared.startCustomFast(hours: customHours)
+                if customHours >= 24 {
+                    showExtendedFastWarning = true
+                } else {
+                    FastingManager.shared.startCustomFast(hours: customHours)
+                }
             }
             Button("Keep Current", role: .cancel) {}
         } message: {
             Text("You already have an active fasting session. Starting a custom \(customHours)h fast will reset your current timer.")
+        }
+        .alert("Extended Fast Safety Notice", isPresented: $showExtendedFastWarning) {
+            Button("I Understand, Start Fast") {
+                FastingManager.shared.startCustomFast(hours: customHours)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Fasts of 24 hours or longer deplete essential electrolytes and are not suitable if pregnant, diabetic, under 18, or with a history of eating disorders. Consult a physician before extended fasting.")
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -335,7 +350,7 @@ struct PremiumFastingDetailView: View {
                                 .offset(x: 150, y: -20)
 
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(plan.category.rawValue.uppercased())
+                                Text(plan.category.localizedName.uppercased())
                                     .font(.system(size: 12, weight: .black, design: .rounded))
                                     .foregroundColor(.white.opacity(0.8))
                                     .tracking(2)
@@ -433,7 +448,7 @@ struct PremiumFastingDetailView: View {
 
                         if plan.category == .beginner {
                             AllowedDrinksSection(color: plan.color)
-                        } else if plan.category == .expert {
+                        } else if plan.category == .expert || plan.fastingHours >= 24 {
                             ExpertSafetyWarning(color: plan.color)
                         }
 

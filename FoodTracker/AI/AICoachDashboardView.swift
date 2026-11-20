@@ -165,13 +165,12 @@ struct AICoachDashboardView: View {
 
                                 fridgeToRecipeSection
 
-                                // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР (Guideline 1.4.1)
-                                Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
-                                    .font(.system(size: 11, design: .rounded))
-                                    .foregroundColor(.secondary.opacity(0.7))
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal, 28)
-                                    .padding(.top, 16)
+                                NutritionMethodologyDisclaimerView(
+                                    citations: [.dietaryGuidelines, .bmrAndTdee],
+                                    compact: true
+                                )
+                                .padding(.horizontal, 20)
+                                .padding(.top, 16)
 
                                 ReportAIContentButton(surface: "ai_coach_dashboard")
                                     .padding(.top, 4)
