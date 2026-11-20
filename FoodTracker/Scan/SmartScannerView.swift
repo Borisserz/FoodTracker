@@ -669,6 +669,7 @@ struct SmartScannerView: View {
                     cameraManager.capturedImage = nil
                     HapticManager.shared.notification(type: .error)
                     scanErrorMessage = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? VertexAIManager.shared.lastUserFacingError
                         ?? String(localized: "Couldn't recognize food in this photo or the AI service is temporarily unavailable. Please try again or enter manually.")
                 }
             }
@@ -694,6 +695,7 @@ struct SmartScannerView: View {
                     withAnimation {
                         isAnalyzingAI = false
                         scanErrorMessage = GeminiProxyClient.consumeRateLimitAlertMessage()
+                            ?? VertexAIManager.shared.lastUserFacingError
                             ?? String(localized: "Couldn't analyze this menu right now. Please try a clearer photo.")
                     }
                 }

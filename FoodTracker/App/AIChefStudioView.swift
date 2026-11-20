@@ -106,6 +106,7 @@ struct AIChefStudioView: View {
     @State private var showSmartBuilder = false
     @State private var selectedSavedPlan: WeeklyMealPlan? = nil
     @State private var isGeneratingAIRecipe = false
+    @State private var recipeGenerationTask: Task<Void, Never>? = nil
     @State private var generatedAIRecipe: AIChefRecipe? = nil
     @State private var generationError: String? = nil
     @State private var pendingChefQuery: String? = nil
@@ -485,6 +486,11 @@ struct AIChefStudioView: View {
                     }
                 )
             }
+            .onDisappear {
+                recipeGenerationTask?.cancel()
+                recipeGenerationTask = nil
+                isGeneratingAIRecipe = false
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     currentDayStart = Calendar.current.startOfDay(for: Date())
@@ -504,7 +510,8 @@ struct AIChefStudioView: View {
         isGeneratingAIRecipe = true
         let budget = remaining.calories > 0 ? remaining.calories : 500
         let diet = currentUser?.activeDietKey ?? "Balanced"
-        Task {
+        recipeGenerationTask?.cancel()
+        recipeGenerationTask = Task {
             let recipe = await AINutritionService.shared.generateChefRecipe(
                 dishQuery: trimmed,
                 remainingCalories: budget,
@@ -512,6 +519,7 @@ struct AIChefStudioView: View {
             )
             await MainActor.run {
                 isGeneratingAIRecipe = false
+                guard !Task.isCancelled else { return }
                 if let recipe {
                     generatedAIRecipe = recipe
                 } else {
@@ -1201,6 +1209,7 @@ struct AIAssistantFlowView: View {
     @State private var selectedRecipe: AIChefRecipe? = nil
     @State private var isPrepPhase = false
     @State private var isGeneratingAI = false
+    @State private var assistantGenerationTask: Task<Void, Never>? = nil
     @State private var generationError: String? = nil
     @State private var pendingAssistantQuery: String? = nil
     @State private var showAIConsentSheet = false
@@ -1287,6 +1296,11 @@ struct AIAssistantFlowView: View {
             } message: {
                 Text(generationError ?? "")
             }
+            .onDisappear {
+                assistantGenerationTask?.cancel()
+                assistantGenerationTask = nil
+                isGeneratingAI = false
+            }
             .sheet(isPresented: $showAIConsentSheet) {
                 AIPhotoConsentSheet(
                     onAllow: {
@@ -1311,7 +1325,8 @@ struct AIAssistantFlowView: View {
             return
         }
         isGeneratingAI = true
-        Task {
+        assistantGenerationTask?.cancel()
+        assistantGenerationTask = Task {
             let budget = max(remainingCalories, 400)
             let recipe = await AINutritionService.shared.generateChefRecipe(
                 dishQuery: query,
@@ -1320,6 +1335,7 @@ struct AIAssistantFlowView: View {
             )
             await MainActor.run {
                 isGeneratingAI = false
+                guard !Task.isCancelled else { return }
                 if let recipe {
                     selectedRecipe = recipe
                     isPrepPhase = true
@@ -1681,6 +1697,8 @@ struct AICameraScannerView: View {
             evaluationTask = nil
             photoLoadTask?.cancel()
             photoLoadTask = nil
+            isAnalyzing = false
+            isCapturingPhoto = false
             cameraManager.stop()
         }
         .onChange(of: cameraManager.capturedImage) { _, newImage in
@@ -1780,7 +1798,10 @@ struct AICameraScannerView: View {
                     dishTitle: dishTitle,
                     stepInstruction: step.instruction
                 )
-                guard !Task.isCancelled else { return }
+                guard !Task.isCancelled else {
+                    await MainActor.run { isAnalyzing = false }
+                    return
+                }
                 await MainActor.run {
                     isAnalyzing = false
                     showResult = true
@@ -1793,11 +1814,14 @@ struct AICameraScannerView: View {
                     isAnalyzing = false
                 }
             } catch {
-                guard !Task.isCancelled else { return }
+                guard !Task.isCancelled else {
+                    await MainActor.run { isAnalyzing = false }
+                    return
+                }
                 await MainActor.run {
                     isAnalyzing = false
                     evaluationError = GeminiProxyClient.consumeRateLimitAlertMessage()
-                        ?? String(localized: "Couldn't evaluate this step right now. Check your connection and try again.")
+                        ?? AINutritionService.userFacingErrorMessage(for: error)
                     HapticManager.shared.notification(type: .error)
                 }
             }

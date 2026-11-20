@@ -205,6 +205,7 @@ struct AICoachChatView: View {
         .onDisappear {
             activeTask?.cancel()
             activeTask = nil
+            isGenerating = false
         }
         .onAppear {
             TrackingManager.shared.track(.featureDiscovered(feature: "AI Coach Chat"))
@@ -263,6 +264,7 @@ struct AICoachChatView: View {
             try? self.context.save()
         }
 
+        activeTask?.cancel()
         activeTask = Task {
             let userContext = AIChatTitleHelper.buildUserContext(
                 userGoal: userGoal,
@@ -283,10 +285,10 @@ struct AICoachChatView: View {
                 activeDiet: activeDiet,
                 history: priorMessages
             )
-            guard !Task.isCancelled else { return }
 
             await MainActor.run {
                 self.isGenerating = false
+                guard !Task.isCancelled else { return }
                 guard self.currentSession?.persistentModelID == targetSession.persistentModelID else { return }
                 if let aiResponseText {
                     let aiMsg = AIChatMessage(isUser: false, text: aiResponseText, isAnimating: true)
@@ -296,6 +298,7 @@ struct AICoachChatView: View {
                 } else {
                     // Show transient error message in UI without persisting fake AI text into SwiftData history.
                     let message = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? AINutritionService.shared.lastUserFacingError
                         ?? String(localized: "I couldn't process that right now.")
                     let errorMsg = AIChatMessage(
                         isUser: false,

@@ -65,11 +65,28 @@ enum DeviceInstallIdentifier {
     }
 }
 
+struct AIResponseSchema: @unchecked Sendable, Equatable {
+    let serializedData: Data
+
+    init?(_ dictionary: [String: Any]) {
+        guard JSONSerialization.isValidJSONObject(dictionary),
+              let data = try? JSONSerialization.data(withJSONObject: dictionary) else {
+            return nil
+        }
+        self.serializedData = data
+    }
+
+    var jsonObject: [String: Any]? {
+        try? JSONSerialization.jsonObject(with: serializedData) as? [String: Any]
+    }
+}
+
 protocol GeminiProxyExecuting: Sendable {
     func fetchJSON<T: Decodable>(
         prompt: String,
         responseType: T.Type,
         maxOutputTokens: Int?,
+        responseSchema: AIResponseSchema?,
         suppressRateLimitAlert: Bool
     ) async throws -> T
 
@@ -79,13 +96,15 @@ protocol GeminiProxyExecuting: Sendable {
         prompt: String,
         base64Image: String,
         mimeType: String,
-        responseType: T.Type
+        responseType: T.Type,
+        responseSchema: AIResponseSchema?
     ) async throws -> T
 
     func fetchJSONWithImages<T: Decodable>(
         prompt: String,
         images: [(base64: String, mime: String)],
-        responseType: T.Type
+        responseType: T.Type,
+        responseSchema: AIResponseSchema?
     ) async throws -> T
 }
 
@@ -94,12 +113,14 @@ extension GeminiProxyExecuting {
         prompt: String,
         responseType: T.Type,
         maxOutputTokens: Int? = nil,
+        responseSchema: AIResponseSchema? = nil,
         suppressRateLimitAlert: Bool = false
     ) async throws -> T {
         try await fetchJSON(
             prompt: prompt,
             responseType: responseType,
             maxOutputTokens: maxOutputTokens,
+            responseSchema: responseSchema,
             suppressRateLimitAlert: suppressRateLimitAlert
         )
     }
@@ -112,13 +133,29 @@ extension GeminiProxyExecuting {
         prompt: String,
         base64Image: String,
         mimeType: String = "image/jpeg",
-        responseType: T.Type
+        responseType: T.Type,
+        responseSchema: AIResponseSchema? = nil
     ) async throws -> T {
         try await fetchJSONWithImage(
             prompt: prompt,
             base64Image: base64Image,
             mimeType: mimeType,
-            responseType: responseType
+            responseType: responseType,
+            responseSchema: responseSchema
+        )
+    }
+
+    func fetchJSONWithImages<T: Decodable>(
+        prompt: String,
+        images: [(base64: String, mime: String)],
+        responseType: T.Type,
+        responseSchema: AIResponseSchema? = nil
+    ) async throws -> T {
+        try await fetchJSONWithImages(
+            prompt: prompt,
+            images: images,
+            responseType: responseType,
+            responseSchema: responseSchema
         )
     }
 }
@@ -173,12 +210,14 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
         prompt: String,
         responseType: T.Type,
         maxOutputTokens: Int? = nil,
+        responseSchema: AIResponseSchema? = nil,
         suppressRateLimitAlert: Bool = false
     ) async throws -> T {
         let raw = try await performRequest(
             prompt: prompt,
             forceJSON: true,
             maxOutputTokens: maxOutputTokens,
+            responseSchema: responseSchema,
             suppressRateLimitAlert: suppressRateLimitAlert
         )
         let cleaned = cleanJSONResponse(raw)
@@ -195,12 +234,14 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
         prompt: String,
         base64Image: String,
         mimeType: String = "image/jpeg",
-        responseType: T.Type
+        responseType: T.Type,
+        responseSchema: AIResponseSchema? = nil
     ) async throws -> T {
         return try await fetchJSONWithImages(
             prompt: prompt,
             images: [(base64: base64Image, mime: mimeType)],
-            responseType: responseType
+            responseType: responseType,
+            responseSchema: responseSchema
         )
     }
 
@@ -208,9 +249,15 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
     func fetchJSONWithImages<T: Decodable>(
         prompt: String,
         images: [(base64: String, mime: String)],
-        responseType: T.Type
+        responseType: T.Type,
+        responseSchema: AIResponseSchema? = nil
     ) async throws -> T {
-        let raw = try await performRequest(prompt: prompt, images: images, forceJSON: true)
+        let raw = try await performRequest(
+            prompt: prompt,
+            images: images,
+            forceJSON: true,
+            responseSchema: responseSchema
+        )
         let cleaned = cleanJSONResponse(raw)
         return try decode(cleaned, as: T.self, rawForLogging: cleaned)
     }
@@ -222,6 +269,7 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
         images: [(base64: String, mime: String)] = [],
         forceJSON: Bool,
         maxOutputTokens: Int? = nil,
+        responseSchema: AIResponseSchema? = nil,
         suppressRateLimitAlert: Bool = false
     ) async throws -> String {
         let configuredURL = await RemoteConfigManager.shared.getString(forKey: AIProxyEndpoint.remoteConfigKey)
@@ -243,6 +291,9 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
         ]
         if forceJSON {
             generationConfig["responseMimeType"] = "application/json"
+            if let responseSchema, let schemaObject = responseSchema.jsonObject {
+                generationConfig["responseSchema"] = schemaObject
+            }
         }
         if let maxOutputTokens, maxOutputTokens > 0 {
             generationConfig["maxOutputTokens"] = maxOutputTokens

@@ -518,6 +518,59 @@ class AINutritionService {
         return await fetchFromGemini(prompt: prompt, responseType: DailyVerdictDTO.self)
     }
 
+    private static let fridgeRecipeSchema = AIResponseSchema([
+        "type": "OBJECT",
+        "properties": [
+            "name": ["type": "STRING"],
+            "info": ["type": "STRING"],
+            "calories": ["type": "INTEGER"],
+            "protein": ["type": "NUMBER"],
+            "fats": ["type": "NUMBER"],
+            "carbs": ["type": "NUMBER"],
+            "cookingTime": ["type": "INTEGER"]
+        ],
+        "required": ["name", "info", "calories", "protein", "fats", "carbs", "cookingTime"]
+    ])
+
+    private static let weeklyPlanSchema = AIResponseSchema([
+        "type": "OBJECT",
+        "properties": [
+            "days": [
+                "type": "ARRAY",
+                "items": [
+                    "type": "OBJECT",
+                    "properties": [
+                        "dayIndex": ["type": "INTEGER"],
+                        "totalCalories": ["type": "INTEGER"],
+                        "totalProtein": ["type": "INTEGER"],
+                        "totalCarbs": ["type": "INTEGER"],
+                        "totalFat": ["type": "INTEGER"],
+                        "meals": [
+                            "type": "ARRAY",
+                            "items": [
+                                "type": "OBJECT",
+                                "properties": [
+                                    "title": ["type": "STRING"],
+                                    "type": ["type": "STRING"],
+                                    "calories": ["type": "INTEGER"],
+                                    "protein": ["type": "INTEGER"],
+                                    "carbs": ["type": "INTEGER"],
+                                    "fat": ["type": "INTEGER"],
+                                    "ingredients": ["type": "STRING"],
+                                    "instructions": ["type": "STRING"],
+                                    "prepTimeMinutes": ["type": "INTEGER"]
+                                ],
+                                "required": ["title", "type", "calories", "protein", "carbs", "fat", "ingredients", "instructions", "prepTimeMinutes"]
+                            ]
+                        ]
+                    ],
+                    "required": ["dayIndex", "totalCalories", "totalProtein", "totalCarbs", "totalFat", "meals"]
+                ]
+            ]
+        ],
+        "required": ["days"]
+    ])
+
     func generateFridgeRecipe(ingredients: String, missingCalories: Int, missingProtein: Int) async -> AIRecipeDTO? {
         let safeIngredients = Self.sanitizedPromptInput(ingredients, maxLength: 400)
         let prompt = """
@@ -531,7 +584,11 @@ class AINutritionService {
         Return ONLY a raw JSON object. No Markdown. Format:
         {"name": "String", "info": "Short description of how to cook it", "calories": Int, "protein": Double, "fats": Double, "carbs": Double, "cookingTime": Int}
         """
-        return await fetchFromGemini(prompt: prompt, responseType: AIRecipeDTO.self)
+        return await fetchFromGemini(
+            prompt: prompt,
+            responseType: AIRecipeDTO.self,
+            responseSchema: Self.fridgeRecipeSchema
+        )
     }
 
     func generateCookingSteps(for mealName: String, ingredients: [String]) async -> AIChefRecipeDTO? {
@@ -673,7 +730,12 @@ class AINutritionService {
         Do not include markdown tags. Only output the raw JSON. Ensure all arrays have 7 items for days, and 4 items for meals.
         """
         
-        if let dto = await fetchFromGemini(prompt: prompt, responseType: AIWeeklyPlanDTO.self, maxOutputTokens: 8192) {
+        if let dto = await fetchFromGemini(
+            prompt: prompt,
+            responseType: AIWeeklyPlanDTO.self,
+            maxOutputTokens: 8192,
+            responseSchema: Self.weeklyPlanSchema
+        ) {
             let normalizedDays = Self.normalizedPlanDays(dto.days)
             guard Self.isCompleteWeeklyPlan(normalizedDays) else { return nil }
             let plan = WeeklyMealPlan(targetCalories: targetCalories, dietType: diet)
@@ -907,6 +969,7 @@ class AINutritionService {
         prompt: String,
         responseType: T.Type,
         maxOutputTokens: Int? = nil,
+        responseSchema: AIResponseSchema? = nil,
         suppressRateLimitAlert: Bool = false
     ) async -> T? {
         guard await consentProvider() else { return nil }
@@ -916,6 +979,7 @@ class AINutritionService {
                 prompt: prompt,
                 responseType: responseType,
                 maxOutputTokens: maxOutputTokens,
+                responseSchema: responseSchema,
                 suppressRateLimitAlert: suppressRateLimitAlert
             )
         } catch {

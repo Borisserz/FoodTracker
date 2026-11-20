@@ -537,6 +537,70 @@ final class VertexAIManagerTests: XCTestCase {
         XCTAssertFalse(http401Msg.isEmpty)
     }
 
+    func testVertexAIManagerExposesStructuredFailureReasonsAndClearsOnSuccess() async {
+        let mockProxy = MockGeminiProxyClient()
+        let manager = VertexAIManager(proxy: mockProxy, photoConsentProvider: { true })
+        let image = Self.makeSolidTestImage()
+
+        mockProxy.nextError = URLError(.notConnectedToInternet)
+        let offlineResult = await manager.analyzeFoodImageDetailed(image)
+        if case .failed = offlineResult { } else { XCTFail("Expected .failed for offline") }
+        XCTAssertEqual(manager.lastFailureReason, .networkUnavailable)
+        XCTAssertEqual(manager.lastUserFacingError, AINutritionService.userFacingErrorMessage(for: URLError(.notConnectedToInternet)))
+
+        mockProxy.nextError = URLError(.timedOut)
+        let menuTimeout = await manager.analyzeMenuImage(image, remainingCalories: 600, targetProtein: 40)
+        XCTAssertNil(menuTimeout)
+        XCTAssertEqual(manager.lastFailureReason, .timedOut)
+        XCTAssertEqual(manager.lastUserFacingError, AINutritionService.userFacingErrorMessage(for: URLError(.timedOut)))
+
+        mockProxy.nextError = GeminiProxyError.rateLimited(retryAfter: "60")
+        _ = await manager.analyzeFoodImageDetailed(image)
+        XCTAssertEqual(manager.lastFailureReason, .rateLimited(retryAfter: "60"))
+
+        mockProxy.nextError = nil
+        mockProxy.nextJSONString = #"{"isFood":true,"name":"Oatmeal","weight":200,"calories":180,"protein":6,"fats":3,"carbs":30}"#
+        let okResult = await manager.analyzeFoodImageDetailed(image)
+        if case .food = okResult { } else { XCTFail("Expected .food on recovery") }
+        XCTAssertNil(manager.lastFailureReason)
+        XCTAssertNil(manager.lastUserFacingError)
+    }
+
+    func testVertexAIManagerForwardsResponseSchemaForMealAndMenuScans() async {
+        let mockProxy = MockGeminiProxyClient()
+        mockProxy.nextJSONString = #"{"isFood":true,"name":"Apple","weight":100,"calories":52,"protein":0.3,"fats":0.2,"carbs":14}"#
+        let manager = VertexAIManager(proxy: mockProxy, photoConsentProvider: { true })
+        let image = Self.makeSolidTestImage()
+
+        _ = await manager.analyzeFoodImageDetailed(image)
+        XCTAssertEqual(mockProxy.lastResponseSchema?.jsonObject?["type"] as? String, "OBJECT")
+
+        mockProxy.lastResponseSchema = nil
+        mockProxy.nextJSONString = #"{"ideal":{"dishName":"Fish","estimatedCalories":400,"protein":35,"reasoning":"Lean"},"caution":{"dishName":"Pasta","estimatedCalories":650,"protein":20,"reasoning":"Heavy"},"avoid":{"dishName":"Cake","estimatedCalories":950,"protein":8,"reasoning":"Sugar"}}"#
+        _ = await manager.analyzeMenuImage(image, remainingCalories: 500, targetProtein: 35)
+        XCTAssertEqual(mockProxy.lastResponseSchema?.jsonObject?["type"] as? String, "OBJECT")
+    }
+
+    func testAINutritionServiceForwardsResponseSchemaForFridgeAndWeeklyPlan() async {
+        let mockProxy = MockGeminiProxyClient()
+        let service = AINutritionService(proxy: mockProxy, consentProvider: { true })
+
+        mockProxy.nextJSONString = #"{"name":"Egg Scramble","info":"Cook eggs.","calories":250,"protein":18,"fats":16,"carbs":2,"cookingTime":8}"#
+        let fridge = await service.generateFridgeRecipe(ingredients: "eggs, spinach", missingCalories: 300, missingProtein: 20)
+        XCTAssertNotNil(fridge)
+        XCTAssertEqual(mockProxy.lastResponseSchema?.jsonObject?["type"] as? String, "OBJECT")
+        XCTAssertEqual(mockProxy.lastResponseSchema?.jsonObject?["required"] as? [String], ["name", "info", "calories", "protein", "fats", "carbs", "cookingTime"])
+
+        mockProxy.lastResponseSchema = nil
+        let daysJSON = (0..<7).map { idx in
+            #"{"dayIndex":\#(idx),"totalCalories":2000,"totalProtein":150,"totalCarbs":200,"totalFat":65,"meals":[{"title":"Bowl","type":"Lunch","calories":500,"protein":35,"carbs":50,"fat":15,"ingredients":"chicken, rice","instructions":"Cook","prepTimeMinutes":15}]}"#
+        }.joined(separator: ",")
+        mockProxy.nextJSONString = "{\"days\":[\(daysJSON)]}"
+        let plan = await service.generateWeeklyPlan(targetCalories: 2000, diet: "Balanced", complexity: "Fast")
+        XCTAssertNotNil(plan)
+        XCTAssertEqual(mockProxy.lastResponseSchema?.jsonObject?["required"] as? [String], ["days"])
+    }
+
     private static func makeSolidTestImage() -> UIImage {
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 24, height: 24))
         return renderer.image { ctx in
@@ -552,14 +616,17 @@ private final class MockGeminiProxyClient: GeminiProxyExecuting, @unchecked Send
     var nextError: Error?
     private(set) var textCallCount = 0
     private(set) var imageCallCount = 0
+    var lastResponseSchema: AIResponseSchema?
 
     func fetchJSON<T: Decodable>(
         prompt: String,
         responseType: T.Type,
         maxOutputTokens: Int?,
+        responseSchema: AIResponseSchema?,
         suppressRateLimitAlert: Bool
     ) async throws -> T {
         textCallCount += 1
+        lastResponseSchema = responseSchema
         if let nextError { throw nextError }
         let data = Data(nextJSONString.utf8)
         return try JSONDecoder().decode(T.self, from: data)
@@ -575,9 +642,11 @@ private final class MockGeminiProxyClient: GeminiProxyExecuting, @unchecked Send
         prompt: String,
         base64Image: String,
         mimeType: String,
-        responseType: T.Type
+        responseType: T.Type,
+        responseSchema: AIResponseSchema?
     ) async throws -> T {
         imageCallCount += 1
+        lastResponseSchema = responseSchema
         if let nextError { throw nextError }
         let data = Data(nextJSONString.utf8)
         return try JSONDecoder().decode(T.self, from: data)
@@ -586,9 +655,11 @@ private final class MockGeminiProxyClient: GeminiProxyExecuting, @unchecked Send
     func fetchJSONWithImages<T: Decodable>(
         prompt: String,
         images: [(base64: String, mime: String)],
-        responseType: T.Type
+        responseType: T.Type,
+        responseSchema: AIResponseSchema?
     ) async throws -> T {
         imageCallCount += 1
+        lastResponseSchema = responseSchema
         if let nextError { throw nextError }
         let data = Data(nextJSONString.utf8)
         return try JSONDecoder().decode(T.self, from: data)

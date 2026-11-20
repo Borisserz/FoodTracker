@@ -103,6 +103,7 @@ struct SmartPlanBuilderFlow: View {
             .onDisappear {
                 generationTask?.cancel()
                 generationTask = nil
+                isGenerating = false
             }
             .toolbar {
                 if generatedPlan == nil {
@@ -400,7 +401,10 @@ struct SmartPlanBuilderFlow: View {
                 diet: selectedDiet,
                 complexity: complexity
             )
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled else {
+                await MainActor.run { isGenerating = false }
+                return
+            }
             if let newPlan {
                 await MainActor.run {
                     let existingPlans = (try? context.fetch(FetchDescriptor<WeeklyMealPlan>())) ?? []
@@ -419,6 +423,7 @@ struct SmartPlanBuilderFlow: View {
                 await MainActor.run {
                     withAnimation { isGenerating = false }
                     generationError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                        ?? AINutritionService.shared.lastUserFacingError
                         ?? String(localized: "Couldn't generate a 7-day plan right now. Please try again.")
                     HapticManager.shared.notification(type: .error)
                 }

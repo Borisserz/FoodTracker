@@ -174,6 +174,11 @@ struct BeforeAfterView: View {
             analysisResult = nil
             analysisError = nil
         }
+        .onDisappear {
+            analysisTask?.cancel()
+            analysisTask = nil
+            isAnalyzing = false
+        }
         .sheet(isPresented: $showPhotoConsentSheet) {
             AIPhotoConsentSheet(
                 onAllow: {
@@ -402,13 +407,16 @@ struct BeforeAfterView: View {
                     }
                 }
             } catch {
-                guard !Task.isCancelled else { return }
+                guard !Task.isCancelled else {
+                    await MainActor.run { isAnalyzing = false }
+                    return
+                }
                 await MainActor.run {
                     HapticManager.shared.notification(type: .error)
                     withAnimation {
                         isAnalyzing = false
                         analysisError = GeminiProxyClient.consumeRateLimitAlertMessage()
-                            ?? String(localized: "Couldn't analyze these photos right now. Check your connection and try again.")
+                            ?? AINutritionService.userFacingErrorMessage(for: error)
                     }
                 }
             }

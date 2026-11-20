@@ -1,6 +1,17 @@
 import Foundation
 import UIKit
 
+enum AIErrorReason: Equatable, Sendable {
+    case consentRequired
+    case networkUnavailable
+    case timedOut
+    case rateLimited(retryAfter: String?)
+    case decodingFailed
+    case serverError(status: Int)
+    case encodingFailed
+    case other(String)
+}
+
 /// Vision-focused facade. All transport, auth, and low-level Gemini logic is now in GeminiProxyClient.
 final class VertexAIManager {
     static let shared = VertexAIManager()
@@ -8,6 +19,67 @@ final class VertexAIManager {
     // Delegate to the shared client (deduplication complete for this file).
     private let client: any GeminiProxyExecuting
     private let photoConsentProvider: (@MainActor () -> Bool)?
+    private let errorLock = NSLock()
+    private var _lastFailureReason: AIErrorReason?
+    private var _lastUserFacingError: String?
+
+    var lastFailureReason: AIErrorReason? {
+        errorLock.withLock { _lastFailureReason }
+    }
+
+    var lastUserFacingError: String? {
+        errorLock.withLock { _lastUserFacingError }
+    }
+
+    private func clearErrorState() {
+        errorLock.withLock {
+            _lastFailureReason = nil
+            _lastUserFacingError = nil
+        }
+    }
+
+    private func recordFailure(reason: AIErrorReason, userMessage: String) {
+        errorLock.withLock {
+            _lastFailureReason = reason
+            _lastUserFacingError = userMessage
+        }
+    }
+
+    private func recordFailure(for error: Error) {
+        recordFailure(
+            reason: Self.classifyError(error),
+            userMessage: AINutritionService.userFacingErrorMessage(for: error)
+        )
+    }
+
+    static func classifyError(_ error: Error) -> AIErrorReason {
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed:
+                return .networkUnavailable
+            case .timedOut:
+                return .timedOut
+            default:
+                return .other(urlError.localizedDescription)
+            }
+        }
+        if let proxyError = error as? GeminiProxyError {
+            switch proxyError {
+            case .rateLimited(let retryAfter):
+                return .rateLimited(retryAfter: retryAfter)
+            case .serverError(let status, _):
+                return .serverError(status: status)
+            case .decodingFailed, .invalidResponse:
+                return .decodingFailed
+            case .invalidURL:
+                return .other("invalidURL")
+            }
+        }
+        if error is DecodingError {
+            return .decodingFailed
+        }
+        return .other(error.localizedDescription)
+    }
 
     init(
         proxy: any GeminiProxyExecuting = GeminiProxyClient.shared,
@@ -271,11 +343,61 @@ final class VertexAIManager {
         }
     }
 
+    private static let mealScanSchema = AIResponseSchema([
+        "type": "OBJECT",
+        "properties": [
+            "isFood": ["type": "BOOLEAN"],
+            "errorMessage": ["type": "STRING"],
+            "name": ["type": "STRING"],
+            "weight": ["type": "NUMBER"],
+            "calories": ["type": "INTEGER"],
+            "protein": ["type": "NUMBER"],
+            "fats": ["type": "NUMBER"],
+            "carbs": ["type": "NUMBER"],
+            "omega3": ["type": "NUMBER"],
+            "calcium": ["type": "NUMBER"],
+            "potassium": ["type": "NUMBER"],
+            "magnesium": ["type": "NUMBER"],
+            "iron": ["type": "NUMBER"],
+            "vitaminC": ["type": "NUMBER"],
+            "vitaminD": ["type": "NUMBER"]
+        ],
+        "required": ["isFood"]
+    ])
+
+    private static let menuDishSchema: [String: Any] = [
+        "type": "OBJECT",
+        "properties": [
+            "dishName": ["type": "STRING"],
+            "estimatedCalories": ["type": "INTEGER"],
+            "protein": ["type": "NUMBER"],
+            "fats": ["type": "NUMBER"],
+            "carbs": ["type": "NUMBER"],
+            "reasoning": ["type": "STRING"]
+        ],
+        "required": ["dishName", "estimatedCalories", "protein", "reasoning"]
+    ]
+
+    private static let menuScanSchema = AIResponseSchema([
+        "type": "OBJECT",
+        "properties": [
+            "ideal": menuDishSchema,
+            "caution": menuDishSchema,
+            "avoid": menuDishSchema
+        ],
+        "required": ["ideal", "caution", "avoid"]
+    ])
+
     func analyzeFoodImageDetailed(_ image: UIImage) async -> FoodImageAnalysisResult {
-        guard await hasPhotoConsent() else { return .failed }
+        clearErrorState()
+        guard await hasPhotoConsent() else {
+            recordFailure(reason: .consentRequired, userMessage: String(localized: "AI photo analysis requires your permission."))
+            return .failed
+        }
         guard let base64Image = await Task.detached(priority: .userInitiated, operation: {
             Self.encodedJPEG(image, maxDimension: 1024, quality: 0.45)
         }).value else {
+            recordFailure(reason: .encodingFailed, userMessage: String(localized: "Could not prepare this photo for analysis."))
             return .failed
         }
 
@@ -295,7 +417,9 @@ final class VertexAIManager {
             let aiResponse = try await client.fetchJSONWithImage(
                 prompt: prompt,
                 base64Image: base64Image,
-                responseType: AIFoodResponse.self
+                mimeType: "image/jpeg",
+                responseType: AIFoodResponse.self,
+                responseSchema: Self.mealScanSchema
             )
 
             if !aiResponse.isFood {
@@ -342,15 +466,23 @@ final class VertexAIManager {
             return .food(item)
         } catch {
             print("❌ Vertex AI Error: \(error)")
+            recordFailure(for: error)
             return .failed
         }
     }
 
     func analyzeMenuImage(_ image: UIImage, remainingCalories: Int, targetProtein: Int) async -> MenuAIResponse? {
-        guard await hasPhotoConsent() else { return nil }
+        clearErrorState()
+        guard await hasPhotoConsent() else {
+            recordFailure(reason: .consentRequired, userMessage: String(localized: "AI menu analysis requires your permission."))
+            return nil
+        }
         guard let base64Image = await Task.detached(priority: .userInitiated, operation: {
             Self.encodedJPEG(image, maxDimension: 1024, quality: 0.45)
-        }).value else { return nil }
+        }).value else {
+            recordFailure(reason: .encodingFailed, userMessage: String(localized: "Could not prepare this photo for analysis."))
+            return nil
+        }
 
         let prompt = """
         You are an elite AI nutritionist and menu analyst. Read the restaurant menu in the image.
@@ -375,10 +507,13 @@ final class VertexAIManager {
             return try await client.fetchJSONWithImage(
                 prompt: prompt,
                 base64Image: base64Image,
-                responseType: MenuAIResponse.self
+                mimeType: "image/jpeg",
+                responseType: MenuAIResponse.self,
+                responseSchema: Self.menuScanSchema
             )
         } catch {
             print("❌ Menu AI Error: \(error)")
+            recordFailure(for: error)
             return nil
         }
     }
