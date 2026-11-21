@@ -216,4 +216,71 @@ final class FoodTrackerUITests: XCTestCase {
 
         XCTAssertTrue(deleteButton.waitForExistence(timeout: 5.0))
     }
+
+    func testHUDQuickLogKeepsEarlierFoodWhenAddingAnother() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestingSkipOnboarding", "-uiTestingDisableSpotlight"]
+        app.launch()
+
+        logFirstHUDResult(in: app, query: "apple")
+        logFirstHUDResult(in: app, query: "rice")
+
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "apple")).firstMatch.waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "rice")).firstMatch.waitForExistence(timeout: 6))
+        app.swipeUp()
+        saveShot("home-meals", app: app)
+        saveShot("home-after-two-logs", app: app)
+
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        saveShot("coach-tab", app: app)
+    }
+
+    private func logFirstHUDResult(in app: XCUIApplication, query: String) {
+        let search = app.buttons["home_spotlight_search_button"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        if !search.isHittable {
+            app.swipeDown()
+        }
+        search.tap()
+        let field = app.textFields["hud_quick_log_search_field"]
+        if !field.waitForExistence(timeout: 3) {
+            saveShot("reopen-miss-\(query)", app: app)
+            search.tap()
+        }
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText(query)
+
+        let row0 = app.buttons["hud_quick_log_add_row_0"]
+        let row100 = app.buttons["hud_quick_log_add_row_100"]
+        var row = row100
+        let deadline = Date().addingTimeInterval(8)
+        while Date() < deadline {
+            if row0.exists { row = row0; break }
+            if row100.exists { row = row100; break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertTrue(row.waitForExistence(timeout: 2))
+        if !row.isHittable {
+            app.swipeUp()
+        }
+        row.tap()
+        saveShot("hud-\(query)", app: app)
+
+        let commit = app.buttons["hud_quick_log_commit_tray_button"]
+        XCTAssertTrue(commit.waitForExistence(timeout: 4))
+        if !commit.isHittable {
+            app.swipeDown()
+        }
+        commit.tap()
+        let closed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: field)
+        _ = XCTWaiter.wait(for: [closed], timeout: 4)
+        XCTAssertTrue(search.waitForExistence(timeout: 8), "Quick log should dismiss back to Home")
+        XCTAssertTrue(search.isHittable)
+    }
+
+    private func saveShot(_ name: String, app: XCUIApplication) {
+        let url = URL(fileURLWithPath: "/tmp/ft-ui-\(name).png")
+        try? app.screenshot().pngRepresentation.write(to: url)
+    }
 }

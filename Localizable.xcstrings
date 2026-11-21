@@ -12604,7 +12604,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выберите план"
+            "value": "Выберите протокол"
           }
         },
         "de": {
@@ -20016,7 +20016,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ПЛАН ГОЛОДАНИЯ"
+            "value": "ПРОТОКОЛ ГОЛОДАНИЯ"
           }
         },
         "de": {
@@ -20318,7 +20318,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Планы голодания"
+            "value": "Протоколы голодания"
           }
         },
         "de": {
@@ -28731,7 +28731,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выбрать план →"
+            "value": "Выбрать протокол →"
           }
         },
         "de": {
@@ -35172,7 +35172,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ПЛАН"
+            "value": "ПРОТОКОЛ"
           }
         },
         "de": {
@@ -42003,7 +42003,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Начать план %@"
+            "value": "Начать протокол %@"
           }
         },
         "de": {
@@ -56378,7 +56378,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Расчёты носят исключительно информационный и образовательный характер и не являются медицинской рекомендацией. Проконсультируйтесь с врачом перед началом диеты или плана голодания."
+            "value": "Расчёты носят исключительно информационный и образовательный характер и не являются медицинской рекомендацией. Проконсультируйтесь с врачом перед началом диеты или протокола голодания."
           }
         },
         "de": {
@@ -61505,7 +61505,1065 @@
           }
         }
       }
-    }
+    },
+    "Search foods, scan meal or barcode...": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Search foods, scan meal or barcode..."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ищите продукт, снимите блюдо или штрихкод..."
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Lebensmittel suchen, Gericht oder Barcode scannen…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Busca alimentos, escanea un plato o un código…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Cherchez un aliment, scannez un plat ou un code…"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Cerca un alimento, scansiona un piatto o un codice…"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Pesquise alimentos, digitalize uma refeição ou um código…"
+            }
+          }
+        }
+      },
+    "Search foods or scan...": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Search foods or scan..."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Поиск или сканирование..."
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Suchen oder scannen…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Buscar o escanear…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rechercher ou scanner…"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Cerca o scansiona…"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Pesquisar ou digitalizar…"
+            }
+          }
+        }
+      },
+    "From History": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "From History"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Из истории"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Aus dem Verlauf"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Del historial"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Depuis l’historique"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Dalla cronologia"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Do histórico"
+            }
+          }
+        }
+      },
+    "Food Database": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Food Database"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "База продуктов"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Lebensmitteldatenbank"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Base de alimentos"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Base d’aliments"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Database alimenti"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Base de alimentos"
+            }
+          }
+        }
+      },
+    "Global Results": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Global Results"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Глобальные результаты"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Globale Ergebnisse"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Resultados globales"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Résultats globaux"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Risultati globali"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Resultados globais"
+            }
+          }
+        }
+      },
+    "No items in %@ yet": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "No items in %@ yet"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "В «%@» пока пусто"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Noch nichts in %@"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Aún no hay nada en %@"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rien dans %@ pour l’instant"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ancora niente in %@"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ainda nada em %@"
+            }
+          }
+        }
+      },
+    "No food found for '%@'": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "No food found for '%@'"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ничего не найдено по запросу «%@»"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Kein Lebensmittel für „%@“"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ningún alimento para «%@»"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Aucun aliment pour « %@ »"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Nessun alimento per «%@»"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Nenhum alimento para «%@»"
+            }
+          }
+        }
+      },
+    "Scan food": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scan food"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Сканировать еду"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Lebensmittel scannen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Escanear alimento"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanner un aliment"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scansiona alimento"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Digitalizar alimento"
+            }
+          }
+        }
+      },
+    "Add custom food": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Add custom food"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Добавить свой продукт"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Eigenes Lebensmittel hinzufügen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Añadir alimento propio"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ajouter un aliment perso"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Aggiungi un alimento"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adicionar alimento próprio"
+            }
+          }
+        }
+      },
+    "Clear search": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Clear search"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Очистить поиск"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Suche löschen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Borrar búsqueda"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Effacer la recherche"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Cancella ricerca"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Limpar pesquisa"
+            }
+          }
+        }
+      },
+    "Add %@": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Add %@"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Добавить %@"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "%@ hinzufügen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Añadir %@"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ajouter %@"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Aggiungi %@"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adicionar %@"
+            }
+          }
+        }
+      },
+    "%lld item selected": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "%lld item selected"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Выбран %lld продукт"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "%lld Artikel ausgewählt"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "%lld alimento seleccionado"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "%lld aliment sélectionné"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "%lld alimento selezionato"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "%lld alimento selecionado"
+            }
+          }
+        }
+      },
+    "Log to %@": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Log to %@"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Записать в %@"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "In %@ eintragen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Registrar en %@"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ajouter à %@"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Registra in %@"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Registar em %@"
+            }
+          }
+        }
+      },
+    "Could not save this meal": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Could not save this meal"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Не удалось сохранить приём пищи"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Mahlzeit konnte nicht gespeichert werden"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "No se pudo guardar la comida"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Impossible d’enregistrer ce repas"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Impossibile salvare questo pasto"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Não foi possível guardar esta refeição"
+            }
+          }
+        }
+      },
+    "Try again.": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Try again."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Попробуйте ещё раз."
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Versuch es erneut."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Inténtalo de nuevo."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Réessayez."
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Riprova."
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Tente novamente."
+            }
+          }
+        }
+      },
+    "Daily Nutrition Insight": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Daily Nutrition Insight"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Разбор питания за день"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Tägliche Ernährungsübersicht"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Resumen nutricional del día"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Aperçu nutrition du jour"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Analisi nutrizionale del giorno"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Resumo nutricional do dia"
+            }
+          }
+        }
+      },
+    "Proactive analysis of your diet & metabolism": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Proactive analysis of your diet & metabolism"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Разбор рациона и обмена веществ"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Auswertung von Ernährung und Stoffwechsel"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Análisis de tu dieta y metabolismo"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Analyse de votre alimentation et de votre métabolisme"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Analisi di dieta e metabolismo"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Análise da dieta e do metabolismo"
+            }
+          }
+        }
+      },
+    "Consult with AI Coach": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Consult with AI Coach"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Спросить AI-коуча"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "AI-Coach fragen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Consultar al coach de IA"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Consulter le coach IA"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Chiedi al coach IA"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Consultar o treinador de IA"
+            }
+          }
+        }
+      },
+    "Recent": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Recent"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Недавние"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Zuletzt"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Recientes"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Récents"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Recenti"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Recentes"
+            }
+          }
+        }
+      },
+    "Frequent": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Frequent"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Частые"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Häufig"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Frecuentes"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Fréquents"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Frequenti"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Frequentes"
+            }
+          }
+        }
+      },
+    "Often": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Often"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Часто"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Oft"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "A menudo"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Souvent"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Spesso"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Muitas vezes"
+            }
+          }
+        }
+      },
+    "Search or scan above to add a food": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Search or scan above to add a food"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Найдите или отсканируйте продукт выше"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Oben suchen oder scannen, um ein Lebensmittel hinzuzufügen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Busca o escanea arriba para añadir un alimento"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Cherchez ou scannez en haut pour ajouter un aliment"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Cerca o scansiona in alto per aggiungere un alimento"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Pesquise ou digitalize acima para adicionar um alimento"
+            }
+          }
+        }
+      },
+    "Add food": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Add food"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Добавить еду"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Lebensmittel hinzufügen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Añadir alimento"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Ajouter un aliment"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Aggiungi alimento"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adicionar alimento"
+            }
+          }
+        }
+      }
   },
   "version": "1.1"
 }

@@ -131,6 +131,24 @@ struct HomeDashboardContentView: View {
               ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
                   ZStack {
                       Color.themeBg.ignoresSafeArea()
+
+                      GeometryReader { geo in
+                          ZStack {
+                              Circle()
+                                  .fill(Color.themePink.opacity(0.12))
+                                  .frame(width: 320, height: 320)
+                                  .blur(radius: 80)
+                                  .offset(x: -80, y: -100)
+
+                              Circle()
+                                  .fill(Color.themeOrange.opacity(0.08))
+                                  .frame(width: 280, height: 280)
+                                  .blur(radius: 70)
+                                  .offset(x: geo.size.width - 200, y: 220)
+                          }
+                      }
+                      .ignoresSafeArea()
+                      .allowsHitTesting(false)
                   }
 
                   // Sync HealthKit & WorkoutTracker whenever selectedDate changes without creating empty DailySummary rows on browse
@@ -148,14 +166,14 @@ struct HomeDashboardContentView: View {
                           // Quick Spotlight Search Button (Apple HIG HUD)
                           Button(action: {
                               HapticManager.shared.impact(style: .medium)
-                              self.quickAddMealType = "Breakfast"
+                              self.quickAddMealType = suggestedMealSlot()
                               self.showingQuickAddSheet = true
                           }) {
                               HStack(spacing: 10) {
                                   Image(systemName: "magnifyingglass")
                                       .font(.system(size: 15, weight: .semibold))
                                       .foregroundColor(.secondary)
-                                  Text("Search foods, scan meal or barcode...")
+                                  Text(String(localized: "Search foods, scan meal or barcode..."))
                                       .font(.system(size: 14, weight: .medium, design: .rounded))
                                       .foregroundColor(.secondary)
                                   Spacer()
@@ -165,15 +183,16 @@ struct HomeDashboardContentView: View {
                               }
                               .padding(.horizontal, 16)
                               .padding(.vertical, 12)
-                              .background(Color(UIColor.secondarySystemGroupedBackground))
+                              .background(.ultraThinMaterial)
                               .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                               .overlay(
                                   RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                      .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                                      .strokeBorder(Color.themePink.opacity(0.18), lineWidth: 1)
                               )
                               .shadow(color: Color.black.opacity(0.03), radius: 6, y: 2)
                           }
                           .buttonStyle(BounceButtonStyle())
+                          .accessibilityIdentifier("home_spotlight_search_button")
                           .padding(.horizontal, 20)
                           InsightsWidget(summary: currentSummary, user: currentUser)
 
@@ -214,6 +233,7 @@ struct HomeDashboardContentView: View {
                                       carbs: meal?.totalCarbs,
                                       time: meal?.date,
                                       foodItems: meal?.foodItems,
+                                      quickAddSlot: mealType,
                                       onCardTap: { self.selectedMealForDetail = mealType },
                                       onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
                                   )
@@ -759,6 +779,15 @@ struct HomeDashboardContentView: View {
         }
     }
 
+    private func suggestedMealSlot(for date: Date = .now) -> String {
+        switch Calendar.current.component(.hour, from: date) {
+        case 5..<11: return "Breakfast"
+        case 11..<16: return "Lunch"
+        case 16..<21: return "Dinner"
+        default: return "Snack"
+        }
+    }
+
     private func handleSpotlightScroll(to step: SpotlightStep, with proxy: ScrollViewProxy) {
         withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
             switch step {
@@ -768,9 +797,7 @@ struct HomeDashboardContentView: View {
                 proxy.scrollTo("macro_rings", anchor: .center)
             case .fastingWater:
                 proxy.scrollTo("hydration_card", anchor: .center)
-            case .addMeal:
-                proxy.scrollTo("macro_rings", anchor: .top)
-            case .aiChef:
+            case .addMeal, .aiChef:
                 break
             }
         }

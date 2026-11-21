@@ -5,9 +5,9 @@ import SwiftData
 
 struct MoreTabView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.modelContext) private var modelContext
     @Environment(ThemeManager.self) private var themeManager
     @Query private var users: [User]
-    @Query private var summaries: [DailySummary]
     @Query(sort: \WeightLog.date, order: .forward) private var weightLogs: [WeightLog]
     @AppStorage("useMetricSystem") private var useMetricSystem = true
 
@@ -17,14 +17,31 @@ struct MoreTabView: View {
     private var currentWeight: Double { weightLogs.last?.weight ?? user?.weight ?? 0.0 }
     
     private var todaySummary: DailySummary? {
-        let startOfDay = Calendar.current.startOfDay(for: Date())
-        return summaries.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) })
+        let start = Calendar.current.startOfDay(for: Date())
+        guard let end = Calendar.current.date(byAdding: .day, value: 1, to: start) else { return nil }
+        var descriptor = FetchDescriptor<DailySummary>(
+            predicate: #Predicate { $0.date >= start && $0.date < end }
+        )
+        descriptor.fetchLimit = 1
+        return try? modelContext.fetch(descriptor).first
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(UIColor.systemBackground).ignoresSafeArea()
+                Color.themeBg.ignoresSafeArea()
+                Circle()
+                    .fill(themeManager.current.primaryAccent.opacity(0.12))
+                    .frame(width: 360, height: 360)
+                    .blur(radius: 80)
+                    .offset(x: -120, y: -260)
+                    .allowsHitTesting(false)
+                Circle()
+                    .fill(themeManager.current.secondaryAccent.opacity(0.08))
+                    .frame(width: 320, height: 320)
+                    .blur(radius: 90)
+                    .offset(x: 140, y: 220)
+                    .allowsHitTesting(false)
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
@@ -108,11 +125,11 @@ struct MoreTabView: View {
 
     // MARK: - Proactive AI Coach Hero Card
     private var aiCoachHeroCard: some View {
-        let summary = todaySummary ?? DailySummary(date: Date())
-        let cals = summary.totalCalories
+        let summary = todaySummary
+        let cals = summary?.totalCalories ?? 0
         let goal = user?.dailyCaloriesGoal ?? 2000
-        let protein = summary.totalProtein
-        let proteinGoal = user?.targetProtein ?? 140
+        let protein = summary?.totalProtein ?? 0
+        let proteinGoal = user?.targetProtein ?? 0
         
         return VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 12) {
@@ -127,11 +144,11 @@ struct MoreTabView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Daily Nutrition Insight")
+                    Text(String(localized: "Daily Nutrition Insight"))
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.primary)
                     
-                    Text("Proactive analysis of your diet & metabolism")
+                    Text(String(localized: "Proactive analysis of your diet & metabolism"))
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.secondary)
                 }
@@ -173,44 +190,44 @@ struct MoreTabView: View {
             // 1-Tap Direct Chat Navigation Link
             NavigationLink(destination: AICoachChatView(
                 userGoal: user?.dailyCaloriesGoal ?? 2000,
-                consumed: summary.totalCalories,
+                consumed: summary?.totalCalories ?? 0,
                 activeDiet: user?.activeDietPlan?.name ?? String(localized: "Balanced"),
-                consumedProtein: summary.totalProtein,
+                consumedProtein: summary?.totalProtein ?? 0,
                 targetProtein: user?.targetProtein ?? 0,
-                consumedFats: summary.totalFats,
+                consumedFats: summary?.totalFats ?? 0,
                 targetFats: user?.targetFats ?? 0,
-                consumedCarbs: summary.totalCarbs,
+                consumedCarbs: summary?.totalCarbs ?? 0,
                 targetCarbs: user?.targetCarbs ?? 0,
-                hydrationLiters: summary.totalHydrationLiters,
-                activeCaloriesBurned: summary.activeCaloriesBurned
+                hydrationLiters: summary?.totalHydrationLiters ?? 0,
+                activeCaloriesBurned: summary?.activeCaloriesBurned ?? 0
             )) {
                 HStack {
                     Image(systemName: "message.fill")
                         .font(.system(size: 14, weight: .bold))
-                    Text("Consult with AI Coach")
+                    Text(String(localized: "Consult with AI Coach"))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                     Spacer()
                     Image(systemName: "arrow.right.circle.fill")
                         .font(.system(size: 16))
                 }
-                .foregroundColor(Color(UIColor.systemBackground))
+                .foregroundColor(.white)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .background(Color.primary)
+                .background(themeManager.current.primaryGradient)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
             .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
         }
         .padding(18)
-        .background(
+        .background {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color(UIColor.secondarySystemGroupedBackground))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1.2)
-        )
-        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(themeManager.current.primaryAccent.opacity(0.22), lineWidth: 1.2)
+                )
+                .shadow(color: themeManager.current.primaryAccent.opacity(0.08), radius: 12, y: 4)
+        }
     }
 
     // MARK: - Navigation Items Data
@@ -257,7 +274,7 @@ struct MoreTabView: View {
                     .foregroundStyle(.secondary)
                 Text(user?.name ?? "Champion")
                     .font(.system(size: 26, weight: .black, design: .rounded))
-                    .foregroundStyle(Color.primary)
+                    .foregroundStyle(themeManager.current.primaryGradient)
             }
             Spacer()
         }
@@ -370,13 +387,20 @@ private struct MoreNavCard<Destination: View>: View {
         NavigationLink(destination: destination) {
             HStack(spacing: 14) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(item.color.opacity(0.14))
-                        .frame(width: 44, height: 44)
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [item.color, item.color.opacity(0.65)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 48, height: 48)
+                        .shadow(color: item.color.opacity(0.35), radius: 8, y: 4)
 
                     Image(systemName: item.icon)
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(item.color)
+                        .foregroundStyle(.white)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -394,18 +418,19 @@ private struct MoreNavCard<Destination: View>: View {
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(Color.secondary.opacity(0.4))
+                    .foregroundStyle(item.color)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color(UIColor.secondarySystemGroupedBackground))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
-            )
+            .padding(.vertical, 14)
+            .background {
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .stroke(item.color.opacity(0.22), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.04), radius: 10, y: 4)
+            }
         }
         .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
         .accessibilityIdentifier(item.accessibilityId)

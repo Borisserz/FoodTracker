@@ -127,6 +127,17 @@ enum MealSlotPersistence {
     }
 }
 
+enum MealQuickLogCommit {
+    /// Drafts for an append-only quick log.
+    /// Food already in the slot stays on its `FoodItem`.
+    /// Each staged row is copied, so a history or catalog item is not moved into the slot.
+    static func drafts(existingSlotItems: [FoodItem], staged: [EditableFoodDraft]) -> [EditableFoodDraft] {
+        let kept = existingSlotItems.map { EditableFoodDraft(food: $0) }
+        let copies = staged.map { $0.detachedCopy() }
+        return kept + copies
+    }
+}
+
 struct AddMealView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) var dismiss

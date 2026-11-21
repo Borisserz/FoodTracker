@@ -11,8 +11,10 @@ struct BentoMealCardView: View {
     let carbs: Double?
     let time: Date?
     var foodItems: [FoodItem]? = nil
+    var quickAddSlot: String = "Breakfast"
     let onCardTap: () -> Void
     let onQuickAdd: () -> Void
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     
     private var iconAndColor: (String, Color, Color) {
         switch DailySummary.canonicalMealSlot(title) {
@@ -127,6 +129,8 @@ struct BentoMealCardView: View {
                     }
                 }
                 .buttonStyle(BentoBouncyButtonStyle())
+                .accessibilityLabel(String(localized: "Add food"))
+                .accessibilityIdentifier("meal_card_quick_add_\(quickAddSlot)")
             }
             
             // Macro Pills Row (when food is logged)
@@ -164,7 +168,7 @@ struct BentoMealCardView: View {
                                         .foregroundStyle(Color.primary.opacity(0.85))
                                         .lineLimit(1)
                                     if item.weight > 0 {
-                                        Text("\(Int(item.weight))g")
+                                        Text(NutritionMath.formattedFoodWeight(item.weight, useMetric: useMetricSystem))
                                             .font(.system(size: 10, weight: .bold, design: .monospaced))
                                             .foregroundStyle(Color.secondary)
                                     }

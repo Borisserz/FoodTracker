@@ -1013,6 +1013,74 @@ final class DataModelsTests: XCTestCase {
     }
 
     @MainActor
+    func testQuickLogAppendKeepsSlotFoodsAndCopiesSourceItem() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)
+        let context = container.mainContext
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+        let eggs = FoodItem(name: "Eggs", weight: 100, calories: 200, protein: 14, fats: 14, carbs: 2)
+        eggs.healthKitSampleID = "hk-eggs-1"
+        let breakfast = Meal(title: "Breakfast", date: today, foodItems: [eggs])
+        context.insert(eggs)
+        context.insert(breakfast)
+        summary.addMeal(breakfast)
+
+        let yesterdaySummary = DailySummary.fetchOrCreate(for: yesterday, in: context)
+        let chicken = FoodItem(name: "Chicken", weight: 150, calories: 240, protein: 31, fats: 4, carbs: 0)
+        chicken.healthKitSampleID = "hk-chicken"
+        let dinner = Meal(title: "Dinner", date: yesterday, foodItems: [chicken])
+        context.insert(chicken)
+        context.insert(dinner)
+        yesterdaySummary.addMeal(dinner)
+        try context.save()
+
+        var staged = EditableFoodDraft(food: chicken)
+        staged.weight = 300
+        let drafts = MealQuickLogCommit.drafts(existingSlotItems: [eggs], staged: [staged])
+
+        XCTAssertEqual(drafts.count, 2)
+        XCTAssertTrue(drafts[0].existingItem === eggs)
+        XCTAssertNil(drafts[1].existingItem)
+        XCTAssertNotEqual(drafts[1].id, chicken.id)
+        XCTAssertEqual(drafts[1].weight, 300, accuracy: 0.001)
+
+        let result = MealSlotPersistence.persistWithSyncOps(
+            activeSlot: "Breakfast",
+            activeDrafts: drafts,
+            hasModifiedActiveSlot: true,
+            draftsBySlot: [:],
+            dirtySlots: [],
+            summary: summary,
+            timestamp: today,
+            in: context
+        )
+        try context.save()
+
+        XCTAssertTrue(result.deletedSamples.isEmpty)
+        XCTAssertTrue(result.editedItems.isEmpty)
+        XCTAssertEqual(result.insertedItems.count, 1)
+        XCTAssertEqual(result.insertedItems.first?.name, "Chicken")
+        XCTAssertEqual(result.insertedItems.first?.calories, 480)
+        XCTAssertNotEqual(result.insertedItems.first?.id, chicken.id)
+
+        let todayNames = (breakfast.foodItems ?? []).map(\.name).sorted()
+        XCTAssertEqual(todayNames, ["Chicken", "Eggs"])
+        XCTAssertTrue((breakfast.foodItems ?? []).contains(where: { $0.id == eggs.id }))
+        XCTAssertEqual(eggs.calories, 200)
+        XCTAssertEqual(eggs.healthKitSampleID, "hk-eggs-1")
+
+        XCTAssertEqual(chicken.calories, 240)
+        XCTAssertEqual(chicken.weight, 150, accuracy: 0.001)
+        XCTAssertEqual(chicken.healthKitSampleID, "hk-chicken")
+        XCTAssertEqual(chicken.parentMeal?.id, dinner.id)
+        XCTAssertEqual((dinner.foodItems ?? []).map(\.id), [chicken.id])
+    }
+
+    @MainActor
     func testDailySummaryRemoveFoodItemDeletesEmptyParentMeal() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         let container = try ModelContainer(for: DailySummary.self, Meal.self, FoodItem.self, Beverage.self, ActivityLog.self, configurations: config)

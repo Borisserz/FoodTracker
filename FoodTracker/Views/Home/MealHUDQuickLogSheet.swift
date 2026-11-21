@@ -1,16 +1,17 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 // MARK: - Meal HUD Quick-Log & Spotlight Search Sheet (Apple HIG HUD Standard)
 struct MealHUDQuickLogSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     
     @Query private var summaries: [DailySummary]
     @Query private var users: [User]
-    @Query private var allDatabaseFoods: [FoodItem]
     @Query private var customRecipes: [CustomRecipe]
-    @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
     
     let selectedDate: Date
     @State private var selectedSlot: String
@@ -28,6 +29,7 @@ struct MealHUDQuickLogSheet: View {
     @State private var pendingScannerFood: FoodItem? = nil
     @State private var pendingManualEntryAfterScanner = false
     @State private var selectedFoodForDeepDetail: FoodItem? = nil
+    @State private var showCommitError = false
     
     // Search caches
     @State private var localCatalogResults: [FoodItem] = []
@@ -39,7 +41,7 @@ struct MealHUDQuickLogSheet: View {
     @State private var cachedFoodCounts: [String: Int] = [:]
     
     let mealSlots = ["Breakfast", "Lunch", "Dinner", "Snack"]
-    let categories = ["Recent", "Frequent", "Favorites", "My Recipes"]
+    let categories = ["Recent", "Frequent", "Often", "My Recipes"]
     
     init(selectedDate: Date, initialMealType: String = "Breakfast") {
         self.selectedDate = selectedDate
@@ -64,13 +66,13 @@ struct MealHUDQuickLogSheet: View {
         String(localized: String.LocalizationValue(type))
     }
     
-    private func slotIcon(for type: String) -> String {
+    private func slotSymbol(for type: String) -> String {
         switch DailySummary.canonicalMealSlot(type) {
-        case "Breakfast": return "🍳"
-        case "Lunch": return "🥗"
-        case "Dinner": return "🥩"
-        case "Snack": return "🍎"
-        default: return "🍲"
+        case "Breakfast": return "sunrise.fill"
+        case "Lunch": return "sun.max.fill"
+        case "Dinner": return "moon.stars.fill"
+        case "Snack": return "leaf.fill"
+        default: return "fork.knife"
         }
     }
     
@@ -117,7 +119,7 @@ struct MealHUDQuickLogSheet: View {
                 let c1 = cachedFoodCounts[$1.name] ?? 0
                 return c0 != c1 ? c0 > c1 : $0.name < $1.name
             }
-        case "Favorites":
+        case "Often":
             return cachedAvailableFoods.filter { (cachedFoodCounts[$0.name] ?? 0) >= 2 }
         case "My Recipes":
             return cachedRecipeFoods
@@ -144,29 +146,27 @@ struct MealHUDQuickLogSheet: View {
                             ForEach(mealSlots, id: \.self) { slot in
                                 let isSelected = DailySummary.canonicalMealSlot(selectedSlot) == DailySummary.canonicalMealSlot(slot)
                                 Button(action: {
-                                    withAnimation(.spring(response: 0.32, dampingFraction: 0.75)) {
+                                    withAnimation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.75)) {
                                         selectedSlot = slot
                                     }
                                     HapticManager.shared.impact(style: .light)
                                 }) {
-                                    HStack(spacing: 5) {
-                                        Text(slotIcon(for: slot))
-                                            .font(.system(size: 14))
+                                    HStack(spacing: 4) {
+                                        Image(systemName: slotSymbol(for: slot))
+                                            .font(.system(size: 11, weight: .bold))
                                         Text(LocalizedStringKey(slot))
                                             .font(.system(size: 12, weight: .bold, design: .rounded))
                                             .lineLimit(1)
+                                            .minimumScaleFactor(0.7)
                                     }
                                     .padding(.vertical, 8)
+                                    .padding(.horizontal, 4)
                                     .frame(maxWidth: .infinity)
-                                    .background(isSelected ? Color(red: 0.94, green: 0.89, blue: 0.83).opacity(0.25) : Color(UIColor.secondarySystemGroupedBackground))
-                                    .foregroundColor(isSelected ? Color.primary : Color.secondary)
+                                    .background(isSelected ? Color.themePink : Color(UIColor.secondarySystemGroupedBackground))
+                                    .foregroundStyle(isSelected ? Color.white : Color.secondary)
                                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .strokeBorder(isSelected ? Color(red: 0.94, green: 0.89, blue: 0.83).opacity(0.6) : Color.clear, lineWidth: 1.2)
-                                    )
                                 }
-                                .buttonStyle(HUDSpringButtonStyle())
+                                .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
                             }
                         }
                         .padding(.horizontal, 16)
@@ -178,7 +178,7 @@ struct MealHUDQuickLogSheet: View {
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.secondary)
                                 
-                                TextField("Search foods or scan...", text: $searchText)
+                                TextField(String(localized: "Search foods or scan..."), text: $searchText)
                                     .font(.system(size: 15, weight: .regular, design: .rounded))
                                     .accessibilityIdentifier("hud_quick_log_search_field")
                                 
@@ -188,6 +188,7 @@ struct MealHUDQuickLogSheet: View {
                                             .font(.system(size: 16))
                                             .foregroundColor(.secondary.opacity(0.6))
                                     }
+                                    .accessibilityLabel(String(localized: "Clear search"))
                                 }
                             }
                             .padding(.horizontal, 12)
@@ -211,7 +212,8 @@ struct MealHUDQuickLogSheet: View {
                                     .background(Color.primary.opacity(0.85))
                                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                             }
-                            .buttonStyle(HUDSpringButtonStyle())
+                            .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
+                            .accessibilityLabel(String(localized: "Scan food"))
                             .accessibilityIdentifier("hud_quick_log_ai_camera_button")
                             
                             // Manual Add Food Button
@@ -230,7 +232,8 @@ struct MealHUDQuickLogSheet: View {
                                             .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
                                     )
                             }
-                            .buttonStyle(HUDSpringButtonStyle())
+                            .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
+                            .accessibilityLabel(String(localized: "Add custom food"))
                             .accessibilityIdentifier("hud_quick_log_manual_add_button")
                         }
                         .padding(.horizontal, 16)
@@ -242,14 +245,14 @@ struct MealHUDQuickLogSheet: View {
                                     ForEach(categories, id: \.self) { cat in
                                         let isSel = selectedCategory == cat
                                         Button(action: {
-                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                                            withAnimation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.75)) {
                                                 selectedCategory = cat
                                             }
                                             HapticManager.shared.impact(style: .light)
                                         }) {
                                             HStack(spacing: 4) {
                                                 if cat == "Recent" { Text("⚡") }
-                                                else if cat == "Frequent" || cat == "Favorites" { Text("★") }
+                                                else if cat == "Frequent" || cat == "Often" { Text("★") }
                                                 else if cat == "My Recipes" { Text("📖") }
                                                 Text(LocalizedStringKey(cat))
                                             }
@@ -260,7 +263,7 @@ struct MealHUDQuickLogSheet: View {
                                             .foregroundColor(isSel ? Color(UIColor.systemBackground) : Color.secondary)
                                             .clipShape(Capsule())
                                         }
-                                        .buttonStyle(HUDSpringButtonStyle())
+                                        .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
                                     }
                                 }
                                 .padding(.horizontal, 16)
@@ -280,30 +283,30 @@ struct MealHUDQuickLogSheet: View {
                             if !searchText.isEmpty {
                                 // Search Results
                                 if !filteredLocalFoods.isEmpty {
-                                    SectionHeaderTitle(title: "From History")
-                                    ForEach(filteredLocalFoods, id: \.id) { food in
-                                        foodRow(for: food)
+                                    SectionHeaderTitle(title: String(localized: "From History"))
+                                    ForEach(Array(filteredLocalFoods.enumerated()), id: \.element.id) { index, food in
+                                        foodRow(for: food, index: index)
                                     }
                                 }
                                 
                                 if !localCatalogResults.isEmpty {
-                                    SectionHeaderTitle(title: "Food Database")
-                                    ForEach(localCatalogResults, id: \.id) { food in
-                                        foodRow(for: food)
+                                    SectionHeaderTitle(title: String(localized: "Food Database"))
+                                    ForEach(Array(localCatalogResults.enumerated()), id: \.element.id) { index, food in
+                                        foodRow(for: food, index: 100 + index)
                                     }
                                 }
                                 
                                 if !apiSearchResults.isEmpty {
-                                    SectionHeaderTitle(title: "Global Results")
-                                    ForEach(apiSearchResults, id: \.id) { food in
-                                        foodRow(for: food)
+                                    SectionHeaderTitle(title: String(localized: "Global Results"))
+                                    ForEach(Array(apiSearchResults.enumerated()), id: \.element.id) { index, food in
+                                        foodRow(for: food, index: 200 + index)
                                     }
                                 }
                                 
                                 if isSearchingAPI {
                                     HStack(spacing: 8) {
                                         ProgressView()
-                                        Text("Searching global database...")
+                                        Text(String(localized: "Searching global database..."))
                                             .font(.caption)
                                             .foregroundStyle(Color.secondary)
                                     }
@@ -319,7 +322,11 @@ struct MealHUDQuickLogSheet: View {
                                             .font(.system(size: 36))
                                             .foregroundStyle(Color.secondary.opacity(0.4))
                                             .padding(.top, 40)
-                                        Text("No items in \(localizedMealType(selectedCategory)) yet")
+                                        Text(String(format: String(localized: "No items in %@ yet"), localizedMealType(selectedCategory)))
+                                        Text(String(localized: "Search or scan above to add a food"))
+                                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                                            .foregroundStyle(Color.secondary.opacity(0.8))
+                                            .multilineTextAlignment(.center)
                                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                                             .foregroundStyle(Color.secondary)
                                     }
@@ -392,6 +399,11 @@ struct MealHUDQuickLogSheet: View {
         .onChange(of: searchText) { _, newValue in
             performSearch(query: newValue)
         }
+        .alert(String(localized: "Could not save this meal"), isPresented: $showCommitError) {
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "Try again."))
+        }
     }
     
     // MARK: - Food Row with 1-Tap Quick Log
@@ -400,7 +412,9 @@ struct MealHUDQuickLogSheet: View {
         let meta = categoryIcon(for: food.name)
         let isStaged = stagedDrafts.contains(where: { $0.name.lowercased() == food.name.lowercased() })
         let stagedCount = stagedDrafts.filter { $0.name.lowercased() == food.name.lowercased() }.count
-        let weightLabel = food.weight > 0 ? "\(Int(food.weight))g" : String(localized: "1 serving")
+        let weightLabel = food.weight > 0
+            ? NutritionMath.formattedFoodWeight(food.weight, useMetric: useMetricSystem)
+            : String(localized: "1 serving")
         
         HStack(spacing: 12) {
             // Category Icon Badge
@@ -426,7 +440,7 @@ struct MealHUDQuickLogSheet: View {
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.secondary)
                     
-                    if food.protein > 0 {
+                    if Int(food.protein.rounded()) >= 1 {
                         Text("\(Int(food.protein))g P")
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
                             .foregroundStyle(Color(red: 0.16, green: 0.72, blue: 0.50))
@@ -466,7 +480,8 @@ struct MealHUDQuickLogSheet: View {
                     }
                 }
             }
-            .buttonStyle(HUDSpringButtonStyle())
+            .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
+            .accessibilityLabel(String(format: String(localized: "Add %@"), food.name))
             .accessibilityIdentifier("hud_quick_log_add_row_\(index)")
         }
         .padding(.horizontal, 14)
@@ -490,7 +505,9 @@ struct MealHUDQuickLogSheet: View {
         VStack {
             HStack(spacing: 14) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(stagedDrafts.count) \(stagedDrafts.count == 1 ? "item" : "items") selected")
+                    Text(stagedDrafts.count == 1
+                         ? String(format: String(localized: "%lld item selected"), Int64(stagedDrafts.count))
+                         : String(format: String(localized: "%lld items selected"), Int64(stagedDrafts.count)))
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.secondary)
                     
@@ -499,7 +516,7 @@ struct MealHUDQuickLogSheet: View {
                             .font(.system(size: 16, weight: .heavy, design: .rounded))
                             .foregroundStyle(Color.primary)
                         
-                        if stagedProtein > 0 {
+                        if Int(stagedProtein.rounded()) >= 1 {
                             Text("• \(Int(stagedProtein))g Protein")
                                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Color(red: 0.16, green: 0.72, blue: 0.50))
@@ -511,8 +528,10 @@ struct MealHUDQuickLogSheet: View {
                 
                 Button(action: commitStagedMealAndDismiss) {
                     HStack(spacing: 6) {
-                        Text("Log to \(localizedMealType(selectedSlot))")
+                        Text(String(format: String(localized: "Log to %@"), localizedMealType(selectedSlot)))
                             .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                         Image(systemName: "arrow.right.circle.fill")
                             .font(.system(size: 16))
                     }
@@ -523,7 +542,7 @@ struct MealHUDQuickLogSheet: View {
                     .clipShape(Capsule())
                     .shadow(color: Color.black.opacity(0.15), radius: 8, y: 4)
                 }
-                .buttonStyle(HUDSpringButtonStyle())
+                .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
                 .accessibilityIdentifier("hud_quick_log_commit_tray_button")
             }
             .padding(.horizontal, 18)
@@ -540,14 +559,15 @@ struct MealHUDQuickLogSheet: View {
             )
             .shadow(color: Color.black.opacity(0.18), radius: 20, y: 8)
             .padding(.horizontal, 16)
-            .padding(.bottom, 12)
+            .padding(.bottom, 24)
         }
     }
     
     // MARK: - Actions & Persistence
     private func addFoodToStaged(_ food: FoodItem) {
-        let draft = EditableFoodDraft(food: food)
-        withAnimation(.spring(response: 0.28, dampingFraction: 0.7)) {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        let draft = EditableFoodDraft(food: food, isNewMealEntry: true)
+        withAnimation(reduceMotion ? nil : .spring(response: 0.28, dampingFraction: 0.7)) {
             stagedDrafts.append(draft)
         }
         HapticManager.shared.impact(style: .light)
@@ -561,10 +581,15 @@ struct MealHUDQuickLogSheet: View {
         let startOfDay = calendar.startOfDay(for: selectedDate)
         let summaryToUse = DailySummary.fetchOrCreate(for: startOfDay, in: modelContext)
         let mealTimestamp = calendar.isDateInToday(selectedDate) ? Date.now : startOfDay
+        let canonicalSlot = DailySummary.canonicalMealSlot(selectedSlot)
+        let existingItems = (summaryToUse.meals ?? [])
+            .first { DailySummary.canonicalMealSlot($0.title) == canonicalSlot }?
+            .foodItems ?? []
+        let draftsToCommit = MealQuickLogCommit.drafts(existingSlotItems: existingItems, staged: stagedDrafts)
         
         let syncResult = MealSlotPersistence.persistWithSyncOps(
             activeSlot: selectedSlot,
-            activeDrafts: stagedDrafts,
+            activeDrafts: draftsToCommit,
             hasModifiedActiveSlot: true,
             draftsBySlot: [:],
             dirtySlots: [],
@@ -614,35 +639,28 @@ struct MealHUDQuickLogSheet: View {
             HapticManager.shared.notification(type: .success)
             dismiss()
         } catch {
-            print("Failed to commit staged meal: \(error)")
+            showCommitError = true
         }
     }
     
     private func rebuildCaches() {
+        var descriptor = FetchDescriptor<Meal>(
+            sortBy: [SortDescriptor(\Meal.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = 60
+        let recentMeals = (try? modelContext.fetch(descriptor)) ?? []
+
         var seenNames = Set<String>()
         var results: [FoodItem] = []
         var counts: [String: Int] = [:]
         
-        for meal in pastMeals {
+        for meal in recentMeals {
             for item in meal.foodItems ?? [] {
                 counts[item.name, default: 0] += 1
                 if seenNames.insert(item.name).inserted {
                     results.append(item)
                 }
             }
-        }
-        for item in allDatabaseFoods {
-            if seenNames.insert(item.name).inserted {
-                results.append(item)
-            }
-        }
-        if results.isEmpty {
-            results = [
-                FoodItem(name: "Grilled Chicken Breast", weight: 150, calories: 240, protein: 31, fats: 3.6, carbs: 0),
-                FoodItem(name: "Avocado Toast", weight: 120, calories: 220, protein: 5, fats: 12, carbs: 20),
-                FoodItem(name: "Greek Yogurt 0%", weight: 170, calories: 130, protein: 18, fats: 0, carbs: 6),
-                FoodItem(name: "Oatmeal with Berries", weight: 250, calories: 280, protein: 8, fats: 4.5, carbs: 52)
-            ]
         }
         cachedAvailableFoods = results
         cachedRecipeFoods = customRecipes.map { $0.toFoodItem() }.sorted { $0.name < $1.name }
@@ -706,7 +724,7 @@ struct MealHUDQuickLogSheet: View {
                 .foregroundStyle(Color.secondary.opacity(0.4))
                 .padding(.top, 30)
             
-            Text("No food found for '\(searchText)'")
+            Text(String(format: String(localized: "No food found for '%@'"), searchText))
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.secondary)
             
@@ -726,7 +744,7 @@ struct MealHUDQuickLogSheet: View {
                 .clipShape(Capsule())
                 .overlay(Capsule().strokeBorder(Color.primary.opacity(0.12), lineWidth: 1))
             }
-            .buttonStyle(HUDSpringButtonStyle())
+            .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
         }
         .padding(.vertical, 20)
     }
@@ -748,9 +766,11 @@ private struct SectionHeaderTitle: View {
 
 // MARK: - Spring Button Style
 private struct HUDSpringButtonStyle: ButtonStyle {
+    var reduceMotion = false
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
-            .animation(.spring(response: 0.2, dampingFraction: 0.65), value: configuration.isPressed)
+            .scaleEffect(reduceMotion || !configuration.isPressed ? 1.0 : 0.94)
+            .animation(reduceMotion ? nil : .spring(response: 0.2, dampingFraction: 0.65), value: configuration.isPressed)
     }
 }

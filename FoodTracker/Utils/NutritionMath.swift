@@ -151,6 +151,30 @@ struct EditableFoodDraft: Identifiable {
         item.vitaminD = s.vitaminD
     }
 
+    /// A new draft with the same nutrition and chosen weight, not attached to `existingItem`.
+    func detachedCopy() -> EditableFoodDraft {
+        EditableFoodDraft(
+            id: UUID(),
+            existingItem: nil,
+            name: name,
+            baseWeight: baseWeight,
+            baseCalories: baseCalories,
+            baseProtein: baseProtein,
+            baseFats: baseFats,
+            baseCarbs: baseCarbs,
+            baseFiber: baseFiber,
+            baseSugar: baseSugar,
+            baseOmega3: baseOmega3,
+            baseCalcium: baseCalcium,
+            basePotassium: basePotassium,
+            baseMagnesium: baseMagnesium,
+            baseIron: baseIron,
+            baseVitaminC: baseVitaminC,
+            baseVitaminD: baseVitaminD,
+            weight: weight
+        )
+    }
+
     func makeFoodItem() -> FoodItem {
         let s = scaled
         return FoodItem(
