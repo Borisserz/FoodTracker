@@ -582,9 +582,26 @@ struct MealHUDQuickLogSheet: View {
             
             if shouldSyncHealthKit {
                 let inserted = syncResult.insertedItems
+                let edited = syncResult.editedItems
+                let deleted = syncResult.deletedSamples
                 let container = modelContext.container
                 Task { @MainActor in
                     let hk = HealthKitManager.shared
+                    for sample in deleted {
+                        await hk.deleteDietaryEnergySample(
+                            idString: sample.sampleID,
+                            caloriesFallback: sample.calories,
+                            date: mealTimestamp
+                        )
+                    }
+                    for op in edited {
+                        op.item.healthKitSampleID = await hk.syncEditedDietaryEnergy(
+                            oldID: op.oldSampleID,
+                            oldCalories: op.oldCalories,
+                            newCalories: op.item.calories,
+                            date: mealTimestamp
+                        )
+                    }
                     for item in inserted where item.calories > 0 {
                         if let uuid = await hk.saveDietaryEnergy(calories: item.calories, date: mealTimestamp) {
                             item.healthKitSampleID = uuid.uuidString
