@@ -36,13 +36,13 @@ struct AICoachDashboardView: View {
         }
     }
 
-    private var moodColors: [Color] {
-        guard let viewModel = viewModel else { return [.themePink, .themeOrange] }
+    private var moodAccentColor: Color {
+        guard let viewModel = viewModel else { return Color(red: 0.65, green: 0.55, blue: 0.98) }
         switch viewModel.verdictMood.lowercased() {
-        case "perfect": return [.green, .mint]
-        case "danger": return [.red, .themePink]
-        case "warning": return [.orange, .themeYellow]
-        default: return [.themePink, .themeOrange]
+        case "perfect": return Color(red: 0.10, green: 0.72, blue: 0.50)
+        case "danger": return Color(red: 0.95, green: 0.35, blue: 0.35)
+        case "warning": return Color(red: 0.98, green: 0.75, blue: 0.20)
+        default: return Color(red: 0.65, green: 0.55, blue: 0.98)
         }
     }
 
@@ -51,41 +51,19 @@ struct AICoachDashboardView: View {
             Group {
                 if let viewModel = viewModel {
                     ZStack {
-                        Color.themeBg.ignoresSafeArea()
-
-                        // Dynamic animated background blobs
-                        ZStack {
-                            Circle()
-                                .fill(moodColors[0].opacity(0.18))
-                                .frame(width: 350, height: 350)
-                                .blur(radius: 90)
-                                .offset(x: bgPhase == 0 ? -120 : -60, y: bgPhase == 0 ? -220 : -140)
-
-                            Circle()
-                                .fill(moodColors[1].opacity(0.18))
-                                .frame(width: 400, height: 400)
-                                .blur(radius: 95)
-                                .offset(x: bgPhase == 0 ? 160 : 80, y: bgPhase == 0 ? 240 : 160)
-                        }
-                        .ignoresSafeArea()
-                        .onAppear {
-                            guard !reduceMotion else { return }
-                            withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
-                                bgPhase = 1.0
-                            }
-                        }
+                        Color(UIColor.systemBackground).ignoresSafeArea()
 
                         ScrollView(showsIndicators: false) {
-                            VStack(spacing: 24) {
+                            VStack(spacing: 20) {
 
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
+                                HStack(alignment: .center) {
+                                    VStack(alignment: .leading, spacing: 3) {
                                         Text("AI Coach")
-                                            .font(.system(size: 34, weight: .heavy, design: .rounded))
-                                            .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
+                                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
                                         
-                                        Text("Your proactive nutritionist")
-                                            .font(.system(.subheadline, design: .rounded, weight: .medium))
+                                        Text("Proactive Nutrition Intelligence")
+                                            .font(.system(size: 13, weight: .medium, design: .rounded))
                                             .foregroundColor(.secondary)
                                     }
                                     Spacer()
@@ -103,32 +81,30 @@ struct AICoachDashboardView: View {
                                         hydrationLiters: currentSummary.totalPureWaterLiters,
                                         activeCaloriesBurned: currentSummary.activeCaloriesBurned
                                     )) {
-                                        ZStack {
-                                            Circle()
-                                                .stroke(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 2)
-                                                .scaleEffect((viewModel.isAnalyzing || viewModel.isGeneratingRecipe) ? 1.2 : (bgPhase == 0 ? 1.0 : 1.15))
-                                                .opacity((viewModel.isAnalyzing || viewModel.isGeneratingRecipe) ? 0.8 : (bgPhase == 0 ? 0.6 : 0.0))
-                                                .animation(reduceMotion ? nil : .easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: bgPhase)
-
-                                            Circle()
-                                                .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                                .frame(width: 50, height: 50)
-                                                .shadow(color: Color.themePink.opacity(0.35), radius: 10, x: 0, y: 5)
-                                                .opacity(viewModel.isAnalyzing || viewModel.isGeneratingRecipe ? 0.5 : 1.0)
-                                                .animation(reduceMotion ? nil : .easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: viewModel.isAnalyzing || viewModel.isGeneratingRecipe)
-
-                                            Image(systemName: "message.fill")
-                                                .font(.title3)
-                                                .foregroundColor(.white)
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                                                .font(.system(size: 13, weight: .semibold))
+                                            Text("Chat")
+                                                .font(.system(size: 13, weight: .bold, design: .rounded))
                                         }
+                                        .foregroundColor(.primary)
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 8)
+                                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                                        )
                                     }
+                                    .buttonStyle(BounceButtonStyle())
                                 }
                                 .padding(.horizontal)
 
                                 DailyVerdictGlassCard(
                                     title: viewModel.verdictTitle,
                                     message: viewModel.verdictMessage,
-                                    moodColor: moodColors[0],
+                                    moodColor: moodAccentColor,
                                     isLoading: viewModel.isAnalyzing,
                                     hasAnalyzed: viewModel.hasAnalyzedToday,
                                     onAnalyze: {
@@ -315,13 +291,13 @@ struct AICoachDashboardView: View {
     private var bioHackingTipsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                ZStack {
-                    Circle().fill(Color.purple.opacity(0.12)).frame(width: 36, height: 36)
-                    Image(systemName: "lightbulb.fill").foregroundColor(.purple)
+                HStack(spacing: 8) {
+                    Image(systemName: "lightbulb.fill")
+                        .foregroundColor(Color(red: 0.65, green: 0.55, blue: 0.98))
+                        .font(.system(size: 15, weight: .bold))
+                    Text("Bio-hacking Tips")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
                 }
-                
-                Text("Bio-hacking Tips")
-                    .font(.system(.title3, design: .rounded, weight: .bold))
                 
                 Spacer()
                 
@@ -329,42 +305,40 @@ struct AICoachDashboardView: View {
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.primary.opacity(0.04))
-                    .cornerRadius(6)
+                    .padding(.vertical, 3)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .clipShape(Capsule())
             }
             .padding(.horizontal)
             
             TabView(selection: $selectedTipIndex) {
                 ForEach(0..<tips.count, id: \.self) { index in
                     let tip = tips[index]
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Text(tip.category)
-                                .font(.system(size: 9, weight: .bold, design: .rounded))
-                                .foregroundStyle(LinearGradient(colors: tip.gradientColors, startPoint: .leading, endPoint: .trailing))
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundColor(tip.gradientColors[0])
                                 .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(tip.gradientColors[0].opacity(0.08))
-                                .cornerRadius(6)
+                                .padding(.vertical, 3)
+                                .background(tip.gradientColors[0].opacity(0.12))
+                                .clipShape(Capsule())
                             Spacer()
                         }
                         
-                        HStack(spacing: 16) {
+                        HStack(spacing: 14) {
                             ZStack {
-                                Circle()
-                                    .fill(LinearGradient(colors: tip.gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    .frame(width: 48, height: 48)
-                                    .shadow(color: tip.gradientColors[0].opacity(0.35), radius: 8)
-                                
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(tip.gradientColors[0].opacity(0.14))
+                                    .frame(width: 44, height: 44)
                                 Image(systemName: tip.icon)
                                     .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(tip.gradientColors[0])
                             }
                             
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: 3) {
                                 Text(tip.title)
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .font(.system(size: 15, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
                                 
                                 Text(tip.text)
@@ -378,92 +352,63 @@ struct AICoachDashboardView: View {
                             Spacer()
                         }
                     }
-                    .padding(18)
-                    .background(
-                        ZStack {
-                            Color.primary.opacity(0.01)
-                            RoundedRectangle(cornerRadius: 24)
-                                .fill(.ultraThinMaterial)
-                        }
-                    )
-                    .cornerRadius(24)
+                    .padding(16)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.18),
-                                        Color.white.opacity(0.04)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
                     )
                     .padding(.horizontal)
-                    .padding(.bottom, 8)
                     .tag(index)
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(height: 155)
+            .frame(height: 140)
             
-            // Custom premium page indicator
+            // Custom page indicator
             HStack(spacing: 6) {
                 Spacer()
                 ForEach(0..<tips.count, id: \.self) { index in
                     Capsule()
-                        .fill(selectedTipIndex == index ? LinearGradient(colors: tips[index].gradientColors, startPoint: .leading, endPoint: .trailing) : LinearGradient(colors: [Color.gray.opacity(0.3), Color.gray.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
-                        .frame(width: selectedTipIndex == index ? 16 : 6, height: 6)
+                        .fill(selectedTipIndex == index ? tips[index].gradientColors[0] : Color.secondary.opacity(0.2))
+                        .frame(width: selectedTipIndex == index ? 16 : 6, height: 5)
                         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTipIndex)
                 }
                 Spacer()
             }
-            .padding(.top, -4)
+            .padding(.top, -2)
         }
     }
 
     private var fridgeToRecipeSection: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack {
-                ZStack {
-                    Circle().fill(Color.themePink.opacity(0.12)).frame(width: 36, height: 36)
-                    Image(systemName: "refrigerator.fill").foregroundColor(.themePink)
-                }
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                Image(systemName: "refrigerator.fill")
+                    .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
+                    .font(.system(size: 15, weight: .bold))
                 Text("Fridge to Recipe")
-                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
             }
 
-            Text("Tell me what you have, and I'll generate a recipe that perfectly fits your remaining calories.")
-                .font(.system(.subheadline, design: .rounded, weight: .medium))
+            Text("Tell me what ingredients you have, and I'll generate a recipe matching your remaining calories.")
+                .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundColor(.secondary)
 
-            HStack(spacing: 12) {
-                HStack {
+            HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     Image(systemName: "fork.knife")
-                        .foregroundColor(isSearchFocused ? .themePink : .secondary)
-                        .font(.system(size: 16))
-                        .padding(.leading, 12)
+                        .foregroundColor(isSearchFocused ? Color.primary : .secondary)
+                        .font(.system(size: 15))
                     
-                    TextField("E.g. Eggs, chicken, rice...", text: Binding(get: { viewModel?.fridgeInput ?? "" }, set: { viewModel?.fridgeInput = $0 }))
+                    TextField("E.g. Eggs, chicken, spinach...", text: Binding(get: { viewModel?.fridgeInput ?? "" }, set: { viewModel?.fridgeInput = $0 }))
                         .focused($isSearchFocused)
-                        .font(.system(.body, design: .rounded))
-                        .padding(.vertical, 12)
-                        .padding(.trailing, 12)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Color.primary.opacity(0.04))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(
-                            isSearchFocused ? LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing) : LinearGradient(colors: [.clear], startPoint: .leading, endPoint: .trailing),
-                            lineWidth: 1.5
-                        )
-                        .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
-                )
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(Color(UIColor.tertiarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
                 Button(action: {
                     guard let u = currentUser else { return }
@@ -471,75 +416,73 @@ struct AICoachDashboardView: View {
                 }) {
                     if viewModel?.isGeneratingRecipe == true {
                         ProgressView().tint(.white)
-                            .padding()
-                            .background(Color.themePink)
-                            .cornerRadius(14)
+                            .frame(width: 44, height: 44)
+                            .background(Color.primary.opacity(0.8))
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     } else {
                         Image(systemName: "wand.and.stars")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
-                            .cornerRadius(14)
-                            .shimmer()
-                            .shadow(color: Color.themePink.opacity(0.3), radius: 6)
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(Color(UIColor.systemBackground))
+                            .frame(width: 44, height: 44)
+                            .background(Color.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                 }
                 .disabled((viewModel?.fridgeInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true) || (viewModel?.isGeneratingRecipe ?? true))
             }
 
             if let recipe = viewModel?.generatedRecipe {
-                VStack(alignment: .leading, spacing: 14) {
-                    Divider().padding(.vertical, 4)
+                VStack(alignment: .leading, spacing: 12) {
+                    Divider().padding(.vertical, 2)
                     
                     HStack {
-                        Text("🍳 AI RECIPE SUGGESTION")
+                        Text("AI RECIPE SUGGESTION")
                             .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundStyle(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
+                            .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
                             .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.themePink.opacity(0.08))
-                            .cornerRadius(6)
+                            .padding(.vertical, 3)
+                            .background(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.12))
+                            .clipShape(Capsule())
                         Spacer()
                     }
                     
                     Text(recipe.name)
-                        .font(.system(.headline, design: .rounded, weight: .bold))
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                     
                     Text(recipe.info)
-                        .font(.system(.subheadline, design: .rounded, weight: .medium))
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                         .lineSpacing(3)
                     
-                    HStack(spacing: 12) {
-                        VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text("CALORIES")
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(.secondary)
                             Text("\(recipe.calories) kcal")
                                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.themeOrange)
+                                .foregroundColor(.primary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                        .background(Color.themeOrange.opacity(0.08))
-                        .cornerRadius(10)
+                        .padding(10)
+                        .background(Color(UIColor.tertiarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text("PROTEIN")
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(.secondary)
                             Text("\(recipe.protein)g")
                                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.themePeach)
+                                .foregroundColor(.primary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                        .background(Color.themePeach.opacity(0.08))
-                        .cornerRadius(10)
+                        .padding(10)
+                        .background(Color(UIColor.tertiarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text("COOKING")
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(.secondary)
@@ -548,48 +491,31 @@ struct AICoachDashboardView: View {
                                 .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                        .background(Color.primary.opacity(0.04))
-                        .cornerRadius(10)
+                        .padding(10)
+                        .background(Color(UIColor.tertiarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
 
                     Button(action: { saveGeneratedRecipe(recipe) }) {
                         Text("Save to My Recipes")
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(Color(UIColor.systemBackground))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
-                            .cornerRadius(12)
-                            .shimmer()
-                            .shadow(color: Color.themePink.opacity(0.2), radius: 6)
+                            .background(Color.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
+                    .buttonStyle(BounceButtonStyle())
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .padding(20)
-        .background(
-            ZStack {
-                Color.primary.opacity(0.01)
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(.ultraThinMaterial)
-            }
-        )
-        .cornerRadius(28)
+        .padding(18)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 28)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.18),
-                            Color.white.opacity(0.04)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
         )
         .padding(.horizontal)
     }
@@ -629,6 +555,7 @@ struct AICoachDashboardView: View {
     }
 }
 
+// MARK: - Daily Verdict Card (Apple HIG HUD Standard)
 struct DailyVerdictGlassCard: View {
     let title: String
     let message: String
@@ -638,82 +565,69 @@ struct DailyVerdictGlassCard: View {
     let onAnalyze: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Text("Daily Verdict")
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .textCase(.uppercase)
-                    .foregroundColor(hasAnalyzed ? moodColor : .secondary)
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(hasAnalyzed ? moodColor : Color.secondary.opacity(0.4))
+                        .frame(width: 8, height: 8)
+                    Text(hasAnalyzed ? "DAILY VERDICT" : "NUTRITION STATUS")
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundColor(hasAnalyzed ? moodColor : .secondary)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background((hasAnalyzed ? moodColor : Color.secondary).opacity(0.10))
+                .clipShape(Capsule())
+
                 Spacer()
                 if isLoading { ProgressView().tint(moodColor) }
             }
 
             Text(title)
-                .font(.system(.title2, design: .rounded, weight: .bold))
+                .font(.system(size: 20, weight: .bold, design: .rounded))
                 .foregroundColor(.primary)
                 .contentTransition(.interpolate)
 
             FoodTypewriterTextView(fullText: message, isAnimating: !isLoading && hasAnalyzed)
-                .font(.system(.body, design: .rounded, weight: .medium))
+                .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(.primary.opacity(0.85))
                 .lineSpacing(4)
 
             if !hasAnalyzed && !isLoading {
                 Button(action: onAnalyze) {
-                    HStack {
+                    HStack(spacing: 8) {
                         Image(systemName: "sparkles")
-                        Text("Analyze My Day")
+                            .font(.system(size: 14, weight: .bold))
+                        Text("Analyze Today's Nutrition")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
                     }
-                    .font(.system(.headline, design: .rounded, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.primary)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
-                    .cornerRadius(16)
-                    .shimmer()
-                    .shadow(color: Color.themePink.opacity(0.35), radius: 8, y: 4)
+                    .padding(.vertical, 12)
+                    .background(Color(UIColor.tertiarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                    )
                 }
                 .buttonStyle(BounceButtonStyle())
-                .padding(.top, 8)
+                .padding(.top, 4)
             }
         }
-        .padding(20)
-        .background(
-            ZStack {
-                // Glow aura circle
-                Circle()
-                    .fill(moodColor.opacity(hasAnalyzed ? 0.12 : 0.05))
-                    .frame(width: 260, height: 260)
-                    .blur(radius: 50)
-                    .offset(x: -60, y: -40)
-                    .animation(.easeInOut(duration: 2), value: moodColor)
-
-                Color.primary.opacity(0.01)
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(.ultraThinMaterial)
-            }
-        )
-        .cornerRadius(28)
+        .padding(18)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 28)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            (hasAnalyzed ? moodColor : Color.gray).opacity(0.35),
-                            Color.white.opacity(0.18),
-                            Color.white.opacity(0.04)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1.5
-                )
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(hasAnalyzed ? moodColor.opacity(0.25) : Color.primary.opacity(0.06), lineWidth: 1)
         )
-        .shadow(color: hasAnalyzed ? moodColor.opacity(0.12) : .black.opacity(0.04), radius: 15, y: 5)
         .padding(.horizontal)
     }
 }
 
+// MARK: - Tactical AI Action Card (Apple HIG HUD Bento)
 struct AIFixCard: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let title: String
@@ -726,71 +640,45 @@ struct AIFixCard: View {
         Button(action: {
             if !isLoading { action() }
         }) {
-            VStack(alignment: .leading, spacing: 16) {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.12))
-                        .frame(width: 44, height: 44)
-                    Circle()
-                        .stroke(color.opacity(0.25), lineWidth: 1)
-                        .frame(width: 52, height: 52)
-                    
-                    Image(systemName: icon)
-                        .foregroundColor(color)
-                        .font(.system(size: 18, weight: .semibold))
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(color.opacity(0.14))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: icon)
+                            .foregroundColor(color)
+                            .font(.system(size: 17, weight: .semibold))
+                    }
+                    Spacer()
+                    if isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: color))
+                            .scaleEffect(0.8)
+                    } else {
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.secondary)
+                    }
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(LocalizedStringKey(title))
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
-                    HStack {
-                        Text(isLoading ? "Analyzing..." : "Auto-analyze")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
-                            .foregroundColor(.secondary)
-                        Spacer()
-
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: color))
-                                .scaleEffect(0.8)
-                        } else {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(color)
-                        }
-                    }
+                    Text(isLoading ? "Analyzing..." : "Auto-balance")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(18)
-            .background(
-                ZStack {
-                    RadialGradient(colors: [color.opacity(0.06), .clear], center: .center, startRadius: 0, endRadius: 80)
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(.ultraThinMaterial)
-                }
-            )
-            .cornerRadius(24)
+            .padding(14)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.18),
-                                Color.white.opacity(0.04)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(isLoading ? color.opacity(0.4) : Color.clear, lineWidth: 2)
-                    .animation(reduceMotion ? nil : .easeInOut(duration: 1).repeatForever(), value: isLoading)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
             )
         }
         .buttonStyle(BounceButtonStyle())

@@ -155,104 +155,131 @@ struct AIChefStudioView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Premium background blobs
-                Color.themeBg.ignoresSafeArea()
-                
-                ZStack {
-                    Circle()
-                        .fill(themeManager.current.primaryAccent.opacity(0.12))
-                        .frame(width: 260, height: 260)
-                        .blur(radius: 60)
-                        .offset(x: -120 + bgPhase * 30, y: -220 + bgPhase * 50)
-                    
-                    Circle()
-                        .fill(themeManager.current.secondaryAccent.opacity(0.08))
-                        .frame(width: 300, height: 300)
-                        .blur(radius: 70)
-                        .offset(x: 120 - bgPhase * 40, y: 150 - bgPhase * 60)
-                }
-                .ignoresSafeArea()
+                // Background (Apple HIG Dark Surface)
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 24) {
+                    VStack(spacing: 20) {
                         
-                        // 1. АГЕНТ (СУПЕР-ФЛОУ С КАМЕРОЙ)
-                        Button(action: {
-                            HapticManager.shared.impact(style: .medium)
-                            showAIAssistantFlow = true
-                        }) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "sparkles.tv")
-                                        Text("AI Assistant")
+                        // MARK: - AI Chef Studio Bento Deck (Apple HIG HUD Standard)
+                        HStack(spacing: 12) {
+                            // 1. AI Vision Cooking (Camera / Fridge Scan)
+                            Button(action: {
+                                HapticManager.shared.impact(style: .medium)
+                                showAIAssistantFlow = true
+                            }) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    HStack {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                                .fill(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.14))
+                                                .frame(width: 40, height: 40)
+                                            Image(systemName: "camera.viewfinder")
+                                                .font(.system(size: 19, weight: .bold))
+                                                .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
+                                                .symbolEffect(.pulse, isActive: !reduceMotion)
+                                        }
+                                        Spacer()
+                                        Text("AI Vision")
+                                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                                            .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
+                                            .padding(.horizontal, 7)
+                                            .padding(.vertical, 3)
+                                            .background(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.12))
+                                            .clipShape(Capsule())
                                     }
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.85))
                                     
-                                    Text("Try AI Cooking")
-                                        .font(.system(.title3, design: .rounded, weight: .black))
-                                        .foregroundColor(.white)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text("Photo to Recipe")
+                                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                            .lineLimit(1)
+                                        
+                                        Text("Scan fridge & cook")
+                                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                    
+                                    HStack(spacing: 4) {
+                                        Text("Start cooking")
+                                        Image(systemName: "arrow.right")
+                                            .font(.system(size: 10, weight: .bold))
+                                    }
+                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    .foregroundColor(Color.primary)
+                                    .padding(.top, 2)
                                 }
-                                Spacer()
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.white.opacity(0.12))
-                                        .frame(width: 52, height: 52)
-                                    Image(systemName: "camera.viewfinder")
-                                        .font(.system(size: 22, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .symbolEffect(.pulse, isActive: !reduceMotion)
-                                }
-                            }
-                            .padding(20)
-                            .background(
-                                LinearGradient(
-                                    colors: [.themePink, .themeOrange],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                                .padding(16)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
                                 )
-                            )
-                            .cornerRadius(24)
-                            .shadow(color: .themePink.opacity(0.35), radius: 10, y: 4)
-                        }
-                        .buttonStyle(BounceButtonStyle())
-                        .padding(.horizontal)
-                        
-                        // 1.5 SMART MEAL PLAN BUILDER
-                        Button(action: {
-                            HapticManager.shared.impact(style: .medium)
-                            showSmartBuilder = true
-                        }) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "calendar.badge.clock")
-                                        Text("AI Menu Builder")
-                                    }
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.85))
-                                    
-                                    Text("Create 7-Day Menu")
-                                        .font(.system(.title3, design: .rounded, weight: .black))
-                                        .foregroundColor(.white)
-                                }
-                                Spacer()
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.white.opacity(0.12))
-                                        .frame(width: 52, height: 52)
-                                    Image(systemName: "wand.and.stars")
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
                             }
-                            .padding(20)
-                            .background(themeManager.current.primaryGradient)
-                            .cornerRadius(24)
-                            .shadow(color: themeManager.current.primaryAccent.opacity(0.35), radius: 10, y: 4)
+                            .buttonStyle(BounceButtonStyle())
+                            .accessibilityIdentifier("chef_studio_camera_action")
+                            
+                            // 2. 7-Day Meal Plan Builder
+                            Button(action: {
+                                HapticManager.shared.impact(style: .medium)
+                                showSmartBuilder = true
+                            }) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    HStack {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                                .fill(Color(red: 0.65, green: 0.55, blue: 0.98).opacity(0.14))
+                                                .frame(width: 40, height: 40)
+                                            Image(systemName: "wand.and.stars")
+                                                .font(.system(size: 19, weight: .bold))
+                                                .foregroundColor(Color(red: 0.65, green: 0.55, blue: 0.98))
+                                        }
+                                        Spacer()
+                                        Text("7-Day")
+                                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                                            .foregroundColor(Color(red: 0.65, green: 0.55, blue: 0.98))
+                                            .padding(.horizontal, 7)
+                                            .padding(.vertical, 3)
+                                            .background(Color(red: 0.65, green: 0.55, blue: 0.98).opacity(0.12))
+                                            .clipShape(Capsule())
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text("Weekly Menu")
+                                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                            .lineLimit(1)
+                                        
+                                        Text("Macro-aligned plan")
+                                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                    
+                                    HStack(spacing: 4) {
+                                        Text("Build menu")
+                                        Image(systemName: "arrow.right")
+                                            .font(.system(size: 10, weight: .bold))
+                                    }
+                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    .foregroundColor(Color.primary)
+                                    .padding(.top, 2)
+                                }
+                                .padding(16)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(BounceButtonStyle())
+                            .accessibilityIdentifier("chef_studio_builder_action")
                         }
-                        .buttonStyle(BounceButtonStyle())
                         .padding(.horizontal)
 
                         if !savedPlans.isEmpty {

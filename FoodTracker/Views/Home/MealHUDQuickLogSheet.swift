@@ -200,37 +200,84 @@ struct MealHUDQuickLogSheet: View {
                                     .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
                             )
                             
-                            // AI Camera Scanner Quick Button
+                        }
+                        .padding(.horizontal, 16)
+                        
+                        // MARK: - Dual Action Fast Deck (Prominent Scan & Custom Food)
+                        HStack(spacing: 10) {
+                            // 1. AI & Barcode Camera Scanner
                             Button(action: {
                                 HapticManager.shared.impact(style: .medium)
                                 showingScanner = true
                             }) {
-                                Image(systemName: "camera.viewfinder")
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(Color(red: 0.94, green: 0.89, blue: 0.83))
-                                    .frame(width: 42, height: 42)
-                                    .background(Color.primary.opacity(0.85))
-                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                HStack(spacing: 8) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                            .fill(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.14))
+                                            .frame(width: 34, height: 34)
+                                        Image(systemName: "camera.viewfinder")
+                                            .font(.system(size: 16, weight: .bold))
+                                            .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
+                                    }
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(String(localized: "Scan Barcode"))
+                                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                            .lineLimit(1)
+                                        Text(String(localized: "Barcode or photo"))
+                                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                    Spacer(minLength: 0)
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 8)
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                                )
                             }
                             .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
                             .accessibilityLabel(String(localized: "Scan food"))
                             .accessibilityIdentifier("hud_quick_log_ai_camera_button")
                             
-                            // Manual Add Food Button
+                            // 2. Create Custom Food
                             Button(action: {
                                 HapticManager.shared.impact(style: .light)
                                 showingManualAdd = true
                             }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 17, weight: .bold))
-                                    .foregroundColor(Color.primary)
-                                    .frame(width: 42, height: 42)
-                                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
-                                    )
+                                HStack(spacing: 8) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                            .fill(Color(red: 0.95, green: 0.70, blue: 0.30).opacity(0.14))
+                                            .frame(width: 34, height: 34)
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 16, weight: .bold))
+                                            .foregroundColor(Color(red: 0.95, green: 0.70, blue: 0.30))
+                                    }
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(String(localized: "Create Custom Food"))
+                                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                            .lineLimit(1)
+                                        Text(String(localized: "Create with macros"))
+                                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                    Spacer(minLength: 0)
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 8)
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                                )
                             }
                             .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
                             .accessibilityLabel(String(localized: "Add custom food"))
@@ -281,6 +328,46 @@ struct MealHUDQuickLogSheet: View {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 10) {
                             if !searchText.isEmpty {
+                                // Direct In-Search Custom Food Creation Banner
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .medium)
+                                    showingManualAdd = true
+                                }) {
+                                    HStack(spacing: 10) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color(red: 0.95, green: 0.70, blue: 0.30).opacity(0.15))
+                                                .frame(width: 32, height: 32)
+                                            Image(systemName: "plus")
+                                                .font(.system(size: 14, weight: .bold))
+                                                .foregroundColor(Color(red: 0.95, green: 0.70, blue: 0.30))
+                                        }
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(String(format: String(localized: "Can't find '%@'?"), searchText))
+                                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                                .foregroundColor(.primary)
+                                                .lineLimit(1)
+                                            Text(String(localized: "Tap to create custom food"))
+                                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                                .foregroundColor(.secondary)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 10)
+                                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
+                                .padding(.bottom, 2)
+
                                 // Search Results
                                 if !filteredLocalFoods.isEmpty {
                                     SectionHeaderTitle(title: String(localized: "From History"))

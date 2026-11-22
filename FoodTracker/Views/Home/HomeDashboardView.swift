@@ -1557,59 +1557,104 @@ struct ActionSearchBar: View {
     var onManualAddTap: () -> Void
 
     var body: some View {
-        VStack(spacing: 12) {
-            Button(action: {
-                HapticManager.shared.impact(style: .heavy)
-                onBarcodeTap()
-            }) {
-                HStack(spacing: 12) {
-                    Image(systemName: "sparkles")
-                        .font(.title2)
-                    Text("Scan Food or Menu with AI")
-                        .font(.headline)
-                        .bold()
-                    Spacer()
-                    Image(systemName: "camera.viewfinder")
-                        .font(.title2)
-                }
-                .foregroundColor(.white)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-                .background(
-                    LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
-                )
-                .cornerRadius(20)
-                .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
-            }
-            .buttonStyle(BounceButtonStyle())
-
-            HStack(spacing: 12) {
-                HStack {
-                    Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                    TextField("Search foods...", text: $text).font(.body)
-                    if !text.isEmpty {
-                        Button(action: { text = "" }) {
-                            Image(systemName: "xmark.circle.fill").foregroundColor(.gray.opacity(0.5))
+        VStack(spacing: 10) {
+            // Dual Action Fast Deck: Scan & Custom Food
+            HStack(spacing: 10) {
+                Button(action: {
+                    HapticManager.shared.impact(style: .medium)
+                    onBarcodeTap()
+                }) {
+                    HStack(spacing: 8) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.14))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "camera.viewfinder")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
                         }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(String(localized: "Scan Barcode"))
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                            Text(String(localized: "Barcode or photo"))
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer(minLength: 0)
                     }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                    )
                 }
-                .padding(12)
-                .background(Color.white)
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
+                .buttonStyle(BounceButtonStyle())
 
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
                     onManualAddTap()
                 }) {
-                    Image(systemName: "plus.app.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(.green)
-                        .frame(width: 44, height: 44)
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(14)
+                    HStack(spacing: 8) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(Color(red: 0.95, green: 0.70, blue: 0.30).opacity(0.14))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "plus")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundColor(Color(red: 0.95, green: 0.70, blue: 0.30))
+                        }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(String(localized: "Create Custom Food"))
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                            Text(String(localized: "Create with macros"))
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                    )
+                }
+                .buttonStyle(BounceButtonStyle())
+            }
+
+            // Search Bar
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.secondary)
+                    .font(.system(size: 15, weight: .medium))
+                TextField(String(localized: "Search foods..."), text: $text)
+                    .font(.system(size: 14, weight: .regular, design: .rounded))
+                if !text.isEmpty {
+                    Button(action: { text = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary.opacity(0.6))
+                    }
                 }
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+            )
         }
     }
 }
