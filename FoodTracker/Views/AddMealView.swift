@@ -127,6 +127,22 @@ enum MealSlotPersistence {
     }
 }
 
+enum MealHUDStaging {
+    /// A new staged row. The source `FoodItem` stays on its old meal.
+    static func appending(_ food: FoodItem, to drafts: [EditableFoodDraft]) -> [EditableFoodDraft] {
+        drafts + [EditableFoodDraft(food: food, isNewMealEntry: true)]
+    }
+
+    /// Drops the latest staged portion whose name matches, ignoring case.
+    static func removingLast(named name: String, from drafts: [EditableFoodDraft]) -> [EditableFoodDraft] {
+        let key = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard let index = drafts.lastIndex(where: { $0.name.lowercased() == key }) else { return drafts }
+        var copy = drafts
+        copy.remove(at: index)
+        return copy
+    }
+}
+
 enum MealQuickLogCommit {
     /// Drafts for an append-only quick log.
     /// Food already in the slot stays on its `FoodItem`.

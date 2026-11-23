@@ -61966,6 +61966,173 @@
           }
         }
       },
+    "Remove %@": {
+        "localizations": {
+          "en": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Remove %@"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Убрать %@"
+            }
+          },
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "%@ entfernen"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Quitar %@"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Retirer %@"
+            }
+          },
+          "it": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rimuovi %@"
+            }
+          },
+          "pt-PT": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Remover %@"
+            }
+          }
+        }
+      },
+    "Tap to log": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Tap to log" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Нажмите, чтобы записать" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Tippen zum Eintragen" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Toca para registrar" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Touchez pour noter" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Tocca per registrare" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Toque para registar" } }
+        }
+      },
+    "Add more food": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Add more food" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Добавить ещё" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Mehr hinzufügen" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Añadir más" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Ajouter encore" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Aggiungi altro" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Adicionar mais" } }
+        }
+      },
+    "kcal goal": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "kcal goal" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "цель, ккал" } },
+          "de": { "stringUnit": { "state": "translated", "value": "kcal Ziel" } },
+          "es": { "stringUnit": { "state": "translated", "value": "kcal objetivo" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "kcal objectif" } },
+          "it": { "stringUnit": { "state": "translated", "value": "kcal obiettivo" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "kcal objetivo" } }
+        }
+      },
+    "Can't find '%@'?": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Can't find '%@'?" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Нет «%@»?" } },
+          "de": { "stringUnit": { "state": "translated", "value": "„%@“ nicht gefunden?" } },
+          "es": { "stringUnit": { "state": "translated", "value": "¿No está «%@»?" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "« %@ » est introuvable ?" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Non trovi «%@»?" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Não encontra «%@»?" } }
+        }
+      },
+    "Tap to create custom food": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Tap to create custom food" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Нажмите, чтобы создать свой продукт" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Tippen, um ein eigenes Lebensmittel anzulegen" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Toca para crear un alimento" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Touchez pour créer un aliment" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Tocca per creare un alimento" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Toque para criar um alimento" } }
+        }
+      },
+    "Barcode or photo": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Barcode or photo" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Штрихкод или фото" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Barcode oder Foto" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Código o foto" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Code-barres ou photo" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Codice o foto" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Código ou foto" } }
+        }
+      },
+    "Create with macros": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Create with macros" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Свои калории и БЖУ" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Mit Nährwerten anlegen" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Crear con macros" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Créer avec les macros" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Crea con i macro" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Criar com macros" } }
+        }
+      },
+    "Start cooking": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Start cooking" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Начать готовить" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Kochen starten" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Empezar a cocinar" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Commencer à cuisiner" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Inizia a cucinare" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Começar a cozinhar" } }
+        }
+      },
+    "Build menu": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Build menu" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Собрать меню" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Menü erstellen" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Crear menú" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Créer le menu" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Crea il menu" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Criar menu" } }
+        }
+      },
+    "Fits your daily targets": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Fits your daily targets" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Под ваши дневные цели" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Passt zu deinen Tageszielen" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Ajustado a tus objetivos" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Adapté à vos objectifs" } },
+          "it": { "stringUnit": { "state": "translated", "value": "In linea con i tuoi obiettivi" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Ajustado aos seus objetivos" } }
+        }
+      },
+    "Chat": {
+        "localizations": {
+          "en": { "stringUnit": { "state": "translated", "value": "Chat" } },
+          "ru": { "stringUnit": { "state": "translated", "value": "Чат" } },
+          "de": { "stringUnit": { "state": "translated", "value": "Chat" } },
+          "es": { "stringUnit": { "state": "translated", "value": "Chat" } },
+          "fr": { "stringUnit": { "state": "translated", "value": "Discussion" } },
+          "it": { "stringUnit": { "state": "translated", "value": "Chat" } },
+          "pt-PT": { "stringUnit": { "state": "translated", "value": "Conversa" } }
+        }
+      },
     "Add %@": {
         "localizations": {
           "en": {

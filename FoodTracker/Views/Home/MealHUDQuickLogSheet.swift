@@ -461,7 +461,7 @@ struct MealHUDQuickLogSheet: View {
                 )
             }
             .sheet(isPresented: $showingManualAdd) {
-                AddIngredientModalView { newCustomItem in
+                AddIngredientModalView(initialName: searchText) { newCustomItem in
                     addFoodToStaged(newCustomItem)
                 }
                 .presentationDetents([.fraction(0.85), .large])
@@ -504,52 +504,69 @@ struct MealHUDQuickLogSheet: View {
             : String(localized: "1 serving")
         
         HStack(spacing: 12) {
-            // Category Icon Badge
-            ZStack {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(meta.color.opacity(0.14))
-                    .frame(width: 42, height: 42)
-                
-                Image(systemName: meta.symbol)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(meta.color)
-            }
-            
-            // Name, Cals & Macros
-            VStack(alignment: .leading, spacing: 3) {
-                Text(food.name)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.primary)
-                    .lineLimit(1)
-                
-                HStack(spacing: 6) {
-                    Text("\(food.calories) kcal • \(weightLabel)")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(Color.secondary)
-                    
-                    if Int(food.protein.rounded()) >= 1 {
-                        Text("\(Int(food.protein))g P")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundStyle(Color(red: 0.16, green: 0.72, blue: 0.50))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Color(red: 0.16, green: 0.72, blue: 0.50).opacity(0.12))
-                            .clipShape(Capsule())
+            Button {
+                selectedFoodForDeepDetail = food
+            } label: {
+                HStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(meta.color.opacity(0.14))
+                            .frame(width: 42, height: 42)
+
+                        Image(systemName: meta.symbol)
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(meta.color)
+                    }
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(food.name)
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.primary)
+                            .lineLimit(1)
+
+                        HStack(spacing: 6) {
+                            Text("\(food.calories) kcal • \(weightLabel)")
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .foregroundStyle(Color.secondary)
+
+                            if Int(food.protein.rounded()) >= 1 {
+                                Text("\(Int(food.protein))g P")
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                    .foregroundStyle(Color(red: 0.16, green: 0.72, blue: 0.50))
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 2)
+                                    .background(Color(red: 0.16, green: 0.72, blue: 0.50).opacity(0.12))
+                                    .clipShape(Capsule())
+                            }
+                        }
                     }
                 }
             }
-            
-            Spacer()
-            
-            // 1-Tap Add Button with tactile feedback
-            Button(action: {
-                addFoodToStaged(food)
-            }) {
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("hud_quick_log_detail_row_\(index)")
+
+            Spacer(minLength: 8)
+
+            if stagedCount > 0 {
+                Button(action: { removeFoodFromStaged(food) }) {
+                    Image(systemName: "minus")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(Color.primary)
+                        .frame(width: 36, height: 36)
+                        .background(Color.primary.opacity(0.08))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(HUDSpringButtonStyle(reduceMotion: reduceMotion))
+                .accessibilityLabel(String(format: String(localized: "Remove %@"), food.name))
+                .accessibilityIdentifier("hud_quick_log_remove_row_\(index)")
+            }
+
+            Button(action: { addFoodToStaged(food) }) {
                 ZStack {
                     Circle()
                         .fill(isStaged ? Color(red: 0.16, green: 0.72, blue: 0.50) : Color.primary.opacity(0.08))
                         .frame(width: 36, height: 36)
-                    
+
                     if isStaged {
                         if stagedCount > 1 {
                             Text("×\(stagedCount)")
@@ -581,10 +598,6 @@ struct MealHUDQuickLogSheet: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(isStaged ? Color(red: 0.16, green: 0.72, blue: 0.50).opacity(0.35) : Color.primary.opacity(0.04), lineWidth: 1.2)
         )
-        .contentShape(Rectangle())
-        .onTapGesture {
-            selectedFoodForDeepDetail = food
-        }
     }
     
     // MARK: - Dynamic Island Tray
@@ -653,9 +666,15 @@ struct MealHUDQuickLogSheet: View {
     // MARK: - Actions & Persistence
     private func addFoodToStaged(_ food: FoodItem) {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        let draft = EditableFoodDraft(food: food, isNewMealEntry: true)
         withAnimation(reduceMotion ? nil : .spring(response: 0.28, dampingFraction: 0.7)) {
-            stagedDrafts.append(draft)
+            stagedDrafts = MealHUDStaging.appending(food, to: stagedDrafts)
+        }
+        HapticManager.shared.impact(style: .light)
+    }
+
+    private func removeFoodFromStaged(_ food: FoodItem) {
+        withAnimation(reduceMotion ? nil : .spring(response: 0.28, dampingFraction: 0.7)) {
+            stagedDrafts = MealHUDStaging.removingLast(named: food.name, from: stagedDrafts)
         }
         HapticManager.shared.impact(style: .light)
     }

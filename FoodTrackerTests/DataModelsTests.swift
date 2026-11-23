@@ -1080,6 +1080,41 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual((dinner.foodItems ?? []).map(\.id), [chicken.id])
     }
 
+    func testHUDStagingRemoveDropsOnlyTheLastMatchingPortion() {
+        let apple = FoodItem(name: "Apple", weight: 100, calories: 52, protein: 0.3, fats: 0.2, carbs: 14)
+        let rice = FoodItem(name: "Rice", weight: 150, calories: 195, protein: 4, fats: 0.4, carbs: 42)
+        var staged = MealHUDStaging.appending(apple, to: [])
+        staged = MealHUDStaging.appending(rice, to: staged)
+        staged = MealHUDStaging.appending(apple, to: staged)
+
+        XCTAssertEqual(staged.map(\.name), ["Apple", "Rice", "Apple"])
+        XCTAssertTrue(staged.allSatisfy { $0.existingItem == nil })
+
+        staged = MealHUDStaging.removingLast(named: "apple", from: staged)
+        XCTAssertEqual(staged.map(\.name), ["Apple", "Rice"])
+
+        staged = MealHUDStaging.removingLast(named: "Apple", from: staged)
+        XCTAssertEqual(staged.map(\.name), ["Rice"])
+
+        let untouched = MealHUDStaging.removingLast(named: "Bread", from: staged)
+        XCTAssertEqual(untouched.map(\.name), ["Rice"])
+        XCTAssertEqual(apple.calories, 52)
+    }
+
+    func testStreakBadgeLabelUsesCatalogDayStreak() {
+        XCTAssertEqual(StreakBadgeCopy.label(days: 4), "4 DAY STREAK")
+        XCTAssertFalse(StreakBadgeCopy.label(days: 4).localizedCaseInsensitiveContains("d streak"))
+    }
+
+    func testCoachHubCopyStaysNutritionAdvice() {
+        XCTAssertEqual(CoachHubCopy.insightSubtitle, "Your proactive nutritionist")
+        XCTAssertEqual(CoachHubCopy.dashboardSubtitle, "Your proactive nutritionist")
+        let blob = "\(CoachHubCopy.insightSubtitle) \(CoachHubCopy.dashboardSubtitle)".lowercased()
+        XCTAssertFalse(blob.contains("metabolic"))
+        XCTAssertFalse(blob.contains("diagnostic"))
+        XCTAssertFalse(blob.contains("metabolism"))
+    }
+
     @MainActor
     func testDailySummaryRemoveFoodItemDeletesEmptyParentMeal() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)

@@ -155,8 +155,7 @@ struct AIChefStudioView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background (Apple HIG Dark Surface)
-                Color(UIColor.systemBackground).ignoresSafeArea()
+                Color.themeBg.ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 20) {
@@ -180,7 +179,7 @@ struct AIChefStudioView: View {
                                                 .symbolEffect(.pulse, isActive: !reduceMotion)
                                         }
                                         Spacer()
-                                        Text("AI Vision")
+                                        Text("AI Assistant")
                                             .font(.system(size: 10, weight: .bold, design: .rounded))
                                             .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
                                             .padding(.horizontal, 7)
@@ -190,15 +189,16 @@ struct AIChefStudioView: View {
                                     }
                                     
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text("Photo to Recipe")
+                                        Text("Try AI Cooking")
                                             .font(.system(size: 16, weight: .bold, design: .rounded))
                                             .foregroundColor(.primary)
                                             .lineLimit(1)
                                         
-                                        Text("Scan fridge & cook")
+                                        Text("Scan Food or Menu with AI")
                                             .font(.system(size: 12, weight: .medium, design: .rounded))
                                             .foregroundColor(.secondary)
-                                            .lineLimit(1)
+                                            .lineLimit(2)
+                                            .minimumScaleFactor(0.8)
                                     }
                                     
                                     HStack(spacing: 4) {
@@ -238,7 +238,7 @@ struct AIChefStudioView: View {
                                                 .foregroundColor(Color(red: 0.65, green: 0.55, blue: 0.98))
                                         }
                                         Spacer()
-                                        Text("7-Day")
+                                        Text("AI Menu Builder")
                                             .font(.system(size: 10, weight: .bold, design: .rounded))
                                             .foregroundColor(Color(red: 0.65, green: 0.55, blue: 0.98))
                                             .padding(.horizontal, 7)
@@ -248,15 +248,16 @@ struct AIChefStudioView: View {
                                     }
                                     
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text("Weekly Menu")
+                                        Text("Create 7-Day Menu")
                                             .font(.system(size: 16, weight: .bold, design: .rounded))
                                             .foregroundColor(.primary)
-                                            .lineLimit(1)
+                                            .lineLimit(2)
+                                            .minimumScaleFactor(0.8)
                                         
-                                        Text("Macro-aligned plan")
+                                        Text("Fits your daily targets")
                                             .font(.system(size: 12, weight: .medium, design: .rounded))
                                             .foregroundColor(.secondary)
-                                            .lineLimit(1)
+                                            .lineLimit(2)
                                     }
                                     
                                     HStack(spacing: 4) {

@@ -51,7 +51,7 @@ struct AICoachDashboardView: View {
             Group {
                 if let viewModel = viewModel {
                     ZStack {
-                        Color(UIColor.systemBackground).ignoresSafeArea()
+                        Color.themeBg.ignoresSafeArea()
 
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 20) {
@@ -62,7 +62,7 @@ struct AICoachDashboardView: View {
                                             .font(.system(size: 28, weight: .bold, design: .rounded))
                                             .foregroundColor(.primary)
                                         
-                                        Text("Proactive Nutrition Intelligence")
+                                        Text("Your proactive nutritionist")
                                             .font(.system(size: 13, weight: .medium, design: .rounded))
                                             .foregroundColor(.secondary)
                                     }
@@ -571,8 +571,9 @@ struct DailyVerdictGlassCard: View {
                     Circle()
                         .fill(hasAnalyzed ? moodColor : Color.secondary.opacity(0.4))
                         .frame(width: 8, height: 8)
-                    Text(hasAnalyzed ? "DAILY VERDICT" : "NUTRITION STATUS")
+                    Text(hasAnalyzed ? "Daily Verdict" : "Analyze My Day")
                         .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .textCase(.uppercase)
                         .foregroundColor(hasAnalyzed ? moodColor : .secondary)
                 }
                 .padding(.horizontal, 10)
@@ -599,7 +600,7 @@ struct DailyVerdictGlassCard: View {
                     HStack(spacing: 8) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 14, weight: .bold))
-                        Text("Analyze Today's Nutrition")
+                        Text("Analyze My Day")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                     }
                     .foregroundColor(Color.primary)
@@ -667,7 +668,7 @@ struct AIFixCard: View {
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
-                    Text(isLoading ? "Analyzing..." : "Auto-balance")
+                    Text(isLoading ? "Analyzing..." : "Auto-analyze")
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                 }

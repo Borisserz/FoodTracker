@@ -217,6 +217,68 @@ final class FoodTrackerUITests: XCTestCase {
         XCTAssertTrue(deleteButton.waitForExistence(timeout: 5.0))
     }
 
+    func testHomeMealCardQuickAddButtonExists() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestingSkipOnboarding", "-uiTestingDisableSpotlight"]
+        app.launch()
+        let breakfast = app.buttons["meal_card_quick_add_Breakfast"]
+        XCTAssertTrue(breakfast.waitForExistence(timeout: 8))
+        for _ in 0..<5 where !breakfast.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(breakfast.isHittable)
+        breakfast.tap()
+        XCTAssertTrue(app.textFields["hud_quick_log_search_field"].waitForExistence(timeout: 5))
+    }
+
+    func testHUDQuickLogPlusDoesNotOpenDetailAndRemoveClearsTray() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestingSkipOnboarding", "-uiTestingDisableSpotlight"]
+        app.launch()
+
+        let search = app.buttons["home_spotlight_search_button"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        search.tap()
+
+        let field = app.textFields["hud_quick_log_search_field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText("apple")
+
+        let row0 = app.buttons["hud_quick_log_add_row_0"]
+        let row100 = app.buttons["hud_quick_log_add_row_100"]
+        var addRow = row100
+        let deadline = Date().addingTimeInterval(8)
+        while Date() < deadline {
+            if row0.exists { addRow = row0; break }
+            if row100.exists { addRow = row100; break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertTrue(addRow.waitForExistence(timeout: 2))
+        addRow.tap()
+
+        let detailConfirm = app.buttons["food_detail_confirm_button"]
+        XCTAssertFalse(detailConfirm.waitForExistence(timeout: 1), "Plus should stage the food, not open its card")
+
+        let commit = app.buttons["hud_quick_log_commit_tray_button"]
+        XCTAssertTrue(commit.waitForExistence(timeout: 4))
+
+        let removeId = addRow.identifier.replacingOccurrences(of: "hud_quick_log_add_row_", with: "hud_quick_log_remove_row_")
+        let remove = app.buttons[removeId]
+        XCTAssertTrue(remove.waitForExistence(timeout: 2))
+        remove.tap()
+
+        let trayGone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: commit)
+        _ = XCTWaiter.wait(for: [trayGone], timeout: 3)
+        XCTAssertFalse(commit.exists)
+
+        let detailId = addRow.identifier.replacingOccurrences(of: "hud_quick_log_add_row_", with: "hud_quick_log_detail_row_")
+        let detailRow = app.buttons[detailId]
+        XCTAssertTrue(detailRow.waitForExistence(timeout: 2))
+        detailRow.tap()
+        XCTAssertTrue(detailConfirm.waitForExistence(timeout: 4), "The name button should open the food card")
+    }
+
     func testHUDQuickLogKeepsEarlierFoodWhenAddingAnother() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-uiTestingSkipOnboarding", "-uiTestingDisableSpotlight"]

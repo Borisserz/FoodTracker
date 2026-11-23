@@ -621,6 +621,11 @@ struct AddIngredientModalView: View {
     @State private var fats: String = ""
     @State private var carbs: String = ""
 
+    init(initialName: String = "", onSave: @escaping (FoodItem) -> Void) {
+        self.onSave = onSave
+        self._name = State(initialValue: initialName)
+    }
+
     static func isFormValid(name: String, weight: String) -> Bool {
         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && NutritionMath.parsePositiveDecimal(weight) != nil
     }

@@ -3,6 +3,11 @@ import SwiftData
 
 // MARK: - AI Coach Hub (Apple HIG HUD Standard with Boris Typed Navigation & ReduceMotion)
 
+enum CoachHubCopy {
+    static let insightSubtitle = "Your proactive nutritionist"
+    static let dashboardSubtitle = "Your proactive nutritionist"
+}
+
 struct MoreTabView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var modelContext
@@ -148,7 +153,7 @@ struct MoreTabView: View {
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.primary)
                     
-                    Text(String(localized: "Proactive analysis of your diet & metabolism"))
+                    Text(String(localized: String.LocalizationValue(CoachHubCopy.insightSubtitle)))
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.secondary)
                 }
@@ -247,7 +252,7 @@ struct MoreTabView: View {
             MoreItem(
                 id: 1,
                 title: "AI Coach Dashboard",
-                subtitle: "Full metabolic diagnostics & tips",
+                subtitle: CoachHubCopy.dashboardSubtitle,
                 icon: "waveform.path.ecg",
                 color: Color(red: 0.65, green: 0.55, blue: 0.95),
                 accessibilityId: "more_coach_card",
