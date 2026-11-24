@@ -48,24 +48,47 @@ struct FoodsDashboardView: View {
                                 .transition(.move(edge: .top).combined(with: .opacity))
                         }
 
-                    VStack(spacing: 16) {
-                        RecipesHeroCard {
-                            path.append(FoodsRoute.recipes)
-                        }
-
-                        HStack(spacing: 16) {
-                            DietGridCard {
-                                path.append(FoodsRoute.diets)
-                            }
-                            
-                            AcademyGridCard {
-                                path.append(FoodsRoute.learn)
-                            }
-                        }
-
-                        FastingWideCard {
-                            path.append(FoodsRoute.fasting)
-                        }
+                    // MARK: - 2x2 Bento Grid Culinary Hub Deck
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
+                        FoodsBentoCard(
+                            title: "Recipes",
+                            subtitle: "140+ Chef Dishes",
+                            tag: "CHEF",
+                            tagColor: Color.themePink,
+                            iconName: "fork.knife",
+                            imageName: "foods_cover_recipes",
+                            action: { path.append(FoodsRoute.recipes) }
+                        )
+                        
+                        FoodsBentoCard(
+                            title: "Diet Plans",
+                            subtitle: "Keto • Vegan • Macro",
+                            tag: "PROTOCOLS",
+                            tagColor: Color(red: 0.10, green: 0.72, blue: 0.50),
+                            iconName: "leaf.fill",
+                            imageName: "foods_cover_diets",
+                            action: { path.append(FoodsRoute.diets) }
+                        )
+                        
+                        FoodsBentoCard(
+                            title: "Academy",
+                            subtitle: "Guides & Biohacks",
+                            tag: "KNOWLEDGE",
+                            tagColor: Color(red: 0.35, green: 0.55, blue: 0.95),
+                            iconName: "graduationcap.fill",
+                            imageName: "foods_cover_academy",
+                            action: { path.append(FoodsRoute.learn) }
+                        )
+                        
+                        FoodsBentoCard(
+                            title: "Fasting",
+                            subtitle: FastingManager.shared.isFasting ? "\(FastingManager.shared.currentPhase.name) • Active" : "Circadian 16:8",
+                            tag: FastingManager.shared.isFasting ? "LIVE" : "INTERVALS",
+                            tagColor: FastingManager.shared.isFasting ? Color(red: 0.98, green: 0.65, blue: 0.15) : Color(red: 0.65, green: 0.45, blue: 0.92),
+                            iconName: "flame.fill",
+                            imageName: "foods_cover_fasting",
+                            action: { path.append(FoodsRoute.fasting) }
+                        )
                     }
                     .padding(.horizontal)
                     .padding(.top, 10)
@@ -124,7 +147,10 @@ struct FoodsDashboardView: View {
                 }
                 .padding(.bottom, 120)
             }
-            .background(Color.themeBg.ignoresSafeArea())
+            .background {
+                DynamicAuroraBackgroundView()
+                    .allowsHitTesting(false)
+            }
             .navigationTitle("Explore")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -215,6 +241,104 @@ struct FoodsDashboardView: View {
         case "Dinner": return .themePink
         default: return .gray
         }
+    }
+}
+
+// MARK: - Apple HIG Luxury Culinary Bento Card
+struct FoodsBentoCard: View {
+    let title: String
+    let subtitle: String
+    let tag: String
+    let tagColor: Color
+    let iconName: String
+    let imageName: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            HapticManager.shared.impact(style: .medium)
+            action()
+        }) {
+            ZStack(alignment: .bottomLeading) {
+                // Background Cover Photography
+                Image(imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 165)
+                    .clipped()
+                
+                // Cinematic Dark Gradient Scrim for Apple HIG Text Contrast
+                LinearGradient(
+                    colors: [
+                        Color.black.opacity(0.15),
+                        Color.black.opacity(0.40),
+                        Color.black.opacity(0.85)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                // Bento Content
+                VStack(alignment: .leading, spacing: 0) {
+                    // Top Bar: Category Pill & Directional Arrow
+                    HStack(alignment: .center) {
+                        HStack(spacing: 4) {
+                            Image(systemName: iconName)
+                                .font(.system(size: 9, weight: .bold))
+                            Text(tag)
+                                .font(.system(size: 9, weight: .heavy, design: .rounded))
+                                .tracking(0.8)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(tagColor.opacity(0.88))
+                        .clipShape(Capsule())
+                        
+                        Spacer()
+                        
+                        // Glass Arrow Disc
+                        ZStack {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .environment(\.colorScheme, .dark)
+                                .frame(width: 28, height: 28)
+                            
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Bottom Titles
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(LocalizedStringKey(title))
+                            .font(.system(.headline, design: .rounded, weight: .heavy))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                        
+                        Text(LocalizedStringKey(subtitle))
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.88))
+                            .lineLimit(1)
+                    }
+                }
+                .padding(12)
+            }
+            .frame(height: 165)
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.20), radius: 10, x: 0, y: 5)
+        }
+        .buttonStyle(BounceButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(subtitle)")
+        .accessibilityAddTraits(.isButton)
     }
 }
 

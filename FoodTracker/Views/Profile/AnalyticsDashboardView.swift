@@ -121,29 +121,9 @@ struct AnalyticsTabView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-
-                Color.themeBg.ignoresSafeArea()
-
-                ZStack {
-                    Circle()
-                        .fill(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 400, height: 400)
-                        .blur(radius: 80)
-                        .offset(x: bgPhase == 0 ? -150 : -50, y: bgPhase == 0 ? -250 : -150)
-
-                    Circle()
-                        .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 350, height: 350)
-                        .blur(radius: 90)
-                        .offset(x: bgPhase == 0 ? 150 : 50, y: bgPhase == 0 ? 350 : 250)
-                }
-                .ignoresSafeArea()
-                .onAppear {
-                    guard !reduceMotion else { return }
-                    withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
-                        bgPhase = 1.0
-                    }
-                }
+                // Dynamic Ambient Aurora Mood System
+                DynamicAuroraBackgroundView()
+                    .allowsHitTesting(false)
 
                 if let user = users.first {
                     ScrollViewReader { scrollProxy in

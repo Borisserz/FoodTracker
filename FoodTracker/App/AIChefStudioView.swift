@@ -155,7 +155,9 @@ struct AIChefStudioView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.themeBg.ignoresSafeArea()
+                // Dynamic Ambient Aurora Background
+                DynamicAuroraBackgroundView()
+                    .allowsHitTesting(false)
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 20) {

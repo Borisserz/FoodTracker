@@ -129,27 +129,9 @@ struct HomeDashboardContentView: View {
     var body: some View {
           NavigationStack {
               ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
-                  ZStack {
-                      Color.themeBg.ignoresSafeArea()
-
-                      GeometryReader { geo in
-                          ZStack {
-                              Circle()
-                                  .fill(Color.themePink.opacity(0.12))
-                                  .frame(width: 320, height: 320)
-                                  .blur(radius: 80)
-                                  .offset(x: -80, y: -100)
-
-                              Circle()
-                                  .fill(Color.themeOrange.opacity(0.08))
-                                  .frame(width: 280, height: 280)
-                                  .blur(radius: 70)
-                                  .offset(x: geo.size.width - 200, y: 220)
-                          }
-                      }
-                      .ignoresSafeArea()
+                  // Dynamic Ambient Aurora Background System
+                  DynamicAuroraBackgroundView()
                       .allowsHitTesting(false)
-                  }
 
                   // Sync HealthKit & WorkoutTracker whenever selectedDate changes without creating empty DailySummary rows on browse
                   .task(id: selectedDate) {
@@ -251,25 +233,9 @@ struct HomeDashboardContentView: View {
                               showNoteSheet = true
                           }
                           
-                          Button(action: {
-                              finishDayAndCalculateXP()
-                          }) {
-                              HStack {
-                                  Image(systemName: "flag.checkered")
-                                  Text("Finish Day")
-                              }
-                              .font(.headline)
-                              .foregroundColor(.white)
-                              .frame(maxWidth: .infinity)
-                              .padding()
-                              .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
-                              .cornerRadius(16)
-                              .shadow(color: .themePink.opacity(0.3), radius: 10, y: 5)
-                          }
-                          .padding(.horizontal)
-                          .padding(.top, 16)
-                          
-                          AllTimeStatsCardView(totalCalories: allTimeCalories)
+                          // All-Time Calories Tracked (Tactile Fridge Ledger Sticker)
+                          FridgeLedgerStickerView(totalCalories: allTimeCalories)
+                              .padding(.top, 8)
                       }
                       .padding(.bottom, 120) // Оставили место для плавающей кнопки
                   }
@@ -1770,25 +1736,171 @@ struct FoodSearchResultRow: View {
     }
 }
 
-struct AllTimeStatsCardView: View {
+struct FridgeLedgerStickerView: View {
     let totalCalories: Int
+    @State private var isTapped = false
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 12) {
-                Image(systemName: "flame.circle.fill").font(.largeTitle).foregroundStyle(LinearGradient(colors: [.white, .white.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+        ZStack(alignment: .top) {
+            // Main Sticker Body
+            VStack(alignment: .leading, spacing: 14) {
+                // Sticker Header with Ledger Serial
+                HStack(alignment: .center) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "refrigerator.fill")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(Color(red: 0.42, green: 0.38, blue: 0.32))
+                        Text("KITCHEN LEDGER")
+                            .font(.system(size: 10, weight: .heavy, design: .monospaced))
+                            .tracking(1.4)
+                            .foregroundColor(Color(red: 0.42, green: 0.38, blue: 0.32))
+                    }
+                    
+                    Spacer()
+                    
+                    Text("ALL-TIME LOG")
+                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color(red: 0.30, green: 0.28, blue: 0.24).opacity(0.12))
+                        .clipShape(Capsule())
+                        .foregroundColor(Color(red: 0.35, green: 0.32, blue: 0.28))
+                }
+                .padding(.top, 14) // Room for top magnet pin
+                
+                // Perforated / Dashed dividing line
+                HStack(spacing: 4) {
+                    ForEach(0..<28) { _ in
+                        Rectangle()
+                            .fill(Color(red: 0.35, green: 0.32, blue: 0.28).opacity(0.22))
+                            .frame(height: 1)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                
+                // Big Calorie Counter
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("All-Time Total").font(.headline).foregroundColor(.white)
-                    Text("Since your first entry").font(.caption).foregroundColor(.white.opacity(0.8))
+                    Text("TOTAL NOURISHMENT")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .tracking(1.0)
+                        .foregroundColor(Color(red: 0.50, green: 0.46, blue: 0.40))
+                    
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(totalCalories, format: .number)
+                            .font(.system(size: 40, weight: .heavy, design: .rounded))
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                            .foregroundColor(Color(red: 0.12, green: 0.12, blue: 0.14))
+                        
+                        Text("KCAL")
+                            .font(.system(size: 15, weight: .black, design: .monospaced))
+                            .foregroundColor(Color(red: 0.70, green: 0.32, blue: 0.18))
+                        
+                        Spacer()
+                        
+                        // Stamped verified badge
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text("✦ CERTIFIED")
+                                .font(.system(size: 8, weight: .black, design: .monospaced))
+                                .foregroundColor(Color(red: 0.18, green: 0.45, blue: 0.28))
+                            Text("METABOLIC DATA")
+                                .font(.system(size: 7, weight: .bold, design: .monospaced))
+                                .foregroundColor(Color(red: 0.45, green: 0.42, blue: 0.38))
+                        }
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .strokeBorder(Color(red: 0.18, green: 0.45, blue: 0.28).opacity(0.4), style: StrokeStyle(lineWidth: 1, dash: [3, 2]))
+                                .background(Color(red: 0.18, green: 0.45, blue: 0.28).opacity(0.06))
+                        )
+                    }
+                }
+                
+                // Footer: Decorative Barcode & Date Stamp
+                HStack(alignment: .center) {
+                    // Micro barcode
+                    HStack(spacing: 2) {
+                        ForEach([3, 1, 4, 1, 5, 2, 6, 1, 3, 2, 4, 1, 2, 5, 1, 3, 2, 4], id: \.self) { barWidth in
+                            Rectangle()
+                                .fill(Color(red: 0.25, green: 0.24, blue: 0.22).opacity(0.55))
+                                .frame(width: CGFloat(barWidth), height: 14)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Text("NO. FT-MAGNET-RECORD")
+                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                        .foregroundColor(Color(red: 0.50, green: 0.46, blue: 0.40))
+                }
+                .padding(.top, 2)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.97, green: 0.95, blue: 0.91), // Vintage warm ivory
+                                Color(red: 0.93, green: 0.90, blue: 0.85)  // Aged paper edge
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .strokeBorder(Color(red: 0.78, green: 0.74, blue: 0.68).opacity(0.6), lineWidth: 1)
+                    )
+            )
+            .shadow(color: Color.black.opacity(0.20), radius: 14, x: 0, y: 7)
+            .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
+            .rotationEffect(.degrees(isTapped ? 1.0 : -1.4))
+            .animation(.spring(response: 0.35, dampingFraction: 0.5), value: isTapped)
+            .onTapGesture {
+                HapticManager.shared.impact(style: .light)
+                withAnimation {
+                    isTapped.toggle()
                 }
             }
-            Spacer(minLength: 20)
-            HStack(alignment: .firstTextBaseline) {
-                Text(totalCalories, format: .number).font(.system(size: 44, weight: .heavy, design: .rounded)).contentTransition(.numericText())
-                Text("kcal").font(.title2.bold()).foregroundColor(.white.opacity(0.9))
-            }.foregroundColor(.white)
-        }.frame(maxWidth: .infinity, alignment: .leading).padding(24).background(LinearGradient(colors: [Color.themePink.opacity(0.9), Color.themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)).cornerRadius(28).shadow(color: .themePink.opacity(0.3), radius: 15, x: 0, y: 8).padding(.horizontal)
+            
+            // Realistic Brushed Stainless Steel Fridge Magnet Pin
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Color(white: 0.98),
+                            Color(white: 0.78),
+                            Color(white: 0.60)
+                        ],
+                        center: .topLeading,
+                        startRadius: 2,
+                        endRadius: 18
+                    )
+                )
+                .frame(width: 22, height: 22)
+                .overlay(
+                    Circle()
+                        .stroke(Color(white: 0.45).opacity(0.8), lineWidth: 1)
+                )
+                .overlay(
+                    // Magnet specular highlight
+                    Circle()
+                        .fill(Color.white.opacity(0.8))
+                        .frame(width: 6, height: 6)
+                        .offset(x: -3, y: -3)
+                )
+                .shadow(color: Color.black.opacity(0.4), radius: 4, x: 0, y: 3)
+                .offset(y: -8)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
     }
 }
+
+typealias AllTimeStatsCardView = FridgeLedgerStickerView
 struct DailyNoteCard: View {
     let summary: DailySummary
     var onEdit: () -> Void
