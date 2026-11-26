@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "account_sync_hero.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

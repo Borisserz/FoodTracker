@@ -1,71 +1,50 @@
 import SwiftUI
 
 struct CircadianFastingClock: View {
-    var protocolName: String = "16:8 Intermittent"
-    var hoursFasted: Int = 11
-    var minutesRemaining: Int = 48
-    
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var pulseGlow: Bool = false
-    
+    var protocolName: String = "16:8 window"
+    var hoursFasted: Int = 12
+    var scheduleText: String = "12:00 - 20:00"
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("FASTING PROTOCOL")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.swissChartreuse)
-                    Text(protocolName)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.6))
+        EditorialDarkCard(cornerRadius: 20, padding: 15) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Fasting timer")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                        Text(LocalizedStringKey(protocolName))
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.60))
+                    }
+                    Spacer()
+                    Image(systemName: "timer")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(EditorialPalette.warmAmber)
                 }
-                Spacer()
-                Image(systemName: "timer")
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.swissChartreuse)
-            }
-            
-            // Fasting Arc Display
-            ZStack {
-                // Background Track
-                Circle()
-                    .stroke(Color.swissBorder, lineWidth: 8)
-                
-                // Active Fasting Progress Arc
-                Circle()
-                    .trim(from: 0.0, to: CGFloat(hoursFasted) / 16.0)
-                    .stroke(
-                        Color.swissChartreuse,
-                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
-                    .shadow(color: Color.swissChartreuseGlow, radius: pulseGlow ? 10 : 4)
-                
-                // Central Time Remaining Ticker
-                VStack(spacing: 2) {
-                    Text("\(16 - hoursFasted)h \(minutesRemaining)m")
-                        .font(.system(size: 16, weight: .black, design: .monospaced))
-                        .foregroundStyle(.white)
-                    
-                    Text("REMAINING")
-                        .font(.system(size: 8, weight: .black, design: .monospaced))
-                        .foregroundStyle(Color.swissChartreuse)
+
+                ZStack {
+                    Circle()
+                        .stroke(Color.white.opacity(0.10), lineWidth: 7)
+
+                    Circle()
+                        .trim(from: 0.0, to: CGFloat(min(max(hoursFasted, 1), 16)) / 16.0)
+                        .stroke(
+                            EditorialPalette.warmAmber,
+                            style: StrokeStyle(lineWidth: 7, lineCap: .round)
+                        )
+                        .rotationEffect(.degrees(-90))
+
+                    VStack(spacing: 2) {
+                        Text(scheduleText)
+                            .font(.system(size: 13, weight: .bold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(.white)
+                        Text("Eating window")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .foregroundStyle(EditorialPalette.oat.opacity(0.72))
+                    }
                 }
-            }
-            .frame(height: 90)
-            .padding(.vertical, 4)
-        }
-        .padding(16)
-        .background(Color.swissCardSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .strokeBorder(Color.swissBorder, lineWidth: 1)
-        )
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                pulseGlow = true
+                .frame(height: 102)
             }
         }
     }

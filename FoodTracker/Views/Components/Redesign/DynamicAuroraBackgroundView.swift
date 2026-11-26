@@ -7,6 +7,8 @@ struct DynamicAuroraBackgroundView: View {
     @State private var paletteIndex: Int
     private let paletteTrigger: Int
     private let tabTag: Int?
+    private let pinnedPaletteIndex: Int?
+    private let forceDarkCanvas: Bool
 
     private struct TonalPalette {
         let primary: Color
@@ -29,8 +31,16 @@ struct DynamicAuroraBackgroundView: View {
         TonalPalette(primary: Color(hex: 0x7A2E3B), secondary: Color(hex: 0x994352))
     ]
 
-    init(seed: Int? = nil, paletteTrigger: Int = 0, tabTag: Int? = nil) {
-        if let s = seed {
+    init(
+        seed: Int? = nil,
+        paletteTrigger: Int = 0,
+        tabTag: Int? = nil,
+        pinnedPaletteIndex: Int? = nil,
+        darkCanvas: Bool = false
+    ) {
+        if let pinned = pinnedPaletteIndex {
+            self._paletteIndex = State(initialValue: abs(pinned) % Self.palettes.count)
+        } else if let s = seed {
             self._paletteIndex = State(initialValue: abs(s) % Self.palettes.count)
         } else if let tag = tabTag {
             self._paletteIndex = State(initialValue: abs(tag) % Self.palettes.count)
@@ -39,17 +49,22 @@ struct DynamicAuroraBackgroundView: View {
         }
         self.paletteTrigger = paletteTrigger
         self.tabTag = tabTag
+        self.pinnedPaletteIndex = pinnedPaletteIndex
+        self.forceDarkCanvas = darkCanvas
     }
 
     var body: some View {
-        let palette = Self.palettes[paletteIndex]
-        let topStrength: Double = colorScheme == .dark ? 0.56 : 0.34
-        let upperMidStrength: Double = colorScheme == .dark ? 0.32 : 0.19
-        let lowerMidStrength: Double = colorScheme == .dark ? 0.12 : 0.06
+        let resolvedIndex = pinnedPaletteIndex.map { abs($0) % Self.palettes.count } ?? paletteIndex
+        let palette = Self.palettes[resolvedIndex]
+        let isDarkSurface = forceDarkCanvas || colorScheme == .dark
+        let topStrength: Double = isDarkSurface ? 0.50 : 0.34
+        let upperMidStrength: Double = isDarkSurface ? 0.28 : 0.19
+        let lowerMidStrength: Double = isDarkSurface ? 0.10 : 0.06
+        let canvasColor: Color = forceDarkCanvas ? Color(hex: 0x111315) : Color.themeBg
 
         ZStack {
             // Base canvas color
-            Color.themeBg
+            canvasColor
                 .ignoresSafeArea()
 
             // Spotify-style calm top-down saturation falloff
@@ -69,7 +84,7 @@ struct DynamicAuroraBackgroundView: View {
             // Subtle zenith sheen to softly anchor the navigation area
             RadialGradient(
                 colors: [
-                    palette.primary.opacity(colorScheme == .dark ? 0.20 : 0.12),
+                    palette.primary.opacity(isDarkSurface ? 0.18 : 0.12),
                     Color.clear
                 ],
                 center: UnitPoint(x: 0.5, y: -0.05),
@@ -78,12 +93,14 @@ struct DynamicAuroraBackgroundView: View {
             )
             .ignoresSafeArea()
         }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.65), value: resolvedIndex)
         .onAppear {
-            if tabTag == nil {
+            if pinnedPaletteIndex == nil && tabTag == nil {
                 paletteIndex = (paletteIndex + 1) % Self.palettes.count
             }
         }
         .onChange(of: paletteTrigger) { _, newValue in
+            guard pinnedPaletteIndex == nil else { return }
             guard tabTag == nil || newValue == tabTag else { return }
             let nextIndex = (paletteIndex + 1) % Self.palettes.count
             if reduceMotion {

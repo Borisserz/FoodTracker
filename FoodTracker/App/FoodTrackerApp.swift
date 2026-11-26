@@ -111,7 +111,6 @@ struct FoodTrackerApp: App {
                         .environment(di.appState)
                         .environment(di.authManager)
                         .environment(ThemeManager.shared)
-                        .preferredColorScheme(.light)
                 } else {
                     ProgressView("Initializing...")
                 }
@@ -369,5 +368,6 @@ struct RootLaunchView: View {
                     .transition(.opacity)
             }
         }
+        .preferredColorScheme(hasCompletedInitialOnboarding ? .light : .dark)
     }
 }

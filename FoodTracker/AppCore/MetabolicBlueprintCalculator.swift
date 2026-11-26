@@ -9,23 +9,33 @@ enum ActivityType: String, CaseIterable {
     case active = "Активный метаболизм"
     case beast = "Турбо-режим"
 
-    var emoji: String {
+    var titleKey: String {
         switch self {
-        case .none: return "😶"
-        case .office: return "👨‍💻"
-        case .light: return "🚶‍♂️"
-        case .active: return "⚡️"
-        case .beast: return "🔥"
+        case .none: return "Not selected"
+        case .office: return "Mostly sitting"
+        case .light: return "Lightly active"
+        case .active: return "Moderately active"
+        case .beast: return "Very active"
         }
     }
 
-    var description: String {
+    var descriptionKey: String {
         switch self {
         case .none: return ""
-        case .office: return "Сидячая работа, минимум шагов"
-        case .light: return "Прогулки, йога 1-2 раза в неделю"
-        case .active: return "Спорт 3-4 раза, регулярное движение"
-        case .beast: return "Ежедневные нагрузки, высокий расход калорий"
+        case .office: return "Desk work, under 4,000 steps a day"
+        case .light: return "Daily walks or 1-3 workouts a week"
+        case .active: return "3-5 workouts a week or an active job"
+        case .beast: return "Daily intense training or physical work"
+        }
+    }
+
+    var sfSymbolName: String {
+        switch self {
+        case .none: return "circle"
+        case .office: return "desktopcomputer"
+        case .light: return "figure.walk"
+        case .active: return "figure.run"
+        case .beast: return "dumbbell.fill"
         }
     }
 }

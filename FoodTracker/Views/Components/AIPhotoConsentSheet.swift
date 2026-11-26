@@ -3,7 +3,6 @@ import SwiftUI
 /// Explicit App Store privacy disclosure & consent modal shown before sending any photo to third-party AI vision providers.
 struct AIPhotoConsentSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(ThemeManager.self) private var themeManager
 
     var onAllow: () -> Void
     var onDecline: () -> Void
@@ -12,60 +11,84 @@ struct AIPhotoConsentSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 22) {
-                    ZStack {
-                        Circle()
-                            .fill(themeManager.current.primaryAccent.opacity(0.14))
-                            .frame(width: 76, height: 76)
-                        Image(systemName: "hand.raised.app.fill")
-                            .font(.system(size: 34, weight: .semibold))
-                            .foregroundStyle(themeManager.current.primaryAccent)
-                    }
-                    .padding(.top, 12)
+            ZStack {
+                DynamicAuroraBackgroundView(pinnedPaletteIndex: 4)
+                    .allowsHitTesting(false)
 
-                    VStack(spacing: 8) {
-                        Text("AI Data & Photo Consent")
-                            .font(.title2.bold())
-                            .multilineTextAlignment(.center)
-                        Text("Review how your photos and nutrition context are processed before using AI features.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 18) {
+                        EditorialPhotoBackdropCard(
+                            imageName: "onboarding_scan_studio",
+                            minHeight: 162,
+                            cornerRadius: 20,
+                            scrimBottomOpacity: 0.90,
+                            alignment: .bottomLeading
+                        ) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "hand.raised.app.fill")
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundStyle(EditorialPalette.oat)
+                                    Text("AI Data & Photo Consent")
+                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.oat)
+                                }
 
-                    VStack(alignment: .leading, spacing: 14) {
-                        ConsentInfoRow(
-                            icon: "photo.on.rectangle.angled",
-                            iconColor: .blue,
-                            title: "What is sent",
-                            detail: "Only the downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for your AI request."
-                        )
-                        Divider()
-                        ConsentInfoRow(
-                            icon: "network.badge.shield.half.filled",
-                            iconColor: themeManager.current.primaryAccent,
-                            title: "Who processes it",
-                            detail: "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers to estimate nutrition and personalize feedback."
-                        )
-                        Divider()
-                        ConsentInfoRow(
-                            icon: "lock.shield.fill",
-                            iconColor: .green,
-                            title: "Privacy & control",
-                            detail: "Requests are processed transiently with provider data retention disabled, and you can revoke this consent anytime in Settings."
+                                Text("Only selected meal photos and nutrition details needed for your request are analyzed.")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: 235, alignment: .leading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .frame(height: 164)
+                        .padding(.top, 8)
+
+                        Text("Review how your photos and nutrition data are processed before using AI features.")
+                            .font(.system(size: 14, weight: .regular, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        VStack(alignment: .leading, spacing: 14) {
+                            ConsentInfoRow(
+                                icon: "photo.on.rectangle.angled",
+                                iconColor: EditorialPalette.oceanSlate,
+                                title: "What is sent",
+                                detail: "Only the downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for your AI request."
+                            )
+                            Rectangle()
+                                .fill(EditorialPalette.hairlineLight)
+                                .frame(height: 0.5)
+                            ConsentInfoRow(
+                                icon: "network.badge.shield.half.filled",
+                                iconColor: EditorialPalette.forest,
+                                title: "Who processes it",
+                                detail: "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers to estimate nutrition and personalize feedback."
+                            )
+                            Rectangle()
+                                .fill(EditorialPalette.hairlineLight)
+                                .frame(height: 0.5)
+                            ConsentInfoRow(
+                                icon: "lock.shield.fill",
+                                iconColor: EditorialPalette.emerald,
+                                title: "Privacy & control",
+                                detail: "Requests are processed transiently with provider data retention disabled, and you can revoke this consent anytime in Settings."
+                            )
+                        }
+                        .padding(16)
+                        .background(EditorialPalette.surfaceLight)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
                         )
                     }
-                    .padding(18)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 24)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 24)
             }
-            .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .safeAreaInset(edge: .bottom) {
-                VStack(spacing: 10) {
+                VStack(spacing: 8) {
                     Button {
                         didResolveConsent = true
                         AIPhotoConsentManager.shared.grantConsent()
@@ -73,14 +96,8 @@ struct AIPhotoConsentSheet: View {
                         onAllow()
                     } label: {
                         Text("Allow AI Analysis")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 15)
-                            .background(themeManager.current.primaryAccent)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
-                    .buttonStyle(BounceButtonStyle())
+                    .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, height: 52))
 
                     Button {
                         didResolveConsent = true
@@ -88,16 +105,16 @@ struct AIPhotoConsentSheet: View {
                         onDecline()
                     } label: {
                         Text("Not Now")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkSecondary)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
+                            .frame(height: 40)
                     }
                     .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
-                .padding(.bottom, 12)
+                .padding(.bottom, 10)
                 .background(.ultraThinMaterial)
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -108,10 +125,14 @@ struct AIPhotoConsentSheet: View {
                         dismiss()
                         onDecline()
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title3)
-                            .foregroundStyle(.secondary)
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(EditorialPalette.inkPrimary)
+                            .frame(width: 30, height: 30)
+                            .background(Color.white.opacity(0.65))
+                            .clipShape(Circle())
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -130,9 +151,9 @@ private struct ConsentInfoRow: View {
     let detail: LocalizedStringKey
 
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
+        HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(iconColor)
                 .frame(width: 28, height: 28)
                 .background(iconColor.opacity(0.12))
@@ -140,10 +161,11 @@ private struct ConsentInfoRow: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.system(size: 14.5, weight: .semibold, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkPrimary)
                 Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 12.5, weight: .regular, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }

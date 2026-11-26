@@ -7,122 +7,69 @@ struct SwissOnboardingNavBar: View {
     let stageNames: [String]
     let onBack: () -> Void
     let onSelectStage: (Int) -> Void
-    
+
     var body: some View {
-        VStack(spacing: 10) {
-            // Top Controls Row: Back Button + Step Counter
-            HStack(alignment: .center) {
-                // Back Button (Visible when stage > 0)
-                if currentStage > 0 {
-                    Button(action: {
-                        let generator = UIImpactFeedbackGenerator(style: .light)
-                        generator.prepare()
-                        generator.impactOccurred()
-                        onBack()
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 13, weight: .bold))
-                            Text("BACK")
-                                .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        }
-                        .foregroundStyle(.white.opacity(0.85))
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(Color.swissCardElevated)
-                        .clipShape(Capsule())
+        HStack(spacing: 14) {
+            if currentStage > 0 {
+                Button(action: {
+                    HapticManager.shared.impact(style: .light)
+                    onBack()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(EditorialPalette.inkPrimary)
+                        .frame(width: 36, height: 36)
+                        .background(EditorialPalette.surfaceLight)
+                        .clipShape(Circle())
                         .overlay(
-                            Capsule().strokeBorder(Color.swissBorder, lineWidth: 1)
+                            Circle()
+                                .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
                         )
-                    }
-                    .transition(.move(edge: .leading).combined(with: .opacity))
-                } else {
-                    // Placeholder alignment spacer or Brand Mark
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(Color.swissChartreuse)
-                            .frame(width: 8, height: 8)
-                        Text("SETUP")
-                            .font(.system(size: 11, weight: .black, design: .monospaced))
-                            .foregroundStyle(Color.swissChartreuse)
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
                 }
-                
-                Spacer()
-                
-                // Monospaced Stage Badge
-                HStack(spacing: 4) {
-                    Text("STEP")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.4))
-                    
-                    Text("0\(currentStage + 1)")
-                        .font(.system(size: 12, weight: .black, design: .monospaced))
-                        .foregroundStyle(Color.swissChartreuse)
-                    
-                    Text("/ 0\(totalStages)")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.4))
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color.swissCardSurface)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .strokeBorder(Color.swissBorder, lineWidth: 1)
-                )
+                .accessibilityLabel("Back")
+                .transition(.opacity.combined(with: .scale(scale: 0.92)))
+            } else {
+                Text("FoodTracker")
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkPrimary)
+                    .frame(height: 36, alignment: .leading)
             }
-            .padding(.horizontal, 20)
-            
-            // Interactive Multi-Segment Progress Track
-            HStack(spacing: 6) {
+
+            // Quiet flat step progress segments
+            HStack(spacing: 5) {
                 ForEach(0..<totalStages, id: \.self) { idx in
-                    let isCompleted = idx < currentStage
-                    let isCurrent = idx == currentStage
-                    
+                    let isReached = idx <= currentStage
                     Button(action: {
-                        if idx < currentStage {
-                            let generator = UISelectionFeedbackGenerator()
-                            generator.prepare()
-                            generator.selectionChanged()
-                            onSelectStage(idx)
-                        }
+                        guard idx < currentStage else { return }
+                        let generator = UISelectionFeedbackGenerator()
+                        generator.prepare()
+                        generator.selectionChanged()
+                        onSelectStage(idx)
                     }) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            // Segment Bar
-                            Capsule()
-                                .fill(
-                                    isCurrent
-                                        ? Color.swissChartreuse
-                                        : (isCompleted ? Color.swissChartreuse.opacity(0.65) : Color.white.opacity(0.12))
-                                )
-                                .frame(height: isCurrent ? 5 : 3.5)
-                                .shadow(
-                                    color: isCurrent ? Color.swissChartreuseGlow : .clear,
-                                    radius: 6
-                                )
-                            
-                            // Stage Short Label on Active Step
-                            if isCurrent && idx < stageNames.count {
-                                Text(LocalizedStringKey(stageNames[idx]))
-                                    .font(.system(size: 8, weight: .black, design: .monospaced))
-                                    .foregroundStyle(Color.swissChartreuse)
-                                    .lineLimit(1)
-                                    .transition(.opacity.combined(with: .scale))
-                            }
-                        }
+                        Capsule()
+                            .fill(
+                                isReached
+                                    ? EditorialPalette.forest
+                                    : Color.black.opacity(0.12)
+                            )
+                            .frame(height: 3.5)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .contentShape(Rectangle())
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .buttonStyle(.plain)
                     .disabled(idx > currentStage)
+                    .accessibilityLabel(idx < stageNames.count ? Text(LocalizedStringKey(stageNames[idx])) : Text("Step \(idx + 1)"))
                 }
             }
-            .padding(.horizontal, 20)
+
+            Text("\(currentStage + 1) / \(totalStages)")
+                .font(.system(size: 13, weight: .semibold, design: .rounded).monospacedDigit())
+                .foregroundStyle(EditorialPalette.inkSecondary)
+                .frame(minWidth: 34, alignment: .trailing)
         }
-        .padding(.top, 8)
-        .padding(.bottom, 12)
-        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: currentStage)
+        .frame(height: 44)
+        .padding(.horizontal, 20)
+        .padding(.top, 4)
     }
 }

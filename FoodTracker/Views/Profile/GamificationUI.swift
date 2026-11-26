@@ -1,23 +1,9 @@
 import SwiftUI
 
 struct ProfileBreathingBackground: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var phase = false
-    @Environment(\.colorScheme) private var colorScheme 
-
     var body: some View {
-        ZStack {
-            (colorScheme == .dark ? Color(red: 0.05, green: 0.05, blue: 0.07) : Color.themeBg).edgesIgnoringSafeArea(.all)
-
-            Circle()
-                .fill(Color.themeOrange.opacity(colorScheme == .dark ? 0.08 : 0.05))
-                .frame(width: 350, height: 350)
-                .blur(radius: 120)
-                .offset(x: phase ? 40 : -40, y: phase ? -30 : 30)
-                .scaleEffect(phase ? 1.2 : 0.8)
-                .animation(reduceMotion ? nil : .easeInOut(duration: 5.0).repeatForever(autoreverses: true), value: phase)
-                .onAppear { if !reduceMotion { phase = true } }
-        }
+        DynamicAuroraBackgroundView(pinnedPaletteIndex: 3)
+            .allowsHitTesting(false)
     }
 }
 

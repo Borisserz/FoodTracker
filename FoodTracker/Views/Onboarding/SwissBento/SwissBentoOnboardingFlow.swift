@@ -32,29 +32,33 @@ enum OnboardingStageGuard {
 
 struct SwissBentoOnboardingFlow: View {
     let onFinish: (OnboardingMetrics) -> Void
-    
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var stage: Int = 0
     @State private var metrics = OnboardingMetrics()
-    
-    // Live calculated nutrition metrics
+
     private var blueprint: MetabolicBlueprint {
         MetabolicBlueprintCalculator.calculate(for: metrics)
     }
 
-    private var calculatedBMR: Int { blueprint.bmr }
-    private var dailyTargetCalories: Int { blueprint.dailyCalories }
-    private var targetProtein: Int { blueprint.proteinGrams }
-    private var targetCarbs: Int { blueprint.carbsGrams }
-    private var targetFats: Int { blueprint.fatGrams }
-    
-    private let stageNames = ["INTRO", "BIOMETRICS", "PROTOCOL", "TOOLS", "BLUEPRINT"]
-    
+    private var stagePaletteIndex: Int {
+        switch stage {
+        case 0: return 0 // Forest Sage
+        case 1: return 1 // Deep Ocean Teal
+        case 2: return 2 // Roasted Espresso Amber
+        case 3: return 3 // Midnight Cobalt
+        default: return 0 // Forest Sage (matches Home tab seamlessly)
+        }
+    }
+
+    private let stageNames = ["Welcome", "Body", "Goal", "Tools", "Plan"]
+
     var body: some View {
         ZStack {
-            Color.swissGraphite.ignoresSafeArea()
-            
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: stagePaletteIndex)
+                .allowsHitTesting(false)
+
             VStack(spacing: 0) {
-                // Interactive Swiss Navigation Bar
                 SwissOnboardingNavBar(
                     currentStage: stage,
                     totalStages: 5,
@@ -62,13 +66,16 @@ struct SwissBentoOnboardingFlow: View {
                     onBack: { previousStage() },
                     onSelectStage: { selected in
                         let target = OnboardingStageGuard.clampedStage(selected, current: stage, metrics: metrics)
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        if reduceMotion {
                             stage = target
+                        } else {
+                            withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                                stage = target
+                            }
                         }
                     }
                 )
-                
-                // Stage Views (explicitly gated so users cannot swipe past required Stage 2 protocol)
+
                 Group {
                     switch stage {
                     case 0:
@@ -76,11 +83,7 @@ struct SwissBentoOnboardingFlow: View {
                     case 1:
                         Stage1BiometricsView(
                             metrics: $metrics,
-                            bmr: calculatedBMR,
-                            targetCalories: dailyTargetCalories,
-                            protein: targetProtein,
-                            carbs: targetCarbs,
-                            fats: targetFats,
+                            blueprint: blueprint,
                             onNext: { nextStage() }
                         )
                     case 2:
@@ -90,17 +93,16 @@ struct SwissBentoOnboardingFlow: View {
                         )
                     case 3:
                         Stage3FeatureLabView(
+                            weightKg: metrics.weight,
                             onNext: { nextStage() }
                         )
                     default:
                         Stage4BlueprintRevealView(
                             metrics: metrics,
-                            calories: dailyTargetCalories,
-                            protein: targetProtein,
-                            carbs: targetCarbs,
-                            fats: targetFats,
+                            blueprint: blueprint,
                             onFinish: {
                                 guard OnboardingStageGuard.canFinish(metrics: metrics) else { return }
+                                HapticManager.shared.notification(type: .success)
                                 onFinish(metrics)
                             }
                         )
@@ -121,94 +123,122 @@ struct SwissBentoOnboardingFlow: View {
                     )
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: stage)
+                .animation(reduceMotion ? nil : .spring(response: 0.38, dampingFraction: 0.84), value: stage)
             }
         }
-        .preferredColorScheme(.dark)
     }
-    
+
     private func nextStage() {
         if stage < 4 {
             guard OnboardingStageGuard.canAdvance(from: stage, metrics: metrics) else { return }
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+            if reduceMotion {
                 stage += 1
+            } else {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.84)) {
+                    stage += 1
+                }
             }
         } else if OnboardingStageGuard.canFinish(metrics: metrics) {
+            HapticManager.shared.notification(type: .success)
             onFinish(metrics)
         }
     }
-    
+
     private func previousStage() {
-        if stage > 0 {
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+        guard stage > 0 else { return }
+        if reduceMotion {
+            stage -= 1
+        } else {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.84)) {
                 stage -= 1
             }
         }
     }
 }
 
-// MARK: - Stage 0: Welcome & Vision
+// MARK: - Stage 0: Core Product Introduction
 private struct Stage0WelcomeView: View {
     let onNext: () -> Void
-    
+
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            
-            // Hero Visual Preview Bento
-            VStack(spacing: 12) {
-                LaserScanViewfinder()
-                    .frame(height: 230)
-                
-                HStack(spacing: 12) {
-                    WaveLiquidHydrationView()
-                    CircadianFastingClock()
-                }
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Daily calories, macros, and meal tracking")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("Estimate meals from photos or barcodes and keep daily energy targets in focus.")
+                    .font(.system(size: 15, weight: .regular, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 16)
-            
-            // Value Statement
-            VStack(spacing: 8) {
-                HStack {
-                    Text("FOODTRACKER")
-                        .font(.system(size: 13, weight: .black, design: .monospaced))
-                        .foregroundStyle(Color.swissChartreuse)
-                    
-                    Text("• SWISS PRO v3")
-                        .font(.system(size: 13, weight: .bold, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.5))
-                }
-                
-                Text("Precision Nutrition & Metabolic Engine")
-                    .font(.system(size: 26, weight: .black, design: .default))
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 12)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+
+            LaserScanViewfinder()
+                .padding(.horizontal, 20)
+
+            HStack(spacing: 12) {
+                factItem(icon: "function", text: "Mifflin-St Jeor target")
+                Rectangle()
+                    .fill(EditorialPalette.hairlineLight)
+                    .frame(width: 1, height: 18)
+                factItem(icon: "heart.fill", text: "Apple Health")
             }
-            
-            Spacer()
-            
-            // CTA
+            .padding(.horizontal, 22)
+
+            Spacer(minLength: 12)
+
             Button(action: onNext) {
-                Text("Initialize Setup →")
+                Text("Get Started")
             }
-            .buttonStyle(SwissPillCTAButtonStyle())
+            .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite))
             .accessibilityIdentifier("onboarding_stage0_next")
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
         }
     }
+
+    private func factItem(icon: String, text: LocalizedStringKey) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: icon)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(EditorialPalette.forest)
+            Text(text)
+                .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                .foregroundStyle(EditorialPalette.inkSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+    }
 }
 
-// MARK: - Stage 1: Biometrics Lab
+private enum OnboardingMetricsUIHelper {
+    static func recommendedWaterLiters(for weightKg: Double) -> Double {
+        let raw = max(1.6, min(3.8, weightKg * 0.032))
+        return (raw * 10).rounded() / 10
+    }
+
+    static func weightIntBinding(_ target: Binding<Double>, useMetric: Bool) -> Binding<Int> {
+        Binding(
+            get: { Int(NutritionMath.displayWeight(target.wrappedValue, useMetric: useMetric).rounded()) },
+            set: { newValue in
+                target.wrappedValue = useMetric
+                    ? Double(newValue)
+                    : NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false)
+            }
+        )
+    }
+}
+
+// MARK: - Stage 1: Body Measurements & Live Estimate
 private struct Stage1BiometricsView: View {
     @Binding var metrics: OnboardingMetrics
-    let bmr: Int
-    let targetCalories: Int
-    let protein: Int
-    let carbs: Int
-    let fats: Int
+    let blueprint: MetabolicBlueprint
     let onNext: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     private var heightBinding: Binding<Int> {
@@ -225,79 +255,56 @@ private struct Stage1BiometricsView: View {
     }
 
     private var weightBinding: Binding<Int> {
-        Binding(
-            get: { Int(NutritionMath.displayWeight(metrics.weight, useMetric: useMetricSystem).rounded()) },
-            set: { newValue in
-                if useMetricSystem {
-                    metrics.weight = Double(newValue)
-                } else {
-                    metrics.weight = NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false)
-                }
-            }
-        )
+        OnboardingMetricsUIHelper.weightIntBinding($metrics.weight, useMetric: useMetricSystem)
     }
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 18) {
-                // Header
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("BIOMETRIC CALIBRATION")
-                        .font(.system(size: 12, weight: .black, design: .monospaced))
-                        .foregroundStyle(Color.swissChartreuse)
-                    
-                    Text("Enter Body Metrics")
-                        .font(.system(size: 28, weight: .black, design: .default))
-                        .foregroundStyle(.white)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                
-                // Live Macro Summary Bento Card
-                VStack(spacing: 12) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("LIVE METABOLIC ESTIMATION")
-                                .font(.system(size: 10, weight: .black, design: .monospaced))
-                                .foregroundStyle(Color.swissChartreuse)
-                            Text("Real-Time Target")
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Your measurements")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkPrimary)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+
+                EditorialDarkCard(cornerRadius: 20, padding: 16) {
+                    VStack(spacing: 12) {
+                        HStack(alignment: .firstTextBaseline) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Estimated daily target")
+                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.oat.opacity(0.85))
+                                Text("Daily calorie target")
+                                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white)
+                            }
+                            Spacer()
+                            Text("\(blueprint.dailyCalories) kcal")
+                                .font(.system(size: 24, weight: .heavy, design: .rounded).monospacedDigit())
+                                .foregroundStyle(EditorialPalette.oat)
+                                .contentTransition(reduceMotion ? .identity : .numericText())
                         }
-                        Spacer()
-                        Text("\(targetCalories) kcal")
-                            .font(.system(size: 24, weight: .black, design: .monospaced))
-                            .foregroundStyle(Color.swissChartreuse)
-                            .contentTransition(.numericText())
-                    }
-                    
-                    Divider().background(Color.swissBorder)
-                    
-                    HStack(spacing: 8) {
-                        MacroBadge(title: "PROTEIN", amount: "\(protein)g", color: .swissCyan)
-                        MacroBadge(title: "CARBS", amount: "\(carbs)g", color: .swissChartreuse)
-                        MacroBadge(title: "FATS", amount: "\(fats)g", color: .swissCoral)
+
+                        Rectangle()
+                            .fill(Color.white.opacity(0.12))
+                            .frame(height: 0.75)
+
+                        HStack(spacing: 8) {
+                            EditorialMetricChip(label: "Protein", value: String(localized: "\(blueprint.proteinGrams) g"), accent: EditorialPalette.oceanSlate)
+                            EditorialMetricChip(label: "Carbs", value: String(localized: "\(blueprint.carbsGrams) g"), accent: EditorialPalette.oat)
+                            EditorialMetricChip(label: "Fat", value: String(localized: "\(blueprint.fatGrams) g"), accent: EditorialPalette.warmAmber)
+                        }
                     }
                 }
-                .padding(16)
-                .background(Color.swissCardSurface)
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .strokeBorder(Color.swissBorder, lineWidth: 1)
-                )
                 .padding(.horizontal, 20)
-                
-                // Biological Sex Selector
+
                 HStack(spacing: 10) {
                     genderPill("Male")
                     genderPill("Female")
                 }
                 .padding(.horizontal, 20)
 
-                // Rulers
-                VStack(spacing: 14) {
+                VStack(spacing: 12) {
                     SwissTapeRuler(title: "Age", unit: "yo", range: 16...99, value: $metrics.age)
                     SwissTapeRuler(
                         title: "Height",
@@ -306,23 +313,22 @@ private struct Stage1BiometricsView: View {
                         value: heightBinding
                     )
                     SwissTapeRuler(
-                        title: "Current Weight",
+                        title: "Current weight",
                         unit: NutritionMath.weightUnit(useMetric: useMetricSystem),
                         range: useMetricSystem ? 40...200 : 88...441,
                         value: weightBinding
                     )
                 }
                 .padding(.horizontal, 20)
-                
-                // Continue Button
+
                 Button(action: onNext) {
-                    Text("Confirm Biometrics →")
+                    Text("Continue")
                 }
-                .buttonStyle(SwissPillCTAButtonStyle())
+                .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite))
                 .accessibilityIdentifier("onboarding_stage1_next")
                 .padding(.horizontal, 20)
-                .padding(.top, 10)
-                .padding(.bottom, 32)
+                .padding(.top, 6)
+                .padding(.bottom, 28)
             }
         }
     }
@@ -335,130 +341,129 @@ private struct Stage1BiometricsView: View {
             metrics.gender = option
         }) {
             Text(LocalizedStringKey(option))
-                .font(.system(size: 14, weight: .bold, design: .rounded))
-                .foregroundStyle(isSelected ? Color.swissGraphite : .white)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundStyle(isSelected ? Color.white : EditorialPalette.inkPrimary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(isSelected ? Color.swissChartreuse : Color.swissCardSurface)
+                .background(isSelected ? EditorialPalette.cardDark : EditorialPalette.surfaceLight)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(isSelected ? Color.swissChartreuse : Color.swissBorder, lineWidth: 1)
+                        .strokeBorder(
+                            isSelected ? EditorialPalette.cardBorderDarkFocused : EditorialPalette.hairlineLight,
+                            lineWidth: 1
+                        )
                 )
         }
         .buttonStyle(.plain)
     }
 }
 
-// MARK: - Stage 2: Goal Protocol Matrix
+// MARK: - Stage 2: Goal & Activity Selection
 private struct Stage2GoalProtocolView: View {
     @Binding var metrics: OnboardingMetrics
     let onNext: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     private var targetWeightBinding: Binding<Int> {
-        Binding(
-            get: { Int(NutritionMath.displayWeight(metrics.targetWeight, useMetric: useMetricSystem).rounded()) },
-            set: { newValue in
-                if useMetricSystem {
-                    metrics.targetWeight = Double(newValue)
-                } else {
-                    metrics.targetWeight = NutritionMath.kgFromDisplayWeight(Double(newValue), useMetric: false)
-                }
-            }
-        )
+        OnboardingMetricsUIHelper.weightIntBinding($metrics.targetWeight, useMetric: useMetricSystem)
     }
-    
-    private let goals: [(name: String, desc: String, icon: String, tag: String)] = [
-        ("Lose Weight", "Burn visceral fat and preserve lean metabolic mass.", "flame.fill", "FAT LOSS"),
-        ("Maintain Weight", "Optimize metabolic longevity and daily energy consistency.", "heart.fill", "HEALTH"),
-        ("Build Muscle", "Hypertrophy-driven caloric surplus with high amino acids.", "bolt.fill", "HYPERTROPHY"),
+
+    private struct GoalOption {
+        let modelValue: String
+        let titleKey: String
+        let descriptionKey: String
+        let icon: String
+    }
+
+    private let goals: [GoalOption] = [
+        GoalOption(
+            modelValue: "Lose Weight",
+            titleKey: "Lose weight",
+            descriptionKey: "Steady calorie deficit for gradual weight loss.",
+            icon: "arrow.down.right"
+        ),
+        GoalOption(
+            modelValue: "Maintain Weight",
+            titleKey: "Maintain weight",
+            descriptionKey: "Balanced calories to keep your current weight steady.",
+            icon: "equal"
+        ),
+        GoalOption(
+            modelValue: "Build Muscle",
+            titleKey: "Build muscle",
+            descriptionKey: "Calorie surplus and higher protein to support training.",
+            icon: "arrow.up.right"
+        )
     ]
-    
-    private let activities: [(type: ActivityType, name: String, desc: String)] = [
-        (.office, "Sedentary / Office", "Desk work, < 4,000 steps/day"),
-        (.light, "Light Active", "1-3 workouts / week or active job"),
-        (.active, "Active Metabolism", "3-5 high-intensity sessions / week"),
-        (.beast, "Turbo Mode Athlete", "Daily intense training or physical labor"),
-    ]
-    
+
+    private var selectableActivities: [ActivityType] {
+        ActivityType.allCases.filter { $0 != .none }
+    }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 20) {
-                // Title
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("STRATEGY MATRIX")
-                        .font(.system(size: 12, weight: .black, design: .monospaced))
-                        .foregroundStyle(Color.swissChartreuse)
-                    
-                    Text("Choose Your Protocol")
-                        .font(.system(size: 28, weight: .black, design: .default))
-                        .foregroundStyle(.white)
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                
-                // Goal Cards
-                VStack(spacing: 12) {
-                    ForEach(goals, id: \.name) { item in
-                        let isSelected = metrics.goal == item.name
+            VStack(alignment: .leading, spacing: 18) {
+                Text("Choose your goal")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkPrimary)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+
+                VStack(spacing: 10) {
+                    ForEach(goals, id: \.modelValue) { item in
+                        let isSelected = metrics.goal == item.modelValue
                         Button(action: {
-                            metrics.goal = item.name
-                            switch item.name {
-                            case "Lose Weight":
-                                if metrics.targetWeight >= metrics.weight {
-                                    metrics.targetWeight = max(40.0, metrics.weight - 5.0)
-                                }
-                            case "Build Muscle":
-                                if metrics.targetWeight <= metrics.weight {
-                                    metrics.targetWeight = min(200.0, metrics.weight + 5.0)
-                                }
-                            default:
-                                metrics.targetWeight = metrics.weight
-                            }
-                            let generator = UIImpactFeedbackGenerator(style: .medium)
-                            generator.prepare()
-                            generator.impactOccurred()
+                            selectGoal(item.modelValue)
                         }) {
                             HStack(spacing: 14) {
                                 Image(systemName: item.icon)
-                                    .font(.system(size: 22))
-                                    .foregroundStyle(isSelected ? Color.black : Color.swissChartreuse)
-                                    .frame(width: 44, height: 44)
-                                    .background(isSelected ? Color.swissChartreuse : Color.white.opacity(0.06))
-                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    HStack {
-                                        Text(LocalizedStringKey(item.name))
-                                            .font(.system(size: 16, weight: .bold))
-                                            .foregroundStyle(isSelected ? .white : .white.opacity(0.9))
-                                        Spacer()
-                                        SwissTagBadge(text: item.tag, color: isSelected ? .swissChartreuse : .white.opacity(0.4))
-                                    }
-                                    
-                                    Text(LocalizedStringKey(item.desc))
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(.white.opacity(0.6))
-                                        .lineLimit(2)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(isSelected ? EditorialPalette.textOnOat : EditorialPalette.inkPrimary)
+                                    .frame(width: 40, height: 40)
+                                    .background(isSelected ? EditorialPalette.oat : Color.black.opacity(0.06))
+                                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(LocalizedStringKey(item.titleKey))
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .foregroundStyle(isSelected ? Color.white : EditorialPalette.inkPrimary)
+
+                                    Text(LocalizedStringKey(item.descriptionKey))
+                                        .font(.system(size: 12.5, weight: .regular, design: .rounded))
+                                        .foregroundStyle(isSelected ? Color.white.opacity(0.75) : EditorialPalette.inkSecondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+
+                                Spacer()
+
+                                if isSelected {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(EditorialPalette.emerald)
                                 }
                             }
-                            .padding(16)
-                            .background(isSelected ? Color.swissCardElevated : Color.swissCardSurface)
+                            .padding(14)
+                            .background(isSelected ? EditorialPalette.cardDark : EditorialPalette.surfaceLight)
                             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .strokeBorder(isSelected ? Color.swissChartreuse : Color.swissBorder, lineWidth: isSelected ? 1.5 : 1)
+                                    .strokeBorder(
+                                        isSelected ? EditorialPalette.cardBorderDarkFocused : EditorialPalette.hairlineLight,
+                                        lineWidth: isSelected ? 1.25 : 0.75
+                                    )
                             )
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 20)
 
                 if metrics.goal != "Maintain Weight" {
                     SwissTapeRuler(
-                        title: "Target Weight",
+                        title: "Target weight",
                         unit: NutritionMath.weightUnit(useMetric: useMetricSystem),
                         range: useMetricSystem ? 40...200 : 88...441,
                         value: targetWeightBinding
@@ -466,264 +471,304 @@ private struct Stage2GoalProtocolView: View {
                     .padding(.horizontal, 20)
                 }
 
-                // Activity Level Chips
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("DAILY ACTIVITY EXPENDITURE")
-                        .font(.system(size: 11, weight: .black, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.6))
+                    Text("Daily activity")
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundStyle(EditorialPalette.inkPrimary)
                         .padding(.horizontal, 20)
-                    
+
                     VStack(spacing: 8) {
-                        ForEach(activities, id: \.type) { act in
-                            let isSelected = metrics.activityLevel == act.type
+                        ForEach(selectableActivities, id: \.self) { act in
+                            let isSelected = metrics.activityLevel == act
                             Button(action: {
-                                metrics.activityLevel = act.type
-                                let generator = UIImpactFeedbackGenerator(style: .soft)
-                                generator.prepare()
-                                generator.impactOccurred()
+                                HapticManager.shared.impact(style: .light)
+                                metrics.activityLevel = act
                             }) {
-                                HStack {
-                                    Text(LocalizedStringKey(act.name))
-                                        .font(.system(size: 14, weight: .bold, design: .monospaced))
-                                        .foregroundStyle(isSelected ? Color.swissChartreuse : .white.opacity(0.8))
+                                HStack(spacing: 12) {
+                                    Image(systemName: act.sfSymbolName)
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundStyle(isSelected ? EditorialPalette.emerald : EditorialPalette.inkSecondary)
+                                        .frame(width: 28, height: 28)
+                                        .background(isSelected ? EditorialPalette.emerald.opacity(0.16) : Color.black.opacity(0.05))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(LocalizedStringKey(act.titleKey))
+                                            .font(.system(size: 14.5, weight: .semibold, design: .rounded))
+                                            .foregroundStyle(isSelected ? Color.white : EditorialPalette.inkPrimary)
+
+                                        Text(LocalizedStringKey(act.descriptionKey))
+                                            .font(.system(size: 12, weight: .regular, design: .rounded))
+                                            .foregroundStyle(isSelected ? Color.white.opacity(0.72) : EditorialPalette.inkSecondary)
+                                    }
+
                                     Spacer()
-                                    Text(LocalizedStringKey(act.desc))
-                                        .font(.system(size: 11))
-                                        .foregroundStyle(.white.opacity(0.5))
+
+                                    if isSelected {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 12, weight: .bold))
+                                            .foregroundStyle(EditorialPalette.emerald)
+                                    }
                                 }
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, 14)
                                 .padding(.vertical, 12)
-                                .background(isSelected ? Color.swissChartreuse.opacity(0.1) : Color.swissCardSurface)
-                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .background(isSelected ? EditorialPalette.cardDark : EditorialPalette.surfaceLight)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .strokeBorder(isSelected ? Color.swissChartreuse : Color.swissBorder, lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .strokeBorder(
+                                            isSelected ? EditorialPalette.cardBorderDarkFocused : EditorialPalette.hairlineLight,
+                                            lineWidth: 1
+                                        )
                                 )
                             }
-                            .buttonStyle(PlainButtonStyle())
-                            .accessibilityIdentifier("onboarding_activity_\(String(describing: act.type))")
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("onboarding_activity_\(String(describing: act))")
                         }
                     }
                     .padding(.horizontal, 20)
                 }
-                
-                // Action
+
                 Button(action: onNext) {
-                    Text("Lock Protocol →")
+                    Text(metrics.activityLevel == .none ? "Select Activity Level" : "Continue")
                 }
-                .buttonStyle(SwissPillCTAButtonStyle(isEnabled: metrics.activityLevel != .none))
+                .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, isEnabled: metrics.activityLevel != .none))
                 .disabled(metrics.activityLevel == .none)
                 .accessibilityIdentifier("onboarding_stage2_next")
                 .padding(.horizontal, 20)
-                .padding(.top, 10)
-                .padding(.bottom, 32)
+                .padding(.top, 4)
+                .padding(.bottom, 28)
+            }
+        }
+    }
+
+    private func selectGoal(_ modelValue: String) {
+        HapticManager.shared.impact(style: .medium)
+        let apply = {
+            metrics.goal = modelValue
+            metrics.targetWeight = MetabolicBlueprintCalculator.sanitizedTargetWeight(
+                for: modelValue,
+                weight: metrics.weight,
+                targetWeight: metrics.targetWeight
+            )
+        }
+        if reduceMotion {
+            apply()
+        } else {
+            withAnimation(.spring(response: 0.34, dampingFraction: 0.84)) {
+                apply()
             }
         }
     }
 }
 
-// MARK: - Stage 3: Feature Lab
+// MARK: - Stage 3: Daily Tools & Rhythm (No Stage 0 Duplication)
 private struct Stage3FeatureLabView: View {
+    let weightKg: Double
     let onNext: () -> Void
-    
+
+    private var recommendedWaterLiters: Double {
+        OnboardingMetricsUIHelper.recommendedWaterLiters(for: weightKg)
+    }
+
     var body: some View {
-        VStack(spacing: 20) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("INTELLIGENT SUITE")
-                    .font(.system(size: 12, weight: .black, design: .monospaced))
-                    .foregroundStyle(Color.swissChartreuse)
-                
-                Text("All Tools Included")
-                    .font(.system(size: 28, weight: .black, design: .default))
-                    .foregroundStyle(.white)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
-            
-            // Bento Grid Feature Showcase
-            VStack(spacing: 12) {
-                LaserScanViewfinder()
-                
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Core tracking tools")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(EditorialPalette.inkPrimary)
+
+                    Text("Water guide, fasting windows, and AI Chef recipes work together with your daily calorie balance.")
+                        .font(.system(size: 14.5, weight: .regular, design: .rounded))
+                        .foregroundStyle(EditorialPalette.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+
                 HStack(spacing: 12) {
-                    WaveLiquidHydrationView()
+                    WaveLiquidHydrationView(
+                        fillPercentage: 0.72,
+                        currentAmount: recommendedWaterLiters * 0.72,
+                        targetAmount: recommendedWaterLiters
+                    )
                     CircadianFastingClock()
                 }
+                .padding(.horizontal, 20)
+
+                EditorialPhotoBackdropCard(
+                    imageName: "chef_card_cooking",
+                    minHeight: 164,
+                    cornerRadius: 22,
+                    scrimBottomOpacity: 0.88
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("AI Chef Studio")
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.oat)
+
+                        Text("Recipes tailored to your remaining calories")
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text("Cook with ingredients already in your kitchen.")
+                            .font(.system(size: 13, weight: .regular, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.78))
+                    }
+                }
+                .frame(height: 168)
+                .padding(.horizontal, 20)
+
+                Button(action: onNext) {
+                    Text("See My Plan")
+                }
+                .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite))
+                .accessibilityIdentifier("onboarding_stage3_next")
+                .padding(.horizontal, 20)
+                .padding(.top, 4)
+                .padding(.bottom, 28)
             }
-            .padding(.horizontal, 20)
-            
-            Spacer()
-            
-            Button(action: onNext) {
-                Text("Generate Blueprint →")
-            }
-            .buttonStyle(SwissPillCTAButtonStyle())
-            .accessibilityIdentifier("onboarding_stage3_next")
-            .padding(.horizontal, 20)
-            .padding(.bottom, 24)
         }
     }
 }
 
-// MARK: - Stage 4: Blueprint Reveal
+// MARK: - Stage 4: Instant Plan Summary
 private struct Stage4BlueprintRevealView: View {
     let metrics: OnboardingMetrics
-    let calories: Int
-    let protein: Int
-    let carbs: Int
-    let fats: Int
+    let blueprint: MetabolicBlueprint
     let onFinish: () -> Void
-    
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var progressCount: Int = 0
-    @State private var isCompleted: Bool = false
-    @State private var progressTimer: Timer?
-    
-    var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            
-            // AI Synthesis Dial
-            ZStack {
-                Circle()
-                    .stroke(Color.swissBorder, lineWidth: 12)
-                    .frame(width: 170, height: 170)
-                
-                Circle()
-                    .trim(from: 0.0, to: CGFloat(progressCount) / 100.0)
-                    .stroke(
-                        Color.swissChartreuse,
-                        style: StrokeStyle(lineWidth: 12, lineCap: .round)
-                    )
-                    .frame(width: 170, height: 170)
-                    .rotationEffect(.degrees(-90))
-                    .shadow(color: Color.swissChartreuseGlow, radius: 12)
-                
-                VStack(spacing: 4) {
-                    Text("\(progressCount)%")
-                        .font(.system(size: 38, weight: .black, design: .monospaced))
-                        .foregroundStyle(.white)
-                    
-                    Text("CALIBRATED")
-                        .font(.system(size: 10, weight: .black, design: .monospaced))
-                        .foregroundStyle(Color.swissChartreuse)
-                }
-            }
-            
-            // Headline
-            VStack(spacing: 6) {
-                Text("Your Metabolic Blueprint")
-                    .font(.system(size: 26, weight: .black, design: .default))
-                    .foregroundStyle(.white)
-                
-                Text("Personalized for \(String(localized: String.LocalizationValue(metrics.goal)).lowercased()) with \(calories) kcal/day")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.white.opacity(0.6))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
-            }
-            
-            // Macro Grid
-            HStack(spacing: 12) {
-                BlueprintPill(title: "DAILY ENERGY", val: "\(calories)", unit: "kcal", color: .swissChartreuse)
-                BlueprintPill(title: "PROTEIN", val: "\(protein)", unit: "g", color: .swissCyan)
-                BlueprintPill(title: "CARBS", val: "\(carbs)", unit: "g", color: .white)
-                BlueprintPill(title: "FATS", val: "\(fats)", unit: "g", color: .swissCoral)
-            }
-            .padding(.horizontal, 20)
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
-            NutritionMethodologyDisclaimerView(
-                citations: [.bmrAndTdee, .dietaryGuidelines],
-                style: .darkOnboarding,
-                compact: true
-            )
-            .padding(.horizontal, 20)
-
-            Spacer(minLength: 8)
-            
-            Button(action: onFinish) {
-                Text("Start Tracking Now →")
-            }
-            .buttonStyle(SwissPillCTAButtonStyle(isEnabled: isCompleted))
-            .disabled(!isCompleted)
-            .accessibilityIdentifier("onboarding_stage4_finish")
-            .padding(.horizontal, 20)
-            .padding(.bottom, 24)
-        }
-        .onAppear {
-            progressTimer?.invalidate()
-            if reduceMotion {
-                progressCount = 100
-                isCompleted = true
-                return
-            }
-            progressTimer = Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { timer in
-                if progressCount < 100 {
-                    progressCount += 2
-                } else {
-                    timer.invalidate()
-                    progressTimer = nil
-                    isCompleted = true
-                    let generator = UINotificationFeedbackGenerator()
-                    generator.prepare()
-                    generator.notificationOccurred(.success)
-                }
-            }
-        }
-        .onDisappear {
-            progressTimer?.invalidate()
-            progressTimer = nil
+    private var displayGoalKey: String {
+        switch metrics.goal {
+        case "Lose Weight": return "Lose weight"
+        case "Build Muscle": return "Build muscle"
+        default: return "Maintain weight"
         }
     }
-}
 
-// MARK: - Macro Badges & Helper Views
-private struct MacroBadge: View {
-    let title: String
-    let amount: String
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 2) {
-            Text(LocalizedStringKey(title))
-                .font(.system(size: 9, weight: .black, design: .monospaced))
-                .foregroundStyle(color)
-            Text(amount)
-                .font(.system(size: 14, weight: .bold, design: .monospaced))
-                .foregroundStyle(.white)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        .background(Color.swissCardElevated)
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    private var waterGuideLiters: Double {
+        OnboardingMetricsUIHelper.recommendedWaterLiters(for: metrics.weight)
     }
-}
 
-private struct BlueprintPill: View {
-    let title: String
-    let val: String
-    let unit: String
-    let color: Color
-    
+    private var macroCaloriesTotal: Double {
+        let p = Double(blueprint.proteinGrams * 4)
+        let f = Double(blueprint.fatGrams * 9)
+        let c = Double(blueprint.carbsGrams * 4)
+        return max(p + f + c, 1.0)
+    }
+
     var body: some View {
-        VStack(spacing: 4) {
-            Text(LocalizedStringKey(title))
-                .font(.system(size: 8, weight: .black, design: .monospaced))
-                .foregroundStyle(color)
-            Text(val)
-                .font(.system(size: 18, weight: .black, design: .monospaced))
-                .foregroundStyle(.white)
-            Text(LocalizedStringKey(unit))
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.4))
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Your daily target")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(EditorialPalette.inkPrimary)
+
+                    HStack(spacing: 4) {
+                        Text("Goal:")
+                        Text(LocalizedStringKey(displayGoalKey))
+                    }
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkSecondary)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+
+                EditorialDarkCard(cornerRadius: 24, padding: 20) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(EditorialPalette.emerald)
+                                    .frame(width: 7, height: 7)
+                                Text("Mifflin-St Jeor target")
+                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.82))
+                            }
+                            Spacer()
+                            Text(LocalizedStringKey(metrics.activityLevel.titleKey))
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .foregroundStyle(EditorialPalette.oat.opacity(0.85))
+                        }
+
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text("\(blueprint.dailyCalories)")
+                                .font(.system(size: 44, weight: .heavy, design: .rounded).monospacedDigit())
+                                .foregroundStyle(.white)
+                                .contentTransition(reduceMotion ? .identity : .numericText())
+
+                            Text("kcal / day")
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .foregroundStyle(EditorialPalette.oat)
+                        }
+
+                        // Proportional macro bar
+                        GeometryReader { geo in
+                            let pRatio = Double(blueprint.proteinGrams * 4) / macroCaloriesTotal
+                            let fRatio = Double(blueprint.fatGrams * 9) / macroCaloriesTotal
+                            let cRatio = max(0.0, 1.0 - pRatio - fRatio)
+
+                            HStack(spacing: 3) {
+                                Capsule()
+                                    .fill(EditorialPalette.oceanSlate)
+                                    .frame(width: max(8, geo.size.width * pRatio - 2))
+                                Capsule()
+                                    .fill(EditorialPalette.warmAmber)
+                                    .frame(width: max(8, geo.size.width * fRatio - 2))
+                                Capsule()
+                                    .fill(EditorialPalette.oat)
+                                    .frame(width: max(8, geo.size.width * cRatio - 2))
+                            }
+                        }
+                        .frame(height: 7)
+
+                        Rectangle()
+                            .fill(Color.white.opacity(0.12))
+                            .frame(height: 0.75)
+
+                        HStack(spacing: 8) {
+                            EditorialMetricChip(label: "Protein", value: String(localized: "\(blueprint.proteinGrams) g"), accent: EditorialPalette.oceanSlate)
+                            EditorialMetricChip(label: "Fat", value: String(localized: "\(blueprint.fatGrams) g"), accent: EditorialPalette.warmAmber)
+                            EditorialMetricChip(label: "Carbs", value: String(localized: "\(blueprint.carbsGrams) g"), accent: EditorialPalette.oat)
+                        }
+
+                        HStack(spacing: 8) {
+                            Image(systemName: "drop.fill")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(EditorialPalette.oceanSlate)
+                            Text("Water guide:")
+                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.75))
+                            Text(NutritionMath.formattedHydration(liters: waterGuideLiters, useMetric: useMetricSystem))
+                                .font(.system(size: 13, weight: .bold, design: .rounded).monospacedDigit())
+                                .foregroundStyle(.white)
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+
+                NutritionMethodologyDisclaimerView(
+                    citations: [.bmrAndTdee, .dietaryGuidelines],
+                    style: .standard,
+                    compact: true
+                )
+                .padding(.horizontal, 20)
+
+                Button(action: onFinish) {
+                    Text("Start Tracking")
+                }
+                .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .forest))
+                .accessibilityIdentifier("onboarding_stage4_finish")
+                .padding(.horizontal, 20)
+                .padding(.top, 4)
+                .padding(.bottom, 28)
+            }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(Color.swissCardSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(Color.swissBorder, lineWidth: 1)
-        )
     }
 }

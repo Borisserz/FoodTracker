@@ -709,106 +709,162 @@ struct AccountSettingsView: View {
 
     var body: some View {
         ZStack {
-            Color.themeBg.ignoresSafeArea()
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: 3)
+                .allowsHitTesting(false)
 
-            VStack(spacing: 24) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 18) {
+                    // Editorial Account Status Hero Card
+                    EditorialPhotoBackdropCard(
+                        imageName: "account_sync_hero",
+                        minHeight: 186,
+                        cornerRadius: 22,
+                        scrimBottomOpacity: 0.90,
+                        alignment: .topLeading
+                    ) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack(spacing: 7) {
+                                Circle()
+                                    .fill(authManager.isAnonymous ? EditorialPalette.warmAmber : EditorialPalette.emerald)
+                                    .frame(width: 7, height: 7)
+                                Text(authManager.isAnonymous ? "Guest" : "Registered")
+                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(.white)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(EditorialPalette.chipDark.opacity(0.88))
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule().strokeBorder(Color.white.opacity(0.14), lineWidth: 0.75)
+                            )
 
-                VStack(alignment: .leading, spacing: 16) {
-                    AccountInfoRow(title: "User ID", value: String(authManager.currentUserId.prefix(8)))
-                    Divider()
-                    AccountInfoRow(title: "Account type", value: authManager.isAnonymous ? String(localized: "Guest") : String(localized: "Registered"), valueColor: authManager.isAnonymous ? .gray : .themePink)
-                    Divider()
-                    if !authManager.isAnonymous, let email = authManager.currentUserEmail {
-                        AccountInfoRow(title: "Email", value: email)
-                    } else {
-                        AccountInfoRow(title: "Total logged days", value: "\(loggedDaysCount)")
+                            Spacer(minLength: 10)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                if !authManager.isAnonymous, let email = authManager.currentUserEmail {
+                                    Text(email)
+                                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.8)
+                                } else {
+                                    Text("Back up your nutrition profile")
+                                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                                        .foregroundStyle(.white)
+                                }
+
+                                Text(
+                                    authManager.isAnonymous
+                                        ? "Sign in with Apple or Google to keep profile targets synced across devices."
+                                        : "Your cloud profile is linked to this account."
+                                )
+                                .font(.system(size: 13, weight: .regular, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.76))
+                                .fixedSize(horizontal: false, vertical: true)
+                            }
+
+                            HStack(spacing: 8) {
+                                EditorialMetricChip(
+                                    label: "User ID",
+                                    value: String(authManager.currentUserId.prefix(8)),
+                                    accent: EditorialPalette.oat
+                                )
+                                EditorialMetricChip(
+                                    label: "Logged days",
+                                    value: "\(loggedDaysCount)",
+                                    accent: EditorialPalette.emerald
+                                )
+                            }
+                        }
                     }
-                }
-                .padding(20)
-                .background(Color.white)
-                .cornerRadius(24)
-                .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
-                .padding(.horizontal, 20)
-                .padding(.top, 24)
-                .task {
-                    loggedDaysCount = (try? context.fetchCount(FetchDescriptor<DailySummary>())) ?? 0
-                }
+                    .padding(.top, 12)
+                    .task {
+                        loggedDaysCount = (try? context.fetchCount(FetchDescriptor<DailySummary>())) ?? 0
+                    }
 
-                Spacer()
-
-                VStack(spacing: 16) {
                     if authManager.isAnonymous {
-                        SignInWithAppleButton(.signIn) { request in
-                            SocialAuthService.shared.prepareAppleRequest(request)
-                        } onCompletion: { result in
-                            Task {
-                                isLoading = true
-                                defer { isLoading = false }
-                                do {
-                                    try await SocialAuthService.shared.handleAppleAuthorization(result)
-                                } catch {
-                                    if !SocialAuthService.isCancellationError(error) {
-                                        errorMessage = error.localizedDescription
-                                        showError = true
+                        VStack(spacing: 12) {
+                            SignInWithAppleButton(.signIn) { request in
+                                SocialAuthService.shared.prepareAppleRequest(request)
+                            } onCompletion: { result in
+                                Task {
+                                    isLoading = true
+                                    defer { isLoading = false }
+                                    do {
+                                        try await SocialAuthService.shared.handleAppleAuthorization(result)
+                                    } catch {
+                                        if !SocialAuthService.isCancellationError(error) {
+                                            errorMessage = error.localizedDescription
+                                            showError = true
+                                        }
                                     }
                                 }
                             }
-                        }
-                        .signInWithAppleButtonStyle(.black)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-
-                        Button(action: {
-                            Task {
-                                isLoading = true
-                                defer { isLoading = false }
-                                do {
-                                    try await SocialAuthService.shared.signInWithGoogle()
-                                } catch {
-                                    if !SocialAuthService.isCancellationError(error) {
-                                        errorMessage = error.localizedDescription
-                                        showError = true
-                                    }
-                                }
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: "g.circle.fill")
-                                Text("Sign in with Google")
-                            }
-                            .font(.headline)
-                            .foregroundColor(.primary)
+                            .signInWithAppleButtonStyle(.black)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.white)
-                            .cornerRadius(20)
-                            .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+                            .frame(height: 52)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+
+                            Button(action: {
+                                Task {
+                                    isLoading = true
+                                    defer { isLoading = false }
+                                    do {
+                                        try await SocialAuthService.shared.signInWithGoogle()
+                                    } catch {
+                                        if !SocialAuthService.isCancellationError(error) {
+                                            errorMessage = error.localizedDescription
+                                            showError = true
+                                        }
+                                    }
+                                }
+                            }) {
+                                HStack(spacing: 10) {
+                                    GoogleLogoMark(size: 18)
+                                    Text("Sign in with Google")
+                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                }
+                                .foregroundStyle(EditorialPalette.inkPrimary)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 52)
+                                .background(EditorialPalette.surfaceLight)
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                                )
+                            }
+                            .buttonStyle(BounceButtonStyle())
                         }
-                        .buttonStyle(BounceButtonStyle())
                     } else {
                         Button(action: {
                             showSignOutConfirmation = true
                         }) {
-                            HStack {
+                            HStack(spacing: 10) {
                                 Image(systemName: "rectangle.portrait.and.arrow.right")
-                                Text("Log out")
+                                    .font(.system(size: 15, weight: .semibold))
+                                Text("Sign Out")
+                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                Spacer()
                             }
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.white)
-                            .cornerRadius(20)
-                            .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+                            .foregroundStyle(EditorialPalette.inkPrimary)
+                            .padding(.horizontal, 18)
+                            .frame(height: 52)
+                            .background(EditorialPalette.surfaceLight)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                            )
                         }
                         .buttonStyle(BounceButtonStyle())
                         .confirmationDialog(
-                            "Log out of your account?",
+                            "Sign out of your account?",
                             isPresented: $showSignOutConfirmation,
                             titleVisibility: .visible
                         ) {
-                            Button("Log out", role: .destructive) {
+                            Button("Sign Out", role: .destructive) {
                                 Task {
                                     isLoading = true
                                     do {
@@ -825,28 +881,34 @@ struct AccountSettingsView: View {
                             }
                             Button("Cancel", role: .cancel) {}
                         } message: {
-                            Text("Signing out switches cloud AI and food search back to a guest session while keeping your meals and health logs safely on this device and in iCloud.")
+                            Text("Signing out returns cloud AI features and food search to a guest session. Your meal and health logs stay on this device and in iCloud.")
                         }
                     }
 
                     Button(action: {
                         showDeleteConfirmation = true
                     }) {
-                        HStack {
+                        HStack(spacing: 10) {
                             Image(systemName: "trash")
-                            Text("Delete account")
+                                .font(.system(size: 15, weight: .semibold))
+                            Text("Delete Account")
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            Spacer()
                         }
-                        .font(.headline)
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(20)
+                        .foregroundStyle(Color(hex: 0xB91C1C))
+                        .padding(.horizontal, 18)
+                        .frame(height: 52)
+                        .background(Color.red.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .strokeBorder(Color.red.opacity(0.20), lineWidth: 0.75)
+                        )
                     }
                     .buttonStyle(BounceButtonStyle())
                     .accessibilityIdentifier("profile_delete_account_button")
                     .confirmationDialog(
-                        "Delete account and all local data?",
+                        "Delete account and local data?",
                         isPresented: $showDeleteConfirmation,
                         titleVisibility: .visible
                     ) {
@@ -892,6 +954,7 @@ struct AccountSettingsView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 40)
             }
+
             if isLoading {
                 Color.black.opacity(0.3).ignoresSafeArea()
                 ProgressView().controlSize(.large).tint(.white)
@@ -904,23 +967,6 @@ struct AccountSettingsView: View {
         }, message: {
             Text(errorMessage ?? "Unknown error")
         })
-    }
-}
-
-struct AccountInfoRow: View {
-    let title: LocalizedStringKey
-    let value: String
-    var valueColor: Color = .primary
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.gray)
-            Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundColor(valueColor)
-        }
     }
 }
 
@@ -1254,62 +1300,86 @@ struct AppleHealthSettingsView: View {
 
     var body: some View {
         ZStack {
-            Color.themeBg.ignoresSafeArea()
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: 0)
+                .allowsHitTesting(false)
 
-            VStack(spacing: 24) {
-                VStack(spacing: 16) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.red.opacity(0.1))
-                            .frame(width: 80, height: 80)
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.red)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 18) {
+                    EditorialDarkCard(cornerRadius: 22, padding: 20) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "heart.fill")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundStyle(EditorialPalette.softPeach)
+                                    .frame(width: 38, height: 38)
+                                    .background(EditorialPalette.chipDark)
+                                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Sync with Apple Health")
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .foregroundStyle(.white)
+                                    Text(user.isHealthKitEnabled ? "Connected" : "Not connected")
+                                        .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                                        .foregroundStyle(user.isHealthKitEnabled ? EditorialPalette.emerald : Color.white.opacity(0.65))
+                                }
+                            }
+
+                            Text("Sync nutrition, activity and body measurement with Apple Health app. Data from Apple Health will help give you more accurate recommendations.")
+                                .font(.system(size: 13.5, weight: .regular, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.78))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
-                    .padding(.top, 20)
 
-                    Text("Sync with Apple Health")
-                        .font(.title2.bold())
-
-                    Text("Sync nutrition, activity and body measurement with Apple Health app. Data from Apple Health will help give you more accurate recommendations.")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 20)
-
-                    Button(action: toggleHealthKit) {
-                        Text(user.isHealthKitEnabled ? "Disconnect" : "Connect")
-                            .font(.headline)
-                            .foregroundColor(user.isHealthKitEnabled ? .red : .white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(user.isHealthKitEnabled ? Color.red.opacity(0.1) : Color.green)
-                            .cornerRadius(20)
+                    if user.isHealthKitEnabled {
+                        Button(action: toggleHealthKit) {
+                            Text("Disconnect")
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Color(hex: 0xB91C1C))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 52)
+                                .background(Color.red.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .strokeBorder(Color.red.opacity(0.20), lineWidth: 0.75)
+                                )
+                        }
+                        .buttonStyle(BounceButtonStyle())
+                    } else {
+                        Button(action: toggleHealthKit) {
+                            Text("Connect")
+                        }
+                        .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .forest, height: 52))
                     }
-                    .buttonStyle(BounceButtonStyle())
-                    .padding(.top, 10)
 
                     if user.isHealthKitEnabled && !HealthKitManager.shared.isAuthorized {
-                        VStack(spacing: 8) {
+                        VStack(spacing: 10) {
                             Text("Apple Health permissions are currently restricted. Open iOS Settings -> Health -> Data Access & Devices to allow sync.")
-                                .font(.caption)
-                                .foregroundColor(.orange)
+                                .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                                .foregroundStyle(EditorialPalette.inkPrimary)
                                 .multilineTextAlignment(.center)
                             Button("Open iOS Settings") {
                                 if let url = URL(string: UIApplication.openSettingsURLString) {
                                     UIApplication.shared.open(url)
                                 }
                             }
-                            .font(.caption.bold())
-                            .foregroundColor(.themePink)
+                            .font(.system(size: 13.5, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.forest)
                         }
-                        .padding(.top, 4)
+                        .padding(14)
+                        .frame(maxWidth: .infinity)
+                        .background(EditorialPalette.surfaceLight)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                        )
                     }
                 }
-                .premiumCardStyle()
-                .padding(20)
-
-                Spacer()
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
             }
         }
         .navigationTitle("Apple Health")
@@ -1335,10 +1405,11 @@ struct AIPhotoPrivacySettingsView: View {
 
     var body: some View {
         ZStack {
-            Color.themeBg.ignoresSafeArea()
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: 4)
+                .allowsHitTesting(false)
 
-            ScrollView {
-                VStack(spacing: 20) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 18) {
                     VStack(alignment: .leading, spacing: 14) {
                         Toggle(
                             "Allow AI Data & Photo Analysis",
@@ -1354,18 +1425,27 @@ struct AIPhotoPrivacySettingsView: View {
                                 }
                             )
                         )
-                        .tint(.themePink)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .tint(EditorialPalette.forest)
 
-                        Divider()
+                        Rectangle()
+                            .fill(EditorialPalette.hairlineLight)
+                            .frame(height: 0.5)
 
                         Text("When enabled, downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers. Requests are processed transiently with provider data retention disabled.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 13, weight: .regular, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    .premiumCardStyle()
+                    .padding(18)
+                    .background(EditorialPalette.surfaceLight)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                    )
                     .padding(.horizontal, 20)
-                    .padding(.top, 24)
+                    .padding(.top, 16)
                 }
             }
         }

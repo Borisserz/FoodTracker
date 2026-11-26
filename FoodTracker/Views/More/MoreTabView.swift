@@ -183,6 +183,7 @@ struct MoreTabView: View {
                             .foregroundColor(.primary)
                     }
                     .accessibilityLabel("Profile & Settings")
+                    .accessibilityIdentifier("more_profile_card")
                 }
             }
         }

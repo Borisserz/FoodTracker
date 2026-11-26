@@ -15,12 +15,11 @@ extension View {
     }
 }
 
-// MARK: - Interactive Clean Apple Intelligence Spotlight Overlay (Laser Glow & Multi-Step Tour)
+// MARK: - Interactive Editorial Spotlight Overlay (Calm Warm Oat Focus Ring)
 struct SpotlightOverlayView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var manager: SpotlightTourManager = .shared
-    @State private var laserAngle: Double = 0
-    @State private var pulseGlow = false
+    @State private var ringScale: CGFloat = 0.96
 
     var body: some View {
         if manager.isTourActive {
@@ -28,38 +27,27 @@ struct SpotlightOverlayView: View {
                 if let targetRect = manager.targetFrames[manager.currentStep],
                    targetRect.width > 0,
                    targetRect.height > 0 {
-                    let paddedRect = targetRect.insetBy(dx: -4, dy: -4)
+                    let paddedRect = targetRect.insetBy(dx: -5, dy: -5)
                     let isTargetInBottomHalf = targetRect.midY > screenGeo.size.height * 0.5
                     let cornerRadius = min(22, min(paddedRect.width, paddedRect.height) / 2)
-                    let activeColor = manager.currentStep.accentColor
 
                     ZStack(alignment: .topLeading) {
                         interactiveBackdrop
 
-                        // MARK: Travelling Apple Intelligence Style Laser Beam
+                        // Clean calm focus ring (replaces spinning neon laser)
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .stroke(
-                                AngularGradient(
-                                    gradient: Gradient(colors: [
-                                        activeColor,
-                                        activeColor.opacity(0.9),
-                                        activeColor.opacity(0.15),
-                                        activeColor
-                                    ]),
-                                    center: .center,
-                                    startAngle: .degrees(laserAngle),
-                                    endAngle: .degrees(laserAngle + 360)
-                                ),
-                                lineWidth: 3.2
+                            .strokeBorder(EditorialPalette.oat, lineWidth: 1.75)
+                            .background(
+                                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                    .stroke(Color.white.opacity(0.22), lineWidth: 5)
                             )
                             .frame(width: paddedRect.width, height: paddedRect.height)
+                            .scaleEffect(reduceMotion ? 1.0 : ringScale)
                             .position(x: paddedRect.midX, y: paddedRect.midY)
-                            .shadow(color: activeColor.opacity(pulseGlow ? 0.85 : 0.35), radius: pulseGlow ? 12 : 5)
                             .onTapGesture {
                                 advanceWithHaptic()
                             }
 
-                        // MARK: Clean Floating Interactive Explanation Card
                         VStack {
                             if isTargetInBottomHalf {
                                 Spacer()
@@ -90,21 +78,26 @@ struct SpotlightOverlayView: View {
             }
             .ignoresSafeArea()
             .transition(.opacity)
-            .animation(.spring(response: 0.38, dampingFraction: 0.8), value: manager.currentStep)
+            .animation(reduceMotion ? nil : .spring(response: 0.36, dampingFraction: 0.84), value: manager.currentStep)
             .onAppear {
-                guard !reduceMotion else { return }
-                withAnimation(.linear(duration: 2.8).repeatForever(autoreverses: false)) {
-                    laserAngle = 360
+                if !reduceMotion {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.78)) {
+                        ringScale = 1.0
+                    }
                 }
-                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                    pulseGlow = true
+            }
+            .onChange(of: manager.currentStep) { _, _ in
+                guard !reduceMotion else { return }
+                ringScale = 0.96
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                    ringScale = 1.0
                 }
             }
         }
     }
 
     private var interactiveBackdrop: some View {
-        Color.black.opacity(0.001)
+        Color.black.opacity(0.56)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .ignoresSafeArea()
             .onTapGesture {
@@ -117,29 +110,23 @@ struct SpotlightOverlayView: View {
             step: manager.currentStep,
             onNext: { advanceWithHaptic() },
             onPrev: {
-                let generator = UIImpactFeedbackGenerator(style: .light)
-                generator.prepare()
-                generator.impactOccurred()
+                HapticManager.shared.impact(style: .light)
                 manager.previousStep()
             },
             onSkip: {
-                let generator = UIImpactFeedbackGenerator(style: .light)
-                generator.prepare()
-                generator.impactOccurred()
+                HapticManager.shared.impact(style: .light)
                 manager.finishTour()
             }
         )
     }
 
     private func advanceWithHaptic() {
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.prepare()
-        generator.impactOccurred()
+        HapticManager.shared.impact(style: .medium)
         manager.nextStep()
     }
 }
 
-// MARK: - Floating Explanation Card
+// MARK: - Editorial Matte Slate Spotlight Tooltip
 private struct FloatingTourCard: View {
     let step: SpotlightStep
     let onNext: () -> Void
@@ -155,104 +142,65 @@ private struct FloatingTourCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // Segmented Progress Bar
-            HStack(spacing: 4) {
-                ForEach(SpotlightStep.allCases) { item in
-                    Capsule()
-                        .fill(item.rawValue <= step.rawValue ? step.accentColor : Color.primary.opacity(0.12))
-                        .frame(height: 3)
-                        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: step)
-                }
-            }
-
-            // Header Row: Category pill and Skip button
-            HStack {
-                HStack(spacing: 6) {
-                    Image(systemName: step.icon)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(step.accentColor)
-
-                    Text(step.category)
-                        .font(.system(size: 10, weight: .black, design: .monospaced))
-                        .foregroundStyle(step.accentColor)
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(step.accentColor.opacity(0.15))
-                .clipShape(Capsule())
-
-                Spacer()
-
-                Text(step.tag)
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Color.secondary)
-
-                Button(action: onSkip) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16))
-                        .foregroundStyle(Color.secondary.opacity(0.6))
-                }
-                .accessibilityIdentifier("spotlight_skip_button")
-                .padding(.leading, 4)
-            }
-
-            // Title
-            Text(step.title)
-                .font(.system(size: 17, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.primary)
-
-            // Description
-            Text(step.description)
-                .font(.system(size: 13, weight: .regular, design: .rounded))
-                .foregroundStyle(Color.secondary)
-                .lineSpacing(3)
-                .fixedSize(horizontal: false, vertical: true)
-
-            // Action buttons row (Back / Next)
-            HStack(spacing: 10) {
-                if !isFirstStep {
-                    Button(action: onPrev) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Color.secondary)
-                            .frame(width: 44, height: 44)
-                            .background(Color.primary.opacity(0.06))
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        EditorialDarkCard(cornerRadius: 20, borderColor: EditorialPalette.cardBorderDarkFocused, padding: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 4) {
+                    ForEach(SpotlightStep.allCases) { item in
+                        Capsule()
+                            .fill(item.rawValue <= step.rawValue ? EditorialPalette.oat : Color.white.opacity(0.14))
+                            .frame(height: 3)
                     }
                 }
 
-                Button(action: onNext) {
-                    HStack {
-                        Spacer()
-                        Text(isLastStep ? String(localized: "Finish Tour 🚀") : String(localized: "Next →"))
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                        Spacer()
+                HStack(alignment: .center, spacing: 8) {
+                    Text(step.title)
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+
+                    Spacer()
+
+                    Text(step.tag)
+                        .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(EditorialPalette.oat)
+
+                    Button(action: onSkip) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 17))
+                            .foregroundStyle(Color.white.opacity(0.5))
                     }
-                    .frame(height: 44)
-                    .background(
-                        LinearGradient(
-                            colors: [step.accentColor, step.accentColor.opacity(0.85)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .shadow(color: step.accentColor.opacity(0.35), radius: 8, y: 3)
+                    .accessibilityIdentifier("spotlight_skip_button")
+                    .accessibilityLabel("Skip")
+                }
+
+                Text(step.description)
+                    .font(.system(size: 13.5, weight: .regular, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.78))
+                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 10) {
+                    if !isFirstStep {
+                        Button(action: onPrev) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 44)
+                                .background(EditorialPalette.chipDark)
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.75)
+                                )
+                        }
+                    }
+
+                    Button(action: onNext) {
+                        Text(isLastStep ? String(localized: "Done") : String(localized: "Next"))
+                    }
+                    .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .oat, height: 44, cornerRadius: 12))
                 }
             }
-            .padding(.top, 2)
         }
-        .padding(18)
-        .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(.ultraThickMaterial)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .strokeBorder(step.accentColor.opacity(0.4), lineWidth: 1.2)
-        )
-        .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
     }
 }
