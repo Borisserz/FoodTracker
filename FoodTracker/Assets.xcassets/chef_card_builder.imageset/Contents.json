@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "chef_card_builder.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

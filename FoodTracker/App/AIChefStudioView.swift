@@ -163,123 +163,166 @@ struct AIChefStudioView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 20) {
                         
-                        // MARK: - AI Chef Studio Bento Deck (Apple HIG HUD Standard)
+                        // MARK: - AI Chef Studio Editorial Photo Deck
                         HStack(spacing: 12) {
-                            // 1. AI Vision Cooking (Camera / Fridge Scan)
+                            // 1. AI Vision Cooking (Camera / Step-by-Step)
                             Button(action: {
                                 HapticManager.shared.impact(style: .medium)
                                 showAIAssistantFlow = true
                             }) {
-                                VStack(alignment: .leading, spacing: 12) {
+                                VStack(alignment: .leading, spacing: 0) {
                                     HStack {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                                .fill(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.14))
-                                                .frame(width: 40, height: 40)
+                                        HStack(spacing: 5) {
                                             Image(systemName: "camera.viewfinder")
-                                                .font(.system(size: 19, weight: .bold))
-                                                .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
-                                                .symbolEffect(.pulse, isActive: !reduceMotion)
+                                                .font(.system(size: 11, weight: .bold))
+                                            Text("AI Assistant")
+                                                .font(.system(size: 9, weight: .heavy, design: .rounded))
+                                                .tracking(0.6)
+                                                .textCase(.uppercase)
                                         }
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.88))
+                                        .clipShape(Capsule())
+
                                         Spacer()
-                                        Text("AI Assistant")
-                                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                                            .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
-                                            .padding(.horizontal, 7)
-                                            .padding(.vertical, 3)
-                                            .background(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.12))
-                                            .clipShape(Capsule())
+
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.45))
+                                                .frame(width: 26, height: 26)
+                                            Image(systemName: "arrow.up.right")
+                                                .font(.system(size: 10, weight: .bold))
+                                                .foregroundColor(.white)
+                                        }
                                     }
-                                    
-                                    VStack(alignment: .leading, spacing: 3) {
+
+                                    Spacer()
+
+                                    VStack(alignment: .leading, spacing: 2) {
                                         Text("Try AI Cooking")
-                                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                                            .foregroundColor(.primary)
+                                            .font(.system(size: 16, weight: .heavy, design: .rounded))
+                                            .foregroundColor(.white)
                                             .lineLimit(1)
-                                        
+
                                         Text("Scan Food or Menu with AI")
-                                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                                            .foregroundColor(.secondary)
-                                            .lineLimit(2)
-                                            .minimumScaleFactor(0.8)
+                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.white.opacity(0.84))
+                                            .lineLimit(1)
                                     }
-                                    
-                                    HStack(spacing: 4) {
-                                        Text("Start cooking")
-                                        Image(systemName: "arrow.right")
-                                            .font(.system(size: 10, weight: .bold))
-                                    }
-                                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                                    .foregroundColor(Color.primary)
-                                    .padding(.top, 2)
                                 }
-                                .padding(16)
+                                .padding(13)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color(UIColor.secondarySystemGroupedBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .frame(height: 160)
+                                .background {
+                                    ZStack {
+                                        GeometryReader { geo in
+                                            Image("chef_card_cooking")
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: geo.size.width, height: geo.size.height)
+                                                .clipped()
+                                        }
+                                        LinearGradient(
+                                            stops: [
+                                                .init(color: Color.black.opacity(0.18), location: 0.0),
+                                                .init(color: Color.black.opacity(0.42), location: 0.48),
+                                                .init(color: Color.black.opacity(0.86), location: 1.0)
+                                            ],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    }
+                                }
+                                .clipped()
+                                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                        .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
                                 )
+                                .shadow(color: Color.black.opacity(0.16), radius: 10, y: 5)
                             }
                             .buttonStyle(BounceButtonStyle())
                             .accessibilityIdentifier("chef_studio_camera_action")
-                            
+
                             // 2. 7-Day Meal Plan Builder
                             Button(action: {
                                 HapticManager.shared.impact(style: .medium)
                                 showSmartBuilder = true
                             }) {
-                                VStack(alignment: .leading, spacing: 12) {
+                                VStack(alignment: .leading, spacing: 0) {
                                     HStack {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                                .fill(Color(red: 0.65, green: 0.55, blue: 0.98).opacity(0.14))
-                                                .frame(width: 40, height: 40)
-                                            Image(systemName: "wand.and.stars")
-                                                .font(.system(size: 19, weight: .bold))
-                                                .foregroundColor(Color(red: 0.65, green: 0.55, blue: 0.98))
+                                        HStack(spacing: 5) {
+                                            Image(systemName: "calendar")
+                                                .font(.system(size: 11, weight: .bold))
+                                            Text("AI Menu Builder")
+                                                .font(.system(size: 9, weight: .heavy, design: .rounded))
+                                                .tracking(0.6)
+                                                .textCase(.uppercase)
                                         }
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color(red: 0.42, green: 0.38, blue: 0.85).opacity(0.88))
+                                        .clipShape(Capsule())
+
                                         Spacer()
-                                        Text("AI Menu Builder")
-                                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                                            .foregroundColor(Color(red: 0.65, green: 0.55, blue: 0.98))
-                                            .padding(.horizontal, 7)
-                                            .padding(.vertical, 3)
-                                            .background(Color(red: 0.65, green: 0.55, blue: 0.98).opacity(0.12))
-                                            .clipShape(Capsule())
+
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.45))
+                                                .frame(width: 26, height: 26)
+                                            Image(systemName: "arrow.up.right")
+                                                .font(.system(size: 10, weight: .bold))
+                                                .foregroundColor(.white)
+                                        }
                                     }
-                                    
-                                    VStack(alignment: .leading, spacing: 3) {
+
+                                    Spacer()
+
+                                    VStack(alignment: .leading, spacing: 2) {
                                         Text("Create 7-Day Menu")
-                                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                                            .foregroundColor(.primary)
-                                            .lineLimit(2)
-                                            .minimumScaleFactor(0.8)
-                                        
+                                            .font(.system(size: 16, weight: .heavy, design: .rounded))
+                                            .foregroundColor(.white)
+                                            .lineLimit(1)
+
                                         Text("Fits your daily targets")
-                                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                                            .foregroundColor(.secondary)
-                                            .lineLimit(2)
+                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.white.opacity(0.84))
+                                            .lineLimit(1)
                                     }
-                                    
-                                    HStack(spacing: 4) {
-                                        Text("Build menu")
-                                        Image(systemName: "arrow.right")
-                                            .font(.system(size: 10, weight: .bold))
-                                    }
-                                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                                    .foregroundColor(Color.primary)
-                                    .padding(.top, 2)
                                 }
-                                .padding(16)
+                                .padding(13)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color(UIColor.secondarySystemGroupedBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .frame(height: 160)
+                                .background {
+                                    ZStack {
+                                        GeometryReader { geo in
+                                            Image("chef_card_builder")
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: geo.size.width, height: geo.size.height)
+                                                .clipped()
+                                        }
+                                        LinearGradient(
+                                            stops: [
+                                                .init(color: Color.black.opacity(0.18), location: 0.0),
+                                                .init(color: Color.black.opacity(0.42), location: 0.48),
+                                                .init(color: Color.black.opacity(0.86), location: 1.0)
+                                            ],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    }
+                                }
+                                .clipped()
+                                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                        .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
                                 )
+                                .shadow(color: Color.black.opacity(0.16), radius: 10, y: 5)
                             }
                             .buttonStyle(BounceButtonStyle())
                             .accessibilityIdentifier("chef_studio_builder_action")
@@ -1260,65 +1303,151 @@ struct AIAssistantFlowView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.themeBg.ignoresSafeArea()
-                VStack(spacing: 20) {
-                    Text("What shall we cook with AI?").font(.largeTitle.bold()).padding(.top)
-                    HStack {
-                        Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                        TextField("For example: Ribeye...", text: $searchAgentText)
-                    }.padding().background(Color.white).cornerRadius(16).padding(.horizontal)
+                DynamicAuroraBackgroundView(tabTag: 2)
+                    .allowsHitTesting(false)
 
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            let trimmed = searchAgentText.trimmingCharacters(in: .whitespacesAndNewlines)
-                            if !trimmed.isEmpty {
-                                Button {
-                                    generateRecipeForAssistant(query: trimmed)
-                                } label: {
-                                    HStack(spacing: 12) {
-                                        if isGeneratingAI {
-                                            ProgressView().tint(.white)
-                                        } else {
-                                            Image(systemName: "wand.and.stars")
-                                                .foregroundColor(.white)
-                                        }
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(isGeneratingAI ? "AI Chef is creating your recipe..." : "Generate AI step-by-step for \"\(trimmed)\"")
-                                                .font(.subheadline.bold())
-                                                .foregroundColor(.white)
-                                            Text("Fits ~\(max(remainingCalories, 400)) kcal • \(activeDiet)")
-                                                .font(.caption2)
-                                                .foregroundColor(.white.opacity(0.85))
-                                        }
-                                        Spacer()
-                                    }
-                                    .padding()
-                                    .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing))
-                                    .cornerRadius(16)
-                                }
-                                .disabled(isGeneratingAI)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        // Editorial Hero Header
+                        ZStack(alignment: .bottomLeading) {
+                            GeometryReader { geo in
+                                Image("chef_card_cooking")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: geo.size.width, height: geo.size.height)
+                                    .clipped()
                             }
+                            LinearGradient(
+                                stops: [
+                                    .init(color: Color.black.opacity(0.20), location: 0.0),
+                                    .init(color: Color.black.opacity(0.78), location: 1.0)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
 
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("What shall we cook with AI?")
+                                    .font(.system(size: 22, weight: .heavy, design: .rounded))
+                                    .foregroundColor(.white)
+                                Text("Fits ~\(max(remainingCalories, 400)) kcal • \(activeDiet)")
+                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.84))
+                            }
+                            .padding(16)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 128)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+
+                        // Clean Adaptive Search Field
+                        HStack(spacing: 10) {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(.secondary)
+                            TextField("For example: Ribeye...", text: $searchAgentText)
+                                .font(.system(size: 15, weight: .medium, design: .rounded))
+                            if !searchAgentText.isEmpty {
+                                Button(action: { searchAgentText = "" }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.secondary.opacity(0.7))
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 13)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
+
+                        let trimmed = searchAgentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !trimmed.isEmpty {
+                            Button {
+                                generateRecipeForAssistant(query: trimmed)
+                            } label: {
+                                HStack(spacing: 12) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.18))
+                                            .frame(width: 38, height: 38)
+                                        if isGeneratingAI {
+                                            ProgressView()
+                                                .tint(Color(red: 0.10, green: 0.72, blue: 0.50))
+                                        } else {
+                                            Image(systemName: "flame.fill")
+                                                .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
+                                        }
+                                    }
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(isGeneratingAI ? "AI Chef is creating your recipe..." : "Generate AI step-by-step for \"\(trimmed)\"")
+                                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                            .multilineTextAlignment(.leading)
+                                        Text("Fits ~\(max(remainingCalories, 400)) kcal • \(activeDiet)")
+                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(14)
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                        .strokeBorder(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.35), lineWidth: 1.2)
+                                )
+                            }
+                            .buttonStyle(BounceButtonStyle())
+                            .disabled(isGeneratingAI)
+                            .padding(.horizontal)
+                        }
+
+                        VStack(spacing: 10) {
                             ForEach(agentResults) { recipe in
                                 Button(action: {
                                     HapticManager.shared.impact(style: .medium)
                                     selectedRecipe = recipe; isPrepPhase = true
-                                }) { SearchResultRow(recipe: recipe) }.buttonStyle(PlainButtonStyle())
+                                }) {
+                                    SearchResultRow(recipe: recipe)
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
-                        }.padding(.horizontal)
+                        }
+                        .padding(.horizontal)
 
                         // МЕДИЦИНСКИЙ ДИСКЛЕЙМЕР
                         Text("FoodTracker AI provides general nutritional information. It is not a substitute for professional medical advice, diagnosis, or treatment.")
                             .font(.caption2)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
-                            .padding(.top, 16)
-                            .padding(.bottom, 24)
+                            .padding(.top, 12)
+                            .padding(.bottom, 28)
                     }
                 }
             }
-            .toolbar { ToolbarItem(placement: .topBarLeading) { Button("Cancel") { isPresented = false }.foregroundColor(.themePink) } }
+            .navigationTitle("AI Cooking")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { isPresented = false }
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundColor(.primary)
+                }
+            }
             .navigationDestination(isPresented: $isPrepPhase) { if let r = selectedRecipe { PrepChecklistView(recipe: r, isFlowPresented: $isPresented) } }
             .alert(
                 "AI Chef",
@@ -1392,32 +1521,100 @@ struct PrepChecklistView: View {
     var allChecked: Bool { checkedItems.count == recipe.ingredients.count }
     
     var body: some View {
-        VStack {
-            Text("Prep Ingredients").font(.title2.bold()).padding()
-            List {
-                Section(header: Text("Check what you have on the counter")) {
-                    ForEach(recipe.ingredients, id: \.self) { item in
-                        HStack {
-                            Text(item).font(.body); Spacer()
-                            Image(systemName: checkedItems.contains(item) ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(checkedItems.contains(item) ? .green : .gray).font(.title2)
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            HapticManager.shared.impact(style: .light)
-                            if checkedItems.contains(item) { checkedItems.remove(item) } else { checkedItems.insert(item) }
+        ZStack {
+            DynamicAuroraBackgroundView(tabTag: 0)
+                .allowsHitTesting(false)
+
+            VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text(recipe.title)
+                            .font(.system(.title3, design: .rounded, weight: .heavy))
+                            .foregroundColor(.primary)
+                            .lineLimit(2)
+                        Spacer()
+                        Text("\(checkedItems.count)/\(recipe.ingredients.count)")
+                            .font(.system(size: 13, weight: .bold, design: .monospaced))
+                            .foregroundColor(allChecked ? Color(red: 0.10, green: 0.72, blue: 0.50) : .secondary)
+                    }
+
+                    Text("Check what you have on the counter")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+
+                    GeometryReader { geo in
+                        let progress = recipe.ingredients.isEmpty ? 1.0 : Double(checkedItems.count) / Double(recipe.ingredients.count)
+                        ZStack(alignment: .leading) {
+                            Capsule()
+                                .fill(Color.primary.opacity(0.08))
+                                .frame(height: 5)
+                            Capsule()
+                                .fill(Color(red: 0.10, green: 0.72, blue: 0.50))
+                                .frame(width: max(6, geo.size.width * CGFloat(progress)), height: 5)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: checkedItems.count)
                         }
                     }
+                    .frame(height: 5)
                 }
-            }.listStyle(InsetGroupedListStyle())
-            
-            Button(action: { HapticManager.shared.impact(style: .medium); isCookingPhase = true }) {
-                Text(allChecked ? "All ready, let's start!" : "Continue")
-                    .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity)
-                    .padding().background(allChecked ? Color.green : Color.themePink).cornerRadius(16)
-            }.padding()
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 10) {
+                        ForEach(recipe.ingredients, id: \.self) { item in
+                            let isChecked = checkedItems.contains(item)
+                            Button(action: {
+                                HapticManager.shared.impact(style: .light)
+                                withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                                    if isChecked { checkedItems.remove(item) } else { checkedItems.insert(item) }
+                                }
+                            }) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(isChecked ? Color(red: 0.10, green: 0.72, blue: 0.50) : .secondary.opacity(0.5))
+                                        .font(.system(size: 22))
+                                    Text(item)
+                                        .font(.system(size: 15, weight: isChecked ? .medium : .semibold, design: .rounded))
+                                        .strikethrough(isChecked, color: .secondary)
+                                        .foregroundColor(isChecked ? .secondary : .primary)
+                                        .multilineTextAlignment(.leading)
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 14)
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .strokeBorder(isChecked ? Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.3) : Color.primary.opacity(0.06), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 16)
+                }
+
+                Button(action: { HapticManager.shared.impact(style: .medium); isCookingPhase = true }) {
+                    HStack(spacing: 8) {
+                        Text(allChecked ? "All ready, let's start!" : "Continue")
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 14, weight: .bold))
+                    }
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(allChecked ? Color(red: 0.10, green: 0.72, blue: 0.50) : Color.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+            }
         }
-        .background(Color.themeBg.ignoresSafeArea())
+        .navigationTitle("Prep Ingredients")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $isCookingPhase) { AgentCookingView(recipe: recipe, isFlowPresented: $isFlowPresented) }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -1425,9 +1622,12 @@ struct PrepChecklistView: View {
                     HapticManager.shared.impact(style: .rigid)
                     isFlowPresented = false
                 }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                        .font(.title2)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.primary)
+                        .frame(width: 30, height: 30)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .clipShape(Circle())
                 }
             }
         }
@@ -1445,95 +1645,178 @@ struct AgentCookingView: View {
     @State private var didSaveToMyRecipes = false
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                ForEach(Array(recipe.steps.enumerated()), id: \.offset) { index, step in
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Circle().fill(Color.themePink.opacity(0.2)).frame(width: 36, height: 36)
-                                .overlay(Text("\(index + 1)").font(.headline).foregroundColor(.themePink))
-                            Text("AI Instruction").font(.headline).foregroundColor(.secondary)
-                            Spacer()
+        ZStack {
+            DynamicAuroraBackgroundView(tabTag: 2)
+                .allowsHitTesting(false)
+
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    // Recipe Top Summary Card
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(recipe.title)
+                            .font(.system(size: 20, weight: .heavy, design: .rounded))
+                            .foregroundColor(.primary)
+                        HStack(spacing: 10) {
+                            Label("\(recipe.calories) kcal", systemImage: "flame.fill")
+                                .foregroundColor(.themeOrange)
+                            Label("\(Int(recipe.protein))g P", systemImage: "leaf.fill")
+                                .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
+                            Label("\(recipe.steps.count) steps", systemImage: "list.number")
+                                .foregroundColor(.secondary)
                         }
-                        
-                        Text(step.instruction).font(.body.weight(.medium)).lineSpacing(6)
-                        
-                        if let tip = step.aiTip {
-                            HStack(alignment: .top) {
-                                Image(systemName: "sparkles").foregroundColor(.themeOrange).padding(.top, 2)
-                                Text(tip).font(.subheadline).foregroundColor(.secondary)
-                            }.padding(12).background(Color.themeOrange.opacity(0.1)).cornerRadius(12)
-                        }
-                        
-                        Divider().padding(.vertical, 4)
-                        
-                        Button(action: {
-                            HapticManager.shared.impact(style: .medium); currentStepForCamera = step; showCameraScanner = true
-                        }) {
-                            HStack {
-                                Image(systemName: "camera.viewfinder")
-                                Text("Check this step with camera")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                    )
+                    .padding(.horizontal)
+
+                    ForEach(Array(recipe.steps.enumerated()), id: \.offset) { index, step in
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack(spacing: 10) {
+                                Text("\(index + 1)")
+                                    .font(.system(size: 14, weight: .heavy, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .frame(width: 30, height: 30)
+                                    .background(Color(red: 0.10, green: 0.72, blue: 0.50))
+                                    .clipShape(Circle())
+                                Text("Step \(index + 1)")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                Spacer()
                             }
-                            .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding(14).background(Color.themePink).cornerRadius(16)
-                        }
-                    }.padding().background(Color.white).cornerRadius(20).padding(.horizontal)
-                }
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "sparkles").foregroundColor(.themeOrange); Text("Final Touch: Plating").font(.title3.bold()) }
-                    Text(recipe.platingTip)
-                        .font(.body.italic())
-                        .lineSpacing(6)
-                        .foregroundColor(.primary)
-                }
-                .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.themeOrange.opacity(0.1)).cornerRadius(20).padding(.horizontal)
 
-                VStack(spacing: 10) {
-                    Button {
-                        AIChefRecipePersistence.logRecipeToToday(recipe, in: context, users: users)
-                        withAnimation { didLogToDiary = true }
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: didLogToDiary ? "checkmark.circle.fill" : "plus.circle.fill")
-                            Text(didLogToDiary ? "Added to Today's Diary" : "Log to Today's Diary (\(recipe.calories) kcal)")
+                            Text(step.instruction)
+                                .font(.system(size: 15, weight: .medium, design: .rounded))
+                                .lineSpacing(5)
+                                .foregroundColor(.primary)
+
+                            if let tip = step.aiTip {
+                                HStack(alignment: .top, spacing: 8) {
+                                    Image(systemName: "lightbulb.fill")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.themeOrange)
+                                        .padding(.top, 2)
+                                    Text(tip)
+                                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.themeOrange.opacity(0.10))
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+
+                            Button(action: {
+                                HapticManager.shared.impact(style: .medium); currentStepForCamera = step; showCameraScanner = true
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "camera.viewfinder")
+                                    Text("Check this step with camera")
+                                }
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color(UIColor.tertiarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                                )
+                            }
                         }
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(didLogToDiary ? Color.green : Color.themePink)
-                        .cornerRadius(16)
+                        .padding(16)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
                     }
-                    .disabled(didLogToDiary)
 
-                    Button {
-                        guard !didSaveToMyRecipes else { return }
-                        AIChefRecipePersistence.saveToMyRecipes(recipe, in: context)
-                        withAnimation { didSaveToMyRecipes = true }
-                    } label: {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 8) {
-                            Image(systemName: didSaveToMyRecipes ? "bookmark.fill" : "bookmark")
-                            Text(didSaveToMyRecipes ? "Saved to My Recipes" : "Save to My Recipes")
+                            Image(systemName: "fork.knife")
+                                .foregroundColor(.themeOrange)
+                            Text("Final Touch: Plating")
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
                         }
-                        .font(.subheadline.bold())
-                        .foregroundColor(didSaveToMyRecipes ? .green : .themePink)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(didSaveToMyRecipes ? Color.green.opacity(0.1) : Color.themePink.opacity(0.1))
-                        .cornerRadius(16)
+                        Text(recipe.platingTip)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .lineSpacing(5)
+                            .foregroundColor(.secondary)
                     }
-                    .disabled(didSaveToMyRecipes)
-                }
-                .padding(.horizontal)
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .strokeBorder(Color.themeOrange.opacity(0.24), lineWidth: 1)
+                    )
+                    .padding(.horizontal)
 
-                Button("Finish Cooking") {
-                    HapticManager.shared.impact(style: .rigid)
-                    isFlowPresented = false
+                    VStack(spacing: 10) {
+                        Button {
+                            AIChefRecipePersistence.logRecipeToToday(recipe, in: context, users: users)
+                            withAnimation { didLogToDiary = true }
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: didLogToDiary ? "checkmark.circle.fill" : "plus.circle.fill")
+                                Text(didLogToDiary ? "Added to Today's Diary" : "Log to Today's Diary (\(recipe.calories) kcal)")
+                            }
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 15)
+                            .background(didLogToDiary ? Color(red: 0.10, green: 0.72, blue: 0.50) : Color.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        }
+                        .disabled(didLogToDiary)
+
+                        Button {
+                            guard !didSaveToMyRecipes else { return }
+                            AIChefRecipePersistence.saveToMyRecipes(recipe, in: context)
+                            withAnimation { didSaveToMyRecipes = true }
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: didSaveToMyRecipes ? "bookmark.fill" : "bookmark")
+                                Text(didSaveToMyRecipes ? "Saved to My Recipes" : "Save to My Recipes")
+                            }
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(didSaveToMyRecipes ? Color(red: 0.10, green: 0.72, blue: 0.50) : .primary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 13)
+                            .background(Color(UIColor.secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                            )
+                        }
+                        .disabled(didSaveToMyRecipes)
+                    }
+                    .padding(.horizontal)
+
+                    Button("Finish Cooking") {
+                        HapticManager.shared.impact(style: .rigid)
+                        isFlowPresented = false
+                    }
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .padding(.top, 8)
+                    .padding(.bottom, 40)
                 }
-                .foregroundColor(.gray).padding(.top, 12).padding(.bottom, 40)
-            }.padding(.top, 16)
+                .padding(.top, 16)
+            }
         }
-        .background(Color.themeBg.ignoresSafeArea())
         .navigationTitle("AI Chef Watching")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $showCameraScanner) {
@@ -1547,9 +1830,12 @@ struct AgentCookingView: View {
                     HapticManager.shared.impact(style: .rigid)
                     isFlowPresented = false
                 }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                        .font(.title2)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.primary)
+                        .frame(width: 30, height: 30)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .clipShape(Circle())
                 }
             }
         }

@@ -30,7 +30,8 @@ struct SmartPlanBuilderFlow: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.themeBg.ignoresSafeArea()
+                DynamicAuroraBackgroundView(paletteTrigger: currentStep, tabTag: 3)
+                    .allowsHitTesting(false)
                 
                 if let plan = generatedPlan {
                     WeeklyPlanOverview(plan: plan) {
@@ -41,18 +42,26 @@ struct SmartPlanBuilderFlow: View {
                     AIGenerationLoadingView(targetCalories: Int(targetCalories))
                         .transition(.opacity)
                 } else {
-                    VStack {
+                    VStack(spacing: 0) {
                         // Progress bar
-                        HStack {
-                            ForEach(0..<3) { step in
-                                Rectangle()
-                                    .fill(step <= currentStep ? themeManager.current.primaryAccent : Color.gray.opacity(0.3))
-                                    .frame(height: 4)
-                                    .cornerRadius(2)
+                        VStack(spacing: 6) {
+                            HStack(spacing: 6) {
+                                ForEach(0..<3, id: \.self) { step in
+                                    Capsule()
+                                        .fill(step <= currentStep ? themeManager.current.primaryAccent : Color.primary.opacity(0.12))
+                                        .frame(height: 5)
+                                        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: currentStep)
+                                }
+                            }
+                            HStack {
+                                Text("Step \(currentStep + 1) of 3")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                Spacer()
                             }
                         }
-                        .padding(.horizontal)
-                        .padding(.top)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 12)
                         
                         TabView(selection: $currentStep) {
                             dietStepView.tag(0)
@@ -60,16 +69,29 @@ struct SmartPlanBuilderFlow: View {
                             complexityStepView.tag(2)
                         }
                         .tabViewStyle(.page(indexDisplayMode: .never))
-                        .animation(.easeInOut, value: currentStep)
+                        .animation(.easeInOut(duration: 0.28), value: currentStep)
                         
-                        HStack {
+                        HStack(spacing: 12) {
                             if currentStep > 0 {
-                                Button(String(localized: "Back")) {
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .light)
                                     withAnimation { currentStep -= 1 }
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "chevron.left")
+                                            .font(.system(size: 13, weight: .bold))
+                                        Text(String(localized: "Back"))
+                                    }
+                                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                    .foregroundColor(.primary)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 15)
+                                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                                    .clipShape(Capsule())
+                                    .overlay(
+                                        Capsule().strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                                    )
                                 }
-                                .font(.system(.body, design: .rounded, weight: .bold))
-                                .foregroundColor(.gray)
-                                .padding()
                             }
                             
                             Spacer()
@@ -82,17 +104,22 @@ struct SmartPlanBuilderFlow: View {
                                     startGeneration()
                                 }
                             }) {
-                                Text(currentStep < 2 ? String(localized: "Next") : String(localized: "Create Plan"))
-                                    .font(.system(.headline, design: .rounded, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 32)
-                                    .padding(.vertical, 16)
-                                    .background(themeManager.current.primaryGradient)
-                                    .clipShape(Capsule())
-                                    .shadow(color: themeManager.current.primaryAccent.opacity(0.4), radius: 10, y: 5)
+                                HStack(spacing: 8) {
+                                    Text(currentStep < 2 ? String(localized: "Next") : String(localized: "Create Plan"))
+                                    Image(systemName: currentStep < 2 ? "arrow.right" : "checkmark")
+                                        .font(.system(size: 13, weight: .bold))
+                                }
+                                .font(.system(.headline, design: .rounded, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 28)
+                                .padding(.vertical, 15)
+                                .background(themeManager.current.primaryGradient)
+                                .clipShape(Capsule())
+                                .shadow(color: themeManager.current.primaryAccent.opacity(0.28), radius: 8, y: 4)
                             }
                         }
-                        .padding()
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 14)
                     }
                 }
             }
@@ -153,111 +180,152 @@ struct SmartPlanBuilderFlow: View {
     
     private var dietStepView: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 24) {
+            VStack(spacing: 16) {
                 Text("Which diet do you prefer?")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .font(.system(.title2, design: .rounded, weight: .heavy))
                     .foregroundColor(.primary)
-                    .padding(.top, 24)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
                 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                    ForEach(dietTypes, id: \.self) { diet in
-                        Button(action: {
-                            HapticManager.shared.impact(style: .light)
-                            selectedDiet = diet
-                        }) {
-                            ZStack(alignment: .bottomLeading) {
-                                // Cover Image
-                                RecipeImageView(imageString: imageUrlForDiet(diet), fallbackSystemName: iconForDiet(diet))
-                                    .frame(height: 110)
-                                    .clipShape(RoundedRectangle(cornerRadius: 18))
-                                    .overlay(
-                                        LinearGradient(
-                                            colors: [.clear, .black.opacity(0.7)],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                        .cornerRadius(18)
-                                    )
-                                
-                                // Checkmark overlay
-                                if selectedDiet == diet {
-                                    VStack {
-                                        HStack {
-                                            Spacer()
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .font(.system(size: 16, weight: .bold))
-                                                .foregroundColor(.white)
-                                                .padding(6)
-                                                .background(themeManager.current.primaryAccent)
-                                                .clipShape(Circle())
-                                                .shadow(color: Color.black.opacity(0.15), radius: 3)
-                                        }
-                                        Spacer()
-                                    }
-                                    .padding(8)
-                                }
-                                
-                                // Diet label text
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(localizedNameForDiet(diet))
-                                        .font(.system(.subheadline, design: .rounded, weight: .black))
-                                        .foregroundColor(.white)
-                                        .lineLimit(1)
-                                }
-                                .padding(12)
-                            }
-                            .frame(height: 110)
-                            .clipped()
-                            .cornerRadius(18)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 18)
-                                    .stroke(selectedDiet == diet ? themeManager.current.primaryAccent : Color.clear, lineWidth: 2)
-                            )
-                            .shadow(color: selectedDiet == diet ? themeManager.current.primaryAccent.opacity(0.2) : .black.opacity(0.05), radius: 6, y: 3)
-                        }
+                // Balanced / Any featured full-width top card
+                if let anyDiet = dietTypes.first(where: { $0 == "Any" }) {
+                    dietChoiceCard(diet: anyDiet, height: 104)
+                        .padding(.horizontal, 20)
+                }
+
+                // Symmetrical 2x2 Bento Grid for specific diets
+                let specificDiets = dietTypes.filter { $0 != "Any" }
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                    ForEach(specificDiets, id: \.self) { diet in
+                        dietChoiceCard(diet: diet, height: 124)
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 16)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 12)
 
                 NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 16)
             }
         }
     }
+
+    private func dietChoiceCard(diet: String, height: CGFloat) -> some View {
+        let isSelected = selectedDiet == diet
+        return Button(action: {
+            HapticManager.shared.impact(style: .light)
+            selectedDiet = diet
+        }) {
+            ZStack(alignment: .bottomLeading) {
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack {
+                        Image(systemName: iconForDiet(diet))
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(7)
+                            .background(Color.black.opacity(0.45))
+                            .clipShape(Circle())
+                        Spacer()
+                        if isSelected {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(3)
+                                .background(themeManager.current.primaryAccent)
+                                .clipShape(Circle())
+                        }
+                    }
+
+                    Spacer()
+
+                    Text(localizedNameForDiet(diet))
+                        .font(.system(.headline, design: .rounded, weight: .heavy))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                }
+                .padding(12)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .background {
+                ZStack {
+                    GeometryReader { geo in
+                        RecipeImageView(imageString: imageUrlForDiet(diet), fallbackSystemName: iconForDiet(diet))
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    }
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.black.opacity(0.18), location: 0.0),
+                            .init(color: Color.black.opacity(0.42), location: 0.50),
+                            .init(color: Color.black.opacity(0.84), location: 1.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+            }
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(isSelected ? themeManager.current.primaryAccent : Color.white.opacity(0.16), lineWidth: isSelected ? 2.5 : 1)
+            )
+            .shadow(color: isSelected ? themeManager.current.primaryAccent.opacity(0.22) : Color.black.opacity(0.10), radius: 8, y: 4)
+        }
+        .buttonStyle(BounceButtonStyle())
+    }
     
     private var calorieStepView: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
                 Text("Set your daily calorie goal")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .font(.system(.title2, design: .rounded, weight: .heavy))
                     .foregroundColor(.primary)
-                    .padding(.top, 24)
-                
-                Text("\(Int(targetCalories)) kcal")
-                    .font(.system(size: 42, weight: .black, design: .rounded))
-                    .foregroundColor(themeManager.current.primaryAccent)
-                
-                Slider(value: $targetCalories, in: 1200...4000, step: 50)
-                    .accentColor(themeManager.current.primaryAccent)
-                    .padding(.horizontal, 28)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+
+                VStack(spacing: 16) {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text("\(Int(targetCalories))")
+                            .font(.system(size: 48, weight: .heavy, design: .rounded))
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                            .foregroundColor(.primary)
+                        Text("kcal")
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Slider(value: $targetCalories, in: 1200...4000, step: 50)
+                        .tint(themeManager.current.primaryAccent)
+
+                    HStack {
+                        Text("1,200 kcal")
+                        Spacer()
+                        Text("4,000 kcal")
+                    }
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .foregroundColor(.secondary)
+                }
+                .padding(20)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                )
+                .padding(.horizontal, 20)
                 
                 // Advice table block under the slider
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "lightbulb.fill")
-                            .foregroundColor(.themeYellow)
-                            .font(.system(size: 14))
-                        Text("CHEF TIP 👨‍🍳")
-                            .font(.system(size: 9, weight: .black, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(Color.themeOrange)
-                            .cornerRadius(6)
-                    }
-                    .padding(.horizontal, 4)
+                    Text("CALORIE GUIDE")
+                        .font(.system(size: 10, weight: .heavy, design: .rounded))
+                        .tracking(0.8)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 4)
                     
                     VStack(spacing: 0) {
                         TableCell(icon: "flame.fill", title: String(localized: "Energy Balance"), desc: String(localized: "Deficit drives fat loss, surplus supports muscle growth."), color: .themePink)
@@ -266,25 +334,20 @@ struct SmartPlanBuilderFlow: View {
                         Divider()
                         TableCell(icon: "target", title: String(localized: "Plan Precision"), desc: String(localized: "Helps AI balance protein, fats, and carbs in your menu."), color: .cyberBlue)
                     }
-                    .background(Color.primary.opacity(0.01))
-                    .cornerRadius(14)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.primary.opacity(0.05), lineWidth: 1)
-                    )
+                    .background(Color.primary.opacity(0.02))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
-                .padding(14)
-                .background(.ultraThinMaterial)
-                .cornerRadius(20)
+                .padding(16)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
                 )
-                .padding(.horizontal, 24)
-                .padding(.bottom, 16)
+                .padding(.horizontal, 20)
 
                 NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 16)
             }
         }
@@ -292,48 +355,76 @@ struct SmartPlanBuilderFlow: View {
     
     private var complexityStepView: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 24) {
+            VStack(spacing: 18) {
                 Text("How much time for cooking?")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 24)
-                    .padding(.horizontal)
+                    .font(.system(.title2, design: .rounded, weight: .heavy))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 20)
+                    .padding(.horizontal, 20)
                 
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     ForEach(complexities, id: \.self) { comp in
+                        let isSelected = complexity == comp
                         Button(action: {
                             HapticManager.shared.impact(style: .light)
                             complexity = comp
                         }) {
-                            HStack {
-                                Text(localizedNameForComplexity(comp))
-                                    .font(.system(.headline, design: .rounded, weight: .bold))
-                                    .foregroundColor(complexity == comp ? .white : .primary)
-                                Spacer()
-                                if complexity == comp {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.white)
+                            HStack(spacing: 14) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(isSelected ? themeManager.current.primaryAccent.opacity(0.16) : Color(UIColor.tertiarySystemGroupedBackground))
+                                        .frame(width: 44, height: 44)
+                                    Image(systemName: iconForComplexity(comp))
+                                        .font(.system(size: 18, weight: .bold))
+                                        .foregroundColor(isSelected ? themeManager.current.primaryAccent : .secondary)
                                 }
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(localizedNameForComplexity(comp))
+                                        .font(.system(.headline, design: .rounded, weight: .bold))
+                                        .foregroundColor(.primary)
+                                    Text(subtitleForComplexity(comp))
+                                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(isSelected ? themeManager.current.primaryAccent : .secondary.opacity(0.4))
                             }
-                            .padding()
-                            .background(complexity == comp ? themeManager.current.primaryAccent : Color.white)
-                            .cornerRadius(16)
+                            .padding(16)
+                            .background(Color(UIColor.secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(complexity == comp ? Color.clear : Color.gray.opacity(0.2), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .strokeBorder(isSelected ? themeManager.current.primaryAccent : Color.primary.opacity(0.06), lineWidth: isSelected ? 2 : 1)
                             )
-                            .shadow(color: complexity == comp ? themeManager.current.primaryAccent.opacity(0.3) : .black.opacity(0.02), radius: 5, y: 2)
                         }
+                        .buttonStyle(BounceButtonStyle())
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 16)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 12)
 
                 NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 16)
             }
         }
+    }
+
+    private func iconForComplexity(_ comp: String) -> String {
+        if comp.contains("Fast") { return "bolt.fill" }
+        if comp.contains("Medium") { return "clock.fill" }
+        return "flame.fill"
+    }
+
+    private func subtitleForComplexity(_ comp: String) -> String {
+        if comp.contains("Fast") { return String(localized: "Quick prep, minimal cleanup") }
+        if comp.contains("Medium") { return String(localized: "Balanced everyday cooking") }
+        return String(localized: "Full culinary recipes")
     }
     
     static func iconForDiet(_ diet: String) -> String {
@@ -439,7 +530,7 @@ struct AIGenerationLoadingView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(ThemeManager.self) private var themeManager
     let targetCalories: Int
-    @State private var isPulsing = false
+    @State private var rotationDegrees: Double = 0
     @State private var statusText = String(localized: "Analyzing macros...")
 
     var statuses: [String] {
@@ -452,33 +543,40 @@ struct AIGenerationLoadingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 40) {
+        VStack(spacing: 28) {
             ZStack {
                 Circle()
-                    .fill(themeManager.current.primaryAccent.opacity(0.2))
-                    .frame(width: 200, height: 200)
-                    .scaleEffect(isPulsing ? 1.5 : 1.0)
-                    .opacity(isPulsing ? 0 : 1)
-                
+                    .stroke(Color.primary.opacity(0.08), lineWidth: 6)
+                    .frame(width: 96, height: 96)
+
                 Circle()
-                    .fill(themeManager.current.primaryGradient)
-                    .frame(width: 120, height: 120)
-                    .shadow(color: themeManager.current.primaryAccent.opacity(0.5), radius: 20)
-                
-                Image(systemName: "sparkles")
-                    .font(.system(size: 50))
-                    .foregroundColor(.white)
+                    .trim(from: 0, to: 0.72)
+                    .stroke(
+                        themeManager.current.primaryGradient,
+                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                    )
+                    .frame(width: 96, height: 96)
+                    .rotationEffect(.degrees(rotationDegrees))
+
+                Image(systemName: "fork.knife")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.primary)
             }
             
-            Text(statusText)
-                .font(.headline)
-                .foregroundColor(.gray)
-                .animation(.easeInOut, value: statusText)
+            VStack(spacing: 6) {
+                Text(statusText)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .animation(.easeInOut, value: statusText)
+                Text("\(targetCalories) kcal/day")
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundColor(.secondary)
+            }
         }
         .onAppear {
             if !reduceMotion {
-                withAnimation(.easeOut(duration: 1.5).repeatForever(autoreverses: false)) {
-                    isPulsing = true
+                withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: false)) {
+                    rotationDegrees = 360
                 }
             }
         }

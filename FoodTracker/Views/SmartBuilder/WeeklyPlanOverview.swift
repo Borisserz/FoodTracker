@@ -28,142 +28,193 @@ struct WeeklyPlanOverview: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Your AI Plan")
-                    .font(.title2.bold())
-                Spacer()
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                }
-            }
-            .padding()
-            
-            // Days Carousel
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(0..<7) { index in
-                        Button(action: {
-                            withAnimation { selectedDayIndex = index }
-                            HapticManager.shared.impact(style: .light)
-                        }) {
-                            VStack(spacing: 8) {
-                                Text(dayNames[index])
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(selectedDayIndex == index ? .white : .gray)
-                                
-                                Text("Day \(index + 1)")
-                                    .font(.subheadline)
-                                    .fontWeight(.black)
-                                    .foregroundColor(selectedDayIndex == index ? .white : .primary)
-                            }
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                            .background(selectedDayIndex == index ? themeManager.current.primaryAccent : Color.white)
-                            .cornerRadius(16)
-                            .shadow(color: selectedDayIndex == index ? themeManager.current.primaryAccent.opacity(0.3) : .black.opacity(0.05), radius: 5, y: 2)
-                        }
+        ZStack {
+            DynamicAuroraBackgroundView(paletteTrigger: selectedDayIndex, tabTag: 1)
+                .allowsHitTesting(false)
+
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Your AI Plan")
+                            .font(.system(.title2, design: .rounded, weight: .heavy))
+                        Text(LocalizedStringKey(plan.dietType))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button(action: onDismiss) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(.primary)
+                            .frame(width: 32, height: 32)
+                            .background(Color(UIColor.secondarySystemGroupedBackground))
+                            .clipShape(Circle())
                     }
                 }
                 .padding(.horizontal)
-                .padding(.bottom, 16)
-            }
-            
-            // Meals List
-            ScrollView(showsIndicators: false) {
-                if let day = selectedDay, !(day.meals ?? []).isEmpty {
-                    VStack(spacing: 16) {
-                        // Day Summary
-                        HStack(spacing: 20) {
-                            macroView(title: "Cals", value: "\(day.totalCalories)", color: themeManager.current.primaryAccent)
-                            macroView(title: "Protein", value: "\(day.totalProtein)g", color: .red)
-                            macroView(title: "Carbs", value: "\(day.totalCarbs)g", color: .blue)
-                            macroView(title: "Fat", value: "\(day.totalFat)g", color: .orange)
-                        }
-                        .padding(.bottom, 8)
-                        
-                        ForEach((day.meals ?? []).sorted(by: { typePriority($0.type) < typePriority($1.type) })) { meal in
-                            MealPlanItemCard(meal: meal)
-                        }
-
-                        NutritionMethodologyDisclaimerView(
-                            citations: [.dietaryGuidelines],
-                            compact: true
-                        )
-                        HStack {
-                            Spacer()
-                            ReportAIContentButton(surface: "weekly_plan")
+                .padding(.vertical, 14)
+                
+                // Days Carousel
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(0..<7, id: \.self) { index in
+                            let isSelected = selectedDayIndex == index
+                            Button(action: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) { selectedDayIndex = index }
+                                HapticManager.shared.impact(style: .light)
+                            }) {
+                                VStack(spacing: 5) {
+                                    Text(dayNames[index])
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .foregroundColor(isSelected ? .white.opacity(0.85) : .secondary)
+                                    
+                                    Text("Day \(index + 1)")
+                                        .font(.system(size: 14, weight: .heavy, design: .rounded))
+                                        .foregroundColor(isSelected ? .white : .primary)
+                                }
+                                .padding(.vertical, 11)
+                                .padding(.horizontal, 15)
+                                .background(
+                                    isSelected
+                                        ? AnyShapeStyle(themeManager.current.primaryGradient)
+                                        : AnyShapeStyle(Color(UIColor.secondarySystemGroupedBackground))
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .strokeBorder(isSelected ? Color.clear : Color.primary.opacity(0.06), lineWidth: 1)
+                                )
+                            }
                         }
                     }
-                    .padding()
-                } else {
-                    VStack(spacing: 12) {
-                        Image(systemName: "calendar.badge.exclamationmark")
-                            .font(.largeTitle)
-                            .foregroundColor(.secondary)
-                        Text("No meals generated for this day.")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 48)
-                }
-            }
-            
-            // Action Buttons
-            VStack(spacing: 12) {
-                if showSuccessToast {
-                    Text("✅ Applied to Today's Log!")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.green)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-                if showGrocerySuccess {
-                    Text("🛒 Ingredients added to Grocery List!")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.orange)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .padding(.horizontal)
+                    .padding(.bottom, 14)
                 }
                 
-                HStack(spacing: 16) {
-                    Button(action: generateGroceryList) {
-                        HStack {
-                            Image(systemName: "cart.fill.badge.plus")
-                            Text("Groceries")
+                // Meals List
+                ScrollView(showsIndicators: false) {
+                    if let day = selectedDay, !(day.meals ?? []).isEmpty {
+                        VStack(spacing: 14) {
+                            // Day Summary Strip
+                            HStack(spacing: 8) {
+                                macroPillView(title: "Cals", value: "\(day.totalCalories)", color: themeManager.current.primaryAccent)
+                                macroPillView(title: "Protein", value: "\(day.totalProtein)g", color: Color(red: 0.16, green: 0.72, blue: 0.50))
+                                macroPillView(title: "Carbs", value: "\(day.totalCarbs)g", color: .blue)
+                                macroPillView(title: "Fat", value: "\(day.totalFat)g", color: .themeOrange)
+                            }
+                            .padding(.bottom, 4)
+                            
+                            ForEach((day.meals ?? []).sorted(by: { typePriority($0.type) < typePriority($1.type) })) { meal in
+                                MealPlanItemCard(meal: meal)
+                            }
+
+                            NutritionMethodologyDisclaimerView(
+                                citations: [.dietaryGuidelines],
+                                compact: true
+                            )
+                            HStack {
+                                Spacer()
+                                ReportAIContentButton(surface: "weekly_plan")
+                            }
                         }
-                        .font(.headline)
-                        .foregroundColor(themeManager.current.primaryAccent)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(themeManager.current.primaryAccent.opacity(0.1))
-                        .cornerRadius(16)
-                    }
-                    .disabled(showGrocerySuccess)
-                    
-                    Button(action: applyToToday) {
-                        HStack {
-                            Image(systemName: "tray.and.arrow.down.fill")
-                            Text("Apply to Today")
+                        .padding(.horizontal)
+                        .padding(.bottom, 16)
+                    } else {
+                        VStack(spacing: 12) {
+                            Image(systemName: "calendar.badge.exclamationmark")
+                                .font(.largeTitle)
+                                .foregroundColor(.secondary)
+                            Text("No meals generated for this day.")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundColor(.secondary)
                         }
-                        .font(.headline)
-                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background((selectedDay?.meals ?? []).isEmpty ? AnyShapeStyle(Color.gray.opacity(0.4)) : AnyShapeStyle(themeManager.current.primaryGradient))
-                        .cornerRadius(16)
-                        .shadow(color: (selectedDay?.meals ?? []).isEmpty ? .clear : themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
+                        .padding(.vertical, 48)
                     }
-                    .disabled(showSuccessToast || (selectedDay?.meals ?? []).isEmpty)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 16)
+                
+                // Action Buttons
+                VStack(spacing: 10) {
+                    if showSuccessToast {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("Applied to Today's Log")
+                        }
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                    if showGrocerySuccess {
+                        HStack(spacing: 6) {
+                            Image(systemName: "cart.fill")
+                            Text("Added to Grocery List")
+                        }
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(.themeOrange)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                    
+                    HStack(spacing: 12) {
+                        Button(action: generateGroceryList) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "cart.fill.badge.plus")
+                                Text("Groceries")
+                            }
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color(UIColor.secondarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                            )
+                        }
+                        .disabled(showGrocerySuccess)
+                        
+                        Button(action: applyToToday) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "tray.and.arrow.down.fill")
+                                Text("Apply to Today")
+                            }
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background((selectedDay?.meals ?? []).isEmpty ? AnyShapeStyle(Color.gray.opacity(0.4)) : AnyShapeStyle(themeManager.current.primaryGradient))
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .shadow(color: (selectedDay?.meals ?? []).isEmpty ? .clear : themeManager.current.primaryAccent.opacity(0.25), radius: 8, y: 4)
+                        }
+                        .disabled(showSuccessToast || (selectedDay?.meals ?? []).isEmpty)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
+                }
+                .padding(.top, 8)
             }
         }
-        .background(Color.themeBg)
+    }
+
+    private func macroPillView(title: String, value: String, color: Color) -> some View {
+        VStack(spacing: 3) {
+            Text(value)
+                .font(.system(size: 15, weight: .heavy, design: .rounded))
+                .monospacedDigit()
+                .foregroundColor(color)
+            Text(LocalizedStringKey(title))
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 10)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private func macroView(title: String, value: String, color: Color) -> some View {
@@ -356,8 +407,11 @@ struct MealPlanItemCard: View {
             .padding(.top, 4)
         }
         .padding()
-        .background(Color.white)
-        .cornerRadius(20)
-        .shadow(color: .black.opacity(0.03), radius: 8, y: 4)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 }
