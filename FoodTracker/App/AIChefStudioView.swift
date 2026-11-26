@@ -98,6 +98,7 @@ struct AIChefStudioView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(AppStateManager.self) private var appState
     @Query private var users: [User]
     @Query(sort: \DailySummary.date, order: .reverse) private var summaries: [DailySummary]
     @State private var currentDayStart = Calendar.current.startOfDay(for: Date())
@@ -156,7 +157,7 @@ struct AIChefStudioView: View {
         NavigationStack {
             ZStack {
                 // Dynamic Ambient Aurora Background
-                DynamicAuroraBackgroundView()
+                DynamicAuroraBackgroundView(paletteTrigger: appState.selectedTab, tabTag: 2)
                     .allowsHitTesting(false)
                 
                 ScrollView(.vertical, showsIndicators: false) {

@@ -18,10 +18,12 @@ enum FoodsRoute: Hashable {
 
 struct FoodsDashboardView: View {
     @Environment(\.modelContext) private var context
+    @Environment(AppStateManager.self) private var appState
     @State private var path = NavigationPath()
     @State private var dataLoader = RecipeDataLoader.shared
     @State private var academyLoader = AcademyDataLoader.shared
     @Query(sort: \Meal.date, order: .reverse) private var meals: [Meal]
+    @Query private var customRecipes: [CustomRecipe]
     @Query private var users: [User]
 
     @State private var selectedFilter: String = "All"
@@ -49,10 +51,16 @@ struct FoodsDashboardView: View {
                         }
 
                     // MARK: - 2x2 Bento Grid Culinary Hub Deck
+                    let totalRecipes = dataLoader.recipes.count + customRecipes.count
+                    let activeDietName = users.first?.activeDietPlan?.name
+                    let totalArticles = academyLoader.categories.reduce(0) { $0 + $1.totalCount }
+                    let completedArticles = academyLoader.categories.reduce(0) { $0 + $1.completedCount }
+                    let fastingManager = FastingManager.shared
+
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
                         FoodsBentoCard(
                             title: "Recipes",
-                            subtitle: "140+ Chef Dishes",
+                            subtitle: totalRecipes > 0 ? String(localized: "\(totalRecipes) recipes") : String(localized: "Explore Healthy Cooking"),
                             tag: "CHEF",
                             tagColor: Color.themePink,
                             iconName: "fork.knife",
@@ -62,8 +70,8 @@ struct FoodsDashboardView: View {
                         
                         FoodsBentoCard(
                             title: "Diet Plans",
-                            subtitle: "Keto • Vegan • Macro",
-                            tag: "PROTOCOLS",
+                            subtitle: activeDietName ?? String(localized: "Keto, Vegan & More"),
+                            tag: activeDietName != nil ? "ACTIVE" : "DIETS",
                             tagColor: Color(red: 0.10, green: 0.72, blue: 0.50),
                             iconName: "leaf.fill",
                             imageName: "foods_cover_diets",
@@ -72,8 +80,8 @@ struct FoodsDashboardView: View {
                         
                         FoodsBentoCard(
                             title: "Academy",
-                            subtitle: "Guides & Biohacks",
-                            tag: "KNOWLEDGE",
+                            subtitle: totalArticles > 0 ? String(localized: "\(completedArticles) of \(totalArticles) topics finished") : String(localized: "Nutrition Guides"),
+                            tag: "GUIDES",
                             tagColor: Color(red: 0.35, green: 0.55, blue: 0.95),
                             iconName: "graduationcap.fill",
                             imageName: "foods_cover_academy",
@@ -82,10 +90,10 @@ struct FoodsDashboardView: View {
                         
                         FoodsBentoCard(
                             title: "Fasting",
-                            subtitle: FastingManager.shared.isFasting ? "\(FastingManager.shared.currentPhase.name) • Active" : "Circadian 16:8",
-                            tag: FastingManager.shared.isFasting ? "LIVE" : "INTERVALS",
-                            tagColor: FastingManager.shared.isFasting ? Color(red: 0.98, green: 0.65, blue: 0.15) : Color(red: 0.65, green: 0.45, blue: 0.92),
-                            iconName: "flame.fill",
+                            subtitle: fastingManager.isFasting ? "\(fastingManager.currentPhase.name) • \(fastingManager.elapsedTimeString)" : String(localized: "16:8, OMAD"),
+                            tag: fastingManager.isFasting ? "ACTIVE" : "TIMER",
+                            tagColor: fastingManager.isFasting ? fastingManager.currentPhase.color : Color(red: 0.65, green: 0.45, blue: 0.92),
+                            iconName: fastingManager.isFasting ? fastingManager.currentPhase.icon : "flame.fill",
                             imageName: "foods_cover_fasting",
                             action: { path.append(FoodsRoute.fasting) }
                         )
@@ -148,7 +156,7 @@ struct FoodsDashboardView: View {
                 .padding(.bottom, 120)
             }
             .background {
-                DynamicAuroraBackgroundView()
+                DynamicAuroraBackgroundView(paletteTrigger: appState.selectedTab, tabTag: 1)
                     .allowsHitTesting(false)
             }
             .navigationTitle("Explore")
@@ -260,24 +268,6 @@ struct FoodsBentoCard: View {
             action()
         }) {
             ZStack(alignment: .bottomLeading) {
-                // Background Cover Photography
-                Image(imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 165)
-                    .clipped()
-                
-                // Cinematic Dark Gradient Scrim for Apple HIG Text Contrast
-                LinearGradient(
-                    colors: [
-                        Color.black.opacity(0.15),
-                        Color.black.opacity(0.40),
-                        Color.black.opacity(0.85)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                
                 // Bento Content
                 VStack(alignment: .leading, spacing: 0) {
                     // Top Bar: Category Pill & Directional Arrow
@@ -285,7 +275,7 @@ struct FoodsBentoCard: View {
                         HStack(spacing: 4) {
                             Image(systemName: iconName)
                                 .font(.system(size: 9, weight: .bold))
-                            Text(tag)
+                            Text(LocalizedStringKey(tag))
                                 .font(.system(size: 9, weight: .heavy, design: .rounded))
                                 .tracking(0.8)
                         }
@@ -319,7 +309,7 @@ struct FoodsBentoCard: View {
                             .foregroundStyle(.white)
                             .lineLimit(1)
                         
-                        Text(LocalizedStringKey(subtitle))
+                        Text(subtitle)
                             .font(.system(size: 11, weight: .semibold, design: .rounded))
                             .foregroundStyle(.white.opacity(0.88))
                             .lineLimit(1)
@@ -327,7 +317,30 @@ struct FoodsBentoCard: View {
                 }
                 .padding(12)
             }
+            .frame(maxWidth: .infinity)
             .frame(height: 165)
+            .background {
+                ZStack {
+                    GeometryReader { geo in
+                        Image(imageName)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    }
+                    // Cinematic Dark Gradient Scrim for Apple HIG Text Contrast
+                    LinearGradient(
+                        colors: [
+                            Color.black.opacity(0.18),
+                            Color.black.opacity(0.42),
+                            Color.black.opacity(0.86)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+            }
+            .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)

@@ -122,7 +122,7 @@ struct AnalyticsTabView: View {
         NavigationStack {
             ZStack {
                 // Dynamic Ambient Aurora Mood System
-                DynamicAuroraBackgroundView()
+                DynamicAuroraBackgroundView(paletteTrigger: appState.selectedTab, tabTag: 3)
                     .allowsHitTesting(false)
 
                 if let user = users.first {

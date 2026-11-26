@@ -130,7 +130,7 @@ struct HomeDashboardContentView: View {
           NavigationStack {
               ZStack(alignment: .bottomTrailing) { // Обернули в ZStack для плавающей кнопки
                   // Dynamic Ambient Aurora Background System
-                  DynamicAuroraBackgroundView()
+                  DynamicAuroraBackgroundView(paletteTrigger: appState.selectedTab, tabTag: 0)
                       .allowsHitTesting(false)
 
                   // Sync HealthKit & WorkoutTracker whenever selectedDate changes without creating empty DailySummary rows on browse
@@ -1770,7 +1770,7 @@ struct FridgeLedgerStickerView: View {
                 
                 // Perforated / Dashed dividing line
                 HStack(spacing: 4) {
-                    ForEach(0..<28) { _ in
+                    ForEach(0..<28, id: \.self) { _ in
                         Rectangle()
                             .fill(Color(red: 0.35, green: 0.32, blue: 0.28).opacity(0.22))
                             .frame(height: 1)
@@ -1780,8 +1780,9 @@ struct FridgeLedgerStickerView: View {
                 
                 // Big Calorie Counter
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("TOTAL NOURISHMENT")
+                    Text("All-Time Total")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .textCase(.uppercase)
                         .tracking(1.0)
                         .foregroundColor(Color(red: 0.50, green: 0.46, blue: 0.40))
                     
@@ -1800,10 +1801,10 @@ struct FridgeLedgerStickerView: View {
                         
                         // Stamped verified badge
                         VStack(alignment: .trailing, spacing: 1) {
-                            Text("✦ CERTIFIED")
+                            Text("✦ TRACKED")
                                 .font(.system(size: 8, weight: .black, design: .monospaced))
                                 .foregroundColor(Color(red: 0.18, green: 0.45, blue: 0.28))
-                            Text("METABOLIC DATA")
+                            Text("NUTRITION LOG")
                                 .font(.system(size: 7, weight: .bold, design: .monospaced))
                                 .foregroundColor(Color(red: 0.45, green: 0.42, blue: 0.38))
                         }
