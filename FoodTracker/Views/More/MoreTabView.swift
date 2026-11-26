@@ -2,11 +2,20 @@ import SwiftUI
 import SwiftData
 import UserNotifications
 
-// MARK: - AI Coach Mega-Hub (Apple HIG HUD Standard with Boris Logic + Single-Page Scroll)
+// MARK: - AI Coach Mega-Hub (Calm Editorial Photography + Boris Core Logic)
 
 enum CoachHubCopy {
     static let insightSubtitle = "Your proactive nutritionist"
     static let dashboardSubtitle = "Your proactive nutritionist"
+}
+
+private struct CoachTipItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let text: String
+    let icon: String
+    let category: String
+    let accentColor: Color
 }
 
 struct MoreTabView: View {
@@ -53,82 +62,82 @@ struct MoreTabView: View {
     }
 
     private let quickPrompts: [(title: String, prompt: String)] = [
-        ("Fix my macros 📊", "Can you analyze my macros today and give me specific recommendations to balance protein, carbs and fats?"),
-        ("Pre-workout fuel ⚡️", "What is an ideal meal or snack to eat before my workout based on my remaining calories and macros?"),
-        ("High-protein snack 🥑", "Suggest 3 quick, high-protein snacks that will help me hit my daily protein target without exceeding fats."),
-        ("Hydration check 💧", "How does my current water intake affect my daily energy and workout recovery?"),
-        ("Late night cravings 🌙", "I have late night cravings. What healthy low-calorie options won't disrupt my sleep or calorie goals?"),
-        ("Nutrition biohack 🧬", "What actionable nutrition habits can I apply today to improve my nutrient intake and daily energy?")
+        ("Fix macros", "Can you analyze my macros today and give me specific recommendations to balance protein, carbs and fats?"),
+        ("Pre-workout meal", "What is an ideal meal or snack to eat before my workout based on my remaining calories and macros?"),
+        ("High-protein snack", "Suggest 3 quick, high-protein snacks that will help me hit my daily protein target without exceeding fats."),
+        ("Water intake", "How does my current water intake affect my daily energy and workout recovery?"),
+        ("Evening snack", "What healthy low-calorie evening options won't disrupt my sleep or calorie goals?"),
+        ("Daily balance", "What practical nutrition habits can I apply today to balance my meals better?")
     ]
 
-    private let tips: [BioHackingTip] = [
-        BioHackingTip(
+    private let tips: [CoachTipItem] = [
+        CoachTipItem(
             title: String(localized: "Iron Synergy"),
             text: String(localized: "Pair iron-rich foods (spinach, lentils) with Vitamin C (citrus, peppers) to increase iron absorption by up to 300%."),
             icon: "leaf.fill",
-            category: String(localized: "🧬 NUTRIENT SYNERGY"),
-            gradientColors: [.green, .mint]
+            category: String(localized: "NUTRIENTS"),
+            accentColor: Color(red: 0.16, green: 0.72, blue: 0.50)
         ),
-        BioHackingTip(
+        CoachTipItem(
             title: String(localized: "Protein Pacing"),
             text: String(localized: "Distribute your protein intake in 30-40g portions every 3-4 hours to keep muscle protein synthesis optimized."),
             icon: "flame.fill",
-            category: String(localized: "🔋 MUSCLE RECOVERY"),
-            gradientColors: [.themePink, .themeOrange]
+            category: String(localized: "PROTEIN"),
+            accentColor: .themeOrange
         ),
-        BioHackingTip(
+        CoachTipItem(
             title: String(localized: "Circadian Fasting"),
             text: String(localized: "Finish eating at least 3 hours before sleep. This lowers insulin levels and improves deep sleep recovery phases."),
             icon: "moon.stars.fill",
-            category: String(localized: "🌙 SLEEP & DIGESTION"),
-            gradientColors: [.purple, .indigo]
+            category: String(localized: "SLEEP"),
+            accentColor: Color(red: 0.55, green: 0.50, blue: 0.95)
         ),
-        BioHackingTip(
+        CoachTipItem(
             title: String(localized: "Hydration Window"),
             text: String(localized: "Drink 500ml of water immediately upon waking to kickstart daily energy and offset overnight dehydration."),
             icon: "drop.fill",
-            category: String(localized: "💧 CELLULAR HYDRATION"),
-            gradientColors: [.cyan, .blue]
+            category: String(localized: "HYDRATION"),
+            accentColor: .cyan
         ),
-        BioHackingTip(
+        CoachTipItem(
             title: String(localized: "Sodium Balance"),
             text: String(localized: "Feeling bloated? Increase potassium intake (avocados, bananas) to assist kidneys in flushing out excess sodium."),
-            icon: "sparkles",
-            category: String(localized: "⚖️ FLUID BALANCE"),
-            gradientColors: [.themeYellow, .themeOrange]
+            icon: "scalemass.fill",
+            category: String(localized: "BALANCE"),
+            accentColor: .themeYellow
         )
     ]
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Dynamic Ambient Aurora Mood Background
+                // Spotify-style calm top-to-bottom tonal background wash
                 DynamicAuroraBackgroundView(paletteTrigger: appState.selectedTab, tabTag: 4)
                     .allowsHitTesting(false)
 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
+                    VStack(spacing: 22) {
                         // 1. Header Greeting
                         headerSection
                             .padding(.top, 4)
 
-                        // 2. Proactive AI Coach Command Hero Card
+                        // 2. Editorial Photo Hero Consultation Card
                         aiCoachHeroCard
                             .padding(.horizontal)
 
-                        // 3. Quick 1-Tap Question Carousel
+                        // 3. Clean 1-Tap Question Pills
                         quickPromptsCarousel
 
-                        // 4. Daily AI Verdict & Tactical Action Cards
+                        // 4. Daily Verdict & Photo Action Deck (Fix Macros / Hydration)
                         dailyVerdictAndActionsSection
 
-                        // 5. Goals & Daily Targets HUD
+                        // 5. Goals & Daily Targets
                         goalsAndTargetsSection
 
-                        // 6. Bio-Hacking Tips Carousel
-                        bioHackingTipsSection
+                        // 6. Daily Nutrition Tips Carousel
+                        dailyTipsSection
 
-                        // 7. Fridge-to-Recipe AI Assistant (with Save to My Recipes)
+                        // 7. Fridge-to-Recipe Editorial Card (with Save to My Recipes)
                         fridgeToRecipeSection
 
                         // 8. Visual Transformation Progress (Before/After)
@@ -171,7 +180,7 @@ struct MoreTabView: View {
                     NavigationLink(destination: ProfileWrapperView()) {
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(themeManager.current.primaryAccent)
+                            .foregroundColor(.primary)
                     }
                     .accessibilityLabel("Profile & Settings")
                 }
@@ -250,11 +259,11 @@ struct MoreTabView: View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(greetingText)
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundStyle(.secondary)
-                Text(user?.name ?? "Champion")
+                Text(user?.name ?? String(localized: "Friend"))
                     .font(.system(size: 26, weight: .black, design: .rounded))
-                    .foregroundStyle(themeManager.current.primaryGradient)
+                    .foregroundStyle(.primary)
             }
             Spacer()
         }
@@ -272,7 +281,7 @@ struct MoreTabView: View {
         }
     }
 
-    // MARK: - Proactive AI Coach Hero Card
+    // MARK: - Editorial Photo Hero Coach Card
     private var aiCoachHeroCard: some View {
         let summary = todaySummary
         let cals = summary.totalCalories
@@ -281,62 +290,50 @@ struct MoreTabView: View {
         let proteinGoal = user?.targetProtein ?? 150
 
         return VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color(red: 0.65, green: 0.55, blue: 0.95).opacity(0.18))
-                        .frame(width: 44, height: 44)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(localized: "Daily Nutrition Insight"))
+                    .font(.system(size: 19, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white)
 
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(Color(red: 0.65, green: 0.55, blue: 0.95))
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "Daily Nutrition Insight"))
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.primary)
-
-                    Text(String(localized: String.LocalizationValue(CoachHubCopy.insightSubtitle)))
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(Color.secondary)
-                }
-
-                Spacer()
+                Text(String(localized: String.LocalizationValue(CoachHubCopy.insightSubtitle)))
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.78))
             }
 
-            // Micro Stats Chips
+            // Crisp Status Pills
             HStack(spacing: 8) {
-                HStack(spacing: 4) {
+                HStack(spacing: 5) {
                     Circle()
-                        .fill(cals > effectiveGoal ? Color.red : Color(red: 0.16, green: 0.72, blue: 0.50))
+                        .fill(cals > effectiveGoal ? Color.red : Color(red: 0.22, green: 0.80, blue: 0.54))
                         .frame(width: 6, height: 6)
                     Text("\(cals) / \(effectiveGoal) kcal")
                         .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.primary)
+                        .foregroundStyle(.white)
                 }
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(Color(UIColor.tertiarySystemGroupedBackground))
+                .background(Color.black.opacity(0.42))
                 .clipShape(Capsule())
+                .overlay(Capsule().strokeBorder(Color.white.opacity(0.14), lineWidth: 1))
 
-                HStack(spacing: 4) {
+                HStack(spacing: 5) {
                     Circle()
-                        .fill(Color(red: 0.16, green: 0.72, blue: 0.50))
+                        .fill(Color(red: 0.22, green: 0.80, blue: 0.54))
                         .frame(width: 6, height: 6)
-                    Text("\(Int(protein)) / \(Int(proteinGoal))g Protein")
+                    Text("\(Int(protein)) / \(Int(proteinGoal))g P")
                         .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.primary)
+                        .foregroundStyle(.white)
                 }
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(Color(UIColor.tertiarySystemGroupedBackground))
+                .background(Color.black.opacity(0.42))
                 .clipShape(Capsule())
+                .overlay(Capsule().strokeBorder(Color.white.opacity(0.14), lineWidth: 1))
 
                 Spacer()
             }
 
-            // 1-Tap Direct Chat Navigation Link
+            // 1-Tap Direct Chat CTA
             NavigationLink(destination: AICoachChatView(
                 userGoal: user?.dailyCaloriesGoal ?? 2000,
                 consumed: summary.totalCalories,
@@ -350,33 +347,50 @@ struct MoreTabView: View {
                 hydrationLiters: summary.totalPureWaterLiters,
                 activeCaloriesBurned: summary.activeCaloriesBurned
             )) {
-                HStack {
+                HStack(spacing: 8) {
                     Image(systemName: "message.fill")
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                     Text(String(localized: "Consult with AI Coach"))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                     Spacer()
-                    Image(systemName: "arrow.right.circle.fill")
-                        .font(.system(size: 16))
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 12, weight: .bold))
                 }
-                .foregroundColor(.white)
+                .foregroundColor(Color(red: 0.08, green: 0.09, blue: 0.11))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .background(themeManager.current.primaryGradient)
+                .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
             .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
         }
         .padding(18)
         .background {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(themeManager.current.primaryAccent.opacity(0.22), lineWidth: 1.2)
+            ZStack {
+                GeometryReader { geo in
+                    Image("coach_hero_banner")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                }
+                LinearGradient(
+                    stops: [
+                        .init(color: Color.black.opacity(0.76), location: 0.0),
+                        .init(color: Color.black.opacity(0.50), location: 0.58),
+                        .init(color: Color.black.opacity(0.32), location: 1.0)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
                 )
-                .shadow(color: themeManager.current.primaryAccent.opacity(0.08), radius: 12, y: 4)
+            }
         }
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.14), radius: 12, y: 5)
     }
 
     // MARK: - Quick Prompts Carousel
@@ -398,11 +412,11 @@ struct MoreTabView: View {
                         hydrationLiters: todaySummary.totalPureWaterLiters,
                         activeCaloriesBurned: todaySummary.activeCaloriesBurned
                     )) {
-                        Text(item.title)
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                        Text(LocalizedStringKey(item.title))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
                             .foregroundColor(Color.primary)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
+                            .padding(.horizontal, 13)
+                            .padding(.vertical, 8)
                             .background(Color(UIColor.secondarySystemGroupedBackground))
                             .clipShape(Capsule())
                             .overlay(
@@ -417,7 +431,7 @@ struct MoreTabView: View {
         }
     }
 
-    // MARK: - Daily Verdict & Actions Section
+    // MARK: - Daily Verdict & Photo Action Deck
     private var dailyVerdictAndActionsSection: some View {
         VStack(spacing: 16) {
             if let viewModel = viewModel {
@@ -434,29 +448,31 @@ struct MoreTabView: View {
                 )
             }
 
-            HStack(spacing: 14) {
-                // Fix Macros Action Card
-                AIFixCard(
+            HStack(spacing: 12) {
+                CoachPhotoActionCard(
                     title: "Fix Macros",
+                    subtitle: viewModel?.isFixingMacros == true ? String(localized: "Analyzing...") : String(localized: "Rebalance meals"),
                     icon: "chart.pie.fill",
-                    color: .themeYellow,
-                    isLoading: viewModel?.isFixingMacros ?? false,
-                    action: {
-                        guard let u = user else { return }
-                        performWithAIConsent { viewModel?.analyzeMacros(currentSummary: todaySummary, currentUser: u) }
-                    }
-                )
+                    accentColor: .themeYellow,
+                    imageName: "coach_card_macros",
+                    isLoading: viewModel?.isFixingMacros ?? false
+                ) {
+                    guard let u = user else { return }
+                    performWithAIConsent { viewModel?.analyzeMacros(currentSummary: todaySummary, currentUser: u) }
+                }
 
-                // Hydration Action Card with live water status
-                AIFixCard(
+                CoachPhotoActionCard(
                     title: "Hydration",
+                    subtitle: viewModel?.isFixingHydration == true
+                        ? String(localized: "Analyzing...")
+                        : String(format: "%.1f L today", todaySummary.totalPureWaterLiters),
                     icon: "drop.fill",
-                    color: .cyan,
-                    isLoading: viewModel?.isFixingHydration ?? false,
-                    action: {
-                        performWithAIConsent { viewModel?.analyzeHydration(currentSummary: todaySummary) }
-                    }
-                )
+                    accentColor: .cyan,
+                    imageName: "coach_card_hydration",
+                    isLoading: viewModel?.isFixingHydration ?? false
+                ) {
+                    performWithAIConsent { viewModel?.analyzeHydration(currentSummary: todaySummary) }
+                }
             }
             .padding(.horizontal)
 
@@ -527,14 +543,9 @@ struct MoreTabView: View {
 
         return VStack(alignment: .leading, spacing: 14) {
             HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "target")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color(red: 0.95, green: 0.55, blue: 0.25))
-                    Text("Goals & Targets")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                }
+                Text("Goals & Targets")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
 
                 Spacer()
 
@@ -545,7 +556,7 @@ struct MoreTabView: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 10, weight: .bold))
                     }
-                    .foregroundColor(themeManager.current.primaryAccent)
+                    .foregroundColor(.primary.opacity(0.75))
                 }
             }
             .padding(.horizontal)
@@ -618,14 +629,14 @@ struct MoreTabView: View {
                     .frame(height: 8)
 
                     HStack {
-                        Text("\(Int(weightProgress * 100))% achieved")
-                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        Text("\(Int(weightProgress * 100))%")
+                            .font(.system(size: 11, weight: .bold, design: .monospaced))
                             .foregroundColor(.secondary)
                         Spacer()
                         Button(action: {
                             ensureUserAndOpenGoalSheet()
                         }) {
-                            Text("Tune Target")
+                            Text("Edit Goal")
                                 .font(.system(size: 11, weight: .bold, design: .rounded))
                                 .foregroundColor(themeManager.current.primaryAccent)
                         }
@@ -707,22 +718,17 @@ struct MoreTabView: View {
         }
     }
 
-    // MARK: - Bio-Hacking Tips Section
-    private var bioHackingTipsSection: some View {
+    // MARK: - Daily Tips Carousel (Emoji-Free & Clean)
+    private var dailyTipsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "lightbulb.fill")
-                        .foregroundColor(Color(red: 0.65, green: 0.55, blue: 0.98))
-                        .font(.system(size: 15, weight: .bold))
-                    Text("Bio-hacking Tips")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
-                }
+                Text("Nutrition Guides")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
 
                 Spacer()
 
-                Text("Swipe")
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                Text("\(selectedTipIndex + 1)/\(tips.count)")
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
@@ -738,10 +744,10 @@ struct MoreTabView: View {
                         HStack {
                             Text(tip.category)
                                 .font(.system(size: 10, weight: .bold, design: .rounded))
-                                .foregroundColor(tip.gradientColors[0])
+                                .foregroundColor(tip.accentColor)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
-                                .background(tip.gradientColors[0].opacity(0.12))
+                                .background(tip.accentColor.opacity(0.12))
                                 .clipShape(Capsule())
                             Spacer()
                         }
@@ -749,11 +755,11 @@ struct MoreTabView: View {
                         HStack(spacing: 14) {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .fill(tip.gradientColors[0].opacity(0.14))
+                                    .fill(tip.accentColor.opacity(0.14))
                                     .frame(width: 44, height: 44)
                                 Image(systemName: tip.icon)
                                     .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(tip.gradientColors[0])
+                                    .foregroundColor(tip.accentColor)
                             }
 
                             VStack(alignment: .leading, spacing: 3) {
@@ -786,12 +792,11 @@ struct MoreTabView: View {
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(height: 140)
 
-            // Custom page indicator
             HStack(spacing: 6) {
                 Spacer()
                 ForEach(0..<tips.count, id: \.self) { index in
                     Capsule()
-                        .fill(selectedTipIndex == index ? tips[index].gradientColors[0] : Color.secondary.opacity(0.2))
+                        .fill(selectedTipIndex == index ? tips[index].accentColor : Color.secondary.opacity(0.2))
                         .frame(width: selectedTipIndex == index ? 16 : 6, height: 5)
                         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTipIndex)
                 }
@@ -801,137 +806,150 @@ struct MoreTabView: View {
         }
     }
 
-    // MARK: - Fridge to Recipe Section (with Full Boris Save Logic)
+    // MARK: - Fridge to Recipe Editorial Card
     private var fridgeToRecipeSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                Image(systemName: "refrigerator.fill")
-                    .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
-                    .font(.system(size: 15, weight: .bold))
-                Text("Fridge to Recipe")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
-            }
-
-            Text("Tell me what ingredients you have, and I'll generate a recipe matching your remaining calories.")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundColor(.secondary)
-
-            HStack(spacing: 10) {
-                HStack(spacing: 8) {
-                    Image(systemName: "fork.knife")
-                        .foregroundColor(isFridgeSearchFocused ? Color.primary : .secondary)
-                        .font(.system(size: 15))
-
-                    TextField("E.g. Eggs, chicken, spinach...", text: Binding(get: { viewModel?.fridgeInput ?? "" }, set: { viewModel?.fridgeInput = $0 }))
-                        .focused($isFridgeSearchFocused)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+        VStack(alignment: .leading, spacing: 0) {
+            // Photo Cover Header
+            ZStack(alignment: .bottomLeading) {
+                GeometryReader { geo in
+                    Image("coach_card_fridge")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(Color(UIColor.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                LinearGradient(
+                    stops: [
+                        .init(color: Color.black.opacity(0.18), location: 0.0),
+                        .init(color: Color.black.opacity(0.76), location: 1.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
 
-                Button(action: {
-                    guard let u = user else { return }
-                    performWithAIConsent { viewModel?.generateSmartRecipe(currentSummary: todaySummary, currentUser: u) }
-                }) {
-                    if viewModel?.isGeneratingRecipe == true {
-                        ProgressView().tint(.white)
-                            .frame(width: 44, height: 44)
-                            .background(Color.primary.opacity(0.8))
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    } else {
-                        Image(systemName: "wand.and.stars")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color(UIColor.systemBackground))
-                            .frame(width: 44, height: 44)
-                            .background(Color.primary)
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Fridge to Recipe")
+                        .font(.system(size: 18, weight: .heavy, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Text(String(localized: "Use ingredients on hand for a custom recipe"))
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.84))
                 }
-                .disabled((viewModel?.fridgeInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true) || (viewModel?.isGeneratingRecipe ?? true))
+                .padding(16)
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: 108)
+            .clipped()
 
-            if let recipe = viewModel?.generatedRecipe {
-                VStack(alignment: .leading, spacing: 12) {
-                    Divider().padding(.vertical, 2)
+            // Card Controls & Result
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 10) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "fork.knife")
+                            .foregroundColor(isFridgeSearchFocused ? Color.primary : .secondary)
+                            .font(.system(size: 14))
 
-                    HStack {
-                        Text("AI RECIPE SUGGESTION")
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.12))
-                            .clipShape(Capsule())
-                        Spacer()
+                        TextField("E.g. Eggs, chicken, spinach...", text: Binding(get: { viewModel?.fridgeInput ?? "" }, set: { viewModel?.fridgeInput = $0 }))
+                            .focused($isFridgeSearchFocused)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
                     }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(Color(UIColor.tertiarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
-                    Text(recipe.name)
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-
-                    Text(recipe.info)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .foregroundColor(.secondary)
-                        .lineSpacing(3)
-
-                    HStack(spacing: 10) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("CALORIES")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
-                            Text("\(recipe.calories) kcal")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
+                    Button(action: {
+                        guard let u = user else { return }
+                        performWithAIConsent { viewModel?.generateSmartRecipe(currentSummary: todaySummary, currentUser: u) }
+                    }) {
+                        if viewModel?.isGeneratingRecipe == true {
+                            ProgressView().tint(.white)
+                                .frame(width: 44, height: 44)
+                                .background(Color.primary.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        } else {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(Color(UIColor.systemBackground))
+                                .frame(width: 44, height: 44)
+                                .background(Color.primary)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(10)
-                        .background(Color(UIColor.tertiarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("PROTEIN")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
-                            Text("\(Int(recipe.protein.rounded()))g")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(10)
-                        .background(Color(UIColor.tertiarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("COOKING")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
-                            Text("\(recipe.cookingTime) min")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.secondary)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(10)
-                        .background(Color(UIColor.tertiarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
-
-                    Button(action: { saveGeneratedRecipe(recipe) }) {
-                        Text("Save to My Recipes")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(Color(UIColor.systemBackground))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.primary)
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    }
-                    .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
+                    .disabled((viewModel?.fridgeInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true) || (viewModel?.isGeneratingRecipe ?? true))
                 }
-                .transition(.move(edge: .top).combined(with: .opacity))
+
+                if let recipe = viewModel?.generatedRecipe {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Divider().padding(.vertical, 2)
+
+                        Text(recipe.name)
+                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+
+                        Text(recipe.info)
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundColor(.secondary)
+                            .lineSpacing(3)
+
+                        HStack(spacing: 10) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("CALORIES")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                Text("\(recipe.calories) kcal")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(10)
+                            .background(Color(UIColor.tertiarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("PROTEIN")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                Text("\(Int(recipe.protein.rounded()))g")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(10)
+                            .background(Color(UIColor.tertiarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("COOKING")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                Text("\(recipe.cookingTime) min")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(10)
+                            .background(Color(UIColor.tertiarySystemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        }
+
+                        Button(action: { saveGeneratedRecipe(recipe) }) {
+                            Text("Save to My Recipes")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundColor(Color(UIColor.systemBackground))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color.primary)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        }
+                        .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
             }
+            .padding(16)
         }
-        .padding(18)
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
@@ -947,14 +965,9 @@ struct MoreTabView: View {
 
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "applelogo")
-                        .font(.system(size: 15))
-                        .foregroundColor(.primary)
-                    Text("Connected Ecosystem")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                }
+                Text("Connected Ecosystem")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
 
                 Spacer()
 
@@ -965,13 +978,12 @@ struct MoreTabView: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 10, weight: .bold))
                     }
-                    .foregroundColor(themeManager.current.primaryAccent)
+                    .foregroundColor(.primary.opacity(0.75))
                 }
             }
             .padding(.horizontal)
 
             HStack(spacing: 12) {
-                // Apple HealthKit Pill -> Opens Profile & Settings
                 NavigationLink(destination: ProfileWrapperView()) {
                     HStack(spacing: 10) {
                         ZStack {
@@ -1003,7 +1015,6 @@ struct MoreTabView: View {
                 }
                 .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
 
-                // Units Switcher
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
                     useMetricSystem.toggle()
@@ -1207,6 +1218,105 @@ struct MoreTabView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Editorial Photo Action Card (Fix Macros / Hydration)
+private struct CoachPhotoActionCard: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let accentColor: Color
+    let imageName: String
+    let isLoading: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            if !isLoading {
+                HapticManager.shared.impact(style: .medium)
+                action()
+            }
+        }) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(Color.black.opacity(0.45))
+                            .frame(width: 34, height: 34)
+                        Image(systemName: icon)
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(accentColor)
+                    }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.16), lineWidth: 0.8)
+                    )
+
+                    Spacer()
+
+                    if isLoading {
+                        ProgressView()
+                            .tint(.white)
+                            .scaleEffect(0.8)
+                    } else {
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.42))
+                                .frame(width: 26, height: 26)
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(LocalizedStringKey(title))
+                        .font(.system(size: 16, weight: .heavy, design: .rounded))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+
+                    Text(subtitle)
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.84))
+                        .lineLimit(1)
+                }
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity)
+            .frame(height: 136)
+            .background {
+                ZStack {
+                    GeometryReader { geo in
+                        Image(imageName)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    }
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.black.opacity(0.24), location: 0.0),
+                            .init(color: Color.black.opacity(0.45), location: 0.45),
+                            .init(color: Color.black.opacity(0.86), location: 1.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+            }
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.14), radius: 8, y: 4)
+        }
+        .buttonStyle(BounceButtonStyle())
     }
 }
 

@@ -1801,7 +1801,7 @@ struct FridgeLedgerStickerView: View {
                         
                         // Stamped verified badge
                         VStack(alignment: .trailing, spacing: 1) {
-                            Text("✦ TRACKED")
+                            Text("TOTAL LOGGED")
                                 .font(.system(size: 8, weight: .black, design: .monospaced))
                                 .foregroundColor(Color(red: 0.18, green: 0.45, blue: 0.28))
                             Text("NUTRITION LOG")

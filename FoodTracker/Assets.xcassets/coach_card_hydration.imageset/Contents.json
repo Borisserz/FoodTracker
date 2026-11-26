@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "coach_card_hydration.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
