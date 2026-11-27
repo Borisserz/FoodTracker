@@ -59,6 +59,19 @@ enum SpotlightStep: Int, CaseIterable, Identifiable {
         return String(localized: "\(rawValue + 1) of \(SpotlightStep.allCases.count)")
     }
     
+    func ringCornerRadius(for paddedRect: CGRect) -> CGFloat {
+        switch self {
+        case .addMeal:
+            return min(paddedRect.width, paddedRect.height) / 2
+        case .streakFire:
+            return min(paddedRect.height / 2, 18)
+        case .aiChef:
+            return min(paddedRect.height / 2, 26)
+        case .macroRings, .fastingWater:
+            return 24
+        }
+    }
+
     var accentColor: Color {
         switch self {
         case .addMeal: return EditorialPalette.emerald
@@ -87,6 +100,7 @@ final class SpotlightTourManager {
     var isTourActive: Bool = false
     var currentStep: SpotlightStep = .addMeal
     var targetFrames: [SpotlightStep: CGRect] = [:]
+    var tabBarChefFrame: CGRect = .zero
     
     @ObservationIgnored
     private let storageKey = "hasCompletedSpotlightTour_v5"

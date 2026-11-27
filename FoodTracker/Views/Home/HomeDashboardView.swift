@@ -250,7 +250,13 @@ struct HomeDashboardContentView: View {
                   .onChange(of: appState.requestedWidgetAction) { _, _ in
                       handleWidgetScrollIfNeeded(with: scrollProxy)
                   }
+                  .onChange(of: SpotlightTourManager.shared.isTourActive) { _, isActive in
+                      if isActive {
+                          handleSpotlightScroll(to: SpotlightTourManager.shared.currentStep, with: scrollProxy)
+                      }
+                  }
                   .onChange(of: SpotlightTourManager.shared.currentStep) { _, newStep in
+                      guard SpotlightTourManager.shared.isTourActive else { return }
                       handleSpotlightScroll(to: newStep, with: scrollProxy)
                   }
                   } // ScrollViewReader
@@ -452,7 +458,7 @@ struct HomeDashboardContentView: View {
                   showDailyLog = false
                   showPremiumQuickAdd = false
                   Task { @MainActor in
-                      await Task.yield()
+                      try? await Task.sleep(for: .milliseconds(320))
                       SpotlightTourManager.shared.resetTour()
                   }
               }
@@ -755,16 +761,14 @@ struct HomeDashboardContentView: View {
     }
 
     private func handleSpotlightScroll(to step: SpotlightStep, with proxy: ScrollViewProxy) {
-        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.84)) {
             switch step {
-            case .streakFire:
+            case .addMeal, .streakFire, .aiChef:
                 proxy.scrollTo("header_streak", anchor: .top)
             case .macroRings:
-                proxy.scrollTo("macro_rings", anchor: .center)
+                proxy.scrollTo("macro_rings", anchor: .top)
             case .fastingWater:
-                proxy.scrollTo("hydration_card", anchor: .center)
-            case .addMeal, .aiChef:
-                break
+                proxy.scrollTo("hydration_card", anchor: .top)
             }
         }
     }

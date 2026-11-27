@@ -24,6 +24,7 @@ final class AppStateManager {
     var spotlightTourRestartToken: Int = 0
 
     func requestSpotlightTourRestart() {
+        selectedTab = 0
         spotlightTourRestartToken += 1
     }
     

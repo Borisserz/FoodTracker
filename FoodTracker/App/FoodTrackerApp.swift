@@ -274,17 +274,7 @@ struct ContentView: View {
             }
             .tint(themeManager.current.primaryAccent)
             
-            // Invisible anchor aligned over Tab 2 ("AI Chef") for SpotlightTour
-            VStack {
-                Spacer()
-                Color.clear
-                    .frame(width: 64, height: 48)
-                    .spotlightTarget(step: .aiChef)
-                    .allowsHitTesting(false)
-            }
-            .ignoresSafeArea(.keyboard)
-
-            // In-App Interactive Spotlight Tutorial
+            // In-App Interactive Spotlight Tutorial (includes live UITabBar geometry probe for tab 2)
             SpotlightOverlayView()
         }
         .coordinateSpace(name: "SpotlightCoordinateSpace")
