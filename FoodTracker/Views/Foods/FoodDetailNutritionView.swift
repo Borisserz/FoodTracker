@@ -44,14 +44,14 @@ struct FoodDetailNutritionView: View {
     private var currentC: Double { scaled.carbs }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Color.themeBg.ignoresSafeArea()
+        ZStack {
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: EditorialMealTheme.paletteIndex(for: mealTitle))
+                .allowsHitTesting(false)
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
-
+                VStack(spacing: 18) {
                     VStack(spacing: 0) {
-                        FoodDetailHeader(name: food.name)
+                        FoodDetailHeader(name: food.name, mealTitle: mealTitle)
 
                         MacroDonutChartCard(
                             calories: currentCals,
@@ -60,35 +60,33 @@ struct FoodDetailNutritionView: View {
                             c: currentC
                         )
                         .padding(.horizontal, 20)
-                        .offset(y: -40)
-                        .padding(.bottom, -40)
+                        .offset(y: -34)
+                        .padding(.bottom, -34)
                     }
 
                     if food.weight > 0 {
                         ServingSizeEditor(weight: $weight)
                             .padding(.horizontal, 20)
                     } else {
-                        HStack {
-                            Text("Serving Size")
-                                .font(.system(size: 16, weight: .bold, design: .rounded))
-                                .foregroundColor(.gray)
-                            Spacer()
-                            Text("1 serving")
-                                .font(.subheadline.bold())
-                                .foregroundColor(.themePink)
+                        EditorialLightCard(cornerRadius: 20, padding: 18) {
+                            HStack {
+                                Text("Serving Size")
+                                    .font(.system(size: 15.5, weight: .bold, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                Spacer()
+                                Text("1 serving")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.inkPrimary)
+                            }
                         }
-                        .padding(20)
-                        .background(Color.white)
-                        .cornerRadius(24)
-                        .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
                         .padding(.horizontal, 20)
                     }
 
-                    VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 10) {
                         Text("Nutrition Facts")
-                            .font(.title3.bold())
-                            .padding(.horizontal, 20)
-                            .padding(.bottom, 12)
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkPrimary)
+                            .padding(.horizontal, 4)
 
                         VStack(spacing: 0) {
                             NutritionRow(title: "Proteins", value: currentP, unit: "g")
@@ -108,70 +106,63 @@ struct FoodDetailNutritionView: View {
                             NutritionRow(title: "Potassium", value: scaled.potassium, unit: "mg", isPro: true)
                             NutritionRow(title: "Omega-3", value: scaled.omega3, unit: "g", isPro: true)
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 18)
                         .padding(.vertical, 8)
-                        .background(Color.white)
-                        .cornerRadius(24)
-                        .padding(.horizontal, 20)
-                        .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+                        .background(Color.white.opacity(0.82))
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                        )
                     }
+                    .padding(.horizontal, 20)
 
-                    Spacer().frame(height: 100)
+                    Spacer().frame(height: 24)
                 }
             }
             .ignoresSafeArea(edges: .top)
-
-            VStack {
-                Spacer()
-                ZStack {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .frame(height: 110)
-                        .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-
-                    Button(action: {
-                        HapticManager.shared.impact(style: .heavy)
-                        let addedFood = FoodItem(
-                            name: food.name,
-                            weight: scaled.weight,
-                            calories: currentCals,
-                            protein: currentP,
-                            fats: currentF,
-                            carbs: currentC,
-                            fiber: scaled.fiber,
-                            sugar: scaled.sugar,
-                            omega3: scaled.omega3,
-                            calcium: scaled.calcium,
-                            potassium: scaled.potassium,
-                            magnesium: scaled.magnesium,
-                            iron: scaled.iron,
-                            vitaminC: scaled.vitaminC,
-                            vitaminD: scaled.vitaminD
-                        )
-                        onAdd(addedFood)
-                        dismiss()
-                    }) {
-                        HStack {
-                            Text(isEditing ? "Save Changes" : "Add to \(mealTitle)")
-                                .font(.headline)
-                            Spacer()
-                            Text("\(currentCals) kcal")
-                                .font(.headline.bold())
-                                .contentTransition(.numericText())
-                        }
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.themePink)
-                        .cornerRadius(16)
-                        .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 30)
-                    }
-                    .buttonStyle(BounceButtonStyle())
-                    .accessibilityIdentifier("food_detail_confirm_button")
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Button(action: {
+                HapticManager.shared.impact(style: .heavy)
+                let addedFood = FoodItem(
+                    name: food.name,
+                    weight: scaled.weight,
+                    calories: currentCals,
+                    protein: currentP,
+                    fats: currentF,
+                    carbs: currentC,
+                    fiber: scaled.fiber,
+                    sugar: scaled.sugar,
+                    omega3: scaled.omega3,
+                    calcium: scaled.calcium,
+                    potassium: scaled.potassium,
+                    magnesium: scaled.magnesium,
+                    iron: scaled.iron,
+                    vitaminC: scaled.vitaminC,
+                    vitaminD: scaled.vitaminD
+                )
+                onAdd(addedFood)
+                dismiss()
+            }) {
+                HStack {
+                    let localizedTitle = String(localized: String.LocalizationValue(mealTitle))
+                    Text(isEditing ? String(localized: "Save Changes") : String(format: String(localized: "Add to %@"), localizedTitle))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                    Spacer()
+                    Text("\(currentCals) kcal")
+                        .font(.system(size: 16, weight: .bold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(EditorialPalette.oat)
+                        .contentTransition(.numericText())
                 }
+                .padding(.horizontal, 18)
             }
-            .ignoresSafeArea(edges: .bottom)
+            .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, height: 54))
+            .accessibilityIdentifier("food_detail_confirm_button")
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+            .padding(.bottom, 12)
+            .background(.ultraThinMaterial)
         }
         .keyboardDoneToolbar()
         .navigationBarHidden(true)
@@ -183,6 +174,7 @@ private struct FoodDetailHeader: View {
     @AppStorage("favoriteFoodNames_v1") private var favoriteFoodNamesRaw: String = ""
 
     let name: String
+    var mealTitle: String = "Breakfast"
 
     private var favoriteSet: Set<String> {
         Set(favoriteFoodNamesRaw.split(separator: "\n").map(String.init))
@@ -211,46 +203,49 @@ private struct FoodDetailHeader: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        ZStack(alignment: .bottomLeading) {
+            DynamicAuroraBackgroundView(
+                pinnedPaletteIndex: EditorialMealTheme.paletteIndex(for: mealTitle),
+                darkCanvas: true
+            )
 
-            HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .font(.title3.bold())
-                        .foregroundColor(.white)
-                        .frame(width: 40, height: 40)
-                        .background(Color.black.opacity(0.2))
-                        .clipShape(Circle())
+            VStack(alignment: .leading, spacing: 18) {
+                HStack {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 40, height: 40)
+                            .background(EditorialPalette.chipDark.opacity(0.84))
+                            .clipShape(Circle())
+                            .overlay(Circle().strokeBorder(Color.white.opacity(0.14), lineWidth: 0.75))
+                    }
+                    Spacer()
+                    Button(action: {
+                        HapticManager.shared.impact(style: .light)
+                        withAnimation(.spring()) { toggleFavorite() }
+                    }) {
+                        Image(systemName: isFavorite ? "star.fill" : "star")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(isFavorite ? EditorialPalette.warmAmber : .white)
+                            .frame(width: 40, height: 40)
+                            .background(EditorialPalette.chipDark.opacity(0.84))
+                            .clipShape(Circle())
+                            .overlay(Circle().strokeBorder(Color.white.opacity(0.14), lineWidth: 0.75))
+                    }
                 }
-                Spacer()
-                Button(action: {
-                    HapticManager.shared.impact(style: .light)
-                    withAnimation(.spring()) { toggleFavorite() }
-                }) {
-                    Image(systemName: isFavorite ? "star.fill" : "star")
-                        .font(.title3)
-                        .foregroundColor(isFavorite ? .themeYellow : .white)
-                        .frame(width: 40, height: 40)
-                        .background(Color.black.opacity(0.2))
-                        .clipShape(Circle())
-                }
+                .padding(.top, topSafeInset)
+
+                Text(name)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+                    .padding(.bottom, 48)
             }
-            .padding(.top, topSafeInset)
-
-            Text(name)
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
-                .lineLimit(2)
-                .minimumScaleFactor(0.8)
-                .padding(.bottom, 50)
+            .padding(.horizontal, 20)
         }
-        .padding(.horizontal, 20)
-        .background(
-            LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
-
-        .clipShape(RoundedCorner(radius: 32, corners: [.bottomLeft, .bottomRight]))
-        .shadow(color: Color.themePink.opacity(0.3), radius: 15, y: 10)
+        .clipShape(RoundedCorner(radius: 28, corners: [.bottomLeft, .bottomRight]))
     }
 }
 
@@ -271,52 +266,49 @@ private struct MacroDonutChartCard: View {
     private var pPercent: Double { (p * 4) / totalMacroCals }
 
     var body: some View {
-        HStack(spacing: 16) {
+        EditorialDarkCard(cornerRadius: 22, padding: 18) {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .stroke(Color.white.opacity(0.12), lineWidth: 8)
 
-            ZStack {
+                    Circle()
+                        .trim(from: 0, to: showAnimation ? cPercent : 0)
+                        .stroke(EditorialPalette.oceanSlate, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
 
-                Circle()
-                    .stroke(Color.gray.opacity(0.15), lineWidth: 8)
+                    Circle()
+                        .trim(from: showAnimation ? cPercent : 0, to: showAnimation ? (cPercent + fPercent) : 0)
+                        .stroke(EditorialPalette.warmAmber, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
 
-                Circle()
-                    .trim(from: 0, to: showAnimation ? cPercent : 0)
-                    .stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
+                    Circle()
+                        .trim(from: showAnimation ? (cPercent + fPercent) : 0, to: showAnimation ? 1.0 : 0)
+                        .stroke(EditorialPalette.emerald, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
 
-                Circle()
-                    .trim(from: showAnimation ? cPercent : 0, to: showAnimation ? (cPercent + fPercent) : 0)
-                    .stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
+                    VStack(spacing: 0) {
+                        Text("\(calories)")
+                            .font(.system(size: 22, weight: .heavy, design: .rounded).monospacedDigit())
+                            .foregroundStyle(EditorialPalette.oat)
+                            .contentTransition(.numericText())
+                        Text("cal")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.65))
+                    }
+                }
+                .frame(width: 80, height: 80)
 
-                Circle()
-                    .trim(from: showAnimation ? (cPercent + fPercent) : 0, to: showAnimation ? 1.0 : 0)
-                    .stroke(Color.themePeach, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
+                Spacer()
 
-                VStack(spacing: 0) {
-                    Text("\(calories)")
-                        .font(.system(size: 24, weight: .heavy, design: .rounded))
-                        .foregroundColor(.primary)
-                        .contentTransition(.numericText())
-                    Text("cal")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                HStack(spacing: 14) {
+                    MacroColumnInfo(percent: cPercent, grams: c, title: "Carbs", color: EditorialPalette.oceanSlate)
+                    MacroColumnInfo(percent: fPercent, grams: f, title: "Fat", color: EditorialPalette.warmAmber)
+                    MacroColumnInfo(percent: pPercent, grams: p, title: "Protein", color: EditorialPalette.emerald)
                 }
             }
-            .frame(width: 80, height: 80)
-
-            Spacer()
-
-            HStack(spacing: 16) {
-                MacroColumnInfo(percent: cPercent, grams: c, title: "Carbs", color: .drinkWater)
-                MacroColumnInfo(percent: fPercent, grams: f, title: "Fat", color: .themeYellow)
-                MacroColumnInfo(percent: pPercent, grams: p, title: "Protein", color: .themePeach)
-            }
         }
-        .padding(20)
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.06), radius: 15, y: 8)
+        .shadow(color: Color.black.opacity(0.18), radius: 14, y: 6)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 withAnimation(.spring(response: 0.8, dampingFraction: 0.8)) {
@@ -334,21 +326,21 @@ private struct MacroColumnInfo: View {
     let color: Color
 
     var body: some View {
-        VStack(alignment: .center, spacing: 4) {
+        VStack(alignment: .center, spacing: 3) {
             Text("\(Int(percent * 100))%")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(color)
+                .font(.system(size: 11.5, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundStyle(color)
 
             Text("\(grams, specifier: "%.1f") g")
-                .font(.system(size: 16, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
+                .font(.system(size: 15, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundStyle(.white)
                 .contentTransition(.numericText())
 
             Text(LocalizedStringKey(title))
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.gray)
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.66))
         }
-        .frame(minWidth: 50)
+        .frame(minWidth: 48)
     }
 }
 
@@ -366,80 +358,79 @@ private struct ServingSizeEditor: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Serving Size")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.gray)
-                    if !useMetricSystem {
-                        Text(NutritionMath.formattedFoodWeight(weight, useMetric: false))
-                            .font(.caption.bold())
-                            .foregroundColor(.themePink)
-                    }
-                }
-                Spacer()
-                
-                HStack(spacing: 4) {
-                    TextField("100", text: $textInput)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(.themePink)
-                        .focused($isWeightFocused)
-                        .frame(width: 80)
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 10)
-                        .background(Color.themeBg.opacity(0.5))
-                        .cornerRadius(10)
-                        .onChange(of: textInput) { _, newValue in
-                            if let val = NutritionMath.parsePositiveDecimal(newValue) {
-                                weight = min(val, 50_000)
-                            }
+        EditorialLightCard(cornerRadius: 20, padding: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Serving Size")
+                            .font(.system(size: 15.5, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkSecondary)
+                        if !useMetricSystem {
+                            Text(NutritionMath.formattedFoodWeight(weight, useMetric: false))
+                                .font(.caption.bold())
+                                .foregroundStyle(EditorialPalette.forest)
                         }
-                    
-                    Text("g")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.gray)
-                }
-            }
+                    }
+                    Spacer()
 
-            Slider(value: sliderBinding, in: 5...1000, step: 5)
-                .tint(.themePink)
-                .onChange(of: weight) { _, newValue in
-                    guard !isWeightFocused else { return }
-                    let newText = String(format: "%.0f", newValue)
-                    if textInput != newText {
-                        textInput = newText
+                    HStack(spacing: 4) {
+                        TextField("100", text: $textInput)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .font(.system(size: 19, weight: .bold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(EditorialPalette.inkPrimary)
+                            .focused($isWeightFocused)
+                            .frame(width: 78)
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 10)
+                            .background(Color.black.opacity(0.05))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .onChange(of: textInput) { _, newValue in
+                                if let val = NutritionMath.parsePositiveDecimal(newValue) {
+                                    weight = min(val, 50_000)
+                                }
+                            }
+
+                        Text("g")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkSecondary)
                     }
                 }
-            
-            HStack(spacing: 12) {
-                ForEach([50, 100, 150, 200, 300], id: \.self) { amount in
-                    Button(action: {
-                        HapticManager.shared.impact(style: .medium)
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                            weight = Double(amount)
-                            textInput = "\(amount)"
+
+                Slider(value: sliderBinding, in: 5...1000, step: 5)
+                    .tint(EditorialPalette.inkPrimary)
+                    .onChange(of: weight) { _, newValue in
+                        guard !isWeightFocused else { return }
+                        let newText = String(format: "%.0f", newValue)
+                        if textInput != newText {
+                            textInput = newText
                         }
-                    }) {
-                        Text(useMetricSystem ? "\(amount)g" : NutritionMath.formattedFoodWeight(Double(amount), useMetric: false))
-                            .font(.subheadline.bold())
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(weight == Double(amount) ? Color.themePink : Color.gray.opacity(0.05))
-                            .foregroundColor(weight == Double(amount) ? .white : .primary)
-                            .cornerRadius(12)
+                    }
+
+                HStack(spacing: 8) {
+                    ForEach([50, 100, 150, 200, 300], id: \.self) { amount in
+                        let isSelected = weight == Double(amount)
+                        Button(action: {
+                            HapticManager.shared.impact(style: .medium)
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                weight = Double(amount)
+                                textInput = "\(amount)"
+                            }
+                        }) {
+                            Text(useMetricSystem ? "\(amount)g" : NutritionMath.formattedFoodWeight(Double(amount), useMetric: false))
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 9)
+                                .background(isSelected ? EditorialPalette.inkPrimary : Color.black.opacity(0.05))
+                                .foregroundStyle(isSelected ? Color.themeBg : EditorialPalette.inkPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+                        }
                     }
                 }
             }
         }
-        .padding(20)
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
         .onAppear {
             textInput = String(format: "%.0f", weight)
         }

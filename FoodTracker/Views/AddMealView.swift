@@ -251,229 +251,222 @@ struct AddMealView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                Color.themeBg.ignoresSafeArea()
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        // 1. Dynamic Nutrition Summary Card
-                        AddMealSummaryCard(
-                            calories: totalMealCalories,
-                            protein: totalMealProtein,
-                            fats: totalMealFats,
-                            carbs: totalMealCarbs,
-                            calorieGoal: remainingDailyCalorieBudget,
-                            proteinGoal: proteinGoal,
-                            fatsGoal: fatsGoal,
-                            carbsGoal: carbsGoal
-                        )
-                        .padding(.top, 8)
-                        
-                        // 2. Meal Type Carousel Selector
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Meal Type")
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundColor(.gray)
-                                .padding(.horizontal)
+            ZStack {
+                DynamicAuroraBackgroundView(pinnedPaletteIndex: EditorialMealTheme.paletteIndex(for: selectedMealType))
+                    .allowsHitTesting(false)
+
+                VStack(spacing: 0) {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 20) {
+                            // 1. Dynamic Nutrition Summary Card
+                            AddMealSummaryCard(
+                                calories: totalMealCalories,
+                                protein: totalMealProtein,
+                                fats: totalMealFats,
+                                carbs: totalMealCarbs,
+                                calorieGoal: remainingDailyCalorieBudget,
+                                proteinGoal: proteinGoal,
+                                fatsGoal: fatsGoal,
+                                carbsGoal: carbsGoal
+                            )
+                            .padding(.top, 8)
                             
-                            HStack(spacing: 12) {
-                                ForEach(mealTypes, id: \.self) { type in
-                                    let isSelected = selectedMealType == type
-                                    Button(action: {
-                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                                            selectedMealType = type
-                                        }
-                                        HapticManager.shared.impact(style: .light)
-                                    }) {
-                                        VStack(spacing: 8) {
-                                            Text(mealIcon(for: type))
-                                                .font(.system(size: 26))
-                                            Text(LocalizedStringKey(type))
-                                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                        }
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 12)
-                                        .background(isSelected ? ThemeManager.shared.current.primaryGradient : LinearGradient(colors: [Color.white], startPoint: .top, endPoint: .bottom))
-                                        .foregroundColor(isSelected ? .white : .primary)
-                                        .cornerRadius(18)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 18)
-                                                .stroke(isSelected ? Color.clear : Color.gray.opacity(0.12), lineWidth: 1)
-                                        )
-                                        .shadow(color: isSelected ? ThemeManager.shared.current.primaryAccent.opacity(0.25) : Color.black.opacity(0.02), radius: 6, y: 3)
-                                    }
-                                    .buttonStyle(BounceButtonStyle())
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        
-                        // 3. Logged Food Items Section
-                        VStack(alignment: .leading, spacing: 14) {
-                            HStack {
-                                Text("Food Items")
-                                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                                Spacer()
-                                if !selectedDrafts.isEmpty {
-                                    Text("\(selectedDrafts.count) items")
-                                        .font(.caption.bold())
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                            .padding(.horizontal)
-                            
-                            if selectedDrafts.isEmpty {
-                                // Empty State View
-                                VStack(spacing: 16) {
-                                    Image(systemName: "fork.knife")
-                                        .font(.system(size: 44))
-                                        .foregroundColor(.themeOrange.opacity(0.4))
-                                        .padding(.top, 20)
-                                    
-                                    Text("No food items added yet.")
-                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.gray)
-                                    
-                                    Button(action: {
-                                        HapticManager.shared.impact(style: .medium)
-                                        showingAddFood = true
-                                    }) {
-                                        HStack {
-                                            Image(systemName: "plus.circle.fill")
-                                            Text("Add Food Item")
-                                        }
-                                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 24)
-                                        .padding(.vertical, 12)
-                                        .background(ThemeManager.shared.current.primaryGradient)
-                                        .cornerRadius(20)
-                                        .shadow(color: ThemeManager.shared.current.primaryAccent.opacity(0.3), radius: 8, y: 4)
-                                    }
-                                    .buttonStyle(BounceButtonStyle())
-                                    .accessibilityIdentifier("add_meal_add_food_button")
-                                    .padding(.top, 4)
-                                    .padding(.bottom, 20)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .ultraPremiumCardStyle()
-                                .padding(.horizontal)
-                            } else {
-                                // Food List with inline expansion
-                                VStack(spacing: 12) {
-                                    LazyVStack(spacing: 12) {
-                                        ForEach(selectedDrafts) { draft in
-                                            FoodItemRowCard(
-                                                draft: draft,
-                                                isExpanded: expandedFoodId == draft.id,
-                                                onToggleExpand: {
-                                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                        if expandedFoodId == draft.id {
-                                                            expandedFoodId = nil
-                                                        } else {
-                                                            expandedFoodId = draft.id
-                                                        }
-                                                    }
-                                                    HapticManager.shared.impact(style: .light)
-                                                },
-                                                onUpdateWeight: { newWeight in
-                                                    updateDraftWeight(draftId: draft.id, newWeight: newWeight)
-                                                },
-                                                onDelete: {
-                                                    withAnimation(.spring()) {
-                                                        selectedDrafts.removeAll { $0.id == draft.id }
-                                                        hasModifiedDrafts = true
-                                                    }
-                                                }
+                            // 2. Meal Type Editorial Selector
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Meal Type")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .textCase(.uppercase)
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                    .padding(.horizontal, 20)
+                                
+                                HStack(spacing: 8) {
+                                    ForEach(mealTypes, id: \.self) { type in
+                                        let isSelected = selectedMealType == type
+                                        let slotAccent = EditorialMealTheme.accentColor(for: type)
+                                        Button(action: {
+                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.78)) {
+                                                selectedMealType = type
+                                            }
+                                            HapticManager.shared.impact(style: .light)
+                                        }) {
+                                            VStack(spacing: 7) {
+                                                Image(systemName: EditorialMealTheme.symbolName(for: type))
+                                                    .font(.system(size: 18, weight: .semibold))
+                                                    .foregroundStyle(isSelected ? slotAccent : EditorialPalette.inkSecondary)
+                                                Text(LocalizedStringKey(type))
+                                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                                    .lineLimit(1)
+                                                    .minimumScaleFactor(0.75)
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 12)
+                                            .background(isSelected ? EditorialPalette.cardDark : EditorialPalette.surfaceLight)
+                                            .foregroundStyle(isSelected ? Color.white : EditorialPalette.inkPrimary)
+                                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                                    .strokeBorder(
+                                                        isSelected ? EditorialPalette.cardBorderDarkFocused : EditorialPalette.hairlineLight,
+                                                        lineWidth: isSelected ? 1.2 : 0.75
+                                                    )
                                             )
                                         }
+                                        .buttonStyle(BounceButtonStyle())
                                     }
-
-                                    // Keep outside LazyVStack so VoiceOver and UITests always discover it when items overflow vertically.
-                                    Button(action: {
-                                        HapticManager.shared.impact(style: .medium)
-                                        showingAddFood = true
-                                    }) {
-                                        HStack {
-                                            Image(systemName: "plus.circle.fill")
-                                            Text("Add Another Food")
-                                        }
-                                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                                        .foregroundColor(.themePink)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 14)
-                                        .background(Color.white)
-                                        .cornerRadius(18)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 18)
-                                                .stroke(Color.themePink.opacity(0.2), lineWidth: 1.5)
-                                        )
-                                        .shadow(color: Color.black.opacity(0.01), radius: 5, y: 2)
-                                    }
-                                    .buttonStyle(BounceButtonStyle())
-                                    .accessibilityIdentifier("add_meal_add_another_button")
-                                    .padding(.top, 4)
                                 }
-                                .padding(.horizontal)
+                                .padding(.horizontal, 20)
                             }
+                            
+                            // 3. Logged Food Items Section
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Text("Food Items")
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.inkPrimary)
+                                    Spacer()
+                                    if !selectedDrafts.isEmpty {
+                                        Text("\(selectedDrafts.count) items")
+                                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                                            .foregroundStyle(EditorialPalette.inkSecondary)
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                                
+                                if selectedDrafts.isEmpty {
+                                    EditorialLightCard(cornerRadius: 20, padding: 24) {
+                                        VStack(spacing: 14) {
+                                            Image(systemName: "fork.knife")
+                                                .font(.system(size: 32, weight: .medium))
+                                                .foregroundStyle(EditorialPalette.inkSecondary.opacity(0.65))
+                                            
+                                            Text("No food items added yet.")
+                                                .font(.system(size: 15.5, weight: .semibold, design: .rounded))
+                                                .foregroundStyle(EditorialPalette.inkSecondary)
+                                            
+                                            Button(action: {
+                                                HapticManager.shared.impact(style: .medium)
+                                                showingAddFood = true
+                                            }) {
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "plus.circle.fill")
+                                                    Text("Add Food Item")
+                                                }
+                                                .font(.system(size: 14.5, weight: .bold, design: .rounded))
+                                                .foregroundStyle(EditorialPalette.oat)
+                                                .padding(.horizontal, 20)
+                                                .padding(.vertical, 12)
+                                                .background(EditorialPalette.cardDark)
+                                                .clipShape(Capsule())
+                                                .overlay(Capsule().strokeBorder(EditorialPalette.cardBorderDark, lineWidth: 1))
+                                            }
+                                            .buttonStyle(BounceButtonStyle())
+                                            .accessibilityIdentifier("add_meal_add_food_button")
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                    }
+                                    .padding(.horizontal, 20)
+                                } else {
+                                    // Food List with inline expansion
+                                    VStack(spacing: 10) {
+                                        LazyVStack(spacing: 10) {
+                                            ForEach(selectedDrafts) { draft in
+                                                FoodItemRowCard(
+                                                    draft: draft,
+                                                    isExpanded: expandedFoodId == draft.id,
+                                                    onToggleExpand: {
+                                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                            if expandedFoodId == draft.id {
+                                                                expandedFoodId = nil
+                                                            } else {
+                                                                expandedFoodId = draft.id
+                                                            }
+                                                        }
+                                                        HapticManager.shared.impact(style: .light)
+                                                    },
+                                                    onUpdateWeight: { newWeight in
+                                                        updateDraftWeight(draftId: draft.id, newWeight: newWeight)
+                                                    },
+                                                    onDelete: {
+                                                        withAnimation(.spring()) {
+                                                            selectedDrafts.removeAll { $0.id == draft.id }
+                                                            hasModifiedDrafts = true
+                                                        }
+                                                    }
+                                                )
+                                            }
+                                        }
+
+                                        // Keep outside LazyVStack so VoiceOver and UITests always discover it when items overflow vertically.
+                                        Button(action: {
+                                            HapticManager.shared.impact(style: .medium)
+                                            showingAddFood = true
+                                        }) {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: "plus.circle.fill")
+                                                Text("Add Another Food")
+                                            }
+                                            .font(.system(size: 14.5, weight: .bold, design: .rounded))
+                                            .foregroundStyle(EditorialPalette.inkPrimary)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 13)
+                                            .background(EditorialPalette.surfaceLight)
+                                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                                            )
+                                        }
+                                        .buttonStyle(BounceButtonStyle())
+                                        .accessibilityIdentifier("add_meal_add_another_button")
+                                        .padding(.top, 2)
+                                    }
+                                    .padding(.horizontal, 20)
+                                }
+                            }
+                            
+                            Spacer().frame(height: 16)
                         }
-                        
-                        Spacer().frame(height: 24)
                     }
-                }
-                .safeAreaInset(edge: .bottom, spacing: 0) {
-                    ZStack(alignment: .bottom) {
+
+                    // Pinned footer never overlaps ScrollView content hits
+                    VStack(spacing: 0) {
                         Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .frame(height: 92)
-                            .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-                            .allowsHitTesting(false)
-                        
-                        HStack(spacing: 16) {
+                            .fill(EditorialPalette.hairlineLight)
+                            .frame(height: 0.5)
+
+                        HStack(spacing: 12) {
                             Button(action: { dismiss() }) {
                                 Text("Cancel")
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(.gray)
+                                    .font(.system(size: 15.5, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.inkPrimary)
                                     .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 16)
-                                    .background(Color.white)
-                                    .cornerRadius(20)
+                                    .frame(height: 52)
+                                    .background(EditorialPalette.surfaceLight)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                            .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
                                     )
                             }
                             .buttonStyle(BounceButtonStyle())
                             
                             Button(action: saveMealAndDismiss) {
                                 Text("Save Meal")
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 16)
-                                    .background {
-                                        if !canSaveMeal {
-                                            Color.gray.opacity(0.3)
-                                        } else {
-                                            ThemeManager.shared.current.primaryGradient
-                                        }
-                                    }
-                                    .cornerRadius(20)
-                                    .shadow(color: !canSaveMeal ? Color.clear : ThemeManager.shared.current.primaryAccent.opacity(0.35), radius: 8, y: 4)
                             }
+                            .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, isEnabled: canSaveMeal, height: 52))
                             .disabled(!canSaveMeal)
-                            .buttonStyle(BounceButtonStyle())
                             .accessibilityIdentifier("add_meal_save_button")
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.top, 12)
-                        .padding(.bottom, 16)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 10)
+                        .padding(.bottom, 12)
                     }
+                    .background(.ultraThinMaterial)
                 }
             }
             .navigationTitle("Log Meal")
             .navigationBarTitleDisplayMode(.inline)
-            .tint(.themePink)
+            .tint(EditorialPalette.inkPrimary)
             .keyboardDoneToolbar()
             .sheet(isPresented: $showingAddFood) {
                 SmartAddFoodView(mealTitle: localizedMealType(selectedMealType), targetDate: selectedDate) { newItems in
@@ -613,68 +606,65 @@ private struct AddMealSummaryCard: View {
     }
     
     var body: some View {
-        VStack(spacing: 16) {
-            HStack(spacing: 24) {
-                // Calorie Ring
-                ZStack {
-                    Circle()
-                        .stroke(Color.gray.opacity(0.1), lineWidth: 10)
-                    
-                    Circle()
-                        .trim(from: 0.0, to: min(progress, 1.0))
-                        .stroke(
-                            ThemeManager.shared.current.primaryGradient,
-                            style: StrokeStyle(lineWidth: 10, lineCap: .round)
-                        )
-                        .rotationEffect(.degrees(-90))
-                    
-                    VStack(spacing: 2) {
-                        Text("\(calories)")
-                            .font(.system(size: 22, weight: .heavy, design: .rounded))
-                            .foregroundColor(.primary)
-                        Text("kcal")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.gray)
+        EditorialDarkCard(cornerRadius: 22, padding: 18) {
+            VStack(spacing: 16) {
+                HStack(spacing: 20) {
+                    ZStack {
+                        Circle()
+                            .stroke(Color.white.opacity(0.12), lineWidth: 9)
+                        
+                        Circle()
+                            .trim(from: 0.0, to: min(progress, 1.0))
+                            .stroke(EditorialPalette.oat, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                        
+                        VStack(spacing: 1) {
+                            Text("\(calories)")
+                                .font(.system(size: 20, weight: .heavy, design: .rounded).monospacedDigit())
+                                .foregroundStyle(.white)
+                            Text("kcal")
+                                .font(.system(size: 10.5, weight: .bold))
+                                .foregroundStyle(Color.white.opacity(0.62))
+                        }
                     }
+                    .frame(width: 82, height: 82)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text("\(calories)")
+                                .font(.system(size: 28, weight: .heavy, design: .rounded).monospacedDigit())
+                                .foregroundStyle(EditorialPalette.oat)
+                            Text("/ \(calorieGoal) kcal")
+                                .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                                .foregroundStyle(Color.white.opacity(0.65))
+                        }
+                        
+                        let remaining = calorieGoal - calories
+                        if remaining >= 0 {
+                            Text("Calories Left: **\(remaining)**")
+                                .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                                .foregroundStyle(EditorialPalette.emerald)
+                        } else {
+                            Text("Over Goal: **\(abs(remaining))**")
+                                .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                                .foregroundStyle(EditorialPalette.softPeach)
+                        }
+                    }
+                    Spacer()
                 }
-                .frame(width: 88, height: 88)
                 
-                // Text info
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text("\(calories)")
-                            .font(.system(size: 28, weight: .heavy, design: .rounded))
-                        Text("/ \(calorieGoal) kcal")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
-                            .foregroundColor(.gray)
-                    }
-                    
-                    let remaining = calorieGoal - calories
-                    if remaining >= 0 {
-                        Text("Calories Left: **\(remaining)**")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                            .foregroundColor(.themeOrange)
-                    } else {
-                        Text("Over Goal: **\(abs(remaining))**")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                            .foregroundColor(.red)
-                    }
+                Rectangle()
+                    .fill(Color.white.opacity(0.10))
+                    .frame(height: 0.5)
+                
+                HStack(spacing: 12) {
+                    MacroSummaryMiniProgress(title: "Protein", current: protein, goal: proteinGoal, color: EditorialPalette.emerald)
+                    MacroSummaryMiniProgress(title: "Carbs", current: carbs, goal: carbsGoal, color: EditorialPalette.oceanSlate)
+                    MacroSummaryMiniProgress(title: "Fat", current: fats, goal: fatsGoal, color: EditorialPalette.warmAmber)
                 }
-                Spacer()
-            }
-            
-            Divider()
-            
-            // Macro Grid/Pills
-            HStack(spacing: 12) {
-                MacroSummaryMiniProgress(title: "Protein", current: protein, goal: proteinGoal, color: .themePink)
-                MacroSummaryMiniProgress(title: "Carbs", current: carbs, goal: carbsGoal, color: .blue)
-                MacroSummaryMiniProgress(title: "Fat", current: fats, goal: fatsGoal, color: .orange)
             }
         }
-        .padding(20)
-        .glassEffect()
-        .padding(.horizontal)
+        .padding(.horizontal, 20)
     }
 }
 
@@ -689,29 +679,29 @@ private struct MacroSummaryMiniProgress: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack {
                 Text(LocalizedStringKey(title))
                     .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .foregroundColor(.gray)
+                    .foregroundStyle(color)
                 Spacer()
                 Text("\(Int(current))g")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
+                    .font(.system(size: 11, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
             }
             
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(color.opacity(0.12))
-                        .frame(height: 6)
+                        .fill(Color.white.opacity(0.14))
+                        .frame(height: 5)
                     
                     Capsule()
                         .fill(color)
-                        .frame(width: geo.size.width * min(progress, 1.0), height: 6)
+                        .frame(width: geo.size.width * min(progress, 1.0), height: 5)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 5)
         }
         .frame(maxWidth: .infinity)
     }
@@ -728,37 +718,25 @@ private struct FoodItemRowCard: View {
     @State private var textInput: String = "100"
     @FocusState private var isWeightFieldFocused: Bool
     
-    private func emojiForFood(_ name: String) -> String {
-        let nameLower = name.lowercased()
-        if nameLower.contains("yogurt") || nameLower.contains("йогурт") { return "🥛" }
-        if nameLower.contains("granola") || nameLower.contains("гранола") || nameLower.contains("овсян") || nameLower.contains("oat") { return "🥣" }
-        if nameLower.contains("coffee") || nameLower.contains("кофе") { return "☕️" }
-        if nameLower.contains("apple") || nameLower.contains("яблоко") { return "🍎" }
-        if nameLower.contains("chicken") || nameLower.contains("куриц") { return "🍗" }
-        if nameLower.contains("avocado") || nameLower.contains("авокадо") { return "🥑" }
-        if nameLower.contains("egg") || nameLower.contains("яйцо") || nameLower.contains("яиц") { return "🍳" }
-        if nameLower.contains("salad") || nameLower.contains("салат") { return "🥗" }
-        if nameLower.contains("meat") || nameLower.contains("мясо") || nameLower.contains("steak") || nameLower.contains("стейк") { return "🥩" }
-        if nameLower.contains("banana") || nameLower.contains("банан") { return "🍌" }
-        if nameLower.contains("fish") || nameLower.contains("рыба") || nameLower.contains("salmon") || nameLower.contains("лосось") { return "🐟" }
-        if nameLower.contains("water") || nameLower.contains("вода") { return "💧" }
-        return "🥘"
-    }
-    
     var body: some View {
+        let meta = EditorialMealTheme.foodCategoryMeta(for: draft.name)
+
         VStack(spacing: 0) {
             Button(action: onToggleExpand) {
-                HStack(spacing: 16) {
-                    Text(emojiForFood(draft.name))
-                        .font(.system(size: 26))
-                        .frame(width: 46, height: 46)
-                        .background(Color.themeBg.opacity(0.6))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                HStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 11, style: .continuous)
+                            .fill(meta.color.opacity(0.14))
+                            .frame(width: 42, height: 42)
+                        Image(systemName: meta.symbol)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(meta.color)
+                    }
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text(draft.name)
                             .font(.system(size: 15, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                            .foregroundStyle(EditorialPalette.inkPrimary)
                             .multilineTextAlignment(.leading)
                             .lineLimit(1)
                         
@@ -766,53 +744,55 @@ private struct FoodItemRowCard: View {
                             ? "\(Int(draft.scaled.weight))g"
                             : String(localized: "1 serving")
                         Text("\(weightLabel) • \(draft.calories) kcal")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 12, weight: .medium, design: .rounded).monospacedDigit())
+                            .foregroundStyle(EditorialPalette.inkSecondary)
                     }
                     
                     Spacer()
                     
                     HStack(spacing: 8) {
                         Text("\(draft.calories) kcal")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(.themePink)
+                            .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(EditorialPalette.inkPrimary)
                         
                         Image(systemName: "chevron.down")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.gray)
+                            .foregroundStyle(EditorialPalette.inkSecondary)
                             .rotationEffect(.degrees(isExpanded ? 180 : 0))
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 14)
                 .padding(.vertical, 12)
             }
             .buttonStyle(PlainButtonStyle())
             
             if isExpanded {
-                Divider()
-                    .padding(.horizontal, 16)
+                Rectangle()
+                    .fill(EditorialPalette.hairlineLight)
+                    .frame(height: 0.5)
+                    .padding(.horizontal, 14)
                 
-                VStack(spacing: 16) {
+                VStack(spacing: 14) {
                     if draft.baseWeight > 0 {
                         VStack(spacing: 8) {
                             HStack {
                                 Text("Portion Weight")
                                     .font(.system(size: 13, weight: .bold, design: .rounded))
-                                    .foregroundColor(.gray)
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
                                 Spacer()
                                 
                                 HStack(spacing: 4) {
                                     TextField("100", text: $textInput)
                                         .keyboardType(.decimalPad)
                                         .multilineTextAlignment(.trailing)
-                                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                                        .foregroundColor(.themePink)
+                                        .font(.system(size: 15.5, weight: .bold, design: .rounded).monospacedDigit())
+                                        .foregroundStyle(EditorialPalette.inkPrimary)
                                         .focused($isWeightFieldFocused)
-                                        .frame(width: 80)
+                                        .frame(width: 78)
                                         .padding(.vertical, 6)
                                         .padding(.horizontal, 10)
-                                        .background(Color.themeBg.opacity(0.5))
-                                        .cornerRadius(10)
+                                        .background(Color.black.opacity(0.05))
+                                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                         .onChange(of: textInput) { _, newValue in
                                             if let val = NutritionMath.parsePositiveDecimal(newValue) {
                                                 localWeight = val
@@ -821,13 +801,13 @@ private struct FoodItemRowCard: View {
                                         }
                                     
                                     Text("g")
-                                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                                        .foregroundColor(.gray)
+                                        .font(.system(size: 13.5, weight: .bold, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.inkSecondary)
                                 }
                             }
                             
                             Slider(value: $localWeight, in: 5...1000, step: 5)
-                                .tint(.themePink)
+                                .tint(EditorialPalette.inkPrimary)
                                 .onChange(of: localWeight) { _, newValue in
                                     if !isWeightFieldFocused {
                                         let newText = String(format: "%.0f", newValue)
@@ -841,6 +821,7 @@ private struct FoodItemRowCard: View {
                         
                         HStack(spacing: 8) {
                             ForEach([50, 100, 150, 200], id: \.self) { amount in
+                                let isActive = draft.weight == Double(amount)
                                 Button(action: {
                                     HapticManager.shared.impact(style: .medium)
                                     let amountDbl = Double(amount)
@@ -849,12 +830,12 @@ private struct FoodItemRowCard: View {
                                     onUpdateWeight(amountDbl)
                                 }) {
                                     Text("\(amount)g")
-                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .font(.system(size: 11.5, weight: .bold, design: .rounded))
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 6)
-                                        .background(draft.weight == Double(amount) ? Color.themePink.opacity(0.15) : Color.gray.opacity(0.06))
-                                        .foregroundColor(draft.weight == Double(amount) ? .themePink : .primary)
-                                        .cornerRadius(10)
+                                        .background(isActive ? EditorialPalette.inkPrimary : Color.black.opacity(0.05))
+                                        .foregroundStyle(isActive ? Color.themeBg : EditorialPalette.inkPrimary)
+                                        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -866,9 +847,10 @@ private struct FoodItemRowCard: View {
                                 onDelete()
                             }) {
                                 Image(systemName: "trash")
-                                    .foregroundColor(.red.opacity(0.8))
-                                    .padding(8)
-                                    .background(Color.red.opacity(0.08))
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(EditorialPalette.softPeach)
+                                    .frame(width: 32, height: 32)
+                                    .background(EditorialPalette.softPeach.opacity(0.12))
                                     .clipShape(Circle())
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -877,33 +859,32 @@ private struct FoodItemRowCard: View {
                         HStack {
                             Text("Fixed per serving — nutrition applies as logged.")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(EditorialPalette.inkSecondary)
                             Spacer()
                             Button(action: {
                                 HapticManager.shared.impact(style: .medium)
                                 onDelete()
                             }) {
                                 Image(systemName: "trash")
-                                    .foregroundColor(.red.opacity(0.8))
-                                    .padding(8)
-                                    .background(Color.red.opacity(0.08))
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(EditorialPalette.softPeach)
+                                    .frame(width: 32, height: 32)
+                                    .background(EditorialPalette.softPeach.opacity(0.12))
                                     .clipShape(Circle())
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
                     }
                 }
-                .padding(16)
-                .background(Color.gray.opacity(0.01))
+                .padding(14)
             }
         }
-        .background(Color.white)
-        .cornerRadius(20)
+        .background(Color.white.opacity(0.84))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(isExpanded ? Color.themePink.opacity(0.2) : Color.clear, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(isExpanded ? EditorialPalette.inkPrimary.opacity(0.24) : EditorialPalette.hairlineLight, lineWidth: isExpanded ? 1.1 : 0.75)
         )
-        .shadow(color: Color.black.opacity(0.02), radius: 6, x: 0, y: 3)
         .onAppear {
             localWeight = draft.weight > 0 ? draft.weight : 100.0
             textInput = String(format: "%.0f", localWeight)

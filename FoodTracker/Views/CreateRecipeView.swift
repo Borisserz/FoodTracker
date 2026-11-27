@@ -636,92 +636,85 @@ struct AddIngredientModalView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                Color.themeBg.ignoresSafeArea()
+            ZStack {
+                DynamicAuroraBackgroundView(pinnedPaletteIndex: 2)
+                    .allowsHitTesting(false)
 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-
-                        VStack(alignment: .leading, spacing: 10) {
+                    VStack(spacing: 20) {
+                        VStack(alignment: .leading, spacing: 8) {
                             Text("Basic Info")
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundColor(.gray)
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .textCase(.uppercase)
+                                .foregroundStyle(EditorialPalette.inkSecondary)
                                 .padding(.horizontal, 4)
 
                             VStack(spacing: 0) {
                                 CustomTextFieldRow(title: "Name", placeholder: "e.g. Oat Milk", text: $name, isNumber: false, systemImage: "doc.text.fill")
-                                Divider().padding(.leading, 52)
+                                Rectangle()
+                                    .fill(EditorialPalette.hairlineLight)
+                                    .frame(height: 0.5)
+                                    .padding(.leading, 56)
                                 CustomTextFieldRow(title: "Weight (g)", placeholder: "100", text: $weight, isNumber: true, systemImage: "scalemass.fill")
                             }
-                            .ultraPremiumCardStyle()
+                            .background(Color.white.opacity(0.84))
+                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                            )
                         }
 
-                        VStack(alignment: .leading, spacing: 10) {
+                        VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text("Nutrition Facts")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundColor(.gray)
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .textCase(.uppercase)
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
                                 Spacer()
                                 Text("Optional")
                                     .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.gray.opacity(0.6))
+                                    .foregroundStyle(EditorialPalette.inkSecondary.opacity(0.75))
                             }
                             .padding(.horizontal, 4)
 
                             VStack(spacing: 0) {
-                                CustomTextFieldRow(title: "Calories (kcal)", placeholder: "0", text: $calories, isNumber: true, systemImage: "flame.fill")
-                                Divider().padding(.leading, 52)
-                                CustomTextFieldRow(title: "Protein (g)", placeholder: "0", text: $protein, isNumber: true, systemImage: "leaf.fill")
-                                Divider().padding(.leading, 52)
-                                CustomTextFieldRow(title: "Fats (g)", placeholder: "0", text: $fats, isNumber: true, systemImage: "drop.fill")
-                                Divider().padding(.leading, 52)
-                                CustomTextFieldRow(title: "Carbs (g)", placeholder: "0", text: $carbs, isNumber: true, systemImage: "chart.bar.fill")
+                                CustomTextFieldRow(title: "Calories (kcal)", placeholder: "0", text: $calories, isNumber: true, systemImage: "flame.fill", tint: EditorialPalette.warmAmber)
+                                Rectangle().fill(EditorialPalette.hairlineLight).frame(height: 0.5).padding(.leading, 56)
+                                CustomTextFieldRow(title: "Protein (g)", placeholder: "0", text: $protein, isNumber: true, systemImage: "leaf.fill", tint: EditorialPalette.emerald)
+                                Rectangle().fill(EditorialPalette.hairlineLight).frame(height: 0.5).padding(.leading, 56)
+                                CustomTextFieldRow(title: "Fats (g)", placeholder: "0", text: $fats, isNumber: true, systemImage: "drop.fill", tint: EditorialPalette.softPeach)
+                                Rectangle().fill(EditorialPalette.hairlineLight).frame(height: 0.5).padding(.leading, 56)
+                                CustomTextFieldRow(title: "Carbs (g)", placeholder: "0", text: $carbs, isNumber: true, systemImage: "chart.bar.fill", tint: EditorialPalette.oceanSlate)
                             }
-                            .ultraPremiumCardStyle()
+                            .background(Color.white.opacity(0.84))
+                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                            )
                         }
 
                         Text("Items created here are permanently saved to your database and can be used in your daily logs.")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkSecondary)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
-
-                        Spacer().frame(height: 100)
+                            .padding(.horizontal, 16)
                     }
                     .padding(20)
+                    .padding(.bottom, 24)
                 }
-
-                VStack {
-                    Spacer()
-                    ZStack {
-                        Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .frame(height: 100)
-                            .mask(LinearGradient(colors: [.white, .white, .clear], startPoint: .bottom, endPoint: .top))
-
-                        Button(action: saveIngredient) {
-                            Text("Save & Add")
-                                .font(.system(size: 16, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background {
-                                    if isFormValid {
-                                        ThemeManager.shared.current.primaryGradient
-                                    } else {
-                                        LinearGradient(colors: [Color.gray.opacity(0.3)], startPoint: .top, endPoint: .bottom)
-                                    }
-                                }
-                                .cornerRadius(20)
-                                .shadow(color: isFormValid ? ThemeManager.shared.current.primaryAccent.opacity(0.3) : .clear, radius: 8, y: 4)
-                                .padding(.horizontal, 24)
-                                .padding(.bottom, 20)
-                        }
-                        .disabled(!isFormValid)
-                        .buttonStyle(BounceButtonStyle())
-                    }
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Button(action: saveIngredient) {
+                    Text("Save & Add")
                 }
-                .ignoresSafeArea(edges: .bottom)
+                .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, isEnabled: isFormValid, height: 54))
+                .disabled(!isFormValid)
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                .padding(.bottom, 12)
+                .background(.ultraThinMaterial)
             }
             .navigationTitle("Custom Ingredient")
             .navigationBarTitleDisplayMode(.inline)
@@ -729,8 +722,8 @@ struct AddIngredientModalView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(.gray)
+                        .font(.system(size: 15.5, weight: .semibold, design: .rounded))
+                        .foregroundStyle(EditorialPalette.inkSecondary)
                 }
             }
         }
@@ -800,30 +793,31 @@ struct CustomTextFieldRow: View {
     @Binding var text: String
     let isNumber: Bool
     var systemImage: String? = nil
+    var tint: Color = EditorialPalette.inkPrimary
 
     var body: some View {
         HStack(spacing: 12) {
             if let systemImage = systemImage {
                 Image(systemName: systemImage)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.themePink)
+                    .font(.system(size: 13.5, weight: .semibold))
+                    .foregroundStyle(tint)
                     .frame(width: 32, height: 32)
-                    .background(Color.themePink.opacity(0.08))
-                    .clipShape(Circle())
+                    .background(tint.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
             }
 
             Text(LocalizedStringKey(title))
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(EditorialPalette.inkPrimary)
             Spacer()
             TextField(LocalizedStringKey(placeholder), text: $text)
                 .multilineTextAlignment(.trailing)
                 .keyboardType(isNumber ? .decimalPad : .default)
-                .foregroundColor(.themePink)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundStyle(EditorialPalette.inkPrimary)
+                .font(.system(size: 16, weight: .bold, design: .rounded).monospacedDigit())
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 13)
     }
 }
 

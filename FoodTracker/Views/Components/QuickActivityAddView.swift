@@ -37,109 +37,126 @@ struct QuickActivityAddView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    Text("Log Activity")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-                        .padding(.top, 16)
-                    
-                    // Grid
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        ForEach(activities) { activity in
-                            Button {
-                                withAnimation(.spring()) {
-                                    selectedActivity = activity
-                                    updateCalories()
+            ZStack {
+                DynamicAuroraBackgroundView(pinnedPaletteIndex: 2)
+                    .allowsHitTesting(false)
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 22) {
+                        Text("Log Activity")
+                            .font(.system(size: 26, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 14)
+
+                        // Grid
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                            ForEach(activities) { activity in
+                                let isSelected = selectedActivity == activity
+                                Button {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.78)) {
+                                        selectedActivity = activity
+                                        updateCalories()
+                                    }
+                                    HapticManager.shared.impact(style: .light)
+                                } label: {
+                                    VStack(spacing: 10) {
+                                        Image(systemName: activity.icon)
+                                            .font(.system(size: 26, weight: .semibold))
+                                            .foregroundStyle(isSelected ? EditorialPalette.warmAmber : EditorialPalette.inkPrimary)
+                                        Text(LocalizedStringKey(activity.name))
+                                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                            .foregroundStyle(isSelected ? .white : EditorialPalette.inkPrimary)
+                                            .lineLimit(1)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 18)
+                                    .background(isSelected ? EditorialPalette.cardDark : Color.white.opacity(0.82))
+                                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                            .strokeBorder(
+                                                isSelected ? EditorialPalette.cardBorderDarkFocused : EditorialPalette.hairlineLight,
+                                                lineWidth: isSelected ? 1.25 : 0.75
+                                            )
+                                    )
                                 }
-                            } label: {
-                                VStack(spacing: 12) {
-                                    Image(systemName: activity.icon)
-                                        .font(.system(size: 32))
-                                        .foregroundStyle(selectedActivity == activity ? .white : .primary)
-                                    Text(LocalizedStringKey(activity.name))
-                                        .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                        .foregroundStyle(selectedActivity == activity ? .white : .primary)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 20)
-                                .background(selectedActivity == activity ? Color.themeOrange : Color.gray.opacity(0.1))
-                                .cornerRadius(20)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(selectedActivity == activity ? Color.themeOrange.opacity(0.5) : Color.clear, lineWidth: 2)
-                                )
-                            }
-                            .buttonStyle(BounceButtonStyle())
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    if let _ = selectedActivity {
-                        VStack(spacing: 24) {
-                            // Duration Slider
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text("Duration")
-                                        .font(.headline)
-                                    Spacer()
-                                    Text("\(Int(durationMinutes)) min")
-                                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                                        .foregroundColor(.themeOrange)
-                                }
-                                Slider(value: Binding(get: { durationMinutes }, set: { durationMinutes = $0; updateCalories() }), in: 5...180, step: 5)
-                                    .tint(.themeOrange)
-                            }
-                            
-                            // Calories Slider
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text("Calories Burned")
-                                        .font(.headline)
-                                    Spacer()
-                                    Text("\(Int(caloriesBurned)) kcal")
-                                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                                        .foregroundColor(.themeOrange)
-                                }
-                                Slider(value: $caloriesBurned, in: 10...2000, step: 10)
-                                    .tint(.themeOrange)
+                                .buttonStyle(BounceButtonStyle())
                             }
                         }
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(24)
-                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
-                        .padding(.horizontal)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .padding(.horizontal, 20)
+
+                        if let _ = selectedActivity {
+                            EditorialDarkCard(cornerRadius: 22, padding: 20) {
+                                VStack(spacing: 20) {
+                                    // Duration Slider
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        HStack {
+                                            Text("Duration")
+                                                .font(.system(size: 14.5, weight: .bold, design: .rounded))
+                                                .foregroundStyle(.white)
+                                            Spacer()
+                                            Text("\(Int(durationMinutes)) min")
+                                                .font(.system(size: 18, weight: .heavy, design: .rounded).monospacedDigit())
+                                                .foregroundStyle(EditorialPalette.oat)
+                                        }
+                                        Slider(value: Binding(get: { durationMinutes }, set: { durationMinutes = $0; updateCalories() }), in: 5...180, step: 5)
+                                            .tint(EditorialPalette.oat)
+                                    }
+
+                                    Rectangle()
+                                        .fill(Color.white.opacity(0.10))
+                                        .frame(height: 0.5)
+
+                                    // Calories Slider
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        HStack {
+                                            Text("Calories Burned")
+                                                .font(.system(size: 14.5, weight: .bold, design: .rounded))
+                                                .foregroundStyle(.white)
+                                            Spacer()
+                                            Text("\(Int(caloriesBurned)) kcal")
+                                                .font(.system(size: 18, weight: .heavy, design: .rounded).monospacedDigit())
+                                                .foregroundStyle(EditorialPalette.warmAmber)
+                                        }
+                                        Slider(value: $caloriesBurned, in: 10...2000, step: 10)
+                                            .tint(EditorialPalette.warmAmber)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+
+                        Spacer(minLength: 24)
                     }
-                    
-                    Spacer(minLength: 40)
                 }
             }
             .safeAreaInset(edge: .bottom) {
                 if selectedActivity != nil {
                     Button(action: saveActivity) {
                         Text("Save Activity")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.themeOrange)
-                            .foregroundColor(.white)
-                            .cornerRadius(20)
-                            .shadow(color: Color.themeOrange.opacity(0.3), radius: 10, y: 5)
                     }
-                    .padding()
-                    .background(Color(uiColor: .systemBackground).opacity(0.9).ignoresSafeArea())
+                    .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, height: 54))
+                    .disabled(isSaving)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                    .padding(.bottom, 12)
+                    .background(.ultraThinMaterial)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { dismiss() } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
-                            .font(.title2)
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(EditorialPalette.inkPrimary)
+                            .frame(width: 32, height: 32)
+                            .background(Color.white.opacity(0.84))
+                            .clipShape(Circle())
+                            .overlay(Circle().strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75))
                     }
                 }
             }

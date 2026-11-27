@@ -71,8 +71,7 @@ struct HomeDashboardContentView: View {
     @State private var navigateToProfile = false
     @State private var showDailyLog = false
     @State private var showNoteSheet = false
-    @State private var showingQuickAddSheet = false
-    @State private var quickAddMealType = "Snack"
+    @State private var quickAddSheetSlot: IdentifiableString? = nil
     @State private var showingQuickActivitySheet = false
     @State private var selectedMealForDetail: String? = nil
     @State private var showPremiumQuickAdd = false
@@ -148,8 +147,7 @@ struct HomeDashboardContentView: View {
                           // Quick Spotlight Search Button (Apple HIG HUD)
                           Button(action: {
                               HapticManager.shared.impact(style: .medium)
-                              self.quickAddMealType = suggestedMealSlot()
-                              self.showingQuickAddSheet = true
+                              self.quickAddSheetSlot = IdentifiableString(value: suggestedMealSlot())
                           }) {
                               HStack(spacing: 10) {
                                   Image(systemName: "magnifyingglass")
@@ -161,17 +159,16 @@ struct HomeDashboardContentView: View {
                                   Spacer()
                                   Image(systemName: "camera.viewfinder")
                                       .font(.system(size: 16, weight: .semibold))
-                                      .foregroundColor(.primary)
+                                      .foregroundColor(EditorialPalette.inkPrimary)
                               }
                               .padding(.horizontal, 16)
                               .padding(.vertical, 12)
-                              .background(.ultraThinMaterial)
+                              .background(EditorialPalette.surfaceLight)
                               .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                               .overlay(
                                   RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                      .strokeBorder(Color.themePink.opacity(0.18), lineWidth: 1)
+                                      .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
                               )
-                              .shadow(color: Color.black.opacity(0.03), radius: 6, y: 2)
                           }
                           .buttonStyle(BounceButtonStyle())
                           .accessibilityIdentifier("home_spotlight_search_button")
@@ -187,17 +184,26 @@ struct HomeDashboardContentView: View {
                               HStack {
                                   Text("Nutrition")
                                       .font(.title2).bold()
+                                      .foregroundStyle(EditorialPalette.inkPrimary)
                                   Spacer()
                                   Button(action: {
                                       HapticManager.shared.impact(style: .medium)
                                       showDailyLog = true
                                   }) {
-                                      HStack(spacing: 4) {
-                                          Text("Daily Log")
+                                      HStack(spacing: 5) {
                                           Image(systemName: "list.bullet.clipboard")
+                                              .font(.system(size: 12, weight: .semibold))
+                                          Text("Daily Log")
                                       }
-                                      .font(.subheadline.bold())
-                                      .foregroundColor(.themePink)
+                                      .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                      .foregroundStyle(EditorialPalette.inkPrimary)
+                                      .padding(.horizontal, 11)
+                                      .padding(.vertical, 6)
+                                      .background(EditorialPalette.surfaceLight)
+                                      .clipShape(Capsule())
+                                      .overlay(
+                                          Capsule().strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                                      )
                                   }
                               }
                               .padding(.horizontal, 20)
@@ -217,7 +223,7 @@ struct HomeDashboardContentView: View {
                                       foodItems: meal?.foodItems,
                                       quickAddSlot: mealType,
                                       onCardTap: { self.selectedMealForDetail = mealType },
-                                      onQuickAdd: { self.quickAddMealType = mealType; self.showingQuickAddSheet = true }
+                                      onQuickAdd: { self.quickAddSheetSlot = IdentifiableString(value: mealType) }
                                   )
                               }
                               .padding(.horizontal)
@@ -275,7 +281,7 @@ struct HomeDashboardContentView: View {
                           SpeedDialItem(
                               icon: "barcode.viewfinder",
                               label: String(localized: "Scan Barcode"),
-                              color: .blue,
+                              color: EditorialPalette.oceanSlate,
                               accessibilityId: "speed_dial_scan_barcode"
                           ) {
                               isMenuExpanded = false
@@ -285,7 +291,8 @@ struct HomeDashboardContentView: View {
                           SpeedDialItem(
                               icon: "fork.knife",
                               label: String(localized: "Log Meal"),
-                              color: .themePink,
+                              color: EditorialPalette.oat,
+                              iconForeground: EditorialPalette.textOnOat,
                               accessibilityId: "speed_dial_log_meal"
                           ) {
                               isMenuExpanded = false
@@ -295,7 +302,8 @@ struct HomeDashboardContentView: View {
                           SpeedDialItem(
                               icon: "bolt.fill",
                               label: String(localized: "Quick Calories"),
-                              color: .themeOrange
+                              color: EditorialPalette.warmAmber,
+                              iconForeground: EditorialPalette.textOnOat
                           ) {
                               isMenuExpanded = false
                               showPremiumQuickAdd = true
@@ -304,7 +312,7 @@ struct HomeDashboardContentView: View {
                           SpeedDialItem(
                               icon: "figure.run",
                               label: String(localized: "Log Activity"),
-                              color: .green
+                              color: EditorialPalette.emerald
                           ) {
                               isMenuExpanded = false
                               showingQuickActivitySheet = true
@@ -327,13 +335,17 @@ struct HomeDashboardContentView: View {
                       }
                   }) {
                       Image(systemName: "plus")
-                          .font(.system(size: 26, weight: .bold))
-                          .foregroundColor(.white)
-                          .frame(width: 64, height: 64)
-                          .background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                          .font(.system(size: 24, weight: .bold))
+                          .foregroundColor(EditorialPalette.oat)
+                          .frame(width: 62, height: 62)
+                          .background(EditorialPalette.cardDark)
                           .clipShape(Circle())
+                          .overlay(
+                              Circle()
+                                  .strokeBorder(EditorialPalette.cardBorderDarkFocused, lineWidth: 1)
+                          )
                           .rotationEffect(.degrees(isMenuExpanded ? 135 : 0))
-                          .shadow(color: .themePink.opacity(0.4), radius: 10, y: 5)
+                          .shadow(color: Color.black.opacity(0.24), radius: 12, y: 6)
                   }
                   .spotlightTarget(step: .addMeal)
                   .accessibilityIdentifier("home_quick_add_fab")
@@ -427,8 +439,8 @@ struct HomeDashboardContentView: View {
                       .presentationCornerRadius(32)
                       .presentationDragIndicator(.visible)
               }
-              .sheet(isPresented: $showingQuickAddSheet) {
-                  MealHUDQuickLogSheet(selectedDate: selectedDate, initialMealType: quickAddMealType)
+              .sheet(item: $quickAddSheetSlot) { slot in
+                  MealHUDQuickLogSheet(selectedDate: selectedDate, initialMealType: slot.value)
                       .presentationDetents([.fraction(0.85), .large])
                       .presentationCornerRadius(32)
                       .presentationDragIndicator(.hidden)
@@ -1045,20 +1057,28 @@ struct MealDetailView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Color.themeBg.ignoresSafeArea()
+        let slotAccent = EditorialMealTheme.accentColor(for: title)
+        let coverName = EditorialMealTheme.coverImageName(for: title)
 
-            ScrollView {
-                VStack(spacing: 24) {
+        ZStack {
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: EditorialMealTheme.paletteIndex(for: title))
+                .allowsHitTesting(false)
+
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 20) {
+                    // Editorial Navigation Bar
                     HStack {
                         Button(action: { dismiss() }) {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.primary)
-                                .frame(width: 44, height: 44)
-                                .background(Color.white)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundStyle(EditorialPalette.inkPrimary)
+                                .frame(width: 42, height: 42)
+                                .background(Color.white.opacity(0.84))
                                 .clipShape(Circle())
-                                .shadow(color: .black.opacity(0.04), radius: 5, y: 2)
+                                .overlay(
+                                    Circle()
+                                        .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                                )
                         }
                         Spacer()
                         if let meal, !(meal.foodItems ?? []).isEmpty {
@@ -1077,76 +1097,150 @@ struct MealDetailView: View {
                                 }
                             } label: {
                                 Image(systemName: "doc.on.doc")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.themePink)
-                                    .frame(width: 44, height: 44)
-                                    .background(Color.white)
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundStyle(EditorialPalette.inkPrimary)
+                                    .frame(width: 42, height: 42)
+                                    .background(Color.white.opacity(0.84))
                                     .clipShape(Circle())
-                                    .shadow(color: .black.opacity(0.04), radius: 5, y: 2)
+                                    .overlay(
+                                        Circle()
+                                            .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                                    )
                             }
                             .accessibilityLabel("Copy Meal")
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 16)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
 
                     if let copiedFeedbackText {
-                        Text(copiedFeedbackText)
-                            .font(.caption.bold())
-                            .foregroundColor(.green)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 6)
-                            .background(Color.green.opacity(0.12))
-                            .clipShape(Capsule())
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(LocalizedStringKey(title))
-                            .font(.system(size: 38, weight: .heavy, design: .rounded))
-                        if let mealDate = meal?.date {
-                            HStack(spacing: 4) {
-                                Image(systemName: "clock.fill")
-                                Text("Logged at \(mealDate.formatted(date: .omitted, time: .shortened))")
-                            }
-                            .font(.subheadline)
-                            .foregroundColor(.themeOrange)
-                        } else {
-                            Text("No foods logged yet")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text(copiedFeedbackText)
                         }
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundStyle(EditorialPalette.emerald)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(EditorialPalette.cardDark)
+                        .clipShape(Capsule())
+                        .overlay(
+                            Capsule().strokeBorder(EditorialPalette.emerald.opacity(0.35), lineWidth: 1)
+                        )
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
 
-                    if let meal = meal, let items = meal.foodItems, !items.isEmpty {
-                        VStack(spacing: 16) {
-                            Text("\(meal.totalCalories) kcal")
-                                .font(.system(size: 48, weight: .heavy, design: .rounded))
-                                .foregroundColor(.themePink)
+                    // Editorial Photographic Meal Telemetry Hero
+                    EditorialPhotoBackdropCard(
+                        imageName: coverName,
+                        minHeight: (meal?.foodItems?.isEmpty == false) ? 236 : 172,
+                        cornerRadius: 24,
+                        scrimBottomOpacity: 0.92,
+                        alignment: .topLeading
+                    ) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack(spacing: 8) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: EditorialMealTheme.symbolName(for: title))
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(slotAccent)
+                                    Text(LocalizedStringKey(title))
+                                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                                        .foregroundStyle(.white)
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(EditorialPalette.chipDark.opacity(0.88))
+                                .clipShape(Capsule())
+                                .overlay(Capsule().strokeBorder(Color.white.opacity(0.14), lineWidth: 0.75))
 
-                            HStack(spacing: 20) {
+                                Spacer()
+
+                                if let mealDate = meal?.date, !(meal?.foodItems ?? []).isEmpty {
+                                    HStack(spacing: 5) {
+                                        Image(systemName: "clock.fill")
+                                            .font(.system(size: 10, weight: .semibold))
+                                        Text("Logged at \(mealDate.formatted(date: .omitted, time: .shortened))")
+                                    }
+                                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.oat)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(EditorialPalette.chipDark.opacity(0.82))
+                                    .clipShape(Capsule())
+                                }
+                            }
+
+                            Spacer(minLength: 8)
+
+                            if let meal = meal, let items = meal.foodItems, !items.isEmpty {
+                                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                    Text("\(meal.totalCalories)")
+                                        .font(.system(size: 44, weight: .heavy, design: .rounded).monospacedDigit())
+                                        .foregroundStyle(EditorialPalette.oat)
+                                        .contentTransition(.numericText())
+                                    Text("kcal")
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .foregroundStyle(Color.white.opacity(0.76))
+                                }
+
                                 let user = users.first
                                 let targetP = (user?.targetProtein ?? 150.0) / 3
                                 let targetF = (user?.targetFats ?? 70.0) / 3
                                 let targetC = (user?.targetCarbs ?? 250.0) / 3
 
-                                MiniProgressView(title: "Protein", progress: meal.totalProtein / max(targetP, 1), color: .themePeach)
-                                MiniProgressView(title: "Fats", progress: meal.totalFats / max(targetF, 1), color: .themeYellow)
-                                MiniProgressView(title: "Carbs", progress: meal.totalCarbs / max(targetC, 1), color: .drinkWater)
+                                HStack(spacing: 8) {
+                                    MealDetailHeroMacroChip(
+                                        title: "Protein",
+                                        value: meal.totalProtein,
+                                        target: max(targetP, 1),
+                                        accent: EditorialPalette.emerald
+                                    )
+                                    MealDetailHeroMacroChip(
+                                        title: "Fats",
+                                        value: meal.totalFats,
+                                        target: max(targetF, 1),
+                                        accent: EditorialPalette.warmAmber
+                                    )
+                                    MealDetailHeroMacroChip(
+                                        title: "Carbs",
+                                        value: meal.totalCarbs,
+                                        target: max(targetC, 1),
+                                        accent: EditorialPalette.oceanSlate
+                                    )
+                                }
+                            } else {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(LocalizedStringKey(title))
+                                        .font(.system(size: 30, weight: .heavy, design: .rounded))
+                                        .foregroundStyle(.white)
+                                    Text("No foods logged yet")
+                                        .font(.system(size: 13.5, weight: .medium, design: .rounded))
+                                        .foregroundStyle(Color.white.opacity(0.76))
+                                }
                             }
                         }
-                        .ultraPremiumCardStyle()
-                        .padding(.horizontal)
+                    }
+                    .padding(.horizontal, 20)
 
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text("What you ate")
-                                .font(.title3.bold())
-                                .padding(.horizontal)
-                                .padding(.bottom, 12)
+                    if let meal = meal, let items = meal.foodItems, !items.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text("What you ate")
+                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.inkPrimary)
+                                Spacer()
+                                Text("\(items.count)")
+                                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                    .padding(.horizontal, 9)
+                                    .padding(.vertical, 3)
+                                    .background(EditorialPalette.surfaceLight)
+                                    .clipShape(Capsule())
+                                    .overlay(Capsule().strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75))
+                            }
+                            .padding(.horizontal, 4)
 
                             VStack(spacing: 0) {
-
                                 ForEach(items) { food in
                                     FoodItemDetailedRow(food: food, onDelete: {
                                         deleteFoodItem(food)
@@ -1165,89 +1259,107 @@ struct MealDetailView: View {
                                     }
 
                                     if food.id != items.last?.id {
-                                        Divider().padding(.leading, 20)
+                                        Rectangle()
+                                            .fill(EditorialPalette.hairlineLight)
+                                            .frame(height: 0.5)
+                                            .padding(.leading, 68)
                                     }
                                 }
                             }
-                            .background(Color.white)
-                            .cornerRadius(20)
-                            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+                            .background(Color.white.opacity(0.80))
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                            )
                         }
-                        .padding(.horizontal)
-                        
+                        .padding(.horizontal, 20)
+
                         if (meal.foodItems ?? []).count > 2 {
                             Button(action: {
                                 generateRecipe(from: meal)
                             }) {
-                                HStack {
+                                HStack(spacing: 8) {
                                     if isGeneratingRecipe {
                                         ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .tint(EditorialPalette.oat)
                                     } else {
                                         Image(systemName: "sparkles")
+                                            .foregroundStyle(EditorialPalette.oat)
                                     }
                                     Text(isGeneratingRecipe ? "Chef is writing recipe..." : "Cook with Chef")
-                                }
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(16)
-                                .background(
-                                    ZStack {
-                                        Color.themePink
-                                        if isGeneratingRecipe {
-                                            Color.white.opacity(0.3)
-                                                .blur(radius: 10)
-                                                .animation(reduceMotion ? nil : .easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isGeneratingRecipe)
-                                        }
+                                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                                    Spacer()
+                                    if !isGeneratingRecipe {
+                                        Image(systemName: "arrow.up.right")
+                                            .font(.system(size: 12, weight: .bold))
+                                            .foregroundStyle(EditorialPalette.oat.opacity(0.8))
                                     }
-                                )
-                                .cornerRadius(16)
-                                .shadow(color: isGeneratingRecipe ? Color.themePink.opacity(0.8) : Color.themePink.opacity(0.3), radius: isGeneratingRecipe ? 15 : 8, y: 4)
+                                }
+                                .padding(.horizontal, 18)
                             }
-                            .padding(.horizontal)
+                            .buttonStyle(
+                                EditorialSecondaryDarkButtonStyle(
+                                    height: 52,
+                                    cornerRadius: 16,
+                                    fillColor: EditorialPalette.cardDark,
+                                    borderColor: EditorialPalette.cardBorderDark
+                                )
+                            )
+                            .padding(.horizontal, 20)
                             .disabled(isGeneratingRecipe)
                             .animation(.easeInOut, value: isGeneratingRecipe)
                         }
 
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 10) {
                             Text("Key Micronutrients")
-                                .font(.title3.bold())
-                                .padding(.horizontal)
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundStyle(EditorialPalette.inkPrimary)
+                                .padding(.horizontal, 4)
 
                             MicronutrientRingsView(meal: meal)
-                                .padding(.horizontal)
                         }
+                        .padding(.horizontal, 20)
                     } else {
-                        EmptyStateView(
-                            imageName: "fork.knife.circle",
-                            title: "No Food Logged",
-                            description: "Tap 'Add Food' below to log your \(title)."
-                        )
-                        .frame(height: 300)
-                        .ultraPremiumCardStyle()
-                        .padding(.horizontal)
+                        EditorialLightCard(cornerRadius: 20, padding: 24) {
+                            VStack(spacing: 12) {
+                                ZStack {
+                                    Circle()
+                                        .fill(EditorialPalette.inkPrimary.opacity(0.06))
+                                        .frame(width: 52, height: 52)
+                                    Image(systemName: "fork.knife")
+                                        .font(.system(size: 22, weight: .semibold))
+                                        .foregroundStyle(EditorialPalette.inkSecondary)
+                                }
+                                Text("No Food Logged")
+                                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.inkPrimary)
+                                Text("Tap 'Add Food' below to log your \(title).")
+                                    .font(.system(size: 13.5, weight: .regular, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .padding(.horizontal, 20)
                     }
                 }
-                .padding(.bottom, 120)
+                .padding(.bottom, 24)
             }
-
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             Button(action: { showingAddFood.toggle() }) {
-                HStack {
+                HStack(spacing: 8) {
                     Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 17, weight: .semibold))
                     Text("Add Food")
                 }
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.themePink)
-                .cornerRadius(20)
-                .shadow(color: Color.themePink.opacity(0.3), radius: 8, y: 4)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 30)
             }
-            .buttonStyle(BounceButtonStyle())
+            .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, height: 54))
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+            .padding(.bottom, 12)
+            .background(.ultraThinMaterial)
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
@@ -1402,32 +1514,96 @@ struct MealDetailView: View {
     }
 }
 
+struct MealDetailHeroMacroChip: View {
+    let title: LocalizedStringKey
+    let value: Double
+    let target: Double
+    let accent: Color
+
+    var body: some View {
+        let ratio = min(max(value / max(target, 1), 0), 1)
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+                    .foregroundStyle(accent)
+                    .lineLimit(1)
+                Spacer(minLength: 2)
+                Text("\(Int(value.rounded()))g")
+                    .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+            }
+
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.white.opacity(0.14))
+                        .frame(height: 4)
+                    Capsule()
+                        .fill(accent)
+                        .frame(width: max(ratio > 0 ? 4 : 0, geo.size.width * ratio), height: 4)
+                }
+            }
+            .frame(height: 4)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(EditorialPalette.chipDark)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.75)
+        )
+    }
+}
+
 struct FoodItemDetailedRow: View {
     let food: FoodItem
     var onDelete: (() -> Void)? = nil
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     var body: some View {
-        HStack(spacing: 16) {
+        let meta = EditorialMealTheme.foodCategoryMeta(for: food.name)
+        let weightText = food.weight > 0
+            ? NutritionMath.formattedFoodWeight(food.weight, useMetric: useMetricSystem)
+            : String(localized: "1 serving")
+
+        HStack(spacing: 12) {
             ZStack {
-                Circle().fill(Color.themePink.opacity(0.05)).frame(width: 44, height: 44)
-                Text(String(food.name.first ?? "🍲")).font(.headline).foregroundColor(.themePink)
+                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    .fill(meta.color.opacity(0.14))
+                    .frame(width: 40, height: 40)
+                Image(systemName: meta.symbol)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(meta.color)
             }
+
             VStack(alignment: .leading, spacing: 4) {
-                Text(food.name).font(.subheadline).bold()
-                HStack(spacing: 8) {
-                    Text("\(Int(food.weight))g")
-                        .font(.caption2).bold()
-                        .padding(.horizontal, 6).padding(.vertical, 2)
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(4)
+                Text(food.name)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkPrimary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 6) {
+                    Text(weightText)
+                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(EditorialPalette.inkPrimary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.black.opacity(0.05))
+                        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                     Text("P:\(Int(food.protein)) F:\(Int(food.fats)) C:\(Int(food.carbs))")
-                        .font(.caption2)
-                        .foregroundColor(.gray)
+                        .font(.system(size: 11.5, weight: .medium, design: .rounded).monospacedDigit())
+                        .foregroundStyle(EditorialPalette.inkSecondary)
                 }
             }
-            Spacer()
+            Spacer(minLength: 8)
 
-            Text("\(food.calories) kcal").font(.headline).foregroundColor(.themePink)
+            Text("\(food.calories) kcal")
+                .font(.system(size: 14.5, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundStyle(EditorialPalette.inkPrimary)
 
             if let onDelete = onDelete {
                 Button(action: {
@@ -1435,20 +1611,20 @@ struct FoodItemDetailedRow: View {
                     onDelete()
                 }) {
                     Image(systemName: "trash")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.red.opacity(0.8))
-                        .padding(.leading, 4)
-                        .padding(.vertical, 8)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(EditorialPalette.softPeach)
+                        .frame(width: 32, height: 32)
+                        .background(EditorialPalette.softPeach.opacity(0.12))
+                        .clipShape(Circle())
                 }
             } else {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.gray.opacity(0.3))
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(EditorialPalette.inkSecondary.opacity(0.45))
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(Color.white)
     }
 }
 
@@ -1459,28 +1635,26 @@ struct MicronutrientRingsView: View {
     private let targetMagnesium: Double = 400 / 3
 
     var body: some View {
-        HStack(spacing: 24) {
-            ZStack {
-                ActivityRing(progress: meal.totalOmega3 / targetOmega3, color: .themePink, radius: 56, thickness: 12)
-                ActivityRing(progress: meal.totalPotassium / targetPotassium, color: .themeYellow, radius: 40, thickness: 12)
-                ActivityRing(progress: meal.totalMagnesium / targetMagnesium, color: .themeOrange, radius: 24, thickness: 12)
-                Image(systemName: "sparkles")
-                    .font(.title3)
-                    .foregroundStyle(.linearGradient(colors: [.themePink, .themeOrange], startPoint: .top, endPoint: .bottom))
-            }
-            .frame(width: 112, height: 112)
+        EditorialDarkCard(cornerRadius: 22, padding: 18) {
+            HStack(spacing: 22) {
+                ZStack {
+                    ActivityRing(progress: meal.totalOmega3 / targetOmega3, color: EditorialPalette.emerald, radius: 54, thickness: 11)
+                    ActivityRing(progress: meal.totalPotassium / targetPotassium, color: EditorialPalette.warmAmber, radius: 39, thickness: 11)
+                    ActivityRing(progress: meal.totalMagnesium / targetMagnesium, color: EditorialPalette.oceanSlate, radius: 24, thickness: 11)
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(EditorialPalette.oat)
+                }
+                .frame(width: 110, height: 110)
 
-            VStack(alignment: .leading, spacing: 16) {
-                RingLegendRow(color: .themePink, title: "Omega-3", value: meal.totalOmega3, unit: "g", target: targetOmega3)
-                RingLegendRow(color: .themeYellow, title: "Potassium", value: meal.totalPotassium, unit: "mg", target: targetPotassium)
-                RingLegendRow(color: .themeOrange, title: "Magnesium", value: meal.totalMagnesium, unit: "mg", target: targetMagnesium)
+                VStack(alignment: .leading, spacing: 14) {
+                    RingLegendRow(color: EditorialPalette.emerald, title: "Omega-3", value: meal.totalOmega3, unit: "g", target: targetOmega3)
+                    RingLegendRow(color: EditorialPalette.warmAmber, title: "Potassium", value: meal.totalPotassium, unit: "mg", target: targetPotassium)
+                    RingLegendRow(color: EditorialPalette.oceanSlate, title: "Magnesium", value: meal.totalMagnesium, unit: "mg", target: targetMagnesium)
+                }
+                Spacer(minLength: 0)
             }
-            Spacer(minLength: 0)
         }
-        .padding(20)
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.04), radius: 15, x: 0, y: 6)
     }
 }
 
@@ -1492,11 +1666,16 @@ private struct RingLegendRow: View {
     let target: Double
 
     var body: some View {
-        HStack(spacing: 12) {
-            Circle().fill(color).frame(width: 10, height: 10)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(title)).font(.system(size: 15, weight: .bold, design: .rounded)).foregroundColor(.primary)
-                Text("\(value, specifier: "%.1f") / \(Int(target)) \(unit)").font(.system(size: 13, weight: .medium)).foregroundColor(.gray)
+        HStack(spacing: 10) {
+            Circle().fill(color).frame(width: 8, height: 8)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(LocalizedStringKey(title))
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                let formattedTarget = target < 10 ? String(format: "%.1f", target) : "\(Int(target.rounded()))"
+                Text("\(value, specifier: "%.1f") / \(formattedTarget) \(unit)")
+                    .font(.system(size: 12, weight: .medium, design: .rounded).monospacedDigit())
+                    .foregroundStyle(Color.white.opacity(0.66))
             }
         }
     }
@@ -1510,7 +1689,7 @@ private struct ActivityRing: View {
 
     var body: some View {
         ZStack {
-            Circle().stroke(color.opacity(0.15), lineWidth: thickness)
+            Circle().stroke(color.opacity(0.18), lineWidth: thickness)
             Circle()
                 .trim(from: 0, to: min(progress, 1.0))
                 .stroke(color, style: StrokeStyle(lineWidth: thickness, lineCap: .round))
@@ -1528,40 +1707,41 @@ struct ActionSearchBar: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            // Dual Action Fast Deck: Scan & Custom Food
+            // Dual Action Fast Deck: Scan & Custom Food (Editorial Dark Cards)
             HStack(spacing: 10) {
                 Button(action: {
                     HapticManager.shared.impact(style: .medium)
                     onBarcodeTap()
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 9) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Color(red: 0.10, green: 0.72, blue: 0.50).opacity(0.14))
+                                .fill(EditorialPalette.emerald.opacity(0.16))
                                 .frame(width: 32, height: 32)
                             Image(systemName: "camera.viewfinder")
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(Color(red: 0.10, green: 0.72, blue: 0.50))
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(EditorialPalette.emerald)
                         }
                         VStack(alignment: .leading, spacing: 1) {
                             Text(String(localized: "Scan Barcode"))
                                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.white)
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                             Text(String(localized: "Barcode or photo"))
-                                .font(.system(size: 10, weight: .medium, design: .rounded))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: 10.5, weight: .medium, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.68))
                                 .lineLimit(1)
                         }
                         Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .padding(.vertical, 9)
+                    .background(EditorialPalette.cardDark)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                            .strokeBorder(EditorialPalette.cardBorderDark, lineWidth: 1)
                     )
                 }
                 .buttonStyle(BounceButtonStyle())
@@ -1570,34 +1750,35 @@ struct ActionSearchBar: View {
                     HapticManager.shared.impact(style: .light)
                     onManualAddTap()
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 9) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Color(red: 0.95, green: 0.70, blue: 0.30).opacity(0.14))
+                                .fill(EditorialPalette.oat.opacity(0.14))
                                 .frame(width: 32, height: 32)
                             Image(systemName: "plus")
                                 .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(Color(red: 0.95, green: 0.70, blue: 0.30))
+                                .foregroundStyle(EditorialPalette.oat)
                         }
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(String(localized: "Create Custom Food"))
+                            Text(String(localized: "Custom Food"))
                                 .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.white)
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                             Text(String(localized: "Create with macros"))
-                                .font(.system(size: 10, weight: .medium, design: .rounded))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: 10.5, weight: .medium, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.68))
                                 .lineLimit(1)
                         }
                         Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .padding(.vertical, 9)
+                    .background(EditorialPalette.cardDark)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                            .strokeBorder(EditorialPalette.cardBorderDark, lineWidth: 1)
                     )
                 }
                 .buttonStyle(BounceButtonStyle())
@@ -1606,24 +1787,25 @@ struct ActionSearchBar: View {
             // Search Bar
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(EditorialPalette.inkSecondary)
                     .font(.system(size: 15, weight: .medium))
                 TextField(String(localized: "Search foods..."), text: $text)
                     .font(.system(size: 14, weight: .regular, design: .rounded))
+                    .foregroundStyle(EditorialPalette.inkPrimary)
                 if !text.isEmpty {
                     Button(action: { text = "" }) {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary.opacity(0.6))
+                            .foregroundStyle(EditorialPalette.inkSecondary.opacity(0.6))
                     }
                 }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(Color.white.opacity(0.86))
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
             )
         }
     }
@@ -1634,18 +1816,43 @@ struct FloatingCartButton: View {
     var body: some View {
         VStack {
             Spacer()
-            Button(action: action) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("\(count) items selected").font(.caption).foregroundColor(.white.opacity(0.8))
-                        Text("Add • \(calories) kcal").font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(.white)
+            HStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(count) items selected")
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundStyle(EditorialPalette.oat.opacity(0.76))
+                    Text("\(calories) kcal")
+                        .font(.system(size: 18, weight: .heavy, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.white)
+                }
+                Spacer()
+                Button(action: action) {
+                    HStack(spacing: 6) {
+                        Text("Add")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                        Image(systemName: "arrow.right.circle.fill")
+                            .font(.system(size: 15))
                     }
-                    Spacer()
-                    Image(systemName: "checkmark.circle.fill").font(.title).foregroundColor(.white)
-                }.padding(.horizontal, 24).padding(.vertical, 16).background(LinearGradient(colors: [.themePink, .themeOrange], startPoint: .leading, endPoint: .trailing)).cornerRadius(24).shadow(color: Color.themePink.opacity(0.4), radius: 15, y: 8)
+                    .foregroundStyle(EditorialPalette.textOnOat)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 11)
+                    .background(EditorialPalette.oat)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(BounceButtonStyle())
+                .accessibilityIdentifier("smart_add_confirm_cart_button")
             }
-            .accessibilityIdentifier("smart_add_confirm_cart_button")
-            .padding(.horizontal, 20).padding(.bottom, 30)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 13)
+            .background(EditorialPalette.cardDark)
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder(EditorialPalette.cardBorderDarkFocused, lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.24), radius: 18, y: 8)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
         }
     }
 }
@@ -1657,84 +1864,86 @@ struct FoodSearchResultRow: View {
 
     var body: some View {
         let compatibility = food.compatibility(with: activeDietPlan)
+        let meta = EditorialMealTheme.foodCategoryMeta(for: food.name)
 
         Button(action: action) {
-            HStack(spacing: 16) {
-
+            HStack(spacing: 12) {
                 ZStack {
-                    Circle()
-                        .fill(Color.themeBg.opacity(0.8))
-                        .frame(width: 48, height: 48)
-                    Text("🍲")
-                        .font(.system(size: 24))
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(meta.color.opacity(0.14))
+                        .frame(width: 42, height: 42)
+                    Image(systemName: meta.symbol)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(meta.color)
 
                     if compatibility != .neutral {
                         Image(systemName: compatibility.icon)
-                            .font(.system(size: 10, weight: .black))
-                            .foregroundColor(compatibility.color)
-                            .padding(4)
+                            .font(.system(size: 9, weight: .black))
+                            .foregroundStyle(compatibility.color)
+                            .padding(3.5)
                             .background(Color.white)
                             .clipShape(Circle())
-                            .shadow(color: Color.black.opacity(0.1), radius: 3)
+                            .overlay(Circle().strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.5))
                             .offset(x: 16, y: 16)
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(food.name)
                         .font(.system(size: 15, weight: .bold, design: .rounded))
-                        .foregroundColor(compatibility == .avoid ? .gray : .primary)
-                        .strikethrough(compatibility == .avoid, color: .red.opacity(0.5))
+                        .foregroundStyle(compatibility == .avoid ? EditorialPalette.inkSecondary : EditorialPalette.inkPrimary)
+                        .strikethrough(compatibility == .avoid, color: EditorialPalette.softPeach.opacity(0.6))
+                        .lineLimit(1)
 
                     HStack(spacing: 6) {
                         let weightLabel = food.weight > 0 ? "\(Int(food.weight))g" : String(localized: "1 serving")
                         Text("\(food.calories) kcal • \(weightLabel)")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 12, weight: .medium, design: .rounded).monospacedDigit())
+                            .foregroundStyle(EditorialPalette.inkSecondary)
 
                         if compatibility == .perfect {
                             Text("Great option")
-                                .font(.system(size: 9, weight: .bold, design: .rounded))
-                                .foregroundColor(.green)
+                                .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                                .foregroundStyle(EditorialPalette.forest)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.green.opacity(0.08))
-                                .cornerRadius(6)
+                                .background(EditorialPalette.emerald.opacity(0.14))
+                                .clipShape(Capsule())
                         } else if compatibility == .avoid {
                             Text("Avoid")
-                                .font(.system(size: 9, weight: .bold, design: .rounded))
-                                .foregroundColor(.red)
+                                .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                                .foregroundStyle(EditorialPalette.softPeach)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.red.opacity(0.08))
-                                .cornerRadius(6)
+                                .background(EditorialPalette.softPeach.opacity(0.14))
+                                .clipShape(Capsule())
                         }
                     }
                 }
                 Spacer()
-                
+
                 ZStack {
                     Circle()
-                        .fill(compatibility == .avoid ? Color.gray.opacity(0.1) : Color.themePink.opacity(0.1))
-                        .frame(width: 32, height: 32)
-                    
+                        .fill(compatibility == .avoid ? Color.black.opacity(0.05) : EditorialPalette.inkPrimary.opacity(0.08))
+                        .frame(width: 34, height: 34)
+
                     Image(systemName: "plus")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(compatibility == .avoid ? .gray : .themePink)
+                        .foregroundStyle(compatibility == .avoid ? EditorialPalette.inkSecondary : EditorialPalette.inkPrimary)
                 }
             }
-            .padding(14)
-            .background(Color.white)
-            .cornerRadius(18)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 11)
+            .background(Color.white.opacity(0.82))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 18)
-                    .stroke(
-                        compatibility == .avoid ? Color.red.opacity(0.15) :
-                        (compatibility == .perfect ? Color.green.opacity(0.15) : Color.gray.opacity(0.08)),
-                        lineWidth: 1
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(
+                        compatibility == .avoid ? EditorialPalette.softPeach.opacity(0.28) :
+                        (compatibility == .perfect ? EditorialPalette.emerald.opacity(0.32) : EditorialPalette.hairlineLight),
+                        lineWidth: 0.9
                     )
             )
-            .shadow(color: Color.black.opacity(0.015), radius: 6, x: 0, y: 3)
         }
         .buttonStyle(BounceButtonStyle())
     }
@@ -2001,105 +2210,117 @@ struct DailyNoteSheet: View {
     }
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 24) {
-                Capsule()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 40, height: 5)
-                    .padding(.top, 10)
+        ZStack {
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: 2)
+                .allowsHitTesting(false)
 
-                HStack {
-                    Text("Your Day")
-                        .font(.title2.bold())
-                    Spacer()
-                    Button("Save") {
-                        HapticManager.shared.impact(style: .heavy)
-                        let persisted = summary.modelContext != nil
-                            ? summary
-                            : DailySummary.fetchOrCreate(for: summary.date, in: context)
-                        persisted.dayNote = draftNote
-                        persisted.dayMoodEmoji = draftMoodEmoji
-                        try? context.save()
-                        clearAIMoodStates()
-                        dismiss()
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 22) {
+                    HStack {
+                        Text("Your Day")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkPrimary)
+                        Spacer()
+                        Button("Save") {
+                            HapticManager.shared.impact(style: .heavy)
+                            let persisted = summary.modelContext != nil
+                                ? summary
+                                : DailySummary.fetchOrCreate(for: summary.date, in: context)
+                            persisted.dayNote = draftNote
+                            persisted.dayMoodEmoji = draftMoodEmoji
+                            try? context.save()
+                            clearAIMoodStates()
+                            dismiss()
+                        }
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.themeBg)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(EditorialPalette.inkPrimary)
+                        .clipShape(Capsule())
                     }
-                    .font(.headline)
-                    .foregroundColor(.themePink)
-                }
-                .padding(.horizontal, 24)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
 
-                TextField("Write about your meals, feelings, or workouts...", text: $draftNote, axis: .vertical)
-                    .lineLimit(4...8)
-                    .padding(16)
-                    .background(Color.gray.opacity(0.05))
-                    .cornerRadius(20)
-                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.1), lineWidth: 1))
-                    .padding(.horizontal, 24)
-                    .accessibilityLabel("Daily note")
+                    TextField("Write about your meals, feelings, or workouts...", text: $draftNote, axis: .vertical)
+                        .lineLimit(4...8)
+                        .padding(16)
+                        .background(Color.white.opacity(0.84))
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                        )
+                        .padding(.horizontal, 20)
+                        .accessibilityLabel("Daily note")
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Tags & Mood")
-                        .font(.headline)
-                        .padding(.horizontal, 24)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Tags & Mood")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkPrimary)
+                            .padding(.horizontal, 20)
 
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(moods, id: \.1) { mood in
-                                Button(action: {
-                                    HapticManager.shared.impact(style: .light)
-                                    withAnimation {
-                                        if draftMoodEmoji == mood.0 {
-                                            draftMoodEmoji = ""
-                                            clearAIMoodStates()
-                                        } else {
-                                            draftMoodEmoji = mood.0
-                                            clearAIMoodStates() // prevent stale chat state from previous mood
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(moods, id: \.1) { mood in
+                                    let isSelected = draftMoodEmoji == mood.0
+                                    Button(action: {
+                                        HapticManager.shared.impact(style: .light)
+                                        withAnimation {
+                                            if isSelected {
+                                                draftMoodEmoji = ""
+                                                clearAIMoodStates()
+                                            } else {
+                                                draftMoodEmoji = mood.0
+                                                clearAIMoodStates()
 
-                                            // Trigger AI Advice popup with a small delay for nice animation feel
-                                            let tappedMood = mood.0
-                                            Task {
-                                                try? await Task.sleep(for: .milliseconds(250))
-                                                await MainActor.run {
-                                                    if draftMoodEmoji == tappedMood {
-                                                        selectedMoodForAI = tappedMood
+                                                let tappedMood = mood.0
+                                                Task {
+                                                    try? await Task.sleep(for: .milliseconds(250))
+                                                    await MainActor.run {
+                                                        if draftMoodEmoji == tappedMood {
+                                                            selectedMoodForAI = tappedMood
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                }) {
-                                    VStack(spacing: 8) {
-                                        Text(mood.0)
-                                            .font(.system(size: 30))
-                                            .frame(minWidth: 52, minHeight: 52)
-                                            .background(draftMoodEmoji == mood.0 ? Color.themePink.opacity(0.2) : Color.white)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 20)
-                                                    .stroke(draftMoodEmoji == mood.0 ? Color.themePink : Color.gray.opacity(0.2), lineWidth: 2)
-                                            )
-                                            .cornerRadius(20)
+                                    }) {
+                                        VStack(spacing: 7) {
+                                            Text(mood.0)
+                                                .font(.system(size: 28))
+                                                .frame(width: 54, height: 54)
+                                                .background(isSelected ? EditorialPalette.cardDark : Color.white.opacity(0.82))
+                                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                                        .strokeBorder(
+                                                            isSelected ? EditorialPalette.cardBorderDarkFocused : EditorialPalette.hairlineLight,
+                                                            lineWidth: isSelected ? 1.5 : 0.75
+                                                        )
+                                                )
 
-                                        Text(LocalizedStringKey(mood.1))
-                                            .font(.caption)
-                                            .fontWeight(draftMoodEmoji == mood.0 ? .bold : .medium)
-                                            .foregroundColor(draftMoodEmoji == mood.0 ? .themePink : .gray)
+                                            Text(LocalizedStringKey(mood.1))
+                                                .font(.system(size: 11, weight: isSelected ? .bold : .medium, design: .rounded))
+                                                .foregroundStyle(isSelected ? EditorialPalette.inkPrimary : EditorialPalette.inkSecondary)
+                                                .lineLimit(1)
+                                        }
+                                        .frame(minWidth: 64, minHeight: 80)
                                     }
-                                    .frame(minWidth: 64, minHeight: 80) // Ensure good tap target per HIG (44pt minimum)
+                                    .buttonStyle(PlainButtonStyle())
+                                    .accessibilityLabel(Text("\(String(localized: String.LocalizationValue(mood.1))) mood"))
+                                    .accessibilityValue(isSelected ? String(localized: "Selected") : String(localized: "Not selected"))
+                                    .accessibilityAddTraits(.isButton)
                                 }
-                                .buttonStyle(PlainButtonStyle())
-                                .accessibilityLabel(Text("\(String(localized: String.LocalizationValue(mood.1))) mood"))
-                                .accessibilityValue(draftMoodEmoji == mood.0 ? String(localized: "Selected") : String(localized: "Not selected"))
-                                .accessibilityAddTraits(.isButton)
                             }
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 10)
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 10)
                     }
                 }
+                .padding(.bottom, 24)
             }
-            .padding(.bottom, 24)
         }
-        .background(Color.themeBg.ignoresSafeArea())
         .onDisappear {
             clearAIMoodStates()
         }
@@ -2254,101 +2475,151 @@ struct DailyLogDetailView: View {
     }
     var body: some View {
         ZStack {
-            Color.themeBg.ignoresSafeArea()
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: 0)
+                .allowsHitTesting(false)
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-
-                    VStack(spacing: 8) {
-                        Text("\(summary.totalFoodCalories) kcal")
-                            .font(.system(size: 48, weight: .heavy, design: .rounded))
-                            .foregroundColor(.themePink)
-                        Text("Total Food Logged Today")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                VStack(spacing: 20) {
+                    EditorialDarkCard(cornerRadius: 22, padding: 20) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Total Food Logged Today")
+                                    .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.oat.opacity(0.78))
+                                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                    Text("\(summary.totalFoodCalories)")
+                                        .font(.system(size: 40, weight: .heavy, design: .rounded).monospacedDigit())
+                                        .foregroundStyle(EditorialPalette.oat)
+                                    Text("kcal")
+                                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                                        .foregroundStyle(Color.white.opacity(0.72))
+                                }
+                            }
+                            Spacer()
+                            EditorialMetricChip(
+                                label: "Active",
+                                value: "\(summary.localActivityCalories) kcal",
+                                accent: EditorialPalette.warmAmber
+                            )
+                            .frame(width: 112)
+                        }
                     }
-                    .padding(.vertical, 20)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
 
                     let activeMeals = (summary.meals ?? []).filter { !($0.foodItems ?? []).isEmpty }
                     let loggedActivities = summary.activities ?? []
 
                     if let copiedBannerText {
                         Text(copiedBannerText)
-                            .font(.caption.bold())
-                            .foregroundColor(.green)
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.emerald)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 6)
-                            .background(Color.green.opacity(0.12))
+                            .background(EditorialPalette.cardDark)
                             .clipShape(Capsule())
                     }
 
                     if activeMeals.isEmpty && loggedActivities.isEmpty {
-                        EmptyStateView(imageName: "doc.text.magnifyingglass", title: "No Food Logged", description: "You haven't logged any food for this day yet.")
-                            .padding(.top, 40)
+                        EditorialLightCard(cornerRadius: 20, padding: 28) {
+                            VStack(spacing: 10) {
+                                Image(systemName: "doc.text.magnifyingglass")
+                                    .font(.system(size: 32, weight: .medium))
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                Text("No Food Logged")
+                                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.inkPrimary)
+                                Text("You haven't logged any food for this day yet.")
+                                    .font(.system(size: 13.5, weight: .regular, design: .rounded))
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .padding(.horizontal, 20)
                     } else {
                         ForEach(activeMeals) { meal in
                             VStack(alignment: .leading, spacing: 0) {
-
-                                HStack {
+                                HStack(spacing: 8) {
+                                    Image(systemName: EditorialMealTheme.symbolName(for: meal.title))
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundStyle(EditorialMealTheme.accentColor(for: meal.title))
                                     Text(LocalizedStringKey(meal.title))
-                                        .font(.title3.bold())
+                                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.inkPrimary)
                                     Spacer()
                                     Text("\(meal.totalCalories) kcal")
-                                        .font(.headline)
-                                        .foregroundColor(.themePink)
+                                        .font(.system(size: 15, weight: .bold, design: .rounded).monospacedDigit())
+                                        .foregroundStyle(EditorialPalette.inkPrimary)
                                 }
-                                .padding(.horizontal, 20)
-                                .padding(.top, 20)
-                                .padding(.bottom, 12)
+                                .padding(.horizontal, 18)
+                                .padding(.top, 16)
+                                .padding(.bottom, 10)
 
                                 VStack(spacing: 0) {
                                     ForEach(meal.foodItems ?? []) { food in
-                                        HStack(spacing: 16) {
+                                        let meta = EditorialMealTheme.foodCategoryMeta(for: food.name)
+                                        HStack(spacing: 12) {
                                             ZStack {
-                                                Circle().fill(Color.gray.opacity(0.05)).frame(width: 44, height: 44)
-                                                Text(String(food.name.first ?? "🥘")).font(.headline)
+                                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                                    .fill(meta.color.opacity(0.14))
+                                                    .frame(width: 38, height: 38)
+                                                Image(systemName: meta.symbol)
+                                                    .font(.system(size: 15, weight: .semibold))
+                                                    .foregroundStyle(meta.color)
                                             }
 
-                                            VStack(alignment: .leading, spacing: 4) {
+                                            VStack(alignment: .leading, spacing: 3) {
                                                 Text(food.name)
-                                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                                                    .foregroundColor(.primary)
+                                                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                                    .foregroundStyle(EditorialPalette.inkPrimary)
+                                                    .lineLimit(1)
 
-                                                HStack {
+                                                HStack(spacing: 5) {
                                                     Text("\(Int(food.weight))g")
                                                     Text("•")
                                                     Text("P:\(Int(food.protein)) F:\(Int(food.fats)) C:\(Int(food.carbs))")
                                                 }
-                                                .font(.caption2)
-                                                .foregroundColor(.gray)
+                                                .font(.system(size: 11.5, weight: .medium, design: .rounded).monospacedDigit())
+                                                .foregroundStyle(EditorialPalette.inkSecondary)
                                             }
                                             Spacer()
 
                                             Text("\(food.calories)")
-                                                                                           .font(.headline)
-                                                                                           .foregroundColor(.primary)
+                                                .font(.system(size: 15, weight: .bold, design: .rounded).monospacedDigit())
+                                                .foregroundStyle(EditorialPalette.inkPrimary)
 
-                                                                                       Button(action: {
-                                                                                           HapticManager.shared.impact(style: .medium)
-                                                                                           deleteFoodItem(food, from: meal)
-                                                                                       }) {
-                                                                                           Image(systemName: "trash")
-                                                                                               .foregroundColor(.red.opacity(0.8))
-                                                                                               .padding(.leading, 8)
-                                                                                       }
-                                                                                   }
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 12)
+                                            Button(action: {
+                                                HapticManager.shared.impact(style: .medium)
+                                                deleteFoodItem(food, from: meal)
+                                            }) {
+                                                Image(systemName: "trash")
+                                                    .font(.system(size: 13, weight: .semibold))
+                                                    .foregroundStyle(EditorialPalette.softPeach)
+                                                    .frame(width: 30, height: 30)
+                                                    .background(EditorialPalette.softPeach.opacity(0.12))
+                                                    .clipShape(Circle())
+                                            }
+                                        }
+                                        .padding(.horizontal, 18)
+                                        .padding(.vertical, 11)
 
                                         if food.id != meal.foodItems?.last?.id {
-                                            Divider().padding(.leading, 70)
+                                            Rectangle()
+                                                .fill(EditorialPalette.hairlineLight)
+                                                .frame(height: 0.5)
+                                                .padding(.leading, 68)
                                         }
                                     }
                                 }
+                                .padding(.bottom, 6)
                             }
-                            .background(Color.white)
-                            .cornerRadius(24)
-                            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+                            .background(Color.white.opacity(0.80))
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                            )
                             .padding(.horizontal, 20)
                         }
 
@@ -2356,61 +2627,73 @@ struct DailyLogDetailView: View {
                             VStack(alignment: .leading, spacing: 0) {
                                 HStack {
                                     Text("Logged Activities")
-                                        .font(.title3.bold())
+                                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.inkPrimary)
                                     Spacer()
                                     Text("\(summary.localActivityCalories) kcal")
-                                        .font(.headline)
-                                        .foregroundColor(.themeOrange)
+                                        .font(.system(size: 15, weight: .bold, design: .rounded).monospacedDigit())
+                                        .foregroundStyle(EditorialPalette.warmAmber)
                                 }
-                                .padding(.horizontal, 20)
-                                .padding(.top, 20)
-                                .padding(.bottom, 12)
+                                .padding(.horizontal, 18)
+                                .padding(.top, 16)
+                                .padding(.bottom, 10)
 
                                 VStack(spacing: 0) {
                                     ForEach(loggedActivities) { activity in
-                                        HStack(spacing: 14) {
+                                        HStack(spacing: 12) {
                                             Image(systemName: activity.icon)
-                                                .font(.title3)
-                                                .foregroundColor(.themeOrange)
-                                                .frame(width: 40, height: 40)
-                                                .background(Color.themeOrange.opacity(0.12))
-                                                .clipShape(Circle())
+                                                .font(.system(size: 16, weight: .semibold))
+                                                .foregroundStyle(EditorialPalette.warmAmber)
+                                                .frame(width: 38, height: 38)
+                                                .background(EditorialPalette.warmAmber.opacity(0.14))
+                                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text(LocalizedStringKey(activity.title))
-                                                    .font(.subheadline.bold())
+                                                    .font(.system(size: 14.5, weight: .semibold, design: .rounded))
+                                                    .foregroundStyle(EditorialPalette.inkPrimary)
                                                 Text("\(activity.durationMinutes) min")
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
+                                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                                    .foregroundStyle(EditorialPalette.inkSecondary)
                                             }
                                             Spacer()
                                             Text("-\(activity.calories) kcal")
-                                                .font(.subheadline.bold())
-                                                .foregroundColor(.themeOrange)
+                                                .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                                                .foregroundStyle(EditorialPalette.inkPrimary)
                                             Button {
                                                 HapticManager.shared.impact(style: .medium)
                                                 deleteActivity(activity)
                                             } label: {
                                                 Image(systemName: "trash")
-                                                    .foregroundColor(.red.opacity(0.8))
-                                                    .padding(.leading, 8)
+                                                    .font(.system(size: 13, weight: .semibold))
+                                                    .foregroundStyle(EditorialPalette.softPeach)
+                                                    .frame(width: 30, height: 30)
+                                                    .background(EditorialPalette.softPeach.opacity(0.12))
+                                                    .clipShape(Circle())
                                             }
                                         }
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 12)
+                                        .padding(.horizontal, 18)
+                                        .padding(.vertical, 11)
                                         if activity.persistentModelID != loggedActivities.last?.persistentModelID {
-                                            Divider().padding(.leading, 74)
+                                            Rectangle()
+                                                .fill(EditorialPalette.hairlineLight)
+                                                .frame(height: 0.5)
+                                                .padding(.leading, 68)
                                         }
                                     }
                                 }
+                                .padding(.bottom, 6)
                             }
-                            .background(Color.white)
-                            .cornerRadius(24)
-                            .shadow(color: Color.black.opacity(0.03), radius: 10, y: 5)
+                            .background(Color.white.opacity(0.80))
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                            )
                             .padding(.horizontal, 20)
                         }
                     }
                 }
-                .padding(.bottom, 60)
+                .padding(.bottom, 48)
             }
         }
         .navigationTitle("Daily Log")
@@ -2435,7 +2718,7 @@ struct DailyLogDetailView: View {
                         }
                     } label: {
                         Image(systemName: "doc.on.doc")
-                            .foregroundColor(.themePink)
+                            .foregroundStyle(EditorialPalette.inkPrimary)
                     }
                     .accessibilityLabel("Copy Day")
                 }
@@ -2594,23 +2877,37 @@ struct SmartAddFoodView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Color.themeBg.ignoresSafeArea()
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: EditorialMealTheme.paletteIndex(for: mealTitle))
+                .allowsHitTesting(false)
 
             VStack(spacing: 0) {
-
-                VStack(spacing: 16) {
-                    Capsule().fill(Color.gray.opacity(0.3)).frame(width: 40, height: 5).padding(.top, 10)
+                VStack(spacing: 14) {
+                    Capsule()
+                        .fill(EditorialPalette.inkPrimary.opacity(0.18))
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 10)
 
                     HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(LocalizedStringKey(mealTitle)).font(.system(size: 28, weight: .bold, design: .rounded))
-                            Text("What did you eat?").font(.subheadline).foregroundColor(.gray)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(LocalizedStringKey(mealTitle))
+                                .font(.system(size: 26, weight: .bold, design: .rounded))
+                                .foregroundStyle(EditorialPalette.inkPrimary)
+                            Text("What did you eat?")
+                                .font(.system(size: 13.5, weight: .medium, design: .rounded))
+                                .foregroundStyle(EditorialPalette.inkSecondary)
                         }
                         Spacer()
                         Button(action: { dismiss() }) {
-                            Image(systemName: "xmark.circle.fill").font(.system(size: 28)).foregroundColor(Color.gray.opacity(0.3))
+                            Image(systemName: "xmark")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundStyle(EditorialPalette.inkPrimary)
+                                .frame(width: 32, height: 32)
+                                .background(Color.white.opacity(0.84))
+                                .clipShape(Circle())
+                                .overlay(Circle().strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75))
                         }
-                    }.padding(.horizontal, 20)
+                    }
+                    .padding(.horizontal, 20)
 
                     ActionSearchBar(
                         text: $searchText,
@@ -2621,53 +2918,72 @@ struct SmartAddFoodView: View {
 
                     if searchText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
+                            HStack(spacing: 8) {
                                 ForEach(categories, id: \.self) { category in
+                                    let isSel = selectedCategory == category
                                     Button(action: {
                                         withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { selectedCategory = category }
                                         HapticManager.shared.impact(style: .light)
                                     }) {
                                         Text(LocalizedStringKey(category))
-                                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                                            .padding(.horizontal, 18).padding(.vertical, 10)
-                                            .background(selectedCategory == category ? ThemeManager.shared.current.primaryGradient : LinearGradient(colors: [Color.white], startPoint: .top, endPoint: .bottom))
-                                            .foregroundColor(selectedCategory == category ? .white : .primary)
-                                            .cornerRadius(18)
+                                            .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 8)
+                                            .background(isSel ? EditorialPalette.inkPrimary : EditorialPalette.surfaceLight)
+                                            .foregroundStyle(isSel ? Color.themeBg : EditorialPalette.inkPrimary)
+                                            .clipShape(Capsule())
                                             .overlay(
-                                                RoundedRectangle(cornerRadius: 18)
-                                                    .stroke(selectedCategory == category ? Color.clear : Color.gray.opacity(0.12), lineWidth: 1)
+                                                Capsule()
+                                                    .strokeBorder(isSel ? Color.clear : EditorialPalette.hairlineLight, lineWidth: 0.75)
                                             )
-                                            .shadow(color: selectedCategory == category ? ThemeManager.shared.current.primaryAccent.opacity(0.2) : Color.black.opacity(0.015), radius: 5, y: 2)
                                     }
                                 }
                             }
-                            .padding(.horizontal, 20).padding(.vertical, 4)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 2)
                         }
                     }
                 }
                 .padding(.bottom, 10)
-                .background(Rectangle().fill(.ultraThinMaterial).ignoresSafeArea().shadow(color: .black.opacity(0.03), radius: 8, y: 4))
+                .background(.ultraThinMaterial)
+                .overlay(alignment: .bottom) {
+                    Rectangle().fill(EditorialPalette.hairlineLight).frame(height: 0.5)
+                }
                 .zIndex(2)
 
                 ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: 10) {
                         if !searchText.isEmpty {
                             if !filteredLocalFoods.isEmpty {
-                                Text("From your history").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading)
+                                Text("From your history")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .textCase(.uppercase)
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 ForEach(filteredLocalFoods, id: \.id) { food in
                                     FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
                                 }
                             }
 
                             if !localCatalogResults.isEmpty {
-                                Text("Local database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                                Text("Local database")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .textCase(.uppercase)
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.top, 10)
                                 ForEach(localCatalogResults, id: \.id) { food in
                                     FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
                                 }
                             }
 
                             if !apiSearchResults.isEmpty {
-                                Text("Global database").font(.caption.bold()).foregroundColor(.gray).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                                Text("Global database")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .textCase(.uppercase)
+                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.top, 10)
                                 ForEach(apiSearchResults, id: \.id) { food in
                                     FoodSearchResultRow(food: food, activeDietPlan: activeDietPlan) { selectedFoodForDetail = food }
                                 }
@@ -2683,49 +2999,58 @@ struct SmartAddFoodView: View {
                                     hasAnyResults: false,
                                     isSearching: false
                                 )
-                                VStack(spacing: 16) {
-                                    Image(systemName: offersAIConsent ? "sparkles.rectangle.stack.fill" : "questionmark.folder.fill")
-                                        .font(.system(size: 48))
-                                        .foregroundColor(offersAIConsent ? .themePink.opacity(0.75) : .themeOrange.opacity(0.5))
-                                    Text("Can't find '\(searchText)'?").font(.headline)
+                                VStack(spacing: 14) {
+                                    Image(systemName: offersAIConsent ? "sparkles.rectangle.stack.fill" : "magnifyingglass")
+                                        .font(.system(size: 38, weight: .medium))
+                                        .foregroundStyle(offersAIConsent ? EditorialPalette.forest : EditorialPalette.inkSecondary)
+                                    Text("Can't find '\(searchText)'?")
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.inkPrimary)
                                     Text(
                                         offersAIConsent
                                             ? "Enable AI Food Search to estimate calories and macros for unlisted dishes, or create a custom entry."
                                             : "No worries! You can quickly add it to your personal database and use it forever."
                                     )
-                                        .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center).padding(.horizontal, 20)
+                                        .font(.system(size: 13.5, weight: .regular, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.inkSecondary)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal, 16)
 
                                     if offersAIConsent {
                                         Button(action: {
                                             HapticManager.shared.impact(style: .medium)
                                             showingAIConsentSheet = true
                                         }) {
-                                            HStack {
+                                            HStack(spacing: 8) {
                                                 Image(systemName: "sparkles")
                                                 Text("Enable AI Food Search")
                                             }
-                                            .font(.headline).foregroundColor(.white).padding(.vertical, 14).padding(.horizontal, 24)
-                                            .background(ThemeManager.shared.current.primaryGradient)
-                                            .cornerRadius(20).shadow(color: ThemeManager.shared.current.primaryAccent.opacity(0.3), radius: 8, y: 4)
                                         }
-                                        .buttonStyle(BounceButtonStyle())
+                                        .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, height: 48))
                                     }
 
                                     Button(action: {
                                         HapticManager.shared.impact(style: .medium)
                                         showingManualAdd = true
                                     }) {
-                                        HStack {
+                                        HStack(spacing: 8) {
                                             Image(systemName: "plus.circle.fill")
                                             Text("Create Custom Food")
                                         }
-                                        .font(.headline).foregroundColor(.white).padding(.vertical, 14).padding(.horizontal, 24)
-                                        .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .cornerRadius(20).shadow(color: Color.green.opacity(0.3), radius: 8, y: 4)
+                                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.inkPrimary)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 48)
+                                        .background(EditorialPalette.surfaceLight)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                                .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                                        )
                                     }
                                     .buttonStyle(BounceButtonStyle())
                                 }
-                                .padding(.top, 40)
+                                .padding(.top, 32)
                             }
                         } else {
                             if filteredLocalFoods.isEmpty {
@@ -2739,7 +3064,9 @@ struct SmartAddFoodView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 14)
+                    .padding(.bottom, selectedFoods.isEmpty ? 40 : 120)
                 }
             }
 
@@ -2871,6 +3198,7 @@ struct SpeedDialItem: View {
     let icon: String
     let label: String
     let color: Color
+    var iconForeground: Color = .white
     var accessibilityId: String? = nil
     let action: () -> Void
 
@@ -2882,22 +3210,30 @@ struct SpeedDialItem: View {
             HStack(spacing: 12) {
                 Text(label)
                     .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.08), radius: 5, y: 2)
+                    .padding(.vertical, 7)
+                    .background(EditorialPalette.cardDark)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(EditorialPalette.cardBorderDark, lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.16), radius: 6, y: 3)
                 
                 ZStack {
                     Circle()
                         .fill(color)
-                        .frame(width: 48, height: 48)
-                        .shadow(color: color.opacity(0.35), radius: 5, y: 3)
+                        .frame(width: 46, height: 46)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
+                        )
+                        .shadow(color: Color.black.opacity(0.20), radius: 6, y: 3)
                     
                     Image(systemName: icon)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(iconForeground)
                 }
             }
         }

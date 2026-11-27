@@ -264,3 +264,96 @@ struct GoogleLogoMark: View {
         .accessibilityHidden(true)
     }
 }
+
+// MARK: - Editorial Light Surface Container
+struct EditorialLightCard<Content: View>: View {
+    var cornerRadius: CGFloat = 20
+    var padding: CGFloat = 16
+    var borderColor: Color = EditorialPalette.hairlineLight
+    var fillOpacity: Double = 0.78
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        content()
+            .padding(padding)
+            .background(Color.white.opacity(fillOpacity))
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(borderColor, lineWidth: 0.75)
+            )
+    }
+}
+
+// MARK: - Shared Meal & Food Visual Semantics
+enum EditorialMealTheme {
+    static func coverImageName(for slot: String) -> String {
+        switch DailySummary.canonicalMealSlot(slot) {
+        case "Breakfast": return "meal_cover_breakfast"
+        case "Lunch": return "meal_cover_lunch"
+        case "Dinner": return "meal_cover_dinner"
+        case "Snack": return "meal_cover_snack"
+        default: return "meal_cover_breakfast"
+        }
+    }
+
+    static func paletteIndex(for slot: String) -> Int {
+        switch DailySummary.canonicalMealSlot(slot) {
+        case "Breakfast": return 2 // Roasted Espresso Amber
+        case "Lunch": return 0     // Forest Sage
+        case "Dinner": return 5    // Deep Rosewood
+        case "Snack": return 1     // Deep Ocean Teal
+        default: return 0
+        }
+    }
+
+    static func symbolName(for slot: String) -> String {
+        switch DailySummary.canonicalMealSlot(slot) {
+        case "Breakfast": return "sunrise.fill"
+        case "Lunch": return "sun.max.fill"
+        case "Dinner": return "moon.stars.fill"
+        case "Snack": return "leaf.fill"
+        default: return "fork.knife"
+        }
+    }
+
+    static func accentColor(for slot: String) -> Color {
+        switch DailySummary.canonicalMealSlot(slot) {
+        case "Breakfast": return EditorialPalette.warmAmber
+        case "Lunch": return EditorialPalette.emerald
+        case "Dinner": return EditorialPalette.softPeach
+        case "Snack": return EditorialPalette.oceanSlate
+        default: return EditorialPalette.oat
+        }
+    }
+
+    static func foodCategoryMeta(for foodName: String) -> (symbol: String, color: Color) {
+        let lower = foodName.lowercased()
+        if lower.contains("coffee") || lower.contains("espresso") || lower.contains("tea") || lower.contains("latte")
+            || lower.contains("кофе") || lower.contains("чай") || lower.contains("матча") {
+            return ("cup.and.saucer.fill", EditorialPalette.warmAmber)
+        } else if lower.contains("salmon") || lower.contains("fish") || lower.contains("tuna") || lower.contains("shrimp")
+                    || lower.contains("рыб") || lower.contains("лосось") || lower.contains("тунец") {
+            return ("fish.fill", EditorialPalette.oceanSlate)
+        } else if lower.contains("chicken") || lower.contains("beef") || lower.contains("steak") || lower.contains("meat")
+                    || lower.contains("turkey") || lower.contains("куриц") || lower.contains("мяс") || lower.contains("стейк") || lower.contains("индей") {
+            return ("flame.fill", EditorialPalette.softPeach)
+        } else if lower.contains("apple") || lower.contains("berry") || lower.contains("banana") || lower.contains("fruit")
+                    || lower.contains("salad") || lower.contains("avocado") || lower.contains("ягод") || lower.contains("яблок")
+                    || lower.contains("салат") || lower.contains("авокад") || lower.contains("овощ") {
+            return ("leaf.fill", EditorialPalette.emerald)
+        } else if lower.contains("yogurt") || lower.contains("milk") || lower.contains("cheese") || lower.contains("cottage")
+                    || lower.contains("protein") || lower.contains("egg") || lower.contains("яйц") || lower.contains("яиц")
+                    || lower.contains("йогурт") || lower.contains("сыр") || lower.contains("творог") || lower.contains("молок") {
+            return ("drop.fill", EditorialPalette.oceanSlate)
+        } else if lower.contains("rice") || lower.contains("noodle") || lower.contains("pasta") || lower.contains("bread")
+                    || lower.contains("toast") || lower.contains("oat") || lower.contains("лапш") || lower.contains("рис")
+                    || lower.contains("хлеб") || lower.contains("овсян") || lower.contains("каш") || lower.contains("паст") {
+            return ("takeoutbag.and.cup.and.straw.fill", EditorialPalette.warmAmber)
+        } else if lower.contains("water") || lower.contains("вод") {
+            return ("drop.fill", EditorialPalette.oceanSlate)
+        } else {
+            return ("fork.knife", EditorialPalette.inkSecondary)
+        }
+    }
+}

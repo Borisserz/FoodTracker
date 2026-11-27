@@ -24,145 +24,140 @@ struct PremiumQuickAddSheet: View {
     @State private var quickCalories: Double = 300.0
 
     let mealOptions = [
-        ("Breakfast", "sunrise.fill", Color.themeYellow),
-        ("Lunch", "sun.max.fill", Color.green),
-        ("Snack", "cup.and.saucer.fill", Color.themeOrange),
-        ("Dinner", "moon.fill", Color.themePink)
+        ("Breakfast", "sunrise.fill", EditorialPalette.warmAmber),
+        ("Lunch", "sun.max.fill", EditorialPalette.emerald),
+        ("Snack", "leaf.fill", EditorialPalette.oceanSlate),
+        ("Dinner", "moon.stars.fill", EditorialPalette.softPeach)
     ]
 
     var body: some View {
         ZStack {
-
-            Color.themeBg.ignoresSafeArea()
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: 2)
+                .allowsHitTesting(false)
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-
+                VStack(spacing: 20) {
                     HStack {
                         Text("Quick Add")
                             .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkPrimary)
                         Spacer()
                         Button(action: { dismiss() }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(.gray.opacity(0.5))
+                            Image(systemName: "xmark")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundStyle(EditorialPalette.inkPrimary)
+                                .frame(width: 32, height: 32)
+                                .background(Color.white.opacity(0.84))
+                                .clipShape(Circle())
+                                .overlay(Circle().strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75))
                         }
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 24)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
 
-                    VStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 10) {
                         Text("Fast Calorie Entry")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .textCase(.uppercase)
+                            .foregroundStyle(EditorialPalette.inkSecondary)
+                            .padding(.horizontal, 4)
 
-                        VStack(spacing: 12) {
+                        EditorialDarkCard(cornerRadius: 22, padding: 20) {
+                            VStack(spacing: 14) {
+                                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                                    Text("\(Int(quickCalories))")
+                                        .font(.system(size: 52, weight: .heavy, design: .rounded).monospacedDigit())
+                                        .foregroundStyle(EditorialPalette.oat)
+                                        .contentTransition(.numericText())
 
-                            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                Text("\(Int(quickCalories))")
-                                    .font(.system(size: 56, weight: .heavy, design: .rounded))
-                                    .foregroundColor(.themePink)
-                                    .contentTransition(.numericText())
-
-                                Text("kcal")
-                                    .font(.title3.bold())
-                                    .foregroundColor(.gray)
-                            }
-
-                            Slider(value: Binding(
-                                get: { quickCalories },
-                                set: { newValue in
-                                    quickCalories = newValue
-
-                                    if Int(newValue) % 50 == 0 {
-                                        HapticManager.shared.impact(style: .light)
-                                    }
+                                    Text("kcal")
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .foregroundStyle(Color.white.opacity(0.68))
                                 }
-                            ), in: 10...1500, step: 10)
-                            .tint(.themePink)
 
-                            HStack(spacing: 12) {
-                                QuickPresetButton(label: "-50", color: .gray) { adjustCalories(by: -50) }
-                                QuickPresetButton(label: "+50", color: .gray) { adjustCalories(by: 50) }
-                                QuickPresetButton(label: "+100", color: .themePink) { adjustCalories(by: 100) }
-                                QuickPresetButton(label: "+300", color: .themePink) { adjustCalories(by: 300) }
-                            }
+                                Slider(value: Binding(
+                                    get: { quickCalories },
+                                    set: { newValue in
+                                        quickCalories = newValue
 
-                            Button(action: saveQuickCalories) {
-                                Text("Log \(Int(quickCalories)) kcal")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 14)
-                                    .background(Color.themePink)
-                                    .cornerRadius(16)
-                                    .shadow(color: Color.themePink.opacity(0.4), radius: 8, y: 4)
+                                        if Int(newValue) % 50 == 0 {
+                                            HapticManager.shared.impact(style: .light)
+                                        }
+                                    }
+                                ), in: 10...1500, step: 10)
+                                .tint(EditorialPalette.oat)
+
+                                HStack(spacing: 8) {
+                                    QuickPresetButton(label: "-50") { adjustCalories(by: -50) }
+                                    QuickPresetButton(label: "+50") { adjustCalories(by: 50) }
+                                    QuickPresetButton(label: "+100", emphasized: true) { adjustCalories(by: 100) }
+                                    QuickPresetButton(label: "+300", emphasized: true) { adjustCalories(by: 300) }
+                                }
+
+                                Button(action: saveQuickCalories) {
+                                    Text("Log \(Int(quickCalories)) kcal")
+                                }
+                                .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .oat, height: 50, cornerRadius: 14))
+                                .padding(.top, 4)
                             }
-                            .buttonStyle(BounceButtonStyle())
-                            .padding(.top, 8)
                         }
-                        .padding(20)
-                        .background(Color.white)
-                        .cornerRadius(24)
-                        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 20)
 
-                    VStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 10) {
                         Text("Or log a detailed meal")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 24)
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .textCase(.uppercase)
+                            .foregroundStyle(EditorialPalette.inkSecondary)
+                            .padding(.horizontal, 4)
 
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                             ForEach(mealOptions, id: \.0) { meal in
                                 Button(action: {
                                     HapticManager.shared.impact(style: .medium)
                                     onSelectDetailedMeal(meal.0)
                                     dismiss()
                                 }) {
-                                    HStack {
+                                    HStack(spacing: 9) {
                                         Image(systemName: meal.1)
-                                            .foregroundColor(meal.2)
-                                        Text(meal.0)
-                                            .font(.subheadline.bold())
-                                            .foregroundColor(.primary)
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundStyle(meal.2)
+                                            .frame(width: 30, height: 30)
+                                            .background(meal.2.opacity(0.14))
+                                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                        Text(LocalizedStringKey(meal.0))
+                                            .font(.system(size: 14.5, weight: .bold, design: .rounded))
+                                            .foregroundStyle(EditorialPalette.inkPrimary)
+                                        Spacer()
                                     }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 16)
-                                    .background(Color.white)
-                                    .cornerRadius(16)
-                                    .shadow(color: Color.black.opacity(0.03), radius: 5, y: 2)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 12)
+                                    .background(Color.white.opacity(0.82))
+                                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                            .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                                    )
                                 }
                                 .buttonStyle(BounceButtonStyle())
                             }
                         }
-                        .padding(.horizontal, 24)
                     }
-                    
+                    .padding(.horizontal, 20)
+
                     Button(action: {
                         HapticManager.shared.impact(style: .medium)
                         onSelectActivity()
                         dismiss()
                     }) {
-                        HStack {
+                        HStack(spacing: 8) {
                             Image(systemName: "figure.run")
-                                .font(.system(size: 20))
+                                .font(.system(size: 17, weight: .semibold))
                             Text("Log Physical Activity")
-                                .font(.headline)
                         }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.themeOrange)
-                        .cornerRadius(16)
-                        .shadow(color: Color.themeOrange.opacity(0.4), radius: 8, y: 4)
                     }
-                    .buttonStyle(BounceButtonStyle())
-                    .padding(.horizontal, 24)
-                    .padding(.top, 8)
+                    .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, height: 52))
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 24)
                 }
             }
@@ -216,18 +211,22 @@ struct PremiumQuickAddSheet: View {
 
 struct QuickPresetButton: View {
     let label: String
-    let color: Color
+    var emphasized: Bool = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
-                .foregroundColor(color)
+                .font(.system(size: 13.5, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundStyle(emphasized ? EditorialPalette.oat : Color.white.opacity(0.76))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(color.opacity(0.1))
-                .cornerRadius(12)
+                .background(EditorialPalette.chipDark)
+                .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .strokeBorder(emphasized ? EditorialPalette.oat.opacity(0.28) : Color.white.opacity(0.08), lineWidth: 0.75)
+                )
         }
     }
 }

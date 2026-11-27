@@ -102,120 +102,134 @@ struct AIMoodAdvicePopup: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
+        ZStack {
+            DynamicAuroraBackgroundView(pinnedPaletteIndex: 4)
+                .allowsHitTesting(false)
 
-            // Glowing AI Emoji
-            ZStack {
-                Circle()
-                    .fill(themeManager.current.primaryGradient)
-                    .frame(width: 100, height: 100)
-                    .blur(radius: 20)
-                    .opacity(0.5)
+            VStack(spacing: 20) {
+                // Editorial Dark Medallion
+                ZStack {
+                    Circle()
+                        .fill(EditorialPalette.cardDark)
+                        .frame(width: 96, height: 96)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(EditorialPalette.cardBorderDarkFocused, lineWidth: 1)
+                        )
 
-                Text(moodEmoji)
-                    .font(.system(size: 60))
+                    Text(moodEmoji)
+                        .font(.system(size: 46))
 
-                Image(systemName: "sparkles")
-                    .font(.title)
-                    .foregroundColor(themeManager.current.primaryAccent)
-                    .offset(x: 35, y: -35)
-            }
-            .padding(.top, 36)
-
-            VStack(spacing: 10) {
-                if isLoadingAI {
-                    HStack(spacing: 6) {
-                        ProgressView().scaleEffect(0.75)
-                        Text("Personalizing AI advice...")
-                            .font(.caption.bold())
-                            .foregroundColor(themeManager.current.primaryAccent)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(themeManager.current.primaryAccent.opacity(0.1))
-                    .clipShape(Capsule())
-                } else if dynamicAdvice != nil {
-                    HStack(spacing: 4) {
-                        Image(systemName: "sparkles")
-                        Text("Personalized AI Insight")
-                    }
-                    .font(.caption2.bold())
-                    .foregroundColor(themeManager.current.primaryAccent)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(themeManager.current.primaryAccent.opacity(0.1))
-                    .clipShape(Capsule())
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(EditorialPalette.oat)
+                        .padding(6)
+                        .background(EditorialPalette.chipDark)
+                        .clipShape(Circle())
+                        .overlay(Circle().strokeBorder(EditorialPalette.cardBorderDark, lineWidth: 1))
+                        .offset(x: 34, y: -32)
                 }
+                .padding(.top, 28)
 
-                Text(aiAdviceTitle)
-                    .font(.title2.bold())
-                    .multilineTextAlignment(.center)
-
-                Text(aiAdviceMessage)
-                    .font(.body)
-                    .foregroundColor(.gray)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-
-                if !isLoadingAI && dynamicAdvice == nil && !AIPhotoConsentManager.shared.hasConsented {
-                    Button {
-                        showAIConsentSheet = true
-                    } label: {
+                VStack(spacing: 10) {
+                    if isLoadingAI {
                         HStack(spacing: 6) {
-                            Image(systemName: "sparkles")
-                            Text("Personalize with AI")
+                            ProgressView().scaleEffect(0.75)
+                            Text("Personalizing AI advice...")
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundStyle(EditorialPalette.inkPrimary)
                         }
-                        .font(.caption.bold())
-                        .foregroundColor(themeManager.current.primaryAccent)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(themeManager.current.primaryAccent.opacity(0.12))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .background(EditorialPalette.surfaceLight)
+                        .clipShape(Capsule())
+                        .overlay(Capsule().strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75))
+                    } else if dynamicAdvice != nil {
+                        HStack(spacing: 5) {
+                            Image(systemName: "sparkles")
+                                .foregroundStyle(EditorialPalette.oat)
+                            Text("Personalized AI Insight")
+                                .foregroundStyle(.white)
+                        }
+                        .font(.system(size: 11.5, weight: .bold, design: .rounded))
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 5)
+                        .background(EditorialPalette.cardDark)
                         .clipShape(Capsule())
                     }
-                    .buttonStyle(.plain)
-                    .padding(.top, 4)
+
+                    Text(aiAdviceTitle)
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(EditorialPalette.inkPrimary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+
+                    EditorialLightCard(cornerRadius: 18, padding: 16) {
+                        Text(aiAdviceMessage)
+                            .font(.system(size: 14.5, weight: .regular, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkSecondary)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .padding(.horizontal, 20)
+
+                    if !isLoadingAI && dynamicAdvice == nil && !AIPhotoConsentManager.shared.hasConsented {
+                        Button {
+                            showAIConsentSheet = true
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "sparkles")
+                                    .foregroundStyle(EditorialPalette.oat)
+                                Text("Personalize with AI")
+                                    .foregroundStyle(.white)
+                            }
+                            .font(.system(size: 12.5, weight: .bold, design: .rounded))
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(EditorialPalette.cardDark)
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.top, 4)
+                    }
                 }
-            }
-            .animation(.easeInOut(duration: 0.25), value: aiAdviceMessage)
+                .animation(.easeInOut(duration: 0.25), value: aiAdviceMessage)
 
-            Spacer()
+                Spacer()
 
-            NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
-                .padding(.horizontal, 24)
+                NutritionMethodologyDisclaimerView(citations: [.dietaryGuidelines], compact: true)
+                    .padding(.horizontal, 20)
 
-            VStack(spacing: 16) {
-                Button(action: {
-                    dismiss()
-                    Task {
-                        try? await Task.sleep(for: .milliseconds(300))
-                        await MainActor.run {
-                            onChatWithCoach()
+                VStack(spacing: 10) {
+                    Button(action: {
+                        dismiss()
+                        Task {
+                            try? await Task.sleep(for: .milliseconds(300))
+                            await MainActor.run {
+                                onChatWithCoach()
+                            }
+                        }
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "message.fill")
+                            Text("Chat with AI Coach")
                         }
                     }
-                }) {
-                    HStack {
-                        Image(systemName: "message.fill")
-                        Text("Chat with AI Coach")
-                    }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(themeManager.current.primaryGradient)
-                    .cornerRadius(16)
-                    .shadow(color: themeManager.current.primaryAccent.opacity(0.3), radius: 10, y: 5)
-                }
+                    .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, height: 52))
 
-                Button(action: { dismiss() }) {
-                    Text("Got it")
-                        .font(.headline)
-                        .foregroundColor(.gray)
+                    Button(action: { dismiss() }) {
+                        Text("Got it")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.inkSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 36)
+                    }
+                    .buttonStyle(.plain)
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 22)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 32)
         }
-        .background(Color.themeBg.ignoresSafeArea())
         .sheet(isPresented: $showAIConsentSheet) {
             AIPhotoConsentSheet(
                 onAllow: {
