@@ -412,11 +412,12 @@ private struct FlaskWaveShape: Shape {
         var path = Path()
         let width = rect.width
         let height = rect.height
+        guard width > 0, height > 0 else { return path }
         
         path.move(to: CGPoint(x: 0, y: height))
         path.addLine(to: CGPoint(x: 0, y: waterLevel))
         
-        let wavelength = width * 0.75
+        let wavelength = max(width * 0.75, 1)
         for x in stride(from: 0, through: width + 6, by: 4) {
             let relativeX = x / wavelength
             let sine = sin(relativeX * 2 * .pi + phase)

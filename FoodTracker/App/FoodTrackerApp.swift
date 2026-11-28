@@ -18,6 +18,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         if upperID.hasPrefix("FASTING_") || upperID.hasPrefix("PHASE_") || upperCategory.hasPrefix("FASTING_") {
             return "fasting"
         }
+        if upperID.contains("WATER") || upperID.contains("HYDRATION") || upperCategory.contains("WATER") || upperCategory.contains("HYDRATION") {
+            return "hydration"
+        }
+        if upperID.hasPrefix("FT_REMIND_") || upperID.contains("MEAL") || upperID.contains("WEIGHT") {
+            return "home"
+        }
         return nil
     }
 

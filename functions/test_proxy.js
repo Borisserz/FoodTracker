@@ -1332,7 +1332,7 @@ test("callOpenRouterText tracks attemptMeta and stops paid cascade on invalid or
     assert.deepEqual(metaFree429, { receivedCompletion: false, attemptedPaid: false });
     assert.equal(t.shouldRefundQuotaSlot({ yielded: false, ...metaFree429 }), true);
 
-    // 2. Free model returns HTTP 200 with invalid JSON -> receivedCompletion=true -> NOT refundable
+    // 2. Free model returns HTTP 200 with invalid JSON -> throws & refunds quota (receivedCompletion stays false)
     const metaFreeInvalidJson = { receivedCompletion: false, attemptedPaid: false };
     globalThis.fetch = async () => ({
       ok: true,
@@ -1353,8 +1353,8 @@ test("callOpenRouterText tracks attemptMeta and stops paid cascade on invalid or
         }),
       /Invalid JSON output/
     );
-    assert.deepEqual(metaFreeInvalidJson, { receivedCompletion: true, attemptedPaid: false });
-    assert.equal(t.shouldRefundQuotaSlot({ yielded: false, ...metaFreeInvalidJson }), false);
+    assert.deepEqual(metaFreeInvalidJson, { receivedCompletion: false, attemptedPaid: false });
+    assert.equal(t.shouldRefundQuotaSlot({ yielded: false, ...metaFreeInvalidJson }), true);
 
     // 3. Paid model returns HTTP 200 with invalid JSON -> breaks outer loop, never calls second paid model
     const calledOnInvalidJson = [];
@@ -1608,4 +1608,49 @@ test("checkBurstRateLimit blocks requests exceeding per-minute cap and resets af
 
   const afterReset = t.checkBurstRateLimit("u1", { limit: 3, windowMs: 60_000, now: t0 + 61_000, store });
   assert.equal(afterReset.allowed, true);
+});
+
+test("geminiBodyToOpenAI omits response-healing when streaming and preserves combined text+inlineData part", () => {
+  const streamed = t.geminiBodyToOpenAI(
+    {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: "Identify dish", inlineData: { mimeType: "image/jpeg", data: "YWJj" } }],
+        },
+      ],
+      generationConfig: { responseMimeType: "application/json" },
+    },
+    { streaming: true, model: "google/gemma-4-31b-it:free" }
+  );
+  assert.equal(streamed.plugins, undefined);
+  assert.equal(streamed.messages[0].content.length, 2);
+  assert.equal(streamed.messages[0].content[0].type, "text");
+  assert.equal(streamed.messages[0].content[1].type, "image_url");
+});
+
+test("parseFatSecretDescription extracts parenthetical gram weights and normalizeFatSecretFood forwards fiber and sugar", () => {
+  const parsed = t.parseFatSecretDescription(
+    "Per 1 cup (240g) - Calories: 150kcal | Fat: 3.00g | Carbs: 20.00g | Protein: 8.00g"
+  );
+  assert.equal(parsed.weight, 240);
+  assert.equal(parsed.calories, 150);
+
+  const item = t.normalizeFatSecretFood({
+    food_name: "Greek Oats",
+    servings: {
+      serving: {
+        metric_serving_amount: "100",
+        metric_serving_unit: "g",
+        calories: "380",
+        protein: "13",
+        fat: "7",
+        carbohydrate: "66",
+        fiber: "10.5",
+        sugar: "1.2",
+      },
+    },
+  });
+  assert.equal(item.fiber, 10.5);
+  assert.equal(item.sugar, 1.2);
 });

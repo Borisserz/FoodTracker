@@ -163,7 +163,7 @@ public struct SmartSearch {
         case "it":
             // Italian: Plurals usually change final vowel to 'i' or 'e'.
             // Stripping the final vowel provides the root prefix.
-            let lastChar = word.last!
+            guard let lastChar = word.last else { return word }
             if ["a", "e", "i", "o", "u"].contains(lastChar) {
                 return String(word.dropLast(1))
             }

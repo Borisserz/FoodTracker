@@ -39,9 +39,11 @@ struct WeightTrackerCardView: View {
 
     private var chartData: [(date: Date, weight: Double)] {
         allSummaries
-            .filter { $0.weight != nil && $0.weight! > 0 }
+            .compactMap { entry -> (date: Date, weight: Double)? in
+                guard let w = entry.weight, w > 0 else { return nil }
+                return (date: entry.date, weight: NutritionMath.displayWeight(w, useMetric: useMetricSystem))
+            }
             .prefix(7)
-            .map { (date: $0.date, weight: NutritionMath.displayWeight($0.weight!, useMetric: useMetricSystem)) }
             .reversed()
     }
 
@@ -53,7 +55,7 @@ struct WeightTrackerCardView: View {
 
         let previousEntry = allSummaries
             .suffix(from: currentIndex + 1)
-            .first(where: { $0.weight != nil && $0.weight! > 0 })
+            .first(where: { ($0.weight ?? 0) > 0 })
 
         guard let currentWeight = summary.weight, let previousWeight = previousEntry?.weight else {
             return (0, "minus", .gray)
@@ -212,7 +214,7 @@ private struct WeightInputSheet: View {
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 40, height: 5)
 
-            Text("Enter Today's Weight")
+            Text("Log Weight")
                 .font(.headline)
 
             HStack(alignment: .firstTextBaseline, spacing: 4) {

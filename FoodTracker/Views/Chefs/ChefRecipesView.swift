@@ -1013,7 +1013,8 @@ struct PremiumRecipeDetailView: View {
                                     HStack {
                                         Button(action: { if servings > 1 { servings -= 1; HapticManager.shared.impact(style: .light) }}) { Image(systemName: "minus").foregroundColor(.gray) }
                                         Spacer(); Text("\(servings)").font(.title3.bold()); Spacer()
-                                        Button(action: { servings += 1; HapticManager.shared.impact(style: .light) }) { Image(systemName: "plus").foregroundColor(.gray) }
+                                        Button(action: { if servings < 20 { servings += 1; HapticManager.shared.impact(style: .light) } }) { Image(systemName: "plus").foregroundColor(servings < 20 ? .gray : .gray.opacity(0.35)) }
+                                            .disabled(servings >= 20)
                                     }.padding().frame(width: 120).background(Color.white).cornerRadius(16).overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.gray.opacity(0.2), lineWidth: 1))
                                     HStack {
                                         Text("\(servings) / \(max(recipe.baseServings, 1))").font(.subheadline.bold()).foregroundColor(.gray)

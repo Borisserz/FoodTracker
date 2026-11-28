@@ -21,7 +21,7 @@ struct AICoachDashboardView: View {
     init(selectedDate: Date) {
         self.selectedDate = selectedDate
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay.addingTimeInterval(86_400)
         let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
         self._summaries = Query(filter: predicate)
     }
@@ -580,7 +580,20 @@ struct DailyVerdictGlassCard: View {
                 .clipShape(Capsule())
 
                 Spacer()
-                if isLoading { ProgressView().tint(moodColor) }
+                if isLoading {
+                    ProgressView().tint(moodColor)
+                } else if hasAnalyzed {
+                    Button(action: onAnalyze) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(moodColor)
+                            .frame(width: 28, height: 28)
+                            .background(moodColor.opacity(0.12))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(BounceButtonStyle())
+                    .accessibilityLabel("Re-analyze Day")
+                }
             }
 
             Text(title)
@@ -891,6 +904,7 @@ struct HydrationFixResultSheet: View {
     let color: Color
     var onDrinkNow: (() -> Void)? = nil
     @State private var reminderScheduled = false
+    @State private var showNotificationDeniedAlert = false
 
     var body: some View {
         ZStack {
@@ -987,13 +1001,26 @@ struct HydrationFixResultSheet: View {
                 }
             }
         }
+        .alert("Notifications Disabled", isPresented: $showNotificationDeniedAlert) {
+            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                Link("Open Settings", destination: settingsURL)
+            }
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Enable notifications in Settings to receive hydration reminders.")
+        }
     }
 
     private func scheduleHydrationReminder() {
         let minutes = max(1, advice.nextGlassTimeMinutes)
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
-            guard granted else { return }
+            guard granted else {
+                DispatchQueue.main.async {
+                    showNotificationDeniedAlert = true
+                }
+                return
+            }
             let content = UNMutableNotificationContent()
             content.title = String(localized: "Time to Hydrate 💧")
             content.body = String(localized: "Drink your next glass of water to hit today's hydration target.")

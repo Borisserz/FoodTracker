@@ -58,4 +58,18 @@ final class DietModelTests: XCTestCase {
         XCTAssertTrue(FastingDataLoader.shouldPreferRemoteCatalog(languageCode: "en"))
         XCTAssertFalse(FastingDataLoader.shouldPreferRemoteCatalog(languageCode: "de"))
     }
+
+    func testVeganCompatibilityDetectsMultilingualAnimalIngredientsAndPureOilNotClean() {
+        let veganDiet = DietPlan.defaultDiets.first { $0.key == "vegan" }
+        let salmonRu = FoodItem(name: "Филе лосося", weight: 150, calories: 310, protein: 30, fats: 20, carbs: 0)
+        let cheese = FoodItem(name: "Cheddar Cheese", weight: 50, calories: 200, protein: 12, fats: 16, carbs: 1)
+        let shrimp = FoodItem(name: "Креветки гриль", weight: 100, calories: 100, protein: 21, fats: 1.5, carbs: 0)
+
+        XCTAssertEqual(salmonRu.compatibility(with: veganDiet), .avoid)
+        XCTAssertEqual(cheese.compatibility(with: veganDiet), .avoid)
+        XCTAssertEqual(shrimp.compatibility(with: veganDiet), .avoid)
+
+        let pureOil = FoodItem(name: "Olive Oil", weight: 10, calories: 90, protein: 0, fats: 10, carbs: 0)
+        XCTAssertNotEqual(pureOil.healthGrade, .clean, "Pure oil with 0 protein and 0 carbs must not be graded Clean")
+    }
 }

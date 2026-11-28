@@ -66,8 +66,9 @@ actor AnonymousAuthBootstrap {
                 return existing
             }
             var waitCycles = 0
+            let maxWaitCycles = max(1, Int((defaultLeaseTTL / 0.05).rounded()))
             pruneExpiredLeases(ttl: defaultLeaseTTL)
-            while !activeInteractiveLeases.isEmpty && waitCycles < 1200 {
+            while !activeInteractiveLeases.isEmpty && waitCycles < maxWaitCycles {
                 try Task.checkCancellation()
                 try await Task.sleep(for: .milliseconds(50))
                 waitCycles += 1

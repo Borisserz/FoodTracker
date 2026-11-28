@@ -442,7 +442,8 @@ function geminiBodyToOpenAI(body, { streaming, model }) {
       for (const p of parts) {
         if (typeof p?.text === "string" && p.text.length > 0) {
           contentParts.push({ type: "text", text: p.text });
-        } else if (p?.inlineData?.data) {
+        }
+        if (p?.inlineData?.data) {
           const mime = p.inlineData.mimeType || "image/jpeg";
           contentParts.push({
             type: "image_url",
@@ -478,7 +479,9 @@ function geminiBodyToOpenAI(body, { streaming, model }) {
   }
 
   if (wantsJson) {
-    openAIBody.plugins = [{ id: "response-healing" }];
+    if (!streaming) {
+      openAIBody.plugins = [{ id: "response-healing" }];
+    }
     if (gen.responseSchema && STRUCTURED_MODELS.has(model)) {
       const jsonSchema = convertGeminiSchema(gen.responseSchema);
       if (jsonSchema) {
@@ -1209,13 +1212,17 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {}, attempt
           console.warn(lastError.message);
           break;
         }
-        if (attemptMeta) attemptMeta.receivedCompletion = true;
         if (expectJSON) {
           try {
             if (!isMeaningfulJsonOutput(outText)) {
               throw new Error("Empty JSON container");
             }
           } catch (e) {
+            // For paid models, mark receivedCompletion when a completion arrived; for free models,
+            // leave receivedCompletion=false so a 502 after garbled JSON refunds the user's slot.
+            if (!isFreeModelId(model) && attemptMeta) {
+              attemptMeta.receivedCompletion = true;
+            }
             lastError = new Error(
               `Invalid JSON output from ${model}: ${e.message}`
             );
@@ -1226,6 +1233,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {}, attempt
             break;
           }
         }
+        if (attemptMeta) attemptMeta.receivedCompletion = true;
         return gemini;
       } catch (e) {
         lastError = e;
@@ -1485,7 +1493,12 @@ function parseFatSecretDescription(description) {
   const protMatch = description.match(/Protein:\s*([0-9.,]+)\s*g/i);
   if (!calMatch && !fatMatch && !carbMatch && !protMatch) return null;
 
-  const weightMatch = description.match(/^Per\s+([0-9.,]+)\s*(fl\s+oz|g|ml|oz|lb|lbs|kg|mg)\b/i);
+  const parenMatch = description.match(
+    /\(\s*([0-9.,]+)\s*(fl\s+oz|g|ml|oz|lb|lbs|kg|mg)\s*\)/i
+  );
+  const weightMatch =
+    parenMatch ||
+    description.match(/^Per\s+([0-9.,]+)\s*(fl\s+oz|g|ml|oz|lb|lbs|kg|mg)\b/i);
   const parsedWeight = weightMatch
     ? convertMetricWeightToGrams(
         parseNumericValue(weightMatch[1]),
@@ -1533,6 +1546,10 @@ function normalizeFatSecretFood(food, { isV2MetricMicros = false } = {}) {
     if (servingDesc) {
       result.servingDescription = servingDesc;
     }
+    const fiberVal = parseNumericValue(serving.fiber);
+    const sugarVal = parseNumericValue(serving.sugar);
+    if (fiberVal > 0) result.fiber = roundNutrientValue(fiberVal);
+    if (sugarVal > 0) result.sugar = roundNutrientValue(sugarVal);
     // FatSecret v1 reports calcium/iron/vitamin_c/vitamin_d in % Daily Value, whereas
     // FatSecret v2 barcode/food endpoints report metric units (mg / mcg) directly.
     const rawCalcium = parseNumericValue(serving.calcium);
@@ -1957,7 +1974,9 @@ exports.foodAiProxy = onRequest(
           message: sanitizeUpstreamErrorMessage(e?.message || e, "ai"),
         });
       } else {
-        res.write(`data: ${JSON.stringify({ error: "stream_interrupted" })}\n\ndata: [DONE]\n\n`);
+        if (!emittedDone) {
+          res.write(`data: ${JSON.stringify({ error: "stream_interrupted" })}\n\ndata: [DONE]\n\n`);
+        }
         res.end();
       }
     }

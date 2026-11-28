@@ -295,6 +295,10 @@ struct SmartScannerView: View {
                                     toggleFlashlight()
                                 }
                             }
+                        } else if selectedMode == .barcode && !isBarcodePermissionDenied && (canUseDataScanner || canUseAVBarcodeFallback) {
+                            FloatingActionButton(icon: isFlashlightOn ? "bolt.fill" : "bolt.slash.fill") {
+                                toggleFlashlight()
+                            }
                         } else {
                             Color.clear.frame(width: 56, height: 56)
                         }
@@ -720,11 +724,29 @@ struct SmartScannerView: View {
     }
 
     private func toggleFlashlight() {
-        guard selectedMode == .mealAI || selectedMode == .menuAI else { return }
         let targetState = !isFlashlightOn
-        cameraManager.setTorch(enabled: targetState) { actualState in
-            isFlashlightOn = actualState
+        if selectedMode == .mealAI || selectedMode == .menuAI {
+            cameraManager.setTorch(enabled: targetState) { actualState in
+                isFlashlightOn = actualState
+                HapticManager.shared.impact(style: .light)
+            }
+            return
+        }
+        guard selectedMode == .barcode,
+              let device = AVCaptureDevice.default(for: .video),
+              device.hasTorch else {
+            return
+        }
+        do {
+            try device.lockForConfiguration()
+            device.torchMode = targetState ? .on : .off
+            device.unlockForConfiguration()
+            isFlashlightOn = targetState
             HapticManager.shared.impact(style: .light)
+        } catch {
+            #if DEBUG
+            print("⚠️ Torch error: \(error.localizedDescription)")
+            #endif
         }
     }
 }

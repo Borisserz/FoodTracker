@@ -275,10 +275,13 @@ enum NutritionMath {
             let totalProtein = Int(summary.totalProtein)
             let totalCalories = Int(summary.totalCalories)
 
-            if totalProtein >= Int(user.targetProtein) {
-                proteinXP = 100
-            } else if totalProtein >= max(1, Int(user.targetProtein) - 20) {
-                proteinXP = 50
+            if totalProtein > 0 {
+                let targetP = Int(user.targetProtein)
+                if totalProtein >= targetP {
+                    proteinXP = 100
+                } else if targetP > 0 && totalProtein >= max(1, targetP - 20) {
+                    proteinXP = 50
+                }
             }
 
             if totalCalories > 0 {
@@ -299,9 +302,13 @@ enum NutritionMath {
         return String(format: "%04d-%02d-%02d", comps.year ?? 0, comps.month ?? 0, comps.day ?? 0)
     }
 
-    static func hasClaimedFinishDayXP(for date: Date, defaults: UserDefaults = .standard) -> Bool {
+    static func hasClaimedFinishDayXP(
+        for date: Date,
+        defaults: UserDefaults = .standard,
+        calendar: Calendar = .current
+    ) -> Bool {
         let keys = defaults.stringArray(forKey: xpClaimedDateKeysKey) ?? []
-        return keys.contains(dayKey(for: date))
+        return keys.contains(dayKey(for: date, calendar: calendar))
     }
 
     /// Marks the given calendar day as claimed and returns `true` only on the first claim for that day.
@@ -317,7 +324,7 @@ enum NutritionMath {
         let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: todayStart) ?? todayStart
         guard dayStart >= yesterdayStart && dayStart <= todayStart else { return false }
 
-        let key = dayKey(for: date)
+        let key = dayKey(for: date, calendar: calendar)
         var keys = defaults.stringArray(forKey: xpClaimedDateKeysKey) ?? []
         guard !keys.contains(key) else { return false }
         keys.append(key)
@@ -446,6 +453,7 @@ enum NutritionMath {
                     await deleteBodyMassSample(sampleToDelete.sampleID, sampleToDelete.kg, sampleToDelete.date)
                 }
                 if let uuid = await saveBodyMass(newWeight, syncDate) {
+                    guard !activeLog.isDeleted, activeLog.modelContext != nil else { return }
                     activeLog.healthKitSampleID = uuid.uuidString
                     try? container.mainContext.save()
                 }
@@ -514,7 +522,7 @@ enum NutritionMath {
         guard let firstDay = sortedDays.first else { return 0 }
 
         let today = calendar.startOfDay(for: referenceDate)
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        guard let yesterday = calendar.date(byAdding: .day, value: -1, to: today) else { return 0 }
         guard firstDay == today || firstDay == yesterday else { return 0 }
 
         var streak = 1

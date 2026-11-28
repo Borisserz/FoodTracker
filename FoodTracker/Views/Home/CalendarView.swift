@@ -130,7 +130,7 @@ struct CalendarCarouselView: View {
                         .buttonStyle(BounceButtonStyle())
                         .padding(.leading, 4)
                     }
-                    .padding(.horizontal, centerPoint - 28)
+                    .padding(.horizontal, max(0, centerPoint - 28))
                     .padding(.vertical, 10)
                 }
 

@@ -31,8 +31,23 @@ struct FastingActivityWidget: Widget {
                     VStack(alignment: .leading) {
                         Text(LocalizedStringKey(context.state.currentStage))
                             .font(.caption.bold())
-                        ProgressView(value: context.state.progressPct)
+                        if !context.state.isCompleted && !context.isStale,
+                           let startDate = context.attributes.startDate,
+                           startDate < context.attributes.targetEndDate,
+                           Date() < context.attributes.targetEndDate {
+                            ProgressView(
+                                timerInterval: startDate...context.attributes.targetEndDate,
+                                countsDown: false
+                            ) {
+                                EmptyView()
+                            } currentValueLabel: {
+                                EmptyView()
+                            }
                             .tint(.orange)
+                        } else {
+                            ProgressView(value: context.state.progressPct)
+                                .tint(.orange)
+                        }
                     }
                 }
             } compactLeading: {
@@ -113,6 +128,21 @@ struct LockScreenFastingView: View {
                             .foregroundColor((context.state.isCompleted || isOvertime) ? .green : .orange)
                     }
                     .padding(.top, 2)
+                    if !context.state.isCompleted && !context.isStale,
+                       let startDate = context.attributes.startDate,
+                       startDate < context.attributes.targetEndDate,
+                       Date() < context.attributes.targetEndDate {
+                        ProgressView(
+                            timerInterval: startDate...context.attributes.targetEndDate,
+                            countsDown: false
+                        ) {
+                            EmptyView()
+                        } currentValueLabel: {
+                            EmptyView()
+                        }
+                        .tint(.orange)
+                        .padding(.top, 4)
+                    }
                 }
                 Spacer()
             }

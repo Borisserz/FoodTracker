@@ -86,12 +86,22 @@ struct WidgetTimelineProvider: TimelineProvider {
     }
 
     private func buildTodaySnapshot(in modelContext: ModelContext) -> DailyWidgetSnapshot {
-        let todaySummary = DailySummary.fetchExisting(for: Date(), in: modelContext)
+        let today = Date()
+        let todaySummary = DailySummary.fetchExisting(for: today, in: modelContext)
         let user = try? modelContext.fetch(FetchDescriptor<User>()).first
-        return DailyWidgetSnapshot.compute(summary: todaySummary, user: user)
+        return DailyWidgetSnapshot.compute(
+            summary: todaySummary,
+            user: user,
+            sharedDefaults: UserDefaults(suiteName: WorkoutSyncManager.suiteName),
+            date: today
+        )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (FoodTrackerEntry) -> ()) {
+        if context.isPreview {
+            completion(placeholder(in: context))
+            return
+        }
         Task {
             let snapshot = await fetchTodaySnapshot(in: context)
             completion(FoodTrackerEntry.from(snapshot: snapshot))
@@ -130,6 +140,10 @@ struct ShoppingListTimelineProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ShoppingListEntry) -> ()) {
+        if context.isPreview {
+            completion(placeholder(in: context))
+            return
+        }
         Task {
             let entry = await fetchItems(in: context)
             completion(entry)

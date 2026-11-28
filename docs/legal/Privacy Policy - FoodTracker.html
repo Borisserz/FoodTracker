@@ -59,7 +59,7 @@ App you agree to the practices described below.
 </tr>
 <tr>
 <td>Device &amp; Abuse Prevention</td>
-<td>An app-scoped random installation identifier stored in Apple Keychain (<code>X-Device-Install-ID</code>) and crash/performance diagnostics</td>
+<td>An app-scoped random installation identifier stored in Apple Keychain (<code>X-Device-Install-ID</code>), one-way hashed request IP metadata for rate-limit enforcement, and crash/performance diagnostics</td>
 <td>To prevent abuse of AI and food search rate limits and diagnose crashes</td>
 </tr>
 </table>
@@ -92,7 +92,7 @@ do not share HealthKit data with third parties. HealthKit data is processed on y
     <strong>Before &amp; After Progress Photos</strong> — Stored locally on your device inside Application Support with iOS file protection and excluded from iCloud backups. They are never uploaded unless you explicitly consent and tap AI analysis.
   </li>
   <li>
-    <strong>Cloud Content &amp; Quotas</strong> — The App fetches curated Academy articles, recipes, and diet plans from Google Firebase Firestore (read-only), and stores weekly API rate-limit counters linked to your Firebase UID and installation identifier.
+    <strong>Cloud Content &amp; Quotas</strong> — The App fetches curated Academy articles, recipes, and diet plans from Google Firebase Firestore (read-only), and stores weekly/short-window API rate-limit counters linked to your Firebase UID, installation identifier, and one-way hashed request IP metadata.
   </li>
   <li>
     <strong>Ecosystem Sync (WorkoutTracker)</strong> — If you also install our companion app WorkoutTracker, daily workout calories and pure water totals can be exchanged locally on-device via the shared App Group (<code>group.com.borisdev.WorkoutTracker</code>).

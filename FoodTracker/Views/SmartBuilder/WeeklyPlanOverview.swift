@@ -10,6 +10,7 @@ struct WeeklyPlanOverview: View {
     let onDismiss: () -> Void
     
     @State private var selectedDayIndex = 0
+    @State private var appliedDayIndices: Set<Int> = []
     @State private var showSuccessToast = false
     @State private var showGrocerySuccess = false
     
@@ -174,20 +175,21 @@ struct WeeklyPlanOverview: View {
                         }
                         .disabled(showGrocerySuccess)
                         
+                        let isDayApplied = appliedDayIndices.contains(selectedDayIndex)
                         Button(action: applyToToday) {
                             HStack(spacing: 6) {
-                                Image(systemName: "tray.and.arrow.down.fill")
-                                Text("Apply to Today")
+                                Image(systemName: isDayApplied ? "checkmark.circle.fill" : "tray.and.arrow.down.fill")
+                                Text(isDayApplied ? "Applied to Today" : "Apply to Today")
                             }
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background((selectedDay?.meals ?? []).isEmpty ? AnyShapeStyle(Color.gray.opacity(0.4)) : AnyShapeStyle(themeManager.current.primaryGradient))
+                            .background(((selectedDay?.meals ?? []).isEmpty || isDayApplied) ? AnyShapeStyle(Color.gray.opacity(0.4)) : AnyShapeStyle(themeManager.current.primaryGradient))
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            .shadow(color: (selectedDay?.meals ?? []).isEmpty ? .clear : themeManager.current.primaryAccent.opacity(0.25), radius: 8, y: 4)
+                            .shadow(color: ((selectedDay?.meals ?? []).isEmpty || isDayApplied) ? .clear : themeManager.current.primaryAccent.opacity(0.25), radius: 8, y: 4)
                         }
-                        .disabled(showSuccessToast || (selectedDay?.meals ?? []).isEmpty)
+                        .disabled(isDayApplied || (selectedDay?.meals ?? []).isEmpty)
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 16)
@@ -239,7 +241,11 @@ struct WeeklyPlanOverview: View {
     }
     
     private func applyToToday() {
-        guard let day = selectedDay, let dayMeals = day.meals, !dayMeals.isEmpty else { return }
+        guard !appliedDayIndices.contains(selectedDayIndex),
+              let day = selectedDay,
+              let dayMeals = day.meals,
+              !dayMeals.isEmpty else { return }
+        appliedDayIndices.insert(selectedDayIndex)
         HapticManager.shared.impact(style: .medium)
         
         let startOfDay = Calendar.current.startOfDay(for: Date())
@@ -355,6 +361,7 @@ enum SmartPlanIngredientParser {
 struct MealPlanItemCard: View {
     @Environment(ThemeManager.self) private var themeManager
     let meal: MealPlanItem
+    @State private var isExpanded = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -380,13 +387,20 @@ struct MealPlanItemCard: View {
             Text(meal.ingredients)
                 .font(.subheadline)
                 .foregroundColor(.gray)
-                .lineLimit(3)
+                .lineLimit(isExpanded ? nil : 3)
 
             if !meal.instructions.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Text(meal.instructions)
                     .font(.caption)
                     .foregroundColor(.secondary)
-                    .lineLimit(3)
+                    .lineLimit(isExpanded ? nil : 3)
+            }
+
+            HStack {
+                Spacer()
+                Text(isExpanded ? "Show Less" : "Read More")
+                    .font(.caption2.bold())
+                    .foregroundColor(themeManager.current.primaryAccent)
             }
             
             HStack(spacing: 10) {
@@ -413,5 +427,11 @@ struct MealPlanItemCard: View {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation(.spring(response: 0.25)) {
+                isExpanded.toggle()
+            }
+        }
     }
 }

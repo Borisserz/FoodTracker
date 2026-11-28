@@ -111,8 +111,12 @@ final class HealthKitManagerTests: XCTestCase {
             AppDelegate.notificationDeepLinkRoute(identifier: "fasting_goal_reached", categoryIdentifier: "FASTING_PHASE"),
             "fasting"
         )
+        XCTAssertEqual(
+            AppDelegate.notificationDeepLinkRoute(identifier: "WATER_REMINDER", categoryIdentifier: "HYDRATION"),
+            "hydration"
+        )
         XCTAssertNil(
-            AppDelegate.notificationDeepLinkRoute(identifier: "WATER_REMINDER", categoryIdentifier: "HYDRATION")
+            AppDelegate.notificationDeepLinkRoute(identifier: "UNKNOWN_ALERT", categoryIdentifier: "GENERAL")
         )
     }
 
@@ -133,14 +137,15 @@ final class HealthKitManagerTests: XCTestCase {
         XCTAssertEqual(mockStore.savedObjects.count, 2)
 
         // Workout 20 minutes after midnight requesting 60 min must save clamped 20-min interval.
-        var comps = DateComponents(year: 2026, month: 11, day: 19, hour: 0, minute: 20)
+        let comps = DateComponents(year: 2026, month: 11, day: 19, hour: 0, minute: 20)
         let afterMidnight = Calendar.current.date(from: comps)!
-        await manager.saveWorkout(activityType: .running, calories: 250, durationMinutes: 60, date: afterMidnight)
+        let workoutResult = await manager.saveWorkout(activityType: .running, calories: 250, durationMinutes: 60, date: afterMidnight)
 
-        let savedWorkout = mockStore.savedObjects.compactMap { $0 as? HKWorkout }.first
+        let savedWorkout = mockStore.recordedWorkouts.first
+        XCTAssertNotNil(workoutResult.workoutID)
         XCTAssertNotNil(savedWorkout)
-        XCTAssertEqual(savedWorkout?.startDate, Calendar.current.startOfDay(for: afterMidnight))
-        XCTAssertEqual(savedWorkout?.duration ?? 0, 20 * 60, accuracy: 0.1)
+        XCTAssertEqual(savedWorkout?.start, Calendar.current.startOfDay(for: afterMidnight))
+        XCTAssertEqual(savedWorkout?.end.timeIntervalSince(savedWorkout?.start ?? afterMidnight) ?? 0, 20 * 60, accuracy: 0.1)
 
         // When denied, saveWater exits without calling store.save.
         mockStore.authorizedTypes = []
@@ -232,6 +237,7 @@ final class HealthKitManagerTests: XCTestCase {
 private final class MockHealthKitStore: HealthKitStoreExecuting, @unchecked Sendable {
     var authorizedTypes: Set<HKObjectType> = []
     var savedObjects: [HKObject] = []
+    var recordedWorkouts: [(activityType: HKWorkoutActivityType, start: Date, end: Date, calories: Int)] = []
     var quantitySamples: [HKQuantitySample] = []
     var deletedObjectUUIDs: [UUID] = []
 
@@ -243,6 +249,24 @@ private final class MockHealthKitStore: HealthKitStoreExecuting, @unchecked Send
 
     func save(_ object: HKObject) async throws {
         savedObjects.append(object)
+    }
+
+    func finishWorkout(
+        activityType: HKWorkoutActivityType,
+        start: Date,
+        end: Date,
+        calories: Int,
+        metadata: [String: Any]
+    ) async throws -> (workoutID: UUID, energySampleID: UUID?) {
+        recordedWorkouts.append((activityType: activityType, start: start, end: end, calories: calories))
+        var energySampleID: UUID?
+        if calories > 0, let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
+            let energyBurned = HKQuantity(unit: .kilocalorie(), doubleValue: Double(calories))
+            let sample = HKQuantitySample(type: energyType, quantity: energyBurned, start: start, end: end)
+            savedObjects.append(sample)
+            energySampleID = sample.uuid
+        }
+        return (UUID(), energySampleID)
     }
 
     func delete(_ object: HKObject) async throws {

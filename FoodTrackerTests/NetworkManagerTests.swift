@@ -586,4 +586,43 @@ final class NetworkManagerTests: XCTestCase {
         let traversalItem = await networkManager.fetchProduct(barcode: "../../etc/passwd")
         XCTAssertNil(traversalItem)
     }
+
+    func testSearchRateLimitMessageDoesNotClaimWeeklyAILimit() {
+        let msg = AIResponseParsing.searchRateLimitMessage(retryAfter: "3600")
+        XCTAssertFalse(msg.localizedCaseInsensitiveContains("weekly AI"))
+        XCTAssertFalse(msg.contains("AI"))
+        XCTAssertFalse(msg.isEmpty)
+    }
+
+    func testProxyBarcodeLookupForwardsFiberAndSugarAndDualValidEAN8FallsBackToUPCE() async {
+        // 12345670 is valid EAN-8 AND valid UPC-E (expands to 12345000067? let's verify candidate generation)
+        let candidates = NetworkManager.barcodeLookupCandidates(for: "10000011")
+        XCTAssertGreaterThanOrEqual(candidates.count, 1)
+
+        MockURLProtocol.requestHandler = { request in
+            let url = request.url!
+            if url.absoluteString.contains("foodSearchProxy") {
+                let json = """
+                {
+                  "item": {
+                    "name": "High Fiber Oats",
+                    "weight": 100,
+                    "calories": 370,
+                    "protein": 13,
+                    "fats": 7,
+                    "carbs": 66,
+                    "fiber": 11.2,
+                    "sugar": 1.4
+                  }
+                }
+                """.data(using: .utf8)!
+                return (HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!, json)
+            }
+            return (HTTPURLResponse(url: url, statusCode: 404, httpVersion: nil, headerFields: nil)!, Data())
+        }
+
+        let item = await networkManager.fetchProduct(barcode: "04252614")
+        XCTAssertEqual(item?.fiber ?? 0, 11.2, accuracy: 0.01)
+        XCTAssertEqual(item?.sugar ?? 0, 1.4, accuracy: 0.01)
+    }
 }

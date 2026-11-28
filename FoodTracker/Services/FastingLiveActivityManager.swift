@@ -88,7 +88,8 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
 
         if let existing = activeActivity(),
            existing.attributes.planName == planName,
-           abs(existing.attributes.targetEndDate.timeIntervalSince(targetEndDate)) < 60 {
+           abs(existing.attributes.targetEndDate.timeIntervalSince(targetEndDate)) < 60,
+           existing.attributes.startDate != nil {
             currentActivity = existing
             lastSentStage = nil
             lastSentProgress = -1.0
@@ -119,7 +120,8 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
         let targetEndDate = startTime.addingTimeInterval(TimeInterval(targetHours * 3600))
         let attributes = FastingAttributes(
             planName: planName,
-            targetEndDate: targetEndDate
+            targetEndDate: targetEndDate,
+            startDate: startTime
         )
         let clampedProgress = min(max(initialProgress, 0.0), 1.0)
         let completed = FastingActivityTiming.isCompleted(now: now, targetEndDate: targetEndDate, progressPct: clampedProgress)

@@ -181,7 +181,10 @@ struct FastingDashboardView: View {
         .alert("Replace Active Fast?", isPresented: $showReplaceCustomAlert) {
             Button("Start New Fast", role: .destructive) {
                 if customHours >= 24 {
-                    showExtendedFastWarning = true
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(150))
+                        showExtendedFastWarning = true
+                    }
                 } else {
                     FastingManager.shared.startCustomFast(hours: customHours)
                 }
@@ -356,7 +359,7 @@ struct PremiumFastingDetailView: View {
 
     var dynamicTimeline: [(hour: String, title: String, desc: String, color: Color)] {
         var events: [(String, String, String, Color)] = []
-        events.append(("4h", "Blood Sugar Normalizes", "Insulin levels drop and your body stops storing fat.", .themeYellow))
+        events.append(("4h", "Blood Sugar Normalizing", "Insulin levels drop and your body stops storing fat.", .themeYellow))
         events.append(("8h", "Fat Burning Begins", "Glycogen stores are depleted. You switch to fat for fuel.", .themeOrange))
         if plan.fastingHours >= 12 { events.append(("12h", "Ketosis State", "Your liver starts producing ketones for brain energy.", .themePink)) }
         if plan.fastingHours >= 16 { events.append(("16h", "Autophagy Starts", "Cellular repair begins. Old cells are recycled.", .blue)) }
@@ -735,6 +738,7 @@ struct ActiveFastingCard: View {
     @State private var showEndAlert = false
     @State private var showEditStartSheet = false
     @State private var draftStartTime = Date()
+    @State private var isCompletionPulse = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -791,7 +795,7 @@ struct ActiveFastingCard: View {
                             showEditStartSheet = true
                         } label: {
                             Label(
-                                "Started \(start.formatted(date: .omitted, time: .shortened))",
+                                "Started \(start.formatted(date: .abbreviated, time: .shortened))",
                                 systemImage: "pencil"
                             )
                             .font(.caption.bold())
@@ -821,10 +825,25 @@ struct ActiveFastingCard: View {
         .shadow(color: manager.currentPhase.color.opacity(0.15), radius: 15, y: 8)
         .overlay(
             RoundedRectangle(cornerRadius: 24)
-                .stroke(manager.currentPhase.color.opacity(0.3), lineWidth: 2)
-                .opacity(manager.progress >= 1.0 ? 1 : 0)
-                .animation(reduceMotion ? nil : .easeInOut(duration: 1).repeatForever(), value: manager.progress >= 1.0)
+                .stroke(manager.currentPhase.color.opacity(0.35), lineWidth: 2)
+                .opacity(manager.progress >= 1.0 ? (isCompletionPulse ? 0.35 : 1.0) : 0)
         )
+        .onAppear {
+            if manager.progress >= 1.0 && !reduceMotion {
+                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                    isCompletionPulse = true
+                }
+            }
+        }
+        .onChange(of: manager.progress >= 1.0) { _, completed in
+            if completed && !reduceMotion {
+                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                    isCompletionPulse = true
+                }
+            } else {
+                isCompletionPulse = false
+            }
+        }
         .sheet(isPresented: $showEditStartSheet) {
             NavigationStack {
                 VStack(spacing: 20) {

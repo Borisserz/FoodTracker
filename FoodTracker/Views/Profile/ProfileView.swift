@@ -88,8 +88,10 @@ struct ProfileView: View {
                         )
                         Divider().frame(height: 40)
                         ProfileStatItem(
-                            value: "\(NutritionMath.displayHeight(user.height, useMetric: useMetricSystem))",
-                            unit: NutritionMath.heightUnit(useMetric: useMetricSystem),
+                            value: useMetricSystem
+                                ? "\(NutritionMath.displayHeight(user.height, useMetric: true))"
+                                : NutritionMath.formattedHeight(cm: user.height, useMetric: false),
+                            unit: useMetricSystem ? NutritionMath.heightUnit(useMetric: true) : "",
                             title: "Height"
                         )
                         Divider().frame(height: 40)
@@ -99,9 +101,11 @@ struct ProfileView: View {
                 }
                 .premiumCardStyle()
                 
-                let heightM = user.height / 100.0
-                let bmi = heightM > 0 ? user.weight / (heightM * heightM) : 0
-                BMICardView(bmi: bmi)
+                if user.height > 0 && user.weight > 0 {
+                    let heightM = user.height / 100.0
+                    let bmi = user.weight / (heightM * heightM)
+                    BMICardView(bmi: bmi)
+                }
 
                 NutritionMethodologyDisclaimerView(citations: [.bmi, .bmrAndTdee], compact: true)
 
@@ -261,7 +265,10 @@ struct EditProfileSheet: View {
         let previousCalories = user.dailyCaloriesGoal
         let weightChanged = abs(user.weight - weight) > 0.01
 
-        user.name = name
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedName.isEmpty {
+            user.name = trimmedName
+        }
         user.weight = weight
         user.height = height
         user.age = age
@@ -382,7 +389,9 @@ struct NutritionSettingsEditor: View {
         }
     }
 
-    private func adjustCals(_ amount: Int) { withAnimation { dailyCals = max(1000, dailyCals + amount) } }
+    private func adjustCals(_ amount: Int) {
+        withAnimation { dailyCals = min(10_000, max(1000, dailyCals + amount)) }
+    }
     private func calculateGrams(pct: Double, multiplier: Double) -> Int { Int((Double(dailyCals) * (pct / 100)) / multiplier) }
 
     enum MacroType { case protein, fat, carbs }
@@ -436,8 +445,8 @@ struct NutritionSettingsEditor: View {
     private func saveSettings() {
         user.dailyCaloriesGoal = dailyCals
 
-        let fInt = Int(fPct.rounded())
-        let pInt = Int(pPct.rounded())
+        let fInt = min(100, max(0, Int(fPct.rounded())))
+        let pInt = min(100 - fInt, max(0, Int(pPct.rounded())))
         let cInt = max(0, 100 - fInt - pInt)
         user.applyDietBreakdown(fatPercent: fInt, proteinPercent: pInt, carbsPercent: cInt, dietKey: "custom")
         try? context.save()
@@ -615,8 +624,11 @@ struct SettingsView: View {
             let fileURL = try DataExportService.generateCSV(from: summaries, weightLogs: weightLogs)
             let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
             
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
+            let windowScene = (UIApplication.shared.connectedScenes
+                .first { $0.activationState == .foregroundActive } as? UIWindowScene)
+                ?? (UIApplication.shared.connectedScenes.first as? UIWindowScene)
+            guard let windowScene,
+                  let rootVC = (windowScene.windows.first(where: { $0.isKeyWindow }) ?? windowScene.windows.first)?.rootViewController else {
                 exportErrorMessage = String(localized: "Unable to open the share sheet right now. Please try again.")
                 return
             }
@@ -628,7 +640,7 @@ struct SettingsView: View {
 
             if let popover = activityVC.popoverPresentationController {
                 popover.sourceView = topVC.view
-                popover.sourceRect = CGRect(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY, width: 0, height: 0)
+                popover.sourceRect = CGRect(x: topVC.view.bounds.midX, y: topVC.view.bounds.midY, width: 0, height: 0)
                 popover.permittedArrowDirections = []
             }
 
@@ -917,6 +929,12 @@ struct AccountSettingsView: View {
                             isLoading = true
                             Task {
                                 defer { isLoading = false }
+                                // Offline guest without a Firebase session only has local SwiftData to wipe.
+                                if authManager.currentUser == nil && Auth.auth().currentUser == nil {
+                                    LocalDataResetService.wipeAllData(in: context)
+                                    dismiss()
+                                    return
+                                }
                                 // Let the confirmation dialog finish dismissing before presenting Google/Apple auth.
                                 try? await Task.sleep(for: .milliseconds(250))
                                 do {
@@ -928,7 +946,6 @@ struct AccountSettingsView: View {
                                         }
                                     )
                                     LocalDataResetService.wipeAllData(in: context)
-                                    _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
                                     dismiss()
                                 } catch let deletionError as AccountDeletionError {
                                     if case .appleTokenRevocationFailed = deletionError {
@@ -968,7 +985,6 @@ struct AccountSettingsView: View {
                 if pendingPostRevocationWipe {
                     pendingPostRevocationWipe = false
                     LocalDataResetService.wipeAllData(in: context)
-                    Task { _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn() }
                     dismiss()
                 }
             }
@@ -1277,13 +1293,13 @@ struct RemindersSettingsView: View {
             }
         }
         .onChange(of: remindMeals) { _, _ in
-            syncNotifications()
+            syncAndRefreshBanner()
         }
         .onChange(of: remindWater) { _, _ in
-            syncNotifications()
+            syncAndRefreshBanner()
         }
         .onChange(of: remindWeight) { _, _ in
-            syncNotifications()
+            syncAndRefreshBanner()
         }
     }
 
@@ -1298,6 +1314,14 @@ struct RemindersSettingsView: View {
             waterEnabled: remindWater,
             weightEnabled: remindWeight
         )
+    }
+
+    private func syncAndRefreshBanner() {
+        syncNotifications()
+        Task {
+            try? await Task.sleep(for: .milliseconds(350))
+            await refreshAuthorizationBanner()
+        }
     }
 }
 

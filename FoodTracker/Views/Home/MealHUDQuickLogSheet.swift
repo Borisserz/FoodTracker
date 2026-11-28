@@ -39,15 +39,16 @@ struct MealHUDQuickLogSheet: View {
     @State private var cachedAvailableFoods: [FoodItem] = []
     @State private var cachedRecipeFoods: [FoodItem] = []
     @State private var cachedFoodCounts: [String: Int] = [:]
+    @AppStorage(FavoriteFoodStore.storageKey) private var favoriteFoodNamesRaw = ""
     
     let mealSlots = ["Breakfast", "Lunch", "Dinner", "Snack"]
-    let categories = ["Recent", "Frequent", "Often", "My Recipes"]
+    let categories = ["Recent", "Frequent", "Often", "Favorites", "My Recipes"]
     
     init(selectedDate: Date, initialMealType: String = "Breakfast") {
         self.selectedDate = selectedDate
         self._selectedSlot = State(initialValue: initialMealType)
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay.addingTimeInterval(86_400)
         let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
         self._summaries = Query(filter: predicate)
     }
@@ -71,6 +72,7 @@ struct MealHUDQuickLogSheet: View {
         case "Recent": return "clock"
         case "Frequent": return "flame.fill"
         case "Often": return "repeat"
+        case "Favorites": return "heart.fill"
         case "My Recipes": return "book.closed"
         default: return "fork.knife"
         }
@@ -102,6 +104,11 @@ struct MealHUDQuickLogSheet: View {
             }
         case "Often":
             return cachedAvailableFoods.filter { (cachedFoodCounts[$0.name] ?? 0) >= 2 }
+        case "Favorites":
+            let starred = FavoriteFoodStore.namesSet(from: favoriteFoodNamesRaw)
+            return cachedAvailableFoods.filter {
+                starred.contains($0.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
+            }
         case "My Recipes":
             return cachedRecipeFoods
         default:
@@ -530,8 +537,9 @@ struct MealHUDQuickLogSheet: View {
                             .minimumScaleFactor(0.82)
                             .fixedSize(horizontal: true, vertical: false)
 
-                        if Int(stagedProtein.rounded()) >= 1 {
-                            Text("\(Int(stagedProtein))g P")
+                        let roundedStagedProtein = Int(stagedProtein.rounded())
+                        if roundedStagedProtein >= 1 {
+                            Text("\(roundedStagedProtein)g P")
                                 .font(.system(size: 11, weight: .bold, design: .monospaced))
                                 .foregroundStyle(EditorialPalette.emerald)
                                 .padding(.horizontal, 6)
@@ -840,8 +848,9 @@ private struct QuickLogFoodRowView: View {
                                 .font(.system(size: 12, weight: .medium, design: .rounded).monospacedDigit())
                                 .foregroundStyle(EditorialPalette.inkSecondary)
 
-                            if Int(food.protein.rounded()) >= 1 {
-                                Text("\(Int(food.protein))g P")
+                            let roundedFoodProtein = Int(food.protein.rounded())
+                            if roundedFoodProtein >= 1 {
+                                Text("\(roundedFoodProtein)g P")
                                     .font(.system(size: 10, weight: .bold, design: .monospaced))
                                     .foregroundStyle(EditorialPalette.forest)
                                     .padding(.horizontal, 6)

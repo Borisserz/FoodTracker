@@ -110,6 +110,7 @@ enum AnalyticsMicro: String, CaseIterable, Identifiable {
 
 struct AnalyticsTabView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(DIContainer.self) private var di
     @Environment(AppStateManager.self) private var appState
     @Query private var users: [User]
@@ -117,6 +118,7 @@ struct AnalyticsTabView: View {
     @State private var viewModel: AnalyticsViewModel?
     @State private var globalPeriod: AnalyticsPeriod = .day
     @State private var bgPhase = 0.0
+    @State private var activeCalendarDay = Calendar.current.startOfDay(for: Date())
 
     var body: some View {
         NavigationStack {
@@ -175,8 +177,21 @@ struct AnalyticsTabView: View {
                             if viewModel == nil {
                                 viewModel = di.makeAnalyticsViewModel()
                             }
+                            activeCalendarDay = Calendar.current.startOfDay(for: Date())
                             viewModel?.loadData(for: globalPeriod)
                             handleDeepLinkScrollIfNeeded(proxy: scrollProxy)
+                        }
+                        .onChange(of: scenePhase) { _, newPhase in
+                            guard newPhase == .active else { return }
+                            let currentDay = Calendar.current.startOfDay(for: Date())
+                            if currentDay != activeCalendarDay {
+                                activeCalendarDay = currentDay
+                            }
+                            viewModel?.loadData(for: globalPeriod)
+                        }
+                        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
+                            activeCalendarDay = Calendar.current.startOfDay(for: Date())
+                            viewModel?.loadData(for: globalPeriod)
                         }
                         .onChange(of: appState.requestedWidgetAction) { _, _ in
                             handleDeepLinkScrollIfNeeded(proxy: scrollProxy)
@@ -361,9 +376,10 @@ struct AIWeeklyInsightCard: View {
                 }
             }
 
-            if avgWater < 1.5 {
+            let waterGoalLiters = max(0.5, user.dailyWaterGoalLiters)
+            if avgWater < waterGoalLiters * 0.6 {
                 let avgText = NutritionMath.formattedHydration(liters: avgWater, useMetric: useMetricSystem)
-                let targetText = NutritionMath.formattedHydration(liters: 2.5, useMetric: useMetricSystem)
+                let targetText = NutritionMath.formattedHydration(liters: waterGoalLiters, useMetric: useMetricSystem)
                 return (
                     String(localized: "Hydration Trend"),
                     String(localized: "Your average hydration (\(avgText)) is below the \(targetText) target. Focus on drinking more fluids."),
@@ -678,7 +694,7 @@ struct AIHydrationAnalyticsCard: View {
     
     var body: some View {
         let liters = summary?.totalPureWaterLiters ?? 0
-        let goal = 2.5
+        let goal = max(0.5, users.first?.dailyWaterGoalLiters ?? 2.5)
         let progress = min(max(liters / goal, 0.0), 1.0)
         let isGoalReached = liters >= goal
         
@@ -727,15 +743,14 @@ struct AIHydrationAnalyticsCard: View {
                 HStack(alignment: .bottom) {
                     // Metric Markings on left
                     VStack(alignment: .leading, spacing: 0) {
-                        AnalyticsFlaskTickMark(label: useMetricSystem ? "2.5L" : "85 oz", isFilled: progress >= 1.0)
-                        Spacer()
-                        AnalyticsFlaskTickMark(label: useMetricSystem ? "2.0L" : "68 oz", isFilled: progress >= 0.8)
-                        Spacer()
-                        AnalyticsFlaskTickMark(label: useMetricSystem ? "1.5L" : "51 oz", isFilled: progress >= 0.6)
-                        Spacer()
-                        AnalyticsFlaskTickMark(label: useMetricSystem ? "1.0L" : "34 oz", isFilled: progress >= 0.4)
-                        Spacer()
-                        AnalyticsFlaskTickMark(label: useMetricSystem ? "0.5L" : "17 oz", isFilled: progress >= 0.2)
+                        ForEach([1.0, 0.8, 0.6, 0.4, 0.2], id: \.self) { ratio in
+                            let stepLiters = goal * ratio
+                            let label = useMetricSystem
+                                ? String(format: "%.1fL", stepLiters)
+                                : String(format: "%.0f oz", NutritionMath.displayFluid(stepLiters, useMetric: false))
+                            AnalyticsFlaskTickMark(label: label, isFilled: progress >= ratio)
+                            if ratio > 0.2 { Spacer() }
+                        }
                     }
                     .frame(width: 56, height: 130)
                     .padding(.leading, 20)
@@ -1105,11 +1120,12 @@ private struct AnalyticsFlaskWaveShape: Shape {
         var path = Path()
         let width = rect.width
         let height = rect.height
+        guard width > 0, height > 0 else { return path }
         
         path.move(to: CGPoint(x: 0, y: height))
         path.addLine(to: CGPoint(x: 0, y: waterLevel))
         
-        let wavelength = width * 0.75
+        let wavelength = max(width * 0.75, 1)
         for x in stride(from: 0, through: width + 6, by: 4) {
             let relativeX = x / wavelength
             let sine = sin(relativeX * 2 * .pi + phase)
@@ -1178,8 +1194,8 @@ struct DivineCaloriesChart: View {
     private var chartData: [(date: Date, eaten: Double)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
-        return (0..<period.daysCount).map { i in
-            let date = calendar.date(byAdding: .day, value: -i, to: today)!
+        return (0..<period.daysCount).compactMap { i in
+            guard let date = calendar.date(byAdding: .day, value: -i, to: today) else { return nil }
             let summary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
             return (date: date, eaten: Double(summary?.totalCalories ?? 0))
         }.reversed()
@@ -1266,8 +1282,8 @@ struct TrendsMicroChart: View {
     private var chartData: [(date: Date, value: Double)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
-        return (0..<period.daysCount).map { i in
-            let date = calendar.date(byAdding: .day, value: -i, to: today)!
+        return (0..<period.daysCount).compactMap { i in
+            guard let date = calendar.date(byAdding: .day, value: -i, to: today) else { return nil }
             let summary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
             let value: Double
             if let s = summary {
@@ -1333,7 +1349,8 @@ struct TrendsMicroChart: View {
                     .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
                     .foregroundStyle(selectedMicro.color.opacity(0.8))
                     .annotation(position: .top, alignment: .leading) {
-                        Text("GOAL (\(Int(effectiveRDA))\(selectedMicro.unit))")
+                        let rdaLabel = selectedMicro == .omega3 ? String(format: "%.1f", effectiveRDA) : "\(Int(effectiveRDA.rounded()))"
+                        Text("GOAL (\(rdaLabel)\(selectedMicro.unit))")
                             .font(.system(size: 9, weight: .bold, design: .rounded))
                             .foregroundColor(selectedMicro.color)
                     }
@@ -1366,7 +1383,15 @@ struct TrendsMicroChart: View {
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: period == .week ? 1 : 5)) { value in
                     if let date = value.as(Date.self) {
-                        AxisValueLabel(format: .dateTime.weekday(.narrow)).font(.caption2.bold()).foregroundStyle(Color.gray)
+                        AxisValueLabel {
+                            Text(
+                                period == .week
+                                ? date.formatted(.dateTime.weekday(.narrow))
+                                : date.formatted(.dateTime.day().month(.abbreviated))
+                            )
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color.gray)
+                        }
                     }
                 }
             }
@@ -1374,7 +1399,8 @@ struct TrendsMicroChart: View {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4])).foregroundStyle(Color.gray.opacity(0.12))
                     if let val = value.as(Double.self) {
-                        AxisValueLabel("\(Int(val))\(selectedMicro.unit)").font(.system(size: 9, weight: .bold)).foregroundStyle(Color.gray)
+                        let formatted = selectedMicro == .omega3 ? String(format: "%.1f", val) : "\(Int(val.rounded()))"
+                        AxisValueLabel("\(formatted)\(selectedMicro.unit)").font(.system(size: 9, weight: .bold)).foregroundStyle(Color.gray)
                     }
                 }
             }
@@ -1386,27 +1412,32 @@ struct TrendsMicroChart: View {
 }
 
 struct TrendsWaterChart: View {
+    @Query private var users: [User]
     let summaries: [DailySummary]; let period: AnalyticsPeriod
     @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     private var chartData: [(date: Date, volume: Double)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
-        return (0..<period.daysCount).map { i in
-            let date = calendar.date(byAdding: .day, value: -i, to: today)!
+        return (0..<period.daysCount).compactMap { i in
+            guard let date = calendar.date(byAdding: .day, value: -i, to: today) else { return nil }
             let summary = summaries.first(where: { calendar.isDate($0.date, inSameDayAs: date) })
             let liters = summary?.totalPureWaterLiters ?? 0
             return (date: date, volume: NutritionMath.displayFluid(liters, useMetric: useMetricSystem))
         }.reversed()
     }
 
+    private var goalLiters: Double {
+        max(0.5, users.first?.dailyWaterGoalLiters ?? 2.5)
+    }
+
     private var goalVolume: Double {
-        NutritionMath.displayFluid(2.5, useMetric: useMetricSystem)
+        NutritionMath.displayFluid(goalLiters, useMetric: useMetricSystem)
     }
 
     private var maxVolume: Double {
         let maxData = chartData.map { $0.volume }.max() ?? 0
-        let baseline = NutritionMath.displayFluid(3.0, useMetric: useMetricSystem)
+        let baseline = NutritionMath.displayFluid(max(3.0, goalLiters + 0.5), useMetric: useMetricSystem)
         let padding = NutritionMath.displayFluid(0.5, useMetric: useMetricSystem)
         return max(baseline, maxData + padding)
     }
@@ -1426,7 +1457,7 @@ struct TrendsWaterChart: View {
                     .annotation(position: .top, alignment: .leading) {
                         Text(
                             useMetricSystem
-                            ? "GOAL (2.5L)"
+                            ? String(format: String(localized: "GOAL (%.1fL)"), goalLiters)
                             : String(format: String(localized: "GOAL (%.0f fl oz)"), goalVolume)
                         )
                         .font(.system(size: 9, weight: .black, design: .rounded))
@@ -1491,7 +1522,7 @@ struct ConsistencyHeatmapCard: View {
     private var days: [Date] {
         let cal = Calendar.current
         let today = cal.startOfDay(for: .now)
-        return (0..<14).map { cal.date(byAdding: .day, value: -$0, to: today)! }.reversed()
+        return (0..<14).compactMap { cal.date(byAdding: .day, value: -$0, to: today) }.reversed()
     }
 
     private func completionLevel(for date: Date) -> Int {

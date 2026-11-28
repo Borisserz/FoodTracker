@@ -16,7 +16,7 @@ struct PremiumQuickAddSheet: View {
         self.onSelectDetailedMeal = onSelectDetailedMeal
         self.onSelectActivity = onSelectActivity
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay.addingTimeInterval(86_400)
         let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
         self._summaries = Query(filter: predicate)
     }

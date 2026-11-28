@@ -539,6 +539,7 @@ struct HomeDashboardContentView: View {
         }
     }
 
+    @MainActor
     private func performFetchHealthData(for targetDateInput: Date) async {
             let targetDate = Calendar.current.startOfDay(for: targetDateInput)
             let isHKEnabled = currentUser?.isHealthKitEnabled == true
@@ -562,10 +563,8 @@ struct HomeDashboardContentView: View {
                         selectedDayPendingEntries = entries
                     }
                     guard !entries.isEmpty else { continue }
-                    let flushSummary = await MainActor.run {
-                        SharedModelContainer.refreshMainContext(context)
-                        return DailySummary.fetchOrCreate(for: flushDate, in: context)
-                    }
+                    SharedModelContainer.refreshMainContext(context)
+                    let flushSummary = DailySummary.fetchOrCreate(for: flushDate, in: context)
                     let sampleDate = Calendar.current.isDateInToday(flushDate) ? Date() : flushDate
                     var attachedAny = false
                     var syncedIndices: Set<Int> = []
@@ -573,29 +572,26 @@ struct HomeDashboardContentView: View {
                         guard !Task.isCancelled else { break }
                         if let sampleUUID = await HealthKitManager.shared.saveWater(liters: entryLiters, date: sampleDate) {
                             syncedIndices.insert(idx)
-                            let attached = await MainActor.run {
-                                WorkoutSyncManager.attachHealthKitSampleID(sampleUUID, volumeLiters: entryLiters, to: flushSummary)
+                            if WorkoutSyncManager.attachHealthKitSampleID(sampleUUID, volumeLiters: entryLiters, to: flushSummary) {
+                                attachedAny = true
                             }
-                            if attached { attachedAny = true }
                         }
                     }
                     if !syncedIndices.isEmpty {
-                        await MainActor.run {
-                            WorkoutSyncManager.shared.acknowledgePendingWidgetWaterEntries(
-                                syncedIndices: syncedIndices,
-                                for: flushDate
-                            )
-                            if attachedAny {
-                                try? context.save()
-                            }
+                        WorkoutSyncManager.shared.acknowledgePendingWidgetWaterEntries(
+                            syncedIndices: syncedIndices,
+                            for: flushDate
+                        )
+                        if attachedAny {
+                            try? context.save()
                         }
                     }
                 }
+            } else {
+                WorkoutSyncManager.shared.clearPendingWidgetWaterQueues()
             }
 
-            let existingSummary = await MainActor.run {
-                DailySummary.fetchExisting(for: targetDate, in: context)
-            }
+            let existingSummary = DailySummary.fetchExisting(for: targetDate, in: context)
             let wtAppGroupCals = WorkoutSyncManager.shared.fetchWorkoutCalories(for: targetDate)
             let sharedWater = WorkoutSyncManager.shared.fetchWaterLiters(for: targetDate)
             let localCals = existingSummary?.localActivityCalories ?? 0
@@ -634,8 +630,7 @@ struct HomeDashboardContentView: View {
 
                 if Calendar.current.isDateInToday(targetDate),
                    let hkSample = try? await HealthKitManager.shared.fetchLatestBodyMassSample() {
-                    await MainActor.run {
-                        guard let user = currentUser else { return }
+                    if let user = currentUser {
                         let existingLogs = (try? context.fetch(FetchDescriptor<WeightLog>(sortBy: [SortDescriptor(\.date, order: .reverse)]))) ?? []
                         let sameDayLog = existingLogs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: targetDate) })
                         if HealthKitWeightSyncHelper.shouldImportHealthKitWeight(
@@ -681,44 +676,42 @@ struct HomeDashboardContentView: View {
             )
             guard shouldPersist else { return }
 
-            await MainActor.run {
-                let persistedSummary = existingSummary ?? DailySummary.fetchOrCreate(for: targetDate, in: context)
-                let waterOutcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(for: persistedSummary, in: context)
-                var needsSave = waterOutcome.mutated
+            let persistedSummary = existingSummary ?? DailySummary.fetchOrCreate(for: targetDate, in: context)
+            let waterOutcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(for: persistedSummary, in: context)
+            var needsSave = waterOutcome.mutated
 
-                if isHKEnabled && !waterOutcome.deletedHealthKitSamples.isEmpty {
-                    let deletedSamples = waterOutcome.deletedHealthKitSamples
-                    let container = context.container
-                    Task { @MainActor in
-                        await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
-                            deletedSamples: deletedSamples,
-                            logDate: targetDate,
-                            summaryDate: targetDate,
-                            summary: persistedSummary,
-                            container: container
-                        )
-                    }
+            if isHKEnabled && !waterOutcome.deletedHealthKitSamples.isEmpty {
+                let deletedSamples = waterOutcome.deletedHealthKitSamples
+                let container = context.container
+                Task { @MainActor in
+                    await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
+                        deletedSamples: deletedSamples,
+                        logDate: targetDate,
+                        summaryDate: targetDate,
+                        summary: persistedSummary,
+                        container: container
+                    )
                 }
+            }
 
-                if persistedSummary.workoutCalories != reconciled.workoutCalories {
-                    persistedSummary.workoutCalories = reconciled.workoutCalories
-                    needsSave = true
-                }
+            if persistedSummary.workoutCalories != reconciled.workoutCalories {
+                persistedSummary.workoutCalories = reconciled.workoutCalories
+                needsSave = true
+            }
 
-                if persistedSummary.stepsCount != reconciled.stepsCount {
-                    persistedSummary.stepsCount = reconciled.stepsCount
-                    needsSave = true
-                }
+            if persistedSummary.stepsCount != reconciled.stepsCount {
+                persistedSummary.stepsCount = reconciled.stepsCount
+                needsSave = true
+            }
 
-                if persistedSummary.activeCaloriesBurned != reconciled.activeCaloriesBurned {
-                    persistedSummary.activeCaloriesBurned = reconciled.activeCaloriesBurned
-                    needsSave = true
-                }
+            if persistedSummary.activeCaloriesBurned != reconciled.activeCaloriesBurned {
+                persistedSummary.activeCaloriesBurned = reconciled.activeCaloriesBurned
+                needsSave = true
+            }
 
-                if needsSave {
-                    try? context.save()
-                    WidgetReloader.reloadAll()
-                }
+            if needsSave {
+                try? context.save()
+                WidgetReloader.reloadAll()
             }
         }
     private func addFoodsToMeal(title: String, items: [FoodItem]) {
@@ -780,6 +773,9 @@ struct HomeDashboardContentView: View {
     private func handleWidgetScrollIfNeeded(with proxy: ScrollViewProxy) {
         guard let action = appState.requestedWidgetAction else { return }
         switch action {
+        case "home":
+            appState.requestedWidgetAction = nil
+            selectedDate = Calendar.current.startOfDay(for: Date())
         case "hydration":
             appState.requestedWidgetAction = nil
             selectedDate = Calendar.current.startOfDay(for: Date())
@@ -834,7 +830,7 @@ struct HomeDashboardContentView: View {
         xpBreakdown = breakdown
         showXPPopup = true
 
-        var manager = NutritionProgressManager(user: user)
+        let manager = NutritionProgressManager(user: user)
         manager.addXP(from: breakdown)
         try? context.save()
     }
@@ -1001,7 +997,7 @@ struct MealDetailView: View {
         self.title = title
         self.date = date
         let startOfDay = Calendar.current.startOfDay(for: date)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay.addingTimeInterval(86_400)
         let predicate = #Predicate<DailySummary> { $0.date >= startOfDay && $0.date < endOfDay }
         self._summaries = Query(filter: predicate)
     }
@@ -2514,11 +2510,15 @@ struct DailyLogDetailView: View {
                     EditorialDarkCard(cornerRadius: 22, padding: 20) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Total Food Logged Today")
+                                Text(
+                                    Calendar.current.isDateInToday(summary.date)
+                                    ? String(localized: "Total Logged Today")
+                                    : summary.date.formatted(date: .abbreviated, time: .omitted)
+                                )
                                     .font(.system(size: 12.5, weight: .semibold, design: .rounded))
                                     .foregroundStyle(EditorialPalette.oat.opacity(0.78))
                                 HStack(alignment: .firstTextBaseline, spacing: 6) {
-                                    Text("\(summary.totalFoodCalories)")
+                                    Text("\(summary.totalCalories)")
                                         .font(.system(size: 40, weight: .heavy, design: .rounded).monospacedDigit())
                                         .foregroundStyle(EditorialPalette.oat)
                                     Text("kcal")
@@ -2540,6 +2540,7 @@ struct DailyLogDetailView: View {
 
                     let activeMeals = (summary.meals ?? []).filter { !($0.foodItems ?? []).isEmpty }
                     let loggedActivities = summary.activities ?? []
+                    let loggedBeverages = (summary.beverages ?? []).filter { $0.volumeMl > 0 || $0.caloriesPerGlass > 0 }
 
                     if let copiedBannerText {
                         Text(copiedBannerText)
@@ -2551,7 +2552,7 @@ struct DailyLogDetailView: View {
                             .clipShape(Capsule())
                     }
 
-                    if activeMeals.isEmpty && loggedActivities.isEmpty {
+                    if activeMeals.isEmpty && loggedActivities.isEmpty && loggedBeverages.isEmpty {
                         EditorialLightCard(cornerRadius: 20, padding: 28) {
                             VStack(spacing: 10) {
                                 Image(systemName: "doc.text.magnifyingglass")
@@ -2705,6 +2706,66 @@ struct DailyLogDetailView: View {
                                         .padding(.horizontal, 18)
                                         .padding(.vertical, 11)
                                         if activity.persistentModelID != loggedActivities.last?.persistentModelID {
+                                            Rectangle()
+                                                .fill(EditorialPalette.hairlineLight)
+                                                .frame(height: 0.5)
+                                                .padding(.leading, 68)
+                                        }
+                                    }
+                                }
+                                .padding(.bottom, 6)
+                            }
+                            .background(Color.white.opacity(0.80))
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
+                            )
+                            .padding(.horizontal, 20)
+                        }
+
+                        if !loggedBeverages.isEmpty {
+                            VStack(alignment: .leading, spacing: 0) {
+                                HStack {
+                                    Text("Logged Drinks")
+                                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                                        .foregroundStyle(EditorialPalette.inkPrimary)
+                                    Spacer()
+                                    Text("\(summary.totalDrinkCalories) kcal")
+                                        .font(.system(size: 15, weight: .bold, design: .rounded).monospacedDigit())
+                                        .foregroundStyle(EditorialPalette.oceanSlate)
+                                }
+                                .padding(.horizontal, 18)
+                                .padding(.top, 16)
+                                .padding(.bottom, 10)
+
+                                VStack(spacing: 0) {
+                                    ForEach(loggedBeverages) { beverage in
+                                        HStack(spacing: 12) {
+                                            Image(systemName: beverage.icon)
+                                                .font(.system(size: 15, weight: .semibold))
+                                                .foregroundStyle(EditorialPalette.oceanSlate)
+                                                .frame(width: 38, height: 38)
+                                                .background(EditorialPalette.oceanSlate.opacity(0.14))
+                                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(LocalizedStringKey(beverage.name))
+                                                    .font(.system(size: 14.5, weight: .semibold, design: .rounded))
+                                                    .foregroundStyle(EditorialPalette.inkPrimary)
+                                                Text(NutritionMath.formattedHydration(liters: beverage.volumeMl / 1000.0, useMetric: useMetricSystem))
+                                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                                    .foregroundStyle(EditorialPalette.inkSecondary)
+                                            }
+                                            Spacer()
+                                            if beverage.caloriesPerGlass > 0 {
+                                                Text("\(beverage.caloriesPerGlass) kcal")
+                                                    .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                                                    .foregroundStyle(EditorialPalette.inkPrimary)
+                                            }
+                                        }
+                                        .padding(.horizontal, 18)
+                                        .padding(.vertical, 11)
+                                        if beverage.persistentModelID != loggedBeverages.last?.persistentModelID {
                                             Rectangle()
                                                 .fill(EditorialPalette.hairlineLight)
                                                 .frame(height: 0.5)
@@ -2895,15 +2956,15 @@ struct SmartAddFoodView: View {
         var results: [FoodItem] = []
         var counts: [String: Int] = [:]
 
-        for meal in pastMeals {
-            for item in meal.foodItems ?? [] {
+        for meal in pastMeals.prefix(80) {
+            for item in meal.foodItems ?? [] where item.parentRecipe == nil {
                 counts[item.name, default: 0] += 1
                 if seenNames.insert(item.name).inserted {
                     results.append(item)
                 }
             }
         }
-        for item in allDatabaseFoods {
+        for item in allDatabaseFoods where item.parentRecipe == nil && results.count < 150 {
             if seenNames.insert(item.name).inserted {
                 results.append(item)
             }

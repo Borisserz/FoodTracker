@@ -184,7 +184,7 @@ extension FoodItem {
             if cPct < 10 && fPct > 50 { return .perfect }
             if cPct > 30 { return .avoid }
         case "vegan":
-            if name.lowercased().contains("meat") || name.lowercased().contains("chicken") || name.lowercased().contains("beef") { return .avoid }
+            if Self.containsNonVeganIngredient(in: name) { return .avoid }
         case "high_protein":
             if pPct > 30 { return .perfect }
             if pPct < 10 && calories > 200 { return .avoid }
@@ -195,5 +195,57 @@ extension FoodItem {
         }
 
         return .neutral
+    }
+
+    private static let nonVeganKeywords: [String] = [
+        // Meat & poultry
+        "meat", "chicken", "beef", "pork", "ham", "bacon", "sausage", "steak", "turkey", "duck",
+        "lamb", "veal", "venison", "prosciutto", "salami", "pepperoni",
+        "мяс", "куриц", "курин", "говяд", "свин", "баран", "индейк", "утк", "колбас", "бекон", "ветчин",
+        "fleisch", "hähnchen", "huhn", "rind", "schwein", "speck", "wurst",
+        "carne", "pollo", "res", "cerdo", "jamón", "tocino", "pavo",
+        "viande", "poulet", "boeuf", "porc", "jambon", "lardon",
+        // Fish & seafood
+        "fish", "salmon", "tuna", "cod", "trout", "sardine", "mackerel", "shrimp", "prawn",
+        "crab", "lobster", "squid", "octopus", "mussel", "oyster", "anchovy", "caviar",
+        "рыб", "лосос", "семг", "сёмг", "форел", "тунец", "треск", "кревет", "краб", "кальмар", "мидии", "устриц", "икр",
+        "fisch", "lachs", "thunfisch", "garnele", "pescado", "salmón", "atún", "camarón",
+        "poisson", "saumon", "thon", "crevette", "pesce", "salmone", "tonno", "gamber", "peixe", "salmão",
+        // Eggs, dairy, honey & gelatin
+        "egg", "eggs", "cheese", "butter", "cream", "yogurt", "yoghurt", "whey", "casein", "honey", "gelatin", "lard",
+        "яйц", "яич", "сыр", "сливочн", "сметан", "сливк", "творог", "кефир", "йогурт", "сыворот", "казеин", "медов", "мёд", "желатин",
+        "ei", "käse", "butter", "sahne", "honig", "huevo", "queso", "crema", "miel",
+        "oeuf", "fromage", "beurre", "crème", "miel", "uovo", "formaggio", "burro", "miele", "ovo", "queijo", "manteiga"
+    ]
+
+    private static let plantBasedDairyExceptions: [String] = [
+        "oat milk", "almond milk", "soy milk", "soymilk", "coconut milk", "rice milk", "cashew milk",
+        "nut butter", "peanut butter", "almond butter", "cashew butter", "coconut butter", "cocoa butter",
+        "oat yogurt", "soy yogurt", "coconut yogurt", "coconut cream", "vegan cheese", "vegan butter",
+        "овсяное молоко", "миндальное молоко", "соевое молоко", "кокосовое молоко", "арахисовая паста"
+    ]
+
+    private static func containsNonVeganIngredient(in rawName: String) -> Bool {
+        let lower = rawName.lowercased()
+        for exception in plantBasedDairyExceptions {
+            if lower.contains(exception) {
+                let stripped = lower.replacingOccurrences(of: exception, with: " ")
+                return containsRawNonVeganToken(in: stripped)
+            }
+        }
+        return containsRawNonVeganToken(in: lower)
+    }
+
+    private static func containsRawNonVeganToken(in lower: String) -> Bool {
+        if lower.contains("milk") || lower.contains("молок") {
+            return true
+        }
+        let tokens = lower.split { !$0.isLetter }
+        return nonVeganKeywords.contains { keyword in
+            if keyword.count <= 3 {
+                return tokens.contains { $0 == keyword || $0.hasPrefix(keyword) }
+            }
+            return lower.contains(keyword)
+        }
     }
 }

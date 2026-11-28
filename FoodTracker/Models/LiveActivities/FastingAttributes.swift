@@ -29,10 +29,12 @@ public struct FastingAttributes: ActivityAttributes {
 
     public var planName: String
     public var targetEndDate: Date
+    public var startDate: Date?
 
-    public init(planName: String, targetEndDate: Date) {
+    public init(planName: String, targetEndDate: Date, startDate: Date? = nil) {
         self.planName = planName
         self.targetEndDate = targetEndDate
+        self.startDate = startDate
     }
 }
 

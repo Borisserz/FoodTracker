@@ -196,7 +196,11 @@ private struct TabBarSpotlightFrameProbe: UIViewRepresentable {
                        rect.width <= fullBarRect.width - 6,
                        rect.height >= 44,
                        rect.height <= 68 {
-                        if best == nil || rect.width > best!.width {
+                        if let currentBest = best {
+                            if rect.width > currentBest.width {
+                                best = rect
+                            }
+                        } else {
                             best = rect
                         }
                     }
@@ -233,12 +237,14 @@ struct SpotlightOverlayView: View {
                        targetRect.height > 0 {
                         let rawPaddedRect = targetRect.insetBy(dx: -5, dy: -5)
                         let minAllowedTop = max(screenGeo.safeAreaInsets.top + 2, 58)
-                        let topTrim = max(0, minAllowedTop - rawPaddedRect.minY)
+                        let maxAllowedBottom = screenGeo.size.height - max(screenGeo.safeAreaInsets.bottom + 2, 16)
+                        let clampedTop = max(rawPaddedRect.minY, minAllowedTop)
+                        let clampedBottom = min(rawPaddedRect.maxY, maxAllowedBottom)
                         let paddedRect = CGRect(
                             x: rawPaddedRect.minX,
-                            y: rawPaddedRect.minY + topTrim,
+                            y: clampedTop,
                             width: rawPaddedRect.width,
-                            height: max(24, rawPaddedRect.height - topTrim)
+                            height: max(24, clampedBottom - clampedTop)
                         )
                         let cornerRadius = manager.currentStep.ringCornerRadius(for: paddedRect)
                         let placement = cardPlacement(for: paddedRect, in: screenGeo)

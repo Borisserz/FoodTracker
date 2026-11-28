@@ -83,6 +83,7 @@ struct AIMoodAdvicePopup: View {
 
     @State private var dynamicAdvice: MoodAdviceDTO? = nil
     @State private var isLoadingAI = false
+    @State private var adviceError: String? = nil
     @State private var showAIConsentSheet = false
 
     static func shouldAutoFetchAIAdvice(hasConsented: Bool) -> Bool {
@@ -191,6 +192,27 @@ struct AIMoodAdvicePopup: View {
                         }
                         .buttonStyle(.plain)
                         .padding(.top, 4)
+                    } else if let adviceError, !isLoadingAI && dynamicAdvice == nil {
+                        VStack(spacing: 8) {
+                            Text(adviceError)
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 20)
+                            Button {
+                                Task { await fetchPersonalizedAdvice() }
+                            } label: {
+                                Label("Retry", systemImage: "arrow.clockwise")
+                                    .font(.system(size: 12.5, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 7)
+                                    .background(EditorialPalette.cardDark)
+                                    .clipShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.top, 4)
                     }
                 }
                 .animation(.easeInOut(duration: 0.25), value: aiAdviceMessage)
@@ -250,6 +272,7 @@ struct AIMoodAdvicePopup: View {
     private func fetchPersonalizedAdvice() async {
         guard !isLoadingAI else { return }
         isLoadingAI = true
+        adviceError = nil
         let result = await AINutritionService.shared.getMoodAdvice(
             moodEmoji: moodEmoji,
             moodName: moodName,
@@ -260,6 +283,11 @@ struct AIMoodAdvicePopup: View {
             activeDiet: activeDiet
         )
         self.dynamicAdvice = result
+        if result == nil {
+            self.adviceError = GeminiProxyClient.consumeRateLimitAlertMessage()
+                ?? AINutritionService.shared.lastUserFacingError
+                ?? String(localized: "Couldn't load AI advice right now.")
+        }
         self.isLoadingAI = false
     }
 }

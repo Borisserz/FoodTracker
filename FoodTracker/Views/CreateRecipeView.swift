@@ -521,6 +521,7 @@ struct DirectionRowView: View {
 }
 
 struct Step4VerificationView: View {
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     let name: String
     let servings: Int
     let time: Int
@@ -568,12 +569,12 @@ struct Step4VerificationView: View {
                 HStack {
                     VStack(alignment: .leading) {
                         Text("Standard Serving").font(.caption).foregroundColor(.gray)
-                        Text("\(Int(totalWeight / Double(max(servings, 1)))) g").font(.system(size: 20, weight: .bold, design: .rounded))
+                        Text(NutritionMath.formattedFoodWeight(totalWeight / Double(max(servings, 1)), useMetric: useMetricSystem)).font(.system(size: 20, weight: .bold, design: .rounded))
                     }
                     Spacer()
                     VStack(alignment: .trailing) {
                         Text("Total Weight").font(.caption).foregroundColor(.gray)
-                        Text("\(Int(totalWeight)) g").font(.system(size: 20, weight: .bold, design: .rounded))
+                        Text(NutritionMath.formattedFoodWeight(totalWeight, useMetric: useMetricSystem)).font(.system(size: 20, weight: .bold, design: .rounded))
                     }
                 }
                 .padding(20)
@@ -589,7 +590,7 @@ struct Step4VerificationView: View {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(item.name).font(.system(size: 16, weight: .semibold, design: .rounded))
-                                    Text("\(item.calories) kcal — \(Int(item.weight))g")
+                                    Text("\(item.calories) kcal — \(NutritionMath.formattedFoodWeight(item.weight, useMetric: useMetricSystem))")
                                         .font(.caption).foregroundColor(.gray)
                                 }
                                 Spacer()
@@ -1102,7 +1103,7 @@ struct RecipeDetailView: View {
         init(recipe: CustomRecipe) {
             self.recipe = recipe
             let today = Calendar.current.startOfDay(for: .now)
-            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today) ?? today.addingTimeInterval(86_400)
             let predicate = #Predicate<DailySummary> { $0.date >= today && $0.date < tomorrow }
             self._summaries = Query(filter: predicate)
         }

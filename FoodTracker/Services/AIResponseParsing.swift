@@ -7,7 +7,7 @@ nonisolated enum AIResponseParsing {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // Match fenced code blocks even if preceded/followed by prose (e.g., "Option [1]:\n```json ... ```")
-        if let fenced = extractFencedBlock(from: trimmed) {
+        for fenced in extractFencedBlocks(from: trimmed) {
             if isValidJSON(fenced) {
                 return fenced
             }
@@ -28,14 +28,17 @@ nonisolated enum AIResponseParsing {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static func extractFencedBlock(from text: String) -> String? {
-        let pattern = #"```(?:json|JSON)?[ \t]*\r?\n([\s\S]*?)```"#
-        guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
-              let range = Range(match.range(at: 1), in: text) else {
-            return nil
+    private static func extractFencedBlocks(from text: String) -> [String] {
+        let pattern = #"```(?:[a-zA-Z0-9_-]+)?[ \t]*(?:\r?\n)?([\s\S]*?)```"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return []
         }
-        return String(text[range]).trimmingCharacters(in: .whitespacesAndNewlines)
+        let matches = regex.matches(in: text, range: NSRange(text.startIndex..., in: text))
+        return matches.compactMap { match in
+            guard let range = Range(match.range(at: 1), in: text) else { return nil }
+            let candidate = String(text[range]).trimmingCharacters(in: .whitespacesAndNewlines)
+            return candidate.isEmpty ? nil : candidate
+        }
     }
 
     private static func isValidJSON(_ string: String) -> Bool {
@@ -43,22 +46,53 @@ nonisolated enum AIResponseParsing {
         return (try? JSONSerialization.jsonObject(with: data)) != nil
     }
 
-    static func rateLimitMessage(retryAfter: String?) -> String {
+    private static func retryDurationText(from retryAfter: String?) -> String? {
         guard let raw = retryAfter?.trimmingCharacters(in: .whitespacesAndNewlines),
               let seconds = Double(raw),
               seconds > 0 else {
-            return String(localized: "You've reached your weekly AI limit. Please try again later.")
+            return nil
         }
         if seconds >= 86_400 {
             let days = max(1, Int(ceil(seconds / 86_400)))
-            return String(localized: "You've reached your weekly AI limit. Please try again in \(days)d.")
+            return "\(days)d"
         }
         if seconds >= 3_600 {
             let hours = max(1, Int(ceil(seconds / 3_600)))
-            return String(localized: "You've reached your weekly AI limit. Please try again in \(hours)h.")
+            return "\(hours)h"
         }
         let minutes = max(1, Int(ceil(seconds / 60)))
-        return String(localized: "You've reached your weekly AI limit. Please try again in \(minutes)m.")
+        return "\(minutes)m"
+    }
+
+    static func rateLimitMessage(retryAfter: String?) -> String {
+        guard let duration = retryDurationText(from: retryAfter) else {
+            return String(localized: "You've reached your weekly AI limit. Please try again later.")
+        }
+        return String(localized: "You've reached your weekly AI limit. Please try again in \(duration).")
+    }
+
+    static func searchRateLimitMessage(retryAfter: String?) -> String {
+        guard let duration = retryDurationText(from: retryAfter) else {
+            return String(localized: "Too many food searches right now. Please try again later.")
+        }
+        return String(localized: "Too many food searches right now. Please try again in \(duration).")
+    }
+
+    static func languageDisplayName(forCode rawCode: String?) -> String {
+        let base = (rawCode ?? "en")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .split(whereSeparator: { $0 == "-" || $0 == "_" })
+            .first?
+            .lowercased() ?? "en"
+        switch base {
+        case "ru": return "Russian"
+        case "es": return "Spanish"
+        case "fr": return "French"
+        case "de": return "German"
+        case "it": return "Italian"
+        case "pt": return "Portuguese"
+        default: return "English"
+        }
     }
 
     private static func extractBalancedJSON(from text: String) -> String? {

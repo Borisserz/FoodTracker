@@ -202,6 +202,7 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
     private let session = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "com.borisdev.FoodTracker.avBarcodeSession")
     private var previewLayer: AVCaptureVideoPreviewLayer?
+    private var metadataOutput: AVCaptureMetadataOutput?
     private var isConfigured = false
     private var shouldRun = false
 
@@ -218,6 +219,26 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         previewLayer?.frame = view.bounds
+        updateMetadataRectOfInterest()
+    }
+
+    private func updateMetadataRectOfInterest() {
+        guard let layer = previewLayer else { return }
+        let size = view.bounds.size
+        guard size.width > 250 && size.height > 250 else { return }
+        let roi = CGRect(
+            x: (size.width - 250) / 2,
+            y: (size.height - 250) / 2,
+            width: 250,
+            height: 250
+        )
+        let converted = layer.metadataOutputRectConverted(fromLayerRect: roi)
+        sessionQueue.async { [weak self] in
+            guard let self, let output = self.metadataOutput, self.isConfigured else { return }
+            if !converted.isEmpty {
+                output.rectOfInterest = converted
+            }
+        }
     }
 
     deinit {
@@ -301,14 +322,20 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
                     DispatchQueue.main.async { [weak self] in self?.onUnavailable?() }
                     return
                 }
+                if device.isFocusModeSupported(.continuousAutoFocus) {
+                    try? device.lockForConfiguration()
+                    device.focusMode = .continuousAutoFocus
+                    device.unlockForConfiguration()
+                }
                 self.session.beginConfiguration()
                 self.session.addInput(input)
                 let metadataOutput = AVCaptureMetadataOutput()
                 if self.session.canAddOutput(metadataOutput) {
                     self.session.addOutput(metadataOutput)
+                    self.metadataOutput = metadataOutput
                     metadataOutput.setMetadataObjectsDelegate(self, queue: self.sessionQueue)
                     let supported: [AVMetadataObject.ObjectType] = [
-                        .ean8, .ean13, .upce, .code128, .code39, .code93, .itf14
+                        .ean8, .ean13, .upce, .code128, .code39, .code93, .interleaved2of5, .itf14
                     ].filter { metadataOutput.availableMetadataObjectTypes.contains($0) }
                     metadataOutput.metadataObjectTypes = supported
                 } else {
@@ -319,6 +346,9 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
                 }
                 self.session.commitConfiguration()
                 self.isConfigured = true
+                DispatchQueue.main.async { [weak self] in
+                    self?.updateMetadataRectOfInterest()
+                }
             }
             if self.shouldRun && !self.session.isRunning {
                 self.session.startRunning()
@@ -326,7 +356,7 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
         }
     }
 
-    func metadataOutput(
+    nonisolated func metadataOutput(
         _ output: AVCaptureMetadataOutput,
         didOutput metadataObjects: [AVMetadataObject],
         from connection: AVCaptureConnection
@@ -336,6 +366,8 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
               !payload.isEmpty else {
             return
         }
-        onBarcodeDetected?(payload)
+        DispatchQueue.main.async { [weak self] in
+            self?.onBarcodeDetected?(payload)
+        }
     }
 }

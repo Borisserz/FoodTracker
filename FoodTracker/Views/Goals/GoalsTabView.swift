@@ -11,7 +11,7 @@ struct GoalsTabView: View {
     @Query(sort: \WeightLog.date, order: .forward) private var weightLogs: [WeightLog]
     
     @State private var showAddWeightSheet = false
-    @State private var showSetGoalSheet = false
+    @State private var goalSheetUser: User? = nil
     @State private var bgPhase = 0.0
     @AppStorage("useMetricSystem") private var useMetricSystem = true
     
@@ -155,23 +155,23 @@ struct GoalsTabView: View {
                     .presentationCornerRadius(32)
                     .presentationDragIndicator(.visible)
             }
-            .sheet(isPresented: $showSetGoalSheet) {
-                if let u = user {
-                    SetGoalSheet(user: u)
-                        .presentationDetents([.fraction(0.8)])
-                        .presentationCornerRadius(32)
-                        .presentationDragIndicator(.visible)
-                }
+            .sheet(item: $goalSheetUser) { u in
+                SetGoalSheet(user: u)
+                    .presentationDetents([.fraction(0.8)])
+                    .presentationCornerRadius(32)
+                    .presentationDragIndicator(.visible)
             }
     }
 
     private func ensureUserAndOpenGoalSheet() {
-        if user == nil {
+        if let existing = user {
+            goalSheetUser = existing
+        } else {
             let fallbackUser = User(name: "Alex", weight: currentWeight > 0 ? currentWeight : 70.0, height: 175.0, age: 28, gender: "Male")
             context.insert(fallbackUser)
             try? context.save()
+            goalSheetUser = fallbackUser
         }
-        showSetGoalSheet = true
     }
     
     // MARK: - Subviews
@@ -361,8 +361,10 @@ struct GoalsTabView: View {
                 .cornerRadius(16)
             } else {
                 let displayedWeights = weightLogs.map { NutritionMath.displayWeight($0.weight, useMetric: useMetricSystem) }
-                let minWeight = displayedWeights.min() ?? NutritionMath.displayWeight(50, useMetric: useMetricSystem)
-                let maxWeight = displayedWeights.max() ?? NutritionMath.displayWeight(100, useMetric: useMetricSystem)
+                let displayedTarget = targetWeight.map { NutritionMath.displayWeight($0, useMetric: useMetricSystem) }
+                let allChartValues = displayedWeights + (displayedTarget.map { [$0] } ?? [])
+                let minWeight = allChartValues.min() ?? NutritionMath.displayWeight(50, useMetric: useMetricSystem)
+                let maxWeight = allChartValues.max() ?? NutritionMath.displayWeight(100, useMetric: useMetricSystem)
                 let margin = useMetricSystem ? 2.0 : 5.0
                 let areaFloor = minWeight - (useMetricSystem ? 5.0 : 10.0)
 
@@ -554,7 +556,7 @@ struct AddWeightLogSheet: View {
     }
 
     private var weightRange: ClosedRange<Double> {
-        useMetricSystem ? 30.0...200.0 : 66.0...441.0
+        useMetricSystem ? 30.0...250.0 : 66.0...551.0
     }
 
     private var weightStep: Double {
@@ -707,7 +709,7 @@ struct SetGoalSheet: View {
     }
 
     private var weightRange: ClosedRange<Double> {
-        useMetricSystem ? 30.0...200.0 : 66.0...441.0
+        useMetricSystem ? 30.0...250.0 : 66.0...551.0
     }
 
     private var weightStep: Double {

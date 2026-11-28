@@ -2606,4 +2606,36 @@ final class DataModelsTests: XCTestCase {
         let maintImpact = NetGoalImpactCard.computeImpact(user: user, summary: maintDay)
         XCTAssertEqual(maintImpact.zone, .maintaining)
     }
+
+    func testFinishDayXPRequiresNonZeroProteinEvenWhenTargetIsZero() {
+        let user = User(name: "Alex", weight: 70, height: 175, age: 25)
+        user.targetProtein = 0
+        user.dailyCaloriesGoal = 2000
+        let summary = DailySummary(date: Date())
+        let xp = NutritionMath.finishDayXP(for: summary, user: user)
+        XCTAssertEqual(xp.proteinGoalXP, 0)
+        XCTAssertEqual(xp.calorieGoalXP, 0)
+    }
+
+    func testNotificationDeepLinkRoutesWaterMealsAndWeightToHome() {
+        XCTAssertEqual(AppDelegate.notificationDeepLinkRoute(identifier: "phase_12h", categoryIdentifier: "FASTING_PHASE"), "fasting")
+        XCTAssertEqual(AppDelegate.notificationDeepLinkRoute(identifier: "ft_remind_water", categoryIdentifier: ""), "hydration")
+        XCTAssertEqual(AppDelegate.notificationDeepLinkRoute(identifier: "ft_hydration_coach_reminder", categoryIdentifier: ""), "hydration")
+        XCTAssertEqual(AppDelegate.notificationDeepLinkRoute(identifier: "ft_remind_meals_breakfast", categoryIdentifier: ""), "home")
+        XCTAssertEqual(AppDelegate.notificationDeepLinkRoute(identifier: "ft_remind_weight", categoryIdentifier: ""), "home")
+    }
+
+    func testWidgetSnapshotReadsWorkoutTrackerAppGroupWater() throws {
+        let suiteName = "test.widget.wt.water.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: suiteName)!
+        defer { sharedDefaults.removePersistentDomain(forName: suiteName) }
+
+        let today = Date()
+        sharedDefaults.set(1.75, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        let user = User(name: "Alex", weight: 75, height: 180, age: 28)
+        user.dailyWaterGoalLiters = 2.5
+        let snapshot = DailyWidgetSnapshot.compute(summary: nil, user: user, sharedDefaults: sharedDefaults, date: today)
+        XCTAssertEqual(snapshot.hydrationLiters, 1.75, accuracy: 0.001)
+    }
 }

@@ -407,7 +407,7 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
         do {
             authToken = try await user.getIDToken(forcingRefresh: forceRefresh)
         } catch {
-            if forceRefresh && AuthManager.isPermanentTokenInvalidationError(error) {
+            if AuthManager.isPermanentTokenInvalidationError(error) {
                 let wasAnonymous = user.isAnonymous
                 try? Auth.auth().signOut()
                 if wasAnonymous {

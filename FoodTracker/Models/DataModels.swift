@@ -671,7 +671,7 @@ extension FoodItem {
         let proteinCals = protein * 4.0
         let proteinPercentage = calories > 0 ? (proteinCals / Double(calories)) : 0
 
-        if proteinPercentage > 0.20 || (calories < 100 && carbs < 15) {
+        if proteinPercentage > 0.20 || (calories < 100 && carbs < 15 && fats < 3) {
             return .clean
         }
 
@@ -781,16 +781,27 @@ struct DailyWidgetSnapshot: Equatable {
     let calorieGoal: Int
     let metabolicScore: Int
 
-    static func compute(summary: DailySummary?, user: User?) -> DailyWidgetSnapshot {
+    static func compute(
+        summary: DailySummary?,
+        user: User?,
+        sharedDefaults: UserDefaults? = nil,
+        date: Date = Date()
+    ) -> DailyWidgetSnapshot {
         let calGoal = max(1, user?.dailyCaloriesGoal ?? 2000)
         let pGoal = max(1, Int((user?.targetProtein ?? 150).rounded()))
         let fGoal = max(1, Int((user?.targetFats ?? 70).rounded()))
         let cGoal = max(1, Int((user?.targetCarbs ?? 250).rounded()))
         let hydGoal = max(1.0, user?.dailyWaterGoalLiters ?? 2.5)
 
+        let syncedWaterLiters = max(0.0, sharedDefaults?.double(forKey: WorkoutSyncManager.waterLitersKey(for: date)) ?? 0.0)
+        let localWaterLiters = summary?.totalPureWaterLiters ?? 0.0
+        let hyd = max(localWaterLiters, syncedWaterLiters)
+
         guard let summary else {
+            let hydScore = min(hyd / hydGoal, 1.0) * 30.0
+            let score = hyd > 0 ? min(100, max(0, Int(hydScore.rounded()))) : 0
             return DailyWidgetSnapshot(
-                hydrationLiters: 0,
+                hydrationLiters: hyd,
                 hydrationGoalLiters: hydGoal,
                 protein: 0,
                 proteinGoal: pGoal,
@@ -800,12 +811,11 @@ struct DailyWidgetSnapshot: Equatable {
                 carbGoal: cGoal,
                 totalCalories: 0,
                 calorieGoal: calGoal,
-                metabolicScore: 0
+                metabolicScore: score
             )
         }
 
         let cals = summary.totalCalories
-        let hyd = summary.totalPureWaterLiters
         let prot = Int(summary.totalProtein.rounded())
         let fat = Int(summary.totalFats.rounded())
         let carbs = Int(summary.totalCarbs.rounded())

@@ -20,7 +20,8 @@ class AnalyticsViewModel {
         // Ensure we fetch at least 14 days for the heatmap, or up to 30 days for month period.
         let daysToFetch = max(period.daysCount, 14)
         let todayStart = Calendar.current.startOfDay(for: endDate)
-        let startDate = Calendar.current.date(byAdding: .day, value: -daysToFetch, to: todayStart)!
+        let startDate = Calendar.current.date(byAdding: .day, value: -daysToFetch, to: todayStart)
+            ?? todayStart.addingTimeInterval(-Double(daysToFetch) * 86_400)
 
         loadTask = Task {
             do {

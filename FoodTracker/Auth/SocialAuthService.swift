@@ -440,8 +440,16 @@ private final class AppleAuthorizationDelegate: NSObject,
     func presentationAnchor(
         for controller: ASAuthorizationController
     ) -> ASPresentationAnchor {
-        let scene = UIApplication.shared.connectedScenes
-            .first { $0.activationState == .foregroundActive } as? UIWindowScene
-        return scene?.keyWindow ?? ASPresentationAnchor()
+        let windowScenes = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+        let preferredScene = windowScenes.first(where: { $0.activationState == .foregroundActive })
+            ?? windowScenes.first(where: { $0.activationState == .foregroundInactive })
+            ?? windowScenes.first
+        if let anchor = preferredScene?.keyWindow
+            ?? preferredScene?.windows.first(where: \.isKeyWindow)
+            ?? preferredScene?.windows.first {
+            return anchor
+        }
+        return ASPresentationAnchor()
     }
 }

@@ -26,6 +26,13 @@ protocol HealthKitStoreExecuting: Sendable {
     func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus
     func requestAuthorization(toShare typesToShare: Set<HKSampleType>, read typesToRead: Set<HKObjectType>) async throws
     func save(_ object: HKObject) async throws
+    func finishWorkout(
+        activityType: HKWorkoutActivityType,
+        start: Date,
+        end: Date,
+        calories: Int,
+        metadata: [String: Any]
+    ) async throws -> (workoutID: UUID, energySampleID: UUID?)
     func delete(_ object: HKObject) async throws
     func sumQuantity(for identifier: HKQuantityTypeIdentifier, start: Date, end: Date) async throws -> Double
     func fetchWorkouts(start: Date, end: Date) async throws -> [HKWorkout]
@@ -46,6 +53,34 @@ final class LiveHealthKitStore: HealthKitStoreExecuting, @unchecked Sendable {
 
     func save(_ object: HKObject) async throws {
         try await healthStore.save(object)
+    }
+
+    func finishWorkout(
+        activityType: HKWorkoutActivityType,
+        start: Date,
+        end: Date,
+        calories: Int,
+        metadata: [String: Any]
+    ) async throws -> (workoutID: UUID, energySampleID: UUID?) {
+        let config = HKWorkoutConfiguration()
+        config.activityType = activityType
+        let builder = HKWorkoutBuilder(healthStore: healthStore, configuration: config, device: .local())
+        try await builder.beginCollection(at: start)
+        if !metadata.isEmpty {
+            try await builder.addMetadata(metadata)
+        }
+        var energySampleID: UUID?
+        if calories > 0, let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
+            let energyBurned = HKQuantity(unit: .kilocalorie(), doubleValue: Double(calories))
+            let sample = HKQuantitySample(type: energyType, quantity: energyBurned, start: start, end: end)
+            try await builder.addSamples([sample])
+            energySampleID = sample.uuid
+        }
+        try await builder.endCollection(at: end)
+        guard let workout = try await builder.finishWorkout() else {
+            throw NSError(domain: HKErrorDomain, code: HKError.errorHealthDataUnavailable.rawValue)
+        }
+        return (workout.uuid, energySampleID)
     }
 
     func delete(_ object: HKObject) async throws {
@@ -348,33 +383,19 @@ final class HealthKitManager {
               canWrite(HKObjectType.workoutType()) else { return (nil, nil) }
         let interval = Self.clampedWorkoutInterval(date: date, durationMinutes: durationMinutes)
         let startDate = interval.start
-        let duration = interval.end.timeIntervalSince(startDate)
-        let energyBurned = HKQuantity(unit: .kilocalorie(), doubleValue: Double(calories))
-
-        let workout = HKWorkout(
-            activityType: activityType,
-            start: startDate,
-            end: date,
-            duration: duration,
-            totalEnergyBurned: energyBurned,
-            totalDistance: nil,
-            device: nil,
-            metadata: [HKMetadataKeyWorkoutBrandName: WorkoutSyncManager.healthKitBrandName]
-        )
 
         do {
-            try await store.save(workout)
-            var energySampleID: String?
-            if let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned),
-               canWrite(energyType) {
-                let sample = HKQuantitySample(type: energyType, quantity: energyBurned, start: startDate, end: date)
-                try await store.save(sample)
-                energySampleID = sample.uuid.uuidString
-            }
+            let result = try await store.finishWorkout(
+                activityType: activityType,
+                start: startDate,
+                end: date,
+                calories: calories,
+                metadata: [HKMetadataKeyWorkoutBrandName: WorkoutSyncManager.healthKitBrandName]
+            )
             #if DEBUG
             print("Successfully saved workout to HealthKit: \(calories) kcal for \(durationMinutes) min.")
             #endif
-            return (workout.uuid.uuidString, energySampleID)
+            return (result.workoutID.uuidString, result.energySampleID?.uuidString)
         } catch {
             #if DEBUG
             print("Error saving workout to HealthKit: \(error.localizedDescription)")

@@ -343,7 +343,7 @@ struct BurnedWeeklyTrendCard: View {
         var data: [(String, Int)] = []
 
         for i in (0..<7).reversed() {
-            let date = cal.date(byAdding: .day, value: -i, to: today)!
+            guard let date = cal.date(byAdding: .day, value: -i, to: today) else { continue }
             let dayName = Self.dayFormatter.string(from: date)
             let dailySum = summaries.first(where: { cal.isDate($0.date, inSameDayAs: date) })
             data.append((dayName, dailySum?.activeCaloriesBurned ?? 0))

@@ -313,6 +313,21 @@ class NetworkManager {
         return expandUPCEtoUPCA(trimmed) ?? trimmed
     }
 
+    /// Returns barcode lookup candidates in priority order; dual-valid EAN-8/UPC-E codes starting with "1" fall back to expanded UPC-A.
+    static func barcodeLookupCandidates(for raw: String) -> [String] {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        let primary = normalizedBarcode(for: trimmed)
+        guard isValidBarcode(primary) else { return [] }
+        var candidates = [primary]
+        if trimmed.count == 8, trimmed.allSatisfy(\.isNumber),
+           trimmed.first == "1", isValidEAN8(trimmed),
+           let upcaFallback = expandUPCEtoUPCA(trimmed),
+           upcaFallback != primary {
+            candidates.append(upcaFallback)
+        }
+        return candidates
+    }
+
     private static func isValidEAN8(_ digits: String) -> Bool {
         let vals = digits.compactMap(\.wholeNumberValue)
         guard vals.count == 8 else { return false }
@@ -355,8 +370,8 @@ class NetworkManager {
 
     func fetchProductOutcome(barcode: String) async -> BarcodeFetchOutcome {
         setLastBarcodeLookupError(nil)
-        let cacheKey = Self.normalizedBarcode(for: barcode)
-        guard Self.isValidBarcode(cacheKey) else { return .notFound }
+        let candidates = Self.barcodeLookupCandidates(for: barcode)
+        guard let cacheKey = candidates.first else { return .notFound }
 
         if let cached = cacheLock.withLock({ () -> FoodItem? in
             guard let entry = barcodeCache[cacheKey], entry.expiresAt > Date() else {
@@ -373,54 +388,60 @@ class NetworkManager {
         #endif
         var failureMessage: String?
 
-        switch await fetchBarcodeFromOFF(barcode: cacheKey) {
-        case .found(let offProduct):
-            #if DEBUG
-            print("✅ Нашли в Open Food Facts: \(offProduct.name)")
-            #endif
-            let snapshot = CachedFoodSnapshot(from: offProduct)
-            let now = Date()
-            let expiry = now.addingTimeInterval(barcodeCacheTTL)
-            cacheLock.withLock {
-                pruneCache(&barcodeCache, now: now)
-                barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
+        for candidate in candidates {
+            switch await fetchBarcodeFromOFF(barcode: candidate) {
+            case .found(let offProduct):
+                #if DEBUG
+                print("✅ Нашли в Open Food Facts: \(offProduct.name)")
+                #endif
+                let snapshot = CachedFoodSnapshot(from: offProduct)
+                let now = Date()
+                let expiry = now.addingTimeInterval(barcodeCacheTTL)
+                cacheLock.withLock {
+                    pruneCache(&barcodeCache, now: now)
+                    barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
+                }
+                return .found(offProduct)
+            case .notFound:
+                break
+            case .failed(let message):
+                if failureMessage == nil {
+                    failureMessage = message
+                }
+                setLastBarcodeLookupError(failureMessage)
             }
-            return .found(offProduct)
-        case .notFound:
-            break
-        case .failed(let message):
-            failureMessage = message
-            setLastBarcodeLookupError(message)
         }
 
-        switch await fetchBarcodeFromFatSecretBarcode(barcode: cacheKey) {
-        case .found(let fatSecretProduct):
-            #if DEBUG
-            print("✅ Нашли в FatSecret: \(fatSecretProduct.name)")
-            #endif
-            setLastBarcodeLookupError(nil)
-            let snapshot = CachedFoodSnapshot(from: fatSecretProduct)
-            let now = Date()
-            let expiry = now.addingTimeInterval(barcodeCacheTTL)
-            cacheLock.withLock {
-                pruneCache(&barcodeCache, now: now)
-                barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
+        for candidate in candidates {
+            switch await fetchBarcodeFromFatSecretBarcode(barcode: candidate) {
+            case .found(let fatSecretProduct):
+                #if DEBUG
+                print("✅ Нашли в FatSecret: \(fatSecretProduct.name)")
+                #endif
+                setLastBarcodeLookupError(nil)
+                let snapshot = CachedFoodSnapshot(from: fatSecretProduct)
+                let now = Date()
+                let expiry = now.addingTimeInterval(barcodeCacheTTL)
+                cacheLock.withLock {
+                    pruneCache(&barcodeCache, now: now)
+                    barcodeCache[cacheKey] = CacheEntry(value: snapshot, expiresAt: expiry)
+                }
+                return .found(fatSecretProduct)
+            case .notFound:
+                if let failureMessage {
+                    setLastBarcodeLookupError(failureMessage)
+                    return .failed(failureMessage)
+                }
+                setLastBarcodeLookupError(nil)
+            case .failed:
+                if let failureMessage {
+                    setLastBarcodeLookupError(failureMessage)
+                    return .failed(failureMessage)
+                }
+                // OpenFoodFacts already succeeded with .notFound; do not mask it with a secondary FatSecret proxy error.
+                setLastBarcodeLookupError(nil)
+                return .notFound
             }
-            return .found(fatSecretProduct)
-        case .notFound:
-            if let failureMessage {
-                setLastBarcodeLookupError(failureMessage)
-                return .failed(failureMessage)
-            }
-            setLastBarcodeLookupError(nil)
-        case .failed(let message):
-            if let failureMessage {
-                setLastBarcodeLookupError(failureMessage)
-                return .failed(failureMessage)
-            }
-            // OpenFoodFacts already succeeded with .notFound; do not mask it with a secondary FatSecret proxy error.
-            setLastBarcodeLookupError(nil)
-            return .notFound
         }
 
         #if DEBUG
@@ -640,7 +661,7 @@ class NetworkManager {
         guard let url = components?.url else { return [] }
 
         var request = URLRequest(url: url)
-        request.setValue("FoodTrackerApp - iOS - Version 1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("FoodTrackerApp/1.0", forHTTPHeaderField: "User-Agent")
 
         do {
             let (data, response) = try await session.data(for: request)
@@ -704,6 +725,8 @@ class NetworkManager {
         let protein: Double
         let fats: Double
         let carbs: Double
+        let fiber: Double?
+        let sugar: Double?
         let omega3: Double?
         let calcium: Double?
         let potassium: Double?
@@ -717,6 +740,8 @@ class NetworkManager {
             let safeProtein = max(0, protein)
             let safeFats = max(0, fats)
             let safeCarbs = max(0, carbs)
+            let safeFiber = max(0, fiber ?? 0)
+            let safeSugar = max(0, sugar ?? 0)
             let fallback = MicronutrientEstimator.estimate(
                 name: name,
                 calories: safeCalories,
@@ -743,6 +768,8 @@ class NetworkManager {
                 protein: safeProtein,
                 fats: safeFats,
                 carbs: safeCarbs,
+                fiber: safeFiber,
+                sugar: safeSugar,
                 omega3: resolved.omega3,
                 calcium: resolved.calcium,
                 potassium: resolved.potassium,
@@ -849,7 +876,7 @@ class NetworkManager {
                 }
                 if http.statusCode == 429 {
                     let retryAfter = GeminiProxyClient.extractRetryAfter(httpResponse: http, data: data)
-                    return .failed(AIResponseParsing.rateLimitMessage(retryAfter: retryAfter))
+                    return .failed(AIResponseParsing.searchRateLimitMessage(retryAfter: retryAfter))
                 }
                 guard http.statusCode == 200 else {
                     return .failed(String(localized: "Barcode database temporarily unavailable (HTTP \(http.statusCode))."))

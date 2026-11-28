@@ -76,6 +76,7 @@ struct BeforeAfterView: View {
     @State private var analysisError: String?
     @State private var didRestorePersisted = false
     @State private var analysisTask: Task<Void, Never>?
+    @State private var photoLoadTask: Task<Void, Never>?
     @State private var showPhotoConsentSheet = false
     
     var body: some View {
@@ -86,8 +87,26 @@ struct BeforeAfterView: View {
                 
                 Spacer()
                 
+                if beforeImage != nil && afterImage != nil {
+                    PhotosPicker(selection: $beforeItem, matching: .images, photoLibrary: .shared()) {
+                        Text("Before")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+
+                    PhotosPicker(selection: $afterItem, matching: .images, photoLibrary: .shared()) {
+                        Text("After")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 if beforeImage != nil || afterImage != nil {
                     Button("Reset") {
+                        photoLoadTask?.cancel()
+                        photoLoadTask = nil
                         analysisTask?.cancel()
                         analysisTask = nil
                         withAnimation {
@@ -155,8 +174,7 @@ struct BeforeAfterView: View {
             didRestorePersisted = true
         }
         .onChange(of: beforeImage) { oldValue, newValue in
-            guard didRestorePersisted, let newValue else { return }
-            guard oldValue !== newValue else { return }
+            guard let newValue, oldValue !== newValue else { return }
             BeforeAfterStorage.clearAnalysis()
             Task.detached(priority: .userInitiated) {
                 BeforeAfterStorage.saveImage(newValue, slot: "before")
@@ -165,8 +183,7 @@ struct BeforeAfterView: View {
             analysisError = nil
         }
         .onChange(of: afterImage) { oldValue, newValue in
-            guard didRestorePersisted, let newValue else { return }
-            guard oldValue !== newValue else { return }
+            guard let newValue, oldValue !== newValue else { return }
             BeforeAfterStorage.clearAnalysis()
             Task.detached(priority: .userInitiated) {
                 BeforeAfterStorage.saveImage(newValue, slot: "after")
@@ -175,9 +192,17 @@ struct BeforeAfterView: View {
             analysisError = nil
         }
         .onDisappear {
+            photoLoadTask?.cancel()
+            photoLoadTask = nil
             analysisTask?.cancel()
             analysisTask = nil
             isAnalyzing = false
+        }
+        .onChange(of: beforeItem) { _, newItem in
+            loadPhoto(from: newItem, isBefore: true)
+        }
+        .onChange(of: afterItem) { _, newItem in
+            loadPhoto(from: newItem, isBefore: false)
         }
         .sheet(isPresented: $showPhotoConsentSheet) {
             AIPhotoConsentSheet(
@@ -254,20 +279,26 @@ struct BeforeAfterView: View {
             }
         }
         .buttonStyle(.plain)
-        .onChange(of: item.wrappedValue) { _, newItem in
-            Task {
-                if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                    let downsampled = await Task.detached(priority: .userInitiated) {
-                        VertexAIManager.downsampledImage(data: data, maxDimension: 1600)
-                    }.value
-                    guard let downsampled else { return }
-                    await MainActor.run {
-                        if title == "Before" {
-                            beforeImage = downsampled
-                        } else {
-                            afterImage = downsampled
-                        }
-                    }
+    }
+
+    private func loadPhoto(from item: PhotosPickerItem?, isBefore: Bool) {
+        guard let item else { return }
+        photoLoadTask?.cancel()
+        photoLoadTask = Task {
+            guard let data = try? await item.loadTransferable(type: Data.self),
+                  !Task.isCancelled else {
+                return
+            }
+            let downsampled = await Task.detached(priority: .userInitiated) {
+                VertexAIManager.downsampledImage(data: data, maxDimension: 1600)
+            }.value
+            guard !Task.isCancelled, let downsampled else { return }
+            await MainActor.run {
+                didRestorePersisted = true
+                if isBefore {
+                    beforeImage = downsampled
+                } else {
+                    afterImage = downsampled
                 }
             }
         }

@@ -212,17 +212,48 @@ final class WorkoutSyncManager {
         }
         guard !actionable.isEmpty,
               let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return }
+
+        // First cancel out matching unsynced pending widget water entries that haven't been flushed to HealthKit yet.
+        let entriesKey = Self.pendingHealthKitWaterEntriesKey(for: date)
+        var pendingEntries = (ftDefaults.array(forKey: entriesKey) as? [Double])?.filter { $0 > 0 } ?? []
+        var remainingSamples: [DeletedWaterHealthSample] = []
+
+        for sample in actionable {
+            if sample.sampleID == nil,
+               let matchIndex = pendingEntries.lastIndex(where: { abs($0 - sample.volumeMl) < 1.0 }) {
+                pendingEntries.remove(at: matchIndex)
+            } else {
+                remainingSamples.append(sample)
+            }
+        }
+        if pendingEntries.isEmpty {
+            ftDefaults.removeObject(forKey: entriesKey)
+        } else {
+            ftDefaults.set(pendingEntries, forKey: entriesKey)
+        }
+
+        guard !remainingSamples.isEmpty else { return }
         let key = Self.pendingHealthKitWaterDeletionsKey(for: date)
         var existing: [PendingHealthKitWaterDeletion] = []
         if let raw = ftDefaults.data(forKey: key),
            let decoded = try? JSONDecoder().decode([PendingHealthKitWaterDeletion].self, from: raw) {
             existing = decoded
         }
-        existing.append(contentsOf: actionable.map {
+        existing.append(contentsOf: remainingSamples.map {
             PendingHealthKitWaterDeletion(sampleID: $0.sampleID, volumeMl: $0.volumeMl, date: date)
         })
         if let encoded = try? JSONEncoder().encode(existing) {
             ftDefaults.set(encoded, forKey: key)
+        }
+    }
+
+    func clearPendingWidgetWaterQueues(appGroupDefaults: UserDefaults? = nil) {
+        guard let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return }
+        for key in ftDefaults.dictionaryRepresentation().keys
+            where key.hasPrefix(Self.pendingWidgetWaterPrefix)
+                || key.hasPrefix(Self.pendingWidgetWaterEntriesPrefix)
+                || key.hasPrefix("pending_hk_water_deletions_") {
+            ftDefaults.removeObject(forKey: key)
         }
     }
 
