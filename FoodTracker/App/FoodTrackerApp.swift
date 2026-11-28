@@ -176,7 +176,9 @@ struct FoodTrackerApp: App {
 
     @MainActor
     private func setupDependencies() async {
+        #if DEBUG
         print("🚀 [setupDependencies] Starting initialization...")
+        #endif
         let useMetric = UserDefaults.standard.object(forKey: "useMetricSystem") as? Bool ?? true
         UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.set(useMetric, forKey: "useMetricSystem")
 
@@ -200,23 +202,36 @@ struct FoodTrackerApp: App {
         if inMemoryFallback {
             self.showInMemoryStorageWarning = true
         }
+        #if DEBUG
         print("🚀 [setupDependencies] diContainer assigned to state using SharedModelContainer. Re-rendering UI...")
+        #endif
 
         do {
+            #if DEBUG
             print("🚀 [setupDependencies] Attempting Anonymous Firebase sign-in...")
+            #endif
             _ = try await AnonymousAuthBootstrap.shared.ensureSignedIn()
+            #if DEBUG
             print("🚀 [setupDependencies] Firebase Sign-in Complete!")
+            #endif
         } catch {
+            #if DEBUG
             print("⚠️ Anonymous auth failed: \(error)")
+            #endif
         }
 
+        #if DEBUG
         print("🚀 [setupDependencies] Fetching Remote Config values...")
+        #endif
         await RemoteConfigManager.shared.fetchCloudValues()
+        #if DEBUG
         print("🚀 [setupDependencies] Remote Config Fetch Complete!")
-
         print("🚀 [setupDependencies] Checking for updates...")
+        #endif
         await VersionManager.shared.checkVersion()
+        #if DEBUG
         print("🚀 [setupDependencies] Update checks complete!")
+        #endif
     }
 }
 
@@ -358,6 +373,7 @@ struct RootLaunchView: View {
                     .transition(.opacity)
             }
         }
+        // Editorial dark welcome/auth; light editorial palette after onboarding until adaptive Dark tokens ship.
         .preferredColorScheme(hasCompletedInitialOnboarding ? .light : .dark)
     }
 }

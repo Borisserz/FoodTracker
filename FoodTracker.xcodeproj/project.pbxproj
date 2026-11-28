@@ -35,6 +35,7 @@
 		B1A000040000000000000002 /* RecipeTagCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000040000000000000001 /* RecipeTagCatalogTests.swift */; };
 		B1A000050000000000000002 /* MicronutrientPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000050000000000000001 /* MicronutrientPipelineTests.swift */; };
 		B1A000060000000000000002 /* VersionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000060000000000000001 /* VersionManagerTests.swift */; };
+		B1A000070000000000000002 /* SpotlightTourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A000070000000000000001 /* SpotlightTourTests.swift */; };
 		AC5031B52FD818F600C2DD0A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B42FD818F600C2DD0A /* FirebaseAuth */; };
 		AC5031B72FD818FC00C2DD0A /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B62FD818FC00C2DD0A /* FirebaseCrashlytics */; };
 		AC5031B92FD8191600C2DD0A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = AC5031B82FD8191600C2DD0A /* FirebaseAppCheck */; };
@@ -126,6 +127,7 @@
 		B1A000040000000000000001 /* RecipeTagCatalogTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecipeTagCatalogTests.swift; sourceTree = "<group>"; };
 		B1A000050000000000000001 /* MicronutrientPipelineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MicronutrientPipelineTests.swift; sourceTree = "<group>"; };
 		B1A000060000000000000001 /* VersionManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VersionManagerTests.swift; sourceTree = "<group>"; };
+		B1A000070000000000000001 /* SpotlightTourTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpotlightTourTests.swift; sourceTree = "<group>"; };
 		AC8DD7A92F97D8FA00DFE2F9 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		ACD93EFF2F8AC7E200868265 /* FoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B698F0C0F0C1BF19AA836CC1 /* SharedModelContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedModelContainer.swift; sourceTree = "<group>"; };
@@ -342,6 +344,7 @@
 				B1A000040000000000000001 /* RecipeTagCatalogTests.swift */,
 				B1A000050000000000000001 /* MicronutrientPipelineTests.swift */,
 				B1A000060000000000000001 /* VersionManagerTests.swift */,
+				B1A000070000000000000001 /* SpotlightTourTests.swift */,
 			);
 			name = FoodTrackerTests;
 			path = FoodTrackerTests;
@@ -582,6 +585,7 @@
 				B1A000040000000000000002 /* RecipeTagCatalogTests.swift in Sources */,
 				B1A000050000000000000002 /* MicronutrientPipelineTests.swift in Sources */,
 				B1A000060000000000000002 /* VersionManagerTests.swift in Sources */,
+				B1A000070000000000000002 /* SpotlightTourTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -641,7 +645,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = FoodTrackerWidgetExtension/FoodTrackerWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = LSCCP92LMG;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FoodTrackerWidgetExtension/Info.plist;
@@ -897,7 +901,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = FoodTracker/FoodTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = LSCCP92LMG;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -931,7 +935,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = FoodTracker/FoodTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = LSCCP92LMG;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -966,7 +970,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = FoodTrackerWidgetExtension/FoodTrackerWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = LSCCP92LMG;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FoodTrackerWidgetExtension/Info.plist;

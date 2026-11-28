@@ -645,7 +645,7 @@ struct FrequentMealRow: View {
     var body: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text(timeTag)
+                Text(LocalizedStringKey(timeTag))
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 6)

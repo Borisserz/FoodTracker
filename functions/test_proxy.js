@@ -17,11 +17,38 @@ test("exports _test helpers and only FoodTracker Cloud Functions", () => {
   assert.equal(mod.deleteAccount, undefined);
 });
 
-test("model chains cover ZDR-compatible text models and multimodal vision models", () => {
-  assert.ok(t.TEXT_MODEL_CHAIN.length >= 6);
-  assert.ok(t.VISION_MODEL_CHAIN.length >= 4);
-  assert.ok(t.TEXT_MODEL_CHAIN.includes("openrouter/free"));
-  assert.ok(t.VISION_MODEL_CHAIN.includes("openrouter/free"));
+test("model chains cover live named ZDR-compatible :free text and vision models without dead, non-ZDR, or wildcard entries", () => {
+  assert.deepEqual(t.TEXT_MODEL_CHAIN, [
+    "recursive/flint-v1.0:free",
+    "google/gemma-4-31b-it:free",
+    "google/gemma-4-26b-a4b-it:free",
+  ]);
+  assert.deepEqual(t.VISION_MODEL_CHAIN, [
+    "google/gemma-4-31b-it:free",
+    "google/gemma-4-26b-a4b-it:free",
+  ]);
+  for (const model of [...t.TEXT_MODEL_CHAIN, ...t.VISION_MODEL_CHAIN]) {
+    assert.ok(model.endsWith(":free"), `Expected :free model, got ${model}`);
+    assert.notEqual(model, "openrouter/free", "Must not include wildcard openrouter/free");
+    assert.ok(!model.startsWith("baidu/"), `Must not include baidu model ${model}`);
+    assert.notEqual(model, "dots-studio/dots-3-note-preview:free");
+    assert.notEqual(model, "inclusionai/ling-3.2-flash:free");
+    assert.notEqual(model, "nvidia/nemotron-3.5-super-vl:free");
+    assert.notEqual(model, "particle-ai/particle-1:free");
+    assert.notEqual(model, "nvidia/nemotron-3.5-lightning:free");
+  }
+
+  assert.ok(t.STRUCTURED_MODELS.has("google/gemini-2.5-flash-lite"));
+  assert.ok(t.STRUCTURED_MODELS.has("google/gemini-2.5-flash"));
+  assert.equal(t.STRUCTURED_MODELS.has("openrouter/free"), false);
+  assert.equal(t.STRUCTURED_MODELS.has("baidu/ernie-5.5-flash-preview:free"), false);
+
+  assert.ok(t.JSON_OBJECT_MODELS.has("recursive/flint-v1.0:free"));
+  assert.ok(t.JSON_OBJECT_MODELS.has("google/gemma-4-31b-it:free"));
+  assert.ok(t.JSON_OBJECT_MODELS.has("google/gemma-4-26b-a4b-it:free"));
+  assert.ok(t.JSON_OBJECT_MODELS.has("google/gemini-2.5-flash-lite"));
+  assert.ok(t.JSON_OBJECT_MODELS.has("google/gemini-2.5-flash"));
+  assert.equal(t.JSON_OBJECT_MODELS.has("nvidia/nemotron-3.5-lightning:free"), false);
 });
 
 test("parseApiKeys trims, deduplicates, and preserves order", () => {
@@ -568,7 +595,7 @@ test("validateAiProxyBody enforces limits, image mimeType allowlist, and role sa
         contents: [
           {
             role: "user",
-            parts: [{ inlineData: { mimeType: "image/jpeg", data: "A".repeat(4_000_001) } }],
+            parts: [{ inlineData: { mimeType: "image/jpeg", data: "A".repeat(2_000_001) } }],
           },
         ],
       }),
@@ -1131,12 +1158,14 @@ test("normalizeFatSecretFood converts % Daily Value micronutrients to mg and mcg
   assert.equal(hit.vitaminD, 5);
 });
 
-test("resolveAllowPaidFallback defaults on and honors an explicit Firestore or env disable", () => {
-  assert.equal(t.resolveAllowPaidFallback(undefined, undefined), true);
-  assert.equal(t.resolveAllowPaidFallback(undefined, "true"), true);
+test("resolveAllowPaidFallback defaults off (zero spend) and only enables on explicit Firestore or env opt-in", () => {
+  assert.equal(t.resolveAllowPaidFallback(undefined, undefined), false);
+  assert.equal(t.resolveAllowPaidFallback(undefined, ""), false);
   assert.equal(t.resolveAllowPaidFallback(undefined, "false"), false);
+  assert.equal(t.resolveAllowPaidFallback(undefined, "true"), true);
   assert.equal(t.resolveAllowPaidFallback(false, "true"), false);
   assert.equal(t.resolveAllowPaidFallback(true, "false"), true);
+  assert.equal(t.resolveAllowPaidFallback(true, undefined), true);
 });
 
 test("shouldYieldFreeSlotToPaidFallback reserves the tail budget for the SLA model", () => {
@@ -1242,6 +1271,181 @@ test("callOpenRouterText falls back to paid SLA model when free chain fails and 
       result.candidates[0].content.parts[0].text,
       '{"mealName":"Oatmeal"}'
     );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("foodAiProxy limits container concurrency to 8 for 512MiB multimodal safety", () => {
+  assert.equal(mod.foodAiProxy.__endpoint.concurrency, 8);
+});
+
+test("shouldRefundQuotaSlot refunds only when nothing was yielded, no completion received, and no paid model attempted", () => {
+  assert.equal(typeof t.shouldRefundQuotaSlot, "function");
+  assert.equal(
+    t.shouldRefundQuotaSlot({ yielded: false, receivedCompletion: false, attemptedPaid: false }),
+    true
+  );
+  assert.equal(
+    t.shouldRefundQuotaSlot({ yielded: true, receivedCompletion: false, attemptedPaid: false }),
+    false
+  );
+  assert.equal(
+    t.shouldRefundQuotaSlot({ yielded: false, receivedCompletion: true, attemptedPaid: false }),
+    false
+  );
+  assert.equal(
+    t.shouldRefundQuotaSlot({ yielded: false, receivedCompletion: false, attemptedPaid: true }),
+    false
+  );
+  assert.equal(
+    t.shouldRefundQuotaSlot({ yielded: true, receivedCompletion: true, attemptedPaid: true }),
+    false
+  );
+});
+
+test("callOpenRouterText tracks attemptMeta and stops paid cascade on invalid or empty JSON", async () => {
+  const originalFetch = globalThis.fetch;
+
+  try {
+    // 1. Free model fails with 429 before completion -> refundable
+    const metaFree429 = { receivedCompletion: false, attemptedPaid: false };
+    globalThis.fetch = async () => ({
+      ok: false,
+      status: 429,
+      text: async () => "upstream_provider_shared_pool",
+    });
+    await assert.rejects(
+      () =>
+        t.callOpenRouterText({
+          apiKeys: ["sk-test"],
+          geminiBody: {
+            contents: [{ role: "user", parts: [{ text: "Oatmeal" }] }],
+            generationConfig: { responseMimeType: "application/json" },
+          },
+          overrides: { textModels: ["mock/free:free"], allowPaidFallback: false },
+          attemptMeta: metaFree429,
+        }),
+      /429/
+    );
+    assert.deepEqual(metaFree429, { receivedCompletion: false, attemptedPaid: false });
+    assert.equal(t.shouldRefundQuotaSlot({ yielded: false, ...metaFree429 }), true);
+
+    // 2. Free model returns HTTP 200 with invalid JSON -> receivedCompletion=true -> NOT refundable
+    const metaFreeInvalidJson = { receivedCompletion: false, attemptedPaid: false };
+    globalThis.fetch = async () => ({
+      ok: true,
+      status: 200,
+      text: async () =>
+        JSON.stringify({ choices: [{ message: { content: "Sorry, I cannot output JSON." } }] }),
+    });
+    await assert.rejects(
+      () =>
+        t.callOpenRouterText({
+          apiKeys: ["sk-test"],
+          geminiBody: {
+            contents: [{ role: "user", parts: [{ text: "Break JSON" }] }],
+            generationConfig: { responseMimeType: "application/json" },
+          },
+          overrides: { textModels: ["mock/free:free"], allowPaidFallback: false },
+          attemptMeta: metaFreeInvalidJson,
+        }),
+      /Invalid JSON output/
+    );
+    assert.deepEqual(metaFreeInvalidJson, { receivedCompletion: true, attemptedPaid: false });
+    assert.equal(t.shouldRefundQuotaSlot({ yielded: false, ...metaFreeInvalidJson }), false);
+
+    // 3. Paid model returns HTTP 200 with invalid JSON -> breaks outer loop, never calls second paid model
+    const calledOnInvalidJson = [];
+    const metaPaidInvalidJson = { receivedCompletion: false, attemptedPaid: false };
+    globalThis.fetch = async (_url, init) => {
+      const parsed = JSON.parse(init.body);
+      calledOnInvalidJson.push(parsed.model);
+      if (parsed.model.endsWith(":free")) {
+        return { ok: false, status: 429, text: async () => "upstream_provider_shared_pool" };
+      }
+      return {
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({ choices: [{ message: { content: "not valid json" } }] }),
+      };
+    };
+    await assert.rejects(
+      () =>
+        t.callOpenRouterText({
+          apiKeys: ["sk-test"],
+          geminiBody: {
+            contents: [{ role: "user", parts: [{ text: "Adversarial prompt" }] }],
+            generationConfig: { responseMimeType: "application/json" },
+          },
+          overrides: {
+            textModels: ["mock/free:free"],
+            allowPaidFallback: true,
+            paidTextModels: ["google/gemini-2.5-flash-lite", "google/gemini-2.5-flash"],
+          },
+          attemptMeta: metaPaidInvalidJson,
+        }),
+      /Invalid JSON output/
+    );
+    assert.deepEqual(calledOnInvalidJson, ["mock/free:free", "google/gemini-2.5-flash-lite"]);
+    assert.deepEqual(metaPaidInvalidJson, { receivedCompletion: true, attemptedPaid: true });
+    assert.equal(t.shouldRefundQuotaSlot({ yielded: false, ...metaPaidInvalidJson }), false);
+
+    // 4. Paid model returns HTTP 200 with empty JSON container "{}" -> breaks outer loop, never calls second paid model
+    const calledOnEmptyJson = [];
+    const metaPaidEmptyJson = { receivedCompletion: false, attemptedPaid: false };
+    globalThis.fetch = async (_url, init) => {
+      const parsed = JSON.parse(init.body);
+      calledOnEmptyJson.push(parsed.model);
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ choices: [{ message: { content: "{}" } }] }),
+      };
+    };
+    await assert.rejects(
+      () =>
+        t.callOpenRouterText({
+          apiKeys: ["sk-test"],
+          geminiBody: {
+            contents: [{ role: "user", parts: [{ text: "Adversarial empty" }] }],
+            generationConfig: { responseMimeType: "application/json" },
+          },
+          overrides: {
+            textModels: ["google/gemini-2.5-flash-lite", "google/gemini-2.5-flash"],
+            allowPaidFallback: false,
+          },
+          attemptMeta: metaPaidEmptyJson,
+        }),
+      /Invalid JSON output/
+    );
+    assert.deepEqual(calledOnEmptyJson, ["google/gemini-2.5-flash-lite"]);
+    assert.deepEqual(metaPaidEmptyJson, { receivedCompletion: true, attemptedPaid: true });
+    assert.equal(t.shouldRefundQuotaSlot({ yielded: false, ...metaPaidEmptyJson }), false);
+
+    // 5. Paid model fails with HTTP 503 -> attemptedPaid=true, receivedCompletion=false -> NOT refundable
+    const metaPaid503 = { receivedCompletion: false, attemptedPaid: false };
+    globalThis.fetch = async () => ({
+      ok: false,
+      status: 503,
+      text: async () => "service unavailable",
+    });
+    await assert.rejects(
+      () =>
+        t.callOpenRouterText({
+          apiKeys: ["sk-test"],
+          geminiBody: { contents: [{ role: "user", parts: [{ text: "Hi" }] }] },
+          overrides: {
+            textModels: ["google/gemini-2.5-flash-lite"],
+            allowPaidFallback: false,
+          },
+          attemptMeta: metaPaid503,
+        }),
+      /503/
+    );
+    assert.deepEqual(metaPaid503, { receivedCompletion: false, attemptedPaid: true });
+    assert.equal(t.shouldRefundQuotaSlot({ yielded: false, ...metaPaid503 }), false);
   } finally {
     globalThis.fetch = originalFetch;
   }

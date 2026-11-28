@@ -14,7 +14,7 @@ const MAX_AI_PARTS_PER_MESSAGE = 8;
 const MAX_AI_SYSTEM_CHARS = 8000;
 const MAX_AI_TOTAL_TEXT_CHARS = 32000;
 const MAX_AI_IMAGES = 3;
-const MAX_AI_IMAGE_BASE64_CHARS = 4_000_000;
+const MAX_AI_IMAGE_BASE64_CHARS = 2_000_000;
 const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -56,29 +56,22 @@ let fatSecretAuthModeCache = null;
 let aiSettingsCache = null;
 const AI_SETTINGS_CACHE_TTL_MS = 60_000;
 
-// Text fallback chain ordered by live ZDR (data_collection: "deny") compatibility & structured JSON support.
+// Text fallback chain ordered by live ZDR (data_collection: "deny") availability & JSON support.
 const TEXT_MODEL_CHAIN = [
-  "baidu/ernie-5.5-flash-preview:free",
-  "dots-studio/dots-3-note-preview:free",
-  "inclusionai/ling-3.2-flash:free",
   "recursive/flint-v1.0:free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
-  "openrouter/free",
 ];
 
-// Multimodal fallback chain for food/menu photos (ZDR-compatible image-capable models).
+// Multimodal fallback chain for food/menu photos (live ZDR-compatible image-capable :free models).
 const VISION_MODEL_CHAIN = [
-  "dots-studio/dots-3-note-preview:free",
-  "inclusionai/ling-3.2-flash:free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
-  "openrouter/free",
 ];
 
-// Paid ZDR-compatible SLA fallback. Appended after the free chain when allowPaidFallback is on.
-// Production defaults this on; set config/food_ai_settings.allowPaidFallback = false or
-// FOOD_AI_ALLOW_PAID_FALLBACK=false to disable without an iOS release.
+// Paid ZDR-compatible SLA fallback. Appended after the free chain ONLY when explicitly opted-in.
+// Production defaults this OFF (zero cents spent); set config/food_ai_settings.allowPaidFallback = true
+// or FOOD_AI_ALLOW_PAID_FALLBACK=true to opt in without an iOS release.
 const PAID_TEXT_FALLBACK_MODELS = [
   "google/gemini-2.5-flash-lite",
   "google/gemini-2.5-flash",
@@ -90,19 +83,15 @@ const PAID_VISION_FALLBACK_MODELS = [
 ];
 
 const STRUCTURED_MODELS = new Set([
-  "inclusionai/ling-3.2-flash:free",
-  "baidu/ernie-5.5-flash-preview:free",
-  "dots-studio/dots-3-note-preview:free",
-  "openrouter/free",
   "google/gemini-2.5-flash-lite",
   "google/gemini-2.5-flash",
 ]);
 
 const JSON_OBJECT_MODELS = new Set([
   ...STRUCTURED_MODELS,
+  "recursive/flint-v1.0:free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
-  "recursive/flint-v1.0:free",
 ]);
 
 class RateLimitError extends Error {
@@ -174,7 +163,11 @@ const PAID_FALLBACK_RESERVE_MS = 25000;
 
 function resolveAllowPaidFallback(explicitValue, envValue = process.env.FOOD_AI_ALLOW_PAID_FALLBACK) {
   if (typeof explicitValue === "boolean") return explicitValue;
-  return envValue !== "false";
+  return envValue === "true";
+}
+
+function shouldRefundQuotaSlot({ yielded = false, receivedCompletion = false, attemptedPaid = false } = {}) {
+  return !yielded && !receivedCompletion && !attemptedPaid;
 }
 
 function shouldYieldFreeSlotToPaidFallback(model, chain, remainingMs, reserveMs = PAID_FALLBACK_RESERVE_MS) {
@@ -908,7 +901,7 @@ function rotatedKeys(apiKeys) {
   return [...apiKeys.slice(offset), ...apiKeys.slice(0, offset)];
 }
 
-async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
+async function callOpenRouterText({ apiKeys, geminiBody, overrides = {}, attemptMeta = null }) {
   const chain = modelChainForRequest(geminiBody, overrides);
   const expectJSON =
     geminiBody?.generationConfig?.responseMimeType === "application/json" ||
@@ -918,7 +911,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
   const deadlineAt = Date.now() + TOTAL_CHAIN_BUDGET_MS;
 
   let lastError = null;
-  for (const model of chain) {
+  modelLoop: for (const model of chain) {
     const remainingMs = deadlineAt - Date.now();
     if (shouldYieldFreeSlotToPaidFallback(model, chain, remainingMs)) {
       console.warn(
@@ -930,6 +923,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
       break;
     }
     if (!isFreeModelId(model)) {
+      if (attemptMeta) attemptMeta.attemptedPaid = true;
       console.warn(`OpenRouter free chain exhausted; falling back to SLA model ${model}`);
     }
     const perCallTimeout = Math.min(attemptTimeoutMs, remainingMs);
@@ -973,6 +967,7 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
           console.warn(lastError.message);
           break;
         }
+        if (attemptMeta) attemptMeta.receivedCompletion = true;
         if (expectJSON) {
           try {
             if (!isMeaningfulJsonOutput(outText)) {
@@ -983,6 +978,9 @@ async function callOpenRouterText({ apiKeys, geminiBody, overrides = {} }) {
               `Invalid JSON output from ${model}: ${e.message}`
             );
             console.warn(lastError.message);
+            if (!isFreeModelId(model)) {
+              break modelLoop;
+            }
             break;
           }
         }
@@ -1440,7 +1438,7 @@ exports.foodAiProxy = onRequest(
     region: "us-central1",
     serviceAccount: SERVICE_ACCOUNT,
     memory: "512MiB",
-    concurrency: 20,
+    concurrency: 8,
     timeoutSeconds: 300,
     secrets: [openRouterApiKey],
   },
@@ -1525,6 +1523,7 @@ exports.foodAiProxy = onRequest(
 
     const streaming = req.query.stream === "true";
 
+    const attemptMeta = { receivedCompletion: false, attemptedPaid: false };
     let yielded = false;
     try {
       if (!streaming) {
@@ -1532,6 +1531,7 @@ exports.foodAiProxy = onRequest(
           apiKeys,
           geminiBody: body,
           overrides: settings,
+          attemptMeta,
         });
         res.status(200).json(gemini);
         return;
@@ -1560,6 +1560,7 @@ exports.foodAiProxy = onRequest(
             beginSSEStreamResponse(res);
             yielded = true;
           }
+          attemptMeta.receivedCompletion = true;
           res.write(`data: ${converted}\n\n`);
           return true;
         }
@@ -1577,6 +1578,7 @@ exports.foodAiProxy = onRequest(
         }
         if (remainingMs < 5000) break;
         if (!isFreeModelId(model)) {
+          attemptMeta.attemptedPaid = true;
           console.warn(`OpenRouter free stream chain exhausted; falling back to SLA model ${model}`);
         }
         const perCallTimeout = Math.min(streamTimeoutMs, remainingMs);
@@ -1639,7 +1641,13 @@ exports.foodAiProxy = onRequest(
       }
       finishSSEStreamResponse(res, { yielded, emittedDone });
     } catch (e) {
-      if (!yielded) {
+      if (
+        shouldRefundQuotaSlot({
+          yielded,
+          receivedCompletion: attemptMeta.receivedCompletion,
+          attemptedPaid: attemptMeta.attemptedPaid,
+        })
+      ) {
         await refundReservedSlots();
       }
       console.error("foodAiProxy OpenRouter error:", e);
@@ -2024,6 +2032,7 @@ module.exports._test = {
   resolveSecondaryQuotaKey,
   modelChainForRequest,
   resolveAllowPaidFallback,
+  shouldRefundQuotaSlot,
   shouldYieldFreeSlotToPaidFallback,
   PAID_FALLBACK_RESERVE_MS,
   geminiBodyToOpenAI,

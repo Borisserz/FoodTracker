@@ -213,18 +213,26 @@ class NetworkManager {
             return cached
         }
 
+        #if DEBUG
         print("🔍 Ищем '\(normalizedQuery)' (Язык: \(currentLanguage))")
+        #endif
 
         var results = await searchFromOpenFoodFacts(query: normalizedQuery)
+        #if DEBUG
         print("🍏 В Open Food Facts найдено: \(results.count)")
+        #endif
 
         var fatSecretFailed = false
         if results.count < 10 {
+            #if DEBUG
             print("⚠️ В OFF мало результатов. Подключаем FatSecret...")
+            #endif
             let outcome = await searchFromFatSecretOutcome(query: normalizedQuery)
             let fatSecretResults = outcome.items
             fatSecretFailed = outcome.failed
+            #if DEBUG
             print("🍔 В FatSecret найдено: \(fatSecretResults.count)")
+            #endif
 
             for fsItem in fatSecretResults {
                 if !results.contains(where: { $0.name.lowercased() == fsItem.name.lowercased() }) {
@@ -238,10 +246,14 @@ class NetworkManager {
         }
         var usedAIFallback = false
         if results.isEmpty && allowAIFallback && aiFallbackAllowed {
+            #if DEBUG
             print("⚠️ Оба API ничего не нашли. Подключаем ИИ-генерацию для '\(normalizedQuery)'...")
+            #endif
             TrackingManager.shared.track(.aiChefUsed(queryLength: normalizedQuery.count))
             if let aiFood = await AINutritionService.shared.generateFoodItem(for: normalizedQuery) {
+                #if DEBUG
                 print("✨ ИИ сгенерировал продукт: \(aiFood.name)")
+                #endif
                 results.append(aiFood)
                 usedAIFallback = true
             }
@@ -257,7 +269,9 @@ class NetworkManager {
                 searchCache[cacheKey] = CacheEntry(value: snapshots, expiresAt: expiry)
             }
         }
+        #if DEBUG
         print("✅ Итого найдено: \(capped.count) результатов.")
+        #endif
         return capped
     }
 
@@ -343,12 +357,16 @@ class NetworkManager {
             return .found(cached)
         }
 
+        #if DEBUG
         print("🔍 Ищем штрихкод \(cacheKey)...")
+        #endif
         var failureMessage: String?
 
         switch await fetchBarcodeFromOFF(barcode: cacheKey) {
         case .found(let offProduct):
+            #if DEBUG
             print("✅ Нашли в Open Food Facts: \(offProduct.name)")
+            #endif
             let snapshot = CachedFoodSnapshot(from: offProduct)
             let now = Date()
             let expiry = now.addingTimeInterval(barcodeCacheTTL)
@@ -366,7 +384,9 @@ class NetworkManager {
 
         switch await fetchBarcodeFromFatSecretBarcode(barcode: cacheKey) {
         case .found(let fatSecretProduct):
+            #if DEBUG
             print("✅ Нашли в FatSecret: \(fatSecretProduct.name)")
+            #endif
             setLastBarcodeLookupError(nil)
             let snapshot = CachedFoodSnapshot(from: fatSecretProduct)
             let now = Date()
@@ -392,7 +412,9 @@ class NetworkManager {
             return .notFound
         }
 
+        #if DEBUG
         print("❌ Продукт по штрихкоду не найден.")
+        #endif
         return .notFound
     }
 
@@ -783,12 +805,16 @@ class NetworkManager {
             let tokens = await resolveProxyTokens(forceRefresh: forceRefresh)
             guard let appCheckToken = tokens.appCheckToken, !appCheckToken.isEmpty else {
                 if !forceRefresh { continue }
+                #if DEBUG
                 print("⚠️ foodSearchProxy skipped: missing App Check token")
+                #endif
                 return .failed(String(localized: "Unable to verify app security token. Please try again."))
             }
             guard let authToken = tokens.authToken, !authToken.isEmpty else {
                 if !forceRefresh { continue }
+                #if DEBUG
                 print("⚠️ foodSearchProxy skipped: missing Firebase ID token")
+                #endif
                 return .failed(String(localized: "Unable to verify session. Please check your connection."))
             }
 

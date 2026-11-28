@@ -533,7 +533,7 @@ struct CompactDailySummaryCard: View {
 }
 
 struct MacroBar: View {
-    let title: String
+    let title: LocalizedStringKey
     let current: Double
     let target: Double
     let color: Color

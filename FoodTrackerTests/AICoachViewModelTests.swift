@@ -154,7 +154,7 @@ final class AICoachViewModelTests: XCTestCase {
         XCTAssertTrue(ctx.contains("1.8 L water") || ctx.contains("1.75 L water"))
     }
 
-    func testAnalyzeMacrosAccountsForActiveCaloriesBurned() async throws {
+    func testAnalyzeMacrosExcludesHealthKitActiveCaloriesFromAIPrompt() async throws {
         let user = User(name: "ActiveUser", weight: 75, height: 180, age: 29)
         user.dailyCaloriesGoal = 2000
         let summary = DailySummary(date: Date())
@@ -179,7 +179,7 @@ final class AICoachViewModelTests: XCTestCase {
                 }
             }
             capturedBodyText = String(data: data, encoding: .utf8) ?? ""
-            let payload = #"{"title":"Refuel","explanation":"You have room for 650 kcal.","suggestedSnacks":[]}"#
+            let payload = #"{"title":"Refuel","explanation":"You have room for 200 kcal.","suggestedSnacks":[]}"#
             let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (resp, Data(payload.utf8))
         }
@@ -189,7 +189,51 @@ final class AICoachViewModelTests: XCTestCase {
             try await Task.sleep(for: .milliseconds(50))
         }
 
-        // Effective goal = 2000 + 450 = 2450, eaten = 1800 -> remaining 650 kcal
-        XCTAssertTrue(capturedBodyText.contains("650"), "Expected burned-adjusted 650 kcal deficit in prompt, got: \(capturedBodyText)")
+        // Guideline 5.1.3(i): Base goal = 2000, eaten = 1800 -> remaining 200 kcal (HealthKit 450 kcal excluded)
+        XCTAssertTrue(capturedBodyText.contains("200 kcal left"), "Expected base-goal 200 kcal deficit in prompt, got: \(capturedBodyText)")
+        XCTAssertFalse(capturedBodyText.contains("650"), "Prompt must not include HealthKit-adjusted 650 kcal deficit, got: \(capturedBodyText)")
+        XCTAssertFalse(capturedBodyText.contains("450"), "Prompt must not include HealthKit 450 active calories, got: \(capturedBodyText)")
+    }
+
+    func testGenerateSmartRecipeExcludesHealthKitActiveCaloriesFromAIPrompt() async throws {
+        let user = User(name: "ActiveUser", weight: 75, height: 180, age: 29)
+        user.dailyCaloriesGoal = 2000
+        let summary = DailySummary(date: Date())
+        summary.activeCaloriesBurned = 450
+        let meal = Meal(
+            title: "Lunch",
+            date: Date(),
+            foodItems: [FoodItem(name: "Chicken Rice", weight: 300, calories: 1800, protein: 90, fats: 40, carbs: 200)]
+        )
+        summary.meals = [meal]
+        viewModel.fridgeInput = "eggs, spinach"
+
+        var capturedBodyText = ""
+        MockURLProtocol.requestHandler = { request in
+            var data = request.httpBody ?? Data()
+            if data.isEmpty, let stream = request.httpBodyStream {
+                stream.open()
+                defer { stream.close() }
+                var buf = [UInt8](repeating: 0, count: 4096)
+                while stream.hasBytesAvailable {
+                    let read = stream.read(&buf, maxLength: buf.count)
+                    if read > 0 { data.append(contentsOf: buf.prefix(read)) } else { break }
+                }
+            }
+            capturedBodyText = String(data: data, encoding: .utf8) ?? ""
+            let payload = #"{"name":"Spinach Omelette","info":"Cook eggs with spinach.","calories":200,"protein":18,"fats":12,"carbs":3,"cookingTime":10}"#
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (resp, Data(payload.utf8))
+        }
+
+        viewModel.generateSmartRecipe(currentSummary: summary, currentUser: user)
+        for _ in 0..<40 where viewModel.isGeneratingRecipe {
+            try await Task.sleep(for: .milliseconds(50))
+        }
+
+        // Guideline 5.1.3(i): Base goal = 2000, eaten = 1800 -> remaining 200 kcal (HealthKit 450 kcal excluded)
+        XCTAssertTrue(capturedBodyText.contains("200 kcal"), "Expected base-goal 200 kcal in recipe prompt, got: \(capturedBodyText)")
+        XCTAssertFalse(capturedBodyText.contains("650"), "Recipe prompt must not include HealthKit-adjusted 650 kcal, got: \(capturedBodyText)")
+        XCTAssertFalse(capturedBodyText.contains("450"), "Recipe prompt must not include HealthKit 450 active calories, got: \(capturedBodyText)")
     }
 }

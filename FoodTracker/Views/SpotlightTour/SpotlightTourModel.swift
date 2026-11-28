@@ -72,6 +72,17 @@ enum SpotlightStep: Int, CaseIterable, Identifiable {
         }
     }
 
+    /// Home `ScrollView` anchor for spotlight auto-scroll.
+    /// Overlay controls (FAB, tab bar) return `nil` — they stay on-screen without scrolling.
+    var homeScrollAnchorID: String? {
+        switch self {
+        case .streakFire: return "header_streak"
+        case .macroRings: return "macro_rings"
+        case .fastingWater: return "hydration_card"
+        case .addMeal, .aiChef: return nil
+        }
+    }
+
     var accentColor: Color {
         switch self {
         case .addMeal: return EditorialPalette.emerald
@@ -158,5 +169,17 @@ final class SpotlightTourManager {
     func resetTour() {
         hasCompletedTour = false
         startTourForcefully()
+    }
+
+    /// UIKit tab-bar probing is only needed while the tour is active.
+    static func shouldMeasureTabBar(isTourActive: Bool) -> Bool {
+        isTourActive
+    }
+}
+
+/// Gate for AI Coach goal sheet — never invent a phantom SwiftData `User`.
+enum CoachGoalSheetPolicy {
+    static func canOpen(hasUser: Bool) -> Bool {
+        hasUser
     }
 }

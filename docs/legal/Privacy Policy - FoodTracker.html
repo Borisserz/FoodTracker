@@ -25,7 +25,7 @@ th, td { border: 1px solid rgba(127,127,127,0.3); padding: 8px 10px; text-align:
 </head>
 <body>
 <h1>Privacy Policy — FoodTracker</h1>
-<p class="muted">Last updated: 20 November 2026</p>
+<p class="muted">Last updated: November 28, 2026</p>
 
 <p>
 This Privacy Policy explains how FoodTracker (“the App”, “we”, “us”),
@@ -104,14 +104,14 @@ do not share HealthKit data with third parties. HealthKit data is processed on y
 FoodTracker asks for your explicit in-app consent before sending photos or personal nutrition/mood/chat context to third-party AI services. You can grant or revoke this consent anytime in <strong>Settings → AI Data &amp; Photo Privacy</strong>.
 </p>
 <p>
-When you consent and invoke an AI feature (Plate Scan, Menu Helper, Fridge-to-Recipe, AI Coach Chat, AI Chef, 7-Day Plan Builder, Mood Advice, or Before/After Analysis), your request is sent over encrypted HTTPS to our backend proxy (Firebase Cloud Functions), authenticated via Firebase Auth and Firebase App Check, and forwarded to <strong>OpenRouter</strong> and downstream third-party AI model providers.
-We configure OpenRouter requests with <code>data_collection: "deny"</code> so images and prompts are processed transiently and not retained for model training. Please avoid including unnecessary sensitive personal identifiers in free-text prompts.
+When you consent and invoke an AI feature (Plate Scan, Menu Helper, Fridge-to-Recipe, AI Coach Chat, AI Chef, 7-Day Plan Builder, Mood Advice, or Before/After Analysis), your request is sent over encrypted HTTPS to our backend proxy (Firebase Cloud Functions), authenticated via Firebase Auth and Firebase App Check, and routed via <strong>OpenRouter (<code>data_collection: "deny"</code>)</strong> to named free-tier partner AI model providers (<strong>Google and Recursive</strong>).
+Requests are processed transiently with provider data retention disabled and are not retained for model training. <strong>Apple Health (HealthKit) data is never sent to third-party AI services.</strong> Before/after progress photos are stored locally on your device and are only sent when you explicitly consent and tap AI analysis. Please avoid including unnecessary sensitive personal identifiers in free-text prompts.
 </p>
 
 <h2>5. Third-Party Services</h2>
 <ul>
 <li><strong>Google Firebase</strong> (Authentication, Cloud Functions, Firestore, Remote Config, Analytics, Crashlytics, App Check) — <a href="https://firebase.google.com/support/privacy">Firebase Privacy</a></li>
-<li><strong>OpenRouter</strong> (AI vision and language model routing via our backend proxy, with provider data collection denied) — <a href="https://openrouter.ai/privacy">OpenRouter Privacy Policy</a></li>
+<li><strong>OpenRouter</strong> (AI vision and language model routing via our backend proxy with <code>data_collection: "deny"</code>, forwarding to named downstream model providers: <strong>Google and Recursive</strong>) — <a href="https://openrouter.ai/privacy">OpenRouter Privacy Policy</a></li>
 <li><strong>FatSecret Platform API</strong> (food and barcode database search via our backend proxy) — <a href="https://www.fatsecret.com/static/legal/privacy">FatSecret Privacy</a></li>
 <li><strong>OpenFoodFacts</strong> (open food and barcode database queries) — <a href="https://world.openfoodfacts.org/terms-of-use">OpenFoodFacts Terms</a></li>
 <li><strong>Apple HealthKit, CloudKit &amp; Sign in with Apple</strong> — governed by <a href="https://www.apple.com/legal/privacy/">Apple’s Privacy Policy</a></li>
@@ -126,7 +126,7 @@ apps or websites owned by other companies. Third-party processors listed above r
 <h2>7. Account &amp; Data Deletion</h2>
 <p>
 You can permanently delete your account and all app data at any time inside the App:
-open the <strong>AI Coach</strong> tab (or tap your profile avatar on Home) → <strong>Profile &amp; Settings</strong> → <strong>Settings (gear icon)</strong> → <strong>Account</strong> → <strong>Delete account</strong>.
+open the <strong>AI Coach</strong> tab → <strong>Profile &amp; Settings</strong> → <strong>Settings (gear icon)</strong> → <strong>Account</strong> → <strong>Delete account</strong>.
 </p>
 <p>
 This action deletes your Firebase Authentication account (including revoking Sign in with Apple tokens if used), wipes server-side usage/quota records and shared ecosystem data associated with your UID, and permanently deletes all local SwiftData records, cached items, AI consent state, and local progress photos. Note that private iCloud CloudKit records belong to your personal Apple ID and can be managed in iOS Settings → Apple Account → iCloud. This action cannot be undone.

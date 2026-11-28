@@ -217,11 +217,13 @@ struct SpotlightOverlayView: View {
 
     var body: some View {
         ZStack {
-            TabBarSpotlightFrameProbe(tabIndex: 2, totalTabs: 5) { rect in
-                manager.tabBarChefFrame = rect
+            if SpotlightTourManager.shouldMeasureTabBar(isTourActive: manager.isTourActive) {
+                TabBarSpotlightFrameProbe(tabIndex: 2, totalTabs: 5) { rect in
+                    manager.tabBarChefFrame = rect
+                }
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
             }
-            .ignoresSafeArea()
-            .allowsHitTesting(false)
 
             if manager.isTourActive {
                 GeometryReader { screenGeo in

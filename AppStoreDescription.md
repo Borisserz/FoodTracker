@@ -2,6 +2,14 @@
 
 This document contains the optimized metadata and description for the App Store, highlighting new features such as interactive Home Screen widgets, the AI Chef, and multimodal meal/menu scanning.
 
+**Monetization:** FoodTracker is 100% free. Do not configure In-App Purchases or subscriptions in App Store Connect for this build. Do not mention prices in the description.
+
+**Storefront locales for this release:** English + Russian (primary quality). Other in-app localizations may be present in the binary.
+
+**App Store ID:** `6778506345` (FoodTracker). Companion WorkoutTracker promo uses `6774895106` — do not confuse them.
+
+**Review notes:** copy from [`docs/APP_STORE_REVIEW_NOTES.md`](docs/APP_STORE_REVIEW_NOTES.md).
+
 ---
 
 ## 🏷️ App Store Connect Metadata

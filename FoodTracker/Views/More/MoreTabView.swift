@@ -37,6 +37,8 @@ struct MoreTabView: View {
     @State private var pendingConsentedAction: (() -> Void)? = nil
     @State private var showAddWeightSheet = false
     @State private var showSetGoalSheet = false
+    @State private var showMissingProfileAlert = false
+    @State private var showProfileDestination = false
     @State private var currentDayStart = Calendar.current.startOfDay(for: Date())
     @FocusState private var isFridgeSearchFocused: Bool
 
@@ -186,6 +188,9 @@ struct MoreTabView: View {
                     .accessibilityIdentifier("more_profile_card")
                 }
             }
+            .navigationDestination(isPresented: $showProfileDestination) {
+                ProfileWrapperView()
+            }
         }
         .onAppear {
             if viewModel == nil {
@@ -240,6 +245,17 @@ struct MoreTabView: View {
                     .presentationCornerRadius(32)
                     .presentationDragIndicator(.visible)
             }
+        }
+        .alert(
+            String(localized: "Profile needed"),
+            isPresented: $showMissingProfileAlert
+        ) {
+            Button(String(localized: "Open Profile")) {
+                showProfileDestination = true
+            }
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "Finish setting up your profile before editing goals."))
         }
         .sheet(isPresented: $showAIConsentSheet) {
             AIPhotoConsentSheet(
@@ -345,8 +361,7 @@ struct MoreTabView: View {
                 targetFats: user?.targetFats ?? 0,
                 consumedCarbs: summary.totalCarbs,
                 targetCarbs: user?.targetCarbs ?? 0,
-                hydrationLiters: summary.totalPureWaterLiters,
-                activeCaloriesBurned: summary.activeCaloriesBurned
+                hydrationLiters: summary.totalPureWaterLiters
             )) {
                 HStack(spacing: 8) {
                     Image(systemName: "message.fill")
@@ -410,8 +425,7 @@ struct MoreTabView: View {
                         targetFats: user?.targetFats ?? 0,
                         consumedCarbs: todaySummary.totalCarbs,
                         targetCarbs: user?.targetCarbs ?? 0,
-                        hydrationLiters: todaySummary.totalPureWaterLiters,
-                        activeCaloriesBurned: todaySummary.activeCaloriesBurned
+                        hydrationLiters: todaySummary.totalPureWaterLiters
                     )) {
                         Text(LocalizedStringKey(item.title))
                             .font(.system(size: 12, weight: .semibold, design: .rounded))
@@ -466,7 +480,7 @@ struct MoreTabView: View {
                     title: "Hydration",
                     subtitle: viewModel?.isFixingHydration == true
                         ? String(localized: "Analyzing...")
-                        : String(format: "%.1f L today", todaySummary.totalPureWaterLiters),
+                        : String(localized: "\(NutritionMath.formattedHydration(liters: todaySummary.totalPureWaterLiters, useMetric: useMetricSystem)) today"),
                     icon: "drop.fill",
                     accentColor: .cyan,
                     imageName: "coach_card_hydration",
@@ -483,7 +497,7 @@ struct MoreTabView: View {
                     Image(systemName: "drop.fill")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.cyan)
-                    Text(String(format: "%.1f L", todaySummary.totalPureWaterLiters))
+                    Text(NutritionMath.formattedHydration(liters: todaySummary.totalPureWaterLiters, useMetric: useMetricSystem))
                         .font(.system(size: 13, weight: .heavy, design: .monospaced))
                         .foregroundColor(.primary)
                     Text(String(localized: "today"))
@@ -500,7 +514,7 @@ struct MoreTabView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "plus")
                             .font(.system(size: 11, weight: .bold))
-                        Text("+\(glassMl) ml")
+                        Text(useMetricSystem ? "+\(glassMl) ml" : "+8 fl oz")
                             .font(.system(size: 12, weight: .bold, design: .rounded))
                     }
                     .foregroundColor(.cyan)
@@ -1019,6 +1033,8 @@ struct MoreTabView: View {
                 Button(action: {
                     HapticManager.shared.impact(style: .light)
                     useMetricSystem.toggle()
+                    UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.set(useMetricSystem, forKey: "useMetricSystem")
+                    WidgetReloader.reloadAll()
                 }) {
                     HStack(spacing: 10) {
                         ZStack {
@@ -1132,10 +1148,9 @@ struct MoreTabView: View {
     }
 
     private func ensureUserAndOpenGoalSheet() {
-        if user == nil {
-            let fallbackUser = User(name: "Champion", weight: currentWeight > 0 ? currentWeight : 70.0, height: 175.0, age: 28, gender: "Male")
-            modelContext.insert(fallbackUser)
-            try? modelContext.save()
+        guard CoachGoalSheetPolicy.canOpen(hasUser: user != nil) else {
+            showMissingProfileAlert = true
+            return
         }
         showSetGoalSheet = true
     }

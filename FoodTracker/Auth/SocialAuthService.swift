@@ -251,7 +251,7 @@ final class SocialAuthService {
     // MARK: - Account deletion support (Guideline 5.1.1(v))
 
     /// Re-authenticates the current user immediately before deletion and returns
-    /// any Apple authorization code so token revocation happens only after server deletion succeeds.
+    /// any Apple authorization code so token revocation runs while currentUser is still active.
     func reauthenticateForDeletion() async throws -> String? {
         guard let user = Auth.auth().currentUser else {
             throw AuthError.notSignedIn
@@ -272,7 +272,13 @@ final class SocialAuthService {
         // If you add email/password later, handle it here.
     }
 
-    func revokeAppleAuthorizationCode(_ authCode: String) async throws {
+    func revokeAppleAuthorizationCode(
+        _ authCode: String,
+        hasCurrentUser: () -> Bool = { Auth.auth().currentUser != nil }
+    ) async throws {
+        guard hasCurrentUser() else {
+            throw AccountDeletionError.notSignedIn
+        }
         try await Auth.auth().revokeToken(withAuthorizationCode: authCode)
     }
 
@@ -303,7 +309,7 @@ final class SocialAuthService {
             fullName: appleIDCredential.fullName
         )
 
-        // Satisfy requiresRecentLogin; caller revokes the Apple token after server deletion succeeds.
+        // Satisfy requiresRecentLogin; caller revokes the Apple token while currentUser is live, before deletion.
         try await user.reauthenticate(with: firebaseCredential)
 
         return try Self.extractAppleAuthorizationCode(from: appleIDCredential.authorizationCode)

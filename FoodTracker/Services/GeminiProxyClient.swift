@@ -447,15 +447,21 @@ final class GeminiProxyClient: GeminiProxyExecuting, @unchecked Sendable {
 
     private func decode<T: Decodable>(_ jsonString: String, as type: T.Type, rawForLogging: String) throws -> T {
         guard let data = jsonString.data(using: .utf8) else {
+            #if DEBUG
             print("❌ GeminiProxyClient: Failed to convert cleaned string to Data")
+            #endif
             throw GeminiProxyError.decodingFailed(raw: rawForLogging)
         }
 
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch {
+            #if DEBUG
             print("❌ GeminiProxyClient: JSON decode error: \(error)")
+            #endif
+            #if DEBUG
             print("📝 Raw AI response was: \(rawForLogging.prefix(500))...")
+            #endif
             throw GeminiProxyError.decodingFailed(raw: rawForLogging)
         }
     }

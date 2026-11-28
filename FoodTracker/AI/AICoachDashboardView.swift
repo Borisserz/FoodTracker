@@ -78,8 +78,7 @@ struct AICoachDashboardView: View {
                                         targetFats: currentUser?.targetFats ?? 0,
                                         consumedCarbs: currentSummary.totalCarbs,
                                         targetCarbs: currentUser?.targetCarbs ?? 0,
-                                        hydrationLiters: currentSummary.totalPureWaterLiters,
-                                        activeCaloriesBurned: currentSummary.activeCaloriesBurned
+                                        hydrationLiters: currentSummary.totalPureWaterLiters
                                     )) {
                                         HStack(spacing: 6) {
                                             Image(systemName: "bubble.left.and.bubble.right.fill")

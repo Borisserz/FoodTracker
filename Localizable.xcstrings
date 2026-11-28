@@ -7963,6 +7963,12 @@
             "state": "translated",
             "value": "Saúde Apple"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health"
+          }
         }
       }
     },
@@ -11842,6 +11848,12 @@
             "state": "translated",
             "value": "Cancelar"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
         }
       }
     },
@@ -14777,6 +14789,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Peso atual"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current Weight"
           }
         }
       }
@@ -21603,6 +21621,12 @@
             "state": "translated",
             "value": "FoodTracker"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FoodTracker"
+          }
         }
       }
     },
@@ -22058,6 +22082,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Receita do frigorífico"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fridge to Recipe"
           }
         }
       }
@@ -29115,6 +29145,12 @@
             "state": "translated",
             "value": "Registar peso"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log Weight"
+          }
         }
       }
     },
@@ -33462,6 +33498,12 @@
             "state": "translated",
             "value": "Guias de nutrição"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition Guides"
+          }
         }
       }
     },
@@ -33800,6 +33842,12 @@
           }
         },
         "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "OK"
@@ -41005,6 +41053,12 @@
             "state": "translated",
             "value": "Definir um objetivo"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set a Goal"
+          }
         }
       }
     },
@@ -45338,6 +45392,12 @@
             "state": "translated",
             "value": "Unidades"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Units"
+          }
         }
       }
     },
@@ -46163,6 +46223,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Progresso visual"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual Progress"
           }
         }
       }
@@ -48418,6 +48484,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Monitor de treinos"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout Tracker"
           }
         }
       }
@@ -63089,6 +63161,36 @@
             "state": "translated",
             "value": "Дневник питания и воды"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tägliches Ernährungs- & Wasserprotokoll"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registro diario de nutrición y agua"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Journal quotidien nutrition et eau"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diario quotidiano di nutrizione e acqua"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registo diário de nutrição e água"
+          }
         }
       }
     },
@@ -63104,6 +63206,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Фиксируйте приёмы пищи по фото, следите за калориями, БЖУ и водой в одном месте."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erfasse Mahlzeiten per Foto, verfolge Kalorien und Makros und halte deine tägliche Wasserzufuhr im Gleichgewicht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra comidas con una foto, controla calorías y macros y mantén tu hidratación diaria equilibrada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrez vos repas par photo, suivez vos calories et macros et gardez votre hydratation équilibrée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra i pasti con una foto, monitora calorie e macro e mantieni equilibrata l'idratazione quotidiana."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registe refeições por foto, acompanhe calorias e macros e mantenha a hidratação diária equilibrada."
           }
         }
       }
@@ -63121,6 +63253,36 @@
             "state": "translated",
             "value": "Продолжить с Google"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Google fortfahren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar con Google"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer avec Google"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua con Google"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar com o Google"
+          }
         }
       }
     },
@@ -63136,6 +63298,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Продолжить как гость"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als Gast fortfahren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar como invitado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer en invité"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua come ospite"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar como convidado"
           }
         }
       }
@@ -63153,6 +63345,36 @@
             "state": "translated",
             "value": "Не удалось войти"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmeldung fehlgeschlagen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo iniciar sesión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion impossible"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesso non riuscito"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível iniciar sessão"
+          }
         }
       }
     },
@@ -63168,6 +63390,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Продолжить как гость?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als Gast fortfahren?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Continuar como invitado?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer en tant qu'invité ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuare come ospite?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar como convidado?"
           }
         }
       }
@@ -63185,6 +63437,36 @@
             "state": "translated",
             "value": "Без аккаунта не работают облачный профиль и синхронизация с WorkoutTracker. Записи о питании и здоровье остаются на этом устройстве и в iCloud."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne Konto sind Cloud-Backup deines Profils und KI-Rezepte nicht verfügbar. Mahlzeiten und Gesundheitsdaten bleiben auf diesem Gerät und in deiner iCloud."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin una cuenta, la copia de seguridad en la nube de tu perfil y las recetas con IA no estarán disponibles. Tus comidas y registros de salud permanecen en este dispositivo y en tu iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans compte, la sauvegarde cloud de votre profil et les recettes IA restent indisponibles. Vos repas et données de santé restent sur cet appareil et dans votre iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senza un account, il backup cloud del profilo e le ricette IA non sono disponibili. I pasti e i dati sulla salute restano su questo dispositivo e sul tuo iCloud."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem conta, a cópia de segurança na nuvem do seu perfil e as receitas IA ficam indisponíveis. As refeições e os registos de saúde permanecem neste dispositivo e no seu iCloud."
+          }
         }
       }
     },
@@ -63200,6 +63482,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Что даёт вход в аккаунт:"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit einem Konto erhältst du:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con una cuenta obtienes:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec un compte, vous bénéficiez de :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con un account ottieni:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com uma conta obtém:"
           }
         }
       }
@@ -63217,6 +63529,36 @@
             "state": "translated",
             "value": "Резервная копия профиля питания в облаке"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud-Backup für dein Ernährungsprofil"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia de seguridad en la nube de tu perfil nutricional"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegarde cloud de votre profil nutritionnel"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup cloud del tuo profilo nutrizionale"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cópia de segurança na nuvem do seu perfil nutricional"
+          }
         }
       }
     },
@@ -63232,6 +63574,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Синхронизация профиля и воды с WorkoutTracker"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geräteübergreifende Synchronisierung mit WorkoutTracker"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronización entre dispositivos con WorkoutTracker"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisation entre appareils avec WorkoutTracker"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizzazione tra dispositivi con WorkoutTracker"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronização entre dispositivos com o WorkoutTracker"
           }
         }
       }
@@ -63249,6 +63621,36 @@
             "state": "translated",
             "value": "Подбор рецептов под ваши цели"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezeptvorschläge passend zu deinen Zielen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugerencias de recetas adaptadas a tus objetivos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggestions de recettes adaptées à vos objectifs"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggerimenti di ricette su misura per i tuoi obiettivi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugestões de receitas adaptadas aos seus objetivos"
+          }
         }
       }
     },
@@ -63264,6 +63666,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Войти"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmelden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar sesión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar sessão"
           }
         }
       }
@@ -63281,6 +63713,36 @@
             "state": "translated",
             "value": "Старт"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Willkommen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienvenida"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienvenue"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benvenuto"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Início"
+          }
         }
       }
     },
@@ -63296,6 +63758,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Параметры"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Körper"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuerpo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corps"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corpo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corpo"
           }
         }
       }
@@ -63313,6 +63805,36 @@
             "state": "translated",
             "value": "Инструменты"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tools"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herramientas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outils"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strumenti"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferramentas"
+          }
         }
       }
     },
@@ -63328,6 +63850,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "План"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piano"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plano"
           }
         }
       }
@@ -63345,6 +63897,36 @@
             "state": "translated",
             "value": "Шаг %lld"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schritt %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paso %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Étape %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passaggio %lld"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passo %lld"
+          }
         }
       }
     },
@@ -63360,6 +63942,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld / %2$lld"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
           }
         }
       }
@@ -63377,6 +63989,36 @@
             "state": "translated",
             "value": "Фото или штрихкод"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foto oder Barcode"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foto o código de barras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo ou code-barres"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foto o codice a barre"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foto ou código de barras"
+          }
         }
       }
     },
@@ -63392,6 +64034,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пример разбора по фото"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beispiel-Mahlzeitenanalyse"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejemplo de desglose de comida"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exemple d'analyse de repas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esempio di analisi del pasto"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exemplo de análise de refeição"
           }
         }
       }
@@ -63409,6 +64081,36 @@
             "state": "translated",
             "value": "Курица на гриле с авокадо и киноа"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kräuterhähnchen, Avocado und Quinoa"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pollo a las hierbas, aguacate y quinoa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poulet aux herbes, avocat et quinoa"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pollo alle erbe, avocado e quinoa"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frango com ervas, abacate e quinoa"
+          }
         }
       }
     },
@@ -63424,6 +64126,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ориентир по воде"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Täglicher Wasserrichtwert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guía diaria de agua"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectif d'eau quotidien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guida giornaliera all'acqua"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guia diário de água"
           }
         }
       }
@@ -63441,6 +64173,36 @@
             "state": "translated",
             "value": "Таймер голодания"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fastentimer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temporizador de ayuno"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minuteur de jeûne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timer del digiuno"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temporizador de jejum"
+          }
         }
       }
     },
@@ -63457,6 +64219,36 @@
             "state": "translated",
             "value": "Интервал 16:8"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "16:8-Zeitfenster"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ventana 16:8"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fenêtre 16:8"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finestra 16:8"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Janela 16:8"
+          }
         }
       }
     },
@@ -63469,6 +64261,36 @@
           }
         },
         "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12:00 - 20:00"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12:00 - 20:00"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12:00 - 20:00"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12:00 - 20:00"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12:00 - 20:00"
+          }
+        },
+        "pt-PT": {
           "stringUnit": {
             "state": "translated",
             "value": "12:00 - 20:00"
@@ -63489,6 +64311,36 @@
             "state": "translated",
             "value": "Окно питания"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essensfenster"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ventana de alimentación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fenêtre alimentaire"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finestra alimentare"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Janela alimentar"
+          }
         }
       }
     },
@@ -63504,6 +64356,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Точный расчёт нормы и учёт питания"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tägliche Kalorien, Makros und Mahlzeiten-Tracking"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorías diarias, macros y seguimiento de comidas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories quotidiennes, macros et suivi des repas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorie giornaliere, macro e tracciamento pasti"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorias diárias, macros e registo de refeições"
           }
         }
       }
@@ -63521,6 +64403,36 @@
             "state": "translated",
             "value": "Оценивайте блюда по фото или штрихкоду и держите дневной баланс калорий под контролем."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schätze Mahlzeiten per Foto oder Barcode und behalte dein tägliches Energieziel im Blick."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estima comidas con fotos o códigos de barras y mantén tus objetivos diarios de energía enfocados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estimez vos repas par photo ou code-barres et gardez le cap sur vos objectifs énergétiques."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stima i pasti da foto o codici a barre e mantieni sempre sotto controllo i tuoi obiettivi energetici."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estime refeições por foto ou código de barras e mantenha o foco nos seus objetivos diários."
+          }
         }
       }
     },
@@ -63536,6 +64448,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Расчёт по формуле Mifflin-St Jeor"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mifflin-St Jeor-Zielberechnung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cálculo Mifflin-St Jeor"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calcul Mifflin-St Jeor"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calcolo Mifflin-St Jeor"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cálculo Mifflin-St Jeor"
           }
         }
       }
@@ -63553,6 +64495,36 @@
             "state": "translated",
             "value": "Синхронизация с Apple Health"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health-Sync"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronización con Apple Health"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisation Apple Health"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizzazione Apple Health"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronização com Apple Health"
+          }
         }
       }
     },
@@ -63568,6 +64540,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Параметры тела"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Körperdaten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus medidas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos mensurations"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tue misure"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As suas medidas"
           }
         }
       }
@@ -63585,6 +64587,36 @@
             "state": "translated",
             "value": "Предварительный расчёт"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geschätztes Tagesziel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivo diario estimado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectif quotidien estimé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obiettivo giornaliero stimato"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivo diário estimado"
+          }
         }
       }
     },
@@ -63600,6 +64632,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Дневная норма"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tägliches Kalorienziel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivo diario de calorías"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectif calorique quotidien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obiettivo calorico giornaliero"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivo calórico diário"
           }
         }
       }
@@ -63617,6 +64679,36 @@
             "state": "translated",
             "value": "лет"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "años"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ans"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "anni"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "anos"
+          }
         }
       }
     },
@@ -63632,6 +64724,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Текущий вес"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktuelles Gewicht"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso actual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids actuel"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso attuale"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso atual"
           }
         }
       }
@@ -63649,6 +64771,36 @@
             "state": "translated",
             "value": "Выберите цель"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle dein Ziel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige tu objetivo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez votre objectif"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli il tuo obiettivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha o seu objetivo"
+          }
         }
       }
     },
@@ -63664,6 +64816,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Снижение веса"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abnehmen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perder peso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perdre du poids"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perdere peso"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perder peso"
           }
         }
       }
@@ -63681,6 +64863,36 @@
             "state": "translated",
             "value": "Умеренный дефицит калорий для постепенного снижения веса."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderates Kaloriendefizit für nachhaltiges Abnehmen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déficit calórico constante para perder peso gradualmente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déficit calorique modéré pour une perte de poids progressive."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deficit calorico costante per una perdita di peso graduale."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Défice calórico equilibrado para perder peso gradualmente."
+          }
         }
       }
     },
@@ -63696,6 +64908,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Поддержание веса"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gewicht halten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantener peso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenir le poids"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenere il peso"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter o peso"
           }
         }
       }
@@ -63713,6 +64955,36 @@
             "state": "translated",
             "value": "Сбалансированная норма калорий для стабильного веса."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgewogene Kalorien, um dein aktuelles Gewicht stabil zu halten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorías equilibradas para mantener estable tu peso actual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories équilibrées pour stabiliser votre poids actuel."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorie bilanciate per mantenere stabile il tuo peso attuale."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorias equilibradas para manter estável o seu peso atual."
+          }
         }
       }
     },
@@ -63728,6 +65000,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Набор массы"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muskeln aufbauen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganar músculo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prendre du muscle"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aumentare la massa"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganhar músculo"
           }
         }
       }
@@ -63745,6 +65047,36 @@
             "state": "translated",
             "value": "Профицит калорий и повышенная доля белка для тренировок."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalorienüberschuss und mehr Protein zur Trainingsunterstützung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superávit calórico y más proteína para apoyar tu entrenamiento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surplus calorique et davantage de protéines pour soutenir l'entraînement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surplus calorico e più proteine per supportare l'allenamento."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excedente calórico e mais proteína para apoiar o treino."
+          }
         }
       }
     },
@@ -63760,6 +65092,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Целевой вес"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zielgewicht"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso objetivo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids cible"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso obiettivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso objetivo"
           }
         }
       }
@@ -63777,6 +65139,36 @@
             "state": "translated",
             "value": "Повседневная активность"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tägliche Aktivität"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actividad diaria"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activité quotidienne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attività quotidiana"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atividade diária"
+          }
         }
       }
     },
@@ -63792,6 +65184,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сидячая работа"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überwiegend sitzend"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mayormente sentado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surtout assis"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prevalentemente seduto"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maioritariamente sentado"
           }
         }
       }
@@ -63809,6 +65231,36 @@
             "state": "translated",
             "value": "Работа за столом, меньше 4 000 шагов в день"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreibtischarbeit, unter 4.000 Schritte pro Tag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trabajo de oficina, menos de 4.000 pasos al día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travail de bureau, moins de 4 000 pas par jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lavoro alla scrivania, meno di 4.000 passi al giorno"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trabalho de secretária, menos de 4.000 passos por dia"
+          }
         }
       }
     },
@@ -63824,6 +65276,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Лёгкая активность"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leicht aktiv"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligeramente activo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Légèrement actif"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggermente attivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligeiramente ativo"
           }
         }
       }
@@ -63841,6 +65323,36 @@
             "state": "translated",
             "value": "Прогулки или 1-3 тренировки в неделю"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tägliche Spaziergänge oder 1–3 Workouts pro Woche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caminatas diarias o 1-3 entrenamientos por semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marches quotidiennes ou 1 à 3 séances par semaine"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passeggiate quotidiane o 1-3 allenamenti a settimana"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caminhadas diárias ou 1-3 treinos por semana"
+          }
         }
       }
     },
@@ -63856,6 +65368,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Регулярные тренировки"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mäßig aktiv"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderadamente activo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modérément actif"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderatamente attivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderadamente ativo"
           }
         }
       }
@@ -63873,6 +65415,36 @@
             "state": "translated",
             "value": "3-5 тренировок в неделю или подвижная работа"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3–5 Workouts pro Woche oder ein aktiver Beruf"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3-5 entrenamientos por semana o un trabajo activo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 à 5 séances par semaine ou un métier actif"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3-5 allenamenti a settimana o lavoro attivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3-5 treinos por semana ou trabalho ativo"
+          }
         }
       }
     },
@@ -63888,6 +65460,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Высокие нагрузки"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sehr aktiv"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muy activo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Très actif"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Molto attivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muito ativo"
           }
         }
       }
@@ -63905,6 +65507,36 @@
             "state": "translated",
             "value": "Ежедневные интенсивные тренировки или физический труд"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tägliches intensives Training oder körperliche Arbeit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrenamiento intenso diario o trabajo físico"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entraînement intense quotidien ou travail physique"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allenamento intenso quotidiano o lavoro fisico"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treino intenso diário ou trabalho físico"
+          }
         }
       }
     },
@@ -63920,6 +65552,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Выберите уровень активности"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktivitätslevel wählen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleccionar nivel de actividad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir le niveau d'activité"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona livello di attività"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecionar nível de atividade"
           }
         }
       }
@@ -63937,6 +65599,36 @@
             "state": "translated",
             "value": "Основные инструменты"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zentrale Tracking-Tools"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herramientas clave de seguimiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outils essentiels de suivi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strumenti principali di monitoraggio"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferramentas essenciais de acompanhamento"
+          }
         }
       }
     },
@@ -63952,6 +65644,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ориентир по воде, интервальное питание и рецепты AI-Шефа дополняют ваш дневной баланс."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wasserrichtwert, Fastenfenster und KI-Koch-Rezepte greifen nahtlos mit deiner täglichen Kalorienbilanz zusammen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La guía de agua, las ventanas de ayuno y las recetas del Chef IA trabajan juntas con tu balance calórico diario."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'objectif d'eau, les fenêtres de jeûne et les recettes du Chef IA s'accordent avec votre bilan calorique quotidien."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guida all'acqua, finestre di digiuno e ricette dello Chef IA lavorano insieme al tuo bilancio calorico giornaliero."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O guia de água, as janelas de jejum e as receitas do Chef IA funcionam em conjunto com o seu balanço calórico diário."
           }
         }
       }
@@ -63969,6 +65691,36 @@
             "state": "translated",
             "value": "AI-Шеф"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Koch Studio"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estudio Chef IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Studio Chef IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Studio Chef IA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estúdio Chef IA"
+          }
         }
       }
     },
@@ -63984,6 +65736,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Рецепты под остаток калорий"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezepte passend zu deinen verbleibenden Kalorien"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recetas adaptadas a tus calorías restantes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recettes adaptées à vos calories restantes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricette su misura per le calorie rimanenti"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receitas adaptadas às calorias restantes"
           }
         }
       }
@@ -64001,6 +65783,36 @@
             "state": "translated",
             "value": "Готовьте из продуктов, которые уже есть дома."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koche mit Zutaten, die du bereits zu Hause hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cocina con los ingredientes que ya tienes en tu cocina."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuisinez avec les ingrédients déjà dans votre cuisine."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cucina con gli ingredienti che hai già in casa."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cozinhe com os ingredientes que já tem na cozinha."
+          }
         }
       }
     },
@@ -64016,6 +65828,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Рассчитать норму"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meinen Plan ansehen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver mi plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir mon plan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vedi il mio piano"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver o meu plano"
           }
         }
       }
@@ -64033,6 +65875,36 @@
             "state": "translated",
             "value": "Ваша дневная норма"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Tagesziel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu objetivo diario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre objectif quotidien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo obiettivo giornaliero"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O seu objetivo diário"
+          }
         }
       }
     },
@@ -64048,6 +65920,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Цель:"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivo:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectif :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obiettivo:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivo:"
           }
         }
       }
@@ -64065,6 +65967,36 @@
             "state": "translated",
             "value": "Расчёт Mifflin-St Jeor"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mifflin-St Jeor-Ziel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivo Mifflin-St Jeor"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cible Mifflin-St Jeor"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obiettivo Mifflin-St Jeor"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivo Mifflin-St Jeor"
+          }
         }
       }
     },
@@ -64080,6 +66012,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "ккал / день"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal / Tag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal / día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal / jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal / giorno"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal / dia"
           }
         }
       }
@@ -64097,6 +66059,36 @@
             "state": "translated",
             "value": "Ориентир по воде:"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wasserrichtwert:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guía de agua:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectif d'eau :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guida acqua:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guia de água:"
+          }
         }
       }
     },
@@ -64112,6 +66104,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сохраните профиль питания в облаке"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ernährungsprofil sichern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respalda tu perfil nutricional"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegardez votre profil nutritionnel"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai il backup del profilo nutrizionale"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarde uma cópia do seu perfil nutricional"
           }
         }
       }
@@ -64129,6 +66151,36 @@
             "state": "translated",
             "value": "Войдите через Apple или Google, чтобы сохранять цели и настройки на всех устройствах."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde dich mit Apple oder Google an, um Profilziele geräteübergreifend synchron zu halten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicia sesión con Apple o Google para mantener los objetivos de tu perfil sincronizados entre dispositivos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez-vous avec Apple ou Google pour synchroniser vos objectifs sur tous vos appareils."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi con Apple o Google per mantenere gli obiettivi del profilo sincronizzati su tutti i dispositivi."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicie sessão com Apple ou Google para manter os objetivos do perfil sincronizados entre dispositivos."
+          }
         }
       }
     },
@@ -64144,6 +66196,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Облачный профиль привязан к этому аккаунту."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Cloud-Profil ist mit diesem Konto verknüpft."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu perfil en la nube está vinculado a esta cuenta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre profil cloud est lié à ce compte."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo profilo cloud è collegato a questo account."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O seu perfil na nuvem está associado a esta conta."
           }
         }
       }
@@ -64161,6 +66243,36 @@
             "state": "translated",
             "value": "Дней с записями"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erfasste Tage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Días registrados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jours enregistrés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giorni registrati"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dias registados"
+          }
         }
       }
     },
@@ -64176,6 +66288,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Выйти из аккаунта"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abmelden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar sesión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esci"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminar sessão"
           }
         }
       }
@@ -64193,6 +66335,36 @@
             "state": "translated",
             "value": "Выйти из аккаунта?"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von deinem Konto abmelden?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cerrar sesión de tu cuenta?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter de votre compte ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uscire dal tuo account?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminar sessão na sua conta?"
+          }
         }
       }
     },
@@ -64208,6 +66380,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "После выхода облачные функции ИИ и поиск продуктов перейдут в гостевой режим. Записи о питании и здоровье останутся на этом устройстве и в iCloud."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durch das Abmelden wechseln Cloud-KI-Funktionen und Lebensmittelsuche in den Gastmodus. Deine Mahlzeiten und Gesundheitsdaten bleiben auf diesem Gerät und in iCloud."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al cerrar sesión, las funciones de IA en la nube y la búsqueda de alimentos pasan al modo invitado. Tus comidas y registros de salud permanecen en este dispositivo y en iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La déconnexion repasse les fonctions IA cloud et la recherche d'aliments en mode invité. Vos repas et données de santé restent sur cet appareil et dans iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uscendo, le funzioni IA cloud e la ricerca alimenti tornano in sessione ospite. I pasti e i dati sulla salute restano su questo dispositivo e su iCloud."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ao terminar sessão, as funcionalidades de IA na nuvem e a pesquisa de alimentos voltam ao modo convidado. As refeições e os registos de saúde permanecem neste dispositivo e no iCloud."
           }
         }
       }
@@ -64225,6 +66427,36 @@
             "state": "translated",
             "value": "Удалить аккаунт и данные с устройства?"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto und lokale Daten löschen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar cuenta y datos locales?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le compte et les données locales ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminare account e dati locali?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar conta e dados locais?"
+          }
         }
       }
     },
@@ -64240,6 +66472,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Подключено"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connesso"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligado"
           }
         }
       }
@@ -64257,6 +66519,36 @@
             "state": "translated",
             "value": "Не подключено"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht verbunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No conectado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non connecté"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non connesso"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não ligado"
+          }
         }
       }
     },
@@ -64272,6 +66564,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Анализируются только выбранные фото блюд и параметры питания, нужные для расчёта."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es werden nur ausgewählte Mahlzeitenfotos und Ernährungsdetails analysiert, die für deine Anfrage benötigt werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo se analizan las fotos de comidas seleccionadas y los detalles de nutrición necesarios para tu solicitud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seules les photos de repas sélectionnées et les données nutritionnelles nécessaires à votre demande sont analysées."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vengono analizzate solo le foto dei pasti selezionate e i dettagli nutrizionali necessari alla tua richiesta."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas as fotos de refeições selecionadas e os detalhes nutricionais necessários para o seu pedido são analisados."
           }
         }
       }
@@ -64289,6 +66611,36 @@
             "state": "translated",
             "value": "Перед включением функций ИИ проверьте, как обрабатываются ваши фото и данные о питании."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfe vor der Nutzung von KI-Funktionen, wie deine Fotos und Ernährungsdaten verarbeitet werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisa cómo se procesan tus fotos y datos de nutrición antes de usar las funciones de IA."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consultez comment vos photos et données nutritionnelles sont traitées avant d'utiliser les fonctions IA."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifica come vengono elaborati foto e dati nutrizionali prima di utilizzare le funzioni IA."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifique como as suas fotos e dados nutricionais são processados antes de usar as funcionalidades de IA."
+          }
         }
       }
     },
@@ -64304,6 +66656,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Учёт еды"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mahlzeiten erfassen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registro de comidas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suivi des repas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diario pasti"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registo de refeições"
           }
         }
       }
@@ -64321,6 +66703,36 @@
             "state": "translated",
             "value": "Калории и БЖУ"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalorien & Makros"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorías y macros"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories & macros"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorie e macro"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorias e macros"
+          }
         }
       }
     },
@@ -64336,6 +66748,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Прогресс и опыт"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortschritt & XP"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progreso y XP"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progrès & XP"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progressi e XP"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progresso e XP"
           }
         }
       }
@@ -64353,6 +66795,36 @@
             "state": "translated",
             "value": "Дневник воды"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tägliches Wasserprotokoll"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registro diario de agua"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Journal d'eau quotidien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diario giornaliero dell'acqua"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registo diário de água"
+          }
         }
       }
     },
@@ -64368,6 +66840,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Стрики и опыт"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tages-Serie & XP"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Racha diaria y XP"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Série quotidienne & XP"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serie giornaliera e XP"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Série diária e XP"
           }
         }
       }
@@ -64385,6 +66887,36 @@
             "state": "translated",
             "value": "Сфотографируйте блюдо, отсканируйте штрихкод или введите текст для оценки калорий и БЖУ."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mach ein Foto, scanne einen Barcode oder tippe ein Gericht ein, um Kalorien und Makros zu schätzen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz una foto, escanea un código de barras o escribe una comida para estimar calorías y macros."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prenez une photo, scannez un code-barres ou saisissez un repas pour estimer calories et macros."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scatta una foto, scansiona un codice a barre o scrivi un pasto per stimare calorie e macro."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tire uma foto, leia um código de barras ou escreva uma refeição para estimar calorias e macros."
+          }
         }
       }
     },
@@ -64400,6 +66932,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Интерактивные кольца калорий, белков, жиров и углеводов с синхронизацией Apple Health."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interaktive Tagesringe für Kalorien, Protein, Fette und Kohlenhydrate mit Apple Health-Aktivitäts-Sync."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anillos diarios interactivos para calorías, proteínas, grasas y carbohidratos con sincronización de Apple Health."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anneaux quotidiens interactifs pour calories, protéines, lipides et glucides avec synchronisation Apple Health."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anelli giornalieri interattivi per calorie, proteine, grassi e carboidrati con sincronizzazione Apple Health."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anéis diários interativos para calorias, proteína, gorduras e hidratos com sincronização Apple Health."
           }
         }
       }
@@ -64417,6 +66979,36 @@
             "state": "translated",
             "value": "Поддерживайте серию дней и отслеживайте регулярность сбалансированного питания."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte deine tägliche Serie am Laufen und verfolge deine Kontinuität bei ausgewogenen Mahlzeiten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén viva tu racha diaria y sigue tu constancia mientras registras comidas equilibradas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entretenez votre série quotidienne et suivez votre régularité en enregistrant des repas équilibrés."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantieni attiva la tua serie giornaliera e segui la costanza registrando pasti equilibrati."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha a sua série diária ativa e acompanhe a consistência ao registar refeições equilibradas."
+          }
         }
       }
     },
@@ -64432,6 +67024,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пропустить"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überspringen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salta"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorar"
           }
         }
       }
@@ -64449,6 +67071,36 @@
             "state": "translated",
             "value": "см"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cm"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cm"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cm"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cm"
+          }
         }
       }
     },
@@ -64465,6 +67117,36 @@
             "state": "translated",
             "value": "дюйм"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "po"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pol"
+          }
         }
       }
     },
@@ -64480,6 +67162,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "фунт"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lb"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lb"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lb"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lb"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lb"
           }
         }
       }
@@ -64527,6 +67239,2628 @@
           "stringUnit": {
             "state": "translated",
             "value": "Personalizado"
+          }
+        }
+      }
+    },
+    "Profile needed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile needed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Профиль нужен"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil erforderlich"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil necesario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil requis"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profilo richiesto"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil necessário"
+          }
+        }
+      }
+    },
+    "Open Profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Profile"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть профиль"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir perfil"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir le profil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri profilo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir perfil"
+          }
+        }
+      }
+    },
+    "Finish setting up your profile before editing goals.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish setting up your profile before editing goals."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сначала завершите настройку профиля, чтобы менять цели."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließe erst dein Profil ab, bevor du Ziele bearbeitest."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Termina de configurar tu perfil antes de editar los objetivos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminez la configuration de votre profil avant de modifier vos objectifs."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completa la configurazione del profilo prima di modificare gli obiettivi."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conclua a configuração do seu perfil antes de editar objetivos."
+          }
+        }
+      }
+    },
+    "Goals & Targets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goals & Targets"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цели и ориентиры"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziele & Richtwerte"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivos y metas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectifs & cibles"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obiettivi e target"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objetivos e metas"
+          }
+        }
+      }
+    },
+    "Edit Goal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Goal"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить цель"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel bearbeiten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar objetivo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier l'objectif"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica obiettivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar objetivo"
+          }
+        }
+      }
+    },
+    "Full Goals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Goals"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все цели"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Ziele"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los objetivos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les objectifs"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutti gli obiettivi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos os objetivos"
+          }
+        }
+      }
+    },
+    "Connected Ecosystem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected Ecosystem"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Связанная экосистема"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vernetztes Ökosystem"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ecosistema conectado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écosystème connecté"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ecosistema connesso"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ecossistema ligado"
+          }
+        }
+      }
+    },
+    "Profile & Settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile & Settings"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Профиль и настройки"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil & Einstellungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil y ajustes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil & réglages"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profilo e impostazioni"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil e definições"
+          }
+        }
+      }
+    },
+    "Track sets, workouts & active burn": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Track sets, workouts & active burn"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тренировки, подходы и активный расход"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sätze, Workouts & aktiven Verbrauch verfolgen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra series, entrenamientos y gasto activo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suivez séries, séances et dépenses actives"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitora serie, allenamenti e consumo attivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acompanhe séries, treinos e gasto ativo"
+          }
+        }
+      }
+    },
+    "TOTAL LOGGED": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TOTAL LOGGED"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ВСЕГО ЗАПИСАНО"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GESAMT ERFASST"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TOTAL REGISTRADO"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TOTAL ENREGISTRÉ"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TOTALE REGISTRATO"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TOTAL REGISTADO"
+          }
+        }
+      }
+    },
+    "Log your first meal to see your macro balance.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log your first meal to see your macro balance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запишите первый приём пищи, чтобы увидеть баланс БЖУ."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erfasse deine erste Mahlzeit, um deine Makro-Balance zu sehen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra tu primera comida para ver tu balance de macros."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrez votre premier repas pour voir votre équilibre en macros."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra il tuo primo pasto per vedere l'equilibrio dei macro."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registe a sua primeira refeição para ver o equilíbrio de macros."
+          }
+        }
+      }
+    },
+    "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are low on protein today. Try adding chicken, eggs, or tofu to your next meal."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сегодня мало белка. Добавьте курицу, яйца или тофу в следующий приём пищи."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hast heute wenig Protein. Füge deiner nächsten Mahlzeit Hähnchen, Eier oder Tofu hinzu."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoy vas bajo de proteína. Prueba añadir pollo, huevos o tofu a tu próxima comida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre apport en protéines est bas aujourd'hui. Essayez d'ajouter du poulet, des œufs ou du tofu au prochain repas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oggi hai poche proteine. Prova ad aggiungere pollo, uova o tofu al prossimo pasto."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoje está com pouca proteína. Experimente adicionar frango, ovos ou tofu à próxima refeição."
+          }
+        }
+      }
+    },
+    "You've exceeded your daily fat limit. Focus on lean proteins and veggies.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You've exceeded your daily fat limit. Focus on lean proteins and veggies."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дневная норма жиров превышена. Сделайте упор на постный белок и овощи."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hast dein tägliches Fettlimit überschritten. Setze auf mageres Protein und Gemüse."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has superado tu límite diario de grasas. Céntrate en proteínas magras y verduras."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous avez dépassé votre limite quotidienne de lipides. Privilégiez les protéines maigres et les légumes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai superato il limite giornaliero di grassi. Punta su proteine magre e verdure."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultrapassou o limite diário de gorduras. Foque-se em proteínas magras e legumes."
+          }
+        }
+      }
+    },
+    "Your carbs are quite low. Complex carbs like oats or rice can boost your energy.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your carbs are quite low. Complex carbs like oats or rice can boost your energy."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Углеводов совсем мало. Сложные углеводы, например овсянка или рис, вернут энергию."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Kohlenhydrate sind recht niedrig. Komplexe Kohlenhydrate wie Hafer oder Reis geben dir neue Energie."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus carbohidratos están bastante bajos. Carbohidratos complejos como avena o arroz pueden darte energía."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos glucides sont assez bas. Des glucides complexes comme l'avoine ou le riz peuvent booster votre énergie."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi carboidrati sono piuttosto bassi. Carboidrati complessi come avena o riso possono darti energia."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os seus hidratos estão bastante baixos. Hidratos complexos como aveia ou arroz podem aumentar a sua energia."
+          }
+        }
+      }
+    },
+    "Your macros are looking great today! Keep it up.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your macros are looking great today! Keep it up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сегодня отличный баланс БЖУ! Так держать."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Makros sehen heute super aus! Weiter so."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Tus macros se ven geniales hoy! Sigue así."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos macros sont excellents aujourd'hui ! Continuez ainsi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi macro oggi sono ottimi! Continua così."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os seus macros estão ótimos hoje! Continue assim."
+          }
+        }
+      }
+    },
+    "Only selected meal, cooking, or progress photos and nutrition details needed for your request are analyzed.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only selected meal, cooking, or progress photos and nutrition details needed for your request are analyzed."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Анализируются только выбранные фото блюд, готовки или прогресса и данные о питании, нужные для вашего запроса."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es werden nur ausgewählte Mahlzeiten-, Koch- oder Fortschrittsfotos sowie für deine Anfrage nötige Ernährungsdaten analysiert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo se analizan las fotos seleccionadas de comidas, cocina o progreso y los datos de nutrición necesarios para tu solicitud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seules les photos sélectionnées de repas, de cuisine ou de progrès ainsi que les données nutritionnelles nécessaires à votre demande sont analysées."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vengono analizzate solo le foto selezionate di pasti, cucina o progressi e i dettagli nutrizionali necessari alla tua richiesta."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas as fotos selecionadas de refeições, cozinha ou progresso e os dados nutricionais necessários para o seu pedido são analisados."
+          }
+        }
+      }
+    },
+    "Only the downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and your nutrition goals, logged meals, mood notes, or chat prompts. Apple Health data is never sent to AI.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only the downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and your nutrition goals, logged meals, mood notes, or chat prompts. Apple Health data is never sent to AI."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только сжатые фото, которые вы выбрали для анализа (блюда, меню, этапы готовки или фото прогресса до/после), а также цели питания, записи о еде, заметки о настроении или запросы в чате. Данные Apple Health никогда не отправляются в ИИ."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur die verkleinerten Fotos, die du zur Analyse auswählst (Mahlzeiten, Menüs, Kochschritte oder Vorher-/Nachher-Fortschrittsfotos), sowie deine Ernährungsziele, erfasste Mahlzeiten, Stimmungsnotizen oder Chat-Eingaben. Apple Health-Daten werden niemals an KI gesendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo las fotos reducidas que elijas analizar (comidas, menús, pasos de cocina o fotos de progreso antes/después) y tus objetivos de nutrición, comidas registradas, notas de estado de ánimo o mensajes del chat. Los datos de Apple Health nunca se envían a la IA."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uniquement les photos redimensionnées que vous choisissez d'analyser (repas, menus, étapes de cuisine ou photos de progrès avant/après) ainsi que vos objectifs nutritionnels, repas enregistrés, notes d'humeur ou messages du chat. Les données Apple Health ne sont jamais envoyées à l'IA."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo le foto ridimensionate che scegli di analizzare (pasti, menu, fasi di cottura o foto dei progressi prima/dopo) e i tuoi obiettivi nutrizionali, pasti registrati, note sull'umore o richieste in chat. I dati di Apple Health non vengono mai inviati all'IA."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas as fotos redimensionadas que escolher analisar (refeições, menus, passos de confeção ou fotos de progresso antes/depois) e os seus objetivos nutricionais, refeições registadas, notas de humor ou mensagens de chat. Os dados do Apple Health nunca são enviados para a IA."
+          }
+        }
+      }
+    },
+    "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and processed by named partner AI models (Google and Recursive).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and processed by named partner AI models (Google and Recursive)."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Данные отправляются по зашифрованному HTTPS через прокси FoodTracker в OpenRouter (с включённым Zero Data Retention) и обрабатываются указанными партнёрскими ИИ-моделями (Google и Recursive)."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daten werden über verschlüsseltes HTTPS über den FoodTracker-Proxy an OpenRouter (Zero Data Retention aktiviert) gesendet und von benannten Partner-KI-Modellen (Google und Recursive) verarbeitet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los datos se envían por HTTPS cifrado a través del proxy de FoodTracker a OpenRouter (con Zero Data Retention activado) y son procesados por modelos de IA asociados (Google y Recursive)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les données sont envoyées via HTTPS chiffré par le proxy de FoodTracker vers OpenRouter (Zero Data Retention activé) et traitées par des modèles d'IA partenaires désignés (Google et Recursive)."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I dati vengono inviati tramite HTTPS crittografato attraverso il proxy di FoodTracker a OpenRouter (Zero Data Retention attivo) ed elaborati da modelli IA partner indicati (Google e Recursive)."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dados são enviados por HTTPS encriptado através do proxy do FoodTracker para o OpenRouter (Zero Data Retention ativado) e processados por modelos de IA parceiros identificados (Google e Recursive)."
+          }
+        }
+      }
+    },
+    "Requests are processed transiently with provider data retention disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requests are processed transiently with provider data retention disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запросы обрабатываются без сохранения данных на стороне провайдера. Вы можете отозвать согласие в любое время в разделе Настройки → ИИ: данные и конфиденциальность фото."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anfragen werden nur flüchtig ohne Datenspeicherung beim Anbieter verarbeitet. Du kannst diese Einwilligung jederzeit unter Einstellungen → KI-Daten & Fotodatenschutz widerrufen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las solicitudes se procesan de forma transitoria sin retención de datos por el proveedor. Puedes revocar este consentimiento en cualquier momento en Ajustes → Privacidad de datos y fotos con IA."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les requêtes sont traitées de manière transitoire, sans conservation des données par le fournisseur. Vous pouvez révoquer ce consentement à tout moment dans Réglages → Confidentialité des données et photos IA."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le richieste vengono elaborate in modo transitorio con la conservazione dati del provider disattivata. Puoi revocare questo consenso in qualsiasi momento in Impostazioni → Privacy dati e foto IA."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os pedidos são processados de forma transitória com a retenção de dados do fornecedor desativada. Pode revogar este consentimento a qualquer momento em Definições → Privacidade de dados e fotos IA."
+          }
+        }
+      }
+    },
+    "Read Privacy Policy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read Privacy Policy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читать политику конфиденциальности"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutzerklärung lesen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leer política de privacidad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire la politique de confidentialité"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggi l'informativa sulla privacy"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ler política de privacidade"
+          }
+        }
+      }
+    },
+    "AI Data & Photo Privacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Data & Photo Privacy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ИИ: данные и конфиденциальность фото"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Daten & Fotodatenschutz"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidad de datos y fotos con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confidentialité des données et photos IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy dati e foto IA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidade de dados e fotos IA"
+          }
+        }
+      }
+    },
+    "When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and named partner AI models (Google and Recursive). Apple Health data is never sent to AI.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and named partner AI models (Google and Recursive). Apple Health data is never sent to AI."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "При включении уменьшенные фото, которые вы выбираете для анализа (блюда, меню, этапы готовки или фото прогресса до/после), а также цели по питанию, записанные приёмы пищи, заметки о настроении или запросы в чат отправляются по зашифрованному HTTPS через прокси FoodTracker в OpenRouter (с включённым Zero Data Retention) и указанным партнёрским ИИ-моделям (Google и Recursive). Данные Apple Health никогда не отправляются в ИИ."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn aktiviert, werden heruntergerechnete Fotos, die du zur Analyse auswählst (Mahlzeiten, Menüs, Kochschritte oder Vorher-/Nachher-Fortschrittsfotos), sowie Ernährungsziele, protokollierte Mahlzeiten, Stimmungsnotizen oder Chat-Eingaben über verschlüsseltes HTTPS über den FoodTracker-Proxy an OpenRouter (Zero Data Retention aktiviert) und benannte Partner-KI-Modelle (Google und Recursive) gesendet. Apple-Health-Daten werden niemals an KI gesendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si está activado, las fotos reducidas que elijas analizar (comidas, menús, pasos de cocina o fotos de progreso de antes y después), junto con tus objetivos nutricionales, comidas registradas, notas de ánimo o mensajes del chat, se envían por HTTPS cifrado a través del proxy de FoodTracker a OpenRouter (con Zero Data Retention activado) y a modelos de IA asociados (Google y Recursive). Los datos de Apple Health nunca se envían a la IA."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsqu'il est activé, les photos réduites que vous choisissez d'analyser (repas, menus, étapes de préparation ou photos de progression avant/après), ainsi que vos objectifs nutritionnels, repas enregistrés, notes d'humeur ou messages de chat, sont envoyés via HTTPS chiffré par le proxy de FoodTracker vers OpenRouter (Zero Data Retention activé) et des modèles d'IA partenaires désignés (Google et Recursive). Les données Apple Health ne sont jamais envoyées à l'IA."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se attivo, le foto ridimensionate che scegli di analizzare (pasti, menu, passaggi di cottura o foto dei progressi prima/dopo), insieme a obiettivi nutrizionali, pasti registrati, note sull'umore o messaggi della chat, vengono inviati tramite HTTPS crittografato attraverso il proxy di FoodTracker a OpenRouter (Zero Data Retention attivo) e a modelli IA partner indicati (Google e Recursive). I dati di Apple Health non vengono mai inviati all'IA."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando ativado, as fotos reduzidas que escolhes analisar (refeições, menus, passos de confeção ou fotos de progresso antes/depois), bem como objetivos nutricionais, refeições registadas, notas de humor ou mensagens de chat, são enviados por HTTPS encriptado através do proxy do FoodTracker para o OpenRouter (Zero Data Retention ativado) e para modelos de IA parceiros identificados (Google e Recursive). Os dados do Apple Health nunca são enviados para a IA."
+          }
+        }
+      }
+    },
+    "Tap 'Add Food' below to log your %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap 'Add Food' below to log your %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Добавить еду» ниже, чтобы записать %@."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe unten auf „Essen hinzufügen“, um dein %@ zu erfassen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca «Añadir alimento» abajo para registrar tu %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appuyez sur « Ajouter un aliment » ci-dessous pour enregistrer votre %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca «Aggiungi cibo» qui sotto per registrare %@."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em «Adicionar alimento» abaixo para registar o seu %@."
+          }
+        }
+      }
+    },
+    "%@ today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ today"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ сегодня"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ heute"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ aujourd'hui"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ oggi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ hoje"
+          }
+        }
+      }
+    },
+    "Description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Описание"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beschreibung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descripción"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descrizione"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descrição"
+          }
+        }
+      }
+    },
+    "Verification": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verification"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überprüfung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérification"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifica"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificação"
+          }
+        }
+      }
+    },
+    "Create Recipe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create Recipe"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать рецепт"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezept erstellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear receta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer une recette"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea ricetta"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criar receita"
+          }
+        }
+      }
+    },
+    "+%lld ml": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld ml"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld мл"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld ml"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld ml"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld ml"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld ml"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld ml"
+          }
+        }
+      }
+    },
+    "NUTRIENTS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NUTRIENTS"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "НУТРИЕНТЫ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NÄHRSTOFFE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NUTRIENTES"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NUTRIMENTS"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NUTRIENTI"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NUTRIENTES"
+          }
+        }
+      }
+    },
+    "SLEEP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SLEEP"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СОН"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SCHLAF"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SUEÑO"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SOMMEIL"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SONNO"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SONO"
+          }
+        }
+      }
+    },
+    "BALANCE": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BALANCE"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "БАЛАНС"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BALANCE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BALANCE"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ÉQUILIBRE"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EQUILIBRIO"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EQUILÍBRIO"
+          }
+        }
+      }
+    },
+    "Drink 500ml of water immediately upon waking to kickstart daily energy and offset overnight dehydration.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drink 500ml of water immediately upon waking to kickstart daily energy and offset overnight dehydration."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпейте 500 мл воды сразу после пробуждения — это зарядит энергией на день и восполнит ночную потерю влаги."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trinke direkt nach dem Aufwachen 500 ml Wasser, um die Tagesenergie anzukurbeln und das nächtliche Defizit auszugleichen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bebe 500 ml de agua al despertar para impulsar tu energía diaria y compensar la deshidratación nocturna."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buvez 500 ml d'eau dès le réveil pour lancer votre énergie quotidienne et compenser la déshydratation nocturne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bevi 500 ml d'acqua appena sveglio per riattivare l'energia quotidiana e compensare la disidratazione notturna."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beba 500 ml de água ao acordar para ativar a energia diária e compensar a desidratação noturna."
+          }
+        }
+      }
+    },
+    "Rebalance meals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebalance meals"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбалансировать приёмы пищи"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mahlzeiten ausbalancieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reequilibrar comidas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rééquilibrer les repas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riequilibra i pasti"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reequilibrar refeições"
+          }
+        }
+      }
+    },
+    "today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "today"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "сегодня"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "heute"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aujourd'hui"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "oggi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hoje"
+          }
+        }
+      }
+    },
+    "Fats": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fats"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Жиры"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fette"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grasas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lipides"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grassi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gorduras"
+          }
+        }
+      }
+    },
+    "Use ingredients on hand for a custom recipe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use ingredients on hand for a custom recipe"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создайте рецепт из продуктов, которые есть под рукой"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutze vorhandene Zutaten für ein individuelles Rezept"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa los ingredientes que tienes para una receta a medida"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisez vos ingrédients disponibles pour une recette sur mesure"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa gli ingredienti che hai per una ricetta su misura"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use os ingredientes disponíveis para uma receita personalizada"
+          }
+        }
+      }
+    },
+    "Auto Syncing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto Syncing"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автосинхронизация"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatische Synchronisierung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronización automática"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisation auto"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizzazione automatica"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronização automática"
+          }
+        }
+      }
+    },
+    "Tap to Enable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to Enable"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите, чтобы включить"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Aktivieren tippen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca para activar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appuyez pour activer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca per attivare"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque para ativar"
+          }
+        }
+      }
+    },
+    "No Food Logged": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Food Logged"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Еда не записана"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Mahlzeiten erfasst"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin comidas registradas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun repas enregistré"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun pasto registrato"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem alimentos registados"
+          }
+        }
+      }
+    },
+    "You haven't logged any food for this day yet.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You haven't logged any food for this day yet."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За этот день вы ещё не добавляли приёмы пищи."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hast für diesen Tag noch keine Mahlzeiten erfasst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no has registrado ninguna comida para este día."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous n'avez encore enregistré aucun repas pour ce jour."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non hai ancora registrato alcun pasto per questo giorno."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ainda não registou alimentos para este dia."
+          }
+        }
+      }
+    },
+    "KITCHEN LEDGER": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KITCHEN LEDGER"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "КУХОННЫЙ ЖУРНАЛ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KÜCHENBUCH"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REGISTRO DE COCINA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CARNET DE CUISINE"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REGISTRO DI CUCINA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REGISTO DE COZINHA"
+          }
+        }
+      }
+    },
+    "ALL-TIME LOG": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ALL-TIME LOG"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ЗА ВСЁ ВРЕМЯ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GESAMTVERLAUF"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HISTORIAL TOTAL"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HISTORIQUE TOTAL"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STORICO TOTALE"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REGISTO TOTAL"
+          }
+        }
+      }
+    },
+    "KCAL": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KCAL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ККАЛ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KCAL"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KCAL"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KCAL"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KCAL"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KCAL"
+          }
+        }
+      }
+    },
+    "NUTRITION LOG": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NUTRITION LOG"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ДНЕВНИК ПИТАНИЯ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ERNÄHRUNGSPROTOKOLL"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIARIO NUTRICIONAL"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JOURNAL NUTRITIONNEL"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIARIO NUTRIZIONALE"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIÁRIO NUTRICIONAL"
+          }
+        }
+      }
+    },
+    "NO. FT-MAGNET-RECORD": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NO. FT-MAGNET-RECORD"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "№ FT-MAGNET-RECORD"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NR. FT-MAGNET-RECORD"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N.º FT-MAGNET-RECORD"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N° FT-MAGNET-RECORD"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N. FT-MAGNET-RECORD"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N.º FT-MAGNET-RECORD"
+          }
+        }
+      }
+    },
+    "Quick prep, minimal cleanup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick prep, minimal cleanup"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Быстрое приготовление, минимум посуды"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnelle Zubereitung, kaum Abwasch"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparación rápida, mínima limpieza"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparation rapide, peu de vaisselle"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparazione rapida, poco da pulire"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparação rápida, limpeza mínima"
+          }
+        }
+      }
+    },
+    "Balanced everyday cooking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced everyday cooking"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбалансированная готовка на каждый день"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgewogene Alltagsküche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cocina diaria equilibrada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuisine équilibrée au quotidien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cucina quotidiana equilibrata"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cozinha diária equilibrada"
+          }
+        }
+      }
+    },
+    "Full culinary recipes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full culinary recipes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Полноценные кулинарные рецепты"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausführliche kulinarische Rezepte"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recetas culinarias completas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recettes culinaires complètes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricette culinarie complete"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receitas culinárias completas"
+          }
+        }
+      }
+    },
+    "CALORIE GUIDE": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CALORIE GUIDE"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ОРИЕНТИР КАЛОРИЙ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KALORIEN-RICHTWERT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GUÍA DE CALORÍAS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REPÈRE CALORIQUE"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GUIDA CALORIE"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GUIA DE CALORIAS"
+          }
+        }
+      }
+    },
+    "1,200 kcal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1,200 kcal"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 200 ккал"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.200 kcal"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.200 kcal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 200 kcal"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.200 kcal"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.200 kcal"
+          }
+        }
+      }
+    },
+    "4,000 kcal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4,000 kcal"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4 000 ккал"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4.000 kcal"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4.000 kcal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4 000 kcal"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4.000 kcal"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4.000 kcal"
+          }
+        }
+      }
+    },
+    "Applied to Today's Log": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applied to Today's Log"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлено в дневник за сегодня"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum heutigen Protokoll hinzugefügt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicado al registro de hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouté au journal du jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunto al diario di oggi"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicado ao registo de hoje"
+          }
+        }
+      }
+    },
+    "Added to Grocery List": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added to Grocery List"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлено в список покупок"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zur Einkaufsliste hinzugefügt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadido a la lista de compras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouté à la liste de courses"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunto alla lista della spesa"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionado à lista de compras"
+          }
+        }
+      }
+    },
+    "Save Changes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save Changes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить изменения"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Änderungen speichern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar cambios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer les modifications"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salva modifiche"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar alterações"
+          }
+        }
+      }
+    },
+    "AI Cooking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Cooking"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готовка с ИИ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Kochen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cocina con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuisine IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cucina IA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cozinha IA"
+          }
+        }
+      }
+    },
+    "Tell me what ingredients you have...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell me what ingredients you have..."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расскажите, какие продукты у вас есть..."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sag mir, welche Zutaten du hast..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dime qué ingredientes tienes..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites-moi quels ingrédients vous avez..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dimmi quali ingredienti hai..."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diga-me que ingredientes tem..."
+          }
+        }
+      }
+    },
+    "AI RECIPE SUGGESTION": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI RECIPE SUGGESTION"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ИДЕЯ РЕЦЕПТА ОТ ИИ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-REZEPTVORSCHLAG"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SUGERENCIA DE RECETA IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SUGGESTION DE RECETTE IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SUGGERIMENTO RICETTA IA"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SUGESTÃO DE RECEITA IA"
           }
         }
       }

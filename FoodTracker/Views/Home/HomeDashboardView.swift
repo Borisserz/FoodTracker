@@ -773,15 +773,9 @@ struct HomeDashboardContentView: View {
     }
 
     private func handleSpotlightScroll(to step: SpotlightStep, with proxy: ScrollViewProxy) {
+        guard let anchor = step.homeScrollAnchorID else { return }
         withAnimation(.spring(response: 0.42, dampingFraction: 0.84)) {
-            switch step {
-            case .addMeal, .streakFire, .aiChef:
-                proxy.scrollTo("header_streak", anchor: .top)
-            case .macroRings:
-                proxy.scrollTo("macro_rings", anchor: .top)
-            case .fastingWater:
-                proxy.scrollTo("hydration_card", anchor: .top)
-            }
+            proxy.scrollTo(anchor, anchor: .top)
         }
     }
     
@@ -1334,7 +1328,7 @@ struct MealDetailView: View {
                                 Text("No Food Logged")
                                     .font(.system(size: 17, weight: .bold, design: .rounded))
                                     .foregroundStyle(EditorialPalette.inkPrimary)
-                                Text("Tap 'Add Food' below to log your \(title).")
+                                Text("Tap 'Add Food' below to log your \(String(localized: String.LocalizationValue(title))).")
                                     .font(.system(size: 13.5, weight: .regular, design: .rounded))
                                     .foregroundStyle(EditorialPalette.inkSecondary)
                                     .multilineTextAlignment(.center)
@@ -2345,8 +2339,7 @@ struct DailyNoteSheet: View {
                     targetFats: fetchedUser?.targetFats ?? 0,
                     consumedCarbs: summary.totalCarbs,
                     targetCarbs: fetchedUser?.targetCarbs ?? 0,
-                    hydrationLiters: summary.totalPureWaterLiters,
-                    activeCaloriesBurned: summary.activeCaloriesBurned
+                    hydrationLiters: summary.totalPureWaterLiters
                 )
             }
         }

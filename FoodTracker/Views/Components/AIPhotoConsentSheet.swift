@@ -34,7 +34,7 @@ struct AIPhotoConsentSheet: View {
                                         .foregroundStyle(EditorialPalette.oat)
                                 }
 
-                                Text("Only selected meal photos and nutrition details needed for your request are analyzed.")
+                                Text("Only selected meal, cooking, or progress photos and nutrition details needed for your request are analyzed.")
                                     .font(.system(size: 14, weight: .bold, design: .rounded))
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: 235, alignment: .leading)
@@ -54,7 +54,7 @@ struct AIPhotoConsentSheet: View {
                                 icon: "photo.on.rectangle.angled",
                                 iconColor: EditorialPalette.oceanSlate,
                                 title: "What is sent",
-                                detail: "Only the downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for your AI request."
+                                detail: "Only the downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and your nutrition goals, logged meals, mood notes, or chat prompts. Apple Health data is never sent to AI."
                             )
                             Rectangle()
                                 .fill(EditorialPalette.hairlineLight)
@@ -63,7 +63,7 @@ struct AIPhotoConsentSheet: View {
                                 icon: "network.badge.shield.half.filled",
                                 iconColor: EditorialPalette.forest,
                                 title: "Who processes it",
-                                detail: "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers to estimate nutrition and personalize feedback."
+                                detail: "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and processed by named partner AI models (Google and Recursive)."
                             )
                             Rectangle()
                                 .fill(EditorialPalette.hairlineLight)
@@ -72,7 +72,7 @@ struct AIPhotoConsentSheet: View {
                                 icon: "lock.shield.fill",
                                 iconColor: EditorialPalette.emerald,
                                 title: "Privacy & control",
-                                detail: "Requests are processed transiently with provider data retention disabled, and you can revoke this consent anytime in Settings."
+                                detail: "Requests are processed transiently with provider data retention disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy."
                             )
                         }
                         .padding(16)
@@ -82,6 +82,18 @@ struct AIPhotoConsentSheet: View {
                             RoundedRectangle(cornerRadius: 18, style: .continuous)
                                 .strokeBorder(EditorialPalette.hairlineLight, lineWidth: 0.75)
                         )
+
+                        Link(destination: Constants.Legal.privacyPolicyURL) {
+                            HStack(spacing: 6) {
+                                Text("Read Privacy Policy")
+                                    .font(.system(size: 13.5, weight: .semibold, design: .rounded))
+                                Image(systemName: "arrow.up.right")
+                                    .font(.system(size: 11, weight: .semibold))
+                            }
+                            .foregroundStyle(EditorialPalette.forest)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.vertical, 6)
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 24)

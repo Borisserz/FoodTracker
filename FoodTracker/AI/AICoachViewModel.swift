@@ -80,7 +80,8 @@ class AICoachViewModel {
         let trimmedIngredients = fridgeInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !isGeneratingRecipe, !trimmedIngredients.isEmpty else { return }
 
-        let effectiveGoal = currentUser.dailyCaloriesGoal + max(0, currentSummary.activeCaloriesBurned)
+        // Guideline 5.1.3(i): Do not send HealthKit active energy data to third-party AI.
+        let effectiveGoal = currentUser.dailyCaloriesGoal
         let missingCals = max(0, effectiveGoal - currentSummary.totalCalories)
         let missingProtein = max(0, Int(currentUser.targetProtein - currentSummary.totalProtein))
 
@@ -118,7 +119,8 @@ class AICoachViewModel {
         errorMessage = nil
         isFixingMacros = true
 
-        let effectiveGoal = currentUser.dailyCaloriesGoal + max(0, currentSummary.activeCaloriesBurned)
+        // Guideline 5.1.3(i): Do not send HealthKit active energy data to third-party AI.
+        let effectiveGoal = currentUser.dailyCaloriesGoal
         let missingCals = effectiveGoal - currentSummary.totalCalories
         let missingP = Int(currentUser.targetProtein - currentSummary.totalProtein)
         let missingF = Int(currentUser.targetFats - currentSummary.totalFats)

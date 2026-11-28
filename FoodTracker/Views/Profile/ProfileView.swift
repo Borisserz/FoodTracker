@@ -487,7 +487,7 @@ struct SettingsView: View {
                                 SettingsRowView(
                                     icon: "hand.raised.fill",
                                     iconColor: .indigo,
-                                    title: "AI Photo Privacy",
+                                    title: "AI Data & Photo Privacy",
                                     value: consentManager.hasConsented ? String(localized: "Enabled") : String(localized: "Off")
                                 )
                             }
@@ -706,6 +706,7 @@ struct AccountSettingsView: View {
     @State private var showError = false
     @State private var showDeleteConfirmation = false
     @State private var showSignOutConfirmation = false
+    @State private var pendingPostRevocationWipe = false
 
     var body: some View {
         ZStack {
@@ -931,10 +932,9 @@ struct AccountSettingsView: View {
                                     dismiss()
                                 } catch let deletionError as AccountDeletionError {
                                     if case .appleTokenRevocationFailed = deletionError {
-                                        // Server account deletion already succeeded; still wipe local state,
-                                        // then surface the revocation warning so the user can revoke in iOS Settings.
-                                        LocalDataResetService.wipeAllData(in: context)
-                                        _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn()
+                                        // Server account deletion already succeeded; defer local wipe until
+                                        // the user dismisses the warning alert so the view isn't unmounted first.
+                                        pendingPostRevocationWipe = true
                                     }
                                     errorMessage = deletionError.localizedDescription
                                     showError = true
@@ -963,7 +963,14 @@ struct AccountSettingsView: View {
         .navigationTitle("Account")
         .navigationBarTitleDisplayMode(.inline)
         .alert("Error", isPresented: $showError, actions: {
-            Button("OK", role: .cancel) { }
+            Button("OK", role: .cancel) {
+                if pendingPostRevocationWipe {
+                    pendingPostRevocationWipe = false
+                    LocalDataResetService.wipeAllData(in: context)
+                    Task { _ = try? await AnonymousAuthBootstrap.shared.ensureSignedIn() }
+                    dismiss()
+                }
+            }
         }, message: {
             Text(errorMessage ?? "Unknown error")
         })
@@ -1432,10 +1439,18 @@ struct AIPhotoPrivacySettingsView: View {
                             .fill(EditorialPalette.hairlineLight)
                             .frame(height: 0.5)
 
-                        Text("When enabled, downsampled photos you choose to scan and the nutrition goals, meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter and third-party AI providers. Requests are processed transiently with provider data retention disabled.")
+                        Text("When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and named partner AI models (Google and Recursive). Apple Health data is never sent to AI.")
                             .font(.system(size: 13, weight: .regular, design: .rounded))
                             .foregroundStyle(EditorialPalette.inkSecondary)
                             .fixedSize(horizontal: false, vertical: true)
+
+                        Rectangle()
+                            .fill(EditorialPalette.hairlineLight)
+                            .frame(height: 0.5)
+
+                        Link("Read Privacy Policy", destination: Constants.Legal.privacyPolicyURL)
+                            .font(.system(size: 13.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(EditorialPalette.forest)
                     }
                     .padding(18)
                     .background(EditorialPalette.surfaceLight)
@@ -1449,7 +1464,7 @@ struct AIPhotoPrivacySettingsView: View {
                 }
             }
         }
-        .navigationTitle("AI Photo Privacy")
+        .navigationTitle("AI Data & Photo Privacy")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -169,7 +169,7 @@ struct CreateRecipeView: View {
         }
     }
 
-    private var navTitle: String {
+    private var navTitle: LocalizedStringKey {
         switch currentStep {
         case 0: return "Description"
         case 1: return "Ingredients"

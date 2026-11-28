@@ -173,25 +173,31 @@ final class AuthManager {
         revokeAppleToken: (String) async throws -> Void
     ) async throws {
         let appleAuthorizationCode = try await reauthenticate()
-        try await deleteAccount()
-        clearGoogleSession()
+
+        // Revoke Sign in with Apple authorization code while Auth.auth().currentUser is still live.
+        // Calling Firebase Auth's revokeToken(withAuthorizationCode:) after deletion/signOut deadlocks
+        // on a nil currentUser. Capture any failure without aborting account deletion.
+        var revocationError: Error?
         if let appleAuthorizationCode, !appleAuthorizationCode.isEmpty {
             let maxAttempts = 2
-            var lastError: Error?
             for _ in 0..<maxAttempts {
                 do {
                     try await revokeAppleToken(appleAuthorizationCode)
-                    lastError = nil
+                    revocationError = nil
                     break
                 } catch {
-                    lastError = error
+                    revocationError = error
                 }
             }
-            if let lastError {
-                throw AccountDeletionError.appleTokenRevocationFailed(
-                    underlyingDescription: lastError.localizedDescription
-                )
-            }
+        }
+
+        try await deleteAccount()
+        clearGoogleSession()
+
+        if let revocationError {
+            throw AccountDeletionError.appleTokenRevocationFailed(
+                underlyingDescription: revocationError.localizedDescription
+            )
         }
     }
 }

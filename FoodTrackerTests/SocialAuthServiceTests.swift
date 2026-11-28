@@ -52,7 +52,7 @@ final class SocialAuthServiceTests: XCTestCase {
         }
     }
 
-    func testDeletionSequenceDoesNotRevokeAppleTokenWhenDeletionFails() async {
+    func testDeletionSequencePropagatesDeletionFailureAfterAppleRevocation() async {
         var events: [String] = []
         do {
             try await AuthManager.runDeletionSequence(
@@ -64,17 +64,27 @@ final class SocialAuthServiceTests: XCTestCase {
                     events.append("delete-fail")
                     throw AccountDeletionError.serverCleanupFailed(statusCode: 500)
                 },
+                clearGoogleSession: {
+                    events.append("google-signout")
+                },
                 revokeAppleToken: { _ in
                     events.append("revoke")
                 }
             )
             XCTFail("Expected serverCleanupFailed to propagate")
+        } catch let error as AccountDeletionError {
+            guard case .serverCleanupFailed(let code) = error else {
+                XCTFail("Expected serverCleanupFailed, got \(error)")
+                return
+            }
+            XCTAssertEqual(code, 500)
+            XCTAssertEqual(events, ["reauth", "revoke", "delete-fail"])
         } catch {
-            XCTAssertEqual(events, ["reauth", "delete-fail"])
+            XCTFail("Unexpected error: \(error)")
         }
     }
 
-    func testDeletionSequenceRevokesAppleTokenAfterSuccessfulDeletion() async throws {
+    func testDeletionSequenceRevokesAppleTokenBeforeDeletionWhileUserIsLive() async throws {
         var events: [String] = []
         try await AuthManager.runDeletionSequence(
             reauthenticate: {
@@ -84,11 +94,14 @@ final class SocialAuthServiceTests: XCTestCase {
             deleteAccount: {
                 events.append("delete")
             },
+            clearGoogleSession: {
+                events.append("google-signout")
+            },
             revokeAppleToken: { code in
                 events.append("revoke:\(code)")
             }
         )
-        XCTAssertEqual(events, ["reauth", "delete", "revoke:apple-auth-code"])
+        XCTAssertEqual(events, ["reauth", "revoke:apple-auth-code", "delete", "google-signout"])
     }
 
     func testDeletionSequenceClearsGoogleSessionOnlyAfterSuccessfulDeletion() async throws {
@@ -243,25 +256,59 @@ final class SocialAuthServiceTests: XCTestCase {
                 }
             )
             XCTFail("Expected revocation failure to be surfaced rather than silently swallowed")
-        } catch {
+        } catch let error as AccountDeletionError {
+            guard case .appleTokenRevocationFailed = error else {
+                XCTFail("Expected appleTokenRevocationFailed, got \(error)")
+                return
+            }
             XCTAssertEqual(revocationAttempts, 2)
-            XCTAssertEqual(events, ["reauth", "delete", "google-signout", "revoke-attempt-1", "revoke-attempt-2"])
+            XCTAssertEqual(events, ["reauth", "revoke-attempt-1", "revoke-attempt-2", "delete", "google-signout"])
+        } catch {
+            XCTFail("Expected AccountDeletionError.appleTokenRevocationFailed, got \(error)")
         }
     }
 
     func testDeletionSequenceSucceedsAfterTransientAppleRevocationFailure() async throws {
+        var events: [String] = []
         var revocationAttempts = 0
         try await AuthManager.runDeletionSequence(
-            reauthenticate: { "apple-auth-code" },
-            deleteAccount: {},
+            reauthenticate: {
+                events.append("reauth")
+                return "apple-auth-code"
+            },
+            deleteAccount: {
+                events.append("delete")
+            },
+            clearGoogleSession: {
+                events.append("google-signout")
+            },
             revokeAppleToken: { _ in
                 revocationAttempts += 1
+                events.append("revoke-attempt-\(revocationAttempts)")
                 if revocationAttempts == 1 {
                     throw NSError(domain: "AppleRevoke", code: -1)
                 }
             }
         )
         XCTAssertEqual(revocationAttempts, 2)
+        XCTAssertEqual(events, ["reauth", "revoke-attempt-1", "revoke-attempt-2", "delete", "google-signout"])
+    }
+
+    func testRevokeAppleAuthorizationCodeThrowsNotSignedInWhenNoCurrentUser() async {
+        do {
+            try await SocialAuthService.shared.revokeAppleAuthorizationCode(
+                "apple-auth-code",
+                hasCurrentUser: { false }
+            )
+            XCTFail("Expected AccountDeletionError.notSignedIn when no current user is signed in")
+        } catch let error as AccountDeletionError {
+            guard case .notSignedIn = error else {
+                XCTFail("Expected .notSignedIn, got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Expected AccountDeletionError.notSignedIn, got \(error)")
+        }
     }
 
     func testExtractAppleAuthorizationCodeThrowsWhenNilOrEmpty() throws {

@@ -25,12 +25,11 @@ enum AIChatTitleHelper {
         targetFats: Double,
         consumedCarbs: Double,
         targetCarbs: Double,
-        hydrationLiters: Double,
-        activeCaloriesBurned: Int = 0
+        hydrationLiters: Double
     ) -> String {
-        let effectiveGoal = userGoal + max(0, activeCaloriesBurned)
+        // Guideline 5.1.3(i): Do not derive AI prompt inputs from HealthKit active energy data.
         var parts = [
-            "User's goal is \(effectiveGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(effectiveGoal - consumed) kcal."
+            "User's goal is \(userGoal) kcal. Today they have consumed \(consumed) kcal. Left: \(userGoal - consumed) kcal."
         ]
         if targetProtein > 0 || consumedProtein > 0 || targetFats > 0 || consumedFats > 0 || targetCarbs > 0 || consumedCarbs > 0 {
             parts.append(
@@ -60,7 +59,6 @@ struct AICoachChatView: View {
     var consumedCarbs: Double = 0
     var targetCarbs: Double = 0
     var hydrationLiters: Double = 0
-    var activeCaloriesBurned: Int = 0
 
     @State private var currentSession: AIChatSession?
     @State private var chatHistory: [AIChatMessage] = []
@@ -275,8 +273,7 @@ struct AICoachChatView: View {
                 targetFats: targetFats,
                 consumedCarbs: consumedCarbs,
                 targetCarbs: targetCarbs,
-                hydrationLiters: hydrationLiters,
-                activeCaloriesBurned: activeCaloriesBurned
+                hydrationLiters: hydrationLiters
             )
 
             let aiResponseText = await AINutritionService.shared.sendChatMessage(
