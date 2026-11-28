@@ -134,4 +134,19 @@ final class NutritionProgressManagerTests: XCTestCase {
         )
         XCTAssertEqual(farOff, 0.0, accuracy: 0.001)
     }
+
+    func testExtremeLevelAndTotalXPDoNotOverflowOrCrash() {
+        let user = User(name: "Test", weight: 70, height: 175, age: 25)
+        let manager = NutritionProgressManager(user: user)
+
+        let cappedXP = manager.cumulativeXPRequired(forLevel: 500)
+        XCTAssertGreaterThan(cappedXP, 0)
+        XCTAssertEqual(cappedXP, manager.cumulativeXPRequired(forLevel: NutritionProgressManager.maxLevel))
+
+        user.totalXP = Int.max
+        manager.syncLevel()
+
+        XCTAssertEqual(user.level, NutritionProgressManager.maxLevel)
+        XCTAssertEqual(manager.progressPercentage, 1.0, accuracy: 0.0001)
+    }
 }

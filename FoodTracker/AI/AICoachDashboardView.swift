@@ -233,18 +233,17 @@ struct AICoachDashboardView: View {
             let water = result.beverage
             let deletedSamples = result.deletedHealthKitSamples
             let summaryDate = selectedDate
+            let loggedSummary = result.summary
             Task { @MainActor in
-                for sample in deletedSamples {
-                    await HealthKitManager.shared.deleteWaterSample(
-                        idString: sample.sampleID,
-                        litersFallback: sample.volumeMl / 1000.0,
-                        date: summaryDate
-                    )
-                }
-                if let uuid = await HealthKitManager.shared.saveWater(liters: 0.25, date: logDate) {
-                    water.healthKitSampleID = uuid.uuidString
-                    try? container.mainContext.save()
-                }
+                await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
+                    deletedSamples: deletedSamples,
+                    newBeverage: water,
+                    addedLiters: 0.25,
+                    logDate: logDate,
+                    summaryDate: summaryDate,
+                    summary: loggedSummary,
+                    container: container
+                )
             }
         }
     }

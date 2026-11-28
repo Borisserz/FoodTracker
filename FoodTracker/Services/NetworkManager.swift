@@ -281,7 +281,18 @@ class NetworkManager {
         case failed(String)
     }
 
+    private static let validBarcodeCharacters = CharacterSet(
+        charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+    )
+
+    static func isValidBarcode(_ raw: String) -> Bool {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard (3...32).contains(trimmed.count) else { return false }
+        return trimmed.unicodeScalars.allSatisfy { validBarcodeCharacters.contains($0) }
+    }
+
     func fetchProduct(barcode: String) async -> FoodItem? {
+        guard Self.isValidBarcode(barcode) else { return nil }
         switch await fetchProductOutcome(barcode: barcode) {
         case .found(let item):
             return item
@@ -345,7 +356,7 @@ class NetworkManager {
     func fetchProductOutcome(barcode: String) async -> BarcodeFetchOutcome {
         setLastBarcodeLookupError(nil)
         let cacheKey = Self.normalizedBarcode(for: barcode)
-        guard !cacheKey.isEmpty else { return .notFound }
+        guard Self.isValidBarcode(cacheKey) else { return .notFound }
 
         if let cached = cacheLock.withLock({ () -> FoodItem? in
             guard let entry = barcodeCache[cacheKey], entry.expiresAt > Date() else {
@@ -649,7 +660,9 @@ class NetworkManager {
     }
 
     private func fetchBarcodeFromOFF(barcode: String) async -> BarcodeLookupOutcome {
-        guard let encodedBarcode = barcode.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+        let trimmed = barcode.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard Self.isValidBarcode(trimmed),
+              let encodedBarcode = trimmed.addingPercentEncoding(withAllowedCharacters: Self.validBarcodeCharacters) else {
             return .notFound
         }
         let urlString = "https://world.openfoodfacts.org/api/v0/product/\(encodedBarcode).json"

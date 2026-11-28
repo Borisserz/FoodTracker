@@ -171,28 +171,19 @@ struct FoodDetailNutritionView: View {
 
 private struct FoodDetailHeader: View {
     @Environment(\.dismiss) var dismiss
-    @AppStorage("favoriteFoodNames_v1") private var favoriteFoodNamesRaw: String = ""
+    @AppStorage(FavoriteFoodStore.storageKey) private var favoriteFoodNamesRaw: String = ""
 
     let name: String
     var mealTitle: String = "Breakfast"
 
-    private var favoriteSet: Set<String> {
-        Set(favoriteFoodNamesRaw.split(separator: "\n").map(String.init))
-    }
-
     private var isFavorite: Bool {
-        favoriteSet.contains(name.lowercased())
+        FavoriteFoodStore.namesSet(from: favoriteFoodNamesRaw).contains(
+            name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        )
     }
 
     private func toggleFavorite() {
-        var updated = favoriteSet
-        let key = name.lowercased()
-        if updated.contains(key) {
-            updated.remove(key)
-        } else {
-            updated.insert(key)
-        }
-        favoriteFoodNamesRaw = updated.sorted().joined(separator: "\n")
+        favoriteFoodNamesRaw = FavoriteFoodStore.toggledRaw(favoriteFoodNamesRaw, foodName: name)
     }
 
     private var topSafeInset: CGFloat {
@@ -357,6 +348,11 @@ private struct ServingSizeEditor: View {
         )
     }
 
+    private func formattedInput(for grams: Double) -> String {
+        let display = NutritionMath.displayFoodWeight(grams, useMetric: useMetricSystem)
+        return useMetricSystem ? String(format: "%.0f", display) : String(format: "%.1f", display)
+    }
+
     var body: some View {
         EditorialLightCard(cornerRadius: 20, padding: 18) {
             VStack(alignment: .leading, spacing: 14) {
@@ -374,7 +370,7 @@ private struct ServingSizeEditor: View {
                     Spacer()
 
                     HStack(spacing: 4) {
-                        TextField("100", text: $textInput)
+                        TextField(useMetricSystem ? "100" : "3.5", text: $textInput)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .font(.system(size: 19, weight: .bold, design: .rounded).monospacedDigit())
@@ -386,12 +382,14 @@ private struct ServingSizeEditor: View {
                             .background(Color.black.opacity(0.05))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                             .onChange(of: textInput) { _, newValue in
+                                guard isWeightFocused, newValue != formattedInput(for: weight) else { return }
                                 if let val = NutritionMath.parsePositiveDecimal(newValue) {
-                                    weight = min(val, 50_000)
+                                    let grams = NutritionMath.gramsFromDisplayFoodWeight(val, useMetric: useMetricSystem)
+                                    weight = min(grams, 50_000)
                                 }
                             }
 
-                        Text("g")
+                        Text(NutritionMath.foodWeightUnit(useMetric: useMetricSystem))
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundStyle(EditorialPalette.inkSecondary)
                     }
@@ -401,7 +399,7 @@ private struct ServingSizeEditor: View {
                     .tint(EditorialPalette.inkPrimary)
                     .onChange(of: weight) { _, newValue in
                         guard !isWeightFocused else { return }
-                        let newText = String(format: "%.0f", newValue)
+                        let newText = formattedInput(for: newValue)
                         if textInput != newText {
                             textInput = newText
                         }
@@ -412,9 +410,11 @@ private struct ServingSizeEditor: View {
                         let isSelected = weight == Double(amount)
                         Button(action: {
                             HapticManager.shared.impact(style: .medium)
+                            isWeightFocused = false
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                weight = Double(amount)
-                                textInput = "\(amount)"
+                                let grams = Double(amount)
+                                weight = grams
+                                textInput = formattedInput(for: grams)
                             }
                         }) {
                             Text(useMetricSystem ? "\(amount)g" : NutritionMath.formattedFoodWeight(Double(amount), useMetric: false))
@@ -432,7 +432,22 @@ private struct ServingSizeEditor: View {
             }
         }
         .onAppear {
-            textInput = String(format: "%.0f", weight)
+            textInput = formattedInput(for: weight)
+        }
+        .onChange(of: useMetricSystem) { _, _ in
+            guard !isWeightFocused else { return }
+            let newText = formattedInput(for: weight)
+            if textInput != newText {
+                textInput = newText
+            }
+        }
+        .onChange(of: isWeightFocused) { _, focused in
+            if !focused {
+                let formatted = formattedInput(for: weight)
+                if textInput != formatted {
+                    textInput = formatted
+                }
+            }
         }
     }
 }

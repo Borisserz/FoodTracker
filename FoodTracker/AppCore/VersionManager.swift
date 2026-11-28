@@ -30,8 +30,10 @@ final class VersionManager {
         let recVersion = await configProvider.stringValue(forKey: "food_recommended_ios_version")
         
         // Debug prints
-        let resolvedVersion = currentVersion ?? (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0")
+        let resolvedVersion = currentVersion ?? (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
+        #if DEBUG
         print("📱 App Version: \(resolvedVersion)")
+        #endif
         
         let newRequirement = Self.evaluateRequirement(current: resolvedVersion, minimum: minVersion, recommended: recVersion)
         
@@ -51,8 +53,10 @@ final class VersionManager {
     }
     
     nonisolated static func isVersion(_ v1: String, lessThan v2: String) -> Bool {
-        let v1Components = v1.split(separator: ".").compactMap { Int($0) }
-        let v2Components = v2.split(separator: ".").compactMap { Int($0) }
+        guard let v1Components = parsedComponents(from: v1),
+              let v2Components = parsedComponents(from: v2) else {
+            return false
+        }
         let maxCount = max(v1Components.count, v2Components.count)
         
         for i in 0..<maxCount {
@@ -62,5 +66,22 @@ final class VersionManager {
             if c1 > c2 { return false }
         }
         return false
+    }
+
+    private nonisolated static func parsedComponents(from raw: String) -> [Int]? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        let parts = trimmed.split(separator: ".", omittingEmptySubsequences: false)
+        var components: [Int] = []
+        components.reserveCapacity(parts.count)
+        for part in parts {
+            guard !part.isEmpty,
+                  part.allSatisfy({ $0 >= "0" && $0 <= "9" }),
+                  let value = Int(part) else {
+                return nil
+            }
+            components.append(value)
+        }
+        return components
     }
 }

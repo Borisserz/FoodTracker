@@ -372,7 +372,10 @@ struct SmartScannerView: View {
             guard newPhase == .active else { return }
             isCapturingPhoto = false
             barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
-            if selectedMode == .mealAI || selectedMode == .menuAI {
+            if selectedMode == .barcode && barcodePermissionStatus == .authorized && !isLoading && !notFoundError {
+                isDataScannerUnavailable = false
+                isScanning = true
+            } else if selectedMode == .mealAI || selectedMode == .menuAI {
                 cameraManager.checkPermissionAndStart()
             }
         }

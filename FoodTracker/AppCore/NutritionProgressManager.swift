@@ -11,6 +11,8 @@ struct NutritionXPBreakdown {
 }
 
 struct NutritionProgressManager {
+    static let maxLevel = 100
+
     let user: User
     
     private let baseXP = 1000.0
@@ -36,9 +38,11 @@ struct NutritionProgressManager {
     }
     
     func cumulativeXPRequired(forLevel n: Int) -> Int {
-        if n <= 1 { return 0 }
-        let power = pow(multiplier, Double(n - 1))
+        guard n > 1 else { return 0 }
+        let clampedLevel = min(n, Self.maxLevel)
+        let power = pow(multiplier, Double(clampedLevel - 1))
         let total = baseXP * (power - 1) / (multiplier - 1)
+        guard total.isFinite, total >= 0, total < Double(Int.max) else { return Int.max }
         return Int(total.rounded())
     }
     
@@ -53,6 +57,7 @@ struct NutritionProgressManager {
     }
     
     var progressPercentage: Double {
+        if user.level >= Self.maxLevel { return 1.0 }
         let startOfLevelXP = cumulativeXPRequired(forLevel: user.level)
         let nextLevelXP = cumulativeXPRequired(forLevel: user.level + 1)
         
@@ -72,7 +77,7 @@ struct NutritionProgressManager {
     
     private func recalculateLevel() {
         var calculatedLevel = 1
-        while user.totalXP >= cumulativeXPRequired(forLevel: calculatedLevel + 1) {
+        while calculatedLevel < Self.maxLevel && user.totalXP >= cumulativeXPRequired(forLevel: calculatedLevel + 1) {
             calculatedLevel += 1
         }
         

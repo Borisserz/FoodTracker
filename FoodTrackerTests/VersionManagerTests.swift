@@ -69,4 +69,35 @@ final class VersionManagerTests: XCTestCase {
         await manager.checkVersion(configProvider: okProvider, currentVersion: "1.5.0")
         XCTAssertEqual(manager.updateRequirement, .noUpdate)
     }
+
+    func testMalformedOrEmptyVersionsFailOpenAndWhitespacePaddedVersionsParse() {
+        let malformedInputs = ["v2.0.0", "2.0.0-beta", "bad", " ", "", "1..2", "1. 2.0"]
+        for malformed in malformedInputs {
+            XCTAssertFalse(
+                VersionManager.isVersion("1.0.0", lessThan: malformed),
+                "Expected malformed remote version '\(malformed)' to fail-open"
+            )
+            XCTAssertFalse(
+                VersionManager.isVersion(malformed, lessThan: "2.0.0"),
+                "Expected malformed current version '\(malformed)' to fail-open"
+            )
+            XCTAssertEqual(
+                VersionManager.evaluateRequirement(current: "1.0.0", minimum: malformed, recommended: malformed),
+                .noUpdate,
+                "Expected malformed remote versions '\(malformed)' to evaluate to .noUpdate"
+            )
+            XCTAssertEqual(
+                VersionManager.evaluateRequirement(current: malformed, minimum: "2.0.0", recommended: "3.0.0"),
+                .noUpdate,
+                "Expected malformed current version '\(malformed)' to evaluate to .noUpdate"
+            )
+        }
+
+        XCTAssertTrue(VersionManager.isVersion(" 1.2.0 ", lessThan: " 1.3.0\n"))
+        XCTAssertFalse(VersionManager.isVersion(" 1.2.0 ", lessThan: "1.2.0"))
+        XCTAssertEqual(
+            VersionManager.evaluateRequirement(current: " 1.2.0 ", minimum: "1.1.0", recommended: " 1.5.0 "),
+            .softUpdate
+        )
+    }
 }

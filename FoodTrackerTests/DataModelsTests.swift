@@ -2247,4 +2247,184 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(events, ["delete:old-hk-weight-uuid", "save:79.8"])
         XCTAssertEqual(existing.healthKitSampleID, expectedNewUUID.uuidString)
     }
+
+    func testAllPendingWidgetWaterFlushDatesIncludesYesterdayAcrossMidnightRollover() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+
+        let sharedSuite = "test.rollover.shared.\(UUID().uuidString)"
+        let appGroupSuite = "test.rollover.appgroup.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let appGroupDefaults = UserDefaults(suiteName: appGroupSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            appGroupDefaults.removePersistentDomain(forName: appGroupSuite)
+        }
+
+        WorkoutSyncManager.shared.syncWaterFromWidget(
+            totalLiters: 0.25,
+            addedMl: 250,
+            for: yesterday,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: appGroupDefaults,
+            localDefaults: appGroupDefaults
+        )
+
+        let flushDates = WorkoutSyncManager.shared.allPendingWidgetWaterFlushDates(
+            selectedDate: today,
+            today: today,
+            appGroupDefaults: appGroupDefaults,
+            calendar: calendar
+        )
+        XCTAssertEqual(flushDates, [yesterday, today])
+
+        WorkoutSyncManager.shared.acknowledgePendingWidgetWaterEntries(
+            syncedIndices: [0],
+            for: yesterday,
+            appGroupDefaults: appGroupDefaults
+        )
+        let afterAck = WorkoutSyncManager.shared.allPendingWidgetWaterFlushDates(
+            selectedDate: today,
+            today: today,
+            appGroupDefaults: appGroupDefaults,
+            calendar: calendar
+        )
+        XCTAssertEqual(afterAck, [today])
+
+        XCTAssertNotNil(WorkoutSyncManager.date(fromSuffix: "2026-11-28"))
+        XCTAssertNil(WorkoutSyncManager.date(fromSuffix: "2026-02-31"))
+        XCTAssertNil(WorkoutSyncManager.date(fromSuffix: "invalid"))
+    }
+
+    func testRemoveWaterAndReconcileReturnsTargetSampleOnceWhenNoExternalDecrease() throws {
+        let today = Calendar.current.startOfDay(for: Date())
+        let sharedSuite = "test.removewater.noext.shared.\(UUID().uuidString)"
+        let syncSuite = "test.removewater.noext.sync.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+        let water = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        water.healthKitSampleID = "hk-water-1"
+        context.insert(water)
+        summary.addBeverage(water)
+        try context.save()
+        WorkoutSyncManager.shared.syncWater(0.25, for: today, sharedDefaults: sharedDefaults, appGroupDefaults: syncDefaults, localDefaults: syncDefaults)
+
+        let deleted = WorkoutSyncManager.shared.removeWaterAndReconcile(
+            water,
+            from: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertEqual(deleted.count, 1)
+        XCTAssertEqual(deleted.first?.sampleID, "hk-water-1")
+        XCTAssertEqual(deleted.first?.volumeMl ?? 0, 250, accuracy: 0.001)
+        XCTAssertEqual(deleted.first?.replacementVolumeMl ?? -1, 0, accuracy: 0.001)
+        XCTAssertEqual(summary.totalPureWaterLiters, 0, accuracy: 0.001)
+    }
+
+    func testRemoveWaterAndReconcileDoesNotDuplicateWhenAlreadyTrimmedExternally() throws {
+        let today = Calendar.current.startOfDay(for: Date())
+        let sharedSuite = "test.removewater.trim.shared.\(UUID().uuidString)"
+        let syncSuite = "test.removewater.trim.sync.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+        let b1 = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        b1.healthKitSampleID = "hk-1"
+        let b2 = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 250)
+        b2.healthKitSampleID = "hk-2"
+        context.insert(b1)
+        context.insert(b2)
+        summary.addBeverage(b1)
+        summary.addBeverage(b2)
+        try context.save()
+
+        WorkoutSyncManager.shared.syncWater(0.5, for: today, sharedDefaults: sharedDefaults, appGroupDefaults: syncDefaults, localDefaults: syncDefaults)
+        // Simulate full external reset in WorkoutTracker before user taps undo on b2:
+        // reconcileWaterWithOutcome deletes both b1 and b2, and removeWaterAndReconcile must NOT duplicate b2.
+        sharedDefaults.set(0.0, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        let deleted = WorkoutSyncManager.shared.removeWaterAndReconcile(
+            b2,
+            from: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertEqual(deleted.count, 2)
+        XCTAssertEqual(Set(deleted.compactMap(\.sampleID)), ["hk-1", "hk-2"])
+        XCTAssertEqual(summary.totalPureWaterLiters, 0.0, accuracy: 0.001)
+    }
+
+    func testRemoveWaterAndReconcileClearsReplacementVolumeOnPartialTrim() throws {
+        let today = Calendar.current.startOfDay(for: Date())
+        let sharedSuite = "test.removewater.partial.shared.\(UUID().uuidString)"
+        let syncSuite = "test.removewater.partial.sync.\(UUID().uuidString)"
+        let sharedDefaults = UserDefaults(suiteName: sharedSuite)!
+        let syncDefaults = UserDefaults(suiteName: syncSuite)!
+        defer {
+            sharedDefaults.removePersistentDomain(forName: sharedSuite)
+            syncDefaults.removePersistentDomain(forName: syncSuite)
+        }
+
+        let summary = DailySummary.fetchOrCreate(for: today, in: context)
+        let bigBottle = Beverage(name: "Water", icon: "drop.fill", colorHex: "4CA3E6", caloriesPerGlass: 0, volumeMl: 500)
+        bigBottle.healthKitSampleID = "hk-big"
+        context.insert(bigBottle)
+        summary.addBeverage(bigBottle)
+        try context.save()
+
+        WorkoutSyncManager.shared.syncWater(0.5, for: today, sharedDefaults: sharedDefaults, appGroupDefaults: syncDefaults, localDefaults: syncDefaults)
+        // Simulate external decrease of 250 ml, partially trimming bigBottle from 500 ml to 250 ml
+        sharedDefaults.set(0.25, forKey: WorkoutSyncManager.waterLitersKey(for: today))
+
+        let deleted = WorkoutSyncManager.shared.removeWaterAndReconcile(
+            bigBottle,
+            from: summary,
+            in: context,
+            sharedDefaults: sharedDefaults,
+            appGroupDefaults: syncDefaults,
+            localDefaults: syncDefaults
+        )
+
+        XCTAssertEqual(deleted.count, 1)
+        XCTAssertEqual(deleted.first?.sampleID, "hk-big")
+        XCTAssertEqual(deleted.first?.volumeMl ?? 0, 500, accuracy: 0.001)
+        XCTAssertEqual(deleted.first?.replacementVolumeMl ?? -1, 0, accuracy: 0.001)
+        XCTAssertNil(deleted.first?.beverageID)
+        XCTAssertEqual(summary.totalPureWaterLiters, 0, accuracy: 0.001)
+    }
+
+    func testFavoriteFoodStoreAndImperialFoodWeightHelpers() {
+        var raw = FavoriteFoodStore.toggledRaw("", foodName: "  Greek Yogurt ")
+        XCTAssertEqual(FavoriteFoodStore.namesSet(from: raw), Set(["greek yogurt"]))
+        raw = FavoriteFoodStore.toggledRaw(raw, foodName: "Avocado Toast")
+        XCTAssertEqual(FavoriteFoodStore.namesSet(from: raw), Set(["greek yogurt", "avocado toast"]))
+        raw = FavoriteFoodStore.toggledRaw(raw, foodName: "GREEK YOGURT")
+        XCTAssertEqual(FavoriteFoodStore.namesSet(from: raw), Set(["avocado toast"]))
+
+        XCTAssertEqual(NutritionMath.foodWeightUnit(useMetric: true), "g")
+        XCTAssertEqual(NutritionMath.foodWeightUnit(useMetric: false), "oz")
+        XCTAssertEqual(NutritionMath.displayFoodWeight(100, useMetric: true), 100, accuracy: 0.001)
+        let oz = NutritionMath.displayFoodWeight(28.349523125, useMetric: false)
+        XCTAssertEqual(oz, 1.0, accuracy: 0.0001)
+        XCTAssertEqual(NutritionMath.gramsFromDisplayFoodWeight(oz, useMetric: false), 28.349523125, accuracy: 0.0001)
+    }
 }

@@ -885,18 +885,17 @@ struct AIHydrationAnalyticsCard: View {
             let container = context.container
             let newBeverage = result.beverage
             let deletedSamples = result.deletedHealthKitSamples
+            let loggedSummary = result.summary
             Task { @MainActor in
-                for sample in deletedSamples {
-                    await HealthKitManager.shared.deleteWaterSample(
-                        idString: sample.sampleID,
-                        litersFallback: sample.volumeMl / 1000.0,
-                        date: targetDate
-                    )
-                }
-                if let uuid = await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: logDate) {
-                    newBeverage.healthKitSampleID = uuid.uuidString
-                    try? container.mainContext.save()
-                }
+                await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
+                    deletedSamples: deletedSamples,
+                    newBeverage: newBeverage,
+                    addedLiters: ml / 1000.0,
+                    logDate: logDate,
+                    summaryDate: targetDate,
+                    summary: loggedSummary,
+                    container: container
+                )
             }
         }
     }
@@ -909,8 +908,6 @@ struct AIHydrationAnalyticsCard: View {
         let targetDate = summary?.date ?? Calendar.current.startOfDay(for: Date())
         guard let targetSummary = DailySummary.fetchExisting(for: targetDate, in: context) else { return }
         if let lastWater = (targetSummary.beverages ?? []).last(where: { $0.name == "Water" }) {
-            let sampleID = lastWater.healthKitSampleID
-            let litersFallback = lastWater.volumeMl / 1000.0
             let shouldSyncHK = users.first?.isHealthKitEnabled == true
 
             let trimmedSamples = WorkoutSyncManager.shared.removeWaterAndReconcile(
@@ -922,18 +919,14 @@ struct AIHydrationAnalyticsCard: View {
             onUpdate()
 
             if shouldSyncHK {
-                Task {
-                    for sample in trimmedSamples {
-                        await HealthKitManager.shared.deleteWaterSample(
-                            idString: sample.sampleID,
-                            litersFallback: sample.volumeMl / 1000.0,
-                            date: targetDate
-                        )
-                    }
-                    await HealthKitManager.shared.deleteWaterSample(
-                        idString: sampleID,
-                        litersFallback: litersFallback,
-                        date: targetDate
+                let container = context.container
+                Task { @MainActor in
+                    await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
+                        deletedSamples: trimmedSamples,
+                        logDate: targetDate,
+                        summaryDate: targetDate,
+                        summary: targetSummary,
+                        container: container
                     )
                 }
             }

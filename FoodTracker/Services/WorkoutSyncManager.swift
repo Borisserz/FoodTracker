@@ -12,16 +12,16 @@ final class WorkoutSyncManager {
     nonisolated static let healthKitBrandName = "FoodTracker"
     nonisolated static let workoutTrackerBrandName = "AI Workout"
     nonisolated static let externalWaterSentinelID = "external:workouttracker"
-    private static let lastSyncedWaterPrefix = "wt_last_synced_water_"
-    private static let waterLitersPrefix = "water_liters_"
-    private static let pendingWidgetWaterPrefix = "pending_hk_water_ml_"
-    private static let pendingWidgetWaterEntriesPrefix = "pending_hk_water_entries_"
-    private static let activityHealthKitMapKey = "hk_activity_sample_ids_v1"
+    private nonisolated static let lastSyncedWaterPrefix = "wt_last_synced_water_"
+    private nonisolated static let waterLitersPrefix = "water_liters_"
+    private nonisolated static let pendingWidgetWaterPrefix = "pending_hk_water_ml_"
+    private nonisolated static let pendingWidgetWaterEntriesPrefix = "pending_hk_water_entries_"
+    private nonisolated static let activityHealthKitMapKey = "hk_activity_sample_ids_v1"
 
     nonisolated static func standardWaterGlassMl(useMetric: Bool) -> Double {
         useMetric ? 250.0 : (8.0 * 29.5735)
     }
-    private static let gregorianCalendar: Calendar = {
+    private nonisolated static let gregorianCalendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
         cal.locale = Locale(identifier: "en_US_POSIX")
         return cal
@@ -42,6 +42,34 @@ final class WorkoutSyncManager {
         cal.timeZone = .current
         let comps = cal.dateComponents([.year, .month, .day], from: date)
         return String(format: "%04d-%02d-%02d", comps.year ?? 0, comps.month ?? 0, comps.day ?? 0)
+    }
+
+    nonisolated static func date(fromSuffix suffix: String) -> Date? {
+        let parts = suffix.split(separator: "-")
+        guard parts.count == 3,
+              parts[0].count == 4,
+              parts[1].count == 2,
+              parts[2].count == 2,
+              let year = Int(parts[0]),
+              let month = Int(parts[1]),
+              let day = Int(parts[2]) else {
+            return nil
+        }
+        var cal = gregorianCalendar
+        cal.timeZone = .current
+        var comps = DateComponents()
+        comps.year = year
+        comps.month = month
+        comps.day = day
+        comps.hour = 0
+        comps.minute = 0
+        comps.second = 0
+        guard let date = cal.date(from: comps) else { return nil }
+        let roundTrip = cal.dateComponents([.year, .month, .day], from: date)
+        guard roundTrip.year == year, roundTrip.month == month, roundTrip.day == day else {
+            return nil
+        }
+        return date
     }
 
     nonisolated static func workoutCaloriesKey(for date: Date) -> String {
@@ -233,6 +261,40 @@ final class WorkoutSyncManager {
         return entries
     }
 
+    /// Returns all days whose queued widget water entries should be flushed (selected day, today, and any
+    /// older pending widget water days across midnight rollover), deduplicated and sorted ascending.
+    func allPendingWidgetWaterFlushDates(
+        selectedDate: Date,
+        today: Date = Date(),
+        appGroupDefaults: UserDefaults? = nil,
+        calendar: Calendar = .current
+    ) -> [Date] {
+        var seenDays: Set<Date> = [
+            calendar.startOfDay(for: selectedDate),
+            calendar.startOfDay(for: today)
+        ]
+
+        if let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults {
+            for key in ftDefaults.dictionaryRepresentation().keys {
+                let suffix: String?
+                if key.hasPrefix(Self.pendingWidgetWaterEntriesPrefix) {
+                    suffix = String(key.dropFirst(Self.pendingWidgetWaterEntriesPrefix.count))
+                } else if key.hasPrefix(Self.pendingWidgetWaterPrefix) {
+                    suffix = String(key.dropFirst(Self.pendingWidgetWaterPrefix.count))
+                } else {
+                    suffix = nil
+                }
+                if let suffix,
+                   let parsedDate = Self.date(fromSuffix: suffix),
+                   !peekPendingWidgetWaterEntriesLiters(for: parsedDate, appGroupDefaults: ftDefaults).isEmpty {
+                    seenDays.insert(calendar.startOfDay(for: parsedDate))
+                }
+            }
+        }
+
+        return seenDays.sorted()
+    }
+
     /// Removes a water beverage while reconciling external WorkoutTracker water so shared App Group water is preserved.
     @discardableResult
     func removeWaterAndReconcile(
@@ -244,6 +306,10 @@ final class WorkoutSyncManager {
         localDefaults: UserDefaults? = nil
     ) -> [DeletedWaterHealthSample] {
         let targetID = beverage.id
+        let targetPersistentID = beverage.persistentModelID
+        let targetSampleID = beverage.healthKitSampleID
+        let targetVolumeMl = beverage.volumeMl
+
         let outcome = reconcileWaterWithOutcome(
             for: summary,
             in: context,
@@ -251,11 +317,23 @@ final class WorkoutSyncManager {
             appGroupDefaults: appGroupDefaults,
             localDefaults: localDefaults
         )
+        var deletedSamples = outcome.deletedHealthKitSamples
+
         if let index = summary.beverages?.firstIndex(where: { $0.id == targetID }) {
             let toDelete = summary.beverages![index]
             summary.beverages?.remove(at: index)
             context.delete(toDelete)
+
+            if let partialTrimIndex = deletedSamples.firstIndex(where: { $0.beverageID == targetPersistentID }) {
+                deletedSamples[partialTrimIndex].replacementVolumeMl = 0
+                deletedSamples[partialTrimIndex].beverageID = nil
+            } else {
+                deletedSamples.append(
+                    DeletedWaterHealthSample(sampleID: targetSampleID, volumeMl: targetVolumeMl)
+                )
+            }
         }
+
         try? context.save()
         syncWater(
             summary.totalPureWaterLiters,
@@ -264,7 +342,7 @@ final class WorkoutSyncManager {
             appGroupDefaults: appGroupDefaults,
             localDefaults: localDefaults
         )
-        return outcome.deletedHealthKitSamples
+        return deletedSamples
     }
 
     /// Atomically reads and clears queued widget-added hydration (in liters) pending Apple Health sync.

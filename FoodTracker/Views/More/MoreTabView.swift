@@ -1219,19 +1219,18 @@ struct MoreTabView: View {
             let container = modelContext.container
             let water = result.beverage
             let deletedSamples = result.deletedHealthKitSamples
+            let loggedSummary = result.summary
             let litersAdded = glassMl / 1000.0
             Task { @MainActor in
-                for sample in deletedSamples {
-                    await HealthKitManager.shared.deleteWaterSample(
-                        idString: sample.sampleID,
-                        litersFallback: sample.volumeMl / 1000.0,
-                        date: targetDay
-                    )
-                }
-                if let uuid = await HealthKitManager.shared.saveWater(liters: litersAdded, date: logDate) {
-                    water.healthKitSampleID = uuid.uuidString
-                    try? container.mainContext.save()
-                }
+                await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
+                    deletedSamples: deletedSamples,
+                    newBeverage: water,
+                    addedLiters: litersAdded,
+                    logDate: logDate,
+                    summaryDate: targetDay,
+                    summary: loggedSummary,
+                    container: container
+                )
             }
         }
     }

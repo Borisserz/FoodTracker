@@ -188,6 +188,7 @@ struct HydrationFlaskCardView: View {
         
         TrackingManager.shared.track(.waterLogged(volume: ml))
 
+        var loggedSummary: DailySummary?
         var loggedBeverage: Beverage?
         var deletedSamples: [WorkoutSyncManager.DeletedWaterHealthSample] = []
         withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
@@ -196,27 +197,26 @@ struct HydrationFlaskCardView: View {
                 for: summary.date,
                 in: context
             )
+            loggedSummary = result.summary
             loggedBeverage = result.beverage
             deletedSamples = result.deletedHealthKitSamples
             WidgetReloader.reloadAll()
         }
 
-        if let user = users.first, user.isHealthKitEnabled, let newBeverage = loggedBeverage {
+        if let user = users.first, user.isHealthKitEnabled, let newBeverage = loggedBeverage, let loggedSummary {
             let logDate = Calendar.current.isDateInToday(summary.date) ? Date() : summary.date
             let summaryDate = summary.date
             let container = context.container
             Task { @MainActor in
-                for sample in deletedSamples {
-                    await HealthKitManager.shared.deleteWaterSample(
-                        idString: sample.sampleID,
-                        litersFallback: sample.volumeMl / 1000.0,
-                        date: summaryDate
-                    )
-                }
-                if let uuid = await HealthKitManager.shared.saveWater(liters: ml / 1000.0, date: logDate) {
-                    newBeverage.healthKitSampleID = uuid.uuidString
-                    try? container.mainContext.save()
-                }
+                await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
+                    deletedSamples: deletedSamples,
+                    newBeverage: newBeverage,
+                    addedLiters: ml / 1000.0,
+                    logDate: logDate,
+                    summaryDate: summaryDate,
+                    summary: loggedSummary,
+                    container: container
+                )
             }
         }
     }
@@ -227,8 +227,6 @@ struct HydrationFlaskCardView: View {
         generator.impactOccurred()
         
         guard let lastWater = waterBeverages.last else { return }
-        let sampleID = lastWater.healthKitSampleID
-        let litersFallback = lastWater.volumeMl / 1000.0
         let logDate = summary.date
         let shouldSyncHK = users.first?.isHealthKitEnabled == true
 
@@ -243,18 +241,14 @@ struct HydrationFlaskCardView: View {
         }
         
         if shouldSyncHK {
-            Task {
-                for sample in trimmedSamples {
-                    await HealthKitManager.shared.deleteWaterSample(
-                        idString: sample.sampleID,
-                        litersFallback: sample.volumeMl / 1000.0,
-                        date: logDate
-                    )
-                }
-                await HealthKitManager.shared.deleteWaterSample(
-                    idString: sampleID,
-                    litersFallback: litersFallback,
-                    date: logDate
+            let container = context.container
+            Task { @MainActor in
+                await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
+                    deletedSamples: trimmedSamples,
+                    logDate: logDate,
+                    summaryDate: logDate,
+                    summary: summary,
+                    container: container
                 )
             }
         }

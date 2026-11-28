@@ -226,7 +226,7 @@ struct GuestWarningView: View {
                         .minimumScaleFactor(0.85)
                 }
 
-                Text("Without an account, cloud backup of your profile and AI recipes stay unavailable. Meals and health logs remain on this device and in your iCloud.")
+                Text("Your meals, custom recipes, and health logs stay saved on this device and in your private iCloud. Signing in simply links your Apple or Google identity.")
                     .font(.system(size: 14, weight: .regular, design: .rounded))
                     .lineSpacing(3)
                     .foregroundStyle(Color.white.opacity(0.80))
@@ -237,9 +237,9 @@ struct GuestWarningView: View {
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundStyle(EditorialPalette.oat)
 
-                    benefitRow(icon: "icloud", text: "Cloud backup for your nutrition profile")
-                    benefitRow(icon: "arrow.triangle.2.circlepath", text: "Sync across devices with WorkoutTracker")
-                    benefitRow(icon: "fork.knife", text: "Recipe suggestions tailored to your goals")
+                    benefitRow(icon: "person.badge.shield.checkmark", text: "Link your Apple or Google identity")
+                    benefitRow(icon: "arrow.triangle.2.circlepath", text: "Manage and delete your account anytime")
+                    benefitRow(icon: "fork.knife", text: "Keep full access to AI Chef, Coach & Scanner")
                 }
 
                 Spacer(minLength: 4)

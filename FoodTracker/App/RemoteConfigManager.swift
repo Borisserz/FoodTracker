@@ -34,21 +34,43 @@ actor RemoteConfigManager: Sendable, VersionConfigProviding {
         ])
     }
 
-    func fetchCloudValues() async {
+    func fetchCloudValues(force: Bool = false) async {
         if let existing = inFlightFetch {
             await existing.value
-            return
+            if !force {
+                return
+            }
         }
         let task = Task { [remoteConfig] in
             do {
-                let status = try await remoteConfig.fetchAndActivate()
-                if status == .successFetchedFromRemote {
-                    print("☁️✅ FoodTracker: Свежие ключи загружены из облака!")
+                if force {
+                    let fetchStatus = try await remoteConfig.fetch(withExpirationDuration: 0)
+                    _ = try await remoteConfig.activate()
+                    #if DEBUG
+                    if fetchStatus == .success {
+                        print("☁️✅ FoodTracker: Свежие ключи принудительно загружены из облака!")
+                    } else {
+                        print("☁️⚡️ FoodTracker: Принудительный fetch завершён со статусом: \(fetchStatus.rawValue).")
+                    }
+                    #else
+                    _ = fetchStatus
+                    #endif
                 } else {
-                    print("☁️⚡️ FoodTracker: Используем кэш конфига.")
+                    let status = try await remoteConfig.fetchAndActivate()
+                    #if DEBUG
+                    if status == .successFetchedFromRemote {
+                        print("☁️✅ FoodTracker: Свежие ключи загружены из облака!")
+                    } else {
+                        print("☁️⚡️ FoodTracker: Используем кэш конфига.")
+                    }
+                    #else
+                    _ = status
+                    #endif
                 }
             } catch {
+                #if DEBUG
                 print("☁️❌ Ошибка Remote Config: \(error.localizedDescription)")
+                #endif
             }
         }
         inFlightFetch = task
@@ -57,6 +79,6 @@ actor RemoteConfigManager: Sendable, VersionConfigProviding {
     }
 
     func getString(forKey key: String) -> String {
-        return remoteConfig.configValue(forKey: key).stringValue ?? ""
+        return remoteConfig.configValue(forKey: key).stringValue
     }
 }

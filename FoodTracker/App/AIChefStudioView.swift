@@ -1860,6 +1860,7 @@ struct AICameraScannerView: View {
     @State private var showPhotoConsentSheet = false
     @State private var evaluationTask: Task<Void, Never>? = nil
     @State private var photoLoadTask: Task<Void, Never>? = nil
+    @State private var captureTimeoutTask: Task<Void, Never>? = nil
 
     var body: some View {
         ZStack {
@@ -2001,6 +2002,8 @@ struct AICameraScannerView: View {
                         Circle().stroke(Color.white, lineWidth: 4).frame(width: 70, height: 70)
                             .overlay(Circle().fill(Color.white).frame(width: 60, height: 60))
                     }
+                    .disabled(!cameraManager.isConfigured)
+                    .opacity(cameraManager.isConfigured ? 1.0 : 0.45)
                     .padding(.bottom, 40)
                 }
             }
@@ -2018,17 +2021,23 @@ struct AICameraScannerView: View {
             evaluationTask = nil
             photoLoadTask?.cancel()
             photoLoadTask = nil
+            captureTimeoutTask?.cancel()
+            captureTimeoutTask = nil
             isAnalyzing = false
             isCapturingPhoto = false
             cameraManager.stop()
         }
         .onChange(of: cameraManager.capturedImage) { _, newImage in
+            captureTimeoutTask?.cancel()
+            captureTimeoutTask = nil
             isCapturingPhoto = false
             guard let img = newImage else { return }
             analyzeCapturedStepImage(img)
         }
         .onChange(of: cameraManager.captureError) { _, err in
             guard let err else { return }
+            captureTimeoutTask?.cancel()
+            captureTimeoutTask = nil
             isCapturingPhoto = false
             cameraManager.captureError = nil
             evaluationError = err
@@ -2039,8 +2048,7 @@ struct AICameraScannerView: View {
             photoLoadTask?.cancel()
             photoLoadTask = Task {
                 guard let data = try? await newItem.loadTransferable(type: Data.self),
-                      !Task.isCancelled,
-                      let rawImg = UIImage(data: data) else {
+                      !Task.isCancelled else {
                     if !Task.isCancelled {
                         await MainActor.run {
                             evaluationError = String(localized: "Could not load the selected photo. Please try another image.")
@@ -2049,8 +2057,16 @@ struct AICameraScannerView: View {
                     return
                 }
                 let img = await Task.detached(priority: .userInitiated) {
-                    VertexAIManager.downsampledImage(rawImg, maxDimension: 1280)
+                    VertexAIManager.downsampledImage(data: data, maxDimension: 1280)
                 }.value
+                guard let img else {
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            evaluationError = String(localized: "Could not load the selected photo. Please try another image.")
+                        }
+                    }
+                    return
+                }
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
                     showResult = false
@@ -2080,6 +2096,14 @@ struct AICameraScannerView: View {
     private func capturePhoto() {
         guard !isCapturingPhoto, !isAnalyzing, cameraManager.isConfigured else { return }
         isCapturingPhoto = true
+        captureTimeoutTask?.cancel()
+        captureTimeoutTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(4))
+            guard !Task.isCancelled, isCapturingPhoto else { return }
+            isCapturingPhoto = false
+            cameraManager.invalidatePendingCapture()
+            evaluationError = String(localized: "Camera capture timed out. Please try again.")
+        }
         HapticManager.shared.impact(style: .rigid)
         cameraManager.takePhoto()
     }
@@ -2087,6 +2111,8 @@ struct AICameraScannerView: View {
     private func resetForRetry() {
         evaluationTask?.cancel()
         evaluationTask = nil
+        captureTimeoutTask?.cancel()
+        captureTimeoutTask = nil
         cameraManager.capturedImage = nil
         selectedPhotoItem = nil
         pendingConsentImage = nil

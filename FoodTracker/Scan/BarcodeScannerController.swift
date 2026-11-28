@@ -1,4 +1,5 @@
 import SwiftUI
+import Vision
 import VisionKit
 import AVFoundation
 
@@ -46,7 +47,11 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> DataScannerContainerViewController {
         let scanner = DataScannerViewController(
-            recognizedDataTypes: [.barcode()],
+            recognizedDataTypes: [
+                .barcode(symbologies: [
+                    .ean8, .ean13, .upce, .code128, .code39, .code93, .i2of5, .itf14
+                ])
+            ],
             qualityLevel: .balanced,
             recognizesMultipleItems: false,
             isHighFrameRateTrackingEnabled: false,
@@ -129,31 +134,35 @@ struct AVBarcodeScannerRepresentable: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> AVBarcodeScannerViewController {
         let vc = AVBarcodeScannerViewController()
-        vc.onBarcodeDetected = { payload in
+        let coordinator = context.coordinator
+        vc.onBarcodeDetected = { [weak coordinator] payload in
             DispatchQueue.main.async {
-                guard !context.coordinator.hasEmittedScan else { return }
-                context.coordinator.hasEmittedScan = true
+                guard let coordinator, !coordinator.hasEmittedScan else { return }
+                coordinator.hasEmittedScan = true
                 HapticManager.shared.impact(style: .heavy)
-                self.recognizedBarcode = payload
-                self.isScanning = false
+                coordinator.parent.recognizedBarcode = payload
+                coordinator.parent.isScanning = false
             }
         }
-        vc.onPermissionDenied = {
+        vc.onPermissionDenied = { [weak coordinator] in
             DispatchQueue.main.async {
-                self.isScanning = false
-                self.onPermissionDenied?()
+                guard let coordinator else { return }
+                coordinator.parent.isScanning = false
+                coordinator.parent.onPermissionDenied?()
             }
         }
-        vc.onUnavailable = {
+        vc.onUnavailable = { [weak coordinator] in
             DispatchQueue.main.async {
-                self.isScanning = false
-                self.onUnavailable?()
+                guard let coordinator else { return }
+                coordinator.parent.isScanning = false
+                coordinator.parent.onUnavailable?()
             }
         }
         return vc
     }
 
     func updateUIViewController(_ uiViewController: AVBarcodeScannerViewController, context: Context) {
+        context.coordinator.parent = self
         guard context.coordinator.lastIsScanning != isScanning else { return }
         context.coordinator.lastIsScanning = isScanning
         if isScanning {
@@ -169,12 +178,17 @@ struct AVBarcodeScannerRepresentable: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(self)
     }
 
     final class Coordinator {
+        var parent: AVBarcodeScannerRepresentable
         var lastIsScanning: Bool?
         var hasEmittedScan = false
+
+        init(_ parent: AVBarcodeScannerRepresentable) {
+            self.parent = parent
+        }
     }
 }
 
@@ -296,6 +310,7 @@ final class AVBarcodeScannerViewController: UIViewController, AVCaptureMetadataO
                     ].filter { metadataOutput.availableMetadataObjectTypes.contains($0) }
                     metadataOutput.metadataObjectTypes = supported
                 } else {
+                    self.session.removeInput(input)
                     self.session.commitConfiguration()
                     DispatchQueue.main.async { [weak self] in self?.onUnavailable?() }
                     return

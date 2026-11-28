@@ -91,18 +91,35 @@ struct FoodTrackerApp: App {
     @State private var diContainer: DIContainer?
     @State private var showInMemoryStorageWarning = false
     @State private var pendingOpenURL: URL? = nil
+    @State private var isCheckingVersion = false
 
     var body: some Scene {
         WindowGroup {
             Group {
                 if versionManager.updateRequirement == .hardUpdate {
-                    VStack {
+                    VStack(spacing: 12) {
                         Text("Update Required")
                             .font(.title).bold()
                         Text("Please update to the latest version to continue.")
                             .multilineTextAlignment(.center).padding()
                         Button("Update Now") { AppReviewManager.openAppStoreProductPage() }
                             .buttonStyle(.borderedProminent)
+                        Button {
+                            Task {
+                                isCheckingVersion = true
+                                await RemoteConfigManager.shared.fetchCloudValues(force: true)
+                                await VersionManager.shared.checkVersion()
+                                isCheckingVersion = false
+                            }
+                        } label: {
+                            if isCheckingVersion {
+                                ProgressView()
+                            } else {
+                                Text("Check Again")
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(isCheckingVersion)
                     }
                 } else if let di = diContainer {
                     RootLaunchView()

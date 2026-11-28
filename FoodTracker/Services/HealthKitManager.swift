@@ -1,6 +1,7 @@
 import Foundation
 import HealthKit
 import Observation
+import SwiftData
 
 enum HealthKitWeightSyncHelper {
     static func shouldImportHealthKitWeight(
@@ -521,6 +522,48 @@ final class HealthKitManager {
         } catch {
             print("Error saving body mass to HealthKit: \(error.localizedDescription)")
             return nil
+        }
+    }
+}
+
+extension WorkoutSyncManager {
+    /// Centralizes HealthKit water sample deletions, partial-trim replacement writes, and new water saves.
+    /// Kept in HealthKitManager.swift so `FoodTrackerWidgetExtension` (which links `WorkoutSyncManager`
+    /// without `HealthKitManager`) compiles cleanly.
+    func syncHealthKitWaterChanges(
+        deletedSamples: [DeletedWaterHealthSample],
+        newBeverage: Beverage? = nil,
+        addedLiters: Double? = nil,
+        logDate: Date,
+        summaryDate: Date,
+        summary: DailySummary,
+        container: ModelContainer
+    ) async {
+        var needsSave = false
+        for sample in deletedSamples {
+            await HealthKitManager.shared.deleteWaterSample(
+                idString: sample.sampleID,
+                litersFallback: sample.volumeMl / 1000.0,
+                date: summaryDate
+            )
+            if sample.replacementVolumeMl > 0,
+               let uuid = await HealthKitManager.shared.saveWater(
+                   liters: sample.replacementVolumeMl / 1000.0,
+                   date: summaryDate
+               ),
+               let beverageID = sample.beverageID,
+               let surviving = (summary.beverages ?? []).first(where: { $0.persistentModelID == beverageID }) {
+                surviving.healthKitSampleID = uuid.uuidString
+                needsSave = true
+            }
+        }
+        if let newBeverage, let addedLiters, addedLiters > 0,
+           let uuid = await HealthKitManager.shared.saveWater(liters: addedLiters, date: logDate) {
+            newBeverage.healthKitSampleID = uuid.uuidString
+            needsSave = true
+        }
+        if needsSave {
+            try? container.mainContext.save()
         }
     }
 }

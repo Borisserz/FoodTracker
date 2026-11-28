@@ -48,6 +48,8 @@ public final class SharedModelContainer: @unchecked Sendable {
     public let didFallBackToInMemory: Bool
     /// True if App Group container was unavailable and store was placed in Application Support fallback.
     public let didUseFallbackDirectory: Bool
+    /// Error description if persistent local SQLite store failed to initialize.
+    public let localStoreInitErrorDescription: String?
 
     public static func resolvedStoreDirectoryURL(
         appGroupContainerURL: URL?,
@@ -74,9 +76,17 @@ public final class SharedModelContainer: @unchecked Sendable {
         let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
 
         var fellBack = false
-        self.container = Self.makeContainer(schema: schema, url: dbURL, enableCloudKit: !isExtension, didFallBackToInMemory: &fellBack)
+        var localErrorDescription: String? = nil
+        self.container = Self.makeContainer(
+            schema: schema,
+            url: dbURL,
+            enableCloudKit: !isExtension,
+            didFallBackToInMemory: &fellBack,
+            localStoreInitErrorDescription: &localErrorDescription
+        )
         self.didFallBackToInMemory = fellBack
         self.didUseFallbackDirectory = resolved.didUseFallbackDirectory
+        self.localStoreInitErrorDescription = localErrorDescription
     }
 
     @MainActor
@@ -87,30 +97,42 @@ public final class SharedModelContainer: @unchecked Sendable {
 
     public static func makeContainer(schema: Schema, url: URL, enableCloudKit: Bool = true) -> ModelContainer {
         var ignored = false
-        return makeContainer(schema: schema, url: url, enableCloudKit: enableCloudKit, didFallBackToInMemory: &ignored)
+        var ignoredError: String? = nil
+        return makeContainer(
+            schema: schema,
+            url: url,
+            enableCloudKit: enableCloudKit,
+            didFallBackToInMemory: &ignored,
+            localStoreInitErrorDescription: &ignoredError
+        )
     }
 
     private static func makeContainer(
         schema: Schema,
         url: URL,
         enableCloudKit: Bool,
-        didFallBackToInMemory: inout Bool
+        didFallBackToInMemory: inout Bool,
+        localStoreInitErrorDescription: inout String?
     ) -> ModelContainer {
         didFallBackToInMemory = false
+        localStoreInitErrorDescription = nil
         if enableCloudKit {
             let cloudConfig = ModelConfiguration(
                 schema: schema,
                 url: url,
                 cloudKitDatabase: .private(iCloudContainerIdentifier)
             )
-            if let cloudContainer = try? ModelContainer(
-                for: schema,
-                migrationPlan: FoodTrackerMigrationPlan.self,
-                configurations: [cloudConfig]
-            ) {
-                return cloudContainer
+            do {
+                return try ModelContainer(
+                    for: schema,
+                    migrationPlan: FoodTrackerMigrationPlan.self,
+                    configurations: [cloudConfig]
+                )
+            } catch {
+                #if DEBUG
+                print("⚠️ CloudKit init failed in SharedModelContainer, falling back to local store: \(error)")
+                #endif
             }
-            print("⚠️ CloudKit init failed in SharedModelContainer, falling back to local store.")
         }
 
         let localConfig = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
@@ -121,8 +143,11 @@ public final class SharedModelContainer: @unchecked Sendable {
                 configurations: [localConfig]
             )
         } catch {
+            #if DEBUG
             print("⚠️ Local store init failed in SharedModelContainer (\(error)), falling back to in-memory store.")
+            #endif
             didFallBackToInMemory = true
+            localStoreInitErrorDescription = error.localizedDescription
             let memoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
             do {
                 return try ModelContainer(for: schema, configurations: [memoryConfig])

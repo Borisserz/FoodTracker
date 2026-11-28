@@ -573,4 +573,17 @@ final class NetworkManagerTests: XCTestCase {
         XCTAssertEqual(NetworkManager.normalizedBarcode(for: "12345670"), "12345670")
         XCTAssertEqual(NetworkManager.normalizedBarcode(for: "4601234567890"), "4601234567890")
     }
+
+    func testBarcodeRejectsURLPayloadsWithoutNetworkRequest() async {
+        MockURLProtocol.requestHandler = { request in
+            XCTFail("Expected no network request for invalid barcode payload: \(request.url?.absoluteString ?? "")")
+            return (HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!, Data())
+        }
+
+        let urlItem = await networkManager.fetchProduct(barcode: "https://brand.com/promo/123")
+        XCTAssertNil(urlItem)
+
+        let traversalItem = await networkManager.fetchProduct(barcode: "../../etc/passwd")
+        XCTAssertNil(traversalItem)
+    }
 }

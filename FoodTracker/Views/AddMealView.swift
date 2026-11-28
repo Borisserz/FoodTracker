@@ -714,9 +714,15 @@ private struct FoodItemRowCard: View {
     let onUpdateWeight: (Double) -> Void
     let onDelete: () -> Void
     
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     @State private var localWeight: Double = 100.0
     @State private var textInput: String = "100"
     @FocusState private var isWeightFieldFocused: Bool
+
+    private func formattedInput(for grams: Double) -> String {
+        let display = NutritionMath.displayFoodWeight(grams, useMetric: useMetricSystem)
+        return useMetricSystem ? String(format: "%.0f", display) : String(format: "%.1f", display)
+    }
     
     var body: some View {
         let meta = EditorialMealTheme.foodCategoryMeta(for: draft.name)
@@ -741,7 +747,7 @@ private struct FoodItemRowCard: View {
                             .lineLimit(1)
                         
                         let weightLabel = draft.baseWeight > 0
-                            ? "\(Int(draft.scaled.weight))g"
+                            ? NutritionMath.formattedFoodWeight(draft.scaled.weight, useMetric: useMetricSystem)
                             : String(localized: "1 serving")
                         Text("\(weightLabel) • \(draft.calories) kcal")
                             .font(.system(size: 12, weight: .medium, design: .rounded).monospacedDigit())
@@ -782,7 +788,7 @@ private struct FoodItemRowCard: View {
                                 Spacer()
                                 
                                 HStack(spacing: 4) {
-                                    TextField("100", text: $textInput)
+                                    TextField(useMetricSystem ? "100" : "3.5", text: $textInput)
                                         .keyboardType(.decimalPad)
                                         .multilineTextAlignment(.trailing)
                                         .font(.system(size: 15.5, weight: .bold, design: .rounded).monospacedDigit())
@@ -794,13 +800,15 @@ private struct FoodItemRowCard: View {
                                         .background(Color.black.opacity(0.05))
                                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                         .onChange(of: textInput) { _, newValue in
+                                            guard isWeightFieldFocused, newValue != formattedInput(for: localWeight) else { return }
                                             if let val = NutritionMath.parsePositiveDecimal(newValue) {
-                                                localWeight = val
-                                                onUpdateWeight(val)
+                                                let grams = min(NutritionMath.gramsFromDisplayFoodWeight(val, useMetric: useMetricSystem), 50_000)
+                                                localWeight = grams
+                                                onUpdateWeight(grams)
                                             }
                                         }
                                     
-                                    Text("g")
+                                    Text(NutritionMath.foodWeightUnit(useMetric: useMetricSystem))
                                         .font(.system(size: 13.5, weight: .bold, design: .rounded))
                                         .foregroundStyle(EditorialPalette.inkSecondary)
                                 }
@@ -810,7 +818,7 @@ private struct FoodItemRowCard: View {
                                 .tint(EditorialPalette.inkPrimary)
                                 .onChange(of: localWeight) { _, newValue in
                                     if !isWeightFieldFocused {
-                                        let newText = String(format: "%.0f", newValue)
+                                        let newText = formattedInput(for: newValue)
                                         if textInput != newText {
                                             textInput = newText
                                         }
@@ -824,12 +832,13 @@ private struct FoodItemRowCard: View {
                                 let isActive = draft.weight == Double(amount)
                                 Button(action: {
                                     HapticManager.shared.impact(style: .medium)
+                                    isWeightFieldFocused = false
                                     let amountDbl = Double(amount)
                                     localWeight = amountDbl
-                                    textInput = "\(amount)"
+                                    textInput = formattedInput(for: amountDbl)
                                     onUpdateWeight(amountDbl)
                                 }) {
-                                    Text("\(amount)g")
+                                    Text(NutritionMath.formattedFoodWeight(Double(amount), useMetric: useMetricSystem))
                                         .font(.system(size: 11.5, weight: .bold, design: .rounded))
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 6)
@@ -887,12 +896,30 @@ private struct FoodItemRowCard: View {
         )
         .onAppear {
             localWeight = draft.weight > 0 ? draft.weight : 100.0
-            textInput = String(format: "%.0f", localWeight)
+            textInput = formattedInput(for: localWeight)
         }
         .onChange(of: draft.weight) { _, newWeight in
             if localWeight != newWeight {
                 localWeight = newWeight
-                textInput = String(format: "%.0f", newWeight)
+                if !isWeightFieldFocused {
+                    textInput = formattedInput(for: newWeight)
+                }
+            }
+        }
+        .onChange(of: useMetricSystem) { _, _ in
+            if !isWeightFieldFocused {
+                let formatted = formattedInput(for: localWeight)
+                if textInput != formatted {
+                    textInput = formatted
+                }
+            }
+        }
+        .onChange(of: isWeightFieldFocused) { _, focused in
+            if !focused {
+                let formatted = formattedInput(for: localWeight)
+                if textInput != formatted {
+                    textInput = formatted
+                }
             }
         }
     }

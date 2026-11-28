@@ -579,6 +579,18 @@ enum NutritionMath {
         return "\(totalInches / 12)' \(totalInches % 12)\""
     }
 
+    static func displayFoodWeight(_ grams: Double, useMetric: Bool) -> Double {
+        useMetric ? grams : grams / 28.349523125
+    }
+
+    static func gramsFromDisplayFoodWeight(_ value: Double, useMetric: Bool) -> Double {
+        useMetric ? value : value * 28.349523125
+    }
+
+    static func foodWeightUnit(useMetric: Bool) -> String {
+        useMetric ? "g" : "oz"
+    }
+
     static func formattedFoodWeight(_ grams: Double, useMetric: Bool) -> String {
         if useMetric {
             return "\(Int(grams.rounded())) g"
@@ -606,5 +618,25 @@ enum NutritionMath {
         } else {
             return String(format: "%.0f %@", converted, fluidShortUnit(useMetric: false))
         }
+    }
+}
+
+enum FavoriteFoodStore {
+    static let storageKey = "favoriteFoodNames_v1"
+
+    static func namesSet(from raw: String) -> Set<String> {
+        Set(
+            raw.split(separator: "\n")
+                .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+                .filter { !$0.isEmpty }
+        )
+    }
+
+    static func toggledRaw(_ raw: String, foodName: String) -> String {
+        var set = namesSet(from: raw)
+        let key = foodName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !key.isEmpty else { return raw }
+        if set.contains(key) { set.remove(key) } else { set.insert(key) }
+        return set.sorted().joined(separator: "\n")
     }
 }

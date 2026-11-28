@@ -526,7 +526,7 @@ struct HomeDashboardContentView: View {
             // Flush any queued widget hydration deltas (including today's when browsing a past date) as distinct HealthKit samples.
             var selectedDayPendingEntries: [Double] = []
             if isHKEnabled {
-                let flushDates = HomeDashboardHealthSync.pendingWidgetWaterFlushDates(selectedDate: targetDate)
+                let flushDates = WorkoutSyncManager.shared.allPendingWidgetWaterFlushDates(selectedDate: targetDate)
                 for flushDate in flushDates {
                     let entries = WorkoutSyncManager.shared.peekPendingWidgetWaterEntriesLiters(for: flushDate)
                     if Calendar.current.isDate(flushDate, inSameDayAs: targetDate) {
@@ -646,23 +646,13 @@ struct HomeDashboardContentView: View {
                     let deletedSamples = waterOutcome.deletedHealthKitSamples
                     let container = context.container
                     Task { @MainActor in
-                        for sample in deletedSamples {
-                            await HealthKitManager.shared.deleteWaterSample(
-                                idString: sample.sampleID,
-                                litersFallback: sample.volumeMl / 1000.0,
-                                date: targetDate
-                            )
-                            if sample.replacementVolumeMl > 0,
-                               let uuid = await HealthKitManager.shared.saveWater(
-                                   liters: sample.replacementVolumeMl / 1000.0,
-                                   date: targetDate
-                               ),
-                               let beverageID = sample.beverageID,
-                               let surviving = (persistedSummary.beverages ?? []).first(where: { $0.persistentModelID == beverageID }) {
-                                surviving.healthKitSampleID = uuid.uuidString
-                                try? container.mainContext.save()
-                            }
-                        }
+                        await WorkoutSyncManager.shared.syncHealthKitWaterChanges(
+                            deletedSamples: deletedSamples,
+                            logDate: targetDate,
+                            summaryDate: targetDate,
+                            summary: persistedSummary,
+                            container: container
+                        )
                     }
                 }
 
@@ -1855,6 +1845,7 @@ struct FoodSearchResultRow: View {
     let food: FoodItem
     var activeDietPlan: DietPlan? = nil
     let action: () -> Void
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
 
     var body: some View {
         let compatibility = food.compatibility(with: activeDietPlan)
@@ -1890,7 +1881,9 @@ struct FoodSearchResultRow: View {
                         .lineLimit(1)
 
                     HStack(spacing: 6) {
-                        let weightLabel = food.weight > 0 ? "\(Int(food.weight))g" : String(localized: "1 serving")
+                        let weightLabel = food.weight > 0
+                            ? NutritionMath.formattedFoodWeight(food.weight, useMetric: useMetricSystem)
+                            : String(localized: "1 serving")
                         Text("\(food.calories) kcal • \(weightLabel)")
                             .font(.system(size: 12, weight: .medium, design: .rounded).monospacedDigit())
                             .foregroundStyle(EditorialPalette.inkSecondary)
@@ -2382,6 +2375,7 @@ struct DailyLogDetailView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Query private var users: [User]
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     let summary: DailySummary
     @State private var copiedBannerText: String? = nil
 
@@ -2569,7 +2563,7 @@ struct DailyLogDetailView: View {
                                                     .lineLimit(1)
 
                                                 HStack(spacing: 5) {
-                                                    Text("\(Int(food.weight))g")
+                                                    Text(food.weight > 0 ? NutritionMath.formattedFoodWeight(food.weight, useMetric: useMetricSystem) : String(localized: "1 serving"))
                                                     Text("•")
                                                     Text("P:\(Int(food.protein)) F:\(Int(food.fats)) C:\(Int(food.carbs))")
                                                 }
@@ -2764,6 +2758,7 @@ struct SmartAddFoodView: View {
     @Query private var allDatabaseFoods: [FoodItem]
     @Query private var customRecipes: [CustomRecipe]
     @Query(sort: \Meal.date, order: .reverse) private var pastMeals: [Meal]
+    @AppStorage(FavoriteFoodStore.storageKey) private var favoriteFoodNamesRaw: String = ""
 
     @State private var selectedFoodForDetail: FoodItem? = nil
     let mealTitle: String
@@ -2829,7 +2824,21 @@ struct SmartAddFoodView: View {
                 return c0 != c1 ? c0 > c1 : $0.name < $1.name
             }
         case "Favorites":
-            return cachedAvailableFoods.filter { (cachedFoodCounts[$0.name] ?? 0) >= 2 && $0.name != "Quick Entry" }
+            let starred = FavoriteFoodStore.namesSet(from: favoriteFoodNamesRaw)
+            var seen = Set<String>()
+            var starredItems: [FoodItem] = []
+            var frequentItems: [FoodItem] = []
+            for item in cachedAvailableFoods + cachedRecipeFoods {
+                let normalizedName = item.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                guard item.name != "Quick Entry",
+                      seen.insert(normalizedName).inserted else { continue }
+                if starred.contains(normalizedName) {
+                    starredItems.append(item)
+                } else if (cachedFoodCounts[item.name] ?? 0) >= 2 {
+                    frequentItems.append(item)
+                }
+            }
+            return starredItems + frequentItems
         case "My Recipes":
             return cachedRecipeFoods
         default:

@@ -69864,6 +69864,236 @@
           }
         }
       }
+    },
+    "Check Again": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Again"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверить снова"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut prüfen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobar de nuevo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier à nouveau"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla di nuovo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificar novamente"
+          }
+        }
+      }
+    },
+    "Your meals, custom recipes, and health logs stay saved on this device and in your private iCloud. Signing in simply links your Apple or Google identity.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your meals, custom recipes, and health logs stay saved on this device and in your private iCloud. Signing in simply links your Apple or Google identity."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваши приёмы пищи, рецепты и данные здоровья сохраняются на этом устройстве и в вашем личном iCloud. Вход просто привязывает ваш аккаунт Apple или Google."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Mahlzeiten, eigenen Rezepte und Gesundheitsdaten bleiben auf diesem Gerät und in deiner privaten iCloud gespeichert. Die Anmeldung verknüpft lediglich deine Apple- oder Google-ID."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus comidas, recetas personalizadas y registros de salud se guardan en este dispositivo y en tu iCloud privado. Iniciar sesión solo vincula tu cuenta de Apple o Google."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos repas, recettes personnalisées et données de santé restent enregistrés sur cet appareil et dans votre iCloud privé. La connexion associe simplement votre identifiant Apple ou Google."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi pasti, le ricette personalizzate e i dati sulla salute restano salvati su questo dispositivo e nel tuo iCloud privato. L'accesso collega semplicemente la tua identità Apple o Google."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As suas refeições, receitas personalizadas e registos de saúde ficam guardados neste dispositivo e no seu iCloud privado. Iniciar sessão apenas associa a sua identidade Apple ou Google."
+          }
+        }
+      }
+    },
+    "Link your Apple or Google identity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link your Apple or Google identity"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Привяжите аккаунт Apple или Google"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple- oder Google-ID verknüpfen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vincula tu cuenta de Apple o Google"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Associez votre identifiant Apple ou Google"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collega il tuo account Apple o Google"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Associe a sua conta Apple ou Google"
+          }
+        }
+      }
+    },
+    "Manage and delete your account anytime": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage and delete your account anytime"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Управляйте аккаунтом и удаляйте его в любой момент"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto jederzeit verwalten und löschen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestiona y elimina tu cuenta en cualquier momento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gérez et supprimez votre compte à tout moment"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestisci ed elimina il tuo account in qualsiasi momento"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerencie e elimine a sua conta a qualquer momento"
+          }
+        }
+      }
+    },
+    "Keep full access to AI Chef, Coach & Scanner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep full access to AI Chef, Coach & Scanner"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Полный доступ к ИИ-Шефу, Коучу и Сканеру"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voller Zugriff auf KI-Koch, Coach & Scanner"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso completo al Chef IA, Coach y Escáner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès complet au Chef IA, Coach et Scanner"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesso completo a Chef IA, Coach e Scanner"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acesso total ao Chef IA, Coach e Scanner"
+          }
+        }
+      }
     }
   },
   "version": "1.1"

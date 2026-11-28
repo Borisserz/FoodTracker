@@ -256,11 +256,11 @@ struct BeforeAfterView: View {
         .buttonStyle(.plain)
         .onChange(of: item.wrappedValue) { _, newItem in
             Task {
-                if let data = try? await newItem?.loadTransferable(type: Data.self),
-                   let rawImage = UIImage(data: data) {
+                if let data = try? await newItem?.loadTransferable(type: Data.self) {
                     let downsampled = await Task.detached(priority: .userInitiated) {
-                        VertexAIManager.downsampledImage(rawImage, maxDimension: 1600)
+                        VertexAIManager.downsampledImage(data: data, maxDimension: 1600)
                     }.value
+                    guard let downsampled else { return }
                     await MainActor.run {
                         if title == "Before" {
                             beforeImage = downsampled
@@ -282,18 +282,18 @@ struct BeforeAfterView: View {
             let dividerX = width * sliderPosition
             
             ZStack(alignment: .leading) {
-                // 1. Before Image (Background)
-                if let before = beforeImage {
-                    Image(uiImage: before)
+                // 1. After Image (Background, visible on right of dividerX)
+                if let after = afterImage {
+                    Image(uiImage: after)
                         .resizable()
                         .scaledToFill()
                         .frame(width: width, height: height)
                         .clipped()
                 }
                 
-                // 2. After Image (Foreground, Masked)
-                if let after = afterImage {
-                    Image(uiImage: after)
+                // 2. Before Image (Foreground, masked 0..<dividerX, visible on left of dividerX)
+                if let before = beforeImage {
+                    Image(uiImage: before)
                         .resizable()
                         .scaledToFill()
                         .frame(width: width, height: height)

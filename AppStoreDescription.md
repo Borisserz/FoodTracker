@@ -14,50 +14,59 @@ This document contains the optimized metadata and description for the App Store,
 
 ## 🏷️ App Store Connect Metadata
 
-### 1. Название приложения (App Name)
+### English (US / Primary)
+* **App Name (<= 30 chars):** `FoodTracker: AI Food & Macros` (29 chars)
+* **Subtitle (<= 30 chars):** `Meal Scanner, Coach & Widgets` (29 chars)
+* **Keywords (<= 100 chars):** `calorie,counter,macro,tracker,diet,food,scanner,ai,keto,fasting,nutrition,water,weight` (86 chars, no spaces)
+
+### Русский (Russian)
+#### 1. Название приложения (App Name)
 * **Лимит:** до 30 символов
 * **Вариант 1:** `FoodTracker: ИИ Сканер и Меню` (29 символов) — *Рекомендуется*
 * **Вариант 2:** `FoodTracker: ИИ Трекер Калорий` (30 символов)
 
-### 2. Подзаголовок (Subtitle)
+#### 2. Подзаголовок (Subtitle)
 * **Лимит:** до 30 символов
 * **Вариант 1:** `ИИ-трекер, меню и виджеты` (25 символов) — *Рекомендуется*
 * **Вариант 2:** `Виджеты на экране, ИИ сканер` (28 символов)
 
-### 3. Ключевые слова (Keywords)
-* **Лимит:** до 100 байт (на русском 1 символ = 2 байта, латиница/знаки препинания = 1 байт)
+#### 3. Ключевые слова (Keywords)
+* **Лимит:** до 100 символов (App Store Connect измеряет лимит в символах, без пробелов)
 * **Строка:** `калории,трекер,бжу,диета,еда,меню,ии,сканер,кето,вес,вода`
-* **Размер:** 94 байта (безопасно укладывается в лимит 100 байт, без пробелов)
+* **Размер:** 57 символов / 104 байта (безопасно укладывается в лимит 100 символов, без пробелов)
 
 ---
 
 ## 🇺🇸 English App Store Description (No Emojis)
 
-Take control of your diet and achieve your dreams with FoodTracker. Your body is a reflection of your nutrition, and our AI-powered coach is here to guide you every step of the way.
+Take control of your diet and achieve your goals with FoodTracker. Your body is a reflection of your nutrition, and our AI-powered nutrition coach is here to guide you every step of the way.
 Whether your goal is to burn fat, keep your current shape, or build lean muscle, FoodTracker personalizes your journey.
 
 KEY FEATURES:
-• AI Coach: Get instant feedback and personalized macro calculations. 
-• Goal-Oriented: Tailored plans for "Lose Weight", "Maintain", or "Build Muscle".
-• AI Meal Scanner: Snap photos of your meals for instant identification, weight estimation, and macro breakdowns.
+• AI Nutrition Coach: Get instant feedback and personalized macro targets tailored to your goals.
+• Goal-Oriented Plans: Tailored targets for "Lose Weight", "Maintain", or "Build Muscle".
+• AI Meal Scanner: Snap photos of your meals for fast food recognition, portion estimation, and estimated macro breakdowns.
+• Barcode Scanner: Scan packaged food barcodes with built-in VisionKit recognition connected to global food databases.
 • Restaurant Menu Hacker: Analyze restaurant menus by camera to get smart recommendations matching your remaining daily macro goals.
 • AI Chef Studio: Generate personalized recipes based on ingredients in your fridge, organize pre-cooking checklists, and follow interactive step-by-step cooking guides.
 • Interactive Widgets: Manage your hydration, track macro rings, check your metabolic score, or tick off shopping list items directly from your home screen.
-• Easy Logging: Track your daily food intake quickly and intuitively. 
-• Deep Analytics: Understand your nutrition with detailed insights and beautiful charts.
+• Intermittent Fasting: Track fasting windows with live biological phase progress, from blood sugar stabilization to fat burning and ketosis.
+• Apple HealthKit Sync: Two-way Apple Health integration automatically imports Apple Watch activity and steps while writing logged water and nutrition energy back to Apple Health.
+• WorkoutTracker Companion Sync: Optional integration via shared App Group lets workouts logged in WorkoutTracker automatically adjust your daily calorie budget in FoodTracker.
+• Easy Logging & Deep Analytics: Track your daily food intake quickly and understand your nutrition with detailed insights and charts.
 
-Start your journey today and digitize your baseline to calculate the perfect macros for your body!
+Start your journey today and build sustainable nutrition habits!
 
 ---
 
 ## 🇷🇺 Russian App Store Description (With Emojis)
 
-Встречайте FoodTracker — ваш персональный ИИ-диетолог и шеф-повар прямо в кармане. Забудьте о рутинном подсчете калорий вручную. Мы объединили продвинутое компьютерное зрение ИИ, интерактивные виджеты и полную экосистему здоровья, чтобы сделать ваш путь к идеальной форме легким и увлекательным.
+Встречайте FoodTracker — ваш персональный ИИ-коуч по питанию и шеф-повар прямо в кармане. Забудьте о рутинном подсчете калорий вручную. Мы объединили продвинутое компьютерное зрение ИИ, интерактивные виджеты и полную экосистему здоровья, чтобы сделать ваш путь к идеальной форме легким и увлекательным.
 
 🌟 КЛЮЧЕВЫЕ ФУНКЦИИ:
 
 📸 МУЛЬТИМОДАЛЬНЫЙ ИИ-СКАНЕР
-• Сканер тарелки (AI Meal Scanner): Просто наведите камеру на блюдо. ИИ мгновенно определит его, оценит вес в граммах и рассчитает точные калории, белки, жиры и углеводы.
+• Сканер тарелки (AI Meal Scanner): Просто наведите камеру на блюдо. ИИ мгновенно определит его, оценит вес в граммах и оценит ориентировочные калории, белки, жиры и углеводы.
 • Взломщик меню (Menu Hacker): Сфотографируйте меню в любом ресторане. ИИ сопоставит блюда с вашими личными целями на сегодня и выделит их: «Идеально» (рекомендуется), «Осторожно» или «Избегать».
 • Сверхбыстрый сканер штрихкодов: Сканируйте упаковки продуктов с помощью встроенной системы VisionKit с автоподключением к глобальным базам данных.
 
