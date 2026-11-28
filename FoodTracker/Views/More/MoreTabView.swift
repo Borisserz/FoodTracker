@@ -9,6 +9,15 @@ enum CoachHubCopy {
     static let dashboardSubtitle = "Your proactive nutritionist"
 }
 
+enum MoreTabHealthLinkTarget: Equatable {
+    case appleHealthSettings
+    case profileWrapper
+
+    static func destination(hasUser: Bool) -> MoreTabHealthLinkTarget {
+        hasUser ? .appleHealthSettings : .profileWrapper
+    }
+}
+
 private struct CoachTipItem: Identifiable {
     let id = UUID()
     let title: String
@@ -322,7 +331,10 @@ struct MoreTabView: View {
     private var aiCoachHeroCard: some View {
         let summary = todaySummary
         let cals = summary.totalCalories
-        let effectiveGoal = (user?.dailyCaloriesGoal ?? 2000) + max(0, summary.activeCaloriesBurned)
+        let effectiveGoal = NutritionMath.effectiveDailyCalorieGoal(
+            baseGoal: user?.dailyCaloriesGoal ?? 2000,
+            activeCaloriesBurned: summary.activeCaloriesBurned
+        )
         let protein = summary.totalProtein
         let proteinGoal = user?.targetProtein ?? 150
 
@@ -560,7 +572,10 @@ struct MoreTabView: View {
     // MARK: - Goals & Targets Section
     private var goalsAndTargetsSection: some View {
         let summary = todaySummary
-        let effectiveGoal = (user?.dailyCaloriesGoal ?? 2000) + max(0, summary.activeCaloriesBurned)
+        let effectiveGoal = NutritionMath.effectiveDailyCalorieGoal(
+            baseGoal: user?.dailyCaloriesGoal ?? 2000,
+            activeCaloriesBurned: summary.activeCaloriesBurned
+        )
         let cals = summary.totalCalories
         let calProgress = effectiveGoal > 0 ? min(Double(cals) / Double(effectiveGoal), 1.0) : 0.0
 
@@ -1019,34 +1034,17 @@ struct MoreTabView: View {
             .padding(.horizontal)
 
             HStack(spacing: 12) {
-                NavigationLink(destination: ProfileWrapperView()) {
-                    HStack(spacing: 10) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(red: 0.98, green: 0.25, blue: 0.35).opacity(0.14))
-                                .frame(width: 36, height: 36)
-                            Image(systemName: "heart.fill")
-                                .font(.system(size: 16))
-                                .foregroundColor(Color(red: 0.98, green: 0.25, blue: 0.35))
+                Group {
+                    if MoreTabHealthLinkTarget.destination(hasUser: user != nil) == .appleHealthSettings,
+                       let user {
+                        NavigationLink(destination: AppleHealthSettingsView(user: user)) {
+                            appleHealthCardContent(hkEnabled: hkEnabled)
                         }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Apple Health")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
-                            Text(hkEnabled ? String(localized: "Auto Syncing") : String(localized: "Tap to Enable"))
-                                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                                .foregroundColor(hkEnabled ? Color(red: 0.10, green: 0.72, blue: 0.50) : .secondary)
+                    } else {
+                        NavigationLink(destination: ProfileWrapperView()) {
+                            appleHealthCardContent(hkEnabled: hkEnabled)
                         }
-                        Spacer(minLength: 0)
                     }
-                    .padding(12)
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
-                    )
                 }
                 .buttonStyle(HUDSpringScaleButtonStyle(reduceMotion: reduceMotion))
 
@@ -1088,6 +1086,36 @@ struct MoreTabView: View {
             }
             .padding(.horizontal)
         }
+    }
+
+    private func appleHealthCardContent(hkEnabled: Bool) -> some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(Color(red: 0.98, green: 0.25, blue: 0.35).opacity(0.14))
+                    .frame(width: 36, height: 36)
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(Color(red: 0.98, green: 0.25, blue: 0.35))
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Apple Health")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                Text(hkEnabled ? String(localized: "Auto Syncing") : String(localized: "Tap to Enable"))
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .foregroundColor(hkEnabled ? Color(red: 0.10, green: 0.72, blue: 0.50) : .secondary)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 
     // MARK: - Cross Promo

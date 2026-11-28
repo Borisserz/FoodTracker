@@ -980,8 +980,8 @@ class AINutritionService {
     private let client: any GeminiProxyExecuting
 
     private func fetchRawTextFromGemini(prompt: String, suppressRateLimitAlert: Bool = false) async -> String? {
-        guard await consentProvider() else { return nil }
         lastUserFacingError = nil
+        guard await consentProvider() else { return nil }
         do {
             return try await client.fetchText(prompt: prompt, suppressRateLimitAlert: suppressRateLimitAlert)
         } catch {
@@ -1000,8 +1000,8 @@ class AINutritionService {
         responseSchema: AIResponseSchema? = nil,
         suppressRateLimitAlert: Bool = false
     ) async -> T? {
-        guard await consentProvider() else { return nil }
         lastUserFacingError = nil
+        guard await consentProvider() else { return nil }
         do {
             return try await client.fetchJSON(
                 prompt: prompt,

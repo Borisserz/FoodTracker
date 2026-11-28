@@ -1029,4 +1029,35 @@ final class AppStoreReadinessTests: XCTestCase {
         XCTAssertEqual(NutritionMath.standardWaterGlassMl(useMetric: true), 250.0, accuracy: 0.001)
         XCTAssertEqual(NutritionMath.standardWaterGlassMl(useMetric: false), 8.0 * 29.5735, accuracy: 0.001)
     }
+
+    func testHydrationFlaskTicksScaleDynamicallyWithUserGoal() {
+        let metricTicks = NutritionMath.hydrationFlaskTicks(goalLiters: 3.5, useMetric: true)
+        XCTAssertEqual(metricTicks.map(\.label), ["3.5L", "2.8L", "2.1L", "1.4L", "0.7L"])
+
+        let imperialTicks = NutritionMath.hydrationFlaskTicks(goalLiters: 2.5, useMetric: false)
+        XCTAssertEqual(imperialTicks.map(\.label), ["85 oz", "68 oz", "51 oz", "34 oz", "17 oz"])
+
+        let minClampedTicks = NutritionMath.hydrationFlaskTicks(goalLiters: 0.2, useMetric: true)
+        XCTAssertEqual(minClampedTicks.first?.label, "0.5L")
+    }
+
+    func testEffectiveDailyCalorieGoalIncludesActiveCaloriesBurned() {
+        XCTAssertEqual(NutritionMath.effectiveDailyCalorieGoal(baseGoal: 2000, activeCaloriesBurned: 450), 2450)
+        XCTAssertEqual(NutritionMath.effectiveDailyCalorieGoal(baseGoal: 2000, activeCaloriesBurned: -50), 2000)
+        XCTAssertEqual(NutritionMath.effectiveDailyCalorieGoal(baseGoal: 0, activeCaloriesBurned: 250), 251)
+
+        XCTAssertEqual(AIWeeklyInsightCalculator.dailyCalorieExcess(eaten: 2200, baseGoal: 2000, activeCaloriesBurned: 450), 0)
+        XCTAssertEqual(AIWeeklyInsightCalculator.dailyCalorieExcess(eaten: 2600, baseGoal: 2000, activeCaloriesBurned: 450), 150)
+    }
+
+    func testFoodSearchConsentPolicyAndMoreTabHealthDestination() {
+        XCTAssertFalse(FoodSearchConsentPolicy.shouldOfferAIConsentPrompt(query: "ab", hasConsented: false, hasAnyResults: false, isSearching: false))
+        XCTAssertFalse(FoodSearchConsentPolicy.shouldOfferAIConsentPrompt(query: "ramen", hasConsented: true, hasAnyResults: false, isSearching: false))
+        XCTAssertFalse(FoodSearchConsentPolicy.shouldOfferAIConsentPrompt(query: "ramen", hasConsented: false, hasAnyResults: true, isSearching: false))
+        XCTAssertFalse(FoodSearchConsentPolicy.shouldOfferAIConsentPrompt(query: "ramen", hasConsented: false, hasAnyResults: false, isSearching: true))
+        XCTAssertTrue(FoodSearchConsentPolicy.shouldOfferAIConsentPrompt(query: "ramen", hasConsented: false, hasAnyResults: false, isSearching: false))
+
+        XCTAssertEqual(MoreTabHealthLinkTarget.destination(hasUser: true), .appleHealthSettings)
+        XCTAssertEqual(MoreTabHealthLinkTarget.destination(hasUser: false), .profileWrapper)
+    }
 }

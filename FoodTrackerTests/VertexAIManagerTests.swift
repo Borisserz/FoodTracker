@@ -662,6 +662,32 @@ final class VertexAIManagerTests: XCTestCase {
         XCTAssertEqual(VertexAIManager.languageDisplayName(forCode: "de"), "German")
     }
 
+    func testAINutritionServiceClearsStaleUserFacingErrorWhenConsentIsRevoked() async {
+        let mockProxy = MockGeminiProxyClient()
+        mockProxy.nextError = URLError(.notConnectedToInternet)
+        var hasConsent = true
+        let service = AINutritionService(proxy: mockProxy, consentProvider: { hasConsent })
+
+        let failedChat = await service.sendChatMessage(prompt: "Hi", userContext: "Goal 2000", activeDiet: "Balanced")
+        XCTAssertNil(failedChat)
+        XCTAssertNotNil(service.lastUserFacingError)
+
+        hasConsent = false
+        let blockedChat = await service.sendChatMessage(prompt: "Hi again", userContext: "Goal 2000", activeDiet: "Balanced")
+        XCTAssertNil(blockedChat)
+        XCTAssertNil(service.lastUserFacingError, "Revoked consent must clear any stale error before returning nil")
+
+        hasConsent = true
+        let failedVerdict = await service.generateDailyVerdict(consumed: 1500, goal: 2000, protein: 90, targetProtein: 130)
+        XCTAssertNil(failedVerdict)
+        XCTAssertNotNil(service.lastUserFacingError)
+
+        hasConsent = false
+        let blockedVerdict = await service.generateDailyVerdict(consumed: 1500, goal: 2000, protein: 90, targetProtein: 130)
+        XCTAssertNil(blockedVerdict)
+        XCTAssertNil(service.lastUserFacingError)
+    }
+
     private static func makeSolidTestImage() -> UIImage {
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 24, height: 24))
         return renderer.image { ctx in

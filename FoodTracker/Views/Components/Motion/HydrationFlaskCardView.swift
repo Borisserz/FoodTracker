@@ -87,15 +87,11 @@ struct HydrationFlaskCardView: View {
                 HStack(alignment: .bottom) {
                     // Metric Markings on the left of flask
                     VStack(alignment: .leading, spacing: 0) {
-                        FlaskTickMark(label: useMetricSystem ? "2.5L" : "85 oz", isFilled: progress >= 1.0)
-                        Spacer()
-                        FlaskTickMark(label: useMetricSystem ? "2.0L" : "68 oz", isFilled: progress >= 0.8)
-                        Spacer()
-                        FlaskTickMark(label: useMetricSystem ? "1.5L" : "51 oz", isFilled: progress >= 0.6)
-                        Spacer()
-                        FlaskTickMark(label: useMetricSystem ? "1.0L" : "34 oz", isFilled: progress >= 0.4)
-                        Spacer()
-                        FlaskTickMark(label: useMetricSystem ? "0.5L" : "17 oz", isFilled: progress >= 0.2)
+                        let ticks = NutritionMath.hydrationFlaskTicks(goalLiters: dailyGoalLiters, useMetric: useMetricSystem)
+                        ForEach(ticks) { tick in
+                            FlaskTickMark(label: tick.label, isFilled: progress >= tick.ratio)
+                            if tick.ratio > 0.2 { Spacer() }
+                        }
                     }
                     .frame(width: 56, height: 160)
                     .padding(.leading, 24)

@@ -649,6 +649,47 @@ enum NutritionMath {
             return String(format: "%.0f %@", converted, fluidShortUnit(useMetric: false))
         }
     }
+
+    struct HydrationFlaskTick: Identifiable, Equatable {
+        let ratio: Double
+        let label: String
+        var id: Double { ratio }
+    }
+
+    /// Generates descending flask tick labels scaled to the user's daily hydration goal.
+    static func hydrationFlaskTicks(goalLiters: Double, useMetric: Bool) -> [HydrationFlaskTick] {
+        let safeGoal = max(0.5, goalLiters)
+        return [1.0, 0.8, 0.6, 0.4, 0.2].map { ratio in
+            let stepLiters = safeGoal * ratio
+            let label = useMetric
+                ? String(format: "%.1fL", stepLiters)
+                : String(format: "%.0f oz", displayFluid(stepLiters, useMetric: false))
+            return HydrationFlaskTick(ratio: ratio, label: label)
+        }
+    }
+
+    /// Computes total daily calorie budget including active calories burned.
+    static func effectiveDailyCalorieGoal(baseGoal: Int, activeCaloriesBurned: Int) -> Int {
+        DailySummary.effectiveCalorieGoal(
+            baseGoal: baseGoal,
+            activeCaloriesBurned: activeCaloriesBurned
+        )
+    }
+}
+
+/// Shared gate deciding when empty search states should invite the user to enable AI food search.
+enum FoodSearchConsentPolicy {
+    static func shouldOfferAIConsentPrompt(
+        query: String,
+        hasConsented: Bool,
+        hasAnyResults: Bool,
+        isSearching: Bool
+    ) -> Bool {
+        !isSearching
+            && !hasAnyResults
+            && !hasConsented
+            && query.trimmingCharacters(in: .whitespacesAndNewlines).count > 2
+    }
 }
 
 enum FavoriteFoodStore {

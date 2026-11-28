@@ -286,6 +286,14 @@ enum AIWeeklyInsightCalculator {
             : trackedSummaries.reduce(0.0) { $0 + $1.totalPureWaterLiters } / Double(trackedSummaries.count)
         return (validCalorieSummaries: validCalorieSummaries, avgCalories: avgCalories, avgWater: avgWater)
     }
+
+    static func dailyCalorieExcess(eaten: Int, baseGoal: Int, activeCaloriesBurned: Int) -> Int {
+        let effectiveGoal = NutritionMath.effectiveDailyCalorieGoal(
+            baseGoal: baseGoal,
+            activeCaloriesBurned: activeCaloriesBurned
+        )
+        return max(0, eaten - effectiveGoal)
+    }
 }
 
 struct AIWeeklyInsightCard: View {
@@ -342,10 +350,16 @@ struct AIWeeklyInsightCard: View {
                     String(localized: "Your \(microName) is only at \(Int(lowestPct * 100))% of RDA. \(hint)"),
                     lowest.color
                 )
-            } else if let eaten = today?.totalCalories, eaten > user.dailyCaloriesGoal {
+            } else if let eaten = today?.totalCalories,
+                      case let excess = AIWeeklyInsightCalculator.dailyCalorieExcess(
+                          eaten: eaten,
+                          baseGoal: user.dailyCaloriesGoal,
+                          activeCaloriesBurned: today?.activeCaloriesBurned ?? 0
+                      ),
+                      excess > 0 {
                 return (
                     String(localized: "Caloric Limit"),
-                    String(localized: "You've exceeded your daily calorie goal by \(eaten - user.dailyCaloriesGoal) kcal. Keep dinner light today."),
+                    String(localized: "You've exceeded your daily calorie goal by \(excess) kcal. Keep dinner light today."),
                     .themeOrange
                 )
             } else {
@@ -502,8 +516,11 @@ struct CompactDailySummaryCard: View {
 
     var body: some View {
         let eaten = summary?.totalCalories ?? 0
-        let target = user.dailyCaloriesGoal
-        let progress = min(Double(eaten) / Double(max(1, target)), 1.0)
+        let target = NutritionMath.effectiveDailyCalorieGoal(
+            baseGoal: user.dailyCaloriesGoal,
+            activeCaloriesBurned: summary?.activeCaloriesBurned ?? 0
+        )
+        let progress = min(Double(eaten) / Double(target), 1.0)
 
         let p = summary?.totalProtein ?? 0; let tp = user.targetProtein
         let f = summary?.totalFats ?? 0;  let tf = user.targetFats
@@ -743,13 +760,9 @@ struct AIHydrationAnalyticsCard: View {
                 HStack(alignment: .bottom) {
                     // Metric Markings on left
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach([1.0, 0.8, 0.6, 0.4, 0.2], id: \.self) { ratio in
-                            let stepLiters = goal * ratio
-                            let label = useMetricSystem
-                                ? String(format: "%.1fL", stepLiters)
-                                : String(format: "%.0f oz", NutritionMath.displayFluid(stepLiters, useMetric: false))
-                            AnalyticsFlaskTickMark(label: label, isFilled: progress >= ratio)
-                            if ratio > 0.2 { Spacer() }
+                        ForEach(NutritionMath.hydrationFlaskTicks(goalLiters: goal, useMetric: useMetricSystem)) { tick in
+                            AnalyticsFlaskTickMark(label: tick.label, isFilled: progress >= tick.ratio)
+                            if tick.ratio > 0.2 { Spacer() }
                         }
                     }
                     .frame(width: 56, height: 130)

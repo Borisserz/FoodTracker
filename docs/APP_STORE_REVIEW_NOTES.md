@@ -27,12 +27,13 @@ Paste into App Store Connect → App Review Information → Notes.
 
 **AI Coach tab → Profile & Settings → Settings (gear) → Account → Delete Account**.
 
-## HealthKit
+## HealthKit & iCloud Background Sync
 
 Optional. Used only on-device when the user enables Apple Health sync:
 - **Read:** Body Mass, Step Count, Active Energy Burned, and Workouts.
 - **Write:** Dietary Energy Consumed, Dietary Water, Active Energy Burned, Body Mass, and Workouts.
 - **Apple Health (HealthKit) data is never sent to third-party AI services** or used for advertising/marketing.
+- `UIBackgroundModes` includes `remote-notification` solely for silent SwiftData private iCloud (`CloudKit`) database change notifications (no marketing push notifications).
 
 ## Optional Companion App (WorkoutTracker)
 

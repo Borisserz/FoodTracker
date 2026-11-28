@@ -26,6 +26,7 @@ struct MealHUDQuickLogSheet: View {
     // Modals
     @State private var showingScanner = false
     @State private var showingManualAdd = false
+    @State private var showingAIConsentSheet = false
     @State private var pendingScannerFood: FoodItem? = nil
     @State private var pendingManualEntryAfterScanner = false
     @State private var selectedFoodForDeepDetail: FoodItem? = nil
@@ -480,6 +481,17 @@ struct MealHUDQuickLogSheet: View {
                     addFoodToStaged(addedFood)
                 }
             }
+            .sheet(isPresented: $showingAIConsentSheet) {
+                AIPhotoConsentSheet(
+                    onAllow: {
+                        AIPhotoConsentManager.shared.grantConsent()
+                        if !searchText.isEmpty {
+                            performSearch(query: searchText)
+                        }
+                    },
+                    onDecline: {}
+                )
+            }
         }
         .onAppear {
             rebuildCaches()
@@ -747,16 +759,40 @@ struct MealHUDQuickLogSheet: View {
     
     // MARK: - Subviews
     private var emptySearchState: some View {
-        EditorialLightCard(cornerRadius: 18, padding: 24) {
+        let offersAIConsent = FoodSearchConsentPolicy.shouldOfferAIConsentPrompt(
+            query: searchText,
+            hasConsented: AIPhotoConsentManager.shared.hasConsented,
+            hasAnyResults: false,
+            isSearching: false
+        )
+        return EditorialLightCard(cornerRadius: 18, padding: 24) {
             VStack(spacing: 12) {
-                Image(systemName: "magnifyingglass")
+                Image(systemName: offersAIConsent ? "sparkles.rectangle.stack.fill" : "magnifyingglass")
                     .font(.system(size: 30, weight: .medium))
-                    .foregroundStyle(EditorialPalette.inkSecondary.opacity(0.65))
+                    .foregroundStyle(offersAIConsent ? EditorialPalette.forest : EditorialPalette.inkSecondary.opacity(0.65))
                 
                 Text(String(format: String(localized: "No food found for '%@'"), searchText))
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundStyle(EditorialPalette.inkPrimary)
                     .multilineTextAlignment(.center)
+
+                if offersAIConsent {
+                    Text(String(localized: "Enable AI Food Search to estimate calories and macros for unlisted dishes, or create a custom entry."))
+                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                        .foregroundStyle(EditorialPalette.inkSecondary)
+                        .multilineTextAlignment(.center)
+
+                    Button(action: {
+                        HapticManager.shared.impact(style: .medium)
+                        showingAIConsentSheet = true
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "sparkles")
+                            Text("Enable AI Food Search")
+                        }
+                    }
+                    .buttonStyle(EditorialPrimaryCTAButtonStyle(tone: .graphite, height: 44))
+                }
                 
                 Button(action: {
                     HapticManager.shared.impact(style: .medium)

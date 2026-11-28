@@ -2899,10 +2899,12 @@ struct SmartAddFoodView: View {
         hasAnyResults: Bool,
         isSearching: Bool
     ) -> Bool {
-        !isSearching
-            && !hasAnyResults
-            && !hasConsented
-            && query.trimmingCharacters(in: .whitespacesAndNewlines).count > 2
+        FoodSearchConsentPolicy.shouldOfferAIConsentPrompt(
+            query: query,
+            hasConsented: hasConsented,
+            hasAnyResults: hasAnyResults,
+            isSearching: isSearching
+        )
     }
 
     var filteredLocalFoods: [FoodItem] {

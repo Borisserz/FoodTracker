@@ -329,8 +329,15 @@ struct Achievement: Identifiable {
         totalCalories - activeCaloriesBurned
     }
 
+    static func effectiveCalorieGoal(baseGoal: Int, activeCaloriesBurned: Int) -> Int {
+        max(1, baseGoal) + max(0, activeCaloriesBurned)
+    }
+
     func remainingCalories(userGoal: Int) -> Int {
-        return (userGoal + activeCaloriesBurned) - totalCalories
+        Self.effectiveCalorieGoal(
+            baseGoal: userGoal,
+            activeCaloriesBurned: activeCaloriesBurned
+        ) - totalCalories
     }
 
     struct DeletedFoodHealthSample: Equatable {
