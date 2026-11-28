@@ -154,7 +154,7 @@ struct SmartScannerView: View {
 
                 Spacer()
 
-                if selectedMode == .barcode {
+                if selectedMode == .barcode && !isBarcodePermissionDenied && (canUseDataScanner || canUseAVBarcodeFallback) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 24)
                             .stroke(Color.white.opacity(isPulseActive ? 0.3 : 1.0), lineWidth: isPulseActive ? 4 : 2)
@@ -361,7 +361,7 @@ struct SmartScannerView: View {
             barcodePermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
             startScanWorkItem?.cancel()
             let work = DispatchWorkItem { [self] in
-                if selectedMode == .barcode {
+                if selectedMode == .barcode && !isBarcodePermissionDenied && (canUseDataScanner || canUseAVBarcodeFallback) {
                     isScanning = true
                 }
             }
@@ -393,7 +393,7 @@ struct SmartScannerView: View {
             }
             Button("Try Again", role: .cancel) {
                 scanErrorMessage = nil
-                if selectedMode == .barcode {
+                if selectedMode == .barcode && !isBarcodePermissionDenied && (canUseDataScanner || canUseAVBarcodeFallback) {
                     notFoundError = false
                     recognizedBarcode = nil
                     isScanning = true
@@ -831,7 +831,9 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
             }
             videoDevice.unlockForConfiguration()
         } catch {
+            #if DEBUG
             print("❌ Failed to configure camera: \(error.localizedDescription)")
+            #endif
         }
 
         session.addInput(videoInput)
@@ -953,10 +955,10 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
         }
         let targetGeneration = photoGeneration ?? currentCaptureGeneration()
 
-        if let error {
+        if error != nil {
             DispatchQueue.main.async { [weak self] in
                 guard let self, self.currentCaptureGeneration() == targetGeneration else { return }
-                self.captureError = error.localizedDescription
+                self.captureError = String(localized: "Could not capture photo. Please try again.")
             }
             return
         }
@@ -985,13 +987,15 @@ final class LiveFoodCameraManager: NSObject, AVCapturePhotoCaptureDelegate {
 
 enum ScannerOrientationHelper {
     static func videoRotationAngle(for orientation: UIInterfaceOrientation) -> CGFloat {
+        // Rear camera natural sensor orientation (0°) has top-of-device pointing left
+        // (UIDeviceOrientation.landscapeLeft == UIInterfaceOrientation.landscapeRight).
         switch orientation {
         case .landscapeLeft:
-            return 0
+            return 180
         case .portrait:
             return 90
         case .landscapeRight:
-            return 180
+            return 0
         case .portraitUpsideDown:
             return 270
         default:
@@ -1123,7 +1127,7 @@ struct MenuHackerResultsView: View {
             }
         }
         .padding(24)
-        .background(Color.white)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(32)
         .padding()
     }

@@ -199,6 +199,34 @@ final class HealthKitManagerTests: XCTestCase {
         )
         XCTAssertEqual(mockStore.deletedObjectUUIDs, [weightSample.uuid])
     }
+
+    @MainActor
+    func testDeleteWaterSampleDoesNotFallbackDeleteDifferentSampleWhenKnownUUIDIsMissing() async {
+        let mockStore = MockHealthKitStore()
+        let waterType = HKQuantityType.quantityType(forIdentifier: .dietaryWater)!
+        mockStore.authorizedTypes = [waterType]
+
+        let stillValidGlass = HKQuantitySample(
+            type: waterType,
+            quantity: HKQuantity(unit: .liter(), doubleValue: 0.25),
+            start: Date(),
+            end: Date()
+        )
+        mockStore.quantitySamples = [stillValidGlass]
+        let manager = HealthKitManager(store: mockStore, isAvailable: { true })
+
+        // Request deletion of an already-removed UUID with identical 0.25 L volume.
+        let missingUUID = UUID().uuidString
+        await manager.deleteWaterSample(
+            idString: missingUUID,
+            litersFallback: 0.25,
+            date: .now
+        )
+        XCTAssertTrue(
+            mockStore.deletedObjectUUIDs.isEmpty,
+            "When an exact HealthKit UUID is known but no longer present, must NOT fallback-delete a different sample of the same value"
+        )
+    }
 }
 
 private final class MockHealthKitStore: HealthKitStoreExecuting, @unchecked Sendable {

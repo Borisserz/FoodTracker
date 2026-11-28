@@ -72,6 +72,11 @@ enum MetabolicBlueprintCalculator {
         }
     }
 
+    static func recommendedWaterLiters(for weightKg: Double) -> Double {
+        let raw = max(1.6, min(3.8, weightKg * 0.032))
+        return (raw * 10).rounded() / 10
+    }
+
     static func activityMultiplier(for activityLevel: ActivityType) -> Double {
         switch activityLevel {
         case .none, .office: return 1.2
@@ -147,7 +152,7 @@ enum OnboardingPersistence {
             targetUser = existingUser
         } else {
             let newUser = User(
-                name: "Champion",
+                name: "Alex",
                 weight: Double(metrics.weight),
                 height: Double(metrics.height),
                 age: metrics.age,
@@ -173,6 +178,7 @@ enum OnboardingPersistence {
         targetUser.targetWeight = blueprint.targetWeightKg
         targetUser.weightGoalType = blueprint.weightGoalType
         targetUser.activityMultiplier = MetabolicBlueprintCalculator.activityMultiplier(for: metrics.activityLevel)
+        targetUser.dailyWaterGoalLiters = MetabolicBlueprintCalculator.recommendedWaterLiters(for: Double(metrics.weight))
 
         try? context.save()
         WidgetReloader.reloadAll()

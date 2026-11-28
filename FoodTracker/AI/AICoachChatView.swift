@@ -130,7 +130,7 @@ struct AICoachChatView: View {
                         .lineLimit(1...5)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
-                        .background(Color.white)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
                         .cornerRadius(20)
                         .focused($isInputFocused)
                         .disabled(isGenerating)
@@ -341,7 +341,7 @@ struct FoodChatMessageView: View {
             .font(.body)
             .foregroundColor(message.isUser ? .white : .primary)
             .padding(.horizontal, 16).padding(.vertical, 12)
-            .background(message.isUser ? Color.themePink : Color.white)
+            .background(message.isUser ? Color.themePink : Color(UIColor.secondarySystemGroupedBackground))
             .clipShape(FoodChatBubbleShape(isUser: message.isUser))
             .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
 
@@ -415,7 +415,7 @@ struct FoodAILoadingIndicator: View {
                 }
             }
             .padding(.horizontal, 16).padding(.vertical, 14)
-            .background(Color.white).clipShape(FoodChatBubbleShape(isUser: false))
+            .background(Color(UIColor.secondarySystemGroupedBackground)).clipShape(FoodChatBubbleShape(isUser: false))
         }
         .onAppear { if !reduceMotion { isAnimating = true } }
     }

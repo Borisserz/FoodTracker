@@ -280,9 +280,20 @@ final class VertexAIManagerTests: XCTestCase {
 
     func testScannerOrientationHelperMapsInterfaceOrientationsToVideoRotationAngles() {
         XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .portrait), 90)
-        XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .landscapeLeft), 0)
-        XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .landscapeRight), 180)
+        XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .landscapeLeft), 180)
+        XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .landscapeRight), 0)
         XCTAssertEqual(ScannerOrientationHelper.videoRotationAngle(for: .portraitUpsideDown), 270)
+    }
+
+    func testGeminiProxyErrorUsesHumanFriendlyMessagesWithoutRawHTTPOrRawSeconds() {
+        let serverDesc = GeminiProxyError.serverError(status: 502, body: "bad gateway").localizedDescription
+        XCTAssertFalse(serverDesc.contains("502"), "User-facing error must not expose raw HTTP status codes")
+
+        let rateDesc = GeminiProxyError.rateLimited(retryAfter: "604800").localizedDescription
+        XCTAssertFalse(rateDesc.contains("604800"), "Rate limit message must format days/hours/minutes instead of raw seconds")
+
+        let decodeDesc = GeminiProxyError.decodingFailed(raw: "{bad").localizedDescription
+        XCTAssertNotEqual(decodeDesc, GeminiProxyError.invalidResponse.localizedDescription)
     }
 
     func testFlexibleIntAndAIFoodResponseDoNotCrashOnExtremeOverflow() throws {

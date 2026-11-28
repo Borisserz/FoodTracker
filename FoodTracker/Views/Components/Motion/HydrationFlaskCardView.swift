@@ -10,7 +10,9 @@ struct HydrationFlaskCardView: View {
     
     @Bindable var summary: DailySummary
     
-    let dailyGoalLiters: Double = 2.5
+    private var dailyGoalLiters: Double {
+        max(1.0, users.first?.dailyWaterGoalLiters ?? 2.5)
+    }
     
     init(summary: DailySummary) {
         self.summary = summary

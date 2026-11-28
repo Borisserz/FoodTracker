@@ -42,6 +42,7 @@ struct Achievement: Identifiable {
     var targetWeight: Double?
     var weightGoalType: String? // "lose", "gain", "maintain"
     var activityMultiplier: Double = 1.3
+    var dailyWaterGoalLiters: Double = 2.5
 
     init(name: String, weight: Double, height: Double, age: Int, gender: String = "Male") {
         self.name = name
@@ -785,7 +786,7 @@ struct DailyWidgetSnapshot: Equatable {
         let pGoal = max(1, Int((user?.targetProtein ?? 150).rounded()))
         let fGoal = max(1, Int((user?.targetFats ?? 70).rounded()))
         let cGoal = max(1, Int((user?.targetCarbs ?? 250).rounded()))
-        let hydGoal = 2.5
+        let hydGoal = max(1.0, user?.dailyWaterGoalLiters ?? 2.5)
 
         guard let summary else {
             return DailyWidgetSnapshot(
@@ -889,12 +890,17 @@ enum WidgetStorageActions {
         appGroupDefaults: UserDefaults? = nil
     ) throws {
         let summary = DailySummary.fetchOrCreate(for: date, in: context)
-        _ = WorkoutSyncManager.shared.reconcileWater(
+        let reconcileOutcome = WorkoutSyncManager.shared.reconcileWaterWithOutcome(
             for: summary,
             in: context,
             sharedDefaults: sharedDefaults,
             appGroupDefaults: appGroupDefaults,
             localDefaults: appGroupDefaults
+        )
+        WorkoutSyncManager.shared.recordPendingWidgetWaterDeletions(
+            reconcileOutcome.deletedHealthKitSamples,
+            for: date,
+            appGroupDefaults: appGroupDefaults
         )
         try addWaterGlass(volumeMl: volumeMl, in: context, for: date)
         if volumeMl > 0 {

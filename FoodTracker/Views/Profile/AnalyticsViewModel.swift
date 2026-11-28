@@ -34,7 +34,9 @@ class AnalyticsViewModel {
             } catch is CancellationError {
                 return
             } catch {
+                #if DEBUG
                 print("Failed to load analytics data: \(error)")
+                #endif
             }
         }
     }

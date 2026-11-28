@@ -228,7 +228,9 @@ struct CreateRecipeView: View {
                 path.append(FoodsRoute.recipeDetail(newRecipe))
             }
         } catch {
+            #if DEBUG
             print("Failed to save recipe: \(error.localizedDescription)")
+            #endif
         }
     }
 }
@@ -613,6 +615,7 @@ struct AddIngredientModalView: View {
 
     var onSave: (FoodItem) -> Void
 
+    @AppStorage("useMetricSystem") private var useMetricSystem = true
     @State private var name: String = ""
     @State private var weight: String = "100"
 
@@ -655,7 +658,13 @@ struct AddIngredientModalView: View {
                                     .fill(EditorialPalette.hairlineLight)
                                     .frame(height: 0.5)
                                     .padding(.leading, 56)
-                                CustomTextFieldRow(title: "Weight (g)", placeholder: "100", text: $weight, isNumber: true, systemImage: "scalemass.fill")
+                                CustomTextFieldRow(
+                                    title: useMetricSystem ? "Weight (g)" : "Weight (oz)",
+                                    placeholder: useMetricSystem ? "100" : "3.5",
+                                    text: $weight,
+                                    isNumber: true,
+                                    systemImage: "scalemass.fill"
+                                )
                             }
                             .background(Color.white.opacity(0.84))
                             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -735,10 +744,13 @@ struct AddIngredientModalView: View {
         caloriesRaw: String,
         proteinRaw: String,
         fatsRaw: String,
-        carbsRaw: String
+        carbsRaw: String,
+        useMetric: Bool = true
     ) -> FoodItem {
         let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let w = min(NutritionMath.parsePositiveDecimal(weightRaw) ?? 100.0, 50_000.0)
+        let enteredWeight = NutritionMath.parsePositiveDecimal(weightRaw) ?? (useMetric ? 100.0 : 3.5)
+        let grams = NutritionMath.gramsFromDisplayFoodWeight(enteredWeight, useMetric: useMetric)
+        let w = min(grams, 50_000.0)
         let cals = NutritionMath.clampedInt(NutritionMath.parseNonNegativeDecimal(caloriesRaw) ?? 0)
         let p = min(NutritionMath.parseNonNegativeDecimal(proteinRaw) ?? 0.0, 10_000.0)
         let f = min(NutritionMath.parseNonNegativeDecimal(fatsRaw) ?? 0.0, 10_000.0)
@@ -777,7 +789,8 @@ struct AddIngredientModalView: View {
             caloriesRaw: calories,
             proteinRaw: protein,
             fatsRaw: fats,
-            carbsRaw: carbs
+            carbsRaw: carbs,
+            useMetric: useMetricSystem
         )
         context.insert(newFood)
         try? context.save()
@@ -835,9 +848,15 @@ struct RecipeMacroDonutView: View {
             HStack(spacing: 20) {
                 ZStack {
                     Circle().stroke(Color.gray.opacity(0.15), lineWidth: 10)
-                    Circle().trim(from: 0, to: anim ? cPct : 0).stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 10, lineCap: .round)).rotationEffect(.degrees(-90))
-                    Circle().trim(from: anim ? cPct : 0, to: anim ? (cPct + fPct) : 0).stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 10, lineCap: .round)).rotationEffect(.degrees(-90))
-                    Circle().trim(from: anim ? (cPct + fPct) : 0, to: anim ? 1.0 : 0).stroke(Color.themePeach, style: StrokeStyle(lineWidth: 10, lineCap: .round)).rotationEffect(.degrees(-90))
+                    if cPct > 0 {
+                        Circle().trim(from: 0, to: anim ? cPct : 0).stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 10, lineCap: .round)).rotationEffect(.degrees(-90))
+                    }
+                    if fPct > 0 {
+                        Circle().trim(from: anim ? cPct : 0, to: anim ? (cPct + fPct) : 0).stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 10, lineCap: .round)).rotationEffect(.degrees(-90))
+                    }
+                    if pPct > 0 {
+                        Circle().trim(from: anim ? (cPct + fPct) : 0, to: anim ? min(cPct + fPct + pPct, 1.0) : 0).stroke(Color.themePeach, style: StrokeStyle(lineWidth: 10, lineCap: .round)).rotationEffect(.degrees(-90))
+                    }
                     VStack(spacing: 0) { Text("\(calories)").font(.system(size: 22, weight: .heavy, design: .rounded)); Text("cal").font(.caption).foregroundColor(.gray) }
                 }.frame(width: 90, height: 90)
                 Spacer()

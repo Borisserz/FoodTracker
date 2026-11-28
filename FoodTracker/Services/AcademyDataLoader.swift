@@ -139,7 +139,9 @@ class AcademyDataLoader {
             guard let self = self else { return }
 
             if let error = error {
+                #if DEBUG
                 print("❌ Ошибка загрузки Академии (используем локальный фоллбек): \(error.localizedDescription)")
+                #endif
                 return
             }
 
@@ -152,7 +154,9 @@ class AcademyDataLoader {
                 self.hasLoadedRemote = true
                 self.categories = fetchedCategories.sorted { $0.title < $1.title }
                 self.recalculateProgress()
+                #if DEBUG
                 print("✅ Академия загружена: \(self.categories.count) категорий.")
+                #endif
             }
         }
     }

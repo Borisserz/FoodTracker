@@ -450,13 +450,14 @@ struct MealHUDQuickLogSheet: View {
                 }
             ) {
                 let daySummary = DailySummary.fetchExisting(for: selectedDate, in: modelContext)
-                let user = User.deduplicatedPrimary(in: modelContext)
-                let remaining = NutritionMath.remainingMacros(user: user, summary: daySummary)
+                let user = users.first
+                // Guideline 5.1.3(i): Menu AI prompt budget excludes HealthKit activeCaloriesBurned.
+                let aiRemaining = NutritionMath.aiSafeRemainingMacros(user: user, summary: daySummary)
                 SmartScannerView(
                     onProductFound: { foundFood in pendingScannerFood = foundFood },
                     onManualEntryRequest: { pendingManualEntryAfterScanner = true },
-                    remainingCalories: remaining.calories,
-                    remainingProtein: remaining.protein
+                    remainingCalories: aiRemaining.calories,
+                    remainingProtein: aiRemaining.protein
                 )
             }
             .sheet(isPresented: $showingManualAdd) {

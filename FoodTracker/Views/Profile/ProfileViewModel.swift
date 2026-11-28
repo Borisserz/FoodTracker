@@ -18,7 +18,9 @@ class ProfileViewModel {
             do {
                 self.currentStreak = try await summaryRepository.calculateCurrentStreak()
             } catch {
+                #if DEBUG
                 print("Failed to calculate streak: \(error)")
+                #endif
             }
         }
     }

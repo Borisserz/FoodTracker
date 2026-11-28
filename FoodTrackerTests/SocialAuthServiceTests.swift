@@ -352,4 +352,39 @@ final class SocialAuthServiceTests: XCTestCase {
         }
         XCTAssertFalse(mapped.localizedDescription.isEmpty)
     }
+
+    func testPerformServerAccountDeletionThrowsRequiresRecentLoginWithoutRetrying401() async throws {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let session = URLSession(configuration: config)
+        var tokenFetchCount = 0
+        MockURLProtocol.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 401,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            )!
+            return (response, Data(#"{"error":"requires_recent_login"}"#.utf8))
+        }
+        defer { MockURLProtocol.requestHandler = nil }
+
+        do {
+            try await AuthManager.performServerAccountDeletion(
+                url: URL(string: "https://us-central1-serzhanovich-ecosystem-ce700.cloudfunctions.net/foodDeleteAccount")!,
+                urlSession: session,
+                fetchTokens: { _ in
+                    tokenFetchCount += 1
+                    return ("id-tok", "appcheck-tok")
+                }
+            )
+            XCTFail("Expected requiresRecentLogin error")
+        } catch let err as AccountDeletionError {
+            guard case .requiresRecentLogin = err else {
+                XCTFail("Expected .requiresRecentLogin, got \(err)")
+                return
+            }
+            XCTAssertEqual(tokenFetchCount, 1, "Must not waste a token-refresh retry on requires_recent_login")
+        }
+    }
 }

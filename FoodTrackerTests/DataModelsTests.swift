@@ -2427,4 +2427,183 @@ final class DataModelsTests: XCTestCase {
         XCTAssertEqual(oz, 1.0, accuracy: 0.0001)
         XCTAssertEqual(NutritionMath.gramsFromDisplayFoodWeight(oz, useMetric: false), 28.349523125, accuracy: 0.0001)
     }
+
+    @MainActor
+    func testAISafeRemainingMacrosExcludesHealthKitActiveCaloriesBurned() {
+        let user = User(name: "Alex", weight: 75, height: 180, age: 28, gender: "Male")
+        user.dailyCaloriesGoal = 2000
+        user.targetProtein = 150
+        user.targetFats = 70
+        user.targetCarbs = 220
+
+        let summary = DailySummary(date: Date())
+        summary.activeCaloriesBurned = 600 // HealthKit active energy + workouts
+        let meal = Meal(title: "Lunch", date: Date(), foodItems: [
+            FoodItem(name: "Chicken Bowl", weight: 350, calories: 1200, protein: 80, fats: 30, carbs: 110)
+        ])
+        summary.addMeal(meal)
+
+        // On-device UI remainingMacros includes HealthKit active burn (2000 + 600 - 1200 = 1400).
+        let uiRemaining = NutritionMath.remainingMacros(user: user, summary: summary)
+        XCTAssertEqual(uiRemaining.calories, 1400)
+
+        // AI-safe remaining macros MUST exclude HealthKit activeCaloriesBurned (Guideline 5.1.3(i)).
+        let aiRemaining = NutritionMath.aiSafeRemainingMacros(user: user, summary: summary)
+        XCTAssertEqual(aiRemaining.calories, 800)
+        XCTAssertEqual(aiRemaining.protein, 70)
+        XCTAssertEqual(aiRemaining.fat, 40)
+        XCTAssertEqual(aiRemaining.carbs, 110)
+    }
+
+    @MainActor
+    func testHealthKitWeightImportPreservesUserNutritionGoalsForAIPromptIsolation() throws {
+        let user = User(name: "Alex", weight: 80.0, height: 180.0, age: 30, gender: "Male")
+        user.dailyCaloriesGoal = 2150
+        user.targetProtein = 160
+        user.targetFats = 65
+        user.targetCarbs = 230
+        context.insert(user)
+        try context.save()
+
+        let twoDaysAgo = Calendar.current.date(byAdding: .day, value: -2, to: Date()) ?? Date()
+        NutritionMath.recordWeight(
+            77.5,
+            date: twoDaysAgo,
+            for: user,
+            in: context,
+            recalculateUserGoals: false,
+            syncToHealthKit: false
+        )
+
+        XCTAssertEqual(user.dailyCaloriesGoal, 2150)
+        XCTAssertEqual(user.targetProtein, 160, accuracy: 0.001)
+        XCTAssertEqual(user.targetFats, 65, accuracy: 0.001)
+        XCTAssertEqual(user.targetCarbs, 230, accuracy: 0.001)
+        let logs = try context.fetch(FetchDescriptor<WeightLog>())
+        XCTAssertEqual(logs.count, 1)
+        XCTAssertTrue(Calendar.current.isDate(logs[0].date, inSameDayAs: twoDaysAgo))
+    }
+
+    func testResolveLiveRecipesHandlesDuplicateIDsAndDuplicateNilIDTitlesWithoutCrashing() {
+        func makeRecipe(id: String?, title: String, isFavorite: Bool) -> PremiumRecipe {
+            PremiumRecipe(
+                id: id,
+                title: title,
+                description: "Desc",
+                time: "15 min",
+                caloriesPerServing: 350,
+                imageUrl: "",
+                isFavorite: isFavorite,
+                tags: ["Quick"],
+                baseServings: 1,
+                protein: 25,
+                fat: 10,
+                carbs: 35,
+                ingredients: [],
+                directions: []
+            )
+        }
+
+        let displayed = [
+            makeRecipe(id: "r1", title: "Oats", isFavorite: false),
+            makeRecipe(id: nil, title: "Greek Salad", isFavorite: false),
+        ]
+        // Latest catalog contains duplicate IDs and duplicate nil-ID titles.
+        let latest = [
+            makeRecipe(id: "r1", title: "Oats", isFavorite: true),
+            makeRecipe(id: "r1", title: "Oats Duplicate", isFavorite: false),
+            makeRecipe(id: nil, title: "Greek Salad", isFavorite: true),
+            makeRecipe(id: nil, title: "Greek Salad", isFavorite: false),
+        ]
+
+        let resolved = FilteredRecipesListView.resolveLiveRecipes(displayed: displayed, latest: latest)
+        XCTAssertEqual(resolved.count, 2)
+        XCTAssertEqual(resolved[0].title, "Oats")
+        XCTAssertTrue(resolved[0].isFavorite)
+        XCTAssertEqual(resolved[1].title, "Greek Salad")
+        XCTAssertTrue(resolved[1].isFavorite)
+    }
+
+    @MainActor
+    func testOnboardingPersistenceUsesAlexDefaultNameAndPersistsPersonalizedWaterGoal() throws {
+        let metrics = OnboardingMetrics(
+            age: 30,
+            height: 182,
+            weight: 90,
+            targetWeight: 82,
+            goal: "Lose Weight",
+            activityLevel: .active,
+            gender: "Male"
+        )
+        OnboardingPersistence.save(metrics: metrics, existingUser: nil, in: context)
+
+        let users = try context.fetch(FetchDescriptor<User>())
+        XCTAssertEqual(users.count, 1)
+        XCTAssertEqual(users[0].name, "Alex", "Fresh user must never be created with phantom 'Champion' name")
+        XCTAssertEqual(users[0].dailyWaterGoalLiters, 2.9, accuracy: 0.01)
+    }
+
+    func testAddIngredientModalBuildIngredientConvertsImperialOuncesToGrams() {
+        let item = AddIngredientModalView.buildIngredient(
+            name: "Almonds",
+            weightRaw: "4",
+            caloriesRaw: "650",
+            proteinRaw: "24",
+            fatsRaw: "56",
+            carbsRaw: "24",
+            useMetric: false
+        )
+        XCTAssertEqual(item.weight, 4.0 * 28.349523125, accuracy: 0.05)
+    }
+
+    @MainActor
+    func testLocalDataResetServicePendingWipeFlagExecutesOnNextLaunch() throws {
+        let suiteName = "test.pending.wipe.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let user = User(name: "ToWipe", weight: 75, height: 180, age: 28)
+        context.insert(user)
+        try context.save()
+
+        LocalDataResetService.markPendingLocalDataWipe(defaults: defaults)
+        XCTAssertTrue(LocalDataResetService.hasPendingLocalDataWipe(defaults: defaults))
+
+        let didWipe = LocalDataResetService.executePendingWipeIfNeeded(in: context, defaults: defaults)
+        XCTAssertTrue(didWipe)
+        XCTAssertFalse(LocalDataResetService.hasPendingLocalDataWipe(defaults: defaults))
+        let remainingUsers = try context.fetch(FetchDescriptor<User>())
+        XCTAssertTrue(remainingUsers.isEmpty)
+    }
+
+    func testQuickActivityClampedCaloriesRespectsSliderRange() {
+        XCTAssertEqual(QuickActivityAddView.clampedCalories(met: 9.8, weightKg: 100, durationMinutes: 180), 2000)
+        XCTAssertEqual(QuickActivityAddView.clampedCalories(met: 5.0, weightKg: 0, durationMinutes: 30), 10)
+    }
+
+    @MainActor
+    func testNetGoalImpactUsesTDEEBaselineAndRecognizesMaintenanceZone() {
+        let user = User(name: "Alex", weight: 80, height: 180, age: 30, gender: "Male")
+        user.weightGoalType = "lose"
+        user.activityMultiplier = 1.55
+        user.calculateGoals() // dailyCaloriesGoal = TDEE - 450
+        let tdee = MetabolicTDEEGaugeView.computeTDEE(for: user, currentWeight: user.weight)
+
+        // Eating 100 kcal above cut goal is still a ~350 kcal real deficit below TDEE!
+        let cutDay = DailySummary(date: Date())
+        cutDay.addMeal(Meal(title: "Day", date: Date(), foodItems: [
+            FoodItem(name: "Meals", weight: 500, calories: user.dailyCaloriesGoal + 100, protein: 120, fats: 50, carbs: 180)
+        ]))
+        let cutImpact = NetGoalImpactCard.computeImpact(user: user, summary: cutDay)
+        XCTAssertEqual(cutImpact.baselineCalories, tdee)
+        XCTAssertEqual(cutImpact.zone, .losing)
+
+        // Eating right at TDEE -> Maintenance zone (never "calorie surplus")
+        let maintDay = DailySummary(date: Date())
+        maintDay.addMeal(Meal(title: "Day", date: Date(), foodItems: [
+            FoodItem(name: "Meals", weight: 500, calories: tdee, protein: 120, fats: 60, carbs: 200)
+        ]))
+        let maintImpact = NetGoalImpactCard.computeImpact(user: user, summary: maintDay)
+        XCTAssertEqual(maintImpact.zone, .maintaining)
+    }
 }

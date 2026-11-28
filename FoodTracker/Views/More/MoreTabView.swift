@@ -63,14 +63,34 @@ struct MoreTabView: View {
         }
     }
 
-    private let quickPrompts: [(title: String, prompt: String)] = [
-        ("Fix macros", "Can you analyze my macros today and give me specific recommendations to balance protein, carbs and fats?"),
-        ("Pre-workout meal", "What is an ideal meal or snack to eat before my workout based on my remaining calories and macros?"),
-        ("High-protein snack", "Suggest 3 quick, high-protein snacks that will help me hit my daily protein target without exceeding fats."),
-        ("Water intake", "How does my current water intake affect my daily energy and workout recovery?"),
-        ("Evening snack", "What healthy low-calorie evening options won't disrupt my sleep or calorie goals?"),
-        ("Daily balance", "What practical nutrition habits can I apply today to balance my meals better?")
-    ]
+    private var quickPrompts: [(title: String, prompt: String)] {
+        [
+            (
+                String(localized: "Fix macros"),
+                String(localized: "Can you analyze my macros today and give me specific recommendations to balance protein, carbs and fats?")
+            ),
+            (
+                String(localized: "Pre-workout meal"),
+                String(localized: "What is an ideal meal or snack to eat before my workout based on my remaining calories and macros?")
+            ),
+            (
+                String(localized: "High-protein snack"),
+                String(localized: "Suggest 3 quick, high-protein snacks that will help me hit my daily protein target without exceeding fats.")
+            ),
+            (
+                String(localized: "Water intake"),
+                String(localized: "How does my current water intake affect my daily energy and workout recovery?")
+            ),
+            (
+                String(localized: "Evening snack"),
+                String(localized: "What healthy low-calorie evening options won't disrupt my sleep or calorie goals?")
+            ),
+            (
+                String(localized: "Daily balance"),
+                String(localized: "What practical nutrition habits can I apply today to balance my meals better?")
+            )
+        ]
+    }
 
     private let tips: [CoachTipItem] = [
         CoachTipItem(
@@ -227,7 +247,7 @@ struct MoreTabView: View {
                 HydrationFixResultSheet(advice: advice, color: .cyan) {
                     logQuickWaterGlass()
                 }
-                .presentationDetents([.height(320)])
+                .presentationDetents([.medium, .large])
                 .presentationCornerRadius(32)
                 .presentationDragIndicator(.visible)
             }

@@ -170,7 +170,7 @@ struct AICoachDashboardView: View {
                     HydrationFixResultSheet(advice: advice, color: .cyan) {
                         logQuickWaterGlass()
                     }
-                    .presentationDetents([.height(320)])
+                    .presentationDetents([.medium, .large])
                     .presentationCornerRadius(32)
                     .presentationDragIndicator(.visible)
                 }
@@ -704,126 +704,126 @@ struct MacroFixResultSheet: View {
                 .blur(radius: 50)
                 .offset(y: -100)
             
-            VStack(spacing: 24) {
-                Capsule()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 40, height: 5)
-                    .padding(.top, 10)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
+                    Capsule()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 10)
 
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: "sparkles")
-                            .foregroundColor(color)
-                        Text("AI Coach Recommendation")
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundColor(color)
-                            .textCase(.uppercase)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(color)
+                            Text("AI Coach Recommendation")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundColor(color)
+                                .textCase(.uppercase)
+                        }
+
+                        Text(advice.title)
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+
+                        Text(advice.explanation)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(.secondary)
+                            .lineSpacing(3)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
 
-                    Text(advice.title)
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                    if !advice.suggestedSnacks.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Perfect Matches for You:")
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .padding(.horizontal, 24)
 
-                    Text(advice.explanation)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.secondary)
-                        .lineSpacing(3)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(Array(advice.suggestedSnacks.enumerated()), id: \.offset) { index, snack in
+                                        let isLogged = loggedIndices.contains(index)
+                                        VStack(alignment: .leading, spacing: 10) {
+                                            Text(snack.name)
+                                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                                .lineLimit(2)
+                                                .foregroundColor(.primary)
 
-                if !advice.suggestedSnacks.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Perfect Matches for You:")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .padding(.horizontal, 24)
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(Array(advice.suggestedSnacks.enumerated()), id: \.offset) { index, snack in
-                                    let isLogged = loggedIndices.contains(index)
-                                    VStack(alignment: .leading, spacing: 10) {
-                                        Text(snack.name)
-                                            .font(.system(size: 15, weight: .bold, design: .rounded))
-                                            .lineLimit(2)
-                                            .foregroundColor(.primary)
-
-                                        HStack(spacing: 8) {
-                                            Label("\(snack.calories) kcal", systemImage: "flame.fill")
-                                                .foregroundColor(.themeOrange)
-                                            Spacer()
-                                            Text("\(snack.protein)g P")
-                                                .bold()
-                                                .foregroundColor(.themePeach)
-                                        }
-                                        .font(.system(size: 11, weight: .semibold))
-
-                                        if snack.fats > 0 || snack.carbs > 0 {
-                                            HStack(spacing: 10) {
-                                                Text("F: \(snack.fats)g")
-                                                    .foregroundColor(.orange)
-                                                Text("C: \(snack.carbs)g")
-                                                    .foregroundColor(.blue)
+                                            HStack(spacing: 8) {
+                                                Label("\(snack.calories) kcal", systemImage: "flame.fill")
+                                                    .foregroundColor(.themeOrange)
+                                                Spacer()
+                                                Text("\(snack.protein)g P")
+                                                    .bold()
+                                                    .foregroundColor(.themePeach)
                                             }
-                                            .font(.system(size: 10, weight: .semibold))
-                                        }
+                                            .font(.system(size: 11, weight: .semibold))
 
-                                        Spacer(minLength: 0)
-
-                                        Button(action: {
-                                            guard !isLogged else { return }
-                                            logSuggestedSnack(snack, index: index)
-                                        }) {
-                                            HStack(spacing: 4) {
-                                                Image(systemName: isLogged ? "checkmark.circle.fill" : "plus.circle.fill")
-                                                Text(isLogged ? "Logged" : "Log Snack")
+                                            if snack.fats > 0 || snack.carbs > 0 {
+                                                HStack(spacing: 10) {
+                                                    Text("F: \(snack.fats)g")
+                                                        .foregroundColor(.orange)
+                                                    Text("C: \(snack.carbs)g")
+                                                        .foregroundColor(.blue)
+                                                }
+                                                .font(.system(size: 10, weight: .semibold))
                                             }
-                                            .font(.system(size: 12, weight: .bold, design: .rounded))
-                                            .foregroundColor(isLogged ? .green : .white)
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 8)
-                                            .background(isLogged ? Color.green.opacity(0.14) : Color.themeOrange)
-                                            .cornerRadius(12)
+
+                                            Spacer(minLength: 0)
+
+                                            Button(action: {
+                                                guard !isLogged else { return }
+                                                logSuggestedSnack(snack, index: index)
+                                            }) {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: isLogged ? "checkmark.circle.fill" : "plus.circle.fill")
+                                                    Text(isLogged ? "Logged" : "Log Snack")
+                                                }
+                                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                                .foregroundColor(isLogged ? .green : .white)
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 8)
+                                                .background(isLogged ? Color.green.opacity(0.14) : Color.themeOrange)
+                                                .cornerRadius(12)
+                                            }
+                                            .disabled(isLogged)
                                         }
-                                        .disabled(isLogged)
+                                        .padding(14)
+                                        .frame(width: 215, height: 165)
+                                        .background(.ultraThinMaterial)
+                                        .cornerRadius(20)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(
+                                                    LinearGradient(
+                                                        colors: [color.opacity(0.4), color.opacity(0.1)],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    ),
+                                                    lineWidth: 1.5
+                                                )
+                                        )
                                     }
-                                    .padding(14)
-                                    .frame(width: 215, height: 165)
-                                    .background(.ultraThinMaterial)
-                                    .cornerRadius(20)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(
-                                                LinearGradient(
-                                                    colors: [color.opacity(0.4), color.opacity(0.1)],
-                                                    startPoint: .topLeading,
-                                                    endPoint: .bottomTrailing
-                                                ),
-                                                lineWidth: 1.5
-                                            )
-                                    )
                                 }
+                                .padding(.horizontal, 24)
                             }
-                            .padding(.horizontal, 24)
                         }
                     }
-                }
 
-                Spacer()
-
-                Button(action: { dismiss() }) {
-                    Text("Got it")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(color == .themeYellow ? Color.black.opacity(0.85) : .white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(color)
-                        .cornerRadius(20)
-                        .shimmer()
-                        .shadow(color: color.opacity(0.35), radius: 8, y: 4)
+                    Button(action: { dismiss() }) {
+                        Text("Got it")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundColor(color == .themeYellow ? Color.black.opacity(0.85) : .white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(color)
+                            .cornerRadius(20)
+                            .shimmer()
+                            .shadow(color: color.opacity(0.35), radius: 8, y: 4)
+                    }
+                    .buttonStyle(BounceButtonStyle())
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
                 }
-                .buttonStyle(BounceButtonStyle())
-                .padding(.horizontal, 24)
-                .padding(.bottom, 20)
             }
         }
     }
@@ -902,86 +902,89 @@ struct HydrationFixResultSheet: View {
                 .blur(radius: 40)
                 .offset(y: -50)
             
-            VStack(spacing: 24) {
-                Capsule()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 40, height: 5)
-                    .padding(.top, 10)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 20) {
+                    Capsule()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 10)
 
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.12))
-                        .frame(width: 76, height: 76)
-                    Circle()
-                        .stroke(color.opacity(0.25), lineWidth: 1.5)
-                        .frame(width: 88, height: 88)
-                    Image(systemName: "drop.fill")
-                        .font(.system(size: 36))
-                        .foregroundColor(color)
-                }
-                .padding(.top, 10)
-
-                VStack(spacing: 8) {
-                    Text(advice.title)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-
-                    Text(advice.message)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(3)
-                        .padding(.horizontal, 32)
-
-                    if advice.nextGlassTimeMinutes > 0 {
-                        Button(action: scheduleHydrationReminder) {
-                            Label(
-                                reminderScheduled
-                                    ? String(localized: "Reminder set for \(advice.nextGlassTimeMinutes) min")
-                                    : String(localized: "Next glass in \(advice.nextGlassTimeMinutes) min • Tap to remind"),
-                                systemImage: reminderScheduled ? "bell.badge.fill" : "clock.fill"
-                            )
-                            .font(.caption.bold())
-                            .foregroundColor(reminderScheduled ? .green : color)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background((reminderScheduled ? Color.green : color).opacity(0.12))
-                            .clipShape(Capsule())
-                        }
-                        .disabled(reminderScheduled)
+                    ZStack {
+                        Circle()
+                            .fill(color.opacity(0.12))
+                            .frame(width: 76, height: 76)
+                        Circle()
+                            .stroke(color.opacity(0.25), lineWidth: 1.5)
+                            .frame(width: 88, height: 88)
+                        Image(systemName: "drop.fill")
+                            .font(.system(size: 36))
+                            .foregroundColor(color)
                     }
-                }
+                    .padding(.top, 6)
 
-                Spacer()
+                    VStack(spacing: 8) {
+                        Text(advice.title)
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
 
-                HStack(spacing: 16) {
-                    Button(action: { dismiss() }) {
-                        Text("Close")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                        Text(advice.message)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.primary.opacity(0.04))
-                            .cornerRadius(20)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(3)
+                            .padding(.horizontal, 32)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        if advice.nextGlassTimeMinutes > 0 {
+                            Button(action: scheduleHydrationReminder) {
+                                Label(
+                                    reminderScheduled
+                                        ? String(localized: "Reminder set for \(advice.nextGlassTimeMinutes) min")
+                                        : String(localized: "Next glass in \(advice.nextGlassTimeMinutes) min • Tap to remind"),
+                                    systemImage: reminderScheduled ? "bell.badge.fill" : "clock.fill"
+                                )
+                                .font(.caption.bold())
+                                .foregroundColor(reminderScheduled ? .green : color)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background((reminderScheduled ? Color.green : color).opacity(0.12))
+                                .clipShape(Capsule())
+                            }
+                            .disabled(reminderScheduled)
+                        }
                     }
 
-                    Button(action: {
-                        onDrinkNow?()
-                        dismiss()
-                    }) {
-                        Text("Drink Now")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(color)
-                            .cornerRadius(20)
-                            .shimmer()
-                            .shadow(color: color.opacity(0.4), radius: 8, y: 4)
+                    HStack(spacing: 16) {
+                        Button(action: { dismiss() }) {
+                            Text("Close")
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(Color.primary.opacity(0.04))
+                                .cornerRadius(20)
+                        }
+
+                        Button(action: {
+                            onDrinkNow?()
+                            dismiss()
+                        }) {
+                            Text("Drink Now")
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(color)
+                                .cornerRadius(20)
+                                .shimmer()
+                                .shadow(color: color.opacity(0.4), radius: 8, y: 4)
+                        }
+                        .buttonStyle(BounceButtonStyle())
                     }
-                    .buttonStyle(BounceButtonStyle())
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 20)
             }
         }
     }

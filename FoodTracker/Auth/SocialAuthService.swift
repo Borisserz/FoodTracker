@@ -187,7 +187,12 @@ final class SocialAuthService {
                 if code == .credentialAlreadyInUse || code == .emailAlreadyInUse {
                     let updated = nsError
                         .userInfo[AuthErrorUserInfoUpdatedCredentialKey] as? AuthCredential
-                    let signedInResult = try await Auth.auth().signIn(with: updated ?? credential)
+                    let signedInResult: AuthDataResult
+                    do {
+                        signedInResult = try await Auth.auth().signIn(with: updated ?? credential)
+                    } catch {
+                        throw Self.mapAuthError(error)
+                    }
                     if signedInResult.user.uid != user.uid {
                         try? await user.delete()
                     }
@@ -267,9 +272,9 @@ final class SocialAuthService {
             return try await reauthenticateWithApple(user: user)
         } else if providerIDs.contains("google.com") {
             try await reauthenticateWithGoogle(user: user)
+            return nil
         }
-        return nil
-        // If you add email/password later, handle it here.
+        throw AuthError.unsupportedProviderReauth
     }
 
     func revokeAppleAuthorizationCode(
@@ -325,6 +330,11 @@ final class SocialAuthService {
     }
 
     private func reauthenticateWithGoogle(user: FirebaseAuth.User) async throws {
+        guard !isGoogleAuthorizationInFlight else {
+            throw AuthError.invalidGoogleCredential
+        }
+        isGoogleAuthorizationInFlight = true
+        defer { isGoogleAuthorizationInFlight = false }
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw AuthError.missingGoogleClientID
         }
@@ -332,7 +342,7 @@ final class SocialAuthService {
         guard let presenter = Self.topViewController() else {
             throw AuthError.noPresentingController
         }
-        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter, hint: user.email)
         let credential = try Self.makeGoogleCredential(
             idToken: result.user.idToken?.tokenString,
             accessToken: result.user.accessToken.tokenString
@@ -368,6 +378,7 @@ enum AuthError: LocalizedError {
     case noPresentingController
     case notSignedIn
     case accountExistsWithOtherProvider
+    case unsupportedProviderReauth
 
     var errorDescription: String? {
         switch self {
@@ -385,6 +396,8 @@ enum AuthError: LocalizedError {
             return String(localized: "You are not signed in.")
         case .accountExistsWithOtherProvider:
             return String(localized: "An account already exists with this email using a different sign-in method. Please sign in with your original provider.")
+        case .unsupportedProviderReauth:
+            return String(localized: "For security, please sign out and sign in again with Apple or Google before deleting your account.")
         }
     }
 }

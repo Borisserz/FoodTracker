@@ -98,7 +98,9 @@ final class LocalFoodDatabaseService {
                 self.indexedFallbackFoods = fallback
                 self._isLoaded = true
             }
+            #if DEBUG
             print("📚 LocalFoodDB: loaded \(primary.count) '\(lang)' foods + \(fallback.count) EN fallback (async)")
+            #endif
         }
     }
 
@@ -245,7 +247,9 @@ final class LocalFoodDatabaseService {
         guard let url = Bundle.main.url(forResource: "foods_\(language)", withExtension: "json"),
               let data = try? Data(contentsOf: url),
               let entries = try? JSONDecoder().decode([LocalFoodEntry].self, from: data) else {
+            #if DEBUG
             print("⚠️ LocalFoodDB: could not load foods_\(language).json")
+            #endif
             return []
         }
         return indexEntries(entries)

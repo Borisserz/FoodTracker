@@ -216,8 +216,7 @@ private struct Stage0WelcomeView: View {
 
 private enum OnboardingMetricsUIHelper {
     static func recommendedWaterLiters(for weightKg: Double) -> Double {
-        let raw = max(1.6, min(3.8, weightKg * 0.032))
-        return (raw * 10).rounded() / 10
+        MetabolicBlueprintCalculator.recommendedWaterLiters(for: weightKg)
     }
 
     static func weightIntBinding(_ target: Binding<Double>, useMetric: Bool) -> Binding<Int> {
@@ -297,6 +296,16 @@ private struct Stage1BiometricsView: View {
                     }
                 }
                 .padding(.horizontal, 20)
+
+                Picker("Units", selection: $useMetricSystem) {
+                    Text("Metric (kg, cm)").tag(true)
+                    Text("Imperial (lbs, in)").tag(false)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 20)
+                .onChange(of: useMetricSystem) { _, newVal in
+                    UserDefaults(suiteName: SharedModelContainer.appGroupIdentifier)?.set(newVal, forKey: "useMetricSystem")
+                }
 
                 HStack(spacing: 10) {
                     genderPill("Male")

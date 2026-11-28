@@ -120,7 +120,9 @@ class RecipeDataLoader {
             guard let self = self else { return }
 
             if let error = error {
+                #if DEBUG
                 print("❌ Error loading recipes from Firestore (using bundled fallback): \(error.localizedDescription)")
+                #endif
                 return
             }
 

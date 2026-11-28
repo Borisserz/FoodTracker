@@ -72,7 +72,9 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
             do {
                 try scanner.startScanning()
             } catch {
+                #if DEBUG
                 print("⚠️ DataScanner startScanning failed: \(error.localizedDescription)")
+                #endif
                 DispatchQueue.main.async {
                     self.isScanning = false
                     self.onBecameUnavailable?()

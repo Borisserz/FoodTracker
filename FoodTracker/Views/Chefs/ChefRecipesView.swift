@@ -1220,11 +1220,16 @@ struct FilteredRecipesListView: View {
     let recipes: [PremiumRecipe]
     @Binding var path: NavigationPath
 
-    private var liveRecipes: [PremiumRecipe] {
+    static func resolveLiveRecipes(displayed: [PremiumRecipe], latest: [PremiumRecipe]) -> [PremiumRecipe] {
         let latestByKey = Dictionary(
-            uniqueKeysWithValues: dataLoader.recipes.map { ($0.id ?? $0.title, $0) }
+            latest.map { ($0.id ?? $0.title, $0) },
+            uniquingKeysWith: { first, _ in first }
         )
-        return recipes.map { latestByKey[$0.id ?? $0.title] ?? $0 }
+        return displayed.map { latestByKey[$0.id ?? $0.title] ?? $0 }
+    }
+
+    private var liveRecipes: [PremiumRecipe] {
+        Self.resolveLiveRecipes(displayed: recipes, latest: dataLoader.recipes)
     }
 
     var body: some View {

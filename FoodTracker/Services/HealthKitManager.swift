@@ -204,10 +204,14 @@ final class HealthKitManager {
 
         do {
             try await store.save(sample)
+            #if DEBUG
             print("Successfully saved \(liters)L of water to HealthKit")
+            #endif
             return sample.uuid
         } catch {
+            #if DEBUG
             print("Error saving water to HealthKit: \(error.localizedDescription)")
+            #endif
             return nil
         }
     }
@@ -224,10 +228,14 @@ final class HealthKitManager {
 
         do {
             try await store.save(sample)
+            #if DEBUG
             print("Saved \(calories) kcal dietary energy to HealthKit")
+            #endif
             return sample.uuid
         } catch {
+            #if DEBUG
             print("Error saving dietary energy: \(error.localizedDescription)")
+            #endif
             return nil
         }
     }
@@ -293,14 +301,19 @@ final class HealthKitManager {
 
         let samples = (try? await store.fetchSourceQuantitySamples(for: identifier, start: startOfDay, end: endOfDay)) ?? []
 
-        if let idString, let uuid = UUID(uuidString: idString),
-           let uuidMatch = samples.first(where: { $0.uuid == uuid }) {
-            do {
-                try await store.delete(uuidMatch)
-                return
-            } catch {
-                print("Error deleting HealthKit sample by UUID: \(error.localizedDescription)")
+        if let idString, let uuid = UUID(uuidString: idString) {
+            // When an exact HealthKit UUID is known, never fall through to value-based
+            // fallback deletion — the target sample may already have been deleted in Apple Health.
+            if let uuidMatch = samples.first(where: { $0.uuid == uuid }) {
+                do {
+                    try await store.delete(uuidMatch)
+                } catch {
+                    #if DEBUG
+                    print("Error deleting HealthKit sample by UUID: \(error.localizedDescription)")
+                    #endif
+                }
             }
+            return
         }
 
         guard fallbackValue > 0,
@@ -310,7 +323,9 @@ final class HealthKitManager {
         do {
             try await store.delete(match)
         } catch {
+            #if DEBUG
             print("Error deleting fallback HealthKit sample: \(error.localizedDescription)")
+            #endif
         }
     }
 
@@ -356,10 +371,14 @@ final class HealthKitManager {
                 try await store.save(sample)
                 energySampleID = sample.uuid.uuidString
             }
+            #if DEBUG
             print("Successfully saved workout to HealthKit: \(calories) kcal for \(durationMinutes) min.")
+            #endif
             return (workout.uuid.uuidString, energySampleID)
         } catch {
+            #if DEBUG
             print("Error saving workout to HealthKit: \(error.localizedDescription)")
+            #endif
             return (nil, nil)
         }
     }
@@ -387,9 +406,10 @@ final class HealthKitManager {
         guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return }
 
         let workouts = (try? await store.fetchWorkouts(start: startOfDay, end: endOfDay)) ?? []
-        if let workoutID, let uuid = UUID(uuidString: workoutID),
-           let uuidMatch = workouts.first(where: { $0.uuid == uuid }) {
-            try? await store.delete(uuidMatch)
+        if let workoutID, let uuid = UUID(uuidString: workoutID) {
+            if let uuidMatch = workouts.first(where: { $0.uuid == uuid }) {
+                try? await store.delete(uuidMatch)
+            }
             return
         }
 
@@ -520,7 +540,9 @@ final class HealthKitManager {
             try await store.save(sample)
             return sample.uuid
         } catch {
+            #if DEBUG
             print("Error saving body mass to HealthKit: \(error.localizedDescription)")
+            #endif
             return nil
         }
     }

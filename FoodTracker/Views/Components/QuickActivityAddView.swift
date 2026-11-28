@@ -163,11 +163,19 @@ struct QuickActivityAddView: View {
         }
     }
     
+    static func clampedCalories(met: Double, weightKg: Double, durationMinutes: Double) -> Double {
+        let calculated = met * max(0, weightKg) * (max(0, durationMinutes) / 60.0)
+        let roundedStep = (calculated / 10.0).rounded() * 10.0
+        return min(2000, max(10, roundedStep))
+    }
+
     private func updateCalories() {
         guard let activity = selectedActivity else { return }
-        // Formula: Calories = MET * weight(kg) * (duration(min) / 60)
-        let calculated = activity.metValue * userWeightKg * (durationMinutes / 60.0)
-        caloriesBurned = calculated
+        caloriesBurned = Self.clampedCalories(
+            met: activity.metValue,
+            weightKg: userWeightKg,
+            durationMinutes: durationMinutes
+        )
     }
     
     private func saveActivity() {

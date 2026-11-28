@@ -483,7 +483,9 @@ final class VertexAIManager {
             )
             return .food(item)
         } catch {
+            #if DEBUG
             print("❌ Vertex AI Error: \(error)")
+            #endif
             recordFailure(for: error)
             return .failed
         }
@@ -530,7 +532,9 @@ final class VertexAIManager {
                 responseSchema: Self.menuScanSchema
             )
         } catch {
+            #if DEBUG
             print("❌ Menu AI Error: \(error)")
+            #endif
             recordFailure(for: error)
             return nil
         }

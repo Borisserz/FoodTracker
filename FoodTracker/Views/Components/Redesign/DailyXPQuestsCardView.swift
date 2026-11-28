@@ -8,7 +8,7 @@ enum DailyXPQuestsEvaluator {
         case water
     }
 
-    static func isQuestSatisfied(_ quest: QuestType, summary: DailySummary?) -> Bool {
+    static func isQuestSatisfied(_ quest: QuestType, summary: DailySummary?, waterGoalLiters: Double = 2.5) -> Bool {
         guard let summary else { return false }
         switch quest {
         case .steps:
@@ -17,7 +17,8 @@ enum DailyXPQuestsEvaluator {
             let loggedSlots = Set((summary.meals ?? []).filter { $0.totalCalories > 0 }.map { DailySummary.canonicalMealSlot($0.title) })
             return loggedSlots.count >= 3
         case .water:
-            return summary.totalPureWaterLiters >= 2.499
+            let goal = max(1.0, waterGoalLiters)
+            return summary.totalPureWaterLiters >= (goal - 0.001)
         }
     }
 }
@@ -172,12 +173,12 @@ struct DailyXPQuestsCardView: View {
                     claimQuestXP(100, id: "meals", satisfied: mealsSatisfied)
                 }
                 
-                let waterSatisfied = DailyXPQuestsEvaluator.isQuestSatisfied(.water, summary: todaySummary)
+                let waterGoal = max(1.0, user.dailyWaterGoalLiters)
+                let waterSatisfied = DailyXPQuestsEvaluator.isQuestSatisfied(.water, summary: todaySummary, waterGoalLiters: waterGoal)
+                let waterGoalLabel = NutritionMath.formattedHydration(liters: waterGoal, useMetric: useMetricSystem)
                 XPQuestRow(
                     icon: "drop.fill",
-                    title: useMetricSystem
-                        ? String(localized: "Drink 2.5L of water")
-                        : String(localized: "Drink 85 fl oz of water"),
+                    title: String(localized: "Drink \(waterGoalLabel) of water"),
                     xp: 150,
                     isSatisfied: waterSatisfied,
                     isClaimed: isClaimed("water")

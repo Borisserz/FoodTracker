@@ -190,6 +190,56 @@ final class WorkoutSyncManager {
         ftDefaults.set(pendingEntries, forKey: entriesKey)
     }
 
+    /// Queues HealthKit water sample deletions produced during a widget-side reconciliation
+    /// (e.g. after WorkoutTracker lowered/reset water) so the main app cleans up Apple Health on foreground.
+    struct PendingHealthKitWaterDeletion: Codable, Equatable {
+        let sampleID: String?
+        let volumeMl: Double
+        let date: Date
+    }
+
+    nonisolated static func pendingHealthKitWaterDeletionsKey(for date: Date) -> String {
+        "pending_hk_water_deletions_\(dateString(for: date))"
+    }
+
+    func recordPendingWidgetWaterDeletions(
+        _ samples: [DeletedWaterHealthSample],
+        for date: Date,
+        appGroupDefaults: UserDefaults? = nil
+    ) {
+        let actionable = samples.filter {
+            $0.sampleID != Self.externalWaterSentinelID && ($0.sampleID != nil || $0.volumeMl > 0)
+        }
+        guard !actionable.isEmpty,
+              let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return }
+        let key = Self.pendingHealthKitWaterDeletionsKey(for: date)
+        var existing: [PendingHealthKitWaterDeletion] = []
+        if let raw = ftDefaults.data(forKey: key),
+           let decoded = try? JSONDecoder().decode([PendingHealthKitWaterDeletion].self, from: raw) {
+            existing = decoded
+        }
+        existing.append(contentsOf: actionable.map {
+            PendingHealthKitWaterDeletion(sampleID: $0.sampleID, volumeMl: $0.volumeMl, date: date)
+        })
+        if let encoded = try? JSONEncoder().encode(existing) {
+            ftDefaults.set(encoded, forKey: key)
+        }
+    }
+
+    func consumePendingWidgetWaterDeletions(
+        for date: Date,
+        appGroupDefaults: UserDefaults? = nil
+    ) -> [PendingHealthKitWaterDeletion] {
+        guard let ftDefaults = appGroupDefaults ?? defaultFoodTrackerDefaults else { return [] }
+        let key = Self.pendingHealthKitWaterDeletionsKey(for: date)
+        guard let raw = ftDefaults.data(forKey: key),
+              let decoded = try? JSONDecoder().decode([PendingHealthKitWaterDeletion].self, from: raw) else {
+            return []
+        }
+        ftDefaults.removeObject(forKey: key)
+        return decoded
+    }
+
     /// Reads queued widget-added hydration entries (in liters) without clearing them until Apple Health confirms save.
     func peekPendingWidgetWaterEntriesLiters(
         for date: Date,

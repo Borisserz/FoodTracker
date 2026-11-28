@@ -203,6 +203,9 @@ struct FoodTrackerApp: App {
             (SharedModelContainer.shared.container, SharedModelContainer.shared.didFallBackToInMemory)
         }.value
 
+        // Complete any local wipe interrupted by a force-quit after server-side account deletion.
+        LocalDataResetService.executePendingWipeIfNeeded(in: container.mainContext)
+
         let di = DIContainer(modelContainer: container)
         AppDelegate.activeAppState = di.appState
         if let pendingRoute = AppDelegate.pendingNotificationRoute {

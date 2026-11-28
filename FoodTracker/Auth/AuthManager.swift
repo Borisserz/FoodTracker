@@ -15,6 +15,7 @@ enum AccountDeletionDialogCopy {
 
 enum AccountDeletionError: LocalizedError {
     case serverCleanupFailed(statusCode: Int)
+    case requiresRecentLogin
     case notSignedIn
     case appleTokenRevocationFailed(underlyingDescription: String)
 
@@ -24,6 +25,8 @@ enum AccountDeletionError: LocalizedError {
             return String(
                 localized: "Failed to remove server account data (HTTP \(statusCode)). Please try again."
             )
+        case .requiresRecentLogin:
+            return String(localized: "For security, please sign in again before deleting your account.")
         case .notSignedIn:
             return String(localized: "No active user session found to delete.")
         case .appleTokenRevocationFailed(let underlyingDescription):
@@ -141,14 +144,20 @@ final class AuthManager {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = Data("{}".utf8)
 
-            let (_, response) = try await urlSession.data(for: request)
+            let (data, response) = try await urlSession.data(for: request)
             if let http = response as? HTTPURLResponse {
                 if (200...299).contains(http.statusCode) {
                     return
                 }
                 lastStatusCode = http.statusCode
-                if http.statusCode == 401 && !forceRefresh {
-                    continue
+                if http.statusCode == 401 {
+                    if let bodyText = String(data: data, encoding: .utf8),
+                       bodyText.contains("requires_recent_login") {
+                        throw AccountDeletionError.requiresRecentLogin
+                    }
+                    if !forceRefresh {
+                        continue
+                    }
                 }
             }
             break

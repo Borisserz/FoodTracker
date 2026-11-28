@@ -25,7 +25,9 @@ struct AddWaterIntent: AppIntent {
                 groupDefaults?.set(Date().timeIntervalSince1970, forKey: SharedModelContainer.widgetStoreMutationTimestampKey)
                 WidgetReloader.reloadAll()
             } catch {
+                #if DEBUG
                 print("Failed to add water from intent: \(error)")
+                #endif
             }
         }
 
@@ -56,7 +58,9 @@ struct ToggleShoppingItemIntent: AppIntent {
                     .set(Date().timeIntervalSince1970, forKey: SharedModelContainer.widgetStoreMutationTimestampKey)
                 WidgetReloader.reloadAll()
             } catch {
+                #if DEBUG
                 print("Failed to toggle shopping item from intent: \(error)")
+                #endif
             }
         }
         return .result()

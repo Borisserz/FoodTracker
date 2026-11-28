@@ -93,7 +93,7 @@ struct ProfileView: View {
                             title: "Height"
                         )
                         Divider().frame(height: 40)
-                        ProfileStatItem(value: "\(user.age)", unit: "y.o", title: "Age")
+                        ProfileStatItem(value: "\(user.age)", unit: String(localized: "y.o"), title: "Age")
                     }
                     .padding(.top, 8)
                 }
@@ -932,8 +932,9 @@ struct AccountSettingsView: View {
                                     dismiss()
                                 } catch let deletionError as AccountDeletionError {
                                     if case .appleTokenRevocationFailed = deletionError {
-                                        // Server account deletion already succeeded; defer local wipe until
-                                        // the user dismisses the warning alert so the view isn't unmounted first.
+                                        // Server account deletion already succeeded; persist pending-wipe marker
+                                        // so even a force-quit before tapping OK wipes local data on next launch.
+                                        LocalDataResetService.markPendingLocalDataWipe()
                                         pendingPostRevocationWipe = true
                                     }
                                     errorMessage = deletionError.localizedDescription
@@ -1439,7 +1440,7 @@ struct AIPhotoPrivacySettingsView: View {
                             .fill(EditorialPalette.hairlineLight)
                             .frame(height: 0.5)
 
-                        Text("When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and named partner AI models (Google and Recursive). Apple Health data is never sent to AI.")
+                        Text("When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (provider training & data collection disabled) and named partner AI models (Google, including Google Cloud Vertex AI, and Recursive). Apple Health data is never sent to AI.")
                             .font(.system(size: 13, weight: .regular, design: .rounded))
                             .foregroundStyle(EditorialPalette.inkSecondary)
                             .fixedSize(horizontal: false, vertical: true)

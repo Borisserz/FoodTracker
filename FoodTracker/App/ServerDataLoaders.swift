@@ -36,7 +36,9 @@ class DietDataLoader {
         listener?.remove()
         listener = db.collection("diets").addSnapshotListener { [weak self] snapshot, error in
             if let error = error {
+                #if DEBUG
                 print("❌ DietDataLoader error (using offline defaults): \(error.localizedDescription)")
+                #endif
                 return
             }
             guard let documents = snapshot?.documents, !documents.isEmpty else { return }
@@ -44,7 +46,9 @@ class DietDataLoader {
             guard !fetched.isEmpty else { return }
             DispatchQueue.main.async {
                 self?.diets = fetched
+                #if DEBUG
                 print("✅ Загружено диет: \(fetched.count)")
+                #endif
             }
         }
     }
@@ -77,7 +81,9 @@ class FastingDataLoader {
         // Сортируем по часам голодания (от простых к сложным)
         listener = db.collection("fasting_plans").order(by: "fastingHours").addSnapshotListener { [weak self] snapshot, error in
             if let error = error {
+                #if DEBUG
                 print("❌ FastingDataLoader error (using offline defaults): \(error.localizedDescription)")
+                #endif
                 return
             }
             guard let documents = snapshot?.documents, !documents.isEmpty else { return }
@@ -85,7 +91,9 @@ class FastingDataLoader {
             guard !fetched.isEmpty else { return }
             DispatchQueue.main.async {
                 self?.plans = fetched
+                #if DEBUG
                 print("✅ Загружено планов голодания: \(fetched.count)")
+                #endif
             }
         }
     }

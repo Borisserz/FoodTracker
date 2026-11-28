@@ -357,6 +357,28 @@ enum NutritionMath {
         )
     }
 
+    /// Remaining macro budget safe to include in third-party AI prompts (App Store Guideline 5.1.3(i)).
+    /// Intentionally excludes `summary.activeCaloriesBurned` so Apple Health (HealthKit) activity
+    /// and workout energy are never disclosed to external AI services.
+    static func aiSafeRemainingMacros(user: User?, summary: DailySummary?) -> RemainingMacros {
+        let calGoal = user?.dailyCaloriesGoal ?? 2000
+        let protGoal = Int(user?.targetProtein ?? 150)
+        let fatGoal = Int(user?.targetFats ?? 70)
+        let carbGoal = Int(user?.targetCarbs ?? 250)
+
+        let eatenCals = Int(summary?.totalCalories ?? 0)
+        let eatenProt = Int(summary?.totalProtein ?? 0)
+        let eatenFat = Int(summary?.totalFats ?? 0)
+        let eatenCarbs = Int(summary?.totalCarbs ?? 0)
+
+        return RemainingMacros(
+            calories: max(0, calGoal - eatenCals),
+            protein: max(0, protGoal - eatenProt),
+            fat: max(0, fatGoal - eatenFat),
+            carbs: max(0, carbGoal - eatenCarbs)
+        )
+    }
+
     // MARK: - Weight & Achievement Synchronization
 
     /// Persists a weight entry across WeightLog, DailySummary.weight, User.weight, macro goals, and HealthKit.

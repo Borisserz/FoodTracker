@@ -129,6 +129,11 @@ struct AIChefStudioView: View {
         NutritionMath.remainingMacros(user: currentUser, summary: todaySummary)
     }
 
+    // Guideline 5.1.3(i): AI prompts must never include HealthKit activeCaloriesBurned.
+    private var aiSafeRemaining: NutritionMath.RemainingMacros {
+        NutritionMath.aiSafeRemainingMacros(user: currentUser, summary: todaySummary)
+    }
+
     private var allRecipes: [AIChefRecipe] {
         let custom = customRecipes.map { $0.toAIChefRecipe() }
         let library = recipeLoader.recipes.map { $0.toAIChefRecipe() }
@@ -523,7 +528,7 @@ struct AIChefStudioView: View {
                 AIAssistantFlowView(
                     isPresented: $showAIAssistantFlow,
                     recipes: allRecipes,
-                    remainingCalories: remaining.calories,
+                    remainingCalories: aiSafeRemaining.calories,
                     activeDiet: currentUser?.activeDietPlan?.name ?? "Balanced"
                 )
             }
@@ -586,7 +591,7 @@ struct AIChefStudioView: View {
             return
         }
         isGeneratingAIRecipe = true
-        let budget = remaining.calories > 0 ? remaining.calories : 500
+        let budget = aiSafeRemaining.calories > 0 ? aiSafeRemaining.calories : 500
         let diet = currentUser?.activeDietKey ?? "Balanced"
         recipeGenerationTask?.cancel()
         recipeGenerationTask = Task {
@@ -1270,7 +1275,7 @@ struct CookingStepRow: View {
                 }
             }
             Spacer()
-        }.padding().background(Color.white).cornerRadius(16).padding(.horizontal)
+        }.padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).padding(.horizontal)
     }
 }
 

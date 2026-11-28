@@ -14,19 +14,23 @@ struct EatenCaloriesRing: View {
         min(Double(consumed) / Double(max(target, 1)), 1.0)
     }
 
-    private var macroCals: Double {
-        max(protein * 4.0 + fats * 9.0 + carbs * 4.0, 1.0)
+    private var rawMacroCals: Double {
+        protein * 4.0 + fats * 9.0 + carbs * 4.0
     }
 
-    // Portions of the *eaten* calories coming from each macro (so the three colors always sum exactly to eatenFrac)
-    private var cPortion: Double { (carbs * 4.0) / macroCals }
-    private var fPortion: Double { (fats * 9.0) / macroCals }
-    private var pPortion: Double { (protein * 4.0) / macroCals }
+    private var macroCals: Double {
+        max(rawMacroCals, 1.0)
+    }
+
+    // Portions of the *eaten* calories coming from each macro (0 when all macros are zero)
+    private var cPortion: Double { rawMacroCals > 0 ? (carbs * 4.0) / macroCals : 0 }
+    private var fPortion: Double { rawMacroCals > 0 ? (fats * 9.0) / macroCals : 0 }
+    private var pPortion: Double { rawMacroCals > 0 ? (protein * 4.0) / macroCals : 0 }
 
     // Cumulative positions on the ring (0...eatenFrac)
     private var cEnd: Double { eatenFrac * cPortion }
     private var fEnd: Double { eatenFrac * (cPortion + fPortion) }
-    private var pEnd: Double { eatenFrac } // full eaten progress
+    private var pEnd: Double { eatenFrac * (cPortion + fPortion + pPortion) }
 
     var body: some View {
         VStack(spacing: 24) {
@@ -34,24 +38,37 @@ struct EatenCaloriesRing: View {
                 Circle()
                     .stroke(Color.gray.opacity(0.15).shadow(.inner(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)), lineWidth: 24)
 
-                // Only the three macro colors — no ugly gray "other" segment
-                Circle()
-                    .trim(from: 0, to: min(animC, 1.0))
-                    .stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 24, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .shadow(color: Color.drinkWater.opacity(0.4), radius: 8)
+                if rawMacroCals == 0 && consumed > 0 {
+                    Circle()
+                        .trim(from: 0, to: min(eatenFrac, 1.0))
+                        .stroke(Color.secondary.opacity(0.45), style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                }
 
-                Circle()
-                    .trim(from: min(animC, 1.0), to: min(animF, 1.0))
-                    .stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 24, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .shadow(color: Color.themeYellow.opacity(0.4), radius: 8)
+                // Macro color segments (only drawn when non-zero)
+                if cPortion > 0 {
+                    Circle()
+                        .trim(from: 0, to: min(animC, 1.0))
+                        .stroke(Color.drinkWater, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .shadow(color: Color.drinkWater.opacity(0.4), radius: 8)
+                }
 
-                Circle()
-                    .trim(from: min(animF, 1.0), to: min(animP, 1.0))
-                    .stroke(Color.themePeach, style: StrokeStyle(lineWidth: 24, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .shadow(color: Color.themePeach.opacity(0.4), radius: 8)
+                if fPortion > 0 {
+                    Circle()
+                        .trim(from: min(animC, 1.0), to: min(animF, 1.0))
+                        .stroke(Color.themeYellow, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .shadow(color: Color.themeYellow.opacity(0.4), radius: 8)
+                }
+
+                if pPortion > 0 {
+                    Circle()
+                        .trim(from: min(animF, 1.0), to: min(animP, 1.0))
+                        .stroke(Color.themePeach, style: StrokeStyle(lineWidth: 24, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .shadow(color: Color.themePeach.opacity(0.4), radius: 8)
+                }
 
                 VStack(spacing: 6) {
                     Text("\(consumed)")

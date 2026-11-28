@@ -20,7 +20,7 @@ Paste into App Store Connect → App Review Information → Notes.
 
 - AI photo / chat features show an explicit consent sheet before any upload, disclosing data sent, named partner AI providers, and a link to the Privacy Policy.
 - Consent can be revoked anytime in **AI Coach tab → Profile & Settings → Settings (gear) → AI Data & Photo Privacy**.
-- Backend: Firebase Cloud Functions proxy → OpenRouter (`data_collection: deny`) → named partner AI models (Google and Recursive).
+- Backend: Firebase Cloud Functions proxy → OpenRouter (`data_collection: deny`, provider training/data collection disabled) → named partner AI models (Google and Recursive), with automatic fallback to Google Cloud Vertex AI (Gemini) when free vision pools are rate-limited.
 - **Apple Health (HealthKit) data is never sent to AI.**
 
 ## Account deletion

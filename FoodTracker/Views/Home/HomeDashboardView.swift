@@ -94,6 +94,8 @@ struct HomeDashboardContentView: View {
     @State private var pendingManualEntryAfterScanner = false
     @State private var isMenuExpanded = false
     @State private var lastActiveDayStart: Date = Calendar.current.startOfDay(for: Date())
+    @State private var isFetchingHealthData = false
+    @State private var pendingHealthFetchDate: Date? = nil
 
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
@@ -494,13 +496,13 @@ struct HomeDashboardContentView: View {
                       }
                   }
               ) {
-                  let remainingCals = max(0, currentSummary.remainingCalories(userGoal: currentUser?.dailyCaloriesGoal ?? 2000))
-                  let remainingProt = max(0, Int(currentUser?.targetProtein ?? 130) - Int(currentSummary.totalProtein))
+                  // Guideline 5.1.3(i): Menu AI prompt budget excludes HealthKit activeCaloriesBurned.
+                  let aiRemaining = NutritionMath.aiSafeRemainingMacros(user: currentUser, summary: currentSummary)
                   SmartScannerView(
                       onProductFound: { foundFood in pendingScannerFood = foundFood },
                       onManualEntryRequest: { pendingManualEntryAfterScanner = true },
-                      remainingCalories: remainingCals,
-                      remainingProtein: remainingProt
+                      remainingCalories: aiRemaining.calories,
+                      remainingProtein: aiRemaining.protein
                   )
               }
               .fullScreenCover(item: $selectedFoodForDetail) { food in
@@ -519,13 +521,40 @@ struct HomeDashboardContentView: View {
           }
       }
 
+    @MainActor
     private func fetchHealthData(for targetDateInput: Date) async {
+        // Serialize concurrent health sync triggers so queued widget water entries are never double-flushed.
+        if isFetchingHealthData {
+            pendingHealthFetchDate = targetDateInput
+            return
+        }
+        isFetchingHealthData = true
+        defer { isFetchingHealthData = false }
+
+        var nextDate: Date? = targetDateInput
+        while let currentTarget = nextDate {
+            pendingHealthFetchDate = nil
+            await performFetchHealthData(for: currentTarget)
+            nextDate = pendingHealthFetchDate
+        }
+    }
+
+    private func performFetchHealthData(for targetDateInput: Date) async {
             let targetDate = Calendar.current.startOfDay(for: targetDateInput)
             let isHKEnabled = currentUser?.isHealthKitEnabled == true
 
-            // Flush any queued widget hydration deltas (including today's when browsing a past date) as distinct HealthKit samples.
+            // Flush any queued widget hydration deletions/additions as distinct HealthKit operations.
             var selectedDayPendingEntries: [Double] = []
             if isHKEnabled {
+                let pendingDeletions = WorkoutSyncManager.shared.consumePendingWidgetWaterDeletions(for: targetDate)
+                for deletion in pendingDeletions {
+                    await HealthKitManager.shared.deleteWaterSample(
+                        idString: deletion.sampleID,
+                        litersFallback: deletion.volumeMl / 1000.0,
+                        date: deletion.date
+                    )
+                }
+
                 let flushDates = WorkoutSyncManager.shared.allPendingWidgetWaterFlushDates(selectedDate: targetDate)
                 for flushDate in flushDates {
                     let entries = WorkoutSyncManager.shared.peekPendingWidgetWaterEntriesLiters(for: flushDate)
@@ -581,15 +610,27 @@ struct HomeDashboardContentView: View {
             if isHKEnabled {
                 do {
                     fetchedSteps = try await HealthKitManager.shared.fetchSteps(for: targetDate)
-                } catch { print("Steps error: \(error)") }
+                } catch {
+                    #if DEBUG
+                    print("Steps error: \(error)")
+                    #endif
+                }
 
                 do {
                     hkTotalActiveCals = try await HealthKitManager.shared.fetchTotalActiveCalories(for: targetDate)
-                } catch { print("Health cals error: \(error)") }
+                } catch {
+                    #if DEBUG
+                    print("Health cals error: \(error)")
+                    #endif
+                }
 
                 do {
                     hkWorkoutBreakdown = try await HealthKitManager.shared.fetchExternalWorkoutBreakdown(for: targetDate)
-                } catch { print("HK workout cals error: \(error)") }
+                } catch {
+                    #if DEBUG
+                    print("HK workout cals error: \(error)")
+                    #endif
+                }
 
                 if Calendar.current.isDateInToday(targetDate),
                    let hkSample = try? await HealthKitManager.shared.fetchLatestBodyMassSample() {
@@ -604,12 +645,15 @@ struct HomeDashboardContentView: View {
                             latestHKSampleDate: hkSample.date,
                             latestLocalLogDate: existingLogs.first?.date
                         ) {
+                            // Record HealthKit body mass on its original sample date without silently
+                            // overwriting user-set calorie/macro targets (Guideline 5.1.3(i): prevents
+                            // HealthKit-derived values from flowing into third-party AI prompts).
                             NutritionMath.recordWeight(
                                 hkSample.kg,
-                                date: targetDate,
+                                date: hkSample.date,
                                 for: user,
                                 in: context,
-                                recalculateUserGoals: true,
+                                recalculateUserGoals: false,
                                 syncToHealthKit: false
                             )
                         }
@@ -3114,12 +3158,13 @@ struct SmartAddFoodView: View {
         ) {
             let daySummary = DailySummary.fetchExisting(for: targetDate, in: context)
             let user = users.first
-            let remaining = NutritionMath.remainingMacros(user: user, summary: daySummary)
+            // Guideline 5.1.3(i): Menu AI prompt budget excludes HealthKit activeCaloriesBurned.
+            let aiRemaining = NutritionMath.aiSafeRemainingMacros(user: user, summary: daySummary)
             SmartScannerView(
                 onProductFound: { foundFood in pendingScannerFood = foundFood },
                 onManualEntryRequest: { pendingManualEntryAfterScanner = true },
-                remainingCalories: remaining.calories,
-                remainingProtein: remaining.protein
+                remainingCalories: aiRemaining.calories,
+                remainingProtein: aiRemaining.protein
             )
         }
         .sheet(isPresented: $showingManualAdd) {

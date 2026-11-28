@@ -60193,18 +60193,23 @@
       }
     },
     "AI returned an unexpected format. Please try again.": {
-      "extractionState": "manual",
       "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die KI hat ein unerwartetes Format zurückgegeben. Bitte versuche es erneut."
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "AI returned an unexpected format. Please try again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ИИ вернул неожиданный формат ответа. Попробуйте ещё раз."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die KI hat ein unerwartetes Format zurückgegeben. Bitte versuche es erneut."
           }
         },
         "es": {
@@ -60222,19 +60227,13 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'IA ha restituito un formato imprevisto. Riprova."
+            "value": "L'IA ha restituito un formato inatteso. Riprova."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
             "value": "A IA devolveu um formato inesperado. Tenta novamente."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ИИ вернул неожиданный формат ответа. Попробуйте ещё раз."
           }
         }
       }
@@ -68025,94 +68024,94 @@
         }
       }
     },
-    "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and processed by named partner AI models (Google and Recursive).": {
+    "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (provider training & data collection disabled) and named partner AI models (Google, including Google Cloud Vertex AI, and Recursive).": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and processed by named partner AI models (Google and Recursive)."
+            "value": "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (provider training & data collection disabled) and named partner AI models (Google, including Google Cloud Vertex AI, and Recursive)."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Данные отправляются по зашифрованному HTTPS через прокси FoodTracker в OpenRouter (с включённым Zero Data Retention) и обрабатываются указанными партнёрскими ИИ-моделями (Google и Recursive)."
+            "value": "Данные отправляются по зашифрованному HTTPS через прокси FoodTracker в OpenRouter (обучение и сбор данных провайдером отключены) и указанным партнёрским ИИ-моделям (Google, включая Google Cloud Vertex AI, и Recursive)."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daten werden über verschlüsseltes HTTPS über den FoodTracker-Proxy an OpenRouter (Zero Data Retention aktiviert) gesendet und von benannten Partner-KI-Modellen (Google und Recursive) verarbeitet."
+            "value": "Daten werden über verschlüsseltes HTTPS über den FoodTracker-Proxy an OpenRouter (Anbieter-Training und Datenerhebung deaktiviert) sowie an benannte Partner-KI-Modelle (Google, einschließlich Google Cloud Vertex AI, und Recursive) gesendet."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Los datos se envían por HTTPS cifrado a través del proxy de FoodTracker a OpenRouter (con Zero Data Retention activado) y son procesados por modelos de IA asociados (Google y Recursive)."
+            "value": "Los datos se envían por HTTPS cifrado a través del proxy de FoodTracker a OpenRouter (entrenamiento y recopilación de datos del proveedor desactivados) y a modelos de IA asociados (Google, incluido Google Cloud Vertex AI, y Recursive)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les données sont envoyées via HTTPS chiffré par le proxy de FoodTracker vers OpenRouter (Zero Data Retention activé) et traitées par des modèles d'IA partenaires désignés (Google et Recursive)."
+            "value": "Les données sont envoyées via HTTPS chiffré par le proxy de FoodTracker vers OpenRouter (entraînement et collecte de données du fournisseur désactivés) et des modèles d'IA partenaires désignés (Google, y compris Google Cloud Vertex AI, et Recursive)."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "I dati vengono inviati tramite HTTPS crittografato attraverso il proxy di FoodTracker a OpenRouter (Zero Data Retention attivo) ed elaborati da modelli IA partner indicati (Google e Recursive)."
+            "value": "I dati vengono inviati tramite HTTPS crittografato attraverso il proxy di FoodTracker a OpenRouter (addestramento e raccolta dati del provider disattivati) e a modelli IA partner indicati (Google, incluso Google Cloud Vertex AI, e Recursive)."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Os dados são enviados por HTTPS encriptado através do proxy do FoodTracker para o OpenRouter (Zero Data Retention ativado) e processados por modelos de IA parceiros identificados (Google e Recursive)."
+            "value": "Os dados são enviados por HTTPS encriptado através do proxy do FoodTracker para o OpenRouter (treino e recolha de dados do fornecedor desativados) e para modelos de IA parceiros identificados (Google, incluindo Google Cloud Vertex AI, e Recursive)."
           }
         }
       }
     },
-    "Requests are processed transiently with provider data retention disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy.": {
+    "Requests are processed transiently with provider model-training and data collection disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Requests are processed transiently with provider data retention disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy."
+            "value": "Requests are processed transiently with provider model-training and data collection disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Запросы обрабатываются без сохранения данных на стороне провайдера. Вы можете отозвать согласие в любое время в разделе Настройки → ИИ: данные и конфиденциальность фото."
+            "value": "Запросы обрабатываются транзитно, с отключённым обучением моделей и сбором данных у провайдера. Вы можете отозвать согласие в любое время в разделе Настройки → ИИ: данные и конфиденциальность фото."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anfragen werden nur flüchtig ohne Datenspeicherung beim Anbieter verarbeitet. Du kannst diese Einwilligung jederzeit unter Einstellungen → KI-Daten & Fotodatenschutz widerrufen."
+            "value": "Anfragen werden vorübergehend verarbeitet, wobei Modelltraining und Datenerhebung beim Anbieter deaktiviert sind. Du kannst diese Einwilligung jederzeit unter Einstellungen → KI-Daten & Fotodatenschutz widerrufen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las solicitudes se procesan de forma transitoria sin retención de datos por el proveedor. Puedes revocar este consentimiento en cualquier momento en Ajustes → Privacidad de datos y fotos con IA."
+            "value": "Las solicitudes se procesan de forma transitoria con el entrenamiento de modelos y la recopilación de datos del proveedor desactivados. Puedes revocar este consentimiento en cualquier momento en Ajustes → Privacidad de datos y fotos con IA."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les requêtes sont traitées de manière transitoire, sans conservation des données par le fournisseur. Vous pouvez révoquer ce consentement à tout moment dans Réglages → Confidentialité des données et photos IA."
+            "value": "Les requêtes sont traitées de manière transitoire, avec l'entraînement des modèles et la collecte de données du fournisseur désactivés. Vous pouvez révoquer ce consentement à tout moment dans Réglages → Confidentialité des données et photos IA."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le richieste vengono elaborate in modo transitorio con la conservazione dati del provider disattivata. Puoi revocare questo consenso in qualsiasi momento in Impostazioni → Privacy dati e foto IA."
+            "value": "Le richieste vengono elaborate in modo transitorio con addestramento dei modelli e raccolta dati del provider disattivati. Puoi revocare questo consenso in qualsiasi momento in Impostazioni → Privacy dati e foto IA."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Os pedidos são processados de forma transitória com a retenção de dados do fornecedor desativada. Pode revogar este consentimento a qualquer momento em Definições → Privacidade de dados e fotos IA."
+            "value": "Os pedidos são processados de forma transitória com o treino de modelos e a recolha de dados do fornecedor desativados. Pode revogar este consentimento a qualquer momento em Definições → Privacidade de dados e fotos IA."
           }
         }
       }
@@ -68209,48 +68208,48 @@
         }
       }
     },
-    "When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and named partner AI models (Google and Recursive). Apple Health data is never sent to AI.": {
+    "When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (provider training & data collection disabled) and named partner AI models (Google, including Google Cloud Vertex AI, and Recursive). Apple Health data is never sent to AI.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and named partner AI models (Google and Recursive). Apple Health data is never sent to AI."
+            "value": "When enabled, downsampled photos you choose to analyze (meals, menus, cooking steps, or before/after progress photos) and the nutrition goals, logged meals, mood notes, or chat prompts needed for AI requests are sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (provider training & data collection disabled) and named partner AI models (Google, including Google Cloud Vertex AI, and Recursive). Apple Health data is never sent to AI."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "При включении уменьшенные фото, которые вы выбираете для анализа (блюда, меню, этапы готовки или фото прогресса до/после), а также цели по питанию, записанные приёмы пищи, заметки о настроении или запросы в чат отправляются по зашифрованному HTTPS через прокси FoodTracker в OpenRouter (с включённым Zero Data Retention) и указанным партнёрским ИИ-моделям (Google и Recursive). Данные Apple Health никогда не отправляются в ИИ."
+            "value": "При включении уменьшенные фото, которые вы выбираете для анализа (блюда, меню, этапы готовки или фото прогресса до/после), а также цели по питанию, записанные приёмы пищи, заметки о настроении или запросы в чат отправляются по зашифрованному HTTPS через прокси FoodTracker в OpenRouter (обучение и сбор данных провайдером отключены) и указанным партнёрским ИИ-моделям (Google, включая Google Cloud Vertex AI, и Recursive). Данные Apple Health никогда не отправляются в ИИ."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wenn aktiviert, werden heruntergerechnete Fotos, die du zur Analyse auswählst (Mahlzeiten, Menüs, Kochschritte oder Vorher-/Nachher-Fortschrittsfotos), sowie Ernährungsziele, protokollierte Mahlzeiten, Stimmungsnotizen oder Chat-Eingaben über verschlüsseltes HTTPS über den FoodTracker-Proxy an OpenRouter (Zero Data Retention aktiviert) und benannte Partner-KI-Modelle (Google und Recursive) gesendet. Apple-Health-Daten werden niemals an KI gesendet."
+            "value": "Wenn aktiviert, werden heruntergerechnete Fotos, die du zur Analyse auswählst (Mahlzeiten, Menüs, Kochschritte oder Vorher-/Nachher-Fortschrittsfotos), sowie Ernährungsziele, protokollierte Mahlzeiten, Stimmungsnotizen oder Chat-Eingaben über verschlüsseltes HTTPS über den FoodTracker-Proxy an OpenRouter (Anbieter-Training und Datenerhebung deaktiviert) sowie an benannte Partner-KI-Modelle (Google, einschließlich Google Cloud Vertex AI, und Recursive) gesendet. Apple-Health-Daten werden niemals an KI gesendet."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Si está activado, las fotos reducidas que elijas analizar (comidas, menús, pasos de cocina o fotos de progreso de antes y después), junto con tus objetivos nutricionales, comidas registradas, notas de ánimo o mensajes del chat, se envían por HTTPS cifrado a través del proxy de FoodTracker a OpenRouter (con Zero Data Retention activado) y a modelos de IA asociados (Google y Recursive). Los datos de Apple Health nunca se envían a la IA."
+            "value": "Si está activado, las fotos reducidas que elijas analizar (comidas, menús, pasos de cocina o fotos de progreso de antes y después), junto con tus objetivos nutricionales, comidas registradas, notas de ánimo o mensajes del chat, se envían por HTTPS cifrado a través del proxy de FoodTracker a OpenRouter (entrenamiento y recopilación de datos del proveedor desactivados) y a modelos de IA asociados (Google, incluido Google Cloud Vertex AI, y Recursive). Los datos de Apple Health nunca se envían a la IA."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lorsqu'il est activé, les photos réduites que vous choisissez d'analyser (repas, menus, étapes de préparation ou photos de progression avant/après), ainsi que vos objectifs nutritionnels, repas enregistrés, notes d'humeur ou messages de chat, sont envoyés via HTTPS chiffré par le proxy de FoodTracker vers OpenRouter (Zero Data Retention activé) et des modèles d'IA partenaires désignés (Google et Recursive). Les données Apple Health ne sont jamais envoyées à l'IA."
+            "value": "Lorsqu'il est activé, les photos réduites que vous choisissez d'analyser (repas, menus, étapes de préparation ou photos de progression avant/après), ainsi que vos objectifs nutritionnels, repas enregistrés, notes d'humeur ou messages de chat, sont envoyés via HTTPS chiffré par le proxy de FoodTracker vers OpenRouter (entraînement et collecte de données du fournisseur désactivés) et des modèles d'IA partenaires désignés (Google, y compris Google Cloud Vertex AI, et Recursive). Les données Apple Health ne sont jamais envoyées à l'IA."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se attivo, le foto ridimensionate che scegli di analizzare (pasti, menu, passaggi di cottura o foto dei progressi prima/dopo), insieme a obiettivi nutrizionali, pasti registrati, note sull'umore o messaggi della chat, vengono inviati tramite HTTPS crittografato attraverso il proxy di FoodTracker a OpenRouter (Zero Data Retention attivo) e a modelli IA partner indicati (Google e Recursive). I dati di Apple Health non vengono mai inviati all'IA."
+            "value": "Se attivo, le foto ridimensionate che scegli di analizzare (pasti, menu, passaggi di cottura o foto dei progressi prima/dopo), insieme a obiettivi nutrizionali, pasti registrati, note sull'umore o messaggi della chat, vengono inviati tramite HTTPS crittografato attraverso il proxy di FoodTracker a OpenRouter (addestramento e raccolta dati del provider disattivati) e a modelli IA partner indicati (Google, incluso Google Cloud Vertex AI, e Recursive). I dati di Apple Health non vengono mai inviati all'IA."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quando ativado, as fotos reduzidas que escolhes analisar (refeições, menus, passos de confeção ou fotos de progresso antes/depois), bem como objetivos nutricionais, refeições registadas, notas de humor ou mensagens de chat, são enviados por HTTPS encriptado através do proxy do FoodTracker para o OpenRouter (Zero Data Retention ativado) e para modelos de IA parceiros identificados (Google e Recursive). Os dados do Apple Health nunca são enviados para a IA."
+            "value": "Quando ativado, as fotos reduzidas que escolhes analisar (refeições, menus, passos de confeção ou fotos de progresso antes/depois), bem como objetivos nutricionais, refeições registadas, notas de humor ou mensagens de chat, são enviados por HTTPS encriptado através do proxy do FoodTracker para o OpenRouter (treino e recolha de dados do fornecedor desativados) e para modelos de IA parceiros identificados (Google, incluindo Google Cloud Vertex AI, e Recursive). Os dados do Apple Health nunca são enviados para a IA."
           }
         }
       }
@@ -70091,6 +70090,1202 @@
           "stringUnit": {
             "state": "translated",
             "value": "Acesso total ao Chef IA, Coach e Scanner"
+          }
+        }
+      }
+    },
+    "Fix macros": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fix macros"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поправить БЖУ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Makros anpassen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar macros"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajuster les macros"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regola i macro"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar macros"
+          }
+        }
+      }
+    },
+    "Pre-workout meal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pre-workout meal"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Еда до тренировки"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vor dem Training"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comida pre-entreno"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas pré-séance"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasto pre-allenamento"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refeição pré-treino"
+          }
+        }
+      }
+    },
+    "High-protein snack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High-protein snack"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Белковый перекус"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein-Snack"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snack proteico"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation protéinée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spuntino proteico"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lanche proteico"
+          }
+        }
+      }
+    },
+    "Water intake": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Water intake"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Норма воды"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wasserzufuhr"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consumo de agua"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hydratation"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assunzione di acqua"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consumo de água"
+          }
+        }
+      }
+    },
+    "Evening snack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening snack"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вечерний перекус"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abendsnack"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snack nocturno"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation du soir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spuntino serale"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lanche noturno"
+          }
+        }
+      }
+    },
+    "Daily balance": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily balance"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Баланс дня"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tagesbalance"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balance diario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Équilibre du jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equilibrio quotidiano"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equilíbrio diário"
+          }
+        }
+      }
+    },
+    "Can you analyze my macros today and give me specific recommendations to balance protein, carbs and fats?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can you analyze my macros today and give me specific recommendations to balance protein, carbs and fats?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проанализируй мои БЖУ за сегодня и дай конкретные рекомендации, как сбалансировать белки, жиры и углеводы."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kannst du meine heutigen Makros analysieren und mir konkrete Empfehlungen für das Gleichgewicht von Protein, Kohlenhydraten und Fetten geben?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Puedes analizar mis macros de hoy y darme recomendaciones concretas para equilibrar proteínas, carbohidratos y grasas?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peux-tu analyser mes macros aujourd'hui et me donner des recommandations précises pour équilibrer protéines, glucides et lipides ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puoi analizzare i miei macro di oggi e darmi consigli specifici per bilanciare proteine, carboidrati e grassi?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podes analisar os meus macros de hoje e dar recomendações específicas para equilibrar proteínas, hidratos de carbono e gorduras?"
+          }
+        }
+      }
+    },
+    "What is an ideal meal or snack to eat before my workout based on my remaining calories and macros?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is an ideal meal or snack to eat before my workout based on my remaining calories and macros?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какой идеальный приём пищи или перекус подойдёт перед тренировкой с учётом моего остатка калорий и БЖУ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was ist eine ideale Mahlzeit oder ein Snack vor dem Training basierend auf meinen verbleibenden Kalorien und Makros?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cuál es la comida o snack ideal antes de entrenar según mis calorías y macros restantes?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel est le repas ou la collation idéale avant mon entraînement selon mes calories et macros restantes ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qual è il pasto o spuntino ideale prima dell'allenamento in base alle mie calorie e macro rimanenti?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qual é a refeição ou lanche ideal antes do treino com base nas minhas calorias e macros restantes?"
+          }
+        }
+      }
+    },
+    "Suggest 3 quick, high-protein snacks that will help me hit my daily protein target without exceeding fats.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggest 3 quick, high-protein snacks that will help me hit my daily protein target without exceeding fats."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предложи 3 быстрых высокобелковых перекуса, чтобы добрать дневную норму белка без перебора по жирам."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlage 3 schnelle, proteinreiche Snacks vor, mit denen ich mein Tagesziel für Protein erreiche, ohne zu viel Fett aufzunehmen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugiéreme 3 snacks rápidos ricos en proteína para alcanzar mi objetivo diario sin exceder las grasas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggère-moi 3 collations rapides riches en protéines pour atteindre mon objectif sans dépasser les lipides."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggeriscimi 3 spuntini veloci ricchi di proteine per raggiungere il mio obiettivo giornaliero senza eccedere con i grassi."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugere 3 lanches rápidos ricos em proteína para atingir a minha meta diária sem exceder as gorduras."
+          }
+        }
+      }
+    },
+    "How does my current water intake affect my daily energy and workout recovery?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How does my current water intake affect my daily energy and workout recovery?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как мой текущий уровень потребления воды влияет на энергию в течение дня и восстановление после тренировок?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie wirkt sich meine aktuelle Wasserzufuhr auf meine Tagesenergie und Erholung nach dem Training aus?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cómo afecta mi consumo actual de agua a mi energía diaria y a la recuperación tras el entrenamiento?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment ma consommation d'eau actuelle affecte-t-elle mon énergie quotidienne et ma récupération ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come influisce la mia attuale assunzione di acqua sulla mia energia quotidiana e sul recupero post-allenamento?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como é que o meu consumo atual de água afeta a minha energia diária e recuperação após o treino?"
+          }
+        }
+      }
+    },
+    "What healthy low-calorie evening options won't disrupt my sleep or calorie goals?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What healthy low-calorie evening options won't disrupt my sleep or calorie goals?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какие полезные низкокалорийные варианты перекуса вечером не помешают сну и не нарушат норму калорий?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welche gesunden, kalorienarmen Optionen am Abend stören weder meinen Schlaf noch mein Kalorienziel?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué opciones saludables y bajas en calorías para la noche no afectarán a mi sueño ni a mis objetivos?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelles options saines et faibles en calories le soir ne perturberont ni mon sommeil ni mes objectifs caloriques ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quali opzioni serali sane e ipocaloriche non disturbano il sonno né i miei obiettivi calorici?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que opções noturnas saudáveis e de baixas calorias não vão prejudicar o meu sono nem as metas calóricas?"
+          }
+        }
+      }
+    },
+    "What practical nutrition habits can I apply today to balance my meals better?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What practical nutrition habits can I apply today to balance my meals better?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какие практичные привычки питания я могу применить сегодня, чтобы лучше сбалансировать рацион?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welche praktischen Ernährungsgewohnheiten kann ich heute anwenden, um meine Mahlzeiten besser auszubalancieren?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué hábitos prácticos de nutrición puedo aplicar hoy para equilibrar mejor mis comidas?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelles habitudes nutritionnelles pratiques puis-je appliquer aujourd'hui pour mieux équilibrer mes repas ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quali abitudini nutrizionali pratiche posso applicare oggi per bilanciare meglio i miei pasti?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que hábitos práticos de nutrição posso aplicar hoje para equilibrar melhor as minhas refeições?"
+          }
+        }
+      }
+    },
+    "Metric (kg, cm)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metric (kg, cm)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Метрическая (кг, см)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metrisch (kg, cm)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Métrico (kg, cm)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Métrique (kg, cm)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metrico (kg, cm)"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Métrico (kg, cm)"
+          }
+        }
+      }
+    },
+    "Imperial (lbs, in)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imperial (lbs, in)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имперская (фунты, дюймы)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imperial (lbs, in)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imperial (lb, in)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impérial (lb, po)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imperiale (lb, in)"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imperial (lb, pol)"
+          }
+        }
+      }
+    },
+    "y.o": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "y.o."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "лет"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "años"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ans"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "anni"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "anos"
+          }
+        }
+      }
+    },
+    "Weight (oz)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight (oz)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вес (унц.)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gewicht (oz)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso (oz)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids (oz)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso (oz)"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso (oz)"
+          }
+        }
+      }
+    },
+    "Tell me what ingredients you have, and I'll generate a recipe matching your remaining calories.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell me what ingredients you have, and I'll generate a recipe matching your remaining calories."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расскажи, какие продукты у тебя есть, и я создам рецепт под твой остаток калорий."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sag mir, welche Zutaten du hast, und ich erstelle ein Rezept passend zu deinen verbleibenden Kalorien."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dime qué ingredientes tienes y crearé una receta ajustada a tus calorías restantes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dis-moi quels ingrédients tu as, et je créerai une recette adaptée à tes calories restantes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dimmi quali ingredienti hai e creerò una ricetta adatta alle tue calorie rimanenti."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diz-me que ingredientes tens e vou criar uma receita ajustada às tuas calorias restantes."
+          }
+        }
+      }
+    },
+    "You are right at maintenance today.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are right at maintenance today."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сегодня вы точно в зоне поддержания веса."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du bist heute genau im Erhaltungsbereich."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoy estás justo en tu zona de mantenimiento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous êtes exactement à l'équilibre aujourd'hui."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oggi sei esattamente in zona mantenimento."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoje está exatamente na zona de manutenção."
+          }
+        }
+      }
+    },
+    "maintained per week": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maintained per week"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "удержание в неделю"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pro Woche gehalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mantenidos por semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maintenu par semaine"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mantenuti a settimana"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mantidos por semana"
+          }
+        }
+      }
+    },
+    "Drink %@ of water": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drink %@ of water"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпить %@ воды"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Wasser trinken"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beber %@ de agua"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boire %@ d'eau"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bevi %@ di acqua"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beber %@ de água"
+          }
+        }
+      }
+    },
+    "Could not capture photo. Please try again.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not capture photo. Please try again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось сделать фото. Попробуйте ещё раз."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foto konnte nicht aufgenommen werden. Bitte versuche es erneut."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo capturar la foto. Inténtalo de nuevo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de prendre la photo. Veuillez réessayer."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile scattare la foto. Riprova."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível tirar a foto. Tenta novamente."
+          }
+        }
+      }
+    },
+    "AI service is temporarily unavailable. Please try again in a moment.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI service is temporarily unavailable. Please try again in a moment."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ИИ-сервис временно недоступен. Попробуйте через пару секунд."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der KI-Dienst ist vorübergehend nicht verfügbar. Bitte versuche es gleich noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El servicio de IA no está disponible temporalmente. Inténtalo de nuevo en un momento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le service IA est temporairement indisponible. Veuillez réessayer dans un instant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il servizio IA è temporaneamente non disponibile. Riprova tra poco."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O serviço de IA está temporariamente indisponível. Tenta novamente em breve."
+          }
+        }
+      }
+    },
+    "For security, please sign in again before deleting your account.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For security, please sign in again before deleting your account."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В целях безопасности войдите повторно перед удалением аккаунта."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde dich aus Sicherheitsgründen erneut an, bevor du dein Konto löschst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por seguridad, vuelve a iniciar sesión antes de eliminar tu cuenta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour votre sécurité, veuillez vous reconnecter avant de supprimer votre compte."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per sicurezza, effettua nuovamente l'accesso prima di eliminare il tuo account."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por segurança, inicia sessão novamente antes de eliminar a tua conta."
+          }
+        }
+      }
+    },
+    "For security, please sign out and sign in again with Apple or Google before deleting your account.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For security, please sign out and sign in again with Apple or Google before deleting your account."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В целях безопасности выйдите и снова войдите через Apple или Google перед удалением аккаунта."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde dich aus Sicherheitsgründen ab und erneut mit Apple oder Google an, bevor du dein Konto löschst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por seguridad, cierra sesión y vuelve a iniciar sesión con Apple o Google antes de eliminar tu cuenta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour votre sécurité, déconnectez-vous puis reconnectez-vous avec Apple ou Google avant de supprimer votre compte."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per sicurezza, esci ed effettua nuovamente l'accesso con Apple o Google prima di eliminare il tuo account."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por segurança, termina sessão e volta a iniciar sessão com a Apple ou Google antes de eliminar a conta."
+          }
+        }
+      }
+    },
+    "Status:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status:"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Статус:"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Statut :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stato:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado:"
+          }
+        }
+      }
+    },
+    "Ended": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ended"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершено"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beendet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finalizado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminato"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminado"
           }
         }
       }

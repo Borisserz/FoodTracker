@@ -3,6 +3,23 @@ import SwiftData
 
 @MainActor
 enum LocalDataResetService {
+    static let pendingLocalDataWipeKey = "pendingLocalDataWipeAfterAccountDeletion_v1"
+
+    static func markPendingLocalDataWipe(defaults: UserDefaults = .standard) {
+        defaults.set(true, forKey: pendingLocalDataWipeKey)
+    }
+
+    static func hasPendingLocalDataWipe(defaults: UserDefaults = .standard) -> Bool {
+        defaults.bool(forKey: pendingLocalDataWipeKey)
+    }
+
+    @discardableResult
+    static func executePendingWipeIfNeeded(in context: ModelContext, defaults: UserDefaults = .standard) -> Bool {
+        guard defaults.bool(forKey: pendingLocalDataWipeKey) else { return false }
+        wipeAllData(in: context, defaults: defaults)
+        return true
+    }
+
     static let onboardingAndFeatureDefaultsKeys: [String] = [
         "hasCompletedOnboarding_v2",
         "hasCompletedInitialOnboarding_v2",
@@ -88,6 +105,7 @@ enum LocalDataResetService {
         for key in onboardingAndFeatureDefaultsKeys {
             defaults.removeObject(forKey: key)
         }
+        defaults.removeObject(forKey: pendingLocalDataWipeKey)
         WorkoutSyncManager.clearLocalSyncMetadata(defaults: defaults)
         HealthKitManager.shared.resetAuthorizationState()
 

@@ -167,7 +167,7 @@ struct GoalsTabView: View {
 
     private func ensureUserAndOpenGoalSheet() {
         if user == nil {
-            let fallbackUser = User(name: "Champion", weight: currentWeight > 0 ? currentWeight : 70.0, height: 175.0, age: 28, gender: "Male")
+            let fallbackUser = User(name: "Alex", weight: currentWeight > 0 ? currentWeight : 70.0, height: 175.0, age: 28, gender: "Male")
             context.insert(fallbackUser)
             try? context.save()
         }

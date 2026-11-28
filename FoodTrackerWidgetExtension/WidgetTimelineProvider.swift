@@ -164,7 +164,9 @@ struct ShoppingListTimelineProvider: TimelineProvider {
             
             return ShoppingListEntry(date: Date(), items: Array(displayItems))
         } catch {
+            #if DEBUG
             print("Failed to fetch shopping items: \(error)")
+            #endif
         }
 
         return ShoppingListEntry(date: Date(), items: [])

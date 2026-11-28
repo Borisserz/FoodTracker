@@ -273,10 +273,12 @@ private struct MacroDonutChartCard: View {
                         .stroke(EditorialPalette.warmAmber, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                         .rotationEffect(.degrees(-90))
 
-                    Circle()
-                        .trim(from: showAnimation ? (cPercent + fPercent) : 0, to: showAnimation ? 1.0 : 0)
-                        .stroke(EditorialPalette.emerald, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
+                    if pPercent > 0 {
+                        Circle()
+                            .trim(from: showAnimation ? (cPercent + fPercent) : 0, to: showAnimation ? min(cPercent + fPercent + pPercent, 1.0) : 0)
+                            .stroke(EditorialPalette.emerald, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                    }
 
                     VStack(spacing: 0) {
                         Text("\(calories)")

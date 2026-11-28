@@ -959,7 +959,9 @@ class AINutritionService {
         do {
             return try await client.fetchText(prompt: prompt, suppressRateLimitAlert: suppressRateLimitAlert)
         } catch {
+            #if DEBUG
             print("❌ AI Chat Error: \(error.localizedDescription)")
+            #endif
             lastUserFacingError = Self.userFacingErrorMessage(for: error)
             return nil
         }
@@ -984,7 +986,9 @@ class AINutritionService {
             )
         } catch {
             // The client already logs detailed decode/raw info on failure.
+            #if DEBUG
             print("❌ AI Service Exception: \(error.localizedDescription)")
+            #endif
             lastUserFacingError = Self.userFacingErrorMessage(for: error)
             return nil
         }

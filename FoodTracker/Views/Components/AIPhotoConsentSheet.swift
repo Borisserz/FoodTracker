@@ -63,7 +63,7 @@ struct AIPhotoConsentSheet: View {
                                 icon: "network.badge.shield.half.filled",
                                 iconColor: EditorialPalette.forest,
                                 title: "Who processes it",
-                                detail: "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (Zero Data Retention enabled) and processed by named partner AI models (Google and Recursive)."
+                                detail: "Data is sent over encrypted HTTPS via FoodTracker's proxy to OpenRouter (provider training & data collection disabled) and named partner AI models (Google, including Google Cloud Vertex AI, and Recursive)."
                             )
                             Rectangle()
                                 .fill(EditorialPalette.hairlineLight)
@@ -72,7 +72,7 @@ struct AIPhotoConsentSheet: View {
                                 icon: "lock.shield.fill",
                                 iconColor: EditorialPalette.emerald,
                                 title: "Privacy & control",
-                                detail: "Requests are processed transiently with provider data retention disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy."
+                                detail: "Requests are processed transiently with provider model-training and data collection disabled. You can revoke this consent anytime in Settings → AI Data & Photo Privacy."
                             )
                         }
                         .padding(16)

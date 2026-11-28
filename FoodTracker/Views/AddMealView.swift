@@ -583,7 +583,9 @@ struct AddMealView: View {
             }
             dismiss()
         } catch {
+            #if DEBUG
             print("Failed to save meal: \(error.localizedDescription)")
+            #endif
         }
     }
 }

@@ -872,15 +872,16 @@ test("validateAiProxyBody rejects oversized responseSchema", () => {
   );
 });
 
-test("sanitizeModelOverrides filters out non-free models", () => {
+test("sanitizeModelOverrides filters out non-free and undisclosed-vendor models", () => {
   const cleaned = t.sanitizeModelOverrides([
     "nvidia/nemotron-3.5-super-vl:free",
     "openai/gpt-4o",
     "anthropic/claude-3.5-sonnet",
+    "recursive/flint-v1.0:free",
     "google/gemma-4-31b-it:free",
   ]);
   assert.deepEqual(cleaned, [
-    "nvidia/nemotron-3.5-super-vl:free",
+    "recursive/flint-v1.0:free",
     "google/gemma-4-31b-it:free",
   ]);
 });
@@ -1219,14 +1220,14 @@ test("modelChainForRequest appends deduplicated paid SLA fallback models only wh
   assert.deepEqual(withPaidVision, ["custom/vl:free", "google/gemini-2.5-flash"]);
 });
 
-test("sanitizeModelOverrides restricts to :free by default and allows paid models when allowPaid is true", () => {
+test("sanitizeModelOverrides restricts to disclosed vendors and :free by default, allowing disclosed paid models when allowPaid is true", () => {
   assert.deepEqual(
-    t.sanitizeModelOverrides(["google/gemini-2.5-flash", "a/b:free"]),
-    ["a/b:free"]
+    t.sanitizeModelOverrides(["google/gemini-2.5-flash", "recursive/flint-v1.0:free", "openai/gpt-4o:free"]),
+    ["recursive/flint-v1.0:free"]
   );
   assert.deepEqual(
-    t.sanitizeModelOverrides(["google/gemini-2.5-flash", " a/b:free ", ""], { allowPaid: true }),
-    ["google/gemini-2.5-flash", "a/b:free"]
+    t.sanitizeModelOverrides(["google/gemini-2.5-flash", " recursive/flint-v1.0:free ", "anthropic/claude-3.5-sonnet", ""], { allowPaid: true }),
+    ["google/gemini-2.5-flash", "recursive/flint-v1.0:free"]
   );
 });
 
@@ -1449,4 +1450,162 @@ test("callOpenRouterText tracks attemptMeta and stops paid cascade on invalid or
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("shouldTryNextKeyForError skips key rotation for upstream provider rate-limit phrases", () => {
+  assert.equal(
+    t.shouldTryNextKeyForError(
+      429,
+      '{"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly."}}}'
+    ),
+    false
+  );
+  assert.equal(
+    t.shouldTryNextKeyForError(429, '{"error":{"message":"Rate limit exceeded: free-models-per-day"}}'),
+    true
+  );
+});
+
+test("resolveAllowVertexFallback enables Vertex fallback by default for vision only and honors explicit overrides", () => {
+  assert.equal(t.resolveAllowVertexFallback(undefined, { isVision: true, envValue: undefined }), true);
+  assert.equal(t.resolveAllowVertexFallback(undefined, { isVision: false, envValue: undefined }), false);
+  assert.equal(t.resolveAllowVertexFallback(false, { isVision: true, envValue: "true" }), false);
+  assert.equal(t.resolveAllowVertexFallback(true, { isVision: false, envValue: "false" }), true);
+  assert.equal(t.resolveAllowVertexFallback(undefined, { isVision: false, envValue: "true" }), true);
+  assert.equal(t.resolveAllowVertexFallback(undefined, { isVision: true, envValue: "false" }), false);
+});
+
+test("buildVertexGenerateContentBody sanitizes generationConfig and preserves multimodal inlineData", () => {
+  const payload = t.buildVertexGenerateContentBody({
+    systemInstruction: { parts: [{ text: "Be concise." }] },
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: "Analyze this meal" },
+          { inlineData: { mimeType: "IMAGE/JPEG", data: "YWJj" } },
+        ],
+      },
+    ],
+    generationConfig: {
+      temperature: 99,
+      maxOutputTokens: 99999,
+      responseMimeType: "application/json",
+      responseSchema: { type: "OBJECT", properties: { name: { type: "STRING" } } },
+    },
+  });
+  assert.equal(payload.systemInstruction.parts[0].text, "Be concise.");
+  assert.equal(payload.contents[0].parts[1].inlineData.mimeType, "image/jpeg");
+  assert.equal(payload.generationConfig.temperature, 2);
+  assert.equal(payload.generationConfig.maxOutputTokens, 16384);
+  assert.equal(payload.generationConfig.responseMimeType, "application/json");
+  assert.deepEqual(payload.generationConfig.responseSchema, {
+    type: "OBJECT",
+    properties: { name: { type: "STRING" } },
+  });
+});
+
+test("callVertexAIText falls back to Google Vertex AI Gemini and normalizes JSON response", async () => {
+  const calledUrls = [];
+  const meta = { receivedCompletion: false, attemptedPaid: false };
+  const result = await t.callVertexAIText({
+    geminiBody: {
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: "Analyze plate" },
+            { inlineData: { mimeType: "image/jpeg", data: "YWJj" } },
+          ],
+        },
+      ],
+      generationConfig: { responseMimeType: "application/json" },
+    },
+    models: ["gemini-2.5-flash-lite", "gemini-2.5-flash"],
+    projectId: "serzhanovich-ecosystem-ce700",
+    location: "us-central1",
+    getAccessToken: async () => "ya29.test-token",
+    fetchImpl: async (url, init) => {
+      calledUrls.push(url);
+      assert.equal(init.headers.Authorization, "Bearer ya29.test-token");
+      return {
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({
+            candidates: [
+              {
+                content: {
+                  parts: [{ text: '```json\n{"isFood":true,"name":"Salad","calories":240}\n```' }],
+                },
+              },
+            ],
+          }),
+      };
+    },
+    attemptMeta: meta,
+  });
+
+  assert.equal(
+    calledUrls[0],
+    "https://us-central1-aiplatform.googleapis.com/v1/projects/serzhanovich-ecosystem-ce700/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent"
+  );
+  assert.equal(result.candidates[0].content.parts[0].text, '{"isFood":true,"name":"Salad","calories":240}');
+  assert.deepEqual(meta, { receivedCompletion: true, attemptedPaid: true });
+});
+
+test("normalizeFatSecretFood preserves metric mg/mcg micronutrients for v2 payloads without %DV inflation", () => {
+  const v2Food = {
+    food_name: "Milk v2",
+    servings: {
+      serving: {
+        metric_serving_amount: "240",
+        metric_serving_unit: "ml",
+        calories: "120",
+        protein: "8",
+        fat: "5",
+        carbohydrate: "12",
+        potassium: "363",
+        calcium: "300",
+        iron: "0.5",
+        vitamin_c: "2.4",
+        vitamin_d: "3.0",
+      },
+    },
+  };
+  const item = t.normalizeFatSecretFood(v2Food, { isV2MetricMicros: true });
+  assert.equal(item.calcium, 300);
+  assert.equal(item.iron, 0.5);
+  assert.equal(item.vitaminC, 2.4);
+  assert.equal(item.vitaminD, 3.0);
+  assert.equal(item.potassium, 363);
+});
+
+test("isFatSecretBarcodeUnavailableError treats plan/scope/not-found codes 10 and 21 as non-fatal", () => {
+  assert.equal(t.isFatSecretBarcodeUnavailableError({ error: { code: 10 } }), true);
+  assert.equal(t.isFatSecretBarcodeUnavailableError({ error: { code: "21" } }), true);
+  assert.equal(t.isFatSecretBarcodeUnavailableError({ error: { code: 101 } }), false);
+  assert.equal(t.isFatSecretBarcodeUnavailableError({ food: {} }), false);
+});
+
+test("resolveIpQuotaLimit tightens anonymous IP budget relative to signed-in users", () => {
+  assert.equal(t.resolveIpQuotaLimit(200, "anonymous", "ai"), 400);
+  assert.equal(t.resolveIpQuotaLimit(200, "apple.com", "ai"), 1600);
+  assert.equal(t.resolveIpQuotaLimit(1000, "anonymous", "search"), 2000);
+  assert.equal(t.resolveIpQuotaLimit(1000, "google.com", "search"), 8000);
+});
+
+test("checkBurstRateLimit blocks requests exceeding per-minute cap and resets after window", () => {
+  const store = new Map();
+  const t0 = 1_000_000;
+  for (let i = 0; i < 3; i++) {
+    const r = t.checkBurstRateLimit("u1", { limit: 3, windowMs: 60_000, now: t0 + i * 100, store });
+    assert.equal(r.allowed, true);
+  }
+  const blocked = t.checkBurstRateLimit("u1", { limit: 3, windowMs: 60_000, now: t0 + 500, store });
+  assert.equal(blocked.allowed, false);
+  assert.ok(blocked.retryAfterSeconds >= 1 && blocked.retryAfterSeconds <= 60);
+
+  const afterReset = t.checkBurstRateLimit("u1", { limit: 3, windowMs: 60_000, now: t0 + 61_000, store });
+  assert.equal(afterReset.allowed, true);
 });

@@ -26,9 +26,9 @@ final class PrivacyManifestTests: XCTestCase {
         XCTAssertTrue(reasons.contains("C617.1"))
     }
 
-    func testInfoPlistDoesNotDeclareUnusedRemoteNotificationBackgroundMode() {
+    func testInfoPlistDeclaresRemoteNotificationBackgroundModeForCloudKitSync() {
         let modes = Bundle.main.object(forInfoDictionaryKey: "UIBackgroundModes") as? [String] ?? []
-        XCTAssertFalse(modes.contains("remote-notification"))
+        XCTAssertTrue(modes.contains("remote-notification"))
     }
 
     func testLegalURLsEncodeValidFilenames() {

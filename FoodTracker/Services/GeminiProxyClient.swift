@@ -479,12 +479,11 @@ enum GeminiProxyError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .rateLimited(let retryAfter):
-            if let r = retryAfter {
-                return String(localized: "AI rate limit reached. Retry after \(r) seconds.")
-            }
-            return String(localized: "AI rate limit reached. Please try again later.")
-        case .serverError(let status, _):
-            return String(localized: "AI service error (HTTP \(status))")
+            return AIResponseParsing.rateLimitMessage(retryAfter: retryAfter)
+        case .serverError:
+            return String(localized: "AI service is temporarily unavailable. Please try again in a moment.")
+        case .decodingFailed:
+            return String(localized: "AI returned an unexpected format. Please try again.")
         default:
             return String(localized: "AI service temporarily unavailable.")
         }

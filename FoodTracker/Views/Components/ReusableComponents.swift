@@ -514,15 +514,51 @@ struct NetGoalImpactCard: View {
     let summary: DailySummary
     let user: User?
 
+    enum ImpactZone: Equatable {
+        case losing
+        case maintaining
+        case gaining
+    }
+
+    struct ImpactEstimate: Equatable {
+        let baselineCalories: Int
+        let deficit: Int
+        let weeklyWeightChangeKg: Double
+        let zone: ImpactZone
+    }
+
+    static func computeImpact(user: User?, summary: DailySummary) -> ImpactEstimate {
+        // Compare daily net calories against maintenance TDEE (not a cut/bulk target goal)
+        // so users on a deficit goal are not falsely flagged as "Weight Gain Zone".
+        let baseline: Int
+        if let user {
+            baseline = MetabolicTDEEGaugeView.computeTDEE(for: user, currentWeight: user.weight)
+        } else {
+            baseline = 2400
+        }
+        let deficit = baseline - summary.netCalories
+        let weeklyChangeKg = Double(deficit * 7) / 7700.0
+        let zone: ImpactZone
+        if abs(deficit) <= 50 {
+            zone = .maintaining
+        } else if deficit > 0 {
+            zone = .losing
+        } else {
+            zone = .gaining
+        }
+        return ImpactEstimate(
+            baselineCalories: baseline,
+            deficit: deficit,
+            weeklyWeightChangeKg: weeklyChangeKg,
+            zone: zone
+        )
+    }
+
     var body: some View {
-        let goal = user?.dailyCaloriesGoal ?? 2400
-        let deficit = goal - summary.netCalories
-
-        let weeklyDeficit = deficit * 7
-        let weightChange = Double(weeklyDeficit) / 7700.0
-
-        let isLosing = deficit > 0
-        let isMaintaining = deficit == 0
+        let impact = Self.computeImpact(user: user, summary: summary)
+        let isLosing = impact.zone == .losing
+        let isMaintaining = impact.zone == .maintaining
+        let weightChange = impact.weeklyWeightChangeKg
         let statusColor = isLosing ? Color.green : (isMaintaining ? Color.themeYellow : Color.red)
 
         VStack(alignment: .leading, spacing: 20) {
@@ -550,7 +586,11 @@ struct NetGoalImpactCard: View {
                         .font(.title3.bold())
                         .foregroundColor(.white)
 
-                    Text(isLosing ? "You are in a calorie deficit." : "You are in a calorie surplus.")
+                    Text(
+                        isLosing
+                            ? "You are in a calorie deficit."
+                            : (isMaintaining ? "You are right at maintenance today." : "You are in a calorie surplus.")
+                    )
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.9))
                 }
@@ -571,7 +611,7 @@ struct NetGoalImpactCard: View {
                     .foregroundColor(.gray)
                     .textCase(.uppercase)
 
-                let displayedDelta = NutritionMath.displayWeight(abs(weightChange), useMetric: useMetricSystem)
+                let displayedDelta = NutritionMath.displayWeight(isMaintaining ? 0 : abs(weightChange), useMetric: useMetricSystem)
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text("\(displayedDelta, specifier: "%.2f")")
                         .font(.system(size: 48, weight: .heavy, design: .rounded))
@@ -581,7 +621,11 @@ struct NetGoalImpactCard: View {
                         Text(NutritionMath.weightUnit(useMetric: useMetricSystem))
                             .font(.title3.bold())
                             .foregroundColor(.gray)
-                        Text(isLosing ? "lost per week" : "gained per week")
+                        Text(
+                            isLosing
+                                ? "lost per week"
+                                : (isMaintaining ? "maintained per week" : "gained per week")
+                        )
                             .font(.caption)
                             .foregroundColor(.gray)
                     }

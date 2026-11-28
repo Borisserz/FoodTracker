@@ -14,15 +14,16 @@
 
 1. Open Firebase Console → App Check: confirm App Attest for FoodTracker production app.
 2. Smoke on a physical device: HealthKit water/meal write, Spotlight on latest iOS, Delete Account (registered).
-3. In Xcode (signed in with your Apple ID): Product → Archive → Distribute App → App Store Connect.
-   - CLI archive already succeeded at `/tmp/FoodTracker.xcarchive` (1.0 / 2).
-   - CLI export failed here: missing iOS Distribution cert / App Group on Store profile / no ASC account in this environment. Fix App Groups on the App ID + refresh Store profiles, then distribute from Organizer.
-4. Upload to TestFlight (internal) → soak 24–48h; watch Crashlytics.
-5. ASC metadata from `AppStoreDescription.md` (EN + RU).
-6. Privacy nutrition labels must match `PrivacyInfo.xcprivacy` (tracking = false).
-7. Paste Review Notes from `docs/APP_STORE_REVIEW_NOTES.md`.
-8. Screenshots: real UI on 6.9" iPhone only (iPhone-only app).
-9. Submit for Review.
+3. In Xcode (signed in with your Apple ID): Product → Archive → Distribute App → App Store Connect (then run **Validate App** first to verify `FirebaseAnalyticsCore` / `GoogleAppMeasurement` packaging without ITMS-91061).
+   - Enable both App Groups (`group.com.borisdev.FoodTracker2026`, `group.com.borisdev.WorkoutTracker`) on both App IDs (App + Widget Extension) in Apple Developer Portal and refresh Distribution profiles before archiving.
+   - Do **not** upload old Development-signed archives; always create a fresh Release archive from Organizer.
+4. Push updated `docs/legal/Privacy Policy - FoodTracker.html` to the GitHub Pages `workouttracker-privacy` repo so the live Privacy Policy includes the Google Cloud Vertex AI fallback disclosure.
+5. Upload to TestFlight (internal) → soak 24–48h; watch Crashlytics.
+6. ASC metadata from `AppStoreDescription.md` (EN + RU).
+7. Privacy nutrition labels must match `PrivacyInfo.xcprivacy` (tracking = false) and include **Other Diagnostic Data** (Not Linked, App Functionality — declared by FirebaseCrashlytics).
+8. Paste Review Notes from `docs/APP_STORE_REVIEW_NOTES.md`.
+9. Screenshots: real UI from `Screenshots/AppStore/` (no alpha channel) on 6.9" iPhone only (iPhone-only app — do not upload iPad screenshots).
+10. Submit for Review.
 
 Export helper plist (for a machine with Distribution signing): `docs/ExportOptions-AppStore.plist` (team `LSCCP92LMG`).
 

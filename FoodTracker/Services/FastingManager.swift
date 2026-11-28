@@ -120,17 +120,19 @@ final class FastingManager {
     }
 
     func endFast(recordInHistory: Bool = true) {
-        if recordInHistory, let start = startTime, targetHours > 0 {
+        var reachedGoal = false
+        if let start = startTime, targetHours > 0 {
             let now = Date()
             let duration = max(0, now.timeIntervalSince(start))
-            if duration >= 60 {
+            reachedGoal = duration >= Double(targetHours * 3600)
+            if recordInHistory && duration >= 60 {
                 let record = FastingRecord(
                     planName: planName.isEmpty ? "\(targetHours)h Fast" : planName,
                     targetHours: targetHours,
                     startTime: start,
                     endTime: now,
                     durationSeconds: duration,
-                    reachedGoal: duration >= Double(targetHours * 3600)
+                    reachedGoal: reachedGoal
                 )
                 history.insert(record, at: 0)
                 if history.count > Self.maxHistoryCount {
@@ -147,7 +149,7 @@ final class FastingManager {
 
         saveState()
         stopUpdateTask()
-        liveActivityManager.endActivity()
+        liveActivityManager.endActivity(completed: recordInHistory && reachedGoal)
         HapticManager.shared.impact(style: .rigid)
 
         cancelFastingNotifications()
@@ -388,13 +390,7 @@ final class FastingManager {
         let center = UNUserNotificationCenter.current()
 
         center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
-        let fastingCategory = UNNotificationCategory(
-            identifier: Self.fastingNotificationCategoryID,
-            actions: [],
-            intentIdentifiers: [],
-            options: []
-        )
-        center.setNotificationCategories([fastingCategory])
+        registerFastingNotificationCategory(in: center)
 
         center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             guard granted else { return }
@@ -438,9 +434,11 @@ final class FastingManager {
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in
+            #if DEBUG
             if let error = error {
                 print("❌ Error scheduling notification: \(error.localizedDescription)")
             }
+            #endif
         }
     }
 
@@ -448,13 +446,21 @@ final class FastingManager {
         notificationGeneration += 1
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: Self.fastingNotificationIDs)
+        registerFastingNotificationCategory(in: center)
+        center.removeDeliveredNotifications(withIdentifiers: Self.fastingNotificationIDs)
+    }
+
+    private func registerFastingNotificationCategory(in center: UNUserNotificationCenter) {
         let fastingCategory = UNNotificationCategory(
             identifier: Self.fastingNotificationCategoryID,
             actions: [],
             intentIdentifiers: [],
             options: []
         )
-        center.setNotificationCategories([fastingCategory])
-        center.removeDeliveredNotifications(withIdentifiers: Self.fastingNotificationIDs)
+        center.getNotificationCategories { existing in
+            var merged = existing.filter { $0.identifier != Self.fastingNotificationCategoryID }
+            merged.insert(fastingCategory)
+            center.setNotificationCategories(merged)
+        }
     }
 }

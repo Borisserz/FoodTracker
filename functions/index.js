@@ -1,6 +1,6 @@
 const crypto = require("node:crypto");
 const { onRequest } = require("firebase-functions/v2/https");
-const { initializeApp } = require("firebase-admin/app");
+const { initializeApp, applicationDefault } = require("firebase-admin/app");
 const { getAppCheck } = require("firebase-admin/app-check");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
@@ -56,21 +56,33 @@ let fatSecretAuthModeCache = null;
 let aiSettingsCache = null;
 const AI_SETTINGS_CACHE_TTL_MS = 60_000;
 
-// Text fallback chain ordered by live ZDR (data_collection: "deny") availability & JSON support.
+// Text fallback chain ordered by live data_collection: "deny" (no-training) availability & JSON support.
 const TEXT_MODEL_CHAIN = [
   "recursive/flint-v1.0:free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
 ];
 
-// Multimodal fallback chain for food/menu photos (live ZDR-compatible image-capable :free models).
+// Multimodal fallback chain for food/menu photos (image-capable :free models with data_collection: "deny").
 const VISION_MODEL_CHAIN = [
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
 ];
 
-// Paid ZDR-compatible SLA fallback. Appended after the free chain ONLY when explicitly opted-in.
-// Production defaults this OFF (zero cents spent); set config/food_ai_settings.allowPaidFallback = true
+// Only models from disclosed partner vendors (Guideline 5.1.2 consent & Privacy Policy) are allowed
+// in dynamic Firestore overrides.
+const ALLOWED_MODEL_VENDORS = ["google/", "recursive/"];
+
+// Direct Google Cloud Vertex AI SLA fallback (enterprise DPA: no training / no retention).
+// Used when OpenRouter's free chain is rate-limited/unavailable and Vertex fallback is active.
+const VERTEX_LOCATION = "us-central1";
+const VERTEX_FALLBACK_MODELS = [
+  "gemini-2.5-flash-lite",
+  "gemini-2.5-flash",
+];
+
+// Paid OpenRouter SLA fallback (data_collection: "deny"). Appended after the free chain ONLY when explicitly opted-in.
+// Production defaults this OFF (zero OpenRouter spend); set config/food_ai_settings.allowPaidFallback = true
 // or FOOD_AI_ALLOW_PAID_FALLBACK=true to opt in without an iOS release.
 const PAID_TEXT_FALLBACK_MODELS = [
   "google/gemini-2.5-flash-lite",
@@ -164,6 +176,24 @@ const PAID_FALLBACK_RESERVE_MS = 25000;
 function resolveAllowPaidFallback(explicitValue, envValue = process.env.FOOD_AI_ALLOW_PAID_FALLBACK) {
   if (typeof explicitValue === "boolean") return explicitValue;
   return envValue === "true";
+}
+
+function resolveAllowVertexFallback(
+  explicitValue,
+  { isVision = false, envValue = process.env.FOOD_AI_ALLOW_VERTEX_FALLBACK } = {}
+) {
+  if (typeof explicitValue === "boolean") return explicitValue;
+  if (envValue === "true") return true;
+  if (envValue === "false") return false;
+  // Vision free-tier pools on OpenRouter frequently saturate with HTTP 429; default Vertex AI
+  // fallback ON for vision requests (Google is a disclosed partner) while keeping text free-only
+  // unless explicitly opted in via Firestore config/food_ai_settings.allowVertexFallback.
+  return Boolean(isVision);
+}
+
+function isDisclosedVendorModel(model) {
+  if (typeof model !== "string") return false;
+  return ALLOWED_MODEL_VENDORS.some((prefix) => model.startsWith(prefix));
 }
 
 function shouldRefundQuotaSlot({ yielded = false, receivedCompletion = false, attemptedPaid = false } = {}) {
@@ -610,7 +640,7 @@ function sanitizeModelOverrides(models, { allowPaid = false } = {}) {
   if (!Array.isArray(models)) return null;
   const cleaned = models
     .map((m) => (typeof m === "string" ? m.trim() : ""))
-    .filter((m) => m.length > 0 && (allowPaid || isFreeModelId(m)));
+    .filter((m) => m.length > 0 && isDisclosedVendorModel(m) && (allowPaid || isFreeModelId(m)));
   return cleaned.length > 0 ? cleaned : null;
 }
 
@@ -641,6 +671,48 @@ function resolveDeviceQuotaLimit(baseLimit, signInProvider, kind = "ai") {
   return safeBase * 2;
 }
 
+function resolveIpQuotaLimit(baseLimit, signInProvider, kind = "ai") {
+  const safeBase =
+    typeof baseLimit === "number" && Number.isFinite(baseLimit) && baseLimit > 0
+      ? baseLimit
+      : kind === "search"
+        ? DEFAULT_SEARCH_WEEKLY_LIMIT
+        : DEFAULT_AI_WEEKLY_LIMIT;
+  if (signInProvider === "anonymous") {
+    return safeBase * 2;
+  }
+  return safeBase * 8;
+}
+
+const burstRateStore = new Map();
+
+function checkBurstRateLimit(
+  key,
+  { limit = 15, windowMs = 60_000, now = Date.now(), store = burstRateStore } = {}
+) {
+  if (!key || limit <= 0) {
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+  if (store.size > 5000) {
+    for (const [k, entry] of store.entries()) {
+      if (now - entry.windowStart >= windowMs) {
+        store.delete(k);
+      }
+    }
+  }
+  const existing = store.get(key);
+  if (!existing || now - existing.windowStart >= windowMs) {
+    store.set(key, { windowStart: now, count: 1 });
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+  if (existing.count >= limit) {
+    const remainingMs = Math.max(1000, existing.windowStart + windowMs - now);
+    return { allowed: false, retryAfterSeconds: Math.ceil(remainingMs / 1000) };
+  }
+  existing.count += 1;
+  return { allowed: true, retryAfterSeconds: 0 };
+}
+
 async function loadAISettings() {
   const now = Date.now();
   if (aiSettingsCache && now - aiSettingsCache.loadedAtMs < AI_SETTINGS_CACHE_TTL_MS) {
@@ -662,6 +734,8 @@ async function loadAISettings() {
       textModels: sanitizeModelOverrides(data.textModels, { allowPaid: allowPaidModels }),
       visionModels: sanitizeModelOverrides(data.visionModels, { allowPaid: allowPaidModels }),
       allowPaidFallback,
+      allowVertexFallback:
+        typeof data.allowVertexFallback === "boolean" ? data.allowVertexFallback : undefined,
       paidTextModels: sanitizeModelOverrides(data.paidTextModels, { allowPaid: true }),
       paidVisionModels: sanitizeModelOverrides(data.paidVisionModels, { allowPaid: true }),
     };
@@ -675,6 +749,7 @@ async function loadAISettings() {
         textModels: null,
         visionModels: null,
         allowPaidFallback: resolveAllowPaidFallback(undefined),
+        allowVertexFallback: undefined,
         paidTextModels: null,
         paidVisionModels: null,
       }
@@ -890,9 +965,176 @@ function openRouterHeaders(apiKey) {
 function shouldTryNextKeyForError(status, errText) {
   if (status === 401 || status === 402) return true;
   if (status === 429) {
-    return !String(errText || "").includes("upstream_provider_shared_pool");
+    const raw = String(errText || "");
+    if (
+      raw.includes("upstream_provider_shared_pool") ||
+      raw.includes("temporarily rate-limited upstream")
+    ) {
+      return false;
+    }
+    return true;
   }
   return false;
+}
+
+function buildVertexGenerateContentBody(body) {
+  const payload = { contents: [] };
+  if (body?.systemInstruction?.parts) {
+    const sysParts = body.systemInstruction.parts
+      .filter((p) => typeof p?.text === "string" && p.text.length > 0)
+      .map((p) => ({ text: p.text }));
+    if (sysParts.length > 0) {
+      payload.systemInstruction = { parts: sysParts };
+    }
+  }
+
+  for (const content of Array.isArray(body?.contents) ? body.contents : []) {
+    const role = content?.role === "model" ? "model" : "user";
+    const parts = [];
+    for (const part of Array.isArray(content?.parts) ? content.parts : []) {
+      if (typeof part?.text === "string") {
+        parts.push({ text: part.text });
+      }
+      if (part?.inlineData?.data) {
+        const mime = String(part.inlineData.mimeType || "image/jpeg").trim().toLowerCase();
+        parts.push({
+          inlineData: {
+            mimeType: mime,
+            data: part.inlineData.data,
+          },
+        });
+      }
+    }
+    if (parts.length > 0) {
+      payload.contents.push({ role, parts });
+    }
+  }
+
+  const gen = body?.generationConfig || {};
+  const rawTemp =
+    typeof gen.temperature === "number" && Number.isFinite(gen.temperature)
+      ? gen.temperature
+      : 0.4;
+  const generationConfig = {
+    temperature: Math.min(2, Math.max(0, rawTemp)),
+  };
+  if (
+    typeof gen.maxOutputTokens === "number" &&
+    Number.isFinite(gen.maxOutputTokens) &&
+    gen.maxOutputTokens >= 1
+  ) {
+    generationConfig.maxOutputTokens = Math.min(16384, Math.max(1, Math.floor(gen.maxOutputTokens)));
+  }
+  if (gen.responseMimeType === "application/json" || gen.responseSchema) {
+    generationConfig.responseMimeType = "application/json";
+    if (gen.responseSchema) {
+      generationConfig.responseSchema = gen.responseSchema;
+    }
+  }
+  payload.generationConfig = generationConfig;
+  return payload;
+}
+
+let vertexAppDefaultCredential = null;
+async function defaultGetVertexAccessToken() {
+  if (!vertexAppDefaultCredential) {
+    vertexAppDefaultCredential = applicationDefault();
+  }
+  const tokenObj = await vertexAppDefaultCredential.getAccessToken();
+  if (!tokenObj?.access_token) {
+    throw new Error("Could not acquire Google Cloud Vertex AI access token");
+  }
+  return tokenObj.access_token;
+}
+
+async function callVertexAIText({
+  geminiBody,
+  models = VERTEX_FALLBACK_MODELS,
+  projectId = process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT || PROJECT_HINT,
+  location = VERTEX_LOCATION,
+  getAccessToken = defaultGetVertexAccessToken,
+  fetchImpl = globalThis.fetch,
+  attemptMeta = null,
+}) {
+  const expectJSON =
+    geminiBody?.generationConfig?.responseMimeType === "application/json" ||
+    Boolean(geminiBody?.generationConfig?.responseSchema);
+  const accessToken = await getAccessToken();
+  const payload = buildVertexGenerateContentBody(geminiBody);
+  const perCallTimeoutMs = Math.min(upstreamTimeoutForBody(geminiBody), 35000);
+
+  let lastError = null;
+  for (const model of models) {
+    if (attemptMeta) attemptMeta.attemptedPaid = true;
+    const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${encodeURIComponent(
+      projectId
+    )}/locations/${encodeURIComponent(location)}/publishers/google/models/${encodeURIComponent(
+      model
+    )}:generateContent`;
+
+    try {
+      const resp = await fetchImpl(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(perCallTimeoutMs),
+      });
+      const text = await resp.text();
+      if (!resp.ok) {
+        lastError = new Error(`VertexAI ${resp.status} ${model}: ${text.slice(0, 400)}`);
+        logUpstreamModelFailure(`vertex/${model}`, resp.status, text);
+        continue;
+      }
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        lastError = new Error(`Non-JSON envelope from VertexAI ${model}: ${e.message}`);
+        continue;
+      }
+      const rawParts = data?.candidates?.[0]?.content?.parts || [];
+      let outText = rawParts
+        .map((p) => (typeof p?.text === "string" ? p.text : ""))
+        .filter(Boolean)
+        .join("\n");
+      if (!outText) {
+        lastError = new Error(`Empty completion from VertexAI ${model}`);
+        console.warn(lastError.message);
+        continue;
+      }
+      if (expectJSON) {
+        outText = stripModelJSON(outText);
+      }
+      if (attemptMeta) attemptMeta.receivedCompletion = true;
+      if (expectJSON) {
+        try {
+          if (!isMeaningfulJsonOutput(outText)) {
+            throw new Error("Empty JSON container");
+          }
+        } catch (e) {
+          lastError = new Error(`Invalid JSON output from VertexAI ${model}: ${e.message}`);
+          console.warn(lastError.message);
+          break;
+        }
+      }
+      return {
+        candidates: [
+          {
+            content: {
+              parts: [{ text: outText }],
+            },
+          },
+        ],
+      };
+    } catch (e) {
+      lastError = e;
+      console.warn(`VertexAI error on ${model}:`, e?.message || e);
+    }
+  }
+  throw lastError || new Error("All Vertex AI fallback models failed");
 }
 
 function rotatedKeys(apiKeys) {
@@ -1259,7 +1501,7 @@ function parseFatSecretDescription(description) {
   };
 }
 
-function normalizeFatSecretFood(food) {
+function normalizeFatSecretFood(food, { isV2MetricMicros = false } = {}) {
   const baseName =
     typeof food?.food_name === "string" ? food.food_name.trim() : "";
   if (!baseName) return null;
@@ -1291,19 +1533,32 @@ function normalizeFatSecretFood(food) {
     if (servingDesc) {
       result.servingDescription = servingDesc;
     }
-    // FatSecret reports calcium (1300mg DV), iron (18mg DV), vitamin_c (90mg DV), vitamin_d (20mcg DV) in % Daily Value.
-    const calciumPct = parseNumericValue(serving.calcium);
-    const ironPct = parseNumericValue(serving.iron);
-    const vitCPct = parseNumericValue(serving.vitamin_c);
-    const vitDPct = parseNumericValue(serving.vitamin_d);
+    // FatSecret v1 reports calcium/iron/vitamin_c/vitamin_d in % Daily Value, whereas
+    // FatSecret v2 barcode/food endpoints report metric units (mg / mcg) directly.
+    const rawCalcium = parseNumericValue(serving.calcium);
+    const rawIron = parseNumericValue(serving.iron);
+    const rawVitC = parseNumericValue(serving.vitamin_c);
+    const rawVitD = parseNumericValue(serving.vitamin_d);
     const microMap = {
       omega3: parseNumericValue(serving.omega_3 ?? serving.omega3),
-      calcium: calciumPct > 0 ? roundNutrientValue((calciumPct / 100) * 1300) : 0,
+      calcium:
+        rawCalcium > 0
+          ? roundNutrientValue(isV2MetricMicros ? rawCalcium : (rawCalcium / 100) * 1300)
+          : 0,
       potassium: parseNumericValue(serving.potassium),
       magnesium: parseNumericValue(serving.magnesium),
-      iron: ironPct > 0 ? roundNutrientValue((ironPct / 100) * 18) : 0,
-      vitaminC: vitCPct > 0 ? roundNutrientValue((vitCPct / 100) * 90) : 0,
-      vitaminD: vitDPct > 0 ? roundNutrientValue((vitDPct / 100) * 20) : 0,
+      iron:
+        rawIron > 0
+          ? roundNutrientValue(isV2MetricMicros ? rawIron : (rawIron / 100) * 18)
+          : 0,
+      vitaminC:
+        rawVitC > 0
+          ? roundNutrientValue(isV2MetricMicros ? rawVitC : (rawVitC / 100) * 90)
+          : 0,
+      vitaminD:
+        rawVitD > 0
+          ? roundNutrientValue(isV2MetricMicros ? rawVitD : (rawVitD / 100) * 20)
+          : 0,
     };
     for (const [k, v] of Object.entries(microMap)) {
       if (v > 0) result[k] = v;
@@ -1346,9 +1601,16 @@ function assertFatSecretResponseSuccess(data) {
   }
 }
 
-function normalizeFatSecretBarcode(json) {
+function isFatSecretBarcodeUnavailableError(data) {
+  if (!data?.error) return false;
+  const code = Number(data.error?.code);
+  // FatSecret error 10 (unavailable/invalid method on plan) or 21 (missing barcode scope / invalid IP/scope).
+  return code === 10 || code === 21;
+}
+
+function normalizeFatSecretBarcode(json, options = {}) {
   if (!json?.food) return null;
-  return normalizeFatSecretFood(json.food);
+  return normalizeFatSecretFood(json.food, options);
 }
 
 function parseSearchPayload(body) {
@@ -1393,16 +1655,25 @@ async function getFatSecretAccessToken({
 
   const runFetch = (async () => {
     const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-    const resp = await fetch(FATSECRET_TOKEN_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${basic}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: "grant_type=client_credentials&scope=basic",
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    const text = await resp.text();
+    const requestToken = async (scope) =>
+      fetch(FATSECRET_TOKEN_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basic}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `grant_type=client_credentials&scope=${encodeURIComponent(scope)}`,
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+
+    // Request both basic + barcode scopes for v2 barcode lookup; gracefully fall back to basic
+    // if the FatSecret tier does not include the barcode scope.
+    let resp = await requestToken("basic barcode");
+    let text = await resp.text();
+    if (resp.status === 400 && text.toLowerCase().includes("invalid_scope")) {
+      resp = await requestToken("basic");
+      text = await resp.text();
+    }
     if (!resp.ok) {
       fatSecretTokenCache = null;
       throw new Error(`FatSecret token error ${resp.status}: ${text.slice(0, 200)}`);
@@ -1473,8 +1744,21 @@ exports.foodAiProxy = onRequest(
     const settings = await loadAISettings();
     const userAiLimit = resolveUserQuotaLimit(settings.weeklyLimit, req._authSignInProvider, "ai");
     const deviceAiLimit = resolveDeviceQuotaLimit(settings.weeklyLimit, req._authSignInProvider, "ai");
+    const ipAiLimit = resolveIpQuotaLimit(settings.weeklyLimit, req._authSignInProvider, "ai");
     const deviceHash = resolveSecondaryQuotaKey(req);
     const ipHash = resolveIpQuotaKey(req);
+
+    const burstKey = `ai:${uid}:${deviceHash || ipHash || "none"}`;
+    const burst = checkBurstRateLimit(burstKey, { limit: 15, windowMs: 60_000 });
+    if (!burst.allowed) {
+      res.set("Retry-After", String(burst.retryAfterSeconds));
+      res.status(429).json({
+        error: "burst_limit_reached",
+        message: "Too many AI requests in a short time. Please wait a moment and try again.",
+        retryAfter: burst.retryAfterSeconds,
+      });
+      return;
+    }
 
     let reservedWindows;
     try {
@@ -1486,7 +1770,7 @@ exports.foodAiProxy = onRequest(
         ipHash,
         userLimit: userAiLimit,
         deviceLimit: deviceAiLimit,
-        ipLimit: settings.weeklyLimit * 8,
+        ipLimit: ipAiLimit,
       });
     } catch (e) {
       if (e instanceof RateLimitError) {
@@ -1527,12 +1811,28 @@ exports.foodAiProxy = onRequest(
     let yielded = false;
     try {
       if (!streaming) {
-        const gemini = await callOpenRouterText({
-          apiKeys,
-          geminiBody: body,
-          overrides: settings,
-          attemptMeta,
-        });
+        let gemini;
+        try {
+          gemini = await callOpenRouterText({
+            apiKeys,
+            geminiBody: body,
+            overrides: settings,
+            attemptMeta,
+          });
+        } catch (openRouterErr) {
+          const isVision = hasImageContent(body);
+          const allowVertex = resolveAllowVertexFallback(settings.allowVertexFallback, { isVision });
+          if (!allowVertex) {
+            throw openRouterErr;
+          }
+          console.warn(
+            `OpenRouter ${isVision ? "vision" : "text"} chain failed (${openRouterErr?.message || openRouterErr}); falling back to Google Cloud Vertex AI`
+          );
+          gemini = await callVertexAIText({
+            geminiBody: body,
+            attemptMeta,
+          });
+        }
         res.status(200).json(gemini);
         return;
       }
@@ -1759,6 +2059,24 @@ exports.foodSearchProxy = onRequest(
       req._authSignInProvider,
       "search"
     );
+    const ipSearchLimit = resolveIpQuotaLimit(
+      DEFAULT_SEARCH_WEEKLY_LIMIT,
+      req._authSignInProvider,
+      "search"
+    );
+    const searchBurst = checkBurstRateLimit(
+      `search:${uid}:${searchDeviceHash || searchIpHash || "none"}`,
+      { limit: 40, windowMs: 60_000 }
+    );
+    if (!searchBurst.allowed) {
+      res.set("Retry-After", String(searchBurst.retryAfterSeconds));
+      res.status(429).json({
+        error: "search_burst_limit_reached",
+        message: "Too many food searches in a short time. Please wait a moment and try again.",
+        retryAfter: searchBurst.retryAfterSeconds,
+      });
+      return;
+    }
     let searchReservedWindows;
     try {
       searchReservedWindows = await reserveDualRateLimitSlots({
@@ -1769,7 +2087,7 @@ exports.foodSearchProxy = onRequest(
         ipHash: searchIpHash,
         userLimit: userSearchLimit,
         deviceLimit: deviceSearchLimit,
-        ipLimit: DEFAULT_SEARCH_WEEKLY_LIMIT * 8,
+        ipLimit: ipSearchLimit,
       });
     } catch (e) {
       if (e instanceof RateLimitError) {
@@ -1819,26 +2137,37 @@ exports.foodSearchProxy = onRequest(
     try {
       if (parsed.mode === "search") {
         if (fatSecretAuthModeCache !== "oauth2") {
-          const oauth1Data = await callFatSecretOAuth1({
-            consumerKey: clientId,
-            consumerSecret: clientSecret,
-            method: "foods.search",
-            extraParams: {
-              search_expression: parsed.query,
-              max_results: String(parsed.maxResults),
-            },
-            timeoutMs: boundedFatSecretTimeout(),
-          });
-          if (!oauth1Data?.error) {
+          let oauth1Data = null;
+          try {
+            oauth1Data = await callFatSecretOAuth1({
+              consumerKey: clientId,
+              consumerSecret: clientSecret,
+              method: "foods.search",
+              extraParams: {
+                search_expression: parsed.query,
+                max_results: String(parsed.maxResults),
+              },
+              timeoutMs: boundedFatSecretTimeout(),
+            });
+          } catch (oauth1Err) {
+            const msg = String(oauth1Err?.message || "");
+            if (!msg.includes("OAuth1 401") && !msg.includes("OAuth1 403")) {
+              throw oauth1Err;
+            }
+            fatSecretAuthModeCache = "oauth2";
+          }
+          if (oauth1Data && !oauth1Data?.error) {
             fatSecretAuthModeCache = "oauth1";
             res.status(200).json({ items: normalizeFatSecretSearch(oauth1Data) });
             return;
           }
-          const errCode = Number(oauth1Data.error?.code);
-          if (errCode !== 2 && errCode !== 8) {
-            throw new Error(`FatSecret error ${errCode}: ${oauth1Data.error?.message}`);
+          if (oauth1Data?.error) {
+            const errCode = Number(oauth1Data.error?.code);
+            if (errCode !== 2 && errCode !== 8) {
+              throw new Error(`FatSecret error ${errCode}: ${oauth1Data.error?.message}`);
+            }
+            fatSecretAuthModeCache = "oauth2";
           }
-          fatSecretAuthModeCache = "oauth2";
         }
         const url =
           `${FATSECRET_API_BASE}/foods/search/v1?search_expression=${encodeURIComponent(
@@ -1857,14 +2186,23 @@ exports.foodSearchProxy = onRequest(
 
       const normalizedBarcode = normalizeFatSecretBarcodeInput(parsed.barcode);
       if (fatSecretAuthModeCache !== "oauth2") {
-        const oauth1Barcode = await callFatSecretOAuth1({
-          consumerKey: clientId,
-          consumerSecret: clientSecret,
-          method: "food.find_id_for_barcode",
-          extraParams: { barcode: normalizedBarcode },
-          timeoutMs: boundedFatSecretTimeout(),
-        });
-        if (!oauth1Barcode?.error) {
+        let oauth1Barcode = null;
+        try {
+          oauth1Barcode = await callFatSecretOAuth1({
+            consumerKey: clientId,
+            consumerSecret: clientSecret,
+            method: "food.find_id_for_barcode",
+            extraParams: { barcode: normalizedBarcode },
+            timeoutMs: boundedFatSecretTimeout(),
+          });
+        } catch (oauth1Err) {
+          const msg = String(oauth1Err?.message || "");
+          if (!msg.includes("OAuth1 401") && !msg.includes("OAuth1 403")) {
+            throw oauth1Err;
+          }
+          fatSecretAuthModeCache = "oauth2";
+        }
+        if (oauth1Barcode && !oauth1Barcode?.error) {
           fatSecretAuthModeCache = "oauth1";
           const foodId = oauth1Barcode?.food_id?.value;
           if (!foodId) {
@@ -1882,17 +2220,19 @@ exports.foodSearchProxy = onRequest(
           res.status(200).json({ item: normalizeFatSecretBarcode(detail) });
           return;
         }
-        const bCode = Number(oauth1Barcode.error?.code);
-        if (bCode === 10) {
-          fatSecretAuthModeCache = "oauth1";
-          // Basic OAuth 1.0 plan has no barcode method; return null cleanly so OFF/AI proceed.
-          res.status(200).json({ item: null });
-          return;
+        if (oauth1Barcode?.error) {
+          const bCode = Number(oauth1Barcode.error?.code);
+          if (isFatSecretBarcodeUnavailableError(oauth1Barcode)) {
+            fatSecretAuthModeCache = "oauth1";
+            // Basic OAuth 1.0 plan has no barcode method; return null cleanly so OFF/AI proceed.
+            res.status(200).json({ item: null });
+            return;
+          }
+          if (bCode !== 2 && bCode !== 8) {
+            throw new Error(`FatSecret barcode error ${bCode}: ${oauth1Barcode.error?.message}`);
+          }
+          fatSecretAuthModeCache = "oauth2";
         }
-        if (bCode !== 2 && bCode !== 8) {
-          throw new Error(`FatSecret barcode error ${bCode}: ${oauth1Barcode.error?.message}`);
-        }
-        fatSecretAuthModeCache = "oauth2";
       }
 
       const url =
@@ -1905,8 +2245,12 @@ exports.foodSearchProxy = onRequest(
         clientSecret,
         timeoutMs: boundedFatSecretTimeout(),
       });
+      if (isFatSecretBarcodeUnavailableError(data)) {
+        res.status(200).json({ item: null });
+        return;
+      }
       assertFatSecretResponseSuccess(data);
-      res.status(200).json({ item: normalizeFatSecretBarcode(data) });
+      res.status(200).json({ item: normalizeFatSecretBarcode(data, { isV2MetricMicros: true }) });
     } catch (e) {
       await refundSearchSlots();
       console.error("foodSearchProxy error:", e?.message || e);
@@ -2017,6 +2361,8 @@ function finishSSEStreamResponse(res, { yielded = true, emittedDone = false } = 
 module.exports._test = {
   TEXT_MODEL_CHAIN,
   VISION_MODEL_CHAIN,
+  ALLOWED_MODEL_VENDORS,
+  VERTEX_FALLBACK_MODELS,
   PAID_TEXT_FALLBACK_MODELS,
   PAID_VISION_FALLBACK_MODELS,
   STRUCTURED_MODELS,
@@ -2032,6 +2378,9 @@ module.exports._test = {
   resolveSecondaryQuotaKey,
   modelChainForRequest,
   resolveAllowPaidFallback,
+  resolveAllowVertexFallback,
+  buildVertexGenerateContentBody,
+  callVertexAIText,
   shouldRefundQuotaSlot,
   shouldYieldFreeSlotToPaidFallback,
   PAID_FALLBACK_RESERVE_MS,
@@ -2052,6 +2401,7 @@ module.exports._test = {
   normalizeFatSecretBarcodeInput,
   assertFatSecretDetailSuccess,
   assertFatSecretResponseSuccess,
+  isFatSecretBarcodeUnavailableError,
   parseSearchPayload,
   deleteFoodAccountData,
   verifyAppCheck,
@@ -2060,6 +2410,8 @@ module.exports._test = {
   sanitizeModelOverrides,
   resolveUserQuotaLimit,
   resolveDeviceQuotaLimit,
+  resolveIpQuotaLimit,
+  checkBurstRateLimit,
   isMeaningfulJsonOutput,
   beginSSEStreamResponse,
   finishSSEStreamResponse,

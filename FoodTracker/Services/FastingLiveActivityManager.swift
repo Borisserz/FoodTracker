@@ -22,6 +22,13 @@ protocol FastingLiveActivityManaging: AnyObject {
     func reattachActivity(planName: String, targetHours: Int, startTime: Date, currentStage: String, progressPct: Double)
     func updateActivity(currentStage: String, progressPct: Double)
     func endActivity()
+    func endActivity(completed: Bool)
+}
+
+extension FastingLiveActivityManaging {
+    func endActivity(completed: Bool) {
+        endActivity()
+    }
 }
 
 @Observable
@@ -45,15 +52,15 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     }
 
     private init() {
-        currentActivity = Activity<FastingAttributes>.activities.first
+        currentActivity = Activity<FastingAttributes>.activities.first(where: { $0.activityState == .active })
     }
 
     private func activeActivity() -> Activity<FastingAttributes>? {
         if let current = currentActivity,
-           Activity<FastingAttributes>.activities.contains(where: { $0.id == current.id }) {
+           Activity<FastingAttributes>.activities.contains(where: { $0.id == current.id && $0.activityState == .active }) {
             return current
         }
-        let rehydrated = Activity<FastingAttributes>.activities.first
+        let rehydrated = Activity<FastingAttributes>.activities.first(where: { $0.activityState == .active })
         currentActivity = rehydrated
         return rehydrated
     }
@@ -149,10 +156,14 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
                 self.lastSentProgress = clampedProgress
                 self.lastSentCompleted = completed
                 self.pendingStartTask = nil
+                #if DEBUG
                 print("Live Activity started successfully: \(self.currentActivity?.id ?? "")")
+                #endif
             } catch {
                 self.pendingStartTask = nil
+                #if DEBUG
                 print("Failed to start Live Activity: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -197,6 +208,10 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
     }
 
     func endActivity() {
+        endActivity(completed: true)
+    }
+
+    func endActivity(completed: Bool) {
         requestGeneration &+= 1
         pendingStartTask?.cancel()
         pendingStartTask = nil
@@ -205,8 +220,8 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
         let fallbackCurrent = currentActivity
 
         let finalState = FastingAttributes.ContentState(
-            currentStage: "Completed",
-            progressPct: 1.0,
+            currentStage: completed ? "Completed" : "Ended",
+            progressPct: completed ? 1.0 : 0.0,
             isCompleted: true
         )
 
@@ -215,6 +230,7 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
             staleDate: nil,
             relevanceScore: 0
         )
+        let dismissalPolicy: ActivityUIDismissalPolicy = completed ? .default : .immediate
 
         currentActivity = nil
         lastSentStage = nil
@@ -225,10 +241,10 @@ final class FastingLiveActivityManager: FastingLiveActivityManaging {
             guard let self, self.requestGeneration == capturedGeneration else { return }
             let activitiesToEnd = Activity<FastingAttributes>.activities
             for activity in activitiesToEnd {
-                await activity.end(finalContent, dismissalPolicy: .default)
+                await activity.end(finalContent, dismissalPolicy: dismissalPolicy)
             }
             if let fallbackCurrent, !activitiesToEnd.contains(where: { $0.id == fallbackCurrent.id }) {
-                await fallbackCurrent.end(finalContent, dismissalPolicy: .default)
+                await fallbackCurrent.end(finalContent, dismissalPolicy: dismissalPolicy)
             }
         }
     }
